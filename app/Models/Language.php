@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Language extends Model
 {
-    protected $table = 'language';
-    protected $primaryKey = 'id';
     public $incrementing = false; // Disable auto-incrementing
     protected $keyType = 'string'; // Specify the key type as string
 
