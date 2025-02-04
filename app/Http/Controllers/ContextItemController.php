@@ -33,6 +33,10 @@ class ContextItemController extends Controller
             'id' => 'required|uuid',
             'context_id' => 'required|uuid|exists:contexts,id',
             'item_id' => 'required|uuid|exists:items,id',
+            'language_id' => 'required|string|size:3|exists:languages,id',
+            'name' => 'required|string',
+            'description' => 'nullable|string',
+            'metadata' => 'nullable|json',
         ]);
         $context = ContextItem::create($validated);
         return new ContextItemResource($context);
@@ -63,6 +67,10 @@ class ContextItemController extends Controller
             'id' => 'prohibited|uuid',
             'context_id' => 'required|uuid|exists:contexts,id',
             'item_id' => 'required|uuid|exists:items,id',
+            'language_id' => 'required|uuid|exists:languages,id',
+            'name' => 'required|string',
+            'description' => 'nullable|string',
+            'metadata' => 'nullable|json',
         ]);
         $context->update($validated);
         return new ContextItemResource($context);

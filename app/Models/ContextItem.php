@@ -9,8 +9,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class ContextItem extends Pivot
 {
     protected $fillable = [
+        'id',
         'context_id',
         'item_id',
+        'language_id',
+        'name',
+        'description',
+        'metadata',
     ];
 
     protected $casts = [
