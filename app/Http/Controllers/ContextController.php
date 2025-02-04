@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Context;
 use Illuminate\Http\Request;
+use App\Http\Resources\ContextResource;
 
 class ContextController extends Controller
 {
@@ -28,21 +29,13 @@ class ContextController extends Controller
      */
     public function store(Request $request)
     {
-        /*request()->validate([
-            'id' => 'required|uuid|unique:contexts',
-            'internal_name' => 'nullable|string',
+        $validated = $request->validate([
+            'id' => 'required|uuid',
+            'internal_name' => 'required',
+            'backward_compatibility' => 'nullable|string'
         ]);
-
-        $context = Context::create($request->all());
-        return response()->json($context, 201);
-        */
-
-        $context = new Context();
-        $context->id = (string) \Illuminate\Support\Str::uuid();
-        $context->internal_name = $request->input('internal_name');
-        $context->backward_compatibility = $request->input('backward_compatibility');
-        $context->save();
-        return response()->json($context, 201);
+        $context = Context::create($validated);
+        return new ContextResource($context);
     }
 
     /**
@@ -50,7 +43,7 @@ class ContextController extends Controller
      */
     public function show(Context $context)
     {
-        return $context;
+        return new ContextResource($context);
     }
 
     /**
@@ -66,13 +59,13 @@ class ContextController extends Controller
      */
     public function update(Request $request, Context $context)
     {
-        request()->validate([
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
+        $validated = $request->validate([
+            'id' => 'prohibited|uuid',
+            'internal_name' => 'required',
+            'backward_compatibility' => 'nullable|string'
         ]);
-
-        $context->update($request->all());
-        return response()->json($context, 200);
+        $context->update($validated);
+        return new ContextResource($context);
     }
 
     /**

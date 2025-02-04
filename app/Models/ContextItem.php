@@ -8,6 +8,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ContextItem extends Pivot
 {
+    protected $fillable = [
+        'context_id',
+        'item_id',
+    ];
+
+    protected $casts = [
+        'context_id' => 'string',
+        'item_id' => 'string',
+    ];
+
     //
     public function items(): BelongsToMany
     {

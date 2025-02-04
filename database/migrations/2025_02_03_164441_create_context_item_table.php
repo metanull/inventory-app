@@ -14,8 +14,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('context_partners', function (Blueprint $table) {
+        Schema::create('context_item', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->foreignUuid('context_id')->constrained();
+            $table->foreignUuid('item_id')->constrained();
+            $table->foreignId('language_id')->constrained();
             $table->string('name');
             $table->text('description');
             $table->json('metadata')->nullable();
@@ -28,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('context_partners');
+        Schema::dropIfExists('context_items');
     }
 };

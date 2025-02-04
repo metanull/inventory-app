@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Partner;
 use Illuminate\Http\Request;
+use App\Http\Resources\PartnerResource;
 
 class PartnerController extends Controller
 {
@@ -28,11 +29,14 @@ class PartnerController extends Controller
      */
     public function store(Request $request)
     {
-        $partner = new Partner();
-        $partner->id = $request->input('id');
-        $partner->internal_name = $request->input('internal_name');
-        $partner->save();
-        return response()->json($partner, 201);
+        $validated = $request->validate([
+            'id' => 'required|uuid',
+            'internal_name' => 'required',
+            'type' => 'required|in:museum,institution,individual',
+            'backward_compatibility' => 'nullable|string'
+        ]);
+        $partner = Partner::create($validated);
+        return new PartnerResource($partner);
     }
 
     /**
@@ -40,7 +44,7 @@ class PartnerController extends Controller
      */
     public function show(Partner $partner)
     {
-        return $partner;
+        return new PartnerResource($partner);
     }
 
     /**
@@ -56,8 +60,14 @@ class PartnerController extends Controller
      */
     public function update(Request $request, Partner $partner)
     {
-        $partner->update($request->all());
-        return response()->json($partner, 200);
+        $validated = $request->validate([
+            'id' => 'prohibited|uuid',
+            'internal_name' => 'required',
+            'type' => 'required|in:museum,institution,individual',
+            'backward_compatibility' => 'nullable|string'
+        ]);
+        $partner->update($validated);
+        return new PartnerResource($partner);
     }
 
     /**

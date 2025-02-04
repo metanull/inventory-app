@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Item;
+use App\Models\ContextItem;
 use Illuminate\Http\Request;
-use App\Http\Resources\ItemResource;
+use App\Http\Resources\ContextItemResource;
 
-class ItemController extends Controller
+class ContextItemController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Item::all();
+        return ContextItem::all();
     }
 
     /**
@@ -31,26 +31,25 @@ class ItemController extends Controller
     {
         $validated = $request->validate([
             'id' => 'required|uuid',
-            'internal_name' => 'required',
-            'type' => 'required|in:object,monument,detail',
-            'backward_compatibility' => 'nullable|string'
+            'context_id' => 'required|uuid|exists:contexts,id',
+            'item_id' => 'required|uuid|exists:items,id',
         ]);
-        $item = Item::create($validated);
-        return new ItemResource($item);
+        $context = ContextItem::create($validated);
+        return new ContextItemResource($context);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Item $item)
+    public function show(ContextItem $context)
     {
-        return new ItemResource($item);
+        return new ContextItemResource($context);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Item $item)
+    public function edit(ContextItem $context)
     {
         //
     }
@@ -58,24 +57,23 @@ class ItemController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Item $item)
+    public function update(Request $request, ContextItem $context)
     {
         $validated = $request->validate([
             'id' => 'prohibited|uuid',
-            'internal_name' => 'required',
-            'type' => 'required|in:object,monument,detail',
-            'backward_compatibility' => 'nullable|string'
+            'context_id' => 'required|uuid|exists:contexts,id',
+            'item_id' => 'required|uuid|exists:items,id',
         ]);
-        $item->update($validated);
-        return new ItemResource($item);
+        $context->update($validated);
+        return new ContextItemResource($context);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Item $item)
+    public function destroy(ContextItem $context)
     {
-        $item->delete();
+        $context->delete();
         return response()->json(null, 204);
     }
 }

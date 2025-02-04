@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Language;
 use Illuminate\Http\Request;
+use App\Http\Resources\LanguageResource;
 
 class LanguageController extends Controller
 {
@@ -28,11 +29,12 @@ class LanguageController extends Controller
      */
     public function store(Request $request)
     {
-        $language = new Language();
-        $language->id = $request->input('id');
-        $language->internal_name = $request->input('internal_name');
-        $language->save();
-        return response()->json($language, 201);
+        $validated = $request->validate([
+            'id' => 'required|string|size:3',
+            'internal_name' => 'required',
+        ]);
+        $language = Language::create($validated);
+        return new LanguageResource($language);
     }
 
     /**
@@ -40,7 +42,7 @@ class LanguageController extends Controller
      */
     public function show(Language $language)
     {
-        return $language;
+        return new LanguageResource($language);
     }
 
     /**
@@ -56,8 +58,12 @@ class LanguageController extends Controller
      */
     public function update(Request $request, Language $language)
     {
-        $language->update($request->all());
-        return response()->json($language, 200);
+        $validated = $request->validate([
+            'id' => 'prohibited|string|size:3',
+            'internal_name' => 'required',
+        ]);
+        $language->update($validated);
+        return new LanguageResource($language);
     }
 
     /**

@@ -8,6 +8,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Item extends Model
 {
+    protected $fillable = [
+        'id',
+        'internal_name',
+        'type',
+        'backward_compatibility',
+    ];
+
+    protected $casts = [
+        'id' => 'string',
+    ];
+
     /**
      * The parent partner.
      */
