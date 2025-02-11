@@ -17,14 +17,6 @@ class PartnerController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -32,8 +24,8 @@ class PartnerController extends Controller
         $validated = $request->validate([
             'id' => 'required|uuid',
             'internal_name' => 'required',
+            'backward_compatibility' => 'nullable|string',
             'type' => 'required|in:museum,institution,individual',
-            'backward_compatibility' => 'nullable|string'
         ]);
         $partner = Partner::create($validated);
         return new PartnerResource($partner);
@@ -48,14 +40,6 @@ class PartnerController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Partner $partner)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Partner $partner)
@@ -63,8 +47,8 @@ class PartnerController extends Controller
         $validated = $request->validate([
             'id' => 'prohibited|uuid',
             'internal_name' => 'required',
+            'backward_compatibility' => 'nullable|string',
             'type' => 'required|in:museum,institution,individual',
-            'backward_compatibility' => 'nullable|string'
         ]);
         $partner->update($validated);
         return new PartnerResource($partner);

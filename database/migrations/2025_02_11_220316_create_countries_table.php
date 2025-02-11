@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('languages', function (Blueprint $table) {
+        Schema::create('countries', function (Blueprint $table) {
             $table->string('id',3)->primary();
             $table->string('internal_name');
             $table->string('backward_compatibility',2);
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('languages');
+        Schema::dropIfExists('countries');
     }
 };

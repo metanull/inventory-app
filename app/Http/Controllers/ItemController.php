@@ -17,14 +17,6 @@ class ItemController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -32,8 +24,8 @@ class ItemController extends Controller
         $validated = $request->validate([
             'id' => 'required|uuid',
             'internal_name' => 'required',
-            'type' => 'required|in:object,monument,detail',
-            'backward_compatibility' => 'nullable|string'
+            'backward_compatibility' => 'nullable|string',
+            'type' => 'required|in:object,monument',
         ]);
         $item = Item::create($validated);
         return new ItemResource($item);
@@ -48,14 +40,6 @@ class ItemController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Item $item)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Item $item)
@@ -63,8 +47,8 @@ class ItemController extends Controller
         $validated = $request->validate([
             'id' => 'prohibited|uuid',
             'internal_name' => 'required',
-            'type' => 'required|in:object,monument,detail',
-            'backward_compatibility' => 'nullable|string'
+            'backward_compatibility' => 'nullable|string',
+            'type' => 'required|in:object,monument',
         ]);
         $item->update($validated);
         return new ItemResource($item);

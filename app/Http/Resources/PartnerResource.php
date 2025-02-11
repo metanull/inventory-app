@@ -18,8 +18,8 @@ class PartnerResource extends JsonResource
         return [
             'id' => $this->id,
             'internal_name' => $this->internal_name,
-            'type' => $this->type,
             'backward_compatibility' => $this->backward_compatibility,
+            'type' => $this->type,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

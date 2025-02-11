@@ -18,6 +18,7 @@ class LanguageResource extends JsonResource
         return [
             'id' => $this->id,
             'internal_name' => $this->internal_name,
+            'backward_compatibility' => $this->backward_compatibility,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
