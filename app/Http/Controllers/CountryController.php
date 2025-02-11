@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Language;
+use App\Models\Country;
 use Illuminate\Http\Request;
-use App\Http\Resources\LanguageResource;
+use App\Http\Resources\CountryResource;
 
-class LanguageController extends Controller
+class CountryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Language::all();
+        return Country::all();
     }
 
     /**
@@ -26,38 +26,38 @@ class LanguageController extends Controller
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string|size:2',
         ]);
-        $language = Language::create($validated);
-        return new LanguageResource($language);
+        $country = Country::create($validated);
+        return new CountryResource($country);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Language $language)
+    public function show(Country $country)
     {
-        return new LanguageResource($language);
+        return new CountryResource($country);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Language $language)
+    public function update(Request $request, Country $country)
     {
         $validated = $request->validate([
             'id' => 'prohibited|string|size:3',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string|size:2',
         ]);
-        $language->update($validated);
-        return new LanguageResource($language);
+        $country->update($validated);
+        return new CountryResource($country);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Language $language)
+    public function destroy(Country $country)
     {
-        $language->delete();
+        $country->delete();
         return response()->json(null, 204);
     }
 }

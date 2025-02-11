@@ -17,9 +17,8 @@ return new class extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('internal_name');
-            $table->enum('type', ['object', 'monument', 'detail'])->nullable(false);
-            $table->json('metadata')->nullable();
             $table->string('backward_compatibility');
+            $table->enum('type', ['object', 'monument'])->nullable(false);
             $table->timestamps();
         });
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use Illuminate\Http\Request;
+use App\Http\Resources\ItemResource;
 
 class ItemController extends Controller
 {
@@ -16,23 +17,18 @@ class ItemController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $item = new Item();
-        $item->id = $request->input('id');
-        $item->internal_name = $request->input('internal_name');
-        $item->save();
-        return response()->json($item, 201);
+        $validated = $request->validate([
+            'id' => 'required|uuid',
+            'internal_name' => 'required',
+            'backward_compatibility' => 'nullable|string',
+            'type' => 'required|in:object,monument',
+        ]);
+        $item = Item::create($validated);
+        return new ItemResource($item);
     }
 
     /**
@@ -40,15 +36,7 @@ class ItemController extends Controller
      */
     public function show(Item $item)
     {
-        return $item;
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Item $item)
-    {
-        //
+        return new ItemResource($item);
     }
 
     /**
@@ -56,8 +44,14 @@ class ItemController extends Controller
      */
     public function update(Request $request, Item $item)
     {
-        $item->update($request->all());
-        return response()->json($item, 200);
+        $validated = $request->validate([
+            'id' => 'prohibited|uuid',
+            'internal_name' => 'required',
+            'backward_compatibility' => 'nullable|string',
+            'type' => 'required|in:object,monument',
+        ]);
+        $item->update($validated);
+        return new ItemResource($item);
     }
 
     /**

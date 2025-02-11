@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Language extends Model
+class Country extends Model
 {
     public $incrementing = false; // Disable auto-incrementing
     protected $keyType = 'string'; // Specify the key type as string
@@ -14,4 +14,5 @@ class Language extends Model
         'internal_name',
         'backward_compatibility',
     ];
+
 }
