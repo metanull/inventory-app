@@ -23,6 +23,7 @@ class ItemController extends Controller
     {
         $validated = $request->validate([
             'id' => 'required|uuid',
+            'partner_id' => 'required|uuid',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
             'type' => 'required|in:object,monument',
@@ -46,6 +47,7 @@ class ItemController extends Controller
     {
         $validated = $request->validate([
             'id' => 'prohibited|uuid',
+            'partner_id' => 'required|uuid',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
             'type' => 'required|in:object,monument',

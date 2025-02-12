@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('contexts', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('internal_name');
-            $table->string('backward_compatibility');
+            $table->string('backward_compatibility')->nullable(true);
             $table->timestamps();
         });
     }
