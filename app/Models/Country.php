@@ -15,4 +15,17 @@ class Country extends Model
         'backward_compatibility',
     ];
 
+    public function setIdAttribute($value)
+    {
+        $this->attributes['id'] = strtolower($value);
+    }
+    public function setInternalNameAttribute($value)
+    {
+        $this->attributes['internal_name'] = strtolower($value);
+    }
+    public function setBackwardCompatibilityAttribute($value)
+    {
+        $this->attributes['backward_compatibility'] = strtolower($value);
+    }
+
 }

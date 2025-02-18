@@ -3,24 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Item extends Model
 {
+    use HasUuids;
+
     protected $fillable = [
-        'id',
+        // 'id',
+        'partner_id',
         'internal_name',
         'type',
         'backward_compatibility',
     ];
 
-    protected $casts = [
-        'id' => 'string',
-    ];
-
     /**
-     * The parent partner.
+     * The partner owning or responsible for the Item.
      */
     public function partner(): BelongsTo
     {
@@ -28,10 +28,12 @@ class Item extends Model
     }
 
     /**
-     * The contexts this item belongs to.
+     * Get the columns that should automatically receive a unique identifier.
+     *
+     * @return array<int, string>
      */
-    public function contexts(): BelongsToMany
+    public function uniqueIds(): array
     {
-        return $this->belongsToMany(Context::class)->using(ContextItem::class);
+        return ['id'];
     }
 }
