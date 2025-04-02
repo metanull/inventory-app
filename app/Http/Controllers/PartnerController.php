@@ -26,6 +26,7 @@ class PartnerController extends Controller
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
             'type' => 'required|in:museum,institution,individual',
+            'country_id' => 'nullable|string|size:3',
         ]);
         $partner = Partner::create($validated);
         return new PartnerResource($partner);
@@ -49,6 +50,7 @@ class PartnerController extends Controller
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
             'type' => 'required|in:museum,institution,individual',
+            'country_id' => 'nullable|string|size:3',
         ]);
         $partner->update($validated);
         return new PartnerResource($partner);
