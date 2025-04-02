@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Country extends Model
 {
@@ -26,6 +27,20 @@ class Country extends Model
     public function setBackwardCompatibilityAttribute($value)
     {
         $this->attributes['backward_compatibility'] = strtolower($value);
+    }
+    /**
+     * Get the items belonging to this country.
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(Item::class)->chaperone();
+    }
+    /**
+     * Get the partners belonging to this country.
+     */
+    public function partners(): HasMany
+    {
+        return $this->hasMany(Partner::class)->chaperone();
     }
 
 }

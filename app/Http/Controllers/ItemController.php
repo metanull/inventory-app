@@ -27,6 +27,7 @@ class ItemController extends Controller
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
             'type' => 'required|in:object,monument',
+            'country_id' => 'nullable|string|size:3',
         ]);
         $item = Item::create($validated);
         return new ItemResource($item);
@@ -51,6 +52,7 @@ class ItemController extends Controller
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
             'type' => 'required|in:object,monument',
+            'country_id' => 'nullable|string|size:3',
         ]);
         $item->update($validated);
         return new ItemResource($item);

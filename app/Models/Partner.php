@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Partner extends Model
 {
@@ -16,6 +17,7 @@ class Partner extends Model
         'internal_name',
         'type',
         'backward_compatibility',
+        'country_id',
     ];
 
     /**
@@ -34,6 +36,14 @@ class Partner extends Model
     public function items(): HasMany
     {
         return $this->hasMany(Item::class)->chaperone();
+    }
+
+    /**
+     * The country of the Item.
+     */
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
     }
 
 }

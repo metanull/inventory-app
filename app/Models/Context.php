@@ -25,5 +25,13 @@ class Context extends Model
     {
         return ['id'];
     }
+    public function setInternalNameAttribute($value)
+    {
+        $this->attributes['internal_name'] = strtolower($value);
+    }
+    public function setBackwardCompatibilityAttribute($value)
+    {
+        $this->attributes['backward_compatibility'] = strtoupper($value);
+    }
 
 }

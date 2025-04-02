@@ -17,6 +17,7 @@ class Item extends Model
         'internal_name',
         'type',
         'backward_compatibility',
+        'country_id',
     ];
 
     /**
@@ -25,6 +26,13 @@ class Item extends Model
     public function partner(): BelongsTo
     {
         return $this->belongsTo(Partner::class);
+    }
+    /**
+     * The country of the Item.
+     */
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
     }
 
     /**
@@ -36,4 +44,5 @@ class Item extends Model
     {
         return ['id'];
     }
+
 }
