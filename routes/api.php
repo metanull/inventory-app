@@ -8,6 +8,7 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ContextController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\PictureController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -33,3 +34,6 @@ Route::resource('item', ItemController::class)->except([
     'create', 'edit'
 ])->middleware('auth:sanctum');
 
+Route::resource('picture', PictureController::class)->except([
+    'create', 'edit'
+])->middleware('auth:sanctum');
