@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.2",
         "dedoc/scramble": "^0.12.2",
+        "intervention/image": "^3.11",
         "laravel/framework": "^11.31",
         "laravel/jetstream": "^5.3",
         "laravel/sanctum": "^4.0",
