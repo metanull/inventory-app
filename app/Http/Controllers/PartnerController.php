@@ -13,7 +13,7 @@ class PartnerController extends Controller
      */
     public function index()
     {
-        return Partner::all();
+        return PartnerResource::collection(Partner::all());
     }
 
     /**
