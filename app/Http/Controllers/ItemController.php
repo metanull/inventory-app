@@ -13,7 +13,7 @@ class ItemController extends Controller
      */
     public function index()
     {
-        return Item::all();
+        return ItemResource::collection(Item::all());
     }
 
     /**
