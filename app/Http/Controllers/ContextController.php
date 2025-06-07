@@ -13,7 +13,7 @@ class ContextController extends Controller
      */
     public function index()
     {
-        return Context::all();
+        return ContextResource::collection(Context::all());
     }
 
     /**
