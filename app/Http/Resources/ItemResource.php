@@ -17,10 +17,15 @@ class ItemResource extends JsonResource
         // return parent::toArray($request);
         return [
             'id' => $this->id,
-            'partner_id' => $this->partner_id,
             'internal_name' => $this->internal_name,
             'backward_compatibility' => $this->backward_compatibility,
             'type' => $this->type,
+            'partner_id' => $this->partner_id,
+            'project_id' => $this->project_id,
+            'country_id' => $this->country_id,
+            'partner' => new PartnerResource($this->whenLoaded('partner')),
+            'project' => new ProjectResource($this->whenLoaded('project')),
+            'country' => new CountryResource($this->whenLoaded('country')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
