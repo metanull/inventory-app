@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('items', function (Blueprint $table) {
-            $table->uuid('project_id')->nullable();
+            $table->uuid('project_id')->nullable()->index();
             $table->foreign('project_id')
                 ->references('id')
                 ->on('projects')
