@@ -11,6 +11,12 @@ class Item extends Model
 {
     use HasUuids;
 
+    protected $with = [
+        'partner',
+        'country',
+        'project',
+    ];
+
     protected $fillable = [
         // 'id',
         'partner_id',
@@ -18,6 +24,7 @@ class Item extends Model
         'type',
         'backward_compatibility',
         'country_id',
+        'project_id',
     ];
 
     /**
@@ -33,6 +40,13 @@ class Item extends Model
     public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
+    }
+    /**
+     * The project associated with the Item.
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 
     /**
