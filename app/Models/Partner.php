@@ -12,6 +12,10 @@ class Partner extends Model
 {
     use HasUuids;
 
+    protected $with = [
+        'country'
+    ];
+
     protected $fillable = [
         // 'id',
         'internal_name',
