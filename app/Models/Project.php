@@ -9,9 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Project extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProjectFactory> */
     use HasFactory;
-
     use HasUuids;
 
     protected $with = [
@@ -66,4 +64,10 @@ class Project extends Model
         'is_launched' => 'boolean',
         'is_enabled' => 'boolean',
     ];
+
+    public function scopeEnabled($query)
+    {
+        return $query->where('is_enabled', true)
+            ->where('is_launched', true);
+    }
 }

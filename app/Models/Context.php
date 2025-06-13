@@ -3,16 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Context extends Model
 {
+    use HasFactory;
     use HasUuids;
 
     protected $fillable = [
         // 'id',
         'internal_name',
         'backward_compatibility',
+        // 'is_default',
     ];
 
     /**
@@ -23,5 +27,34 @@ class Context extends Model
     public function uniqueIds(): array
     {
         return ['id'];
+    }
+
+    public function scopeDefault($query)
+    {
+        return $query->where('is_default', true);
+    }
+
+    protected $casts = [
+        'is_default' => 'boolean',
+    ];
+
+    // Add a method to mark a single row as the default
+    public function markAsDefault()
+    {
+        // Ensure the table has a 'default' column (boolean or integer)
+        if (! $this->exists) {
+            throw new \Exception('Model instance does not exist.');
+        }
+
+        // Start a transaction to ensure atomicity
+        return DB::transaction(function () {
+            // Set all rows' 'default' column to false (or 0)
+            self::query()->update(['is_default' => false]);
+
+            // Set the current row's 'default' column to true (or 1)
+            $this->update(['is_default' => true]);
+
+            return $this;
+        });
     }
 }
