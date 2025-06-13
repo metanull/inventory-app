@@ -18,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 '192.168.255.157',
                 '10.0.0.0/8',
                 '127.0.0.1',
-            ], 
+            ],
             headers: Request::HEADER_X_FORWARDED_FOR |
                 Request::HEADER_X_FORWARDED_HOST |
                 Request::HEADER_X_FORWARDED_PORT |

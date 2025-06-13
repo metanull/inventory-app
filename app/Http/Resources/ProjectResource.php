@@ -22,8 +22,6 @@ class ProjectResource extends JsonResource
             'launch_date' => $this->launch_date, // ? date('Y-m-d', strtotime($this->launch_date)) : null,
             'is_launched' => $this->is_launched,
             'is_enabled' => $this->is_enabled,
-            //'context_id' => $this->context_id,
-            //'language_id' => $this->language_id,
             'context' => new ContextResource($this->whenLoaded('context')),
             'language' => new LanguageResource($this->whenLoaded('language')),
             'created_at' => $this->created_at,

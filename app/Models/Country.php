@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Country extends Model
 {
     public $incrementing = false; // Disable auto-incrementing
+
     protected $keyType = 'string'; // Specify the key type as string
 
     protected $fillable = [
@@ -28,6 +29,7 @@ class Country extends Model
     {
         return $this->hasMany(Item::class)->chaperone();
     }
+
     /**
      * Get the partners belonging to this country.
      */
@@ -35,5 +37,4 @@ class Country extends Model
     {
         return $this->hasMany(Partner::class)->chaperone();
     }
-
 }

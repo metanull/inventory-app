@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ItemResource;
 use App\Models\Item;
 use Illuminate\Http\Request;
-use App\Http\Resources\ItemResource;
 
 class ItemController extends Controller
 {
@@ -31,6 +31,7 @@ class ItemController extends Controller
             'project_id' => 'nullable|uuid',
         ]);
         $item = Item::create($validated);
+
         return new ItemResource($item);
     }
 
@@ -57,6 +58,7 @@ class ItemController extends Controller
             'project_id' => 'nullable|uuid',
         ]);
         $item->update($validated);
+
         return new ItemResource($item);
     }
 
@@ -66,6 +68,7 @@ class ItemController extends Controller
     public function destroy(Item $item)
     {
         $item->delete();
+
         return response()->json(null, 204);
     }
 }

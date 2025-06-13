@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreign('country_id')->references('id')->on('countries')->onDelete('restrict');
         });
     }
-    
+
     /**
      * Reverse the migrations.
      */
