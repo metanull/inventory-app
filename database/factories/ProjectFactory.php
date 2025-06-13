@@ -30,8 +30,8 @@ class ProjectFactory extends Factory
             'launch_date' => $this->faker->optional()->date(),
             'is_launched' => $this->faker->boolean(),
             'is_enabled' => $this->faker->boolean(),
-            'primary_context_id' => null, // This should be set to a valid context ID if needed
-            'primary_language_id' => null, // This should be set to a valid language ID if needed
+            'context_id' => null, // This should be set to a valid context ID if needed
+            'language_id' => null, // This should be set to a valid language ID if needed
         ];
     }
 

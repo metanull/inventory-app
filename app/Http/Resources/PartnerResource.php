@@ -20,6 +20,7 @@ class PartnerResource extends JsonResource
             'internal_name' => $this->internal_name,
             'backward_compatibility' => $this->backward_compatibility,
             'type' => $this->type,
+            // 'country_id' => $this->country_id,
             'country' => new CountryResource($this->whenLoaded('country')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

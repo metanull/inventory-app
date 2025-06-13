@@ -20,14 +20,7 @@ class Country extends Model
     {
         $this->attributes['id'] = strtolower($value);
     }
-    public function setInternalNameAttribute($value)
-    {
-        $this->attributes['internal_name'] = strtolower($value);
-    }
-    public function setBackwardCompatibilityAttribute($value)
-    {
-        $this->attributes['backward_compatibility'] = strtolower($value);
-    }
+
     /**
      * Get the items belonging to this country.
      */
