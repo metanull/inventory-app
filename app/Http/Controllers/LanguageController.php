@@ -25,6 +25,7 @@ class LanguageController extends Controller
             'id' => 'required|string|size:3',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string|size:2',
+            'is_default' => 'prohibited|boolean',
         ]);
         $language = Language::create($validated);
 
@@ -48,6 +49,7 @@ class LanguageController extends Controller
             'id' => 'prohibited|string|size:3',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string|size:2',
+            'is_default' => 'prohibited|boolean',
         ]);
         $language->update($validated);
 

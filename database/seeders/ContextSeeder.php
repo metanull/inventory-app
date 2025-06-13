@@ -13,6 +13,7 @@ class ContextSeeder extends Seeder
     public function run(): void
     {
         $contexts = [
+            ['backward_compatibility' => null, 'internal_name' => 'Default Context'],
             ['backward_compatibility' => 'AMA', 'internal_name' => 'Medieval Art'],
             ['backward_compatibility' => 'AMT', 'internal_name' => 'Baroque Art'],
             ['backward_compatibility' => 'AMU', 'internal_name' => 'Amulets and Talismans'],
@@ -79,5 +80,7 @@ class ContextSeeder extends Seeder
         foreach ($contexts as $context) {
             Context::create($context);
         }
+
+        Context::where(['internal_name' => 'Default Context'])->update(['is_default' => true]);
     }
 }

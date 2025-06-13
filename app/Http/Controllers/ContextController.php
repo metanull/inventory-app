@@ -25,6 +25,7 @@ class ContextController extends Controller
             'id' => 'required|uuid',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
+            'is_default' => 'prohibited|boolean',
         ]);
         $context = Context::create($validated);
 
@@ -48,6 +49,7 @@ class ContextController extends Controller
             'id' => 'prohibited|uuid',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
+            'is_default' => 'prohibited|boolean',
         ]);
         $context->update($validated);
 

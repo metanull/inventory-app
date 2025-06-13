@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Context;
+use App\Models\Language;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -25,36 +27,46 @@ class ProjectFactory extends Factory
     public function definition(): array
     {
         return [
+            'id' => $this->faker->unique()->uuid(),
             'internal_name' => $this->faker->unique()->word(),
             'backward_compatibility' => $this->faker->optional()->word(),
             'launch_date' => $this->faker->optional()->date(),
-            'is_launched' => $this->faker->boolean(),
-            'is_enabled' => $this->faker->boolean(),
+            'is_launched' => false,
+            'is_enabled' => false,
             'context_id' => null, // This should be set to a valid context ID if needed
             'language_id' => null, // This should be set to a valid language ID if needed
         ];
     }
 
-    public function launched_enabled(): Factory
+    public function withEnabled(): Factory
     {
         return $this->state(fn (array $attributes) => [
-            'is_launched' => true,
             'is_enabled' => true,
         ]);
     }
 
-    public function launched_disabled(): Factory
+    public function withLaunched(): Factory
     {
         return $this->state(fn (array $attributes) => [
             'is_launched' => true,
-            'is_enabled' => false,
         ]);
     }
 
-    public function not_launched(): Factory
+    public function withContext(): Factory
     {
-        return $this->state(fn (array $attributes) => [
-            'is_launched' => false,
-        ]);
+        return $this->state(function (array $attributes) {
+            return [
+                'context_id' => Context::factory(),
+            ];
+        });
+    }
+
+    public function withLanguage(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'language_id' => Language::factory(),
+            ];
+        });
     }
 }

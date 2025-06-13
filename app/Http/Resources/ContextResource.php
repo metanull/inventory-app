@@ -19,6 +19,7 @@ class ContextResource extends JsonResource
             'id' => $this->id,
             'internal_name' => $this->internal_name,
             'backward_compatibility' => $this->backward_compatibility,
+            'is_default' => $this->is_default,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

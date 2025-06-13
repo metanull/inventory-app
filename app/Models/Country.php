@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Country extends Model
 {
+    use HasFactory;
+
     public $incrementing = false; // Disable auto-incrementing
 
     protected $keyType = 'string'; // Specify the key type as string
@@ -16,11 +19,6 @@ class Country extends Model
         'internal_name',
         'backward_compatibility',
     ];
-
-    public function setIdAttribute($value)
-    {
-        $this->attributes['id'] = strtolower($value);
-    }
 
     /**
      * Get the items belonging to this country.

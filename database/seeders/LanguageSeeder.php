@@ -196,5 +196,7 @@ class LanguageSeeder extends Seeder
         foreach ($languages as $language) {
             Language::create($language);
         }
+
+        Language::where(['id' => 'eng'])->update(['is_default' => true]);
     }
 }
