@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
@@ -28,9 +27,9 @@ class UserSeeder extends Seeder
         $token = $user->createToken('api-token');
         $user->save();
 
-        $consoleOutput = new \Symfony\Component\Console\Output\ConsoleOutput();
-        $consoleOutput->getFormatter()->setStyle('yellow', new \Symfony\Component\Console\Formatter\OutputFormatterStyle('yellow', null, array('bold')));
-        $consoleOutput->getFormatter()->setStyle('green', new \Symfony\Component\Console\Formatter\OutputFormatterStyle('green', null, array('bold')));
+        $consoleOutput = new \Symfony\Component\Console\Output\ConsoleOutput;
+        $consoleOutput->getFormatter()->setStyle('yellow', new \Symfony\Component\Console\Formatter\OutputFormatterStyle('yellow', null, ['bold']));
+        $consoleOutput->getFormatter()->setStyle('green', new \Symfony\Component\Console\Formatter\OutputFormatterStyle('green', null, ['bold']));
         $consoleOutput->writeln("\tAPI Token created for user <yellow>{$user->name}</yellow>: <green>{$token->plainTextToken}</green>");
 
     }

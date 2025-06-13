@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Project extends Model
 {
@@ -13,6 +14,11 @@ class Project extends Model
 
     use HasUuids;
 
+    protected $with = [
+        'context',
+        'language',
+    ];
+
     protected $fillable = [
         // 'id',
         'internal_name',
@@ -20,8 +26,8 @@ class Project extends Model
         'launch_date',
         'is_launched',
         'is_enabled',
-        'primary_context_id',
-        'primary_language_id',
+        'context_id',
+        'language_id',
     ];
 
     /**
@@ -33,32 +39,31 @@ class Project extends Model
     {
         return ['id'];
     }
-    public function setInternalNameAttribute($value)
+
+    /**
+     * The context associated with the Project.
+     */
+    public function context(): BelongsTo
     {
-        $this->attributes['internal_name'] = strtolower($value);
+        return $this->belongsTo(Context::class, 'context_id');
     }
-    public function setBackwardCompatibilityAttribute($value)
+
+    /**
+     * The language associated with the Project.
+     */
+    public function language(): BelongsTo
     {
-        $this->attributes['backward_compatibility'] = strtoupper($value);
+        return $this->belongsTo(Language::class, 'language_id');
     }
-    public function setLaunchDateAttribute($value)
-    {
-        $this->attributes['launch_date'] = $value ? date('Y-m-d', strtotime($value)) : null;
-    }
-    public function setIsLaunchedAttribute($value)
-    {
-        $this->attributes['is_launched'] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-    }
-    public function setIsEnabledAttribute($value)
-    {
-        $this->attributes['is_enabled'] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-    }
-    public function setPrimaryContextIdAttribute($value)
-    {
-        $this->attributes['primary_context_id'] = $value ? (string) $value : null;
-    }
-    public function setPrimaryLanguageIdAttribute($value)
-    {
-        $this->attributes['primary_language_id'] = $value ? (string) $value : null;
-    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected $casts = [
+        'launch_date' => 'datetime:Y-m-d',
+        'is_launched' => 'boolean',
+        'is_enabled' => 'boolean',
+    ];
 }

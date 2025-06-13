@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use Illuminate\Http\Request;
-use App\Http\Resources\ProjectResource;
 
 class ProjectController extends Controller
 {
@@ -28,10 +28,11 @@ class ProjectController extends Controller
             'launch_date' => 'nullable|date',
             'is_launched' => 'boolean',
             'is_enabled' => 'boolean',
-            'primary_context_id' => 'nullable|uuid',
-            'primary_language_id' => 'nullable|string|size:3',
+            'context_id' => 'nullable|uuid',
+            'language_id' => 'nullable|string|size:3',
         ]);
         $project = Project::create($validated);
+
         return new ProjectResource($project);
     }
 
@@ -55,10 +56,11 @@ class ProjectController extends Controller
             'launch_date' => 'nullable|date',
             'is_launched' => 'boolean',
             'is_enabled' => 'boolean',
-            'primary_context_id' => 'nullable|uuid',
-            'primary_language_id' => 'nullable|string|size:3',
+            'context_id' => 'nullable|uuid',
+            'language_id' => 'nullable|string|size:3',
         ]);
         $project->update($validated);
+
         return new ProjectResource($project);
     }
 
@@ -68,6 +70,7 @@ class ProjectController extends Controller
     public function destroy(Project $project)
     {
         $project->delete();
+
         return response()->json(null, 204);
     }
 }

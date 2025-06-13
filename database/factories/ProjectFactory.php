@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Project;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Project>
@@ -16,7 +16,7 @@ class ProjectFactory extends Factory
      * @var class-string<\Illuminate\Database\Eloquent\Model>
      */
     protected $model = Project::class;
-    
+
     /**
      * Define the model's default state.
      *
@@ -30,8 +30,8 @@ class ProjectFactory extends Factory
             'launch_date' => $this->faker->optional()->date(),
             'is_launched' => $this->faker->boolean(),
             'is_enabled' => $this->faker->boolean(),
-            'primary_context_id' => null, // This should be set to a valid context ID if needed
-            'primary_language_id' => null, // This should be set to a valid language ID if needed
+            'context_id' => null, // This should be set to a valid context ID if needed
+            'language_id' => null, // This should be set to a valid language ID if needed
         ];
     }
 

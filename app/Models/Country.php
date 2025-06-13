@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Country extends Model
 {
     public $incrementing = false; // Disable auto-incrementing
+
     protected $keyType = 'string'; // Specify the key type as string
 
     protected $fillable = [
@@ -20,14 +21,7 @@ class Country extends Model
     {
         $this->attributes['id'] = strtolower($value);
     }
-    public function setInternalNameAttribute($value)
-    {
-        $this->attributes['internal_name'] = strtolower($value);
-    }
-    public function setBackwardCompatibilityAttribute($value)
-    {
-        $this->attributes['backward_compatibility'] = strtolower($value);
-    }
+
     /**
      * Get the items belonging to this country.
      */
@@ -35,6 +29,7 @@ class Country extends Model
     {
         return $this->hasMany(Item::class)->chaperone();
     }
+
     /**
      * Get the partners belonging to this country.
      */
@@ -42,5 +37,4 @@ class Country extends Model
     {
         return $this->hasMany(Partner::class)->chaperone();
     }
-
 }

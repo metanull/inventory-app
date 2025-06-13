@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Partner extends Model
 {
     use HasUuids;
 
     protected $with = [
-        'country'
+        'country',
     ];
 
     protected $fillable = [
@@ -49,5 +48,4 @@ class Partner extends Model
     {
         return $this->belongsTo(Country::class);
     }
-
 }

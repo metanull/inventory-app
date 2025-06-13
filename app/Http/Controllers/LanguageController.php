@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\LanguageResource;
 use App\Models\Language;
 use Illuminate\Http\Request;
-use App\Http\Resources\LanguageResource;
 
 class LanguageController extends Controller
 {
@@ -27,6 +27,7 @@ class LanguageController extends Controller
             'backward_compatibility' => 'nullable|string|size:2',
         ]);
         $language = Language::create($validated);
+
         return new LanguageResource($language);
     }
 
@@ -49,6 +50,7 @@ class LanguageController extends Controller
             'backward_compatibility' => 'nullable|string|size:2',
         ]);
         $language->update($validated);
+
         return new LanguageResource($language);
     }
 
@@ -58,6 +60,7 @@ class LanguageController extends Controller
     public function destroy(Language $language)
     {
         $language->delete();
+
         return response()->json(null, 204);
     }
 }

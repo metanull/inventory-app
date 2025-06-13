@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CountryResource;
 use App\Models\Country;
 use Illuminate\Http\Request;
-use App\Http\Resources\CountryResource;
 
 class CountryController extends Controller
 {
@@ -27,6 +27,7 @@ class CountryController extends Controller
             'backward_compatibility' => 'nullable|string|size:2',
         ]);
         $country = Country::create($validated);
+
         return new CountryResource($country);
     }
 
@@ -49,6 +50,7 @@ class CountryController extends Controller
             'backward_compatibility' => 'nullable|string|size:2',
         ]);
         $country->update($validated);
+
         return new CountryResource($country);
     }
 
@@ -58,6 +60,7 @@ class CountryController extends Controller
     public function destroy(Country $country)
     {
         $country->delete();
+
         return response()->json(null, 204);
     }
 }
