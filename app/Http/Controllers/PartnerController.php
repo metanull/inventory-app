@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PartnerResource;
 use App\Models\Partner;
 use Illuminate\Http\Request;
-use App\Http\Resources\PartnerResource;
 
 class PartnerController extends Controller
 {
@@ -29,6 +29,7 @@ class PartnerController extends Controller
             'country_id' => 'nullable|string|size:3',
         ]);
         $partner = Partner::create($validated);
+
         return new PartnerResource($partner);
     }
 
@@ -53,6 +54,7 @@ class PartnerController extends Controller
             'country_id' => 'nullable|string|size:3',
         ]);
         $partner->update($validated);
+
         return new PartnerResource($partner);
     }
 
@@ -62,6 +64,7 @@ class PartnerController extends Controller
     public function destroy(Partner $partner)
     {
         $partner->delete();
+
         return response()->json(null, 204);
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Picture;
-use Illuminate\Http\Request;
 use App\Events\PictureUploaded;
 use App\Http\Resources\PictureResource;
+use App\Models\Picture;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class PictureController extends Controller
@@ -40,6 +40,7 @@ class PictureController extends Controller
             'size' => $file->getSize(),
         ]);
         PictureUploaded::dispatch($picture);
+
         return new PictureResource($picture);
     }
 
@@ -58,6 +59,7 @@ class PictureController extends Controller
     {
         Storage::delete($picture->path);
         $picture->delete();
+
         return response()->json(null, 204);
     }
 }

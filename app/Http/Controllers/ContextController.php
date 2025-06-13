@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ContextResource;
 use App\Models\Context;
 use Illuminate\Http\Request;
-use App\Http\Resources\ContextResource;
 
 class ContextController extends Controller
 {
@@ -24,9 +24,10 @@ class ContextController extends Controller
         $validated = $request->validate([
             'id' => 'required|uuid',
             'internal_name' => 'required',
-            'backward_compatibility' => 'nullable|string'
+            'backward_compatibility' => 'nullable|string',
         ]);
         $context = Context::create($validated);
+
         return new ContextResource($context);
     }
 
@@ -46,9 +47,10 @@ class ContextController extends Controller
         $validated = $request->validate([
             'id' => 'prohibited|uuid',
             'internal_name' => 'required',
-            'backward_compatibility' => 'nullable|string'
+            'backward_compatibility' => 'nullable|string',
         ]);
         $context->update($validated);
+
         return new ContextResource($context);
     }
 
@@ -58,6 +60,7 @@ class ContextController extends Controller
     public function destroy(Context $context)
     {
         $context->delete();
+
         return response()->json(null, 204);
     }
 }

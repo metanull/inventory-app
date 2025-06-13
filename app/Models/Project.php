@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Project extends Model
 {
@@ -39,7 +39,7 @@ class Project extends Model
     {
         return ['id'];
     }
-    
+
     /**
      * The context associated with the Project.
      */
@@ -47,6 +47,7 @@ class Project extends Model
     {
         return $this->belongsTo(Context::class, 'context_id');
     }
+
     /**
      * The language associated with the Project.
      */
@@ -60,12 +61,9 @@ class Project extends Model
      *
      * @return array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'launch_date' => 'datetime:Y-m-d',
-            'is_launched' => 'boolean',
-            'is_enabled' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'launch_date' => 'datetime:Y-m-d',
+        'is_launched' => 'boolean',
+        'is_enabled' => 'boolean',
+    ];
 }

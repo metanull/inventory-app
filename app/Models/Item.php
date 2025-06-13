@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Item extends Model
@@ -34,6 +33,7 @@ class Item extends Model
     {
         return $this->belongsTo(Partner::class);
     }
+
     /**
      * The country of the Item.
      */
@@ -41,6 +41,7 @@ class Item extends Model
     {
         return $this->belongsTo(Country::class);
     }
+
     /**
      * The project associated with the Item.
      */
@@ -58,5 +59,4 @@ class Item extends Model
     {
         return ['id'];
     }
-
 }
