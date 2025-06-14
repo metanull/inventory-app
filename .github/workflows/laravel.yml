@@ -32,7 +32,7 @@ jobs:
       run: php artisan key:generate
     - name: Execute linter via Pint (the Laravel's official Linter)
       run: |
-        ./vendor/bin/pint --test
+        ./vendor/bin/pint --bail
     - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
       env:
         DB_CONNECTION: sqlite
