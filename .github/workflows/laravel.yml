@@ -22,7 +22,7 @@ jobs:
     - name: Install Dependencies
       run: |
         # composer update
-        composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+        composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
     - name: Create .env file
       run: |
         if(-not(Test-Path ".env")) {
