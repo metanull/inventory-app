@@ -2,8 +2,8 @@
 
 namespace Tests;
 
-use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Artisan;
 
 abstract class TestCase extends BaseTestCase
@@ -20,6 +20,7 @@ abstract class TestCase extends BaseTestCase
         // // Optionally, you can seed the database
         // // Artisan::call('db:seed', ['--force' => true, '--env' => 'testing']);
     }
+
     protected function tearDown(): void
     {
         // Rollback migrations after each test
