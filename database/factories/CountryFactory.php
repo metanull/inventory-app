@@ -19,7 +19,7 @@ class CountryFactory extends Factory
         return [
             'id' => $this->faker->unique()->countryCode(),
             'internal_name' => $this->faker->unique()->word(),
-            'backward_compatibility' => $this->faker->word(2),
+            'backward_compatibility' => $this->faker->words(2, true),
         ];
     }
 }
