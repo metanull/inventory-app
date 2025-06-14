@@ -21,8 +21,13 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install Dependencies
       run: |
-        composer update
+        # composer update
         composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+    - name: Create .env file
+      run: |
+        if(-not(Test-Path ".env")) {
+          Copy-Item .env.testing .env
+        }
     - name: Generate key
       run: php artisan key:generate
     - name: Execute linter via Pint (the Laravel's official Linter)
