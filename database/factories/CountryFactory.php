@@ -19,13 +19,7 @@ class CountryFactory extends Factory
         return [
             'id' => $this->faker->unique()->countryCode(),
             'internal_name' => $this->faker->unique()->word(),
-            'backward_compatibility' => $this->faker->optional()->word(),
-            /*
-            // Other syntax, which one is right?
-            'id' => fake()->unique()->countryCode(),
-            'internal_name' => fake()->unique()->name,
-            'backward_compatibility' => fake()->optional()->word(),
-            */
+            'backward_compatibility' => $this->faker->words(2, true),
         ];
     }
 }

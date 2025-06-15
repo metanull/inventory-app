@@ -19,7 +19,7 @@ class LanguageFactory extends Factory
         return [
             'id' => $this->faker->unique()->languageCode(),
             'internal_name' => $this->faker->unique()->word(),
-            'backward_compatibility' => $this->faker->optional()->word(),
+            'backward_compatibility' => $this->faker->words(2, true),
             'is_default' => false,
         ];
     }
