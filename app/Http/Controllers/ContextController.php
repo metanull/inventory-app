@@ -22,7 +22,7 @@ class ContextController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id' => 'required|uuid',
+            'id' => 'prohibited|uuid',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
             'is_default' => 'prohibited|boolean',
