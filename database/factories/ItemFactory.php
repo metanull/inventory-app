@@ -22,8 +22,8 @@ class ItemFactory extends Factory
         return [
             'id' => $this->faker->unique()->uuid(),
             'partner_id' => Partner::factory(),
-            'internal_name' => $this->faker->unique()->word(),
-            'backward_compatibility' => $this->faker->optional()->word(),
+            'internal_name' => $this->faker->unique()->words(2, true),
+            'backward_compatibility' => $this->faker->optional()->lexify('???'),
             'type' => $this->faker->randomElement(['object', 'monument']),
             'project_id' => null, // This should be set to a valid project ID if needed
             'country_id' => null, // This should be set to a valid country ID if needed

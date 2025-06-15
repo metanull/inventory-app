@@ -17,9 +17,9 @@ class CountryFactory extends Factory
     public function definition(): array
     {
         return [
-            'id' => $this->faker->unique()->countryCode(),
-            'internal_name' => $this->faker->unique()->word(),
-            'backward_compatibility' => $this->faker->words(2, true),
+            'id' => $this->faker->unique()->lexify('???'),
+            'internal_name' => $this->faker->words(2, true),
+            'backward_compatibility' => $this->faker->lexify('??'),
         ];
     }
 }

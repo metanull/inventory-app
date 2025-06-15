@@ -46,7 +46,7 @@ class ContextController extends Controller
     public function update(Request $request, Context $context)
     {
         $validated = $request->validate([
-            'id' => 'prohibited|uuid',
+            'id' => 'prohibited',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
             'is_default' => 'prohibited|boolean',

@@ -18,8 +18,8 @@ class ContextFactory extends Factory
     {
         return [
             'id' => $this->faker->unique()->uuid(),
-            'internal_name' => $this->faker->unique()->word(),
-            'backward_compatibility' => $this->faker->optional()->word(),
+            'internal_name' => $this->faker->unique()->words(2),
+            'backward_compatibility' => $this->faker->optional()->lexify('???'),
             'is_default' => false,
         ];
     }

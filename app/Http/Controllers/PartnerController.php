@@ -22,7 +22,7 @@ class PartnerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id' => 'required|uuid',
+            'id' => 'prohibited',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
             'type' => 'required|in:museum,institution,individual',
@@ -47,7 +47,7 @@ class PartnerController extends Controller
     public function update(Request $request, Partner $partner)
     {
         $validated = $request->validate([
-            'id' => 'prohibited|uuid',
+            'id' => 'prohibited',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
             'type' => 'required|in:museum,institution,individual',

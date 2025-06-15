@@ -45,7 +45,7 @@ class CountryController extends Controller
     public function update(Request $request, Country $country)
     {
         $validated = $request->validate([
-            'id' => 'prohibited|string|size:3',
+            'id' => 'prohibited',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string|size:2',
         ]);

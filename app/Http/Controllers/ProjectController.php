@@ -22,7 +22,7 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id' => 'required|uuid',
+            'id' => 'prohibited',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
             'launch_date' => 'nullable|date',
@@ -50,7 +50,7 @@ class ProjectController extends Controller
     public function update(Request $request, Project $project)
     {
         $validated = $request->validate([
-            'id' => 'prohibited|uuid',
+            'id' => 'prohibited',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
             'launch_date' => 'nullable|date',

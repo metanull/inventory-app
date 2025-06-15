@@ -22,7 +22,7 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id' => 'required|uuid',
+            'id' => 'prohibited',
             'partner_id' => 'required|uuid',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',
@@ -49,7 +49,7 @@ class ItemController extends Controller
     public function update(Request $request, Item $item)
     {
         $validated = $request->validate([
-            'id' => 'prohibited|uuid',
+            'id' => 'prohibited',
             'partner_id' => 'required|uuid',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string',

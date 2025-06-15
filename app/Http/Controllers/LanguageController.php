@@ -46,7 +46,7 @@ class LanguageController extends Controller
     public function update(Request $request, Language $language)
     {
         $validated = $request->validate([
-            'id' => 'prohibited|string|size:3',
+            'id' => 'prohibited',
             'internal_name' => 'required',
             'backward_compatibility' => 'nullable|string|size:2',
             'is_default' => 'prohibited|boolean',

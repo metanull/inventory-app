@@ -28,9 +28,9 @@ class ProjectFactory extends Factory
     {
         return [
             'id' => $this->faker->unique()->uuid(),
-            'internal_name' => $this->faker->unique()->word(),
-            'backward_compatibility' => $this->faker->optional()->word(),
-            'launch_date' => $this->faker->optional()->date(),
+            'internal_name' => $this->faker->unique()->words('3', true),
+            'backward_compatibility' => $this->faker->optional()->lexify('???'),
+            'launch_date' => null,
             'is_launched' => false,
             'is_enabled' => false,
             'context_id' => null, // This should be set to a valid context ID if needed
@@ -49,6 +49,7 @@ class ProjectFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'is_launched' => true,
+            'launch_date' => $this->faker->date(),
         ]);
     }
 
