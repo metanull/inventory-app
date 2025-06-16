@@ -34,7 +34,7 @@ class ItemFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'project_id' => Project::factory(),
+                'partner_id' => Partner::factory(),
             ];
         });
     }
