@@ -18,6 +18,24 @@ class PictureResource extends JsonResource
         return [
             // The unique identifier of the picture (GUID)
             'id' => $this->id,
+            // The internal name of the picture
+            'internal_name' => $this->internal_name,
+            // The legacy Id when this picture corresponds to a legacy image from the MWNF3 database, nullable
+            'backward_compatibility' => $this->backward_compatibility,
+            // The path to the picture file
+            'path' => $this->path,
+            // The copyright text associated with the picture
+            'copyright_text' => $this->copyright_text,
+            // The URL for the copyright information
+            'copyright_url' => $this->copyright_url,
+            // The original name of the uploaded file
+            'upload_name' => $this->upload_name,
+            // The file extension of the uploaded file
+            'upload_extension' => $this->upload_extension,
+            // The MIME type of the uploaded file
+            'upload_mime_type' => $this->upload_mime_type,
+            // The size of the uploaded file in bytes
+            'upload_size' => $this->upload_size,
             // Date of creation
             'created_at' => $this->created_at,
             // Date of last modification
