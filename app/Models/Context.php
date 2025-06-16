@@ -16,7 +16,7 @@ class Context extends Model
         // 'id',
         'internal_name',
         'backward_compatibility',
-        // 'is_default',
+        'is_default',
     ];
 
     /**

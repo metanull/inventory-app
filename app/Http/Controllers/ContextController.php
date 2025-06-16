@@ -22,12 +22,14 @@ class ContextController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            /** @ignoreParam */
             'id' => 'prohibited',
-            'internal_name' => 'required',
+            'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string',
             'is_default' => 'prohibited|boolean',
         ]);
         $context = Context::create($validated);
+        $context->refresh();
 
         return new ContextResource($context);
     }
@@ -46,12 +48,14 @@ class ContextController extends Controller
     public function update(Request $request, Context $context)
     {
         $validated = $request->validate([
+            /** @ignoreParam */
             'id' => 'prohibited',
-            'internal_name' => 'required',
+            'internal_name' => 'string',
             'backward_compatibility' => 'nullable|string',
             'is_default' => 'prohibited|boolean',
         ]);
         $context->update($validated);
+        $context->refresh();
 
         return new ContextResource($context);
     }
@@ -64,5 +68,39 @@ class ContextController extends Controller
         $context->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * Set a context as the default one.
+     */
+    public function setDefault(Request $request, Context $context)
+    {
+        $validated = $request->validate([
+            'is_default' => 'required|boolean',
+        ]);
+
+        // Ensure only one context can be default
+        if ($validated['is_default']) {
+            Context::where('is_default', true)->update(['is_default' => false]);
+        }
+
+        $context->update($validated);
+        $context->refresh();
+
+        return new ContextResource($context);
+    }
+
+    /**
+     * Get the default context.
+     */
+    public function getDefault()
+    {
+        $context = Context::where('is_default', true)->first();
+
+        if (! $context) {
+            return response()->json(['message' => 'No default context found'], 404);
+        }
+
+        return new ContextResource($context);
     }
 }

@@ -22,15 +22,18 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            /** @ignoreParam */
             'id' => 'prohibited',
             'partner_id' => 'required|uuid',
-            'internal_name' => 'required',
+            'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string',
             'type' => 'required|in:object,monument',
             'country_id' => 'nullable|string|size:3',
             'project_id' => 'nullable|uuid',
         ]);
         $item = Item::create($validated);
+        $item->refresh();
+        $item->load(['partner', 'country', 'project']);
 
         return new ItemResource($item);
     }
@@ -49,15 +52,18 @@ class ItemController extends Controller
     public function update(Request $request, Item $item)
     {
         $validated = $request->validate([
+            /** @ignoreParam */
             'id' => 'prohibited',
-            'partner_id' => 'required|uuid',
-            'internal_name' => 'required',
+            'partner_id' => 'uuid',
+            'internal_name' => 'string',
             'backward_compatibility' => 'nullable|string',
-            'type' => 'required|in:object,monument',
+            'type' => 'in:object,monument',
             'country_id' => 'nullable|string|size:3',
             'project_id' => 'nullable|uuid',
         ]);
         $item->update($validated);
+        $item->refresh();
+        $item->load(['partner', 'country', 'project']);
 
         return new ItemResource($item);
     }
