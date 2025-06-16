@@ -19,16 +19,16 @@ Route::patch('context/{context}/default', [ContextController::class, 'setDefault
     ->middleware('auth:sanctum');
 
 Route::get('context/default', [ContextController::class, 'getDefault'])
-        ->name('context.getDefault')
-        ->middleware('auth:sanctum');
+    ->name('context.getDefault')
+    ->middleware('auth:sanctum');
 
 Route::patch('language/{language}/default', [LanguageController::class, 'setDefault'])
     ->name('language.setDefault')
     ->middleware('auth:sanctum');
 
 Route::get('language/default', [LanguageController::class, 'getDefault'])
-        ->name('language.getDefault')
-        ->middleware('auth:sanctum');
+    ->name('language.getDefault')
+    ->middleware('auth:sanctum');
 
 Route::patch('project/{project}/launched', [ProjectController::class, 'setLaunched'])
     ->name('project.setLaunched')
