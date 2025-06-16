@@ -24,21 +24,40 @@ class PictureController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            /** @ignoreParam */
+            'id' => 'prohibited',
             'file' => 'required|image|mimes:jpeg,png,jpg|max:16384',
+            'internal_name' => 'required|string',
+            'backward_compatibility' => 'nullable|string',
+            'copyright_text' => 'nullable|string',
+            'copyright_url' => 'nullable|url',
+            /** @ignoreParam */
+            'path' => 'prohibited',
+            /** @ignoreParam */
+            'upload_name' => 'prohibited',
+            /** @ignoreParam */
+            'upload_extension' => 'prohibited',
+            /** @ignoreParam */
+            'upload_mime_type' => 'prohibited',
+            /** @ignoreParam */
+            'upload_size' => 'prohibited',
         ]);
 
         $file = $request->file('file');
         $path = $request->file('file')->store('Pictures', 'local');
+        $validated['path'] = $path;
         /*$filename = (string) Str::uuid() . '.' . $file->getClientOriginalExtension();
         $path = $file->storeAs('Pictures', $filename, 'local');*/
 
-        $picture = Picture::create([
-            'path' => $path,
-            'name' => $file->getClientOriginalName(),
-            'extension' => $file->getClientOriginalExtension(),
-            'mime_type' => $file->getMimeType(),
-            'size' => $file->getSize(),
+        $picture = Picture::create($validated);
+        $picture->refresh();
+        $picture->update([
+            'upload_name' => $file->getClientOriginalName(),
+            'upload_extension' => $file->getClientOriginalExtension(),
+            'upload_mime_type' => $file->getMimeType(),
+            'upload_size' => $file->getSize(),
         ]);
+        $picture->refresh();
         PictureUploaded::dispatch($picture);
 
         return new PictureResource($picture);
