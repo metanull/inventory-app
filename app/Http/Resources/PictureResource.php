@@ -16,8 +16,11 @@ class PictureResource extends JsonResource
     {
         // return parent::toArray($request);
         return [
+            // The unique identifier of the picture (GUID)
             'id' => $this->id,
+            // Date of creation
             'created_at' => $this->created_at,
+            // Date of last modification
             'updated_at' => $this->updated_at,
         ];
     }

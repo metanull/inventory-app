@@ -22,8 +22,9 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            /** @ignoreParam */
             'id' => 'prohibited',
-            'internal_name' => 'required',
+            'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string',
             'launch_date' => 'nullable|date',
             'is_launched' => 'boolean',
@@ -32,6 +33,8 @@ class ProjectController extends Controller
             'language_id' => 'nullable|string|size:3',
         ]);
         $project = Project::create($validated);
+        $project->refresh();
+        $project->load(['context', 'language']);
 
         return new ProjectResource($project);
     }
@@ -50,8 +53,9 @@ class ProjectController extends Controller
     public function update(Request $request, Project $project)
     {
         $validated = $request->validate([
+            /** @ignoreParam */
             'id' => 'prohibited',
-            'internal_name' => 'required',
+            'internal_name' => 'string',
             'backward_compatibility' => 'nullable|string',
             'launch_date' => 'nullable|date',
             'is_launched' => 'boolean',
@@ -60,6 +64,8 @@ class ProjectController extends Controller
             'language_id' => 'nullable|string|size:3',
         ]);
         $project->update($validated);
+        $project->refresh();
+        $project->load(['context', 'language']);
 
         return new ProjectResource($project);
     }
@@ -72,5 +78,39 @@ class ProjectController extends Controller
         $project->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * Toggle Enable/disable on a project.
+     */
+    public function setEnabled(Request $request, Project $project)
+    {
+        $validated = $request->validate([
+            'is_enabled' => 'required|boolean',
+        ]);
+
+        $project->update($validated);
+        $project->refresh();
+
+        return new ProjectResource($project);
+    }
+
+    /**
+     * Toggle Launched/not-launched on a project.
+     */
+    public function setLaunched(Request $request, Project $project)
+    {
+        $validated = $request->validate([
+            'launch_date' => 'nullable|date',
+        ]);
+        if($validated['launch_date'] === null) {
+            $validated['is_launched'] = false;
+        } else {
+            $validated['is_launched'] = true;
+        }
+        $project->update($validated);
+        $project->refresh();
+
+        return new ProjectResource($project);
     }
 }

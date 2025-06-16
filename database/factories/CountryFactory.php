@@ -18,7 +18,7 @@ class CountryFactory extends Factory
     {
         return [
             'id' => $this->faker->unique()->lexify('???'),
-            'internal_name' => $this->faker->words(2, true),
+            'internal_name' => $this->faker->words(3, true),
             'backward_compatibility' => $this->faker->lexify('??'),
         ];
     }

@@ -18,7 +18,7 @@ class LanguageFactory extends Factory
     {
         return [
             'id' => $this->faker->unique()->lexify('???'),
-            'internal_name' => $this->faker->unique()->words(2, true),
+            'internal_name' => $this->faker->unique()->words(3, true),
             'backward_compatibility' => $this->faker->lexify('??'),
             'is_default' => false,
         ];

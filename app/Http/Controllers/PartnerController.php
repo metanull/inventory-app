@@ -22,13 +22,16 @@ class PartnerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            /** @ignoreParam */
             'id' => 'prohibited',
-            'internal_name' => 'required',
+            'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string',
             'type' => 'required|in:museum,institution,individual',
             'country_id' => 'nullable|string|size:3',
         ]);
         $partner = Partner::create($validated);
+        $partner->refresh();
+        $partner->load('country');
 
         return new PartnerResource($partner);
     }
@@ -47,13 +50,16 @@ class PartnerController extends Controller
     public function update(Request $request, Partner $partner)
     {
         $validated = $request->validate([
+            /** @ignoreParam */
             'id' => 'prohibited',
-            'internal_name' => 'required',
+            'internal_name' => 'string',
             'backward_compatibility' => 'nullable|string',
-            'type' => 'required|in:museum,institution,individual',
+            'type' => 'in:museum,institution,individual',
             'country_id' => 'nullable|string|size:3',
         ]);
         $partner->update($validated);
+        $partner->refresh();
+        $partner->load('country');
 
         return new PartnerResource($partner);
     }
