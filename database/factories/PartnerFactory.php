@@ -22,7 +22,7 @@ class PartnerFactory extends Factory
             'internal_name' => $this->faker->unique()->words(3, true),
             'backward_compatibility' => $this->faker->optional()->bothify('???_##'),
             'type' => $this->faker->randomElement(['museum', 'institution', 'individual']),
-            'country_id' => Country::factory(),
+            'country_id' => null, // This should be set to a valid country ID if needed
         ];
     }
 
@@ -45,5 +45,14 @@ class PartnerFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'type' => 'individual',
         ]);
+    }
+
+    public function withCountry(): self
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'country_id' => Country::factory(),
+            ];
+        });
     }
 }

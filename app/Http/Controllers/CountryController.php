@@ -23,10 +23,11 @@ class CountryController extends Controller
     {
         $validated = $request->validate([
             'id' => 'required|string|size:3',
-            'internal_name' => 'required',
+            'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string|size:2',
         ]);
         $country = Country::create($validated);
+        $country->refresh();
 
         return new CountryResource($country);
     }
@@ -45,11 +46,13 @@ class CountryController extends Controller
     public function update(Request $request, Country $country)
     {
         $validated = $request->validate([
+            /** @ignoreParam */
             'id' => 'prohibited',
-            'internal_name' => 'required',
+            'internal_name' => 'string',
             'backward_compatibility' => 'nullable|string|size:2',
         ]);
         $country->update($validated);
+        $country->refresh();
 
         return new CountryResource($country);
     }

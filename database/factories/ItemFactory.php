@@ -21,13 +21,22 @@ class ItemFactory extends Factory
     {
         return [
             'id' => $this->faker->unique()->uuid(),
-            'partner_id' => Partner::factory(),
-            'internal_name' => $this->faker->unique()->words(2, true),
+            'partner_id' => null, // This must be set to a valid partner ID
+            'internal_name' => $this->faker->unique()->words(3, true),
             'backward_compatibility' => $this->faker->optional()->lexify('???'),
             'type' => $this->faker->randomElement(['object', 'monument']),
             'project_id' => null, // This should be set to a valid project ID if needed
             'country_id' => null, // This should be set to a valid country ID if needed
         ];
+    }
+
+    public function withPartner(): self
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'partner_id' => Partner::factory(),
+            ];
+        });
     }
 
     public function withProject(): self

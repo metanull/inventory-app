@@ -14,6 +14,30 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::patch('context/{context}/default', [ContextController::class, 'setDefault'])
+    ->name('context.setDefault')
+    ->middleware('auth:sanctum');
+
+Route::get('context/default', [ContextController::class, 'getDefault'])
+    ->name('context.getDefault')
+    ->middleware('auth:sanctum');
+
+Route::patch('language/{language}/default', [LanguageController::class, 'setDefault'])
+    ->name('language.setDefault')
+    ->middleware('auth:sanctum');
+
+Route::get('language/default', [LanguageController::class, 'getDefault'])
+    ->name('language.getDefault')
+    ->middleware('auth:sanctum');
+
+Route::patch('project/{project}/launched', [ProjectController::class, 'setLaunched'])
+    ->name('project.setLaunched')
+    ->middleware('auth:sanctum');
+
+Route::patch('project/{project}/enabled', [ProjectController::class, 'setEnabled'])
+    ->name('project.setEnabled')
+    ->middleware('auth:sanctum');
+
 Route::resource('country', CountryController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
