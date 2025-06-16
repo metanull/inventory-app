@@ -40,13 +40,13 @@ class ProcessPictureUploaded
             $aspectRatio = $width / $height;
             $targetHeight = round($targetWidth / $aspectRatio);
             $picture->resize($targetWidth, $targetHeight);
-/*
-            $picture->resize(1280, 720, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            });
-*/
-            $picture->text($event->picture->copyright_text, 800, 800, function($font) {
+            /*
+                        $picture->resize(1280, 720, function ($constraint) {
+                            $constraint->aspectRatio();
+                            $constraint->upsize();
+                        });
+            */
+            $picture->text($event->picture->copyright_text, 800, 800, function ($font) {
                 // $font->file(public_path('fonts/your-font.ttf')); // Optional: Specify a custom font
                 $font->size(36); // Font size
                 $font->color('#00ff00'); // Font color
@@ -57,7 +57,7 @@ class ProcessPictureUploaded
 
             $encoded = $picture->toJpg();
             $encoded->save($path);
-//            \Log::info("Resized picture: {$file->path} to 1280x720");
+            //            \Log::info("Resized picture: {$file->path} to 1280x720");
             // Update the file record with the resized path
             $file->update(['path' => $path]);
         }
