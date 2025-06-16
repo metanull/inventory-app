@@ -40,9 +40,8 @@ class ProcessPictureUploaded
             $aspectRatio = $width / $height;
             $targetHeight = round($targetWidth / $aspectRatio);
             $picture->resize($targetWidth, $targetHeight);
-            
-            */
-            if (!is_null($event->picture->copyright_text)) {
+
+            if (! is_null($event->picture->copyright_text)) {
                 $picture->text($event->picture->copyright_text, 800, 800, function ($font) {
                     // $font->file(public_path('fonts/your-font.ttf')); // Optional: Specify a custom font
                     $font->size(36); // Font size
