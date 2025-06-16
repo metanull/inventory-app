@@ -40,11 +40,7 @@ class ProcessPictureUploaded
             $aspectRatio = $width / $height;
             $targetHeight = round($targetWidth / $aspectRatio);
             $picture->resize($targetWidth, $targetHeight);
-            /*
-                        $picture->resize(1280, 720, function ($constraint) {
-                            $constraint->aspectRatio();
-                            $constraint->upsize();
-                        });
+            
             */
             if (!is_null($event->picture->copyright_text)) {
                 $picture->text($event->picture->copyright_text, 800, 800, function ($font) {
