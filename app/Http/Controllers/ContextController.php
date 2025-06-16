@@ -97,11 +97,10 @@ class ContextController extends Controller
     {
         $context = Context::where('is_default', true)->first();
 
-        if (!$context) {
+        if (! $context) {
             return response()->json(['message' => 'No default context found'], 404);
         }
 
         return new ContextResource($context);
     }
-
 }

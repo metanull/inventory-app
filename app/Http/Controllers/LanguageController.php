@@ -96,7 +96,7 @@ class LanguageController extends Controller
     {
         $context = Language::where('is_default', true)->first();
 
-        if (!$context) {
+        if (! $context) {
             return response()->json(['message' => 'No default context found'], 404);
         }
 

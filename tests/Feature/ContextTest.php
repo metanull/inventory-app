@@ -2,9 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Country;
 use App\Models\Context;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -53,6 +52,7 @@ class ContextTest extends TestCase
             ]);
         $response_authenticated->assertCreated();
     }
+
     public function test_update_requires_authentication(): void
     {
         $context = Context::factory()->create();
@@ -71,6 +71,7 @@ class ContextTest extends TestCase
             ]);
         $response_authenticated->assertOk();
     }
+
     public function test_destroy_requires_authentication(): void
     {
         $context = Context::factory()->create();
@@ -249,7 +250,7 @@ class ContextTest extends TestCase
             ]);
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['id','internal_name', 'is_default']);
+            ->assertJsonValidationErrors(['id', 'internal_name', 'is_default']);
     }
 
     public function test_update_returns_unprocessable_and_adequate_validation_errors(): void
@@ -266,7 +267,7 @@ class ContextTest extends TestCase
             ]);
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['id','internal_name', 'is_default']);
+            ->assertJsonValidationErrors(['id', 'internal_name', 'is_default']);
     }
 
     public function test_get_default_context_returns_the_default_one(): void
@@ -320,5 +321,4 @@ class ContextTest extends TestCase
                 ],
             ]);
     }
-    
 }

@@ -103,7 +103,7 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'launch_date' => 'nullable|date',
         ]);
-        if($validated['launch_date'] === null) {
+        if ($validated['launch_date'] === null) {
             $validated['is_launched'] = false;
         } else {
             $validated['is_launched'] = true;

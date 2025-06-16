@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Country;
 use App\Models\Partner;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -57,6 +57,7 @@ class PartnerTest extends TestCase
             ]);
         $response_authenticated->assertCreated();
     }
+
     public function test_update_requires_authentication(): void
     {
         $partner = Partner::factory()->withCountry()->create();
@@ -79,6 +80,7 @@ class PartnerTest extends TestCase
             ]);
         $response_authenticated->assertOk();
     }
+
     public function test_destroy_requires_authentication(): void
     {
         $partner = Partner::factory()->withCountry()->create();
@@ -301,7 +303,7 @@ class PartnerTest extends TestCase
             ]);
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['id','internal_name', 'country_id', 'type']);
+            ->assertJsonValidationErrors(['id', 'internal_name', 'country_id', 'type']);
     }
 
     public function test_update_returns_unprocessable_and_adequate_validation_errors(): void
@@ -319,7 +321,7 @@ class PartnerTest extends TestCase
             ]);
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['id','internal_name', 'country_id', 'type']);
+            ->assertJsonValidationErrors(['id', 'internal_name', 'country_id', 'type']);
     }
 
     public function test_store_partner_as_museum_creates_a_partner(): void
@@ -448,5 +450,4 @@ class PartnerTest extends TestCase
                 'message' => 'The selected type is invalid.',
             ]);
     }
-    
 }
