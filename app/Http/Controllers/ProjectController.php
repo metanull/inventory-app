@@ -77,7 +77,7 @@ class ProjectController extends Controller
     {
         $project->delete();
 
-        return response()->json(null, 204);
+        return response()->noContent();
     }
 
     /**
