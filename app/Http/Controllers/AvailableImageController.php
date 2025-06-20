@@ -55,7 +55,7 @@ class AvailableImageController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Returns the file to the caller.
      */
     public function download(AvailableImage $availableImage)
     {
