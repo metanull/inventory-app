@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\PictureUploaded;
 use App\Http\Resources\PictureResource;
 use App\Models\Picture;
 use Illuminate\Http\Request;
@@ -58,7 +57,6 @@ class PictureController extends Controller
             'upload_size' => $file->getSize(),
         ]);
         $picture->refresh();
-        PictureUploaded::dispatch($picture);
 
         return new PictureResource($picture);
     }

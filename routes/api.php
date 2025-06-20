@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AvailableImageController;
 use App\Http\Controllers\ContextController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PartnerController;
@@ -64,4 +66,20 @@ Route::resource('picture', PictureController::class)->except([
 
 Route::resource('project', ProjectController::class)->except([
     'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::get('image-upload/{image_upload}/download', [ImageUploadController::class, 'download'])
+    ->name('image-upload.download')
+    ->middleware('auth:sanctum');
+
+Route::resource('image-upload', ImageUploadController::class)->except([
+    'create', 'edit', 'update',
+])->middleware('auth:sanctum');
+
+Route::get('available-image/{available_image}/download', [AvailableImageController::class, 'download'])
+    ->name('available-image.download')
+    ->middleware('auth:sanctum');
+
+Route::resource('available-image', AvailableImageController::class)->except([
+    'create', 'edit', 'store',
 ])->middleware('auth:sanctum');
