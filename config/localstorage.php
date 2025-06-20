@@ -12,13 +12,13 @@ return [
             |--------------------------------------------------------------------------
             |
             | This value defines the maximum size for image uploads in bytes. The
-            | default is set to 10MB (10485760 bytes). You can change this value
+            | default is set to 20MB (20480 kilobytes). You can change this value
             | in your .env file using the `LOCAL_STORAGE_IMAGE_UPLOAD_MAX_SIZE` key.
             |
             | Note that this value is used for validation, so it should be set
             | according to your application's requirements.
             | */
-            'max_size' => env('LOCAL_STORAGE_IMAGE_UPLOAD_MAX_SIZE', 10485760), // in bytes (10MB)
+            'max_size' => env('LOCAL_STORAGE_IMAGE_UPLOAD_MAX_SIZE', 20480), // in kb
 
             /*
             |--------------------------------------------------------------------------

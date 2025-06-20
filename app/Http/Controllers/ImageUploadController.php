@@ -23,16 +23,12 @@ class ImageUploadController extends Controller
      */
     public function store(Request $request)
     {
-        // $validateMime = config('localstorage.uploads.images.mime', 'jpg');
-        // $validateSize = config('localstorage.uploads.images.max_size', 5242880);
-        // $validated = $request->validate([
-        //  'file' => "required|image|mimes:{$validateMime}|max:{$validateSize}",
-        // ]);
-
+        // Validate the request, ensuring the 'file' is an image and other fields are not required.
+        // This first validation is ensentially required for dedoc/scramble to properly detect that the 'file' parameter is a file upload.
         $validated = $request->validate([
+            'file' => 'required|image',
             /** @ignoreParam */
             'id' => 'prohibited',
-            'file' => 'required|image|mimes:jpeg,png,jpg|max:5242880',
             /** @ignoreParam */
             'path' => 'prohibited',
             /** @ignoreParam */
@@ -45,6 +41,20 @@ class ImageUploadController extends Controller
             'size' => 'prohibited',
         ]);
 
+        // Validate the image upload rules from the configuration.
+        // This second validation is necessary to ensure the image meets the specified criteria.
+        // As the rules are defined at the runtime, they are not accessible to the static analysis tool (dedoc/scramble).
+        // The rules are fetched from the configuration file, allowing for easy customization.
+        // The default values are set to 'jpeg,png,jpg' for mime types and 20480 (20 MB) for max size.
+        $imageUploadRules = [
+            'mime' => config('localstorage.uploads.images.mime', 'jpeg,png,jpg'),
+            'max_size' => config('localstorage.uploads.images.max_size', 20480),
+        ];
+        $validated = $request->validate([
+            'file' => "required|image|mimes:{$imageUploadRules['mime']}|max:{$imageUploadRules['max_size']}",
+        ]);
+
+        // Store the file in the local/private directory and disk.
         $file = $request->file('file');
         $path = $file->store(config('localstorage.uploads.images.directory'), config('localstorage.uploads.images.disk'));
 
@@ -83,22 +93,4 @@ class ImageUploadController extends Controller
         return response()->json(null, 204);
     }
 
-    /**
-     * Returns the file to the caller.
-     */
-    public function download(ImageUpload $imageUpload)
-    {
-        /*
-            Opt 1:  // Works (as 'local' is the default disk)
-                return Storage::download($imageUpload->path);
-            Opt 2:  // Works, but implies messing with the path field
-                $name = basename($imageUpload->path);
-                $disk = config('localstorage.uploads.images.disk');
-                $dir = trim(config('localstorage.uploads.images.directory'), '/');
-                return Storage::disk($disk)->download($imageUpload->path);
-            Opt 3:  // Works (as long as the path field is a relative path to the disk)
-                return Storage::disk(config('localstorage.uploads.images.disk'))->download($imageUpload->path);
-        */
-        return Storage::disk(config('localstorage.uploads.images.disk'))->download($imageUpload->path);
-    }
 }
