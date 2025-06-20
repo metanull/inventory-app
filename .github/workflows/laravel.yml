@@ -80,7 +80,7 @@ jobs:
 
     - name: 'Check > npm > Check Vulnerabilities'
       run: |
-        npm audit --audit-level=moderate
+        npm audit --audit-level moderate
 
     - name: 'Check > npm > Build'
       run: |
