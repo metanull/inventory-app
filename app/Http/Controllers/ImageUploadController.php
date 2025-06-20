@@ -24,7 +24,7 @@ class ImageUploadController extends Controller
     public function store(Request $request)
     {
         // Validate the request, ensuring the 'file' is an image and other fields are not required.
-        // This first validation is ensentially required for dedoc/scramble to properly detect that the 'file' parameter is a file upload.
+        // This first validation is essentially required for dedoc/scramble to properly detect that the 'file' parameter is a file upload.
         $validated = $request->validate([
             'file' => 'required|image',
             /** @ignoreParam */
