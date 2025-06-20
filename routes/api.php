@@ -68,10 +68,6 @@ Route::resource('project', ProjectController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 
-Route::get('image-upload/{image_upload}/download', [ImageUploadController::class, 'download'])
-    ->name('image-upload.download')
-    ->middleware('auth:sanctum');
-
 Route::resource('image-upload', ImageUploadController::class)->except([
     'create', 'edit', 'update',
 ])->middleware('auth:sanctum');
