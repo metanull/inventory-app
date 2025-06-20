@@ -72,7 +72,10 @@ class ImageUploadListener
                 $imageUpload->save($path);
             }
 
-            AvailableImageEvent::dispatch(AvailableImage::create(['id' => $event->imageUpload->id, 'path' => $event->imageUpload->path]));
+            $availableImage = new AvailableImage(['path' => $event->imageUpload->path]);
+            $availableImage->id = $event->imageUpload->id;
+            $availableImage->save();
+            AvailableImageEvent::dispatch($availableImage);
         }
     }
 }
