@@ -384,15 +384,6 @@ class PartnerTest extends TestCase
                         'backward_compatibility' => $country->backward_compatibility,
                     ],
                 ],
-            ])
-            ->assertJson([
-                'data' => [
-                    'country' => [
-                        'id' => $country->id,
-                        'internal_name' => $country->internal_name,
-                        'backward_compatibility' => $country->backward_compatibility,
-                    ],
-                ],
             ]);
     }
 
@@ -414,15 +405,6 @@ class PartnerTest extends TestCase
                     'internal_name' => 'Test Individual Partner',
                     'backward_compatibility' => 'TD',
                     'type' => 'individual',
-                    'country' => [
-                        'id' => $country->id,
-                        'internal_name' => $country->internal_name,
-                        'backward_compatibility' => $country->backward_compatibility,
-                    ],
-                ],
-            ])
-            ->assertJson([
-                'data' => [
                     'country' => [
                         'id' => $country->id,
                         'internal_name' => $country->internal_name,

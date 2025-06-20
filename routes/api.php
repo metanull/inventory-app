@@ -9,6 +9,7 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\ProjectController;
+use App\http\controllers\DetailController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -78,4 +79,8 @@ Route::get('available-image/{available_image}/download', [AvailableImageControll
 
 Route::resource('available-image', AvailableImageController::class)->except([
     'create', 'edit', 'store',
+])->middleware('auth:sanctum');
+
+Route::resource('detail', DetailController::class)->except([
+    'create', 'edit',
 ])->middleware('auth:sanctum');
