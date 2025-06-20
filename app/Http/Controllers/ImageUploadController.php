@@ -92,5 +92,4 @@ class ImageUploadController extends Controller
 
         return response()->json(null, 204);
     }
-
 }
