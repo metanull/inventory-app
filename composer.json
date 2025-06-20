@@ -60,6 +60,21 @@
         "dev": [
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
+        ],
+        "validate-pr": [
+            "@php -r \"if(file_exists('./database/database.sqlite')) { unlink('./database/database.sqlite'); }\"",
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@composer validate --with-dependencies --strict --ansi",
+            "@composer install --ansi --no-interaction --no-scripts --no-progress --prefer-dist",
+            "@composer audit --format=summary",
+            "@php artisan key:generate --ansi",
+            "@php artisan migrate --force --no-interaction --ansi",
+            "@php artisan db:seed --ansi",
+            "@php artisan test --parallel --ansi",
+            ".\\vendor\\bin\\pint --repair --no-interaction --ansi",
+            "npm ci --no-fund --no-audit",
+            "npm audit --audit-level moderate",
+            "npm run build --if-present"
         ]
     },
     "extra": {
