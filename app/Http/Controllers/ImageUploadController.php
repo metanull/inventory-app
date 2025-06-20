@@ -50,7 +50,7 @@ class ImageUploadController extends Controller
             'mime' => config('localstorage.uploads.images.mime', 'jpeg,png,jpg'),
             'max_size' => config('localstorage.uploads.images.max_size', 20480),
         ];
-        $validated = $request->validate([
+        $request->validate([
             'file' => "required|image|mimes:{$imageUploadRules['mime']}|max:{$imageUploadRules['max_size']}",
         ]);
 
