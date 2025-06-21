@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\PartnerResource;
-use App\Models\Partner;
+use App\Http\Resources\DetailResource;
+use App\Models\Detail;
 use Illuminate\Http\Request;
 
-class PartnerController extends Controller
+class DetailController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return PartnerResource::collection(Partner::all());
+        return DetailResource::collection(Detail::all());
     }
 
     /**
@@ -24,52 +24,50 @@ class PartnerController extends Controller
         $validated = $request->validate([
             /** @ignoreParam */
             'id' => 'prohibited',
+            'item_id' => 'required|uuid',
             'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string',
-            'type' => 'required|in:museum,institution,individual',
-            'country_id' => 'nullable|string|size:3',
         ]);
-        $partner = Partner::create($validated);
-        $partner->refresh();
-        $partner->load('country');
+        $detail = Detail::create($validated);
+        $detail->refresh();
+        $detail->load(['item']);
 
-        return new PartnerResource($partner);
+        return new DetailResource($detail);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Partner $partner)
+    public function show(Detail $detail)
     {
-        return new PartnerResource($partner);
+        return new DetailResource($detail);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Partner $partner)
+    public function update(Request $request, Detail $detail)
     {
         $validated = $request->validate([
             /** @ignoreParam */
             'id' => 'prohibited',
+            'item_id' => 'uuid',
             'internal_name' => 'string',
             'backward_compatibility' => 'nullable|string',
-            'type' => 'in:museum,institution,individual',
-            'country_id' => 'nullable|string|size:3',
         ]);
-        $partner->update($validated);
-        $partner->refresh();
-        $partner->load('country');
+        $detail->update($validated);
+        $detail->refresh();
+        $detail->load(['item']);
 
-        return new PartnerResource($partner);
+        return new DetailResource($detail);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Partner $partner)
+    public function destroy(Detail $detail)
     {
-        $partner->delete();
+        $detail->delete();
 
         return response()->noContent();
     }

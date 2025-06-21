@@ -51,7 +51,7 @@ class AvailableImageController extends Controller
         Storage::delete($availableImage->path);
         $availableImage->delete();
 
-        return response()->json(null, 204);
+        return response()->noContent();
     }
 
     /**

@@ -24,7 +24,7 @@ class ItemController extends Controller
         $validated = $request->validate([
             /** @ignoreParam */
             'id' => 'prohibited',
-            'partner_id' => 'required|uuid',
+            'partner_id' => 'nullable|uuid',
             'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string',
             'type' => 'required|in:object,monument',
@@ -54,7 +54,7 @@ class ItemController extends Controller
         $validated = $request->validate([
             /** @ignoreParam */
             'id' => 'prohibited',
-            'partner_id' => 'uuid',
+            'partner_id' => 'nullable|uuid',
             'internal_name' => 'string',
             'backward_compatibility' => 'nullable|string',
             'type' => 'in:object,monument',
@@ -75,6 +75,6 @@ class ItemController extends Controller
     {
         $item->delete();
 
-        return response()->json(null, 204);
+        return response()->noContent();
     }
 }

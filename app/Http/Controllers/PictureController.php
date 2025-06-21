@@ -77,6 +77,6 @@ class PictureController extends Controller
         Storage::delete($picture->path);
         $picture->delete();
 
-        return response()->json(null, 204);
+        return response()->noContent();
     }
 }

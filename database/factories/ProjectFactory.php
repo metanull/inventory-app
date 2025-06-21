@@ -29,7 +29,7 @@ class ProjectFactory extends Factory
         return [
             'id' => $this->faker->unique()->uuid(),
             'internal_name' => $this->faker->unique()->words('3', true),
-            'backward_compatibility' => $this->faker->optional()->lexify('???'),
+            'backward_compatibility' => $this->faker->lexify('???'),
             'launch_date' => null,
             'is_launched' => false,
             'is_enabled' => false,

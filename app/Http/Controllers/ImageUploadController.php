@@ -90,6 +90,6 @@ class ImageUploadController extends Controller
         Storage::delete($imageUpload->path);
         $imageUpload->delete();
 
-        return response()->json(null, 204);
+        return response()->noContent();
     }
 }

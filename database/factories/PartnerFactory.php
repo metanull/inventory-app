@@ -20,7 +20,7 @@ class PartnerFactory extends Factory
         return [
             'id' => $this->faker->unique()->uuid(),
             'internal_name' => $this->faker->unique()->words(3, true),
-            'backward_compatibility' => $this->faker->optional()->bothify('???_##'),
+            'backward_compatibility' => $this->faker->bothify('???_##'),
             'type' => $this->faker->randomElement(['museum', 'institution', 'individual']),
             'country_id' => null, // This should be set to a valid country ID if needed
         ];

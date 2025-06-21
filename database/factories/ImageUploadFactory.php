@@ -18,7 +18,7 @@ class ImageUploadFactory extends Factory
     {
         return [
             'path' => $this->faker->imageUrl(640, 480, 'nature', true, 'Faker', true),
-            'name' => $this->faker->optional()->word().'.jpg',
+            'name' => $this->faker->word().'.jpg',
             'extension' => 'jpg',
             'mime_type' => 'image/jpeg',
             'size' => $this->faker->numberBetween(1000, 5000000),

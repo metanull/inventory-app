@@ -67,7 +67,7 @@ class ContextController extends Controller
     {
         $context->delete();
 
-        return response()->json(null, 204);
+        return response()->noContent();
     }
 
     /**
