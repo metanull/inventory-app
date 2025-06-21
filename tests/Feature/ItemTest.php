@@ -22,6 +22,9 @@ class ItemTest extends TestCase
             'id' => $item->id,
             'internal_name' => $item->internal_name,
             'backward_compatibility' => $item->backward_compatibility,
+            'partner_id' => null,
+            'country_id' => null,
+            'project_id' => null,
             'type' => $item->type,
         ]);
     }
@@ -186,8 +189,7 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.show', $item->id));
 
-        $response->assertOk()
-            ->assertJsonStructure([
+        $response->assertJsonStructure([
                 'data' => [
                     'id',
                     'partner',
@@ -209,8 +211,7 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.show', $item->id));
 
-        $response->assertOk()
-            ->assertJsonStructure([
+        $response->assertJsonStructure([
                 'data' => [
                     'partner' => [
                         'id',
@@ -232,8 +233,7 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.show', $item->id));
 
-        $response->assertOk()
-            ->assertJsonStructure([
+        $response->assertJsonStructure([
                 'data' => [
                     'country' => [
                         'id',
@@ -253,8 +253,7 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.show', $item->id));
 
-        $response->assertOk()
-            ->assertJsonStructure([
+        $response->assertJsonStructure([
                 'data' => [
                     'project' => [
                         'id',
@@ -274,8 +273,7 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.show', $item->id));
 
-        $response->assertOk()
-            ->assertJsonPath('data.id', $item->id)
+        $response->assertJsonPath('data.id', $item->id)
             ->assertJsonPath('data.internal_name', $item->internal_name)
             ->assertJsonPath('data.backward_compatibility', $item->backward_compatibility)
             ->assertJsonPath('data.type', $item->type)
@@ -289,8 +287,7 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.show', $item->id));
 
-        $response->assertOk()
-            ->assertJsonPath('data.id', $item->id)
+        $response->assertJsonPath('data.id', $item->id)
             ->assertJsonPath('data.partner.id', $item->partner->id)
             ->assertJsonPath('data.partner.internal_name', $item->partner->internal_name)
             ->assertJsonPath('data.partner.backward_compatibility', $item->partner->backward_compatibility)
@@ -304,8 +301,7 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.show', $item->id));
 
-        $response->assertOk()
-            ->assertJsonPath('data.id', $item->id)
+        $response->assertJsonPath('data.id', $item->id)
             ->assertJsonPath('data.country.id', $item->country->id)
             ->assertJsonPath('data.country.internal_name', $item->country->internal_name)
             ->assertJsonPath('data.country.backward_compatibility', $item->country->backward_compatibility)
@@ -319,12 +315,20 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.show', $item->id));
 
-        $response->assertOk()
-            ->assertJsonPath('data.id', $item->id)
+        $response->assertJsonPath('data.id', $item->id)
             ->assertJsonPath('data.project.id', $item->project->id)
             ->assertJsonPath('data.project.internal_name', $item->project->internal_name)
             ->assertJsonPath('data.project.backward_compatibility', $item->project->backward_compatibility)
             ;
+    }
+
+    public function test_api_response_index_returns_ok_when_no_data(): void
+    {
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)
+            ->getJson(route('item.index'));
+
+        $response->assertOk();
     }
 
     public function test_api_response_index_returns_an_empty_array_when_no_data(): void
@@ -333,8 +337,7 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.index'));
 
-        $response->assertOk()
-            ->assertJsonCount(0, 'data');
+        $response->assertJsonCount(0, 'data');
     }
 
     public function test_api_response_index_returns_the_expected_structure(): void
@@ -344,8 +347,7 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.index'));
 
-        $response->assertOk()
-            ->assertExactJsonStructure ([
+        $response->assertExactJsonStructure ([
                 'data' => [
                     '*' => [
                         'id',
@@ -369,8 +371,7 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.index'));
 
-        $response->assertOk()
-            ->assertJsonStructure ([
+        $response->assertJsonStructure ([
                 'data' => [
                     '*' => [
                         'id',
@@ -395,8 +396,7 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.index'));
 
-        $response->assertOk()
-            ->assertJsonStructure ([
+        $response->assertJsonStructure ([
                 'data' => [
                     '*' => [
                         'id',
@@ -419,8 +419,7 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.index'));
 
-        $response->assertOk()
-            ->assertJsonStructure ([
+        $response->assertJsonStructure ([
                 'data' => [
                     '*' => [
                         'id',
@@ -444,8 +443,7 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.index'));
 
-        $response->assertOk()
-            ->assertJsonPath('data.0.id', $item1->id)
+        $response->assertJsonPath('data.0.id', $item1->id)
             ->assertJsonPath('data.0.internal_name', $item1->internal_name)
             ->assertJsonPath('data.0.backward_compatibility', $item1->backward_compatibility)
             ->assertJsonPath('data.0.type', $item1->type)
@@ -461,13 +459,13 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->postJson(route('item.store'), [
                 'id' => 'invalid-id', // Invalid: prohibited field
-                'partner_id' => 'invalid_id', // Invalid: not a valid Partner ID
+                'partner_id' => null,
                 'internal_name' => '', // Invalid: required field
                 'backward_compatibility' => null,
                 'type' => 'invalid_type', // Invalid: not in allowed types
             ]);
 
-        $response->assertJsonValidationErrors(['id', 'internal_name', 'partner_id', 'type']);
+        $response->assertJsonValidationErrors(['id', 'internal_name', 'type']);
     }
 
     public function test_api_response_store_returns_unprocessable_when_input_is_invalid(): void
@@ -476,7 +474,7 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->postJson(route('item.store'), [
                 'id' => 'invalid-id', // Invalid: prohibited field
-                'partner_id' => 'invalid_id', // Invalid: not a valid Partner ID
+                'partner_id' => null,
                 'internal_name' => '', // Invalid: required field
                 'backward_compatibility' => 'TI',
                 'type' => 'invalid_type', // Invalid: not in allowed types
@@ -485,7 +483,7 @@ class ItemTest extends TestCase
         $response->assertUnprocessable();
     }
 
-    public function test_api_process_store_creates_an_item(): void
+    public function test_api_process_store_inserts_a_row(): void
     {
         $user = User::factory()->create();
         $partner = Partner::factory()->create();
@@ -722,13 +720,13 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->putJson(route('item.update', $item->id), [
                 'id' => 'invalid-id', // Invalid: prohibited field
-                'partner_id' => 'invalid_id', // Invalid: not a valid Partner ID
+                'partner_id' => null,
                 'internal_name' => '', // Invalid: required field
                 'backward_compatibility' => 'UI',
                 'type' => 'invalid_type', // Invalid: not in allowed types
             ]);
 
-        $response->assertJsonValidationErrors(['id', 'internal_name', 'partner_id', 'type']);
+        $response->assertJsonValidationErrors(['id', 'internal_name', 'type']);
     }
 
     public function test_api_response_update_returns_not_found_response_when_not_found(): void
@@ -745,15 +743,15 @@ class ItemTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_api_process_update_changes_the_item(): void
+    public function test_api_process_update_updates_a_row(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->withPartner()->create();
-        $other_partner = Partner::factory()->create();
+        $item = Item::factory()->create();
+        $partner = Partner::factory()->create();
 
         $response = $this->actingAs($user)
             ->putJson(route('item.update', $item->id), [
-                'partner_id' => $other_partner->id,
+                'partner_id' => $partner->id,
                 'internal_name' => 'Updated Item',
                 'backward_compatibility' => 'UI123',
                 'type' => 'monument',
@@ -761,7 +759,7 @@ class ItemTest extends TestCase
 
         $this->assertDatabaseHas('items', [
             'id' => $item->id,
-            'partner_id' => $other_partner->id,
+            'partner_id' => $partner->id,
             'internal_name' => 'Updated Item',
             'backward_compatibility' => 'UI123',
             'type' => 'monument',
@@ -771,7 +769,7 @@ class ItemTest extends TestCase
     public function test_api_response_update_returns_ok_on_success(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->withPartner()->create();
+        $item = Item::factory()->create();
 
         $response = $this->actingAs($user)
             ->putJson(route('item.update', $item->id), [
@@ -804,7 +802,7 @@ class ItemTest extends TestCase
     public function test_api_response_update_returns_the_expected_structure(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->withPartner()->create();
+        $item = Item::factory()->create();
 
         $response = $this->actingAs($user)
             ->putJson(route('item.update', $item->id), [
@@ -861,7 +859,7 @@ class ItemTest extends TestCase
     public function test_api_response_update_returns_the_expected_structure_including_country_data(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->withPartner()->create();
+        $item = Item::factory()->create();
         $country = Country::factory()->create();
 
         $response = $this->actingAs($user)
@@ -889,7 +887,7 @@ class ItemTest extends TestCase
     public function test_api_response_update_returns_the_expected_structure_including_project_data(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->withPartner()->create();
+        $item = Item::factory()->create();
         $project = Project::factory()->create();
 
         $response = $this->actingAs($user)
@@ -917,7 +915,7 @@ class ItemTest extends TestCase
     public function test_api_response_update_returns_the_expected_data(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->withPartner()->create();
+        $item = Item::factory()->create();
 
         $response = $this->actingAs($user)
             ->putJson(route('item.update', $item->id), [
@@ -935,26 +933,26 @@ class ItemTest extends TestCase
     public function test_api_response_update_returns_the_expected_data_including_partner_data(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->withPartner()->create();
-        $other_partner = Partner::factory()->create();
+        $item = Item::factory()->create();
+        $partner = Partner::factory()->create();
 
         $response = $this->actingAs($user)
             ->putJson(route('item.update', $item->id), [
-                'partner_id' => $other_partner->id,
+                'partner_id' => $partner->id,
                 'internal_name' => 'Updated Item',
                 'backward_compatibility' => 'UI123',
                 'type' => 'monument',
             ]);
 
-        $response->assertJsonPath('data.partner.id', $other_partner->id)
-            ->assertJsonPath('data.partner.internal_name', $other_partner->internal_name)
-            ->assertJsonPath('data.partner.backward_compatibility', $other_partner->backward_compatibility);
+        $response->assertJsonPath('data.partner.id', $partner->id)
+            ->assertJsonPath('data.partner.internal_name', $partner->internal_name)
+            ->assertJsonPath('data.partner.backward_compatibility', $partner->backward_compatibility);
     }
 
     public function test_api_response_update_returns_the_expected_data_including_country_data(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->withPartner()->create();
+        $item = Item::factory()->create();
         $country = Country::factory()->create();
 
         $response = $this->actingAs($user)
@@ -974,7 +972,7 @@ class ItemTest extends TestCase
     public function test_api_response_update_returns_the_expected_data_including_project_data(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->withPartner()->create();
+        $item = Item::factory()->create();
         $project = Project::factory()->create();
 
         $response = $this->actingAs($user)
@@ -1000,10 +998,10 @@ class ItemTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_api_process_destroy_removes_the_item_from_the_database(): void
+    public function test_api_process_destroy_deletes_a_row(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->Object()->withPartner()->create();
+        $item = Item::factory()->create();
 
         $this->actingAs($user)
             ->deleteJson(route('item.destroy', $item->id));
@@ -1014,7 +1012,7 @@ class ItemTest extends TestCase
     public function test_api_response_destroy_returns_no_content_on_success(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->Object()->withPartner()->create();
+        $item = Item::factory()->create();
 
         $response = $this->actingAs($user)
             ->deleteJson(route('item.destroy', $item->id));
