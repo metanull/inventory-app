@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\Partner;
 use App\Models\Country;
-use App\Models\Project;
 use App\Models\Item;
+use App\Models\Partner;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -52,9 +52,9 @@ class ItemTest extends TestCase
         $item = Item::factory()->withPartner()->create();
         $this->assertNotNull($item->partner_id);
         $this->assertDatabaseHas('items', [
-                'id' => $item->id,
-                'partner_id' => $item->partner->id,
-            ]);
+            'id' => $item->id,
+            'partner_id' => $item->partner->id,
+        ]);
     }
 
     public function test_item_factory_with_country(): void
@@ -62,9 +62,9 @@ class ItemTest extends TestCase
         $item = Item::factory()->withCountry()->create();
         $this->assertNotNull($item->country_id);
         $this->assertDatabaseHas('items', [
-                'id' => $item->id,
-                'country_id' => $item->country->id,
-            ]);
+            'id' => $item->id,
+            'country_id' => $item->country->id,
+        ]);
     }
 
     public function test_item_factory_with_project(): void
@@ -72,9 +72,9 @@ class ItemTest extends TestCase
         $item = Item::factory()->withProject()->create();
         $this->assertNotNull($item->project_id);
         $this->assertDatabaseHas('items', [
-                'id' => $item->id,
-                'project_id' => $item->project->id,
-            ]);
+            'id' => $item->id,
+            'project_id' => $item->project->id,
+        ]);
     }
 
     public function test_api_authentication_index_forbids_anonymous_access(): void
@@ -190,18 +190,18 @@ class ItemTest extends TestCase
             ->getJson(route('item.show', $item->id));
 
         $response->assertJsonStructure([
-                'data' => [
-                    'id',
-                    'partner',
-                    'internal_name',
-                    'backward_compatibility',
-                    'type',
-                    'country',
-                    'project',
-                    'created_at',
-                    'updated_at',
-                ],
-            ]);
+            'data' => [
+                'id',
+                'partner',
+                'internal_name',
+                'backward_compatibility',
+                'type',
+                'country',
+                'project',
+                'created_at',
+                'updated_at',
+            ],
+        ]);
     }
 
     public function test_api_response_show_returns_the_expected_structure_including_partner_data(): void
@@ -212,18 +212,18 @@ class ItemTest extends TestCase
             ->getJson(route('item.show', $item->id));
 
         $response->assertJsonStructure([
-                'data' => [
-                    'partner' => [
-                        'id',
-                        'internal_name',
-                        'backward_compatibility',
-                        'country',
-                        'type',
-                        'created_at',
-                        'updated_at',
-                    ],
+            'data' => [
+                'partner' => [
+                    'id',
+                    'internal_name',
+                    'backward_compatibility',
+                    'country',
+                    'type',
+                    'created_at',
+                    'updated_at',
                 ],
-            ]);
+            ],
+        ]);
     }
 
     public function test_api_response_show_returns_the_expected_structure_including_country_data(): void
@@ -234,16 +234,16 @@ class ItemTest extends TestCase
             ->getJson(route('item.show', $item->id));
 
         $response->assertJsonStructure([
-                'data' => [
-                    'country' => [
-                        'id',
-                        'internal_name',
-                        'backward_compatibility',
-                        'created_at',
-                        'updated_at',
-                    ],
+            'data' => [
+                'country' => [
+                    'id',
+                    'internal_name',
+                    'backward_compatibility',
+                    'created_at',
+                    'updated_at',
                 ],
-            ]);
+            ],
+        ]);
     }
 
     public function test_api_response_show_returns_the_expected_structure_including_project_data(): void
@@ -254,16 +254,16 @@ class ItemTest extends TestCase
             ->getJson(route('item.show', $item->id));
 
         $response->assertJsonStructure([
-                'data' => [
-                    'project' => [
-                        'id',
-                        'internal_name',
-                        'backward_compatibility',
-                        'created_at',
-                        'updated_at',
-                    ],
+            'data' => [
+                'project' => [
+                    'id',
+                    'internal_name',
+                    'backward_compatibility',
+                    'created_at',
+                    'updated_at',
                 ],
-            ]);
+            ],
+        ]);
     }
 
     public function test_api_response_show_returns_the_expected_data(): void
@@ -276,8 +276,7 @@ class ItemTest extends TestCase
         $response->assertJsonPath('data.id', $item->id)
             ->assertJsonPath('data.internal_name', $item->internal_name)
             ->assertJsonPath('data.backward_compatibility', $item->backward_compatibility)
-            ->assertJsonPath('data.type', $item->type)
-            ;
+            ->assertJsonPath('data.type', $item->type);
     }
 
     public function test_api_response_show_returns_the_expected_data_including_partner_data(): void
@@ -290,8 +289,7 @@ class ItemTest extends TestCase
         $response->assertJsonPath('data.id', $item->id)
             ->assertJsonPath('data.partner.id', $item->partner->id)
             ->assertJsonPath('data.partner.internal_name', $item->partner->internal_name)
-            ->assertJsonPath('data.partner.backward_compatibility', $item->partner->backward_compatibility)
-            ;
+            ->assertJsonPath('data.partner.backward_compatibility', $item->partner->backward_compatibility);
     }
 
     public function test_api_response_show_returns_the_expected_data_including_country_data(): void
@@ -304,8 +302,7 @@ class ItemTest extends TestCase
         $response->assertJsonPath('data.id', $item->id)
             ->assertJsonPath('data.country.id', $item->country->id)
             ->assertJsonPath('data.country.internal_name', $item->country->internal_name)
-            ->assertJsonPath('data.country.backward_compatibility', $item->country->backward_compatibility)
-            ;
+            ->assertJsonPath('data.country.backward_compatibility', $item->country->backward_compatibility);
     }
 
     public function test_api_response_show_returns_the_expected_data_including_project_data(): void
@@ -318,8 +315,7 @@ class ItemTest extends TestCase
         $response->assertJsonPath('data.id', $item->id)
             ->assertJsonPath('data.project.id', $item->project->id)
             ->assertJsonPath('data.project.internal_name', $item->project->internal_name)
-            ->assertJsonPath('data.project.backward_compatibility', $item->project->backward_compatibility)
-            ;
+            ->assertJsonPath('data.project.backward_compatibility', $item->project->backward_compatibility);
     }
 
     public function test_api_response_index_returns_ok_when_no_data(): void
@@ -347,21 +343,21 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.index'));
 
-        $response->assertExactJsonStructure ([
-                'data' => [
-                    '*' => [
-                        'id',
-                        'partner',
-                        'internal_name',
-                        'backward_compatibility',
-                        'type',
-                        'country',
-                        'project',
-                        'created_at',
-                        'updated_at',
-                    ],
+        $response->assertExactJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'partner',
+                    'internal_name',
+                    'backward_compatibility',
+                    'type',
+                    'country',
+                    'project',
+                    'created_at',
+                    'updated_at',
                 ],
-            ]);
+            ],
+        ]);
     }
 
     public function test_api_response_index_returns_the_expected_structure_including_partner_data(): void
@@ -371,22 +367,22 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.index'));
 
-        $response->assertJsonStructure ([
-                'data' => [
-                    '*' => [
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'partner' => [
                         'id',
-                        'partner' => [
-                            'id',
-                            'internal_name',
-                            'backward_compatibility',
-                            'country',
-                            'type',
-                            'created_at',
-                            'updated_at',
-                        ],
+                        'internal_name',
+                        'backward_compatibility',
+                        'country',
+                        'type',
+                        'created_at',
+                        'updated_at',
                     ],
                 ],
-            ]);
+            ],
+        ]);
     }
 
     public function test_api_response_index_returns_the_expected_structure_including_country_data(): void
@@ -396,20 +392,20 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.index'));
 
-        $response->assertJsonStructure ([
-                'data' => [
-                    '*' => [
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'country' => [
                         'id',
-                        'country' => [
-                            'id',
-                            'internal_name',
-                            'backward_compatibility',
-                            'created_at',
-                            'updated_at',
-                        ],
+                        'internal_name',
+                        'backward_compatibility',
+                        'created_at',
+                        'updated_at',
                     ],
                 ],
-            ]);
+            ],
+        ]);
     }
 
     public function test_api_response_index_returns_the_expected_structure_including_project_data(): void
@@ -419,23 +415,23 @@ class ItemTest extends TestCase
         $response = $this->actingAs($user)
             ->getJson(route('item.index'));
 
-        $response->assertJsonStructure ([
-                'data' => [
-                    '*' => [
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'project' => [
                         'id',
-                        'project' => [
-                            'id',
-                            'internal_name',
-                            'backward_compatibility',
-                            'created_at',
-                            'updated_at',
-                        ],
+                        'internal_name',
+                        'backward_compatibility',
+                        'created_at',
+                        'updated_at',
                     ],
                 ],
-            ]);
+            ],
+        ]);
     }
 
-    public function test_api_response_index_returns_the_expected_data() : void
+    public function test_api_response_index_returns_the_expected_data(): void
     {
         $user = User::factory()->create();
         $item1 = Item::factory()->create();
@@ -711,7 +707,6 @@ class ItemTest extends TestCase
             ->assertJsonPath('data.project.backward_compatibility', $project->backward_compatibility);
     }
 
-    
     public function test_api_process_update_validates_its_input(): void
     {
         $user = User::factory()->create();
@@ -813,18 +808,18 @@ class ItemTest extends TestCase
             ]);
 
         $response->assertJsonStructure([
-                'data' => [
-                    'id',
-                    'partner',
-                    'internal_name',
-                    'backward_compatibility',
-                    'type',
-                    'country',
-                    'project',
-                    'created_at',
-                    'updated_at',
-                ],
-            ]);
+            'data' => [
+                'id',
+                'partner',
+                'internal_name',
+                'backward_compatibility',
+                'type',
+                'country',
+                'project',
+                'created_at',
+                'updated_at',
+            ],
+        ]);
     }
 
     public function test_api_response_update_returns_the_expected_structure_including_partner_data(): void
@@ -842,18 +837,18 @@ class ItemTest extends TestCase
             ]);
 
         $response->assertJsonStructure([
-                'data' => [
-                    'partner' => [
-                        'id',
-                        'internal_name',
-                        'backward_compatibility',
-                        'country',
-                        'type',
-                        'created_at',
-                        'updated_at',
-                    ],
+            'data' => [
+                'partner' => [
+                    'id',
+                    'internal_name',
+                    'backward_compatibility',
+                    'country',
+                    'type',
+                    'created_at',
+                    'updated_at',
                 ],
-            ]);
+            ],
+        ]);
     }
 
     public function test_api_response_update_returns_the_expected_structure_including_country_data(): void
@@ -872,16 +867,16 @@ class ItemTest extends TestCase
             ]);
 
         $response->assertJsonStructure([
-                'data' => [
-                    'country' => [
-                        'id',
-                        'internal_name',
-                        'backward_compatibility',
-                        'created_at',
-                        'updated_at',
-                    ],
+            'data' => [
+                'country' => [
+                    'id',
+                    'internal_name',
+                    'backward_compatibility',
+                    'created_at',
+                    'updated_at',
                 ],
-            ]);
+            ],
+        ]);
     }
 
     public function test_api_response_update_returns_the_expected_structure_including_project_data(): void
@@ -900,16 +895,16 @@ class ItemTest extends TestCase
             ]);
 
         $response->assertJsonStructure([
-                'data' => [
-                    'project' => [
-                        'id',
-                        'internal_name',
-                        'backward_compatibility',
-                        'created_at',
-                        'updated_at',
-                    ],
+            'data' => [
+                'project' => [
+                    'id',
+                    'internal_name',
+                    'backward_compatibility',
+                    'created_at',
+                    'updated_at',
                 ],
-            ]);
+            ],
+        ]);
     }
 
     public function test_api_response_update_returns_the_expected_data(): void

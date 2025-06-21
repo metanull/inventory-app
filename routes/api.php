@@ -3,13 +3,13 @@
 use App\Http\Controllers\AvailableImageController;
 use App\Http\Controllers\ContextController;
 use App\Http\Controllers\CountryController;
+use App\http\controllers\DetailController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\ProjectController;
-use App\http\controllers\DetailController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
