@@ -15,40 +15,108 @@ class ItemTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function test_index_requires_authentication(): void
+    public function test_item_factory(): void
     {
-        $response_anonymous = $this->getJson(route('item.index'));
-        $response_anonymous->assertUnauthorized();
+        $item = Item::factory()->create();
+        $this->assertDatabaseHas('items', [
+            'id' => $item->id,
+            'internal_name' => $item->internal_name,
+            'backward_compatibility' => $item->backward_compatibility,
+            'type' => $item->type,
+        ]);
+    }
 
+    public function test_item_factory_object(): void
+    {
+        $item = Item::factory()->Object()->create();
+        $this->assertDatabaseHas('items', [
+            'id' => $item->id,
+            'type' => 'object',
+        ]);
+    }
+
+    public function test_item_factory_monument(): void
+    {
+        $item = Item::factory()->Monument()->create();
+        $this->assertDatabaseHas('items', [
+            'id' => $item->id,
+            'type' => 'monument',
+        ]);
+    }
+
+    public function test_item_factory_with_partner(): void
+    {
+        $item = Item::factory()->withPartner()->create();
+        $this->assertNotNull($item->partner_id);
+        $this->assertDatabaseHas('items', [
+                'id' => $item->id,
+                'partner_id' => $item->partner->id,
+            ]);
+    }
+
+    public function test_item_factory_with_country(): void
+    {
+        $item = Item::factory()->withCountry()->create();
+        $this->assertNotNull($item->country_id);
+        $this->assertDatabaseHas('items', [
+                'id' => $item->id,
+                'country_id' => $item->country->id,
+            ]);
+    }
+
+    public function test_item_factory_with_project(): void
+    {
+        $item = Item::factory()->withProject()->create();
+        $this->assertNotNull($item->project_id);
+        $this->assertDatabaseHas('items', [
+                'id' => $item->id,
+                'project_id' => $item->project->id,
+            ]);
+    }
+
+    public function test_api_authentication_index_forbids_anonymous_access(): void
+    {
+        $response = $this->getJson(route('item.index'));
+        $response->assertUnauthorized();
+    }
+
+    public function test_api_authentication_index_allows_authenticated_users(): void
+    {
         $user = User::factory()->create();
         $response_authenticated = $this->actingAs($user)
             ->getJson(route('item.index'));
         $response_authenticated->assertOk();
     }
 
-    public function test_show_requires_authentication(): void
+    public function test_api_authentication_show_forbids_anonymous_access(): void
     {
-        $item = Item::factory()->Object()->withPartner()->create();
+        $item = Item::factory()->create();
+        $response = $this->getJson(route('item.show', $item->id));
+        $response->assertUnauthorized();
+    }
 
-        $response_anonymous = $this->getJson(route('item.show', $item->id));
-        $response_anonymous->assertUnauthorized();
-
+    public function test_api_authentication_show_allows_authenticated_users(): void
+    {
         $user = User::factory()->create();
+        $item = Item::factory()->create();
         $response_authenticated = $this->actingAs($user)
             ->getJson(route('item.show', $item->id));
         $response_authenticated->assertOk();
     }
 
-    public function test_store_requires_authentication(): void
+    public function test_api_authentication_store_forbids_anonymous_access(): void
     {
-        $response_anonymous = $this->postJson(route('item.store'), [
+        $response = $this->postJson(route('item.store'), [
             'partner_id' => Partner::factory()->create()->id,
             'internal_name' => 'Test Item',
             'backward_compatibility' => 'TI',
             'type' => 'object',
         ]);
-        $response_anonymous->assertUnauthorized();
+        $response->assertUnauthorized();
+    }
 
+    public function test_api_authentication_store_allows_authenticated_users(): void
+    {
         $user = User::factory()->create();
         $response_authenticated = $this->actingAs($user)
             ->postJson(route('item.store'), [
@@ -60,19 +128,22 @@ class ItemTest extends TestCase
         $response_authenticated->assertCreated();
     }
 
-    public function test_update_requires_authentication(): void
+    public function test_api_authentication_update_forbids_anonymous_access(): void
     {
-        $item = Item::factory()->Object()->withPartner()->create();
-
-        $response_anonymous = $this->putJson(route('item.update', $item->id), [
+        $item = Item::factory()->create();
+        $response = $this->putJson(route('item.update', $item->id), [
             'partner_id' => Partner::factory()->create()->id,
             'internal_name' => 'Updated Item',
             'backward_compatibility' => 'UI',
             'type' => 'monument',
         ]);
-        $response_anonymous->assertUnauthorized();
+        $response->assertUnauthorized();
+    }
 
+    public function test_api_authentication_update_allows_authenticated_users(): void
+    {
         $user = User::factory()->create();
+        $item = Item::factory()->create();
         $response_authenticated = $this->actingAs($user)
             ->putJson(route('item.update', $item->id), [
                 'partner_id' => Partner::factory()->create()->id,
@@ -83,23 +154,35 @@ class ItemTest extends TestCase
         $response_authenticated->assertOk();
     }
 
-    public function test_destroy_requires_authentication(): void
+    public function test_api_authentication_destroy_forbids_anonymous_access(): void
     {
-        $item = Item::factory()->withPartner()->create();
+        $item = Item::factory()->create();
+        $response = $this->deleteJson(route('item.destroy', $item->id));
+        $response->assertUnauthorized();
+    }
 
-        $response_anonymous = $this->deleteJson(route('item.destroy', $item->id));
-        $response_anonymous->assertUnauthorized();
-
+    public function test_api_authentication_destroy_allows_authenticated_users(): void
+    {
         $user = User::factory()->create();
+        $item = Item::factory()->create();
         $response_authenticated = $this->actingAs($user)
             ->deleteJson(route('item.destroy', $item->id));
         $response_authenticated->assertNoContent();
     }
 
-    public function test_show_returns_a_well_structured_response(): void
+    public function test_api_response_show_returns_not_found_when_not_found(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->Object()->withPartner()->create();
+        $response = $this->actingAs($user)
+            ->getJson(route('item.show', 'nonexistent'));
+
+        $response->assertNotFound();
+    }
+
+    public function test_api_response_show_returns_the_expected_structure(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->create();
         $response = $this->actingAs($user)
             ->getJson(route('item.show', $item->id));
 
@@ -107,53 +190,339 @@ class ItemTest extends TestCase
             ->assertJsonStructure([
                 'data' => [
                     'id',
+                    'partner',
                     'internal_name',
                     'backward_compatibility',
                     'type',
+                    'country',
+                    'project',
+                    'created_at',
+                    'updated_at',
                 ],
-            ])
-            ->assertJsonFragment([
-                'id' => $item->id,
-                'internal_name' => $item->internal_name,
-                'backward_compatibility' => $item->backward_compatibility,
-                'type' => $item->type,
-            ])
-            ->assertJsonFragment([
-                'id' => $item->partner->id,
             ]);
     }
 
-    public function test_index_returns_a_well_structured_response(): void
+    public function test_api_response_show_returns_the_expected_structure_including_partner_data(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->Object()->withPartner()->create();
+        $item = Item::factory()->withPartner()->create();
         $response = $this->actingAs($user)
-            ->getJson(route('item.index'));
+            ->getJson(route('item.show', $item->id));
 
         $response->assertOk()
             ->assertJsonStructure([
                 'data' => [
-                    '*' => [
+                    'partner' => [
                         'id',
                         'internal_name',
                         'backward_compatibility',
+                        'country',
                         'type',
-                        'partner' => [
-                            'id',
-                            'internal_name',
-                        ],
+                        'created_at',
+                        'updated_at',
                     ],
                 ],
-            ])
-            ->assertJsonFragment([
-                'id' => $item->id,
-                'internal_name' => $item->internal_name,
-                'backward_compatibility' => $item->backward_compatibility,
-                'type' => $item->type,
             ]);
     }
 
-    public function test_store_returns_a_well_structured_response(): void
+    public function test_api_response_show_returns_the_expected_structure_including_country_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->withCountry()->create();
+        $response = $this->actingAs($user)
+            ->getJson(route('item.show', $item->id));
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'country' => [
+                        'id',
+                        'internal_name',
+                        'backward_compatibility',
+                        'created_at',
+                        'updated_at',
+                    ],
+                ],
+            ]);
+    }
+
+    public function test_api_response_show_returns_the_expected_structure_including_project_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->WithProject()->create();
+        $response = $this->actingAs($user)
+            ->getJson(route('item.show', $item->id));
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'project' => [
+                        'id',
+                        'internal_name',
+                        'backward_compatibility',
+                        'created_at',
+                        'updated_at',
+                    ],
+                ],
+            ]);
+    }
+
+    public function test_api_response_show_returns_the_expected_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->create();
+        $response = $this->actingAs($user)
+            ->getJson(route('item.show', $item->id));
+
+        $response->assertOk()
+            ->assertJsonPath('data.id', $item->id)
+            ->assertJsonPath('data.internal_name', $item->internal_name)
+            ->assertJsonPath('data.backward_compatibility', $item->backward_compatibility)
+            ->assertJsonPath('data.type', $item->type)
+            ;
+    }
+
+    public function test_api_response_show_returns_the_expected_data_including_partner_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->withPartner()->create();
+        $response = $this->actingAs($user)
+            ->getJson(route('item.show', $item->id));
+
+        $response->assertOk()
+            ->assertJsonPath('data.id', $item->id)
+            ->assertJsonPath('data.partner.id', $item->partner->id)
+            ->assertJsonPath('data.partner.internal_name', $item->partner->internal_name)
+            ->assertJsonPath('data.partner.backward_compatibility', $item->partner->backward_compatibility)
+            ;
+    }
+
+    public function test_api_response_show_returns_the_expected_data_including_country_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->withCountry()->create();
+        $response = $this->actingAs($user)
+            ->getJson(route('item.show', $item->id));
+
+        $response->assertOk()
+            ->assertJsonPath('data.id', $item->id)
+            ->assertJsonPath('data.country.id', $item->country->id)
+            ->assertJsonPath('data.country.internal_name', $item->country->internal_name)
+            ->assertJsonPath('data.country.backward_compatibility', $item->country->backward_compatibility)
+            ;
+    }
+
+    public function test_api_response_show_returns_the_expected_data_including_project_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->withProject()->create();
+        $response = $this->actingAs($user)
+            ->getJson(route('item.show', $item->id));
+
+        $response->assertOk()
+            ->assertJsonPath('data.id', $item->id)
+            ->assertJsonPath('data.project.id', $item->project->id)
+            ->assertJsonPath('data.project.internal_name', $item->project->internal_name)
+            ->assertJsonPath('data.project.backward_compatibility', $item->project->backward_compatibility)
+            ;
+    }
+
+    public function test_api_response_index_returns_an_empty_array_when_no_data(): void
+    {
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)
+            ->getJson(route('item.index'));
+
+        $response->assertOk()
+            ->assertJsonCount(0, 'data');
+    }
+
+    public function test_api_response_index_returns_the_expected_structure(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->create();
+        $response = $this->actingAs($user)
+            ->getJson(route('item.index'));
+
+        $response->assertOk()
+            ->assertExactJsonStructure ([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'partner',
+                        'internal_name',
+                        'backward_compatibility',
+                        'type',
+                        'country',
+                        'project',
+                        'created_at',
+                        'updated_at',
+                    ],
+                ],
+            ]);
+    }
+
+    public function test_api_response_index_returns_the_expected_structure_including_partner_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->WithPartner()->create();
+        $response = $this->actingAs($user)
+            ->getJson(route('item.index'));
+
+        $response->assertOk()
+            ->assertJsonStructure ([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'partner' => [
+                            'id',
+                            'internal_name',
+                            'backward_compatibility',
+                            'country',
+                            'type',
+                            'created_at',
+                            'updated_at',
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
+    public function test_api_response_index_returns_the_expected_structure_including_country_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->WithCountry()->create();
+        $response = $this->actingAs($user)
+            ->getJson(route('item.index'));
+
+        $response->assertOk()
+            ->assertJsonStructure ([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'country' => [
+                            'id',
+                            'internal_name',
+                            'backward_compatibility',
+                            'created_at',
+                            'updated_at',
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
+    public function test_api_response_index_returns_the_expected_structure_including_project_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->WithProject()->create();
+        $response = $this->actingAs($user)
+            ->getJson(route('item.index'));
+
+        $response->assertOk()
+            ->assertJsonStructure ([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'project' => [
+                            'id',
+                            'internal_name',
+                            'backward_compatibility',
+                            'created_at',
+                            'updated_at',
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
+    public function test_api_response_index_returns_the_expected_data() : void
+    {
+        $user = User::factory()->create();
+        $item1 = Item::factory()->create();
+        $item2 = Item::factory()->create();
+        $response = $this->actingAs($user)
+            ->getJson(route('item.index'));
+
+        $response->assertOk()
+            ->assertJsonPath('data.0.id', $item1->id)
+            ->assertJsonPath('data.0.internal_name', $item1->internal_name)
+            ->assertJsonPath('data.0.backward_compatibility', $item1->backward_compatibility)
+            ->assertJsonPath('data.0.type', $item1->type)
+            ->assertJsonPath('data.1.id', $item2->id)
+            ->assertJsonPath('data.1.internal_name', $item2->internal_name)
+            ->assertJsonPath('data.1.backward_compatibility', $item2->backward_compatibility)
+            ->assertJsonPath('data.1.type', $item2->type);
+    }
+
+    public function test_api_process_store_validates_its_input(): void
+    {
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)
+            ->postJson(route('item.store'), [
+                'id' => 'invalid-id', // Invalid: prohibited field
+                'partner_id' => 'invalid_id', // Invalid: not a valid Partner ID
+                'internal_name' => '', // Invalid: required field
+                'backward_compatibility' => null,
+                'type' => 'invalid_type', // Invalid: not in allowed types
+            ]);
+
+        $response->assertJsonValidationErrors(['id', 'internal_name', 'partner_id', 'type']);
+    }
+
+    public function test_api_response_store_returns_unprocessable_when_input_is_invalid(): void
+    {
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)
+            ->postJson(route('item.store'), [
+                'id' => 'invalid-id', // Invalid: prohibited field
+                'partner_id' => 'invalid_id', // Invalid: not a valid Partner ID
+                'internal_name' => '', // Invalid: required field
+                'backward_compatibility' => 'TI',
+                'type' => 'invalid_type', // Invalid: not in allowed types
+            ]);
+
+        $response->assertUnprocessable();
+    }
+
+    public function test_api_process_store_creates_an_item(): void
+    {
+        $user = User::factory()->create();
+        $partner = Partner::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->postJson(route('item.store'), [
+                'partner_id' => $partner->id,
+                'internal_name' => 'Test Item',
+                'backward_compatibility' => 'TI',
+                'type' => 'object',
+            ]);
+
+        $this->assertDatabaseHas('items', [
+            'internal_name' => 'Test Item',
+            'backward_compatibility' => 'TI',
+            'type' => 'object',
+            'partner_id' => $partner->id,
+        ]);
+    }
+
+    public function test_api_response_store_returns_created_on_success(): void
+    {
+        $user = User::factory()->create();
+        $partner = Partner::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->postJson(route('item.store'), [
+                'partner_id' => $partner->id,
+                'internal_name' => 'Test Item',
+                'backward_compatibility' => 'TI',
+                'type' => 'object',
+            ]);
+
+        $response->assertCreated();
+    }
+
+    public function test_api_response_store_returns_the_expected_structure(): void
     {
         $user = User::factory()->create();
         $partner = Partner::factory()->create();
@@ -170,95 +539,199 @@ class ItemTest extends TestCase
             ->assertJsonStructure([
                 'data' => [
                     'id',
+                    'partner',
                     'internal_name',
                     'backward_compatibility',
                     'type',
-                    'project' => [
-                        'id',
-                        'internal_name',
-                    ],
+                    'country',
+                    'project',
+                    'created_at',
+                    'updated_at',
                 ],
-            ])
-            ->assertJsonFragment([
+            ]);
+    }
+
+    public function test_api_response_store_returns_the_expected_structure_including_partner_data(): void
+    {
+        $user = User::factory()->create();
+        $partner = Partner::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->postJson(route('item.store'), [
+                'partner_id' => $partner->id,
                 'internal_name' => 'Test Item',
                 'backward_compatibility' => 'TI',
                 'type' => 'object',
-            ])
-            ->assertJsonFragment([
-                'id' => $partner->id,
-                'internal_name' => $partner->internal_name,
             ]);
-    }
 
-    public function test_update_returns_a_well_structured_response(): void
-    {
-        $user = User::factory()->create();
-        $item = Item::factory()->Object()->withPartner()->create();
-        $other_partner = Partner::factory()->create();
-
-        $response = $this->actingAs($user)
-            ->putJson(route('item.update', $item->id), [
-                'internal_name' => 'Updated Item',
-                'backward_compatibility' => 'UI123',
-                'type' => 'monument',
-            ]);
-        $response->assertOk()
+        $response->assertCreated()
             ->assertJsonStructure([
                 'data' => [
-                    'id',
-                    'internal_name',
-                    'backward_compatibility',
-                    'type',
                     'partner' => [
                         'id',
                         'internal_name',
+                        'backward_compatibility',
+                        'country',
+                        'type',
+                        'created_at',
+                        'updated_at',
                     ],
                 ],
-            ])
-            ->assertJsonFragment([
-                'id' => $item->id,
-                'internal_name' => 'Updated Item',
-                'backward_compatibility' => 'UI123',
-                'type' => 'monument',
-            ])
-            ->assertJsonFragment([
-                'id' => $other_partner->id,
-                'internal_name' => $other_partner->internal_name,
             ]);
     }
 
-    public function test_destroy_returns_no_content(): void
+    public function test_api_response_store_returns_the_expected_structure_including_country_data(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->Object()->withPartner()->create();
+        $partner = Partner::factory()->create();
 
         $response = $this->actingAs($user)
-            ->deleteJson(route('item.destroy', $item->id));
+            ->postJson(route('item.store'), [
+                'partner_id' => $partner->id,
+                'internal_name' => 'Test Item',
+                'backward_compatibility' => 'TI',
+                'type' => 'object',
+            ]);
 
-        $response->assertNoContent();
-        $this->assertDatabaseMissing('items', ['id' => $item->id]);
+        $response->assertCreated()
+            ->assertJsonStructure([
+                'data' => [
+                    'country' => [
+                        'id',
+                        'internal_name',
+                        'backward_compatibility',
+                        'created_at',
+                        'updated_at',
+                    ],
+                ],
+            ]);
     }
 
-    public function test_index_returns_empty_response_when_no_data(): void
+    public function test_api_response_store_returns_the_expected_structure_including_project_data(): void
     {
         $user = User::factory()->create();
-        $response = $this->actingAs($user)
-            ->getJson(route('item.index'));
+        $partner = Partner::factory()->create();
 
-        $response->assertOk()
-            ->assertJsonCount(0, 'data');
+        $response = $this->actingAs($user)
+            ->postJson(route('item.store'), [
+                'partner_id' => $partner->id,
+                'internal_name' => 'Test Item',
+                'backward_compatibility' => 'TI',
+                'type' => 'object',
+            ]);
+
+        $response->assertCreated()
+            ->assertJsonStructure([
+                'data' => [
+                    'project' => [
+                        'id',
+                        'internal_name',
+                        'backward_compatibility',
+                        'created_at',
+                        'updated_at',
+                    ],
+                ],
+            ]);
     }
 
-    public function test_show_returns_not_found_response_when_not_found(): void
+    public function test_api_response_store_returns_the_expected_data(): void
     {
         $user = User::factory()->create();
-        $response = $this->actingAs($user)
-            ->getJson(route('item.show', 'nonexistent'));
 
-        $response->assertNotFound();
+        $response = $this->actingAs($user)
+            ->postJson(route('item.store'), [
+                'partner_id' => Partner::factory()->create()->id,
+                'internal_name' => 'Test Item',
+                'backward_compatibility' => 'TI',
+                'type' => 'object',
+            ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.internal_name', 'Test Item')
+            ->assertJsonPath('data.backward_compatibility', 'TI')
+            ->assertJsonPath('data.type', 'object');
     }
 
-    public function test_update_returns_not_found_response_when_not_found(): void
+    public function test_api_response_store_returns_the_expected_data_including_partner_data(): void
+    {
+        $user = User::factory()->create();
+        $partner = Partner::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->postJson(route('item.store'), [
+                'partner_id' => $partner->id,
+                'internal_name' => 'Test Item',
+                'backward_compatibility' => 'TI',
+                'type' => 'object',
+            ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.partner.id', $partner->id)
+            ->assertJsonPath('data.partner.internal_name', $partner->internal_name)
+            ->assertJsonPath('data.partner.backward_compatibility', $partner->backward_compatibility);
+    }
+
+    public function test_api_response_store_returns_the_expected_data_including_country_data(): void
+    {
+        $user = User::factory()->create();
+        $partner = Partner::factory()->create();
+        $country = Country::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->postJson(route('item.store'), [
+                'partner_id' => $partner->id,
+                'country_id' => $country->id,
+                'internal_name' => 'Test Item',
+                'backward_compatibility' => 'TI',
+                'type' => 'object',
+            ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.country.id', $country->id)
+            ->assertJsonPath('data.country.internal_name', $country->internal_name)
+            ->assertJsonPath('data.country.backward_compatibility', $country->backward_compatibility);
+    }
+
+    public function test_api_response_store_returns_the_expected_data_including_project_data(): void
+    {
+        $user = User::factory()->create();
+        $partner = Partner::factory()->create();
+        $project = Project::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->postJson(route('item.store'), [
+                'partner_id' => $partner->id,
+                'project_id' => $project->id,
+                'internal_name' => 'Test Item',
+                'backward_compatibility' => 'TI',
+                'type' => 'object',
+            ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.project.id', $project->id)
+            ->assertJsonPath('data.project.internal_name', $project->internal_name)
+            ->assertJsonPath('data.project.backward_compatibility', $project->backward_compatibility);
+    }
+
+    
+    public function test_api_process_update_validates_its_input(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->putJson(route('item.update', $item->id), [
+                'id' => 'invalid-id', // Invalid: prohibited field
+                'partner_id' => 'invalid_id', // Invalid: not a valid Partner ID
+                'internal_name' => '', // Invalid: required field
+                'backward_compatibility' => 'UI',
+                'type' => 'invalid_type', // Invalid: not in allowed types
+            ]);
+
+        $response->assertJsonValidationErrors(['id', 'internal_name', 'partner_id', 'type']);
+    }
+
+    public function test_api_response_update_returns_not_found_response_when_not_found(): void
     {
         $user = User::factory()->create();
         $response = $this->actingAs($user)
@@ -272,7 +745,253 @@ class ItemTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_destroy_returns_not_found_response_when_not_found(): void
+    public function test_api_process_update_changes_the_item(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->withPartner()->create();
+        $other_partner = Partner::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->putJson(route('item.update', $item->id), [
+                'partner_id' => $other_partner->id,
+                'internal_name' => 'Updated Item',
+                'backward_compatibility' => 'UI123',
+                'type' => 'monument',
+            ]);
+
+        $this->assertDatabaseHas('items', [
+            'id' => $item->id,
+            'partner_id' => $other_partner->id,
+            'internal_name' => 'Updated Item',
+            'backward_compatibility' => 'UI123',
+            'type' => 'monument',
+        ]);
+    }
+
+    public function test_api_response_update_returns_ok_on_success(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->withPartner()->create();
+
+        $response = $this->actingAs($user)
+            ->putJson(route('item.update', $item->id), [
+                'partner_id' => $item->partner_id,
+                'internal_name' => 'Updated Item',
+                'backward_compatibility' => 'UI123',
+                'type' => 'monument',
+            ]);
+
+        $response->assertOk();
+    }
+
+    public function test_api_response_update_returns_unprocessable_when_input_is_invalid(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->putJson(route('item.update', $item->id), [
+                'id' => 'invalid-id', // Invalid: prohibited field
+                'partner_id' => 'invalid_id', // Invalid: not a valid Partner ID
+                'internal_name' => '', // Invalid: required field
+                'backward_compatibility' => 'UI',
+                'type' => 'invalid_type', // Invalid: not in allowed types
+            ]);
+
+        $response->assertUnprocessable();
+    }
+
+    public function test_api_response_update_returns_the_expected_structure(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->withPartner()->create();
+
+        $response = $this->actingAs($user)
+            ->putJson(route('item.update', $item->id), [
+                'partner_id' => $item->partner_id,
+                'internal_name' => 'Updated Item',
+                'backward_compatibility' => 'UI123',
+                'type' => 'monument',
+            ]);
+
+        $response->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'partner',
+                    'internal_name',
+                    'backward_compatibility',
+                    'type',
+                    'country',
+                    'project',
+                    'created_at',
+                    'updated_at',
+                ],
+            ]);
+    }
+
+    public function test_api_response_update_returns_the_expected_structure_including_partner_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->withPartner()->create();
+        $partner = Partner::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->putJson(route('item.update', $item->id), [
+                'partner_id' => $partner->id,
+                'internal_name' => 'Updated Item',
+                'backward_compatibility' => 'UI123',
+                'type' => 'monument',
+            ]);
+
+        $response->assertJsonStructure([
+                'data' => [
+                    'partner' => [
+                        'id',
+                        'internal_name',
+                        'backward_compatibility',
+                        'country',
+                        'type',
+                        'created_at',
+                        'updated_at',
+                    ],
+                ],
+            ]);
+    }
+
+    public function test_api_response_update_returns_the_expected_structure_including_country_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->withPartner()->create();
+        $country = Country::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->putJson(route('item.update', $item->id), [
+                'partner_id' => $item->partner_id,
+                'country_id' => $country->id,
+                'internal_name' => 'Updated Item',
+                'backward_compatibility' => 'UI123',
+                'type' => 'monument',
+            ]);
+
+        $response->assertJsonStructure([
+                'data' => [
+                    'country' => [
+                        'id',
+                        'internal_name',
+                        'backward_compatibility',
+                        'created_at',
+                        'updated_at',
+                    ],
+                ],
+            ]);
+    }
+
+    public function test_api_response_update_returns_the_expected_structure_including_project_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->withPartner()->create();
+        $project = Project::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->putJson(route('item.update', $item->id), [
+                'partner_id' => $item->partner_id,
+                'project_id' => $project->id,
+                'internal_name' => 'Updated Item',
+                'backward_compatibility' => 'UI123',
+                'type' => 'monument',
+            ]);
+
+        $response->assertJsonStructure([
+                'data' => [
+                    'project' => [
+                        'id',
+                        'internal_name',
+                        'backward_compatibility',
+                        'created_at',
+                        'updated_at',
+                    ],
+                ],
+            ]);
+    }
+
+    public function test_api_response_update_returns_the_expected_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->withPartner()->create();
+
+        $response = $this->actingAs($user)
+            ->putJson(route('item.update', $item->id), [
+                'partner_id' => $item->partner_id,
+                'internal_name' => 'Updated Item',
+                'backward_compatibility' => 'UI123',
+                'type' => 'monument',
+            ]);
+
+        $response->assertJsonPath('data.internal_name', 'Updated Item')
+            ->assertJsonPath('data.backward_compatibility', 'UI123')
+            ->assertJsonPath('data.type', 'monument');
+    }
+
+    public function test_api_response_update_returns_the_expected_data_including_partner_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->withPartner()->create();
+        $other_partner = Partner::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->putJson(route('item.update', $item->id), [
+                'partner_id' => $other_partner->id,
+                'internal_name' => 'Updated Item',
+                'backward_compatibility' => 'UI123',
+                'type' => 'monument',
+            ]);
+
+        $response->assertJsonPath('data.partner.id', $other_partner->id)
+            ->assertJsonPath('data.partner.internal_name', $other_partner->internal_name)
+            ->assertJsonPath('data.partner.backward_compatibility', $other_partner->backward_compatibility);
+    }
+
+    public function test_api_response_update_returns_the_expected_data_including_country_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->withPartner()->create();
+        $country = Country::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->putJson(route('item.update', $item->id), [
+                'partner_id' => $item->partner_id,
+                'country_id' => $country->id,
+                'internal_name' => 'Updated Item',
+                'backward_compatibility' => 'UI123',
+                'type' => 'monument',
+            ]);
+
+        $response->assertJsonPath('data.country.id', $country->id)
+            ->assertJsonPath('data.country.internal_name', $country->internal_name)
+            ->assertJsonPath('data.country.backward_compatibility', $country->backward_compatibility);
+    }
+
+    public function test_api_response_update_returns_the_expected_data_including_project_data(): void
+    {
+        $user = User::factory()->create();
+        $item = Item::factory()->withPartner()->create();
+        $project = Project::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->putJson(route('item.update', $item->id), [
+                'partner_id' => $item->partner_id,
+                'project_id' => $project->id,
+                'internal_name' => 'Updated Item',
+                'backward_compatibility' => 'UI123',
+                'type' => 'monument',
+            ]);
+
+        $response->assertJsonPath('data.project.id', $project->id)
+            ->assertJsonPath('data.project.internal_name', $project->internal_name)
+            ->assertJsonPath('data.project.backward_compatibility', $project->backward_compatibility);
+    }
+
+    public function test_api_response_destroy_returns_not_found_response_when_not_found(): void
     {
         $user = User::factory()->create();
         $response = $this->actingAs($user)
@@ -281,113 +1000,25 @@ class ItemTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_store_returns_unprocessable_and_adequate_validation_errors(): void
+    public function test_api_process_destroy_removes_the_item_from_the_database(): void
     {
         $user = User::factory()->create();
-        $response = $this->actingAs($user)
-            ->postJson(route('item.store'), [
-                'id' => 'invalid-id', // Invalid: prohibited field
-                'partner_id' => 'invalid_id', // Invalid: not a valid Partner ID
-                'internal_name' => '', // Invalid: required field
-                'backward_compatibility' => 'TI',
-                'type' => 'invalid_type', // Invalid: not in allowed types
-            ]);
+        $item = Item::factory()->Object()->withPartner()->create();
 
-        $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['id', 'internal_name', 'partner_id', 'type']);
+        $this->actingAs($user)
+            ->deleteJson(route('item.destroy', $item->id));
+
+        $this->assertDatabaseMissing('items', ['id' => $item->id]);
     }
 
-    public function test_update_returns_unprocessable_and_adequate_validation_errors(): void
+    public function test_api_response_destroy_returns_no_content_on_success(): void
     {
         $user = User::factory()->create();
-        $item = Item::factory()->withPartner()->create();
+        $item = Item::factory()->Object()->withPartner()->create();
 
         $response = $this->actingAs($user)
-            ->putJson(route('item.update', $item->id), [
-                'id' => 'invalid-id', // Invalid: prohibited field
-                'partner_id' => 'invalid_id', // Invalid: not a valid Partner ID
-                'internal_name' => '', // Invalid: required field
-                'backward_compatibility' => 'TI',
-                'type' => 'invalid_type', // Invalid: not in allowed types
-            ]);
+            ->deleteJson(route('item.destroy', $item->id));
 
-        $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['id', 'internal_name', 'partner_id', 'type']);
-    }
-
-    public function test_store_item_as_object_creates_item_with_correct_type(): void
-    {
-        $user = User::factory()->create();
-        $partner = Partner::factory()->create();
-
-        $response = $this->actingAs($user)
-            ->postJson(route('item.store'), [
-                'partner_id' => $partner->id,
-                'internal_name' => 'Test Object Item',
-                'backward_compatibility' => 'TOI',
-                'type' => 'object',
-            ]);
-
-        $response->assertCreated()
-            ->assertJsonFragment([
-                'data' => [
-                    'partner_id' => $partner->id,
-                    'internal_name' => 'Test Object Item',
-                    'backward_compatibility' => 'TOI',
-                    'type' => 'object',
-                    'partner' => [
-                        'id' => $partner->id,
-                        'internal_name' => $partner->internal_name,
-                    ],
-                ],
-            ]);
-    }
-
-    public function test_store_item_as_monument_creates_item_with_correct_type(): void
-    {
-        $user = User::factory()->create();
-        $partner = Partner::factory()->create();
-
-        $response = $this->actingAs($user)
-            ->postJson(route('item.store'), [
-                'partner_id' => $partner->id,
-                'internal_name' => 'Test Monument Item',
-                'backward_compatibility' => 'TMI',
-                'type' => 'monument',
-            ]);
-
-        $response->assertCreated()
-            ->assertJsonFragment([
-                'data' => [
-                    'partner_id' => $partner->id,
-                    'internal_name' => 'Test Monument Item',
-                    'backward_compatibility' => 'TMI',
-                    'type' => 'monument',
-                    'partner' => [
-                        'id' => $partner->id,
-                        'internal_name' => $partner->internal_name,
-                    ],
-                ],
-            ]);
-    }
-
-    public function test_store_item_with_invalid_type_returns_unprocessable(): void
-    {
-        $user = User::factory()->create();
-        $partner = Partner::factory()->create();
-
-        $response = $this->actingAs($user)
-            ->postJson(route('item.store'), [
-                'partner_id' => $partner->id,
-                'internal_name' => 'Test Invalid Type Item',
-                'backward_compatibility' => 'TITI',
-                'type' => 'invalid_type', // Invalid type
-            ]);
-
-        $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['type'])
-            ->assertJsonFragment([
-                'message' => 'The selected type is invalid.',
-            ]);
+        $response->assertNoContent();
     }
 }
