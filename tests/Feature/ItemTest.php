@@ -744,7 +744,7 @@ class ItemTest extends TestCase
         $item = Item::factory()->create();
         $partner = Partner::factory()->create();
 
-        $response = $this->actingAs($user)
+        $this->actingAs($user)
             ->putJson(route('item.update', $item->id), [
                 'partner_id' => $partner->id,
                 'internal_name' => 'Updated Item',

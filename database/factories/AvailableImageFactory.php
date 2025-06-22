@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Illuminate\Container\Attributes\Storage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
