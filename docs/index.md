@@ -1,3 +1,17 @@
+# Inventory App
+
+Welcome to the Inventory App project! This application provides a robust and secure REST API for managing your inventory database, built with Laravel 12+. It features user management, JWT authentication, and comprehensive API documentation powered by [dedoc/Scramble](https://github.com/dedoc/scramble).
+
+You can find the complete source code, issue tracker, and contribution guidelines for this project on its public GitHub repository: [metanull/inventory-app](https://github.com/metanull/inventory-app). We welcome feedback, bug reports, and pull requests from the community.
+
+## Features
+
+- RESTful API for inventory management
+- User and JWT token management
+- Database-agnostic Eloquent models
+- Clean, maintainable, and secure codebase
+- Automated API documentation
+
 # Inventory Management API
 
 [![CodeQL](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql) [![Laravel](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml) [![Dependabot Updates](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates)
