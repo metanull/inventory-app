@@ -1,5 +1,5 @@
 layout: page
-title: "README"
+title: "readme"
 permalink: /readme/
 
 # Inventory Management API
