@@ -1,6 +1,6 @@
 layout: page
 title: "README"
-permalink: /readme
+permalink: /readme/
 
 # Inventory Management API
 
