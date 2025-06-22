@@ -1,7 +1,3 @@
-layout: page
-title: "inventory-app"
-permalink: /
-
 # Inventory App
 
 Welcome to the Inventory App project! This application provides a robust and secure REST API for managing your inventory database, built with Laravel 12+. It features user management, JWT authentication, and comprehensive API documentation powered by [dedoc/Scramble](https://github.com/dedoc/scramble).
