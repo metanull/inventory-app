@@ -12,8 +12,6 @@ You can find the complete source code, issue tracker, and contribution guideline
 - Clean, maintainable, and secure codebase
 - Automated API documentation
 
-For detailed setup instructions, usage examples, and contribution guidelines, please see the [readme](./readme).
-
 # Inventory Management API
 
 [![CodeQL](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql) [![Laravel](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml) [![Dependabot Updates](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates)
