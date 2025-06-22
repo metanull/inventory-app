@@ -1,0 +1,5 @@
+title: Inventory-App
+description: The **Inventory Management API** (inventory-app) is a RESTful API designed to manage the content of the Museum With No Frontiers' inventory database.
+show_downloads: true
+google_analytics:
+theme: jekyll-theme-leap-day
