@@ -10,4 +10,4 @@ Welcome to the Inventory App project! This application provides a robust and sec
 - Clean, maintainable, and secure codebase
 - Automated API documentation
 
-For detailed setup instructions, usage examples, and contribution guidelines, please see the [README.md](../README.md).
+For detailed setup instructions, usage examples, and contribution guidelines, please see the [README.md](./README.md).
