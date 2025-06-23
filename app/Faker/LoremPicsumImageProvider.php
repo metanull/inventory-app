@@ -3,6 +3,7 @@
 namespace App\Faker;
 
 use Faker\Provider\Base;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\WhitespacePathNormalizer;
 
@@ -73,7 +74,7 @@ class LoremPicsumImageProvider extends Base
      * @param  array  $options  Additional query parameters to append to the URL. See https://picsum.photos/ for available options.
      * @return string The path where the image is stored (relative to the disk root)
      *
-     * @throws \RuntimeException If the image download fails or the storage operation fails
+     * @throws \Illuminate\Http\Client\RequestException If the HTTP request to fetch the image fails
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException If the paths cannot be resolved
      */
     public function image(int $width = 640, int $height = 480, string $disk = 'local', ?string $directory = null, ?int $id = null, ?string $seed = null, ?array $options = []): string
@@ -87,22 +88,17 @@ class LoremPicsumImageProvider extends Base
     /**
      * Download a remote image and return its contents.
      *
-     * This method uses `file_get_contents` to fetch the image data.
-     * It will throw an exception if the download fails or if the image is empty.
-     *
      * @param  string  $url  The URL of the image to download
      * @return string The image contents
      *
-     * @throws \RuntimeException If the image download fails or the contents are empty or allow_url_fopen is disabled.
+     * @throws \Illuminate\Http\Client\RequestException If the HTTP request fails
      */
     protected function getImageContent(string $url): string
     {
-        $imageContents = @file_get_contents($url);
-        if ($imageContents === false || empty($imageContents)) {
-            throw new \RuntimeException("Failed to download image from {$url}");
-        }
+        $response = Http::get($url);
+        $response->throw();
 
-        return $imageContents;
+        return $response->body();
     }
 
     /**
