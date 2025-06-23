@@ -16,8 +16,11 @@ class AvailableImageFactory extends Factory
      */
     public function definition(): array
     {
+        $disk = config('localstorage.public.images.disk');
+        $directory = config('localstorage.public.images.directory');
+
         return [
-            'path' => $this->faker->image(width: 640, height: 480, disk: 'public', directory: 'images', options: ['grayscale' => true]),
+            'path' => $this->faker->image(width: 640, height: 480, disk: $disk, directory: $directory, options: ['grayscale' => true]),
             'comment' => $this->faker->sentence(10),
         ];
     }
