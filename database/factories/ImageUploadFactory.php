@@ -17,7 +17,7 @@ class ImageUploadFactory extends Factory
      */
     public function definition(): array
     {
-        $image = $this->faker->image(disk: 'local', directory: 'image_uploads', options: ['grayscale' => true]);
+        /*$image = $this->faker->image(disk: 'local', directory: 'image_uploads', options: ['grayscale' => true]);
         $image_name = basename($image);
         $image_directory = dirname($image);
 
@@ -27,6 +27,23 @@ class ImageUploadFactory extends Factory
             'extension' => 'jpg',
             'mime_type' => Storage::disk('local')->mimeType($image),
             'size' => Storage::disk('local')->size($image),
+        ];*/
+
+        
+        $disk = config('localstorage.uploads.images.disk');
+        $directory = config('localstorage.uploads.images.directory');
+
+        $image = $this->faker->image(disk: $disk, directory: $directory, options: ['grayscale' => true]);
+        $image_name = basename($image);
+        $image_directory = dirname($image);
+
+        return [
+            'path' => $image_directory,
+            'name' => $image_name,
+            'extension' => 'jpg',
+            'mime_type' => Storage::disk($disk)->mimeType($image),
+            'size' => Storage::disk($disk)->size($image),
         ];
+        
     }
 }
