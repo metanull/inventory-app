@@ -17,6 +17,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.0",
+        "symfony/filesystem": "^7.3",
         "symfony/process": "^7.3"
     },
     "require-dev": {
