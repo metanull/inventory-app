@@ -37,7 +37,7 @@ class AvailableImageListener
         $file = $event->availableImage;
 
         // Get disk and directory where uploaded images are stored
-        $uploadeDisk = config('localstorage.uploads.images.disk');
+        $uploadDisk = config('localstorage.uploads.images.disk');
         $uploadeDir = trim(config('localstorage.uploads.images.directory'), '/');
         // Get disk and directory where public images are stored
         $finalDisk = config('localstorage.public.images.disk');
