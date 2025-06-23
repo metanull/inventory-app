@@ -17,7 +17,7 @@ class AvailableImageFactory extends Factory
     public function definition(): array
     {
         return [
-            'path' => $this->faker->imageUrl(640, 480, 'nature', true, 'Faker', true),
+            'path' => $this->faker->imageUrl(width: 640, height: 480),
             'comment' => $this->faker->sentence(10),
         ];
     }

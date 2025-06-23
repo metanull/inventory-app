@@ -17,7 +17,7 @@ class PictureFactory extends Factory
     public function definition(): array
     {
         return [
-            'path' => $this->faker->imageUrl(640, 480, 'nature', true, 'Faker', true),
+            'path' => $this->faker->imageUrl(width: 640, height: 480),
             'internal_name' => $this->faker->unique()->words(3, true),
             'backward_compatibility' => $this->faker->bothify('???/???/???/##'),
             'copyright_text' => $this->faker->words(4, true),
