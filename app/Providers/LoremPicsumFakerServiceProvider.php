@@ -2,22 +2,23 @@
 
 namespace App\Providers;
 
+use App\Faker\LoremPicsumImageProvider;
 use Faker\Factory as FakerFactory;
 use Faker\Generator as FakerGenerator;
 use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 use Illuminate\Support\ServiceProvider;
-use App\Faker\LoremPicsumImageProvider;
 
 class LoremPicsumFakerServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
      */
-   public function register() : void
+    public function register(): void
     {
         $this->app->singleton(FakerGenerator::class, function () {
             $faker = FakerFactory::create();
             $faker->addProvider(new LoremPicsumImageProvider($faker));
+
             return $faker;
         });
 
@@ -35,5 +36,4 @@ class LoremPicsumFakerServiceProvider extends ServiceProvider
     {
         //
     }
-
 }
