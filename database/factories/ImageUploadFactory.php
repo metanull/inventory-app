@@ -2,7 +2,10 @@
 
 namespace Database\Factories;
 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\Factory;
+
+use function Pest\Laravel\options;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ImageUpload>
@@ -16,12 +19,15 @@ class ImageUploadFactory extends Factory
      */
     public function definition(): array
     {
+        $image = $this->faker->image(disk: 'local', directory: 'uploads/images', options: ['grayscale' => true]);
+        $image_name = basename($image);
+        $image_directory = dirname($image);
         return [
-            'path' => $this->faker->imageUrl(640, 480, 'nature', true, 'Faker', true),
-            'name' => $this->faker->word().'.jpg',
+            'path' => $image_directory,
+            'name' => $image_name,
             'extension' => 'jpg',
-            'mime_type' => 'image/jpeg',
-            'size' => $this->faker->numberBetween(1000, 5000000),
+            'mime_type' => Storage::disk('local')->mimeType($image),
+            'size' => Storage::disk('local')->size($image),
         ];
     }
 }
