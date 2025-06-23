@@ -459,7 +459,7 @@ class DetailTest extends TestCase
         $detail = Detail::factory()->for(Item::factory())->create();
         $other_item = Item::factory()->create();
 
-        $response = $this->actingAs($user)
+        $this->actingAs($user)
             ->putJson(route('detail.update', $detail->id), [
                 'item_id' => $other_item->id,
                 'internal_name' => 'Updated Detail',
