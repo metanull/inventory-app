@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use Illuminate\Container\Attributes\Storage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +17,7 @@ class AvailableImageFactory extends Factory
     public function definition(): array
     {
         return [
-            'path' => $this->faker->imageUrl(width: 640, height: 480),
+            'path' => $this->faker->image(width: 640, height: 480, disk: 'public', directory: 'images', options: ['grayscale' => true]),
             'comment' => $this->faker->sentence(10),
         ];
     }

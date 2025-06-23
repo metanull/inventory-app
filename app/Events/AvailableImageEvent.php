@@ -11,7 +11,8 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class AvailableImageEvent
  *
- * This event is dispatched following a successful image upload.
+ * This event is dispatched following a successful validation of an image upload.
+ *
  * It carries the AvailableImage model instance that was created.
  * The image associated with this event was uploaded by the user, validated, and stored in the local storage disk.
  * The image was also resized if it exceeded the maximum dimensions defined in the configuration.

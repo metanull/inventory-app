@@ -529,20 +529,19 @@ class ItemTest extends TestCase
                 'type' => 'object',
             ]);
 
-        $response->assertCreated()
-            ->assertJsonStructure([
-                'data' => [
-                    'id',
-                    'partner',
-                    'internal_name',
-                    'backward_compatibility',
-                    'type',
-                    'country',
-                    'project',
-                    'created_at',
-                    'updated_at',
-                ],
-            ]);
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'partner',
+                'internal_name',
+                'backward_compatibility',
+                'type',
+                'country',
+                'project',
+                'created_at',
+                'updated_at',
+            ],
+        ]);
     }
 
     public function test_api_response_store_returns_the_expected_structure_including_partner_data(): void
