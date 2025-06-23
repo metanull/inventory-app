@@ -17,7 +17,7 @@ class ImageUploadFactory extends Factory
      */
     public function definition(): array
     {
-        $image = $this->faker->image(disk: 'local', directory: 'uploads/images', options: ['grayscale' => true]);
+        $image = $this->faker->image(disk: 'local', directory: 'image_uploads', options: ['grayscale' => true]);
         $image_name = basename($image);
         $image_directory = dirname($image);
 

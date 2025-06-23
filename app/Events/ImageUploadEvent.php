@@ -12,8 +12,10 @@ use Illuminate\Queue\SerializesModels;
  * Class ImageUploadEvent
  *
  * This event is dispatched when an image upload occurs.
- * It carries the ImageUpload model instance..
- * The image associated with this event was just uploaded by the user (proceed with caution).
+ * It carries the ImageUpload model instance.
+ *
+ * The image associated with this event was just uploaded by the user, and was not yet validated
+ * (proceed with caution).
  */
 class ImageUploadEvent
 {
