@@ -61,28 +61,38 @@
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
         ],
-        "validate-pr": [
+        
+        "ci-install": [
+            "@composer install --ansi --no-interaction --no-progress --prefer-dist",
+            "npm ci --no-fund --no-audit"
+        ],
+        "ci-audit": [
             "@composer validate --with-dependencies --strict --ansi",
             "@composer audit --format=summary",
-            "@php artisan test --parallel --ansi",
-            ".\\vendor\\bin\\pint --repair --no-interaction --ansi",
+            ".\\vendor\\bin\\pint --test --no-interaction --ansi",
             "npm audit --audit-level moderate"
         ],
-        "clean-build": [
-            "@php -r \"if(file_exists('./database/database.sqlite')) { unlink('./database/database.sqlite'); }\"",
-            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
-            "@composer validate --with-dependencies --strict --ansi",
-            "@composer install --ansi --no-interaction --no-scripts --no-progress --prefer-dist",
-            "@composer audit --format=summary",
-            "@php artisan key:generate --ansi",
-            "@php artisan migrate --force --no-interaction --ansi",
-            "@php artisan db:seed --ansi",
-            "@php artisan test --parallel --ansi",
+        "ci-lint": [
             ".\\vendor\\bin\\pint --repair --no-interaction --ansi",
-            "npm ci --no-fund --no-audit",
-            "npm audit --audit-level moderate",
-            "npm run build --if-present"
+            "exit 0"
+        ],
+        "ci-test": [
+            "@php artisan test --parallel --ansi"
+        ],
+        "ci-reset": [
+            "@php -r \"file_exists('./database/database.sqlite') || touch('./database/database.sqlite');\"",
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan key:generate --ansi",
+            "@php artisan migrate:refresh --no-interaction --ansi",
+            "@php artisan db:seed --ansi"
+        ],
+        "ci-before-pull-request": [
+            "@composer ci-lint",
+            "@composer ci-audit",
+            "@composer ci-test",
+            "git status --porcelain | php -r \"$s=file_get_contents('php://stdin');if(strlen(trim($s))) {printf('%c[%dmChanges detected, please update the pr!%c%c%c[0m%s',27,33,13,10,27,$s);exit(1);}exit(0);\""
         ]
+
     },
     "extra": {
         "laravel": {
