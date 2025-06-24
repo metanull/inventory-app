@@ -7,10 +7,10 @@ use App\http\controllers\DetailController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\MobileAppAuthenticationController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\MobileAppAuthenticationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -86,10 +86,9 @@ Route::resource('detail', DetailController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 
-
 Route::post('mobile/acquire-token', [MobileAppAuthenticationController::class, 'acquire_token'])
     ->name('token.acquire');
 
 Route::get('mobile/wipe', [MobileAppAuthenticationController::class, 'wipe_tokens'])
-  ->name('token.wipe')
-  ->middleware('auth:sanctum');
+    ->name('token.wipe')
+    ->middleware('auth:sanctum');

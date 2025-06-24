@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class MobileAppAuthenticationController extends Controller
 {
-
     /**
      * Acquire a token for the user.
+     *
      * @unauthenticated
      */
     public function acquire_token(Request $request)
@@ -33,6 +32,7 @@ class MobileAppAuthenticationController extends Controller
         if ($request->wipe_tokens) {
             $user->tokens()->delete();
         }
+
         return response($user->createToken($request->device_name)->plainTextToken, 201);
     }
 
@@ -45,6 +45,7 @@ class MobileAppAuthenticationController extends Controller
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
         $request->user()->tokens()->delete();
+
         return response()->noContent();
     }
 }

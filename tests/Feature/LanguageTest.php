@@ -274,12 +274,12 @@ class LanguageTest extends TestCase
         $response = $this->actingAs($user)
             ->postJson(route('language.store'), [
                 'id' => 'TST',
-                //'internal_name' => 'Test Language',
+                // 'internal_name' => 'Test Language',
                 'backward_compatibility' => null,
-                'is_default' => true // is not allowed to be set during creation
+                'is_default' => true, // is not allowed to be set during creation
             ]);
 
-        $response->assertJsonValidationErrors(['internal_name','is_default']);
+        $response->assertJsonValidationErrors(['internal_name', 'is_default']);
     }
 
     public function test_api_response_store_returns_unprocessable_when_input_is_invalid(): void
@@ -288,9 +288,9 @@ class LanguageTest extends TestCase
         $response = $this->actingAs($user)
             ->postJson(route('language.store'), [
                 'id' => 'TST',
-                //'internal_name' => 'Test Language',
+                // 'internal_name' => 'Test Language',
                 'backward_compatibility' => null,
-                'is_default' => true // is not allowed to be set during creation
+                'is_default' => true, // is not allowed to be set during creation
             ]);
 
         $response->assertUnprocessable();
@@ -375,13 +375,12 @@ class LanguageTest extends TestCase
 
         $response = $this->actingAs($user)
             ->putJson(route('language.update', $language->id), [
-                //'internal_name' => 'Updated Language',
+                // 'internal_name' => 'Updated Language',
                 'backward_compatibility' => null,
-                'is_default' => true // is not allowed to be set during creation
+                'is_default' => true, // is not allowed to be set during creation
             ]);
-            
 
-        $response->assertJsonValidationErrors(['internal_name','is_default']);
+        $response->assertJsonValidationErrors(['internal_name', 'is_default']);
     }
 
     public function test_api_validation_update_returns_unprocessable_when_input_is_invalid(): void
@@ -395,9 +394,9 @@ class LanguageTest extends TestCase
 
         $response = $this->actingAs($user)
             ->putJson(route('language.update', $language->id), [
-                //'internal_name' => 'Updated Language',
+                // 'internal_name' => 'Updated Language',
                 'backward_compatibility' => null,
-                'is_default' => true // is not allowed to be set during creation
+                'is_default' => true, // is not allowed to be set during creation
             ]);
 
         $response->assertUnprocessable();
@@ -544,5 +543,4 @@ class LanguageTest extends TestCase
 
         $response->assertNoContent();
     }
-
 }
