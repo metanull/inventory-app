@@ -64,7 +64,8 @@
         
         "ci-install": [
             "@composer install --ansi --no-interaction --no-progress --prefer-dist",
-            "npm ci --no-fund --no-audit"
+            "npm ci --no-fund --no-audit",
+            "npm run build"
         ],
         "ci-audit": [
             "@composer validate --with-dependencies --strict --ansi",
