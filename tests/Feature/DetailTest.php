@@ -277,7 +277,7 @@ class DetailTest extends TestCase
             ->assertJsonPath('data.1.backward_compatibility', $detail2->backward_compatibility);
     }
 
-    public function test_api_process_store_validates_its_input(): void
+    public function test_api_validation_store_validates_its_input(): void
     {
         $user = User::factory()->create();
         $response = $this->actingAs($user)
@@ -424,7 +424,7 @@ class DetailTest extends TestCase
             ->assertJsonPath('data.item.backward_compatibility', $item->backward_compatibility);
     }
 
-    public function test_api_process_update_validates_its_input(): void
+    public function test_api_validation_update_validates_its_input(): void
     {
         $user = User::factory()->create();
         $detail = Detail::factory()->for(Item::factory())->create();
@@ -438,6 +438,22 @@ class DetailTest extends TestCase
             ]);
 
         $response->assertJsonValidationErrors(['id', 'internal_name', 'item_id']);
+    }
+
+    public function test_api_validation_update_returns_unprocessable_when_input_is_invalid(): void
+    {
+        $user = User::factory()->create();
+        $detail = Detail::factory()->for(Item::factory())->create();
+
+        $response = $this->actingAs($user)
+            ->putJson(route('detail.update', $detail->id), [
+                'id' => 'invalid-id', // Invalid: prohibited field
+                'item_id' => 'invalid_id', // Invalid: not a valid Item ID
+                'internal_name' => '', // Invalid: required field
+                'backward_compatibility' => 'UD',
+            ]);
+
+        $response->assertUnprocessable();
     }
 
     public function test_api_response_update_returns_not_found_response_when_not_found(): void

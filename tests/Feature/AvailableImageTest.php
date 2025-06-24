@@ -268,7 +268,7 @@ class AvailableImageTest extends TestCase
             ->assertJsonPath('data.1.comment', $availableImage2->comment);
     }
 
-    public function test_api_process_update_validates_its_input(): void
+    public function test_api_validation_update_validates_its_input(): void
     {
         Storage::fake('public');
         Event::fake();
@@ -283,6 +283,22 @@ class AvailableImageTest extends TestCase
             ]);
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['path']);
+    }
+
+    public function test_api_validation_update_returns_unprocessable_when_input_is_invalid(): void
+    {
+        Storage::fake('public');
+        Event::fake();
+
+        $availableImage = AvailableImage::factory()->create();
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->putJson(route('available-image.update', $availableImage->id), [
+                'path' => 'invalid-path', // Invalid: prohibited field
+                'comment' => '',          // Invalid: required field
+            ]);
+        $response->assertUnprocessable();
     }
 
     public function test_api_response_update_returns_not_found_response_when_not_found(): void

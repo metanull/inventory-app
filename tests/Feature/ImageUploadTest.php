@@ -271,7 +271,7 @@ class ImageUploadTest extends TestCase
         ]);
     }
 
-    public function test_api_process_store_validates_its_input(): void
+    public function test_api_validation_store_validates_its_input(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
