@@ -123,4 +123,13 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /**
+     * Data for the default user of the application
+     */
+    'default_user' => [
+        'name' => env('APP_DEFAULT_USER_USERNAME', 'user'),
+        'password' => env('APP_DEFAULT_USER_PASSWORD', 'password'),
+        'email' => env('APP_DEFAULT_USER_EMAIL', 'user@example.com'),
+    ],
+
 ];
