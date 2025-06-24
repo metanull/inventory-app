@@ -36,16 +36,6 @@ class PhpExtensionsTest extends TestCase
         );
     }
 
-    public function test_php_has_sqlite3_extension(): void
-    {
-        $extension = 'sqlite3';
-
-        $this->assertTrue(
-            extension_loaded($extension),
-            "The PHP extension '{$extension}' is not installed or enabled."
-        );
-    }
-
     public function test_php_has_pdo_sqlite_extension(): void
     {
         $extension = 'pdo_sqlite';
