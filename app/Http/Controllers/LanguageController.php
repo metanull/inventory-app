@@ -49,7 +49,7 @@ class LanguageController extends Controller
         $validated = $request->validate([
             /** @ignoreParam */
             'id' => 'prohibited',
-            'internal_name' => 'string',
+            'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string|size:2',
             'is_default' => 'prohibited|boolean',
         ]);

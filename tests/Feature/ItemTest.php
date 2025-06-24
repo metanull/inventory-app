@@ -449,7 +449,7 @@ class ItemTest extends TestCase
             ->assertJsonPath('data.1.type', $item2->type);
     }
 
-    public function test_api_process_store_validates_its_input(): void
+    public function test_api_validation_store_validates_its_input(): void
     {
         $user = User::factory()->create();
         $response = $this->actingAs($user)
@@ -706,7 +706,7 @@ class ItemTest extends TestCase
             ->assertJsonPath('data.project.backward_compatibility', $project->backward_compatibility);
     }
 
-    public function test_api_process_update_validates_its_input(): void
+    public function test_api_validation_update_validates_its_input(): void
     {
         $user = User::factory()->create();
         $item = Item::factory()->create();
