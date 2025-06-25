@@ -25,7 +25,7 @@ class UpdateTest extends TestCase
     {
         $partner = Partner::factory()->create();
         $data = [
-            'name' => $this->faker->company(),
+            'internal_name' => $this->faker->sentence(),
         ];
 
         $response = $this->putJson(route('partner.update', $partner), $data);
@@ -37,7 +37,7 @@ class UpdateTest extends TestCase
     {
         $partner = Partner::factory()->create();
         $data = [
-            'name' => $this->faker->company(),
+            'internal_name' => $this->faker->sentence(),
         ];
 
         $response = $this->putJson(route('partner.update', $partner), $data);
@@ -50,7 +50,7 @@ class UpdateTest extends TestCase
     {
         $partner = Partner::factory()->create();
         $data = [
-            'name' => $this->faker->company(),
+            'internal_name' => $this->faker->sentence(),
         ];
 
         $response = $this->putJson(route('partner.update', $partner), $data);
@@ -61,7 +61,7 @@ class UpdateTest extends TestCase
     public function test_update_returns_not_found_when_record_does_not_exist(): void
     {
         $data = [
-            'name' => $this->faker->company(),
+            'internal_name' => $this->faker->sentence(),
         ];
 
         $response = $this->putJson(route('partner.update', 999), $data);
@@ -73,7 +73,7 @@ class UpdateTest extends TestCase
     {
         $partner = Partner::factory()->create();
         $data = [
-            'name' => '', // Invalid: empty name
+            'internal_name' => '', // Invalid: empty name
         ];
 
         $response = $this->putJson(route('partner.update', $partner), $data);
@@ -85,7 +85,7 @@ class UpdateTest extends TestCase
     {
         $partner = Partner::factory()->create();
         $data = [
-            'name' => $this->faker->company(),
+            'internal_name' => $this->faker->sentence(),
         ];
 
         $response = $this->putJson(route('partner.update', $partner), $data);
@@ -93,7 +93,7 @@ class UpdateTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 'id',
-                'name',
+                'internal_name',
                 'created_at',
                 'updated_at',
             ],
@@ -104,14 +104,14 @@ class UpdateTest extends TestCase
     {
         $partner = Partner::factory()->create();
         $data = [
-            'name' => $this->faker->company(),
+            'internal_name' => $this->faker->sentence(),
         ];
 
         $response = $this->putJson(route('partner.update', $partner), $data);
 
         $response->assertOk();
         $response->assertJsonPath('data.id', $partner->id);
-        $response->assertJsonPath('data.name', $data['name']);
+        $response->assertJsonPath('data.internal_name', $data['internal_name']);
         $this->assertDatabaseHas('partners', array_merge(['id' => $partner->id], $data));
     }
 
@@ -119,12 +119,12 @@ class UpdateTest extends TestCase
     {
         $partner = Partner::factory()->create();
         $invalidData = [
-            'name' => '', // Required field empty
+            'internal_name' => '', // Required field empty
         ];
 
         $response = $this->putJson(route('partner.update', $partner), $invalidData);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['name']);
+        $response->assertJsonValidationErrors(['internal_name']);
     }
 }

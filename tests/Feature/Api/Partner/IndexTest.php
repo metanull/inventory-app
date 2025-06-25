@@ -59,7 +59,8 @@ class IndexTest extends TestCase
             'data' => [
                 '*' => [
                     'id',
-                    'name',
+                    'internal_name',
+                    'backward_compatibility',
                     'created_at',
                     'updated_at',
                 ],

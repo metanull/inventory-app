@@ -65,7 +65,8 @@ class ShowTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 'id',
-                'name',
+                'internal_name',
+                'backward_compatibility',
                 'created_at',
                 'updated_at',
             ],
