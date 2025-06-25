@@ -23,8 +23,7 @@ class DestroyTest extends TestCase
 
     public function test_destroy_forbids_anonymous_access(): void
     {
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->deleteJson(route('language.destroy', 'TST'));
+        $response = $this->deleteJson(route('language.destroy', 'TST'));
         $response->assertUnauthorized();
     }
 

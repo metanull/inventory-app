@@ -24,8 +24,7 @@ class DestroyTest extends TestCase
     public function test_destroy_forbids_anonymous_access(): void
     {
         $item = Item::factory()->create();
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->deleteJson(route('item.destroy', $item->id));
+        $response = $this->deleteJson(route('item.destroy', $item->id));
         $response->assertUnauthorized();
     }
 

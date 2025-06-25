@@ -34,8 +34,7 @@ class IndexTest extends TestCase
     {
         Partner::factory()->count(3)->create();
 
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->getJson(route('partner.index'));
+        $response = $this->getJson(route('partner.index'));
 
         $response->assertUnauthorized();
     }

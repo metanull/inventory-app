@@ -40,8 +40,7 @@ class UpdateTest extends TestCase
             'name' => $this->faker->company(),
         ];
 
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->putJson(route('partner.update', $partner), $data);
+        $response = $this->putJson(route('partner.update', $partner), $data);
 
         $response->assertUnauthorized();
     }
@@ -91,7 +90,7 @@ class UpdateTest extends TestCase
 
         $response = $this->putJson(route('partner.update', $partner), $data);
 
-        $response->assertUnprocessableEntity();
+        $response->assertUnprocessable();
     }
 
     public function test_update_returns_the_expected_structure(): void
@@ -137,7 +136,7 @@ class UpdateTest extends TestCase
 
         $response = $this->putJson(route('partner.update', $partner), $invalidData);
 
-        $response->assertUnprocessableEntity();
+        $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['name']);
     }
 }

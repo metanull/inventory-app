@@ -23,8 +23,7 @@ class UpdateTest extends TestCase
 
     public function test_update_forbids_anonymous_access(): void
     {
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->putJson(route('language.update', 'TST'), [
+        $response = $this->putJson(route('language.update', 'TST'), [
                 'internal_name' => 'Updated Language',
                 'backward_compatibility' => 'UU',
             ]);

@@ -34,8 +34,7 @@ class DestroyTest extends TestCase
     {
         $partner = Partner::factory()->create();
 
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->deleteJson(route('partner.destroy', $partner));
+        $response = $this->deleteJson(route('partner.destroy', $partner));
 
         $response->assertUnauthorized();
     }

@@ -112,7 +112,7 @@ description: |
     # - Prefer the Response tests to use the `assertJsonPath` methods to validate the response content, when the response has a single item.
     # - Prefer the Response tests to use the `assertJson` methods to validate the response content, when the response has multiple items.
     - Prefer the Response tests to use the `assertJsonPath` methods to validate the response content
-    - Prefer the methods `assertOk`, `assertCreated`, `assertNoContent`, `assertNotFound`, and `assertUnprocessableEntity` to validate the status code of the response.
+    - Prefer the methods `assertOk`, `assertCreated`, `assertNoContent`, `assertNotFound`, and `assertUnprocessable` to validate the status code of the response.
   - Tests related to the validation of the request data are in the category 'Validation'.
     - For every `store` and `update` method, make a distinct test to assert that input validation is performed.
       - The name of this test should follow the format `test_[ControllerMethod]_validates_its_input`.

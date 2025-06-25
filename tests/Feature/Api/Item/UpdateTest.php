@@ -25,8 +25,7 @@ class UpdateTest extends TestCase
     public function test_update_forbids_anonymous_access(): void
     {
         $item = Item::factory()->create();
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->putJson(route('item.update', $item->id), [
+        $response = $this->putJson(route('item.update', $item->id), [
                 'partner_id' => Partner::factory()->create()->id,
                 'internal_name' => 'Updated Item',
                 'backward_compatibility' => 'UI',

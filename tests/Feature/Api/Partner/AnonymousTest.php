@@ -22,8 +22,7 @@ class AnonymousTest extends TestCase
 
     public function test_index_forbids_anonymous_access(): void
     {
-        $response_anonymous = $this->withHeaders(['Authorization' => ''])
-            ->getJson(route('partner.index'));
+        $response_anonymous = $this->getJson(route('partner.index'));
         $response_anonymous->assertUnauthorized();
     }
 
@@ -31,15 +30,13 @@ class AnonymousTest extends TestCase
     {
         $partner = Partner::factory()->withCountry()->create();
 
-        $response_anonymous = $this->withHeaders(['Authorization' => ''])
-            ->getJson(route('partner.show', $partner->id));
+        $response_anonymous = $this->getJson(route('partner.show', $partner->id));
         $response_anonymous->assertUnauthorized();
     }
 
     public function test_store_forbids_anonymous_access(): void
     {
-        $response_anonymous = $this->withHeaders(['Authorization' => ''])
-            ->postJson(route('partner.store'), [
+        $response_anonymous = $this->postJson(route('partner.store'), [
                 'internal_name' => 'Test Partner',
                 'backward_compatibility' => 'TP',
                 'country_id' => Country::factory()->create()->id,
@@ -52,8 +49,7 @@ class AnonymousTest extends TestCase
     {
         $partner = Partner::factory()->withCountry()->create();
 
-        $response_anonymous = $this->withHeaders(['Authorization' => ''])
-            ->putJson(route('partner.update', $partner->id), [
+        $response_anonymous = $this->putJson(route('partner.update', $partner->id), [
                 'internal_name' => 'Updated Partner',
                 'backward_compatibility' => 'UP',
                 'country_id' => Country::factory()->create()->id,
@@ -66,8 +62,7 @@ class AnonymousTest extends TestCase
     {
         $partner = Partner::factory()->withCountry()->create();
 
-        $response_anonymous = $this->withHeaders(['Authorization' => ''])
-            ->deleteJson(route('partner.destroy', $partner->id));
+        $response_anonymous = $this->deleteJson(route('partner.destroy', $partner->id));
         $response_anonymous->assertUnauthorized();
     }
 }

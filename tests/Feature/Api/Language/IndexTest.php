@@ -23,8 +23,7 @@ class IndexTest extends TestCase
 
     public function test_index_forbids_anonymous_access(): void
     {
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->getJson(route('language.index'));
+        $response = $this->getJson(route('language.index'));
         $response->assertUnauthorized();
     }
 

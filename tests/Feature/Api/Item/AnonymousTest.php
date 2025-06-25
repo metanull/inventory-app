@@ -22,23 +22,20 @@ class AnonymousTest extends TestCase
 
     public function test_index_forbids_anonymous_access(): void
     {
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->getJson(route('item.index'));
+        $response = $this->getJson(route('item.index'));
         $response->assertUnauthorized();
     }
 
     public function test_show_forbids_anonymous_access(): void
     {
         $item = Item::factory()->create();
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->getJson(route('item.show', $item->id));
+        $response = $this->getJson(route('item.show', $item->id));
         $response->assertUnauthorized();
     }
 
     public function test_store_forbids_anonymous_access(): void
     {
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->postJson(route('item.store'), [
+        $response = $this->postJson(route('item.store'), [
                 'partner_id' => Partner::factory()->create()->id,
                 'internal_name' => 'Test Item',
                 'backward_compatibility' => 'TI',
@@ -50,8 +47,7 @@ class AnonymousTest extends TestCase
     public function test_update_forbids_anonymous_access(): void
     {
         $item = Item::factory()->create();
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->putJson(route('item.update', $item->id), [
+        $response = $this->putJson(route('item.update', $item->id), [
                 'partner_id' => Partner::factory()->create()->id,
                 'internal_name' => 'Updated Item',
                 'backward_compatibility' => 'UI',
@@ -63,8 +59,7 @@ class AnonymousTest extends TestCase
     public function test_destroy_forbids_anonymous_access(): void
     {
         $item = Item::factory()->create();
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->deleteJson(route('item.destroy', $item->id));
+        $response = $this->deleteJson(route('item.destroy', $item->id));
         $response->assertUnauthorized();
     }
 }

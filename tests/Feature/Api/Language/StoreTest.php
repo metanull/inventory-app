@@ -58,8 +58,7 @@ class StoreTest extends TestCase
 
     public function test_store_forbids_anonymous_access(): void
     {
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->postJson(route('language.store'), [
+        $response = $this->postJson(route('language.store'), [
                 'id' => 'TST',
                 'internal_name' => 'Test Language',
                 'backward_compatibility' => 'TT',

@@ -23,8 +23,7 @@ class ShowTest extends TestCase
 
     public function test_show_forbids_anonymous_access(): void
     {
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->getJson(route('language.show', 'TST'));
+        $response = $this->getJson(route('language.show', 'TST'));
         $response->assertUnauthorized();
     }
 

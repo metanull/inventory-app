@@ -37,8 +37,7 @@ class StoreTest extends TestCase
             'name' => $this->faker->company(),
         ];
 
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->postJson(route('partner.store'), $data);
+        $response = $this->postJson(route('partner.store'), $data);
 
         $response->assertUnauthorized();
     }
@@ -74,7 +73,7 @@ class StoreTest extends TestCase
 
         $response = $this->postJson(route('partner.store'), $data);
 
-        $response->assertUnprocessableEntity();
+        $response->assertUnprocessable();
     }
 
     public function test_store_returns_the_expected_structure(): void
@@ -116,7 +115,7 @@ class StoreTest extends TestCase
 
         $response = $this->postJson(route('partner.store'), $invalidData);
 
-        $response->assertUnprocessableEntity();
+        $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['name']);
     }
 }

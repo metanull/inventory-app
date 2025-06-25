@@ -21,22 +21,19 @@ class AnonymousTest extends TestCase
 
     public function test_index_forbids_anonymous_access(): void
     {
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->getJson(route('language.index'));
+        $response = $this->getJson(route('language.index'));
         $response->assertUnauthorized();
     }
 
     public function test_show_forbids_anonymous_access(): void
     {
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->getJson(route('language.show', 'TST'));
+        $response = $this->getJson(route('language.show', 'TST'));
         $response->assertUnauthorized();
     }
 
     public function test_store_forbids_anonymous_access(): void
     {
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->postJson(route('language.store'), [
+        $response = $this->postJson(route('language.store'), [
                 'id' => 'TST',
                 'internal_name' => 'Test Language',
                 'backward_compatibility' => 'TT',
@@ -46,8 +43,7 @@ class AnonymousTest extends TestCase
 
     public function test_update_forbids_anonymous_access(): void
     {
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->putJson(route('language.update', 'TST'), [
+        $response = $this->putJson(route('language.update', 'TST'), [
                 'internal_name' => 'Updated Language',
                 'backward_compatibility' => 'UU',
             ]);
@@ -56,24 +52,21 @@ class AnonymousTest extends TestCase
 
     public function test_destroy_forbids_anonymous_access(): void
     {
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->deleteJson(route('language.destroy', 'TST'));
+        $response = $this->deleteJson(route('language.destroy', 'TST'));
         $response->assertUnauthorized();
     }
 
     public function test_getdefault_forbids_anonymous_access(): void
     {
         $language = Language::factory()->withIsDefault()->create();
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->getJson(route('language.getDefault'));
+        $response = $this->getJson(route('language.getDefault'));
         $response->assertUnauthorized();
     }
 
     public function test_setdefault_forbids_anonymous_access(): void
     {
         $language = Language::factory()->create();
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->patchJson(route('language.setDefault', $language->id), [
+        $response = $this->patchJson(route('language.setDefault', $language->id), [
                 'is_default' => true,
             ]);
         $response->assertUnauthorized();

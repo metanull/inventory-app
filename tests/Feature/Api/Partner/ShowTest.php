@@ -34,8 +34,7 @@ class ShowTest extends TestCase
     {
         $partner = Partner::factory()->create();
 
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->getJson(route('partner.show', $partner));
+        $response = $this->getJson(route('partner.show', $partner));
 
         $response->assertUnauthorized();
     }

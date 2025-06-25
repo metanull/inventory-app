@@ -24,8 +24,7 @@ class ShowTest extends TestCase
     public function test_show_forbids_anonymous_access(): void
     {
         $item = Item::factory()->create();
-        $response = $this->withHeaders(['Authorization' => ''])
-            ->getJson(route('item.show', $item->id));
+        $response = $this->getJson(route('item.show', $item->id));
         $response->assertUnauthorized();
     }
 
