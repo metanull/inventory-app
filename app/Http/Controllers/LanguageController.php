@@ -72,21 +72,25 @@ class LanguageController extends Controller
     /**
      * Set a Language as the default one.
      */
-    public function setDefault(Request $request, Language $context)
+    public function setDefault(Request $request, Language $language)
     {
         $validated = $request->validate([
             'is_default' => 'required|boolean',
         ]);
 
-        // Ensure only one context can be default
+        if (! $language) {
+            return response()->json(['message' => 'No default language found'], 404);
+        }
+        
+        // Ensure only one language can be default
         if ($validated['is_default']) {
             Language::where('is_default', true)->update(['is_default' => false]);
         }
 
-        $context->update($validated);
-        $context->refresh();
+        $language->update($validated);
+        $language->refresh();
 
-        return new LanguageResource($context);
+        return new LanguageResource($language);
     }
 
     /**
@@ -94,12 +98,12 @@ class LanguageController extends Controller
      */
     public function getDefault()
     {
-        $context = Language::where('is_default', true)->first();
+        $language = Language::where('is_default', true)->first();
 
-        if (! $context) {
-            return response()->json(['message' => 'No default context found'], 404);
+        if (! $language) {
+            return response()->json(['message' => 'No default language found'], 404);
         }
 
-        return new LanguageResource($context);
+        return new LanguageResource($language);
     }
 }
