@@ -36,11 +36,11 @@ class AnonymousTest extends TestCase
     public function test_store_forbids_anonymous_access(): void
     {
         $response = $this->postJson(route('item.store'), [
-                'partner_id' => Partner::factory()->create()->id,
-                'internal_name' => 'Test Item',
-                'backward_compatibility' => 'TI',
-                'type' => 'object',
-            ]);
+            'partner_id' => Partner::factory()->create()->id,
+            'internal_name' => 'Test Item',
+            'backward_compatibility' => 'TI',
+            'type' => 'object',
+        ]);
         $response->assertUnauthorized();
     }
 
@@ -48,11 +48,11 @@ class AnonymousTest extends TestCase
     {
         $item = Item::factory()->create();
         $response = $this->putJson(route('item.update', $item->id), [
-                'partner_id' => Partner::factory()->create()->id,
-                'internal_name' => 'Updated Item',
-                'backward_compatibility' => 'UI',
-                'type' => 'monument',
-            ]);
+            'partner_id' => Partner::factory()->create()->id,
+            'internal_name' => 'Updated Item',
+            'backward_compatibility' => 'UI',
+            'type' => 'monument',
+        ]);
         $response->assertUnauthorized();
     }
 

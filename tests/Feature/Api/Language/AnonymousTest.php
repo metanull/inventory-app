@@ -34,19 +34,19 @@ class AnonymousTest extends TestCase
     public function test_store_forbids_anonymous_access(): void
     {
         $response = $this->postJson(route('language.store'), [
-                'id' => 'TST',
-                'internal_name' => 'Test Language',
-                'backward_compatibility' => 'TT',
-            ]);
+            'id' => 'TST',
+            'internal_name' => 'Test Language',
+            'backward_compatibility' => 'TT',
+        ]);
         $response->assertUnauthorized();
     }
 
     public function test_update_forbids_anonymous_access(): void
     {
         $response = $this->putJson(route('language.update', 'TST'), [
-                'internal_name' => 'Updated Language',
-                'backward_compatibility' => 'UU',
-            ]);
+            'internal_name' => 'Updated Language',
+            'backward_compatibility' => 'UU',
+        ]);
         $response->assertUnauthorized();
     }
 
@@ -67,8 +67,8 @@ class AnonymousTest extends TestCase
     {
         $language = Language::factory()->create();
         $response = $this->patchJson(route('language.setDefault', $language->id), [
-                'is_default' => true,
-            ]);
+            'is_default' => true,
+        ]);
         $response->assertUnauthorized();
     }
 }
