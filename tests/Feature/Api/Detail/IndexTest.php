@@ -22,27 +22,27 @@ class IndexTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_api_authentication_index_allows_authenticated_users(): void
+    public function test_index_allows_authenticated_users(): void
     {
         $response_authenticated = $this->getJson(route('detail.index'));
         $response_authenticated->assertOk();
     }
 
-    public function test_api_response_index_returns_ok_when_no_data(): void
+    public function test_index_returns_ok_when_no_data(): void
     {
         $response = $this->getJson(route('detail.index'));
 
         $response->assertOk();
     }
 
-    public function test_api_response_index_returns_an_empty_array_when_no_data(): void
+    public function test_index_returns_an_empty_array_when_no_data(): void
     {
         $response = $this->getJson(route('detail.index'));
 
         $response->assertJsonCount(0, 'data');
     }
 
-    public function test_api_response_index_returns_the_expected_structure(): void
+    public function test_index_returns_the_expected_structure(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
         $response = $this->getJson(route('detail.index'));
@@ -61,7 +61,7 @@ class IndexTest extends TestCase
         ]);
     }
 
-    public function test_api_response_index_returns_the_expected_structure_including_item_data(): void
+    public function test_index_returns_the_expected_structure_including_item_data(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
         $response = $this->getJson(route('detail.index'));
@@ -82,7 +82,7 @@ class IndexTest extends TestCase
         ]);
     }
 
-    public function test_api_response_index_returns_the_expected_data(): void
+    public function test_index_returns_the_expected_data(): void
     {
         $detail1 = Detail::factory()->WithItem()->create();
         $detail2 = Detail::factory()->WithItem()->create();

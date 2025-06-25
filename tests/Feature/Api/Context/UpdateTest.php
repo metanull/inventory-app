@@ -25,7 +25,7 @@ class UpdateTest extends TestCase
     /**
      * Authentication: update allows authenticated users.
      */
-    public function test_api_authentication_update_allows_authenticated_users()
+    public function test_update_allows_authenticated_users()
     {
         $context = Context::factory()->create();
 
@@ -41,7 +41,7 @@ class UpdateTest extends TestCase
     /**
      * Process: update updates a row.
      */
-    public function test_api_process_update_updates_a_row()
+    public function test_update_updates_a_row()
     {
         $context = Context::factory()->create();
 
@@ -58,7 +58,7 @@ class UpdateTest extends TestCase
     /**
      * Response: update returns ok on success.
      */
-    public function test_api_response_update_returns_ok_on_success()
+    public function test_update_returns_ok_on_success()
     {
         $context = Context::factory()->create();
 
@@ -74,7 +74,7 @@ class UpdateTest extends TestCase
     /**
      * Response: update returns not found when record does not exist.
      */
-    public function test_api_response_update_returns_not_found_when_record_does_not_exist()
+    public function test_update_returns_not_found_when_record_does_not_exist()
     {
         $data = [
             'internal_name' => $this->faker->unique()->word,
@@ -88,7 +88,7 @@ class UpdateTest extends TestCase
     /**
      * Response: update returns unprocessable entity when input is invalid.
      */
-    public function test_api_response_update_returns_unprocessable_entity_when_input_is_invalid()
+    public function test_update_returns_unprocessable_entity_when_input_is_invalid()
     {
         $context = Context::factory()->create();
 
@@ -106,7 +106,7 @@ class UpdateTest extends TestCase
     /**
      * Response: update returns the expected structure.
      */
-    public function test_api_response_update_returns_the_expected_structure()
+    public function test_update_returns_the_expected_structure()
     {
         $context = Context::factory()->create();
         
@@ -129,7 +129,7 @@ class UpdateTest extends TestCase
     /**
      * Response: update returns the expected data.
      */
-    public function test_api_response_update_returns_the_expected_data()
+    public function test_update_returns_the_expected_data()
     {
         $context = Context::factory()->create();
         
@@ -144,7 +144,7 @@ class UpdateTest extends TestCase
     /**
      * Validation: update validates its input.
      */
-    public function test_api_validation_update_validates_its_input()
+    public function test_update_validates_its_input()
     {
         $context = Context::factory()->create();
         $data = Context::factory()->make()->except(['internal_name']);  // missing required field: internal_name + 'is_default' is prohibited + 'id' is prohibited

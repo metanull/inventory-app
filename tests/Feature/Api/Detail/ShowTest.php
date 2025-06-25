@@ -22,21 +22,21 @@ class ShowTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_api_authentication_show_allows_authenticated_users(): void
+    public function test_show_allows_authenticated_users(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
         $response_authenticated = $this->getJson(route('detail.show', $detail->id));
         $response_authenticated->assertOk();
     }
 
-    public function test_api_response_show_returns_not_found_when_not_found(): void
+    public function test_show_returns_not_found_when_not_found(): void
     {
         $response = $this->getJson(route('detail.show', 'nonexistent'));
 
         $response->assertNotFound();
     }
 
-    public function test_api_response_show_returns_the_expected_structure(): void
+    public function test_show_returns_the_expected_structure(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
         $response = $this->getJson(route('detail.show', $detail->id));
@@ -53,7 +53,7 @@ class ShowTest extends TestCase
         ]);
     }
 
-    public function test_api_response_show_returns_the_expected_structure_including_item_data(): void
+    public function test_show_returns_the_expected_structure_including_item_data(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
         $response = $this->getJson(route('detail.show', $detail->id));
@@ -71,7 +71,7 @@ class ShowTest extends TestCase
         ]);
     }
 
-    public function test_api_response_show_returns_the_expected_data(): void
+    public function test_show_returns_the_expected_data(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
         $response = $this->getJson(route('detail.show', $detail->id));
@@ -81,7 +81,7 @@ class ShowTest extends TestCase
             ->assertJsonPath('data.backward_compatibility', $detail->backward_compatibility);
     }
 
-    public function test_api_response_show_returns_the_expected_data_including_item_data(): void
+    public function test_show_returns_the_expected_data_including_item_data(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
         $response = $this->getJson(route('detail.show', $detail->id));

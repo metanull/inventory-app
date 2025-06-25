@@ -26,7 +26,7 @@ class DestroyTest extends TestCase
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
     }
-    public function test_api_authentication_destroy_allows_authenticated_users(): void
+    public function test_destroy_allows_authenticated_users(): void
     {
         $availableImage = AvailableImage::factory()->create();
 
@@ -34,13 +34,13 @@ class DestroyTest extends TestCase
         $response->assertNoContent();
     }
 
-    public function test_api_response_destroy_returns_not_found_response_when_not_found(): void
+    public function test_destroy_returns_not_found_response_when_not_found(): void
     {
         $response = $this->deleteJson(route('available-image.destroy', 'non-existent-id'));
         $response->assertNotFound();
     }
 
-    public function test_api_process_destroy_deletes_a_row(): void
+    public function test_destroy_deletes_a_row(): void
     {
         $availableImage = AvailableImage::factory()->create();
 
@@ -50,7 +50,7 @@ class DestroyTest extends TestCase
         ]);
     }
 
-    public function test_api_response_destroy_returns_no_content_on_success(): void
+    public function test_destroy_returns_no_content_on_success(): void
     {
         $availableImage = AvailableImage::factory()->create();
 

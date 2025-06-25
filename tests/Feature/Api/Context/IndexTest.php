@@ -25,7 +25,7 @@ class IndexTest extends TestCase
     /**
      * Authentication: index allows authenticated users.
      */
-    public function test_api_authentication_index_allows_authenticated_users()
+    public function test_index_allows_authenticated_users()
     {
         $response = $this->getJson(route('context.index'));
         $response->assertOk();
@@ -33,7 +33,7 @@ class IndexTest extends TestCase
     /**
      * Process: index returns all rows.
      */
-    public function test_api_process_index_returns_all_rows()
+    public function test_index_returns_all_rows()
     {
         Context::factory()->count(3)->create();
 
@@ -44,7 +44,7 @@ class IndexTest extends TestCase
     /**
      * Response: index returns ok on success.
      */
-    public function test_api_response_index_returns_ok_on_success()
+    public function test_index_returns_ok_on_success()
     {
         $response = $this->getJson(route('context.index'));
         $response->assertOk();
@@ -52,7 +52,7 @@ class IndexTest extends TestCase
     /**
      * Response: index returns the expected structure.
      */
-    public function test_api_response_index_returns_the_expected_structure()
+    public function test_index_returns_the_expected_structure()
     {
                 Context::factory()->count(2)->create();
 
@@ -73,7 +73,7 @@ class IndexTest extends TestCase
     /**
      * Response: index returns the expected data.
      */
-    public function test_api_response_index_returns_the_expected_data()
+    public function test_index_returns_the_expected_data()
     {
         $contexts = Context::factory()->count(2)->create();
 

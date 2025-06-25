@@ -61,13 +61,25 @@ description: |
 - Use `php artisan test --coverage` to generate a code coverage report.
 - Test every route in the `routes/api.php` file.
 - Test names should be descriptive and follow the format:
-  `test_api_[Category]_[ControllerMethod]_[Scenario]`.
-- Group tests related to directly related Model, Resource, Factory, 
-  Controller and Route in a single test class.
-  - For example, if you have a `User` model, create a `UserTest` class
-    that tests the `User` model, the `UserFactory` factory, the
-    `UserResource` resource, the `UserController` controller, and the
-    routes defined in `routes/api.php` that interact with the `UserController`.
+  `test_[ControllerMethod]_[Scenario]`.
+- Organize tests into focused test classes by functionality within entity-specific directories.
+  - For each entity (e.g., `User`), create a directory under `tests/Feature/Api/` (e.g., `tests/Feature/Api/User/`).
+  - Within each entity directory, create separate test files for different aspects:
+    - `AnonymousTest.php` - Tests for unauthorized access scenarios
+    - `IndexTest.php` - Tests for listing/index operations
+    - `ShowTest.php` - Tests for showing single records
+    - `StoreTest.php` - Tests for creating new records
+    - `UpdateTest.php` - Tests for updating existing records
+    - `DestroyTest.php` - Tests for deleting records
+  - Each test file should focus only on tests relevant to its specific functionality.
+  - Each test file should include a `protected ?User $user = null;` property and a `setUp()` method that creates and authenticates a user.
+  - For example, for a `User` model, create:
+    - `tests/Feature/Api/User/AnonymousTest.php`
+    - `tests/Feature/Api/User/IndexTest.php`
+    - `tests/Feature/Api/User/ShowTest.php`
+    - `tests/Feature/Api/User/StoreTest.php`
+    - `tests/Feature/Api/User/UpdateTest.php`
+    - `tests/Feature/Api/User/DestroyTest.php`
 - Ensure that tests are concise and focused on a single aspect of the functionality.
 - Use the `assert` methods provided by PHPUnit to validate the expected outcomes.
 - Always use the `route()` helper to generate URLs for testing.
@@ -91,11 +103,11 @@ description: |
         - The name of these tests should follow the format `test_factory_withEmail`.
   - Tests related to the HTTP responses are in the category 'Response'.
     - For every response make a distinct test to assert the status code of the response.
-      - The name of this test should follow the format `test_api_response_[ControllerMethod]_returns_[StatusCode]_on_[Scenario]`.
+      - The name of this test should follow the format `test_[ControllerMethod]_returns_[StatusCode]_on_[Scenario]`.
     - For every response make a distinct test to assert the structure of the response.
-      - The name of this test should follow the format `test_api_response_[ControllerMethod]_returns_the_expected_structure`.
+      - The name of this test should follow the format `test_[ControllerMethod]_returns_the_expected_structure`.
     - For every response make a distinct test to assert the content of the response.
-      - The name of this test should follow the format `test_api_response_[ControllerMethod]_returns_the_expected_data`.
+      - The name of this test should follow the format `test_[ControllerMethod]_returns_the_expected_data`.
     - Prefer the Response tests to use the `assertJsonStructure` to validate the response structure.
     # - Prefer the Response tests to use the `assertJsonPath` methods to validate the response content, when the response has a single item.
     # - Prefer the Response tests to use the `assertJson` methods to validate the response content, when the response has multiple items.
@@ -103,69 +115,81 @@ description: |
     - Prefer the methods `assertOk`, `assertCreated`, `assertNoContent`, `assertNotFound`, and `assertUnprocessableEntity` to validate the status code of the response.
   - Tests related to the validation of the request data are in the category 'Validation'.
     - For every `store` and `update` method, make a distinct test to assert that input validation is performed.
-      - The name of this test should follow the format `test_api_validation_[ControllerMethod]_validates_its_input`.
+      - The name of this test should follow the format `test_[ControllerMethod]_validates_its_input`.
   - Tests related to the authentication and authorization are in the category 'Authentication'.
     - For every route make a distinct test to assert that authenticated access is allowed.
-      - The name of this test should follow the format `test_api_authentication_[ControllerMethod]_allows_authenticated_users`.
+      - The name of this test should follow the format `test_[ControllerMethod]_allows_authenticated_users`.
     - For every route make a distinct test to assert that anonymous access is forbidden.
-      - The name of this test should follow the format `test_api_authentication_[ControllerMethod]_forbids_anonymous_access`.
+      - The name of this test should follow the format `test_[ControllerMethod]_forbids_anonymous_access`.
   - Tests related to the process performed by the controller are in the category 'Process'.
     - For every `store`, `update` and `destroy` method, make a distinct test to assert that the underlying database record is impacted.
-      - The name of this test should follow the format `test_api_process_[ControllerMethod]_[creates|updates|deletes]_a_row`.
+      - The name of this test should follow the format `test_[ControllerMethod]_[creates|updates|deletes]_a_row`.
   - When the factory has extra methods, all HTTP Response tests may be repeated with the extra methods.
     - For example:
-        - `test_api_response_[ControllerMethod]_[extra_method]_returns_[StatusCode]_on_[Scenario]` 
-        - `test_api_response_[ControllerMethod]_[extra_method]_returns_the_expected_structure`
-        - `test_api_response_[ControllerMethod]_[extra_method]_returns_the_expected_data`
+        - `test_[ControllerMethod]_[extra_method]_returns_[StatusCode]_on_[Scenario]` 
+        - `test_[ControllerMethod]_[extra_method]_returns_the_expected_structure`
+        - `test_[ControllerMethod]_[extra_method]_returns_the_expected_data`
   - For example, the `User` model has a `UserResource`, `UserFactory` and `UserController`.
     The `UserFactory` has one method: `withEmail`.
     The `UserController` has five methods: `index`, `show`, `store`, `update`, `destroy`.
     The test case shall include all of the following tests:
     - `test_factory`.
     - `test_factory_withEmail`.
-    - `test_api_authentication_index_allows_authenticated_users`.
-    - `test_api_authentication_index_forbids_anonymous_access`.
-    - `test_api_authentication_show_allows_authenticated_users`.
-    - `test_api_authentication_show_forbids_anonymous_access`.
-    - `test_api_authentication_store_allows_authenticated_users`.
-    - `test_api_authentication_store_forbids_anonymous_access`.
-    - `test_api_authentication_update_allows_authenticated_users`.
-    - `test_api_authentication_update_forbids_anonymous_access`.
-    - `test_api_authentication_destroy_allows_authenticated_users`.
-    - `test_api_authentication_destroy_forbids_anonymous_access`.
-    - `test_api_process_index_returns_all_rows`.
-    - `test_api_process_show_returns_one_row`.
-    - `test_api_process_store_creates_a_row`.
-    - `test_api_process_update_updates_a_row`.
-    - `test_api_process_destroy_deletes_a_row`.
-    - `test_api_response_index_returns_ok_on_success`.
-    - `test_api_response_show_returns_ok_on_success`.
-    - `test_api_response_show_returns_not_found_when_record_does_not_exist`.
-    - `test_api_response_store_returns_created_on_success`.
-    - `test_api_response_store_returns_unprocessable_entity_when_input_is_invalid`.
-    - `test_api_response_update_returns_ok_on_success`.
-    - `test_api_response_update_returns_not_found_when_record_does_not_exist`.
-    - `test_api_response_update_returns_unprocessable_entity_when_input_is_invalid`.
-    - `test_api_response_destroy_returns_no_content_on_success`.
-    - `test_api_response_destroy_returns_not_found_when_record_does_not_exist`.
-    - `test_api_response_index_returns_the_expected_structure`.
-    - `test_api_response_show_returns_the_expected_structure`.
-    - `test_api_response_store_returns_the_expected_structure`.
-    - `test_api_response_update_returns_the_expected_structure`.
-    - `test_api_response_destroy_returns_the_expected_structure`.
-    - `test_api_response_index_returns_the_expected_data`.
-    - `test_api_response_show_returns_the_expected_data`.
-    - `test_api_response_store_returns_the_expected_data`.
-    - `test_api_response_update_returns_the_expected_data`.
-    - `test_api_response_destroy_returns_the_expected_data`.
-    - `test_api_validation_store_validates_its_input`.
-    - `test_api_validation_update_validates_its_input`.
+    - `test_index_allows_authenticated_users`.
+    - `test_index_forbids_anonymous_access`.
+    - `test_show_allows_authenticated_users`.
+    - `test_show_forbids_anonymous_access`.
+    - `test_store_allows_authenticated_users`.
+    - `test_store_forbids_anonymous_access`.
+    - `test_update_allows_authenticated_users`.
+    - `test_update_forbids_anonymous_access`.
+    - `test_destroy_allows_authenticated_users`.
+    - `test_destroy_forbids_anonymous_access`.
+    - `test_index_returns_all_rows`.
+    - `test_show_returns_one_row`.
+    - `test_store_creates_a_row`.
+    - `test_update_updates_a_row`.
+    - `test_destroy_deletes_a_row`.
+    - `test_index_returns_ok_on_success`.
+    - `test_show_returns_ok_on_success`.
+    - `test_show_returns_not_found_when_record_does_not_exist`.
+    - `test_store_returns_created_on_success`.
+    - `test_store_returns_unprocessable_entity_when_input_is_invalid`.
+    - `test_update_returns_ok_on_success`.
+    - `test_update_returns_not_found_when_record_does_not_exist`.
+    - `test_update_returns_unprocessable_entity_when_input_is_invalid`.
+    - `test_destroy_returns_no_content_on_success`.
+    - `test_destroy_returns_not_found_when_record_does_not_exist`.
+    - `test_index_returns_the_expected_structure`.
+    - `test_show_returns_the_expected_structure`.
+    - `test_store_returns_the_expected_structure`.
+    - `test_update_returns_the_expected_structure`.
+    - `test_destroy_returns_the_expected_structure`.
+    - `test_index_returns_the_expected_data`.
+    - `test_show_returns_the_expected_data`.
+    - `test_store_returns_the_expected_data`.
+    - `test_update_returns_the_expected_data`.
+    - `test_destroy_returns_the_expected_data`.
+    - `test_store_validates_its_input`.
+    - `test_update_validates_its_input`.
 - When testing a route that requires authentication, use the `actingAs` method to simulate an authenticated user.
-  - use the User factory to create a user before calling `actingAs`.
+  - Each test file should include a `protected ?User $user = null;` property and a `setUp()` method that handles user creation and authentication.
   - For example:
     ```php
-    $user = User::factory()->create();
-    $this->actingAs($user);
+    protected ?User $user = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::factory()->create();
+        $this->actingAs($this->user);
+    }
+    ```
+  - For testing anonymous access, use `withHeaders(['Authorization' => ''])` to simulate unauthenticated requests.
+  - For example:
+    ```php
+    $response = $this->withHeaders(['Authorization' => ''])
+        ->getJson(route('user.index'));
     ```
 
 ## Error Handling

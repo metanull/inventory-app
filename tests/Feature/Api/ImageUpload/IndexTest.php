@@ -26,19 +26,19 @@ class IndexTest extends TestCase
         Event::fake();
     }
 
-    public function test_api_authentication_index_allows_authenticated_users(): void
+    public function test_index_allows_authenticated_users(): void
     {
         $response = $this->getJson(route('image-upload.index'));
         $response->assertOk();
     }
 
-    public function test_api_response_index_returns_ok_when_no_data(): void
+    public function test_index_returns_ok_when_no_data(): void
     {
         $response = $this->getJson(route('image-upload.index'));
         $response->assertOk();
     }
 
-    public function test_api_response_index_returns_an_empty_array_when_no_data(): void
+    public function test_index_returns_an_empty_array_when_no_data(): void
     {
         $response = $this->getJson(route('image-upload.index'));
         $response->assertJson([
@@ -46,7 +46,7 @@ class IndexTest extends TestCase
         ]);
     }
 
-    public function test_api_response_index_returns_the_expected_structure(): void
+    public function test_index_returns_the_expected_structure(): void
     {
         $response = $this->getJson(route('image-upload.index'));
         $response->assertJsonStructure([
@@ -65,7 +65,7 @@ class IndexTest extends TestCase
         ]);
     }
 
-    public function test_api_response_index_returns_the_expected_data(): void
+    public function test_index_returns_the_expected_data(): void
     {
         $imageUpload1 = ImageUpload::factory()->create();
         $imageUpload2 = ImageUpload::factory()->create();

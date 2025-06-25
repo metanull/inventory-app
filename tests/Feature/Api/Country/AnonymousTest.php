@@ -20,7 +20,7 @@ class AnonymousTest extends TestCase
     /**
      * Authentication: Assert index forbids anonymous access.
      */
-    public function test_api_authentication_index_forbids_anonymous_access()
+    public function test_index_forbids_anonymous_access()
     {
         $response = $this->getJson(route('country.index'));
 
@@ -30,7 +30,7 @@ class AnonymousTest extends TestCase
     /**
      * Authentication: Assert show forbids anonymous access.
      */
-    public function test_api_authentication_show_forbids_anonymous_access()
+    public function test_show_forbids_anonymous_access()
     {
         $country = Country::factory()->create();
 
@@ -42,7 +42,7 @@ class AnonymousTest extends TestCase
     /**
      * Authentication: Assert store forbids anonymous access.
      */
-    public function test_api_authentication_store_forbids_anonymous_access()
+    public function test_store_forbids_anonymous_access()
     {
         $data = Country::factory()->make()->toArray();
 
@@ -54,7 +54,7 @@ class AnonymousTest extends TestCase
     /**
      * Authentication: Assert update forbids anonymous access.
      */
-    public function test_api_authentication_update_forbids_anonymous_access()
+    public function test_update_forbids_anonymous_access()
     {
         $country = Country::factory()->create();
         $data = ['internal_name' => 'Updated Name'];
@@ -67,7 +67,7 @@ class AnonymousTest extends TestCase
     /**
      * Authentication: Assert destroy forbids anonymous access.
      */
-    public function test_api_authentication_destroy_forbids_anonymous_access()
+    public function test_destroy_forbids_anonymous_access()
     {
         $country = Country::factory()->create();
 

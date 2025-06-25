@@ -25,7 +25,7 @@ class DestroyTest extends TestCase
     /**
      * Authentication: destroy allows authenticated users.
      */
-    public function test_api_authentication_destroy_allows_authenticated_users()
+    public function test_destroy_allows_authenticated_users()
     {
         $context = Context::factory()->create();
 
@@ -36,7 +36,7 @@ class DestroyTest extends TestCase
     /**
      * Process: destroy deletes a row.
      */
-    public function test_api_process_destroy_deletes_a_row()
+    public function test_destroy_deletes_a_row()
     {
         $context = Context::factory()->create();
 
@@ -48,7 +48,7 @@ class DestroyTest extends TestCase
     /**
      * Response: destroy returns no content on success.
      */
-    public function test_api_response_destroy_returns_no_content_on_success()
+    public function test_destroy_returns_no_content_on_success()
     {
         $context = Context::factory()->create();
 
@@ -59,7 +59,7 @@ class DestroyTest extends TestCase
     /**
      * Response: destroy returns not found when record does not exist.
      */
-    public function test_api_response_destroy_returns_not_found_when_record_does_not_exist()
+    public function test_destroy_returns_not_found_when_record_does_not_exist()
     {
         $response = $this->deleteJson(route('context.destroy', 'non-existent-id'));
         $response->assertNotFound();
@@ -68,7 +68,7 @@ class DestroyTest extends TestCase
     /**
      * Response: destroy returns the expected structure (empty).
      */
-    public function test_api_response_destroy_returns_the_expected_structure()
+    public function test_destroy_returns_the_expected_structure()
     {
         $context = Context::factory()->create();
         
@@ -79,7 +79,7 @@ class DestroyTest extends TestCase
     /**
      * Response: destroy returns the expected data (none).
      */
-    public function test_api_response_destroy_returns_the_expected_data()
+    public function test_destroy_returns_the_expected_data()
     {
         $context = Context::factory()->create();
         

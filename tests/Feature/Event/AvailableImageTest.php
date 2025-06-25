@@ -32,7 +32,7 @@ class AvailableImageTest extends TestCase
         $this->user = User::factory()->create();
     }
 
-    public function test_api_process_availableimagelistener_listener_is_registered_for_availableimageevent_event(): void
+    public function test_availableimagelistener_listener_is_registered_for_availableimageevent_event(): void
     {
         Event::assertListening(
             expectedEvent: AvailableImageEvent::class,
@@ -40,7 +40,7 @@ class AvailableImageTest extends TestCase
         );
     }
 
-    public function test_api_process_availableimagelistener_removes_uploaded_image_from_local_disk(): void
+    public function test_availableimagelistener_removes_uploaded_image_from_local_disk(): void
     {
         $imageUpload = ImageUpload::factory()->create();
         $imageUploadEvent = new ImageUploadEvent($imageUpload);
@@ -50,7 +50,7 @@ class AvailableImageTest extends TestCase
         $this->assertFileExists(Storage::disk('local')->path($imageUploadRelativePath));
     }
 
-    public function test_api_process_availableimagelistener_creates_an_image_on_the_public_disk(): void
+    public function test_availableimagelistener_creates_an_image_on_the_public_disk(): void
     {
         // Create a fake image upload
         $imageUpload = ImageUpload::factory()->create();
@@ -70,7 +70,7 @@ class AvailableImageTest extends TestCase
         $this->assertFileExists(Storage::disk('public')->path($availableImage->path));
     }
 
-    public function test_api_process_availableimagelistener_updates_the_image_path_in_database(): void
+    public function test_availableimagelistener_updates_the_image_path_in_database(): void
     {
         // Create a fake image upload
         $imageUpload = ImageUpload::factory()->create();
@@ -92,7 +92,7 @@ class AvailableImageTest extends TestCase
         ]);
     }
 
-    public function test_api_process_availableimagelistener_removes_the_uploaded_image_from_the_private_disk(): void
+    public function test_availableimagelistener_removes_the_uploaded_image_from_the_private_disk(): void
     {
         // Create a fake image upload
         $imageUpload = ImageUpload::factory()->create();

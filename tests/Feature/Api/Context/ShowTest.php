@@ -25,7 +25,7 @@ class ShowTest extends TestCase
     /**
      * Authentication: show allows authenticated users.
      */
-    public function test_api_authentication_show_allows_authenticated_users()
+    public function test_show_allows_authenticated_users()
     {
         $context = Context::factory()->create();
         $response = $this->getJson(route('context.show', $context));
@@ -34,7 +34,7 @@ class ShowTest extends TestCase
     /**
      * Process: show returns one row.
      */
-    public function test_api_process_show_returns_one_row()
+    public function test_show_returns_one_row()
     {
         $context = Context::factory()->create();
 
@@ -45,7 +45,7 @@ class ShowTest extends TestCase
     /**
      * Response: show returns ok on success.
      */
-    public function test_api_response_show_returns_ok_on_success()
+    public function test_show_returns_ok_on_success()
     {
         $context = Context::factory()->create();
 
@@ -56,7 +56,7 @@ class ShowTest extends TestCase
     /**
      * Response: show returns not found when record does not exist.
      */
-    public function test_api_response_show_returns_not_found_when_record_does_not_exist()
+    public function test_show_returns_not_found_when_record_does_not_exist()
     {
         $response = $this->getJson(route('context.show', 'non-existent-id'));
         $response->assertNotFound();
@@ -64,7 +64,7 @@ class ShowTest extends TestCase
     /**
      * Response: show returns the expected structure.
      */
-    public function test_api_response_show_returns_the_expected_structure()
+    public function test_show_returns_the_expected_structure()
     {
         $context = Context::factory()->create();
 
@@ -83,7 +83,7 @@ class ShowTest extends TestCase
     /**
      * Response: show returns the expected data.
      */
-    public function test_api_response_show_returns_the_expected_data()
+    public function test_show_returns_the_expected_data()
     {
         $context = Context::factory()->create();
         

@@ -26,7 +26,7 @@ class ShowTest extends TestCase
         Event::fake();
     }
 
-    public function test_api_authentication_show_allows_authenticated_users(): void
+    public function test_show_allows_authenticated_users(): void
     {
         $imageUpload = ImageUpload::factory()->create();
 
@@ -34,13 +34,13 @@ class ShowTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_api_response_show_returns_not_found_when_not_found(): void
+    public function test_show_returns_not_found_when_not_found(): void
     {
         $response = $this->getJson(route('image-upload.show', 'non-existent-id'));
         $response->assertNotFound();
     }
 
-    public function test_api_response_show_returns_the_expected_structure(): void
+    public function test_show_returns_the_expected_structure(): void
     {
         $imageUpload = ImageUpload::factory()->create();
 
@@ -59,7 +59,7 @@ class ShowTest extends TestCase
         ]);
     }
 
-    public function test_api_response_show_returns_the_expected_data(): void
+    public function test_show_returns_the_expected_data(): void
     {
         $imageUpload = ImageUpload::factory()->create();
 

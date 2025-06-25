@@ -22,7 +22,7 @@ class StoreTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_api_authentication_store_allows_authenticated_users(): void
+    public function test_store_allows_authenticated_users(): void
     {
         $response_authenticated = $this->postJson(route('detail.store'), [
                 'item_id' => Item::Factory()->create()->id,
@@ -32,7 +32,7 @@ class StoreTest extends TestCase
         $response_authenticated->assertCreated();
     }
 
-    public function test_api_validation_store_validates_its_input(): void
+    public function test_store_validates_its_input(): void
     {
         $response = $this->postJson(route('detail.store'), [
                 'id' => 'invalid-id', // Invalid: prohibited field
@@ -44,7 +44,7 @@ class StoreTest extends TestCase
         $response->assertJsonValidationErrors(['id', 'internal_name', 'item_id']);
     }
 
-    public function test_api_response_store_returns_unprocessable_when_input_is_invalid(): void
+    public function test_store_returns_unprocessable_when_input_is_invalid(): void
     {
         $response = $this->postJson(route('detail.store'), [
                 'id' => 'invalid-id', // Invalid: prohibited field
@@ -56,7 +56,7 @@ class StoreTest extends TestCase
         $response->assertUnprocessable();
     }
 
-    public function test_api_process_store_inserts_a_row(): void
+    public function test_store_inserts_a_row(): void
     {
         $item = Item::factory()->create();
 
@@ -73,7 +73,7 @@ class StoreTest extends TestCase
         ]);
     }
 
-    public function test_api_response_store_returns_created_on_success(): void
+    public function test_store_returns_created_on_success(): void
     {
         $item = Item::factory()->create();
 
@@ -86,7 +86,7 @@ class StoreTest extends TestCase
         $response->assertCreated();
     }
 
-    public function test_api_response_store_returns_the_expected_structure(): void
+    public function test_store_returns_the_expected_structure(): void
     {
         $item = Item::factory()->create();
 
@@ -109,7 +109,7 @@ class StoreTest extends TestCase
             ]);
     }
 
-    public function test_api_response_store_returns_the_expected_structure_including_item_data(): void
+    public function test_store_returns_the_expected_structure_including_item_data(): void
     {
         $item = Item::factory()->create();
 
@@ -133,7 +133,7 @@ class StoreTest extends TestCase
             ]);
     }
 
-    public function test_api_response_store_returns_the_expected_data(): void
+    public function test_store_returns_the_expected_data(): void
     {
         $response = $this->postJson(route('detail.store'), [
                 'item_id' => Item::Factory()->create()->id,
@@ -146,7 +146,7 @@ class StoreTest extends TestCase
             ->assertJsonPath('data.backward_compatibility', 'TD');
     }
 
-    public function test_api_response_store_returns_the_expected_data_including_item_data(): void
+    public function test_store_returns_the_expected_data_including_item_data(): void
     {
         $item = Item::factory()->create();
 

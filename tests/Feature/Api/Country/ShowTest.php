@@ -25,7 +25,7 @@ class ShowTest extends TestCase
     /**
      * Response: Assert show returns ok on success.
      */
-    public function test_api_response_show_returns_ok_on_success()
+    public function test_show_returns_ok_on_success()
     {
         $country = Country::factory()->create();
 
@@ -37,7 +37,7 @@ class ShowTest extends TestCase
     /**
      * Response: Assert show returns not found when record does not exist.
      */
-    public function test_api_response_show_returns_not_found_when_record_does_not_exist()
+    public function test_show_returns_not_found_when_record_does_not_exist()
     {
         $response = $this->getJson(route('country.show', ['country' => 'non-existent-id']));
 
@@ -47,7 +47,7 @@ class ShowTest extends TestCase
     /**
      * Response: Assert show returns the expected structure.
      */
-    public function test_api_response_show_returns_the_expected_structure()
+    public function test_show_returns_the_expected_structure()
     {
         $country = Country::factory()->create();
 
@@ -61,7 +61,7 @@ class ShowTest extends TestCase
     /**
      * Authentication: Assert show allows authenticated users.
      */
-    public function test_api_authentication_show_allows_authenticated_users()
+    public function test_show_allows_authenticated_users()
     {
         $country = Country::factory()->create();
 
@@ -73,7 +73,7 @@ class ShowTest extends TestCase
     /**
      * Process: Assert show returns one row.
      */
-    public function test_api_process_show_returns_one_row()
+    public function test_show_returns_one_row()
     {
         $country = Country::factory()->create();
 

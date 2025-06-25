@@ -32,7 +32,7 @@ class ImageUploadTest extends TestCase
         Event::fake();
     }
 
-    public function test_api_process_imageuploadlistener_listener_is_registered_for_imageuploadevent_event(): void
+    public function test_imageuploadlistener_listener_is_registered_for_imageuploadevent_event(): void
     {
         Event::assertListening(
             expectedEvent: ImageUploadEvent::class,
@@ -40,7 +40,7 @@ class ImageUploadTest extends TestCase
         );
     }
 
-    public function test_api_process_store_dispatches_imageuploadevent_event(): void
+    public function test_store_dispatches_imageuploadevent_event(): void
     {
         $this->postJson(route('image-upload.store'), [
             'file' => UploadedFile::fake()->image('test.jpg'),
@@ -53,7 +53,7 @@ class ImageUploadTest extends TestCase
         );
     }
 
-    public function test_api_process_imageuploadlistener_listener_dispatches_availableimageevent_event(): void
+    public function test_imageuploadlistener_listener_dispatches_availableimageevent_event(): void
     {
         $imageUpload = ImageUpload::factory()->create();
         $imageUploadEvent = new ImageUploadEvent($imageUpload);

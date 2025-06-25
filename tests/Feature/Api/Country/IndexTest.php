@@ -25,7 +25,7 @@ class IndexTest extends TestCase
     /**
      * Response: Assert index returns ok on success.
      */
-    public function test_api_response_index_returns_ok_on_success()
+    public function test_index_returns_ok_on_success()
     {
         Country::factory()->count(2)->create();
 
@@ -37,7 +37,7 @@ class IndexTest extends TestCase
     /**
      * Response: Assert index returns the expected structure.
      */
-    public function test_api_response_index_returns_the_expected_structure()
+    public function test_index_returns_the_expected_structure()
     {
         Country::factory()->count(2)->create();
 
@@ -53,7 +53,7 @@ class IndexTest extends TestCase
     /**
      * Authentication: Assert index allows authenticated users.
      */
-    public function test_api_authentication_index_allows_authenticated_users()
+    public function test_index_allows_authenticated_users()
     {
         $response = $this->getJson(route('country.index'));
 
@@ -63,7 +63,7 @@ class IndexTest extends TestCase
     /**
      * Process: Assert index returns all rows.
      */
-    public function test_api_process_index_returns_all_rows()
+    public function test_index_returns_all_rows()
     {
         Country::factory()->count(3)->create();
 

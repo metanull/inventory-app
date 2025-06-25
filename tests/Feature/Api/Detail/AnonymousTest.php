@@ -18,20 +18,20 @@ class AnonymousTest extends TestCase
         parent::setUp();
     }
 
-    public function test_api_authentication_index_forbids_anonymous_access(): void
+    public function test_index_forbids_anonymous_access(): void
     {
         $response = $this->getJson(route('detail.index'));
         $response->assertUnauthorized();
     }
 
-    public function test_api_authentication_show_forbids_anonymous_access(): void
+    public function test_show_forbids_anonymous_access(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
         $response = $this->getJson(route('detail.show', $detail->id));
         $response->assertUnauthorized();
     }
 
-    public function test_api_authentication_store_forbids_anonymous_access(): void
+    public function test_store_forbids_anonymous_access(): void
     {
         $response = $this->postJson(route('detail.store'), [
             'item_id' => Item::Factory()->create()->id,
@@ -41,7 +41,7 @@ class AnonymousTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_api_authentication_update_forbids_anonymous_access(): void
+    public function test_update_forbids_anonymous_access(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
         $response = $this->putJson(route('detail.update', $detail->id), [
@@ -52,7 +52,7 @@ class AnonymousTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_api_authentication_destroy_forbids_anonymous_access(): void
+    public function test_destroy_forbids_anonymous_access(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
         $response = $this->deleteJson(route('detail.destroy', $detail->id));

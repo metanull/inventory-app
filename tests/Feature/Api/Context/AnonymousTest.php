@@ -20,7 +20,7 @@ class AnonymousTest extends TestCase
     /**
      * Authentication: index forbids anonymous access.
      */
-    public function test_api_authentication_index_forbids_anonymous_access()
+    public function test_index_forbids_anonymous_access()
     {
         $response = $this->getJson(route('context.index'));
         $response->assertUnauthorized();
@@ -29,7 +29,7 @@ class AnonymousTest extends TestCase
     /**
      * Authentication: show forbids anonymous access.
      */
-    public function test_api_authentication_show_forbids_anonymous_access()
+    public function test_show_forbids_anonymous_access()
     {
         $context = Context::factory()->create();
 
@@ -40,7 +40,7 @@ class AnonymousTest extends TestCase
     /**
      * Authentication: store forbids anonymous access.
      */
-    public function test_api_authentication_store_forbids_anonymous_access()
+    public function test_store_forbids_anonymous_access()
     {
         $data = Context::factory()->make()->except(['id','is_default']);
 
@@ -51,7 +51,7 @@ class AnonymousTest extends TestCase
     /**
      * Authentication: update forbids anonymous access.
      */
-    public function test_api_authentication_update_forbids_anonymous_access()
+    public function test_update_forbids_anonymous_access()
     {
         $context = Context::factory()->create();
 
@@ -67,7 +67,7 @@ class AnonymousTest extends TestCase
     /**
      * Authentication: destroy forbids anonymous access.
      */
-    public function test_api_authentication_destroy_forbids_anonymous_access()
+    public function test_destroy_forbids_anonymous_access()
     {
         $context = Context::factory()->create();
 

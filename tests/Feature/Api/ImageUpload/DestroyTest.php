@@ -26,7 +26,7 @@ class DestroyTest extends TestCase
         Event::fake();
     }
 
-    public function test_api_authentication_destroy_allows_authenticated_users(): void
+    public function test_destroy_allows_authenticated_users(): void
     {
         $imageUpload = ImageUpload::factory()->create();
 

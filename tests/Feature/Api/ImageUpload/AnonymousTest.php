@@ -25,20 +25,20 @@ class AnonymousTest extends TestCase
         Event::fake();
     }
 
-    public function test_api_authentication_index_forbids_anonymous_access(): void
+    public function test_index_forbids_anonymous_access(): void
     {
         $response = $this->getJson(route('image-upload.index'));
         $response->assertUnauthorized();
     }
 
-    public function test_api_authentication_show_forbids_anonymous_access(): void
+    public function test_show_forbids_anonymous_access(): void
     {
         $imageUpload = ImageUpload::factory()->create();
         $response = $this->getJson(route('image-upload.show', $imageUpload->id));
         $response->assertUnauthorized();
     }
 
-    public function test_api_authentication_store_forbids_anonymous_access(): void
+    public function test_store_forbids_anonymous_access(): void
     {
         $response = $this->postJson(route('image-upload.store'), [
             'file' => UploadedFile::fake()->image('test.jpg'),
@@ -46,7 +46,7 @@ class AnonymousTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_api_route_update_is_not_found(): void
+    public function test_update_is_not_found(): void
     {
         $this->expectException(RouteNotFoundException::class);
 
@@ -55,7 +55,7 @@ class AnonymousTest extends TestCase
         ]);
     }
 
-    public function test_api_authentication_destroy_forbids_anonymous_access(): void
+    public function test_destroy_forbids_anonymous_access(): void
     {
         $imageUpload = ImageUpload::factory()->create();
         $response = $this->deleteJson(route('image-upload.destroy', $imageUpload->id));

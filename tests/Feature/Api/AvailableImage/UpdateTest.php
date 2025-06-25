@@ -27,7 +27,7 @@ class AuthenticatedTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_api_authentication_update_allows_authenticated_users(): void
+    public function test_update_allows_authenticated_users(): void
     {
         $availableImage = AvailableImage::factory()->create();
 
@@ -37,7 +37,7 @@ class AuthenticatedTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_api_validation_update_validates_its_input(): void
+    public function test_update_validates_its_input(): void
     {
         $availableImage = AvailableImage::factory()->create();
 
@@ -49,7 +49,7 @@ class AuthenticatedTest extends TestCase
             ->assertJsonValidationErrors(['path']);
     }
 
-    public function test_api_process_update_updates_a_row(): void
+    public function test_update_updates_a_row(): void
     {
         $availableImage = AvailableImage::factory()->create();
 
@@ -62,7 +62,7 @@ class AuthenticatedTest extends TestCase
         ]);
     }
 
-    public function test_api_response_update_returns_ok_on_success(): void
+    public function test_update_returns_ok_on_success(): void
     {
         $availableImage = AvailableImage::factory()->create();
 
@@ -72,7 +72,7 @@ class AuthenticatedTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_api_response_update_returns_unprocessable_when_input_is_invalid(): void
+    public function test_update_returns_unprocessable_when_input_is_invalid(): void
     {
         $availableImage = AvailableImage::factory()->create();
 
@@ -83,7 +83,7 @@ class AuthenticatedTest extends TestCase
         $response->assertUnprocessable();
     }
 
-    public function test_api_response_update_returns_not_found_response_when_not_found(): void
+    public function test_update_returns_not_found_response_when_not_found(): void
     {
         $response = $this->putJson(route('available-image.update', 'non-existent-id'), [
                 'comment' => fake()->sentence(),
@@ -91,7 +91,7 @@ class AuthenticatedTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_api_response_update_returns_the_expected_structure(): void
+    public function test_update_returns_the_expected_structure(): void
     {
         $availableImage = AvailableImage::factory()->create();
 
@@ -109,7 +109,7 @@ class AuthenticatedTest extends TestCase
         ]);
     }
 
-    public function test_api_response_update_returns_the_expected_data(): void
+    public function test_update_returns_the_expected_data(): void
     {
         $availableImage = AvailableImage::factory()->create();
 
