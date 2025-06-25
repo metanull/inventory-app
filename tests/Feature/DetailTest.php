@@ -13,7 +13,7 @@ class DetailTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function test_detail_factory(): void
+    public function test_factory(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
         $this->assertNotNull($detail->item_id);
@@ -24,7 +24,7 @@ class DetailTest extends TestCase
         ]);
     }
 
-    public function test_detail_factory_withitem(): void
+    public function test_factory_with_item(): void
     {
         $detail = Detail::factory()->withItem()->create();
         $this->assertNotNull($detail->item_id);
@@ -440,7 +440,7 @@ class DetailTest extends TestCase
         $response->assertJsonValidationErrors(['id', 'internal_name', 'item_id']);
     }
 
-    public function test_api_validation_update_returns_unprocessable_when_input_is_invalid(): void
+    public function test_api_response_update_returns_unprocessable_when_input_is_invalid(): void
     {
         $user = User::factory()->create();
         $detail = Detail::factory()->for(Item::factory())->create();
@@ -503,22 +503,6 @@ class DetailTest extends TestCase
             ]);
 
         $response->assertOk();
-    }
-
-    public function test_api_response_update_returns_unprocessable_when_input_is_invalid(): void
-    {
-        $user = User::factory()->create();
-        $detail = Detail::factory()->for(Item::factory())->create();
-
-        $response = $this->actingAs($user)
-            ->putJson(route('detail.update', $detail->id), [
-                'id' => 'invalid-id', // Invalid: prohibited field
-                'item_id' => 'invalid_id', // Invalid: not a valid Item ID
-                'internal_name' => '', // Invalid: required field
-                'backward_compatibility' => 'UD',
-            ]);
-
-        $response->assertUnprocessable();
     }
 
     public function test_api_response_update_returns_the_expected_structure(): void

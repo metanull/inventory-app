@@ -15,7 +15,7 @@ class ItemTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function test_item_factory(): void
+    public function test_factory(): void
     {
         $item = Item::factory()->create();
         $this->assertDatabaseHas('items', [
@@ -29,7 +29,7 @@ class ItemTest extends TestCase
         ]);
     }
 
-    public function test_item_factory_object(): void
+    public function test_factory_object(): void
     {
         $item = Item::factory()->Object()->create();
         $this->assertDatabaseHas('items', [
@@ -38,7 +38,7 @@ class ItemTest extends TestCase
         ]);
     }
 
-    public function test_item_factory_monument(): void
+    public function test_factory_monument(): void
     {
         $item = Item::factory()->Monument()->create();
         $this->assertDatabaseHas('items', [
@@ -47,7 +47,7 @@ class ItemTest extends TestCase
         ]);
     }
 
-    public function test_item_factory_with_partner(): void
+    public function test_factory_with_partner(): void
     {
         $item = Item::factory()->withPartner()->create();
         $this->assertNotNull($item->partner_id);
@@ -57,7 +57,7 @@ class ItemTest extends TestCase
         ]);
     }
 
-    public function test_item_factory_with_country(): void
+    public function test_factory_with_country(): void
     {
         $item = Item::factory()->withCountry()->create();
         $this->assertNotNull($item->country_id);
@@ -67,7 +67,7 @@ class ItemTest extends TestCase
         ]);
     }
 
-    public function test_item_factory_with_project(): void
+    public function test_factory_with_project(): void
     {
         $item = Item::factory()->withProject()->create();
         $this->assertNotNull($item->project_id);

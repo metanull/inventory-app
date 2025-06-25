@@ -84,12 +84,13 @@ class AvailableImageTest extends TestCase
 
     public function test_api_route_store_is_not_found(): void
     {
+        Storage::fake('public');
+        Event::fake();
+        
+        $availableImage = AvailableImage::factory()->make()->toArray();
         $this->expectException(RouteNotFoundException::class);
 
-        $response = $this->postJson(route('available-image.store'), [
-            'path' => fake()->imageUrl(640, 480, 'nature', true, 'Faker', true),
-            'comment' => fake()->sentence(),
-        ]);
+        $response = $this->postJson(route('available-image.store'), $availableImage);
     }
 
     public function test_api_authentication_update_forbids_anonymous_access(): void
@@ -285,32 +286,6 @@ class AvailableImageTest extends TestCase
             ->assertJsonValidationErrors(['path']);
     }
 
-    public function test_api_validation_update_returns_unprocessable_when_input_is_invalid(): void
-    {
-        Storage::fake('public');
-        Event::fake();
-
-        $availableImage = AvailableImage::factory()->create();
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user)
-            ->putJson(route('available-image.update', $availableImage->id), [
-                'path' => 'invalid-path', // Invalid: prohibited field
-                'comment' => '',          // Invalid: required field
-            ]);
-        $response->assertUnprocessable();
-    }
-
-    public function test_api_response_update_returns_not_found_response_when_not_found(): void
-    {
-        $user = User::factory()->create();
-        $response = $this->actingAs($user)
-            ->putJson(route('available-image.update', 'non-existent-id'), [
-                'comment' => fake()->sentence(),
-            ]);
-        $response->assertNotFound();
-    }
-
     public function test_api_process_update_updates_a_row(): void
     {
         Storage::fake('public');
@@ -358,6 +333,16 @@ class AvailableImageTest extends TestCase
                 'comment' => null,        // This field allows null
             ]);
         $response->assertUnprocessable();
+    }
+
+    public function test_api_response_update_returns_not_found_response_when_not_found(): void
+    {
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)
+            ->putJson(route('available-image.update', 'non-existent-id'), [
+                'comment' => fake()->sentence(),
+            ]);
+        $response->assertNotFound();
     }
 
     public function test_api_response_update_returns_the_expected_structure(): void
