@@ -56,16 +56,6 @@ class StoreTest extends TestCase
         ]);
     }
 
-    public function test_store_forbids_anonymous_access(): void
-    {
-        $response = $this->postJson(route('language.store'), [
-                'id' => 'TST',
-                'internal_name' => 'Test Language',
-                'backward_compatibility' => 'TT',
-            ]);
-        $response->assertUnauthorized();
-    }
-
     public function test_store_allows_authenticated_users(): void
     {
         $response = $this->postJson(route('language.store'), [

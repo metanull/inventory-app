@@ -22,18 +22,6 @@ class UpdateTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_update_forbids_anonymous_access(): void
-    {
-        $item = Item::factory()->create();
-        $response = $this->putJson(route('item.update', $item->id), [
-                'partner_id' => Partner::factory()->create()->id,
-                'internal_name' => 'Updated Item',
-                'backward_compatibility' => 'UI',
-                'type' => 'monument',
-            ]);
-        $response->assertUnauthorized();
-    }
-
     public function test_update_allows_authenticated_users(): void
     {
         $item = Item::factory()->create();

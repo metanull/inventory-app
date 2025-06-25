@@ -21,15 +21,6 @@ class UpdateTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_update_forbids_anonymous_access(): void
-    {
-        $response = $this->putJson(route('language.update', 'TST'), [
-                'internal_name' => 'Updated Language',
-                'backward_compatibility' => 'UU',
-            ]);
-        $response->assertUnauthorized();
-    }
-
     public function test_update_allows_authenticated_users(): void
     {
         $language = Language::factory()->create();

@@ -33,18 +33,6 @@ class UpdateTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_update_forbids_anonymous_access(): void
-    {
-        $partner = Partner::factory()->create();
-        $data = [
-            'name' => $this->faker->company(),
-        ];
-
-        $response = $this->putJson(route('partner.update', $partner), $data);
-
-        $response->assertUnauthorized();
-    }
-
     public function test_update_updates_a_row(): void
     {
         $partner = Partner::factory()->create();

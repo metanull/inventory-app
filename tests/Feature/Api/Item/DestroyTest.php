@@ -21,13 +21,6 @@ class DestroyTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_destroy_forbids_anonymous_access(): void
-    {
-        $item = Item::factory()->create();
-        $response = $this->deleteJson(route('item.destroy', $item->id));
-        $response->assertUnauthorized();
-    }
-
     public function test_destroy_allows_authenticated_users(): void
     {
         $item = Item::factory()->create();

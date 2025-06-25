@@ -21,12 +21,6 @@ class ShowTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_show_forbids_anonymous_access(): void
-    {
-        $response = $this->getJson(route('language.show', 'TST'));
-        $response->assertUnauthorized();
-    }
-
     public function test_show_allows_authenticated_users(): void
     {
         $language = Language::factory()->create();

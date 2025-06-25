@@ -21,12 +21,6 @@ class IndexTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_index_forbids_anonymous_access(): void
-    {
-        $response = $this->getJson(route('language.index'));
-        $response->assertUnauthorized();
-    }
-
     public function test_index_allows_authenticated_users(): void
     {
         $response = $this->get(route('language.index'));

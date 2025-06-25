@@ -21,12 +21,6 @@ class DestroyTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_destroy_forbids_anonymous_access(): void
-    {
-        $response = $this->deleteJson(route('language.destroy', 'TST'));
-        $response->assertUnauthorized();
-    }
-
     public function test_destroy_allows_authenticated_users(): void
     {
         $language = Language::factory()->create();

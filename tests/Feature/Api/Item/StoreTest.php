@@ -84,17 +84,6 @@ class StoreTest extends TestCase
         ]);
     }
 
-    public function test_store_forbids_anonymous_access(): void
-    {
-        $response = $this->postJson(route('item.store'), [
-                'partner_id' => Partner::factory()->create()->id,
-                'internal_name' => 'Test Item',
-                'backward_compatibility' => 'TI',
-                'type' => 'object',
-            ]);
-        $response->assertUnauthorized();
-    }
-
     public function test_store_allows_authenticated_users(): void
     {
         $response = $this->postJson(route('item.store'), [

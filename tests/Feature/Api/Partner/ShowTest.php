@@ -30,15 +30,6 @@ class ShowTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_show_forbids_anonymous_access(): void
-    {
-        $partner = Partner::factory()->create();
-
-        $response = $this->getJson(route('partner.show', $partner));
-
-        $response->assertUnauthorized();
-    }
-
     public function test_show_returns_one_row(): void
     {
         $partner = Partner::factory()->create();

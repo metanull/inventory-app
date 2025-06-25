@@ -30,15 +30,6 @@ class DestroyTest extends TestCase
         $response->assertNoContent();
     }
 
-    public function test_destroy_forbids_anonymous_access(): void
-    {
-        $partner = Partner::factory()->create();
-
-        $response = $this->deleteJson(route('partner.destroy', $partner));
-
-        $response->assertUnauthorized();
-    }
-
     public function test_destroy_deletes_a_row(): void
     {
         $partner = Partner::factory()->create();

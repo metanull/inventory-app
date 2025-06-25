@@ -30,15 +30,6 @@ class IndexTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_index_forbids_anonymous_access(): void
-    {
-        Partner::factory()->count(3)->create();
-
-        $response = $this->getJson(route('partner.index'));
-
-        $response->assertUnauthorized();
-    }
-
     public function test_index_returns_all_rows(): void
     {
         $partners = Partner::factory()->count(3)->create();

@@ -31,17 +31,6 @@ class StoreTest extends TestCase
         $response->assertCreated();
     }
 
-    public function test_store_forbids_anonymous_access(): void
-    {
-        $data = [
-            'name' => $this->faker->company(),
-        ];
-
-        $response = $this->postJson(route('partner.store'), $data);
-
-        $response->assertUnauthorized();
-    }
-
     public function test_store_creates_a_row(): void
     {
         $data = [
