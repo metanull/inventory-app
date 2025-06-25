@@ -8,7 +8,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Tests\TestCase;
 
 class AuthenticatedTest extends TestCase
@@ -32,8 +31,8 @@ class AuthenticatedTest extends TestCase
         $availableImage = AvailableImage::factory()->create();
 
         $response = $this->putJson(route('available-image.update', $availableImage->id), [
-                'comment' => fake()->sentence(),
-            ]);
+            'comment' => fake()->sentence(),
+        ]);
         $response->assertOk();
     }
 
@@ -42,9 +41,9 @@ class AuthenticatedTest extends TestCase
         $availableImage = AvailableImage::factory()->create();
 
         $response = $this->putJson(route('available-image.update', $availableImage->id), [
-                'path' => 'prohibited field',   // This field should not be allowed
-                'comment' => null,              // This field allows null
-            ]);
+            'path' => 'prohibited field',   // This field should not be allowed
+            'comment' => null,              // This field allows null
+        ]);
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['path']);
     }
@@ -54,8 +53,8 @@ class AuthenticatedTest extends TestCase
         $availableImage = AvailableImage::factory()->create();
 
         $this->putJson(route('available-image.update', $availableImage->id), [
-                'comment' => 'Updated comment',
-            ]);
+            'comment' => 'Updated comment',
+        ]);
         $this->assertDatabaseHas('available_images', [
             'id' => $availableImage->id,
             'comment' => 'Updated comment',
@@ -67,8 +66,8 @@ class AuthenticatedTest extends TestCase
         $availableImage = AvailableImage::factory()->create();
 
         $response = $this->putJson(route('available-image.update', $availableImage->id), [
-                'comment' => 'Updated comment',
-            ]);
+            'comment' => 'Updated comment',
+        ]);
         $response->assertOk();
     }
 
@@ -77,17 +76,17 @@ class AuthenticatedTest extends TestCase
         $availableImage = AvailableImage::factory()->create();
 
         $response = $this->putJson(route('available-image.update', $availableImage->id), [
-                'path' => 'invalid path', // This should not be allowed
-                'comment' => null,        // This field allows null
-            ]);
+            'path' => 'invalid path', // This should not be allowed
+            'comment' => null,        // This field allows null
+        ]);
         $response->assertUnprocessable();
     }
 
     public function test_update_returns_not_found_response_when_not_found(): void
     {
         $response = $this->putJson(route('available-image.update', 'non-existent-id'), [
-                'comment' => fake()->sentence(),
-            ]);
+            'comment' => fake()->sentence(),
+        ]);
         $response->assertNotFound();
     }
 
@@ -96,8 +95,8 @@ class AuthenticatedTest extends TestCase
         $availableImage = AvailableImage::factory()->create();
 
         $response = $this->putJson(route('available-image.update', $availableImage->id), [
-                'comment' => 'Updated comment',
-            ]);
+            'comment' => 'Updated comment',
+        ]);
         $response->assertJsonStructure([
             'data' => [
                 'id',
@@ -114,8 +113,8 @@ class AuthenticatedTest extends TestCase
         $availableImage = AvailableImage::factory()->create();
 
         $response = $this->putJson(route('available-image.update', $availableImage->id), [
-                'comment' => 'Updated comment',
-            ]);
+            'comment' => 'Updated comment',
+        ]);
         $response->assertJsonPath('data.id', $availableImage->id)
             ->assertJsonPath('data.path', $availableImage->path)
             ->assertJsonPath('data.comment', 'Updated comment');

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Api\Language;
 
-use App\Models\Language;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -114,7 +113,7 @@ class StoreTest extends TestCase
         $this->assertDatabaseHas('languages', [
             'id' => 'TST',
             'internal_name' => 'Test Language',
-            'backward_compatibility' => 'TT'
+            'backward_compatibility' => 'TT',
         ]);
     }
 

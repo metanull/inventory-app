@@ -10,7 +10,6 @@ use Tests\TestCase;
 
 class StoreTest extends TestCase
 {
-
     use RefreshDatabase, WithFaker;
 
     protected ?User $user = null;
@@ -27,7 +26,7 @@ class StoreTest extends TestCase
      */
     public function test_store_allows_authenticated_users()
     {
-        $data = Context::factory()->make()->except(['id','is_default']);
+        $data = Context::factory()->make()->except(['id', 'is_default']);
 
         $response = $this->postJson(route('context.store'), $data);
         $response->assertCreated();
@@ -38,7 +37,7 @@ class StoreTest extends TestCase
      */
     public function test_store_creates_a_row()
     {
-        $data = Context::factory()->make()->except(['id','is_default']);
+        $data = Context::factory()->make()->except(['id', 'is_default']);
 
         $response = $this->postJson(route('context.store'), $data);
         $response->assertCreated();
@@ -50,7 +49,7 @@ class StoreTest extends TestCase
      */
     public function test_store_returns_created_on_success()
     {
-        $data = Context::factory()->make()->except(['id','is_default']);
+        $data = Context::factory()->make()->except(['id', 'is_default']);
 
         $response = $this->postJson(route('context.store'), $data);
         $response->assertCreated();
@@ -76,7 +75,7 @@ class StoreTest extends TestCase
      */
     public function test_store_returns_the_expected_structure()
     {
-        $data = Context::factory()->make()->except(['id','is_default']);
+        $data = Context::factory()->make()->except(['id', 'is_default']);
 
         $response = $this->postJson(route('context.store'), $data);
         $response->assertJsonStructure([
@@ -90,17 +89,19 @@ class StoreTest extends TestCase
             ],
         ]);
     }
+
     /**
      * Response: store returns the expected data.
      */
     public function test_store_returns_the_expected_data()
     {
-        $data = Context::factory()->make()->except(['id','is_default']);
+        $data = Context::factory()->make()->except(['id', 'is_default']);
 
         $response = $this->postJson(route('context.store'), $data);
         $response->assertJsonPath('data.internal_name', $data['internal_name']);
         $response->assertJsonPath('data.backward_compatibility', $data['backward_compatibility']);
     }
+
     /**
      * Validation: store validates its input.
      */

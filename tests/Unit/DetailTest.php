@@ -27,7 +27,7 @@ class DetailTest extends TestCase
         $this->assertInstanceOf(Detail::class, $detail);
         $this->assertNotNull($detail->item_id);
     }
-    
+
     public function test_factory_creates_a_row_in_database(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
@@ -48,5 +48,4 @@ class DetailTest extends TestCase
             'item_id' => $detail->item_id,
         ]);
     }
-
 }

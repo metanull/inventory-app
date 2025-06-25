@@ -69,5 +69,4 @@ class AnonymousTest extends TestCase
         $response = $this->getJson(route('available-image.download', $availableImage));
         $response->assertUnauthorized();
     }
-
 }

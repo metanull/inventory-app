@@ -9,7 +9,6 @@ use Tests\TestCase;
 
 class ContextTest extends TestCase
 {
-
     use RefreshDatabase, WithFaker;
 
     /**
@@ -55,6 +54,7 @@ class ContextTest extends TestCase
             'is_default' => true,
         ]);
     }
+
     public function test_model_scope_default(): void
     {
         $defaultContext = Context::factory()->withIsDefault()->create();
@@ -64,7 +64,7 @@ class ContextTest extends TestCase
         $this->assertNotEquals($otherContext->id, Context::default()->first()->id);
     }
 
-    public function test_model_method_setDefault(): void
+    public function test_model_method_set_default(): void
     {
         $context1 = Context::factory()->create();
         $context2 = Context::factory()->create();

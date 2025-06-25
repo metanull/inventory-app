@@ -10,7 +10,6 @@ use Tests\TestCase;
 
 class UpdateTest extends TestCase
 {
-
     use RefreshDatabase, WithFaker;
 
     protected ?User $user = null;
@@ -102,15 +101,14 @@ class UpdateTest extends TestCase
         $response->assertJsonValidationErrors(['internal_name', 'is_default']);
     }
 
-    
     /**
      * Response: update returns the expected structure.
      */
     public function test_update_returns_the_expected_structure()
     {
         $context = Context::factory()->create();
-        
-        $data = Context::factory()->make()->except(['id','is_default']);
+
+        $data = Context::factory()->make()->except(['id', 'is_default']);
 
         $response = $this->putJson(route('context.update', $context), $data);
         $response->assertJsonStructure([
@@ -125,22 +123,20 @@ class UpdateTest extends TestCase
         ]);
     }
 
-    
     /**
      * Response: update returns the expected data.
      */
     public function test_update_returns_the_expected_data()
     {
         $context = Context::factory()->create();
-        
-        $data = Context::factory()->make()->except(['id','is_default']);
+
+        $data = Context::factory()->make()->except(['id', 'is_default']);
 
         $response = $this->putJson(route('context.update', $context), $data);
         $response->assertJsonPath('data.internal_name', $data['internal_name']);
         $response->assertJsonPath('data.backward_compatibility', $data['backward_compatibility']);
     }
 
-    
     /**
      * Validation: update validates its input.
      */
@@ -153,6 +149,4 @@ class UpdateTest extends TestCase
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['internal_name', 'is_default', 'id']);
     }
-
-    
 }

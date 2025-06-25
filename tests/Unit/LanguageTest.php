@@ -83,7 +83,7 @@ class LanguageTest extends TestCase
         $this->assertNotEquals($otherLanguage->id, Language::english()->first()->id);
     }
 
-    public function test_model_method_setDefault(): void
+    public function test_model_method_set_default(): void
     {
         $language1 = Language::factory()->create();
         $language2 = Language::factory()->create();

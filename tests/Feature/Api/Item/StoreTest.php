@@ -2,10 +2,8 @@
 
 namespace Tests\Feature\Api\Item;
 
-use App\Models\Country;
 use App\Models\Item;
 use App\Models\Partner;
-use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;

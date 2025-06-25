@@ -38,7 +38,6 @@ Route::get('language/english', [LanguageController::class, 'getEnglish'])
     ->name('language.getEnglish')
     ->middleware('auth:sanctum');
 
-
 Route::patch('project/{project}/launched', [ProjectController::class, 'setLaunched'])
     ->name('project.setLaunched')
     ->middleware('auth:sanctum');

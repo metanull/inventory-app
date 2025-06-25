@@ -8,7 +8,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Tests\TestCase;
 
 class DestroyTest extends TestCase
@@ -26,6 +25,7 @@ class DestroyTest extends TestCase
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
     }
+
     public function test_destroy_allows_authenticated_users(): void
     {
         $availableImage = AvailableImage::factory()->create();

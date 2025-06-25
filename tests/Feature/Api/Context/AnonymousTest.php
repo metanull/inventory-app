@@ -9,7 +9,6 @@ use Tests\TestCase;
 
 class AnonymousTest extends TestCase
 {
-
     use RefreshDatabase, WithFaker;
 
     protected function setUp(): void
@@ -25,7 +24,7 @@ class AnonymousTest extends TestCase
         $response = $this->getJson(route('context.index'));
         $response->assertUnauthorized();
     }
-    
+
     /**
      * Authentication: show forbids anonymous access.
      */
@@ -42,7 +41,7 @@ class AnonymousTest extends TestCase
      */
     public function test_store_forbids_anonymous_access()
     {
-        $data = Context::factory()->make()->except(['id','is_default']);
+        $data = Context::factory()->make()->except(['id', 'is_default']);
 
         $response = $this->postJson(route('context.store'), $data);
         $response->assertUnauthorized();
@@ -74,5 +73,4 @@ class AnonymousTest extends TestCase
         $response = $this->deleteJson(route('context.destroy', $context));
         $response->assertUnauthorized();
     }
-
 }

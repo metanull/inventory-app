@@ -78,7 +78,7 @@ class ShowTest extends TestCase
                 'name',
                 'created_at',
                 'updated_at',
-            ]
+            ],
         ]);
     }
 

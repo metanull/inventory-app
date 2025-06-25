@@ -79,7 +79,7 @@ class ContextController extends Controller
             'is_default' => 'required|boolean',
         ]);
 
-        if (true === $validated['is_default']) {
+        if ($validated['is_default'] === true) {
             $context->setDefault();
         }
         $context->refresh();

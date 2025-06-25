@@ -4,7 +4,6 @@ namespace Tests\Feature\Api\Detail;
 
 use App\Models\Detail;
 use App\Models\Item;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;

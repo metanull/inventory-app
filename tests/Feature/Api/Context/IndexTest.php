@@ -10,7 +10,6 @@ use Tests\TestCase;
 
 class IndexTest extends TestCase
 {
-
     use RefreshDatabase, WithFaker;
 
     protected ?User $user = null;
@@ -30,6 +29,7 @@ class IndexTest extends TestCase
         $response = $this->getJson(route('context.index'));
         $response->assertOk();
     }
+
     /**
      * Process: index returns all rows.
      */
@@ -41,6 +41,7 @@ class IndexTest extends TestCase
         $response->assertOk();
         $response->assertJsonCount(3, 'data');
     }
+
     /**
      * Response: index returns ok on success.
      */
@@ -49,12 +50,13 @@ class IndexTest extends TestCase
         $response = $this->getJson(route('context.index'));
         $response->assertOk();
     }
+
     /**
      * Response: index returns the expected structure.
      */
     public function test_index_returns_the_expected_structure()
     {
-                Context::factory()->count(2)->create();
+        Context::factory()->count(2)->create();
 
         $response = $this->getJson(route('context.index'));
         $response->assertJsonStructure([
@@ -70,6 +72,7 @@ class IndexTest extends TestCase
             ],
         ]);
     }
+
     /**
      * Response: index returns the expected data.
      */

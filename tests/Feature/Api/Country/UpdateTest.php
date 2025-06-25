@@ -2,15 +2,14 @@
 
 namespace Tests\Feature\Api\Country;
 
-use App\Models\User;
 use App\Models\Country;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class UpdateTest extends TestCase
 {
-
     use RefreshDatabase, WithFaker;
 
     protected ?User $user = null;

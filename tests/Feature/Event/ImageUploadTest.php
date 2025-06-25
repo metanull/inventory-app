@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Events\AvailableImageEvent;
 use App\Events\ImageUploadEvent;
-use App\Listeners\AvailableImageListener;
 use App\Listeners\ImageUploadListener;
 use App\Models\AvailableImage;
 use App\Models\ImageUpload;
@@ -66,5 +65,4 @@ class ImageUploadTest extends TestCase
             }
         );
     }
-
 }

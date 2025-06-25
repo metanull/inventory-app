@@ -26,10 +26,10 @@ class UpdateTest extends TestCase
     {
         $detail = Detail::factory()->for(Item::factory())->create();
         $response_authenticated = $this->putJson(route('detail.update', $detail->id), [
-                'item_id' => Item::Factory()->create()->id,
-                'internal_name' => 'Updated Detail',
-                'backward_compatibility' => 'UD',
-            ]);
+            'item_id' => Item::Factory()->create()->id,
+            'internal_name' => 'Updated Detail',
+            'backward_compatibility' => 'UD',
+        ]);
         $response_authenticated->assertOk();
     }
 
@@ -38,11 +38,11 @@ class UpdateTest extends TestCase
         $detail = Detail::factory()->for(Item::factory())->create();
 
         $response = $this->putJson(route('detail.update', $detail->id), [
-                'id' => 'invalid-id', // Invalid: prohibited field
-                'item_id' => 'invalid_id', // Invalid: not a valid Item ID
-                'internal_name' => '', // Invalid: required field
-                'backward_compatibility' => 'UD',
-            ]);
+            'id' => 'invalid-id', // Invalid: prohibited field
+            'item_id' => 'invalid_id', // Invalid: not a valid Item ID
+            'internal_name' => '', // Invalid: required field
+            'backward_compatibility' => 'UD',
+        ]);
 
         $response->assertJsonValidationErrors(['id', 'internal_name', 'item_id']);
     }
@@ -52,11 +52,11 @@ class UpdateTest extends TestCase
         $detail = Detail::factory()->for(Item::factory())->create();
 
         $response = $this->putJson(route('detail.update', $detail->id), [
-                'id' => 'invalid-id', // Invalid: prohibited field
-                'item_id' => 'invalid_id', // Invalid: not a valid Item ID
-                'internal_name' => '', // Invalid: required field
-                'backward_compatibility' => 'UD',
-            ]);
+            'id' => 'invalid-id', // Invalid: prohibited field
+            'item_id' => 'invalid_id', // Invalid: not a valid Item ID
+            'internal_name' => '', // Invalid: required field
+            'backward_compatibility' => 'UD',
+        ]);
 
         $response->assertUnprocessable();
     }
@@ -64,10 +64,10 @@ class UpdateTest extends TestCase
     public function test_update_returns_not_found_response_when_not_found(): void
     {
         $response = $this->putJson(route('detail.update', 'nonexistent'), [
-                'item_id' => Item::Factory()->create()->id,
-                'internal_name' => 'Updated Detail',
-                'backward_compatibility' => 'UD123',
-            ]);
+            'item_id' => Item::Factory()->create()->id,
+            'internal_name' => 'Updated Detail',
+            'backward_compatibility' => 'UD123',
+        ]);
 
         $response->assertNotFound();
     }
@@ -78,10 +78,10 @@ class UpdateTest extends TestCase
         $other_item = Item::factory()->create();
 
         $this->putJson(route('detail.update', $detail->id), [
-                'item_id' => $other_item->id,
-                'internal_name' => 'Updated Detail',
-                'backward_compatibility' => 'UD123',
-            ]);
+            'item_id' => $other_item->id,
+            'internal_name' => 'Updated Detail',
+            'backward_compatibility' => 'UD123',
+        ]);
 
         $this->assertDatabaseHas('details', [
             'id' => $detail->id,
@@ -96,10 +96,10 @@ class UpdateTest extends TestCase
         $detail = Detail::factory()->for(Item::factory())->create();
 
         $response = $this->putJson(route('detail.update', $detail->id), [
-                'item_id' => $detail->item_id,
-                'internal_name' => 'Updated Detail',
-                'backward_compatibility' => 'UD123',
-            ]);
+            'item_id' => $detail->item_id,
+            'internal_name' => 'Updated Detail',
+            'backward_compatibility' => 'UD123',
+        ]);
 
         $response->assertOk();
     }
@@ -109,10 +109,10 @@ class UpdateTest extends TestCase
         $detail = Detail::factory()->for(Item::factory())->create();
 
         $response = $this->putJson(route('detail.update', $detail->id), [
-                'item_id' => $detail->item_id,
-                'internal_name' => 'Updated Detail',
-                'backward_compatibility' => 'UD123',
-            ]);
+            'item_id' => $detail->item_id,
+            'internal_name' => 'Updated Detail',
+            'backward_compatibility' => 'UD123',
+        ]);
 
         $response->assertJsonStructure([
             'data' => [
@@ -132,10 +132,10 @@ class UpdateTest extends TestCase
         $item = Item::factory()->create();
 
         $response = $this->putJson(route('detail.update', $detail->id), [
-                'item_id' => $item->id,
-                'internal_name' => 'Updated Detail',
-                'backward_compatibility' => 'UD123',
-            ]);
+            'item_id' => $item->id,
+            'internal_name' => 'Updated Detail',
+            'backward_compatibility' => 'UD123',
+        ]);
 
         $response->assertJsonStructure([
             'data' => [
@@ -155,10 +155,10 @@ class UpdateTest extends TestCase
         $detail = Detail::factory()->for(Item::factory())->create();
 
         $response = $this->putJson(route('detail.update', $detail->id), [
-                'item_id' => $detail->item_id,
-                'internal_name' => 'Updated Detail',
-                'backward_compatibility' => 'UD123',
-            ]);
+            'item_id' => $detail->item_id,
+            'internal_name' => 'Updated Detail',
+            'backward_compatibility' => 'UD123',
+        ]);
 
         $response->assertJsonPath('data.internal_name', 'Updated Detail')
             ->assertJsonPath('data.backward_compatibility', 'UD123');
@@ -170,10 +170,10 @@ class UpdateTest extends TestCase
         $other_item = Item::factory()->create();
 
         $response = $this->putJson(route('detail.update', $detail->id), [
-                'item_id' => $other_item->id,
-                'internal_name' => 'Updated Detail',
-                'backward_compatibility' => 'UD123',
-            ]);
+            'item_id' => $other_item->id,
+            'internal_name' => 'Updated Detail',
+            'backward_compatibility' => 'UD123',
+        ]);
 
         $response->assertJsonPath('data.item.id', $other_item->id)
             ->assertJsonPath('data.item.internal_name', $other_item->internal_name)

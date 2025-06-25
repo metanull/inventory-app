@@ -72,8 +72,8 @@ class IndexTest extends TestCase
                     'name',
                     'created_at',
                     'updated_at',
-                ]
-            ]
+                ],
+            ],
         ]);
         $response->assertJsonCount(3, 'data');
     }
@@ -86,7 +86,7 @@ class IndexTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonCount(3, 'data');
-        
+
         // Check that all partners are present in the response
         foreach ($partners as $partner) {
             $response->assertJsonPath("data.{$partners->search($partner)}.id", $partner->id);

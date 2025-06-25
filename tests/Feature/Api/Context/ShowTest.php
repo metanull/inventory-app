@@ -10,7 +10,6 @@ use Tests\TestCase;
 
 class ShowTest extends TestCase
 {
-
     use RefreshDatabase, WithFaker;
 
     protected ?User $user = null;
@@ -31,6 +30,7 @@ class ShowTest extends TestCase
         $response = $this->getJson(route('context.show', $context));
         $response->assertOk();
     }
+
     /**
      * Process: show returns one row.
      */
@@ -42,6 +42,7 @@ class ShowTest extends TestCase
         $response->assertOk();
         $response->assertJsonPath('data.id', $context->id);
     }
+
     /**
      * Response: show returns ok on success.
      */
@@ -61,6 +62,7 @@ class ShowTest extends TestCase
         $response = $this->getJson(route('context.show', 'non-existent-id'));
         $response->assertNotFound();
     }
+
     /**
      * Response: show returns the expected structure.
      */
@@ -80,13 +82,14 @@ class ShowTest extends TestCase
             ],
         ]);
     }
+
     /**
      * Response: show returns the expected data.
      */
     public function test_show_returns_the_expected_data()
     {
         $context = Context::factory()->create();
-        
+
         $response = $this->getJson(route('context.show', $context));
         $response->assertJsonPath('data.id', $context->id);
         $response->assertJsonPath('data.internal_name', $context->internal_name);

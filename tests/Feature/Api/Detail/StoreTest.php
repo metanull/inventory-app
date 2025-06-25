@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Api\Detail;
 
-use App\Models\Detail;
 use App\Models\Item;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -25,21 +24,21 @@ class StoreTest extends TestCase
     public function test_store_allows_authenticated_users(): void
     {
         $response_authenticated = $this->postJson(route('detail.store'), [
-                'item_id' => Item::Factory()->create()->id,
-                'internal_name' => 'Test Detail',
-                'backward_compatibility' => 'TD',
-            ]);
+            'item_id' => Item::Factory()->create()->id,
+            'internal_name' => 'Test Detail',
+            'backward_compatibility' => 'TD',
+        ]);
         $response_authenticated->assertCreated();
     }
 
     public function test_store_validates_its_input(): void
     {
         $response = $this->postJson(route('detail.store'), [
-                'id' => 'invalid-id', // Invalid: prohibited field
-                'item_id' => 'invalid_id', // Invalid: not a valid Item ID
-                'internal_name' => '', // Invalid: required field
-                'backward_compatibility' => null,
-            ]);
+            'id' => 'invalid-id', // Invalid: prohibited field
+            'item_id' => 'invalid_id', // Invalid: not a valid Item ID
+            'internal_name' => '', // Invalid: required field
+            'backward_compatibility' => null,
+        ]);
 
         $response->assertJsonValidationErrors(['id', 'internal_name', 'item_id']);
     }
@@ -47,11 +46,11 @@ class StoreTest extends TestCase
     public function test_store_returns_unprocessable_when_input_is_invalid(): void
     {
         $response = $this->postJson(route('detail.store'), [
-                'id' => 'invalid-id', // Invalid: prohibited field
-                'item_id' => 'invalid_id', // Invalid: not a valid Item ID
-                'internal_name' => '', // Invalid: required field
-                'backward_compatibility' => 'TD',
-            ]);
+            'id' => 'invalid-id', // Invalid: prohibited field
+            'item_id' => 'invalid_id', // Invalid: not a valid Item ID
+            'internal_name' => '', // Invalid: required field
+            'backward_compatibility' => 'TD',
+        ]);
 
         $response->assertUnprocessable();
     }
@@ -61,10 +60,10 @@ class StoreTest extends TestCase
         $item = Item::factory()->create();
 
         $response = $this->postJson(route('detail.store'), [
-                'item_id' => $item->id,
-                'internal_name' => 'Test Detail',
-                'backward_compatibility' => 'TD',
-            ]);
+            'item_id' => $item->id,
+            'internal_name' => 'Test Detail',
+            'backward_compatibility' => 'TD',
+        ]);
 
         $this->assertDatabaseHas('details', [
             'internal_name' => 'Test Detail',
@@ -78,10 +77,10 @@ class StoreTest extends TestCase
         $item = Item::factory()->create();
 
         $response = $this->postJson(route('detail.store'), [
-                'item_id' => $item->id,
-                'internal_name' => 'Test Detail',
-                'backward_compatibility' => 'TD',
-            ]);
+            'item_id' => $item->id,
+            'internal_name' => 'Test Detail',
+            'backward_compatibility' => 'TD',
+        ]);
 
         $response->assertCreated();
     }
@@ -91,10 +90,10 @@ class StoreTest extends TestCase
         $item = Item::factory()->create();
 
         $response = $this->postJson(route('detail.store'), [
-                'item_id' => $item->id,
-                'internal_name' => 'Test Detail',
-                'backward_compatibility' => 'TD',
-            ]);
+            'item_id' => $item->id,
+            'internal_name' => 'Test Detail',
+            'backward_compatibility' => 'TD',
+        ]);
 
         $response->assertCreated()
             ->assertJsonStructure([
@@ -114,10 +113,10 @@ class StoreTest extends TestCase
         $item = Item::factory()->create();
 
         $response = $this->postJson(route('detail.store'), [
-                'item_id' => $item->id,
-                'internal_name' => 'Test Detail',
-                'backward_compatibility' => 'TD',
-            ]);
+            'item_id' => $item->id,
+            'internal_name' => 'Test Detail',
+            'backward_compatibility' => 'TD',
+        ]);
 
         $response->assertCreated()
             ->assertJsonStructure([
@@ -136,10 +135,10 @@ class StoreTest extends TestCase
     public function test_store_returns_the_expected_data(): void
     {
         $response = $this->postJson(route('detail.store'), [
-                'item_id' => Item::Factory()->create()->id,
-                'internal_name' => 'Test Detail',
-                'backward_compatibility' => 'TD',
-            ]);
+            'item_id' => Item::Factory()->create()->id,
+            'internal_name' => 'Test Detail',
+            'backward_compatibility' => 'TD',
+        ]);
 
         $response->assertCreated()
             ->assertJsonPath('data.internal_name', 'Test Detail')
@@ -151,10 +150,10 @@ class StoreTest extends TestCase
         $item = Item::factory()->create();
 
         $response = $this->postJson(route('detail.store'), [
-                'item_id' => $item->id,
-                'internal_name' => 'Test Detail',
-                'backward_compatibility' => 'TD',
-            ]);
+            'item_id' => $item->id,
+            'internal_name' => 'Test Detail',
+            'backward_compatibility' => 'TD',
+        ]);
 
         $response->assertCreated()
             ->assertJsonPath('data.item.id', $item->id)

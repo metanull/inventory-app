@@ -46,5 +46,4 @@ class AvailableImageTest extends TestCase
 
         $this->assertFileExists(Storage::disk('public')->path($availableImage->path), 'The path of the available image should exist.');
     }
-
 }

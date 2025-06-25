@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Api\Partner;
 
-use App\Models\Partner;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -92,7 +91,7 @@ class StoreTest extends TestCase
                 'name',
                 'created_at',
                 'updated_at',
-            ]
+            ],
         ]);
     }
 

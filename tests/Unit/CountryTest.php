@@ -9,9 +9,7 @@ use Tests\TestCase;
 
 class CountryTest extends TestCase
 {
-
     use RefreshDatabase, WithFaker;
-
 
     /**
      * Factory: Assert the Country factory creates the expected data.
@@ -38,5 +36,4 @@ class CountryTest extends TestCase
         ]);
         $this->assertDatabaseCount('countries', 1);
     }
-
 }

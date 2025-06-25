@@ -10,7 +10,6 @@ use Tests\TestCase;
 
 class DestroyTest extends TestCase
 {
-
     use RefreshDatabase, WithFaker;
 
     protected ?User $user = null;
@@ -44,7 +43,7 @@ class DestroyTest extends TestCase
         $response->assertNoContent();
         $this->assertDatabaseMissing('contexts', ['id' => $context->id]);
     }
-    
+
     /**
      * Response: destroy returns no content on success.
      */
@@ -71,7 +70,7 @@ class DestroyTest extends TestCase
     public function test_destroy_returns_the_expected_structure()
     {
         $context = Context::factory()->create();
-        
+
         $response = $this->deleteJson(route('context.destroy', $context));
         $response->assertNoContent();
     }
@@ -82,7 +81,7 @@ class DestroyTest extends TestCase
     public function test_destroy_returns_the_expected_data()
     {
         $context = Context::factory()->create();
-        
+
         $response = $this->deleteJson(route('context.destroy', $context));
         $response->assertNoContent();
     }

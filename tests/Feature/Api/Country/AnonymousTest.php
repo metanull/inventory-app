@@ -9,7 +9,6 @@ use Tests\TestCase;
 
 class AnonymousTest extends TestCase
 {
-
     use RefreshDatabase, WithFaker;
 
     protected function setUp(): void
@@ -26,7 +25,7 @@ class AnonymousTest extends TestCase
 
         $response->assertUnauthorized();
     }
-    
+
     /**
      * Authentication: Assert show forbids anonymous access.
      */

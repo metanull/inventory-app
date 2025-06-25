@@ -78,7 +78,7 @@ class LanguageController extends Controller
             'is_default' => 'required|boolean',
         ]);
 
-        if (true === $validated['is_default']) {
+        if ($validated['is_default'] === true) {
             $language->setDefault();
         }
         $language->refresh();
@@ -95,6 +95,7 @@ class LanguageController extends Controller
         if (! $language) {
             return response()->json(['message' => 'No default language found'], 404);
         }
+
         return new LanguageResource($language);
     }
 
@@ -107,6 +108,7 @@ class LanguageController extends Controller
         if (! $language) {
             return response()->json(['message' => 'No English language found'], 404);
         }
+
         return new LanguageResource($language);
     }
 }
