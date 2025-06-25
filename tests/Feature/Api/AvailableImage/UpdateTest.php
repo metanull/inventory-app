@@ -31,7 +31,7 @@ class UpdateTest extends TestCase
         $availableImage = AvailableImage::factory()->create();
 
         $response = $this->putJson(route('available-image.update', $availableImage->id), [
-            'comment' => fake()->sentence(),
+            'comment' => $this->faker->sentence(),
         ]);
         $response->assertOk();
     }
@@ -85,7 +85,7 @@ class UpdateTest extends TestCase
     public function test_update_returns_not_found_response_when_not_found(): void
     {
         $response = $this->putJson(route('available-image.update', 'non-existent-id'), [
-            'comment' => fake()->sentence(),
+            'comment' => $this->faker->sentence(),
         ]);
         $response->assertNotFound();
     }

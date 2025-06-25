@@ -49,7 +49,7 @@ class AnonymousTest extends TestCase
         $availableImage = AvailableImage::factory()->create();
 
         $response = $this->putJson(route('available-image.update', $availableImage), [
-            'comment' => fake()->sentence(),
+            'comment' => $this->faker->sentence(),
         ]);
         $response->assertUnauthorized();
     }
