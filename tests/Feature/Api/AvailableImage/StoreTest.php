@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Tests\TestCase;
 
-class AuthenticatedTest extends TestCase
+class StoreTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 

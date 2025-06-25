@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
-class AuthenticatedTest extends TestCase
+class IndexTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
