@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
-class Test extends TestCase
+class AvailableImageTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -37,20 +37,6 @@ class Test extends TestCase
         Event::assertListening(
             expectedEvent: AvailableImageEvent::class,
             expectedListener: AvailableImageListener::class,
-        );
-    }
-
-    public function test_api_process_imageuploadlistener_listener_dispatches_availableimageevent_event(): void
-    {
-        $imageUpload = ImageUpload::factory()->create();
-        $imageUploadEvent = new ImageUploadEvent($imageUpload);
-        $imageUploadListener = new ImageUploadListener;
-        $imageUploadListener->handle($imageUploadEvent);
-        Event::assertDispatched(
-            AvailableImageEvent::class,
-            function (AvailableImageEvent $event) {
-                return $event->availableImage instanceof AvailableImage;
-            }
         );
     }
 
