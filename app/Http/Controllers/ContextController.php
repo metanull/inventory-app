@@ -50,7 +50,7 @@ class ContextController extends Controller
         $validated = $request->validate([
             /** @ignoreParam */
             'id' => 'prohibited',
-            'internal_name' => 'string',
+            'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string',
             'is_default' => 'prohibited|boolean',
         ]);
@@ -79,12 +79,9 @@ class ContextController extends Controller
             'is_default' => 'required|boolean',
         ]);
 
-        // Ensure only one context can be default
-        if ($validated['is_default']) {
-            Context::where('is_default', true)->update(['is_default' => false]);
+        if ($validated['is_default'] === true) {
+            $context->setDefault();
         }
-
-        $context->update($validated);
         $context->refresh();
 
         return new ContextResource($context);
@@ -95,8 +92,7 @@ class ContextController extends Controller
      */
     public function getDefault()
     {
-        $context = Context::where('is_default', true)->first();
-
+        $context = Context::default()->first();
         if (! $context) {
             return response()->json(['message' => 'No default context found'], 404);
         }

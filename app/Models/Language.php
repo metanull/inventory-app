@@ -36,7 +36,7 @@ class Language extends Model
     ];
 
     // Add a method to mark a single row as the default
-    public function markAsDefault()
+    public function setDefault()
     {
         // Ensure the table has a 'default' column (boolean or integer)
         if (! $this->exists) {
