@@ -34,12 +34,21 @@ Route::get('language/default', [LanguageController::class, 'getDefault'])
     ->name('language.getDefault')
     ->middleware('auth:sanctum');
 
+Route::get('language/english', [LanguageController::class, 'getEnglish'])
+    ->name('language.getEnglish')
+    ->middleware('auth:sanctum');
+
+
 Route::patch('project/{project}/launched', [ProjectController::class, 'setLaunched'])
     ->name('project.setLaunched')
     ->middleware('auth:sanctum');
 
 Route::patch('project/{project}/enabled', [ProjectController::class, 'setEnabled'])
     ->name('project.setEnabled')
+    ->middleware('auth:sanctum');
+
+Route::get('project/enabled', [ProjectController::class, 'enabled'])
+    ->name('project.enabled')
     ->middleware('auth:sanctum');
 
 Route::resource('country', CountryController::class)->except([

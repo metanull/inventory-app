@@ -113,4 +113,12 @@ class ProjectController extends Controller
 
         return new ProjectResource($project);
     }
+
+    /**
+     * Get all enabled projects (Enabled + launched).
+     */
+    public function enabled()
+    {
+        return ProjectResource::collection(Project::enabled()->get());
+    }
 }
