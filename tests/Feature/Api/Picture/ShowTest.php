@@ -59,7 +59,7 @@ class ShowTest extends TestCase
                 'upload_size',
                 'created_at',
                 'updated_at',
-            ]
+            ],
         ]);
     }
 

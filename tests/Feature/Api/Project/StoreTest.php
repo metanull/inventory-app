@@ -66,7 +66,7 @@ class StoreTest extends TestCase
                 'language',
                 'created_at',
                 'updated_at',
-            ]
+            ],
         ]);
     }
 

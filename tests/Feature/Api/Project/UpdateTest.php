@@ -78,7 +78,7 @@ class UpdateTest extends TestCase
                 'language',
                 'created_at',
                 'updated_at',
-            ]
+            ],
         ]);
     }
 

@@ -90,7 +90,7 @@ class StoreTest extends TestCase
                 'upload_size',
                 'created_at',
                 'updated_at',
-            ]
+            ],
         ]);
     }
 

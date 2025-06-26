@@ -92,7 +92,7 @@ class PictureController extends Controller
             /** @ignoreParam */
             'upload_size' => 'prohibited',
         ]);
-        
+
         $picture->update($validated);
         $picture->refresh();
 

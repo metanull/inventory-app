@@ -57,7 +57,7 @@ class ShowTest extends TestCase
                 'language',
                 'created_at',
                 'updated_at',
-            ]
+            ],
         ]);
     }
 
