@@ -27,7 +27,7 @@ class StoreTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_store_is_not_found(): void
+    public function test_store_route_is_not_found(): void
     {
         $availableImage = AvailableImage::factory()->make()->toArray();
         $this->expectException(RouteNotFoundException::class);

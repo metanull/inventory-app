@@ -27,7 +27,7 @@ class UpdateTest extends TestCase
         Event::fake();
     }
 
-    public function test_update_is_not_found(): void
+    public function test_update_route_is_not_found(): void
     {
         $this->expectException(RouteNotFoundException::class);
 
