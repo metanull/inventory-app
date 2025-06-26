@@ -51,8 +51,8 @@ class DetailController extends Controller
         $validated = $request->validate([
             /** @ignoreParam */
             'id' => 'prohibited',
-            'item_id' => 'uuid',
-            'internal_name' => 'string',
+            'item_id' => 'required|uuid',
+            'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string',
         ]);
         $detail->update($validated);

@@ -55,9 +55,9 @@ class ItemController extends Controller
             /** @ignoreParam */
             'id' => 'prohibited',
             'partner_id' => 'nullable|uuid',
-            'internal_name' => 'string',
+            'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string',
-            'type' => 'in:object,monument',
+            'type' => 'required|in:object,monument',
             'country_id' => 'nullable|string|size:3',
             'project_id' => 'nullable|uuid',
         ]);

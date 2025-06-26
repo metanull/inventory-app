@@ -70,6 +70,36 @@ class PictureController extends Controller
     }
 
     /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Picture $picture)
+    {
+        $validated = $request->validate([
+            /** @ignoreParam */
+            'id' => 'prohibited',
+            'internal_name' => 'required|string',
+            'backward_compatibility' => 'nullable|string',
+            'copyright_text' => 'nullable|string',
+            'copyright_url' => 'nullable|url',
+            /** @ignoreParam */
+            'path' => 'prohibited',
+            /** @ignoreParam */
+            'upload_name' => 'prohibited',
+            /** @ignoreParam */
+            'upload_extension' => 'prohibited',
+            /** @ignoreParam */
+            'upload_mime_type' => 'prohibited',
+            /** @ignoreParam */
+            'upload_size' => 'prohibited',
+        ]);
+        
+        $picture->update($validated);
+        $picture->refresh();
+
+        return new PictureResource($picture);
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Picture $picture)
