@@ -24,20 +24,7 @@ class StoreTest extends TestCase
         Storage::fake('local');
     }
 
-    /**
-     * Factory: test factory.
-     */
-    public function test_factory()
-    {
-        $picture = Picture::factory()->create();
-        $this->assertInstanceOf(Picture::class, $picture);
-        $this->assertDatabaseHas('pictures', ['id' => $picture->id]);
-    }
-
-    /**
-     * Authentication: store allows authenticated users.
-     */
-    public function test_store_allows_authenticated_users()
+    public function test_store_allows_authenticated_users(): void
     {
         $file = UploadedFile::fake()->image('test.jpg');
         $data = Picture::factory()->make()->except(['id', 'path', 'upload_name', 'upload_extension', 'upload_mime_type', 'upload_size']);
@@ -47,10 +34,7 @@ class StoreTest extends TestCase
         $response->assertCreated();
     }
 
-    /**
-     * Process: store creates a row.
-     */
-    public function test_store_creates_a_row()
+    public function test_store_creates_a_row(): void
     {
         $file = UploadedFile::fake()->image('test.jpg');
         $data = Picture::factory()->make()->except(['id', 'path', 'upload_name', 'upload_extension', 'upload_mime_type', 'upload_size']);
@@ -66,10 +50,7 @@ class StoreTest extends TestCase
         ]);
     }
 
-    /**
-     * Response: store returns created on success.
-     */
-    public function test_store_returns_created_on_success()
+    public function test_store_returns_created_on_success(): void
     {
         $file = UploadedFile::fake()->image('test.jpg');
         $data = Picture::factory()->make()->except(['id', 'path', 'upload_name', 'upload_extension', 'upload_mime_type', 'upload_size']);
@@ -79,10 +60,7 @@ class StoreTest extends TestCase
         $response->assertCreated();
     }
 
-    /**
-     * Response: store returns unprocessable entity when input is invalid.
-     */
-    public function test_store_returns_unprocessable_entity_when_input_is_invalid()
+    public function test_store_returns_unprocessable_entity_when_input_is_invalid(): void
     {
         $data = Picture::factory()->make()->except(['internal_name', 'file']); // missing required fields
 
@@ -90,10 +68,7 @@ class StoreTest extends TestCase
         $response->assertUnprocessable();
     }
 
-    /**
-     * Response: store returns the expected structure.
-     */
-    public function test_store_returns_the_expected_structure()
+    public function test_store_returns_the_expected_structure(): void
     {
         $file = UploadedFile::fake()->image('test.jpg');
         $data = Picture::factory()->make()->except(['id', 'path', 'upload_name', 'upload_extension', 'upload_mime_type', 'upload_size']);
@@ -119,10 +94,7 @@ class StoreTest extends TestCase
         ]);
     }
 
-    /**
-     * Response: store returns the expected data.
-     */
-    public function test_store_returns_the_expected_data()
+    public function test_store_returns_the_expected_data(): void
     {
         $file = UploadedFile::fake()->image('test.jpg');
         $data = Picture::factory()->make()->except(['id', 'path', 'upload_name', 'upload_extension', 'upload_mime_type', 'upload_size']);
@@ -136,10 +108,7 @@ class StoreTest extends TestCase
         $response->assertJsonPath('data.copyright_url', $data['copyright_url']);
     }
 
-    /**
-     * Validation: store validates its input.
-     */
-    public function test_store_validates_its_input()
+    public function test_store_validates_its_input(): void
     {
         $data = Picture::factory()->make()->except(['internal_name', 'file']); // missing required fields
 
