@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\ImageUpload;
 
 use App\Models\ImageUpload;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
-class ImageUploadTest extends TestCase
+class FactoryTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 

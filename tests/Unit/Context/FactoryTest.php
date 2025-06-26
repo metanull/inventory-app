@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Context;
 
 use App\Models\Context;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class ContextTest extends TestCase
+class FactoryTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 

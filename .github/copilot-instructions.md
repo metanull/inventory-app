@@ -7,190 +7,172 @@ description: |
 # Copilot instructions for PHP files
 
 ## Context
-- This repository is a Laravel application.
-- This repository uses PHP 8.2 or higher.
-- This repository uses Laravel 12 or higher.
-- This repository follows the Laravel standard.
-- This repository adheres to the PSR-12 coding standard.
-- This laravel application defines a REST API.
-- This laravel application uses resource controllers.
-- This laravel application uses Eloquent ORM.
-- This laravel application uses migrations for database schema.
-- This laravel application uses factories for testing.
-- This laravel application uses seeders for database seeding.
-- This laravel application uses PHPUnit for testing.
-- This laravel application uses Laravel's built-in validation.
-- This laravel application uses Laravel's built-in authentication.
-- This repository uses GitHub for version control.
-
-## Standards
-- This repository is a Laravel application.
-- This repository uses PHP 8.2 or higher.
-- This repository follows the Laravel standard.
-- This repository adheres to the PSR-12 coding standard.
-- This repository uses the PSR-4 autoloading standard.
-- This repository uses Pint for code formatting and style checking.
+- This is a PHP application
+  - It requires PHP 8.2 or higher.
+  - It uses the Laravel Framework
+    - It requires Laravel 12 or higher.
+    - It uses composer for dependency management.
+    - It uses artisan to generate files and run commands.
+    - It uses phpunit for testing.
+    - It uses Pint for code formatting and style checking.
+    - It uses GitHub for version control.
+    - It uses Blade as the templating engine.
+    - It uses Tailwind CSS for styling.
+  - It provides a Database
+  - It uses Eloquent ORM to define the database schema and interact with the database.
+    - Every table is created via migrations
+    - Every table has a Model
+    - Every Model has factories for testing
+    - Every Model has seeders for database seeding
+    - It uses GUID identifiers
+      - Every table has a single column primary key.
+        - The primary key is a `uuid` column, save for the Language and Country models:
+          - Language uses the `ISO 639-1` code as identifier.
+            - The code is a three-letter code.
+          - Country uses the `ISO 3166-1 alpha-3` code as identifier.
+            - The code is a three-letter code.
+        - The primary key is named `id`.
+      - Every `uuid` primary key is generated automatically through `HasUUID` trait, and the method `public function uniqueIds(): array{return ['id'];}`.
+        - The `HasUUID` trait is provided by the Laravel framework.
+        - The `HasUUID` trait is used in every Model that has a `uuid` primary key.
+    - Every Model has a Factory
+      - The Factory is used to generate test data.
+      - The Factory is used to seed the database.
+      - The Factory is used to create test data for the tests.
+      - The Factory is defined in the `database/factories` directory.
+      - The Factory uses the `Faker` library to generate random data.
+      - The Factory uses the `HasFactory` trait, which is provided by the Laravel framework.
+    - Every Model has a Seeder
+      - The Seeder is used to seed the database with initial data.
+      - The Seeder is defined in the `database/seeders` directory.
+      - The Seeder uses the Factory to generate test data.
+      - The Seeder uses the `HasSeeder` trait, which is provided by the Laravel framework.
+      - The Language and Country models are seeded with the ISO 639-1 and ISO 3166-1 alpha-3 codes, respectively.
+        - These Seeders are already defined in the `database/seeders/LanguageSeeder.php` and `database/seeders/CountrySeeder.php` files.
+  - It provides a REST API
+    - The routes are defined in the `routes/api.php` file.
+    - It exposes methodes to interact with the database.
+    - It uses Resource controllers
+      - Controllers are defined in the `app/Http/Controllers` directory.
+      - Every Controller method that accepts input data uses the `Request` class to validate the input.
+        - The Validation in the controller is aligned with the constraints defined in the Model, Factory and Migration.
+      - Every Controller method that returns data uses the `Resource` class to format the output.
+    - Every Model has a Resource 
+    - Every Model has a Controller
+      - Every Controller uses the Resource
+    - Most Controllers have methods for the following actions:
+      - `index` - to list all records
+      - `show` - to show a single record
+      - `store` - to create a new record
+      - `update` - to update an existing record
+      - `destroy` - to delete a record
+    - Model may have Scopes
+      - Scopes are defined in the Model class.
+      - Scopes are used to filter the results of a query.
+      - Scopes are used to apply common query logic to the Model.
+      - When a Model has Scopes, the Controller exposes extra methods to apply the Scopes.
+        - For example, if the `User` model has a `scopeActive` method, the `UserController` will have an `active` method that applies the scope.
+          The route for this method will be `GET /users/active`. 
+    - Some Models are created through Event Listeners.
+      - Such Controllers do not allow `store`, `update` methods.
+    - All Models, Controllers, Resources, Factories, Seeders, and Tests are kept consistent
+      - Every Controller exposes similar routes and follow similar naming conventions
+      - Every Resource formats the output in a consistent way
+      - Every Factory generates similar data for the Model
+      - Every Test validates the data in a consistent way
+  - It has Unit and Feature tests
+    - The Feature tests are defined in the `tests/Feature` directory.
+    - The Unit tests are defined in the `tests/Unit` directory.
+    - Every Factory has Unit tests
+      - The tests are defined in the `tests/Unit` directory.
+      - The tests use the Factory to generate test data.
+      - The tests use the `assertDatabaseHas` method to validate the data in the database.
+      - The tests asserts that generated data complies with the constraints defined in the Model, Factory and Migration.
+      - When the Model has Scopes, the Factory test has extra tests for each Scope
+    - Every Model has Feature tests
+      - The tests are defined in the `tests/Feature` directory.
+      - The tests for a single Model are organized in a directory named after the Model.
+        - Every Model has the following test files:
+          - `AnonymousTest.php` - Tests for unauthorized access scenarios
+          - `IndexTest.php` - Tests for listing/index operations
+          - `ShowTest.php` - Tests for showing single records
+          - `StoreTest.php` - Tests for creating new records
+            - When the model forbids creation, this file contains one single test that asserts that the `store` method returns a `405 Method Not Allowed` response.
+          - `UpdateTest.php` - Tests for updating existing records
+            - when the model forbids updating, this file contains one single test that asserts that the `update` method returns a `405 Method Not Allowed` response.
+          - `DestroyTest.php` - Tests for deleting records
+            - when the model forbids deletion, this file contains one single test that asserts that the `destroy` method returns a `405 Method Not Allowed` response.
+      - The test class has `setUp()`.
+        - In AnonymousTest.php, the `setUp()` is empty.
+        - In the other test files the class has a `protected ?User $user = null;` property and the `setUp()` method creates and authenticates a user with 
+          ```
+          $this->user = User::factory()->create();
+          $this->actingAs($this->user);
+          ```
+      - The tests use the `RefreshDatabase` trait to reset the database state before each test.
+      - The tests use the `WithFaker` trait to generate random data for tests.
+      - The tests use the Factory to generate test data.
+        - When the test requires data in the database, the test uses the Factory to create and store the data with `->create()`.
+          - When creating a record it is preferred to use the Factory without customizing the data
+        - When the test requires a second set of data to pass to a controller then it uses the Factory to create the data in memory with `->make()->toArray()`.
+        - When the test requires a second set of data with missing fields then it uses the Factory to create the data in memory with `->make()->except()`.
+      - The tests use `assertJsonStructure` method to validate the response structure.
+      - The tests use `assertJsonPath` method to validate the response content.
+      - The tests use `assertOk`, `assertCreated`, `assertNoContent`, `assertNotFound`, and `assertUnprocessable` methods to validate the status code of the response.
+      - To generate url, if the route has a name, always use the `route()` helper with the route's name. Otherwise use the `url()` helper with the route's path.
+        - For example, if the route is named `user.index`, use `route('user.index')` to generate the URL for the index method of the UserController.
+        - If the route is not named, use `url('/users')` to generate the URL for the index method of the UserController.
+  - The structure of the repository is as follows:
+    ```
+    .
+    ├── app
+    │   ├── Http
+    │   │   ├── Controllers
+    │   │   └── Resources
+    │   └── Models
+    ├── database
+    │   ├── factories
+    │   ├── migrations
+    │   └── seeders
+    ├── routes
+    │   └── api.php
+    ├── tests
+    │   ├── Feature
+    │   │   └── Api
+    │   │       ├── ModelName
+    │   │       │   ├── AnonymousTest.php
+    │   │       │   ├── IndexTest.php
+    │   │       │   ├── ShowTest.php
+    │   │       │   ├── StoreTest.php
+    │   │       │   ├── UpdateTest.php
+    │   │       │   └── DestroyTest.php
+    │   │       └── OtherModelName
+    │   │           ├── AnonymousTest.php
+    │   │           ├── IndexTest.php
+    │   │           ├── ShowTest.php
+    │   │           ├── StoreTest.php
+    │   │           ├── UpdateTest.php
+    │   │           └── DestroyTest.php
+    │   └── Unit
+    │       ├── ModelName
+    │       |   └── FactoryTest.php
+    │       └── OtherModelName
+    │           └── FactoryTest.php
+    └── composer.json
+    ```
 
 ## Naming Conventions
-- Always comply with Laravel's naming conventions.
-- Use `snake_case` for database columns and table names.
-- Use `kebab-case` for URLs and routes.
-- Use `snake_case` for configuration files.
-- Use `camelCase` for variable and function names.
-- Use `PascalCase` for class names and methods.
-- Use `UPPER_CASE` for constants.
-
-## Testing the API
-- Use PHPUnit for testing.
-- Use the `tests/Feature` directory for API tests.
-- Use `php artisan make:test` to create new test classes.
-- All tests classes shall contain `use RefreshDatabase, WithFaker;` to insure proper isolation and data generation.
-  - This line is to be placed first inside the class declaration.
-  - For example:
-    ```php
-    use Illuminate\Foundation\Testing\RefreshDatabase;
-    use Illuminate\Foundation\Testing\WithFaker;
-    use Tests\TestCase;
-
-    class MyModelTest extends TestCase
-    {
-        use RefreshDatabase, WithFaker;
-    }
-    ```
-- Use `php artisan test` to run tests.
-- Use `php artisan test --coverage` to generate a code coverage report.
-- Test every route in the `routes/api.php` file.
-- Test names should be descriptive and follow the format:
-  `test_[ControllerMethod]_[Scenario]`.
-- Organize tests into focused test classes by functionality within entity-specific directories.
-  - For each entity (e.g., `User`), create a directory under `tests/Feature/Api/` (e.g., `tests/Feature/Api/User/`).
-  - Within each entity directory, create separate test files for different aspects:
-    - `AnonymousTest.php` - Tests for unauthorized access scenarios
-    - `IndexTest.php` - Tests for listing/index operations
-    - `ShowTest.php` - Tests for showing single records
-    - `StoreTest.php` - Tests for creating new records
-    - `UpdateTest.php` - Tests for updating existing records
-    - `DestroyTest.php` - Tests for deleting records
-  - Each test file should focus only on tests relevant to its specific functionality.
-  - Each test file should include a `protected ?User $user = null;` property and a `setUp()` method that creates and authenticates a user.
-  - For example, for a `User` model, create:
-    - `tests/Feature/Api/User/AnonymousTest.php`
-    - `tests/Feature/Api/User/IndexTest.php`
-    - `tests/Feature/Api/User/ShowTest.php`
-    - `tests/Feature/Api/User/StoreTest.php`
-    - `tests/Feature/Api/User/UpdateTest.php`
-    - `tests/Feature/Api/User/DestroyTest.php`
-- Ensure that tests are concise and focused on a single aspect of the functionality.
-- Use the `assert` methods provided by PHPUnit to validate the expected outcomes.
-- Always use the `route()` helper to generate URLs for testing.
-- When using the `route()` helper, ensure that the route name is used correctly. 
-  - Route names are defined in the `routes/api.php` file.
-  - Route names autogenerated by the Resource controllers comply with Laravel's naming conventions:
-    - the name of the route is the singular form of the model's database table, followed by the action.
-    - For example, for the `UserResource` (based on the `User` model), the name of the database table is `users` and the name of the route is `user`:
-      - `user.index` for the index method
-      - `user.show` for the show method
-      - `user.store` for the store method
-      - `user.update` for the update method
-      - `user.destroy` for the destroy method
-- Categorize tests according to the process they are testing.
-  - Tests related to the Factory are in the category 'Factory'.
-    - For every factory, make a distinct test to assert that the factory creates the expected data
-      - The name of this test should follow the format `test_factory`.
-    - For every factory method, make a distinct test to assert that the factory creates the expected data.
-      - The name of this test should follow the format `test_factory_[FactoryMethod]`.
-      - For example, if the `UserFactory` has a method `withEmail`, then all tests related to the factory must be repeated with the `withEmail` method.
-        - The name of these tests should follow the format `test_factory_withEmail`.
-  - Tests related to the HTTP responses are in the category 'Response'.
-    - For every response make a distinct test to assert the status code of the response.
-      - The name of this test should follow the format `test_[ControllerMethod]_returns_[StatusCode]_on_[Scenario]`.
-    - For every response make a distinct test to assert the structure of the response.
-      - The name of this test should follow the format `test_[ControllerMethod]_returns_the_expected_structure`.
-    - For every response make a distinct test to assert the content of the response.
-      - The name of this test should follow the format `test_[ControllerMethod]_returns_the_expected_data`.
-    - Prefer the Response tests to use the `assertJsonStructure` to validate the response structure.
-    # - Prefer the Response tests to use the `assertJsonPath` methods to validate the response content, when the response has a single item.
-    # - Prefer the Response tests to use the `assertJson` methods to validate the response content, when the response has multiple items.
-    - Prefer the Response tests to use the `assertJsonPath` methods to validate the response content
-    - Prefer the methods `assertOk`, `assertCreated`, `assertNoContent`, `assertNotFound`, and `assertUnprocessable` to validate the status code of the response.
-  - Tests related to the validation of the request data are in the category 'Validation'.
-    - For every `store` and `update` method, make a distinct test to assert that input validation is performed.
-      - The name of this test should follow the format `test_[ControllerMethod]_validates_its_input`.
-  - Tests related to the authentication and authorization are in the category 'Authentication'.
-    - For every route make a distinct test to assert that authenticated access is allowed.
-      - The name of this test should follow the format `test_[ControllerMethod]_allows_authenticated_users`.
-    - For every route make a distinct test to assert that anonymous access is forbidden.
-      - The name of this test should follow the format `test_[ControllerMethod]_forbids_anonymous_access`.
-  - Tests related to the process performed by the controller are in the category 'Process'.
-    - For every `store`, `update` and `destroy` method, make a distinct test to assert that the underlying database record is impacted.
-      - The name of this test should follow the format `test_[ControllerMethod]_[creates|updates|deletes]_a_row`.
-  - When the factory has extra methods, all HTTP Response tests may be repeated with the extra methods.
-    - For example:
-        - `test_[ControllerMethod]_[extra_method]_returns_[StatusCode]_on_[Scenario]` 
-        - `test_[ControllerMethod]_[extra_method]_returns_the_expected_structure`
-        - `test_[ControllerMethod]_[extra_method]_returns_the_expected_data`
-  - For example, the `User` model has a `UserResource`, `UserFactory` and `UserController`.
-    The `UserFactory` has one method: `withEmail`.
-    The `UserController` has five methods: `index`, `show`, `store`, `update`, `destroy`.
-    The test case shall include all of the following tests:
-    - `test_factory`.
-    - `test_factory_withEmail`.
-    - `test_index_allows_authenticated_users`.
-    - `test_index_forbids_anonymous_access`.
-    - `test_show_allows_authenticated_users`.
-    - `test_show_forbids_anonymous_access`.
-    - `test_store_allows_authenticated_users`.
-    - `test_store_forbids_anonymous_access`.
-    - `test_update_allows_authenticated_users`.
-    - `test_update_forbids_anonymous_access`.
-    - `test_destroy_allows_authenticated_users`.
-    - `test_destroy_forbids_anonymous_access`.
-    - `test_index_returns_all_rows`.
-    - `test_show_returns_one_row`.
-    - `test_store_creates_a_row`.
-    - `test_update_updates_a_row`.
-    - `test_destroy_deletes_a_row`.
-    - `test_index_returns_ok_on_success`.
-    - `test_show_returns_ok_on_success`.
-    - `test_show_returns_not_found_when_record_does_not_exist`.
-    - `test_store_returns_created_on_success`.
-    - `test_store_returns_unprocessable_entity_when_input_is_invalid`.
-    - `test_update_returns_ok_on_success`.
-    - `test_update_returns_not_found_when_record_does_not_exist`.
-    - `test_update_returns_unprocessable_entity_when_input_is_invalid`.
-    - `test_destroy_returns_no_content_on_success`.
-    - `test_destroy_returns_not_found_when_record_does_not_exist`.
-    - `test_index_returns_the_expected_structure`.
-    - `test_show_returns_the_expected_structure`.
-    - `test_store_returns_the_expected_structure`.
-    - `test_update_returns_the_expected_structure`.
-    - `test_destroy_returns_the_expected_structure`.
-    - `test_index_returns_the_expected_data`.
-    - `test_show_returns_the_expected_data`.
-    - `test_store_returns_the_expected_data`.
-    - `test_update_returns_the_expected_data`.
-    - `test_destroy_returns_the_expected_data`.
-    - `test_store_validates_its_input`.
-    - `test_update_validates_its_input`.
-- When testing a route that requires authentication, use the `actingAs` method to simulate an authenticated user.
-  - Each test file should include a `protected ?User $user = null;` property and a `setUp()` method that handles user creation and authentication.
-  - For example:
-    ```php
-    protected ?User $user = null;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->user = User::factory()->create();
-        $this->actingAs($this->user);
-    }
-    ```
-  - For testing anonymous access, use `withHeaders(['Authorization' => ''])` to simulate unauthenticated requests.
-  - For example:
-    ```php
-    $response = $this->withHeaders(['Authorization' => ''])
-        ->getJson(route('user.index'));
-    ```
+- The repository complies with Laravel's naming conventions.
+  - It adheres to the PSR-12 coding standard.
+  - Is uses the PSR-4 autoloading standard.
+  - It uses Pint for code formatting and style checking.
+- It uses `snake_case` for database columns and table names.
+- It uses `kebab-case` for URLs and routes.
+- It uses `snake_case` for configuration files.
+- It uses `camelCase` for variable and function names.
+- It uses `PascalCase` for class names and methods.
+- It uses `UPPER_CASE` for constants.
+- It uses `snake_case` for file names.
 
 ## Error Handling
 - Use try-catch blocks for asynchronous operations.

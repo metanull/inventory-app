@@ -21,28 +21,19 @@ class IndexTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    /**
-     * Authentication: index allows authenticated users.
-     */
-    public function test_index_allows_authenticated_users()
+    public function test_index_allows_authenticated_users(): void
     {
         $response = $this->getJson(route('picture.index'));
         $response->assertOk();
     }
 
-    /**
-     * Response: index returns ok on success.
-     */
-    public function test_index_returns_ok_on_success()
+    public function test_index_returns_ok_on_success(): void
     {
         $response = $this->getJson(route('picture.index'));
         $response->assertOk();
     }
 
-    /**
-     * Response: index returns the expected structure.
-     */
-    public function test_index_returns_the_expected_structure()
+    public function test_index_returns_the_expected_structure(): void
     {
         Picture::factory()->create();
         $response = $this->getJson(route('picture.index'));
@@ -67,10 +58,7 @@ class IndexTest extends TestCase
         ]);
     }
 
-    /**
-     * Response: index returns the expected data.
-     */
-    public function test_index_returns_the_expected_data()
+    public function test_index_returns_the_expected_data(): void
     {
         $picture = Picture::factory()->create();
         $response = $this->getJson(route('picture.index'));

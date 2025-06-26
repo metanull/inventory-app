@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\AvailableImage;
 
 use App\Models\AvailableImage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
-class AvailableImageTest extends TestCase
+class FactoryTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -20,7 +20,7 @@ class AvailableImageTest extends TestCase
         Event::fake();
     }
 
-    public function test_available_image_factory(): void
+    public function test_factory(): void
     {
         $availableImage = AvailableImage::factory()->make();
 
@@ -29,7 +29,7 @@ class AvailableImageTest extends TestCase
         $this->assertNotEmpty($availableImage->comment);
     }
 
-    public function test_available_image_factory_creates_a_row_in_database(): void
+    public function test_factory_creates_a_row_in_database(): void
     {
         $availableImage = AvailableImage::factory()->create();
 
@@ -40,7 +40,7 @@ class AvailableImageTest extends TestCase
         ]);
     }
 
-    public function test_available_image_factory_creates_a_file(): void
+    public function test_factory_creates_a_file(): void
     {
         $availableImage = AvailableImage::factory()->create();
 
