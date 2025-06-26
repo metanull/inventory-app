@@ -23,14 +23,14 @@ class StoreTest extends TestCase
 
     public function test_store_allows_authenticated_users(): void
     {
-        $data = Project::factory()->make()->toArray();
+        $data = Project::factory()->make()->except(['id']);
         $response = $this->postJson(route('project.store'), $data);
         $response->assertCreated();
     }
 
     public function test_store_creates_a_row(): void
     {
-        $data = Project::factory()->make()->toArray();
+        $data = Project::factory()->make()->except(['id']);
         $response = $this->postJson(route('project.store'), $data);
         $response->assertCreated();
         $this->assertDatabaseHas('projects', ['internal_name' => $data['internal_name']]);
@@ -38,7 +38,7 @@ class StoreTest extends TestCase
 
     public function test_store_returns_created_on_success(): void
     {
-        $data = Project::factory()->make()->toArray();
+        $data = Project::factory()->make()->except(['id']);
         $response = $this->postJson(route('project.store'), $data);
         $response->assertCreated();
     }
@@ -47,12 +47,12 @@ class StoreTest extends TestCase
     {
         $data = ['internal_name' => '']; // Invalid: empty required field
         $response = $this->postJson(route('project.store'), $data);
-        $response->assertUnprocessableEntity();
+        $response->assertUnprocessable();
     }
 
     public function test_store_returns_the_expected_structure(): void
     {
-        $data = Project::factory()->make()->toArray();
+        $data = Project::factory()->make()->except(['id']);
         $response = $this->postJson(route('project.store'), $data);
         $response->assertJsonStructure([
             'data' => [
@@ -62,8 +62,8 @@ class StoreTest extends TestCase
                 'launch_date',
                 'is_launched',
                 'is_enabled',
-                'context_id',
-                'language_id',
+                'context',
+                'language',
                 'created_at',
                 'updated_at',
             ]
@@ -72,7 +72,7 @@ class StoreTest extends TestCase
 
     public function test_store_returns_the_expected_data(): void
     {
-        $data = Project::factory()->make()->toArray();
+        $data = Project::factory()->make()->except(['id']);
         $response = $this->postJson(route('project.store'), $data);
         $response->assertCreated();
         $response->assertJsonPath('data.internal_name', $data['internal_name']);
@@ -83,7 +83,7 @@ class StoreTest extends TestCase
     {
         $invalidData = ['internal_name' => '']; // Required field empty
         $response = $this->postJson(route('project.store'), $invalidData);
-        $response->assertUnprocessableEntity();
+        $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['internal_name']);
     }
 }

@@ -24,7 +24,7 @@ class UpdateTest extends TestCase
     public function test_update_allows_authenticated_users(): void
     {
         $project = Project::factory()->create();
-        $data = ['internal_name' => 'Updated Project Name'];
+        $data = Project::factory()->make()->except(['id']);
         $response = $this->putJson(route('project.update', $project), $data);
         $response->assertOk();
     }
@@ -32,7 +32,7 @@ class UpdateTest extends TestCase
     public function test_update_updates_a_row(): void
     {
         $project = Project::factory()->create();
-        $data = ['internal_name' => 'Updated Project Name'];
+        $data = Project::factory()->make()->except(['id']);
         $response = $this->putJson(route('project.update', $project), $data);
         $response->assertOk();
         $this->assertDatabaseHas('projects', array_merge(['id' => $project->id], $data));
@@ -41,14 +41,14 @@ class UpdateTest extends TestCase
     public function test_update_returns_ok_on_success(): void
     {
         $project = Project::factory()->create();
-        $data = ['internal_name' => 'Updated Project Name'];
+        $data = Project::factory()->make()->except(['id']);
         $response = $this->putJson(route('project.update', $project), $data);
         $response->assertOk();
     }
 
     public function test_update_returns_not_found_when_record_does_not_exist(): void
     {
-        $data = ['internal_name' => 'Updated Project Name'];
+        $data = Project::factory()->make()->except(['id']);
         $response = $this->putJson(route('project.update', 'non-existent-id'), $data);
         $response->assertNotFound();
     }
@@ -56,15 +56,15 @@ class UpdateTest extends TestCase
     public function test_update_returns_unprocessable_entity_when_input_is_invalid(): void
     {
         $project = Project::factory()->create();
-        $data = ['internal_name' => '']; // Invalid: empty name
-        $response = $this->putJson(route('project.update', $project), $data);
-        $response->assertUnprocessableEntity();
+        $invalidData = Project::factory()->make()->except(['internal_name']);
+        $response = $this->putJson(route('project.update', $project), $invalidData);
+        $response->assertUnprocessable();
     }
 
     public function test_update_returns_the_expected_structure(): void
     {
         $project = Project::factory()->create();
-        $data = ['internal_name' => 'Updated Project Name'];
+        $data = Project::factory()->make()->except(['id']);
         $response = $this->putJson(route('project.update', $project), $data);
         $response->assertJsonStructure([
             'data' => [
@@ -74,8 +74,8 @@ class UpdateTest extends TestCase
                 'launch_date',
                 'is_launched',
                 'is_enabled',
-                'context_id',
-                'language_id',
+                'context',
+                'language',
                 'created_at',
                 'updated_at',
             ]
@@ -85,7 +85,7 @@ class UpdateTest extends TestCase
     public function test_update_returns_the_expected_data(): void
     {
         $project = Project::factory()->create();
-        $data = ['internal_name' => 'Updated Project Name'];
+        $data = Project::factory()->make()->except(['id']);
         $response = $this->putJson(route('project.update', $project), $data);
         $response->assertOk();
         $response->assertJsonPath('data.id', $project->id);
@@ -96,9 +96,9 @@ class UpdateTest extends TestCase
     public function test_update_validates_its_input(): void
     {
         $project = Project::factory()->create();
-        $invalidData = ['internal_name' => '']; // Required field empty
+        $invalidData = Project::factory()->make()->except(['internal_name']); // Missing required field
         $response = $this->putJson(route('project.update', $project), $invalidData);
-        $response->assertUnprocessableEntity();
+        $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['internal_name']);
     }
 }

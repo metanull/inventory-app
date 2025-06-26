@@ -53,8 +53,8 @@ class ShowTest extends TestCase
                 'launch_date',
                 'is_launched',
                 'is_enabled',
-                'context_id',
-                'language_id',
+                'context',
+                'language',
                 'created_at',
                 'updated_at',
             ]

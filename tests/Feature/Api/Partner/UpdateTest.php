@@ -24,9 +24,7 @@ class UpdateTest extends TestCase
     public function test_update_allows_authenticated_users(): void
     {
         $partner = Partner::factory()->create();
-        $data = [
-            'internal_name' => $this->faker->sentence(),
-        ];
+        $data = Partner::factory()->make()->except(['id']);
 
         $response = $this->putJson(route('partner.update', $partner), $data);
 
@@ -36,9 +34,7 @@ class UpdateTest extends TestCase
     public function test_update_updates_a_row(): void
     {
         $partner = Partner::factory()->create();
-        $data = [
-            'internal_name' => $this->faker->sentence(),
-        ];
+        $data = Partner::factory()->make()->except(['id']);
 
         $response = $this->putJson(route('partner.update', $partner), $data);
 
@@ -49,9 +45,7 @@ class UpdateTest extends TestCase
     public function test_update_returns_ok_on_success(): void
     {
         $partner = Partner::factory()->create();
-        $data = [
-            'internal_name' => $this->faker->sentence(),
-        ];
+        $data = Partner::factory()->make()->except(['id']);
 
         $response = $this->putJson(route('partner.update', $partner), $data);
 
@@ -60,9 +54,7 @@ class UpdateTest extends TestCase
 
     public function test_update_returns_not_found_when_record_does_not_exist(): void
     {
-        $data = [
-            'internal_name' => $this->faker->sentence(),
-        ];
+        $data = Partner::factory()->make()->except(['id']);
 
         $response = $this->putJson(route('partner.update', 999), $data);
 
@@ -72,11 +64,9 @@ class UpdateTest extends TestCase
     public function test_update_returns_unprocessable_entity_when_input_is_invalid(): void
     {
         $partner = Partner::factory()->create();
-        $data = [
-            'internal_name' => '', // Invalid: empty name
-        ];
+        $invalidData = Partner::factory()->make()->except(['internal_name']); // Missing required field
 
-        $response = $this->putJson(route('partner.update', $partner), $data);
+        $response = $this->putJson(route('partner.update', $partner), $invalidData);
 
         $response->assertUnprocessable();
     }
@@ -84,9 +74,7 @@ class UpdateTest extends TestCase
     public function test_update_returns_the_expected_structure(): void
     {
         $partner = Partner::factory()->create();
-        $data = [
-            'internal_name' => $this->faker->sentence(),
-        ];
+        $data = Partner::factory()->make()->except(['id']);
 
         $response = $this->putJson(route('partner.update', $partner), $data);
 
@@ -103,9 +91,7 @@ class UpdateTest extends TestCase
     public function test_update_returns_the_expected_data(): void
     {
         $partner = Partner::factory()->create();
-        $data = [
-            'internal_name' => $this->faker->sentence(),
-        ];
+        $data = Partner::factory()->make()->except(['id']);
 
         $response = $this->putJson(route('partner.update', $partner), $data);
 
@@ -118,9 +104,7 @@ class UpdateTest extends TestCase
     public function test_update_validates_its_input(): void
     {
         $partner = Partner::factory()->create();
-        $invalidData = [
-            'internal_name' => '', // Required field empty
-        ];
+        $invalidData = Partner::factory()->make()->except(['internal_name']); // Missing required field
 
         $response = $this->putJson(route('partner.update', $partner), $invalidData);
 
