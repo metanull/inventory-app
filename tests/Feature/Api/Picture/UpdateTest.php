@@ -2,10 +2,12 @@
 
 namespace Tests\Feature\Api\Picture;
 
-use App\Models\Picture;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Tests\TestCase;
 
 class UpdateTest extends TestCase
@@ -19,13 +21,15 @@ class UpdateTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
+        Storage::fake('local');
     }
 
-    public function test_update_returns_method_not_allowed(): void
+    public function test_update_route_is_not_found(): void
     {
-        $picture = Picture::factory()->create();
-        $data = ['internal_name' => 'Updated Name'];
-        $response = $this->putJson(route('picture.update', $picture), $data);
-        $response->assertMethodNotAllowed();
+        $this->expectException(RouteNotFoundException::class);
+
+        $this->putJson(route('image-upload.update', 'non-existent-id'), [
+            'file' => UploadedFile::fake()->image('updated.jpg'),
+        ]);
     }
 }

@@ -46,7 +46,7 @@ class AnonymousTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_update_is_not_found(): void
+    public function test_update_route_is_not_found(): void
     {
         $this->expectException(RouteNotFoundException::class);
 

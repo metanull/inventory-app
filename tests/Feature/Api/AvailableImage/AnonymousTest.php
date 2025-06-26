@@ -36,7 +36,7 @@ class AnonymousTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_store_is_not_found(): void
+    public function test_store_route_is_not_found(): void
     {
         $availableImage = AvailableImage::factory()->make()->toArray();
         $this->expectException(RouteNotFoundException::class);
