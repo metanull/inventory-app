@@ -55,7 +55,7 @@ class ProjectController extends Controller
         $validated = $request->validate([
             /** @ignoreParam */
             'id' => 'prohibited',
-            'internal_name' => 'string',
+            'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string',
             'launch_date' => 'nullable|date',
             'is_launched' => 'boolean',

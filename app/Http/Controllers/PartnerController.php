@@ -52,9 +52,9 @@ class PartnerController extends Controller
         $validated = $request->validate([
             /** @ignoreParam */
             'id' => 'prohibited',
-            'internal_name' => 'string',
+            'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string',
-            'type' => 'in:museum,institution,individual',
+            'type' => 'required|in:museum,institution,individual',
             'country_id' => 'nullable|string|size:3',
         ]);
         $partner->update($validated);
