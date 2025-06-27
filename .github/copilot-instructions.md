@@ -230,6 +230,17 @@ description: |
 - Use comments to explain complex logic.
 - Use comments to clarify the purpose of a function or method.
 
+## General Guidelines
+- Generate reports and reviews in markdown format.
+- Generate reports and reviews so that the markdown can easily be copy pasted into a GitHub issue or pull request.
+- When AI agent's work is accepted.
+  - Generate an issue description with the issues addressed.
+  - Generate a pull request description with the changes made.
+  - Generate a commit message with the changes made.
+  - Generate a markdown report with the changes made.
+    - Make sure the report is in .gitignore file.
+    - If the report was already pushed to the repository, then delete it from the repository.
+
 
 ---
 applyTo: pull_request
