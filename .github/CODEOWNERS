@@ -1,13 +1,18 @@
 # Lines starting with '#' are comments.
 # Each line is a file pattern followed by one or more owners.
 
-# These owners will be the default owners for everything in the repo.
-*       @metanull
+# Global code owner - repository administrator
+* @metanull
 
-# Order is important. The last matching pattern has the most precedence.
-# So if a pull request only touches javascript files, only these owners
-# will be requested to review.
-# *.js    @octocat @github/js
+# Dependency files - these can be updated by Dependabot without requiring review
+# when administrator/Dependabot bypass is configured in rulesets
+package.json @metanull
+package-lock.json @metanull  
+composer.json @metanull
+composer.lock @metanull
 
-# You can also use email addresses if you prefer.
-# docs/*  docs@example.com
+# Critical configuration files - always require owner review
+.env.example @metanull
+config/ @metanull
+.github/workflows/ @metanull
+.github/copilot-instructions.md @metanull

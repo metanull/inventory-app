@@ -207,6 +207,14 @@ description: |
 - The repository uses GitHub Actions to run tests and code quality checks.
 - The default branch is `main`.
 - Pushing to the `main` branch requires a pull request.
+- The repository has GitHub rulesets configured for code quality and security:
+  - **no-force-push no-delete**: Prevents force pushes and branch deletion
+  - **requires-codeQL-scanning**: Mandates CodeQL security analysis
+  - **requires-linear-history**: Enforces linear git history (no merge commits)
+  - **requires-pull-request**: Requires pull requests for all changes with the following bypass permissions:
+    - Repository administrators can bypass review requirements
+    - Dependabot can bypass review requirements for dependency updates
+    - All other contributors must have their pull requests reviewed before merging
 ## Naming Conventions
 - The repository complies with Laravel's naming conventions.
   - It adheres to the PSR-12 coding standard.
