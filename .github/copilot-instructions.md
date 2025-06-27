@@ -143,6 +143,12 @@ description: |
         - If the route is not named, use `url('/users')` to generate the URL for the index method of the UserController.
   - It is deployed on a windows server.
     - It uses powershell to run commands.
+    - It uses apache httpd 2.4 or higher as the web server.
+      - It is exposed though a reverse proxy.
+        - Reverse proxy is httpd 2.4 with mod_security and mod_proxy.
+        - The reverse proxy is configured to handle HTTPS requests.
+    - It uses MariaDB 10.5 or higher as the database server.
+    - It uses php 8.2 or higher as the PHP version.
   - It has custom composer scripts for some tasks:
     - `composer ci-install` - installs the php and node.js dependencies for the CI environment
     - `composer ci-build` - builds the application for the CI environment
@@ -240,7 +246,9 @@ description: |
   - Generate a markdown report with the changes made.
     - Make sure the report is in .gitignore file.
     - If the report was already pushed to the repository, then delete it from the repository.
-
+  - Update the `CHANGELOG.md` file with the changes made.
+    - Check for other changes pushed to the repository
+    - If other change doccured singce `CHANGELOG.md` was last updated, also describe these changes.
 
 ---
 applyTo: pull_request
