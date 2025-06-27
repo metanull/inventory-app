@@ -177,7 +177,15 @@ description: |
     │           └── FactoryTest.php
     └── composer.json
     ```
-
+## Git Repository
+- The repository uses Git for version control.
+- The repository uses GitHub for hosting the code.
+- The repository uses GitHub issues to track bugs and feature requests.
+- The repository uses GitHub pull requests to review and merge code changes.
+- The repository uses GitHub Actions for continuous integration and deployment.
+- The repository uses GitHub Actions to run tests and code quality checks.
+- The default branch is `main`.
+- Pushing to the `main` branch requires a pull request.
 ## Naming Conventions
 - The repository complies with Laravel's naming conventions.
   - It adheres to the PSR-12 coding standard.
