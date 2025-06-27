@@ -9,7 +9,7 @@ on:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: write  # Changed from read to write to allow committing generated posts
+  contents: write  # Write access needed to create/push to gh-pages branch
   pages: write
   id-token: write
 
@@ -29,16 +29,58 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Fetch all history for all branches
-          token: ${{ secrets.GITHUB_TOKEN }}  # Use GitHub token for authentication
 
-      - name: Generate blog posts from commits
+      - name: Setup and checkout gh-pages branch
         run: |
-          # Configure git line endings to avoid CRLF warnings
+          # Configure git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           git config --local core.autocrlf false
           git config --local core.eol lf
           
+          # Create or checkout gh-pages branch
+          if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
+            echo "gh-pages branch exists, checking it out..."
+            git checkout -b gh-pages origin/gh-pages
+          else
+            echo "Creating new gh-pages branch..."
+            git checkout --orphan gh-pages
+            git rm -rf . || true
+            
+            # Copy Jekyll configuration and layouts from main
+            git checkout main -- docs/_config.yml docs/Gemfile docs/_layouts/ docs/index.md docs/archive.md docs/README.md || true
+            
+            # Create basic structure for gh-pages
+            mkdir -p _posts _layouts
+            if [ -f docs/_config.yml ]; then
+              cp docs/_config.yml _config.yml
+            fi
+            if [ -f docs/Gemfile ]; then
+              cp docs/Gemfile Gemfile
+            fi
+            if [ -d docs/_layouts ]; then
+              cp -r docs/_layouts/* _layouts/
+            fi
+            if [ -f docs/index.md ]; then
+              cp docs/index.md index.md
+            fi
+            if [ -f docs/archive.md ]; then
+              cp docs/archive.md archive.md
+            fi
+            if [ -f docs/README.md ]; then
+              cp docs/README.md README.md
+            fi
+            
+            # Remove docs/ prefix from config if present
+            sed -i 's|baseurl: "/inventory-app"|baseurl: "/inventory-app"|g' _config.yml || true
+          fi
+      - name: Generate blog posts from commits
+        run: |
+          # Ensure we're on gh-pages branch
+          git checkout gh-pages
+          
           # Create _posts directory if it doesn't exist
-          mkdir -p docs/_posts
+          mkdir -p _posts
           
           # Get all commits on main branch
           git log main --pretty=format:"%H|%ai|%s|%an|%ae" --reverse > commits.log
@@ -49,9 +91,27 @@ jobs:
             post_date=$(echo $date | cut -d' ' -f1)
             post_time=$(echo $date | cut -d' ' -f2)
             
-            # Create safe filename
-            safe_subject=$(echo "$subject" | sed 's/[^a-zA-Z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g' | cut -c1-64 | tr '[:upper:]' '[:lower:]')
-            filename="docs/_posts/${post_date}-${safe_subject}.md"
+            # Create safe filename with proper length limits
+            # Remove special characters and limit to reasonable length
+            safe_subject=$(echo "$subject" | sed 's/[^a-zA-Z0-9 ]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')
+            
+            # Limit filename to filesystem-safe length (most filesystems support 255 chars)
+            # Leave room for date prefix and .md extension: 255 - 10 (date) - 1 (dash) - 3 (.md) = 241
+            max_subject_length=200
+            if [ ${#safe_subject} -gt $max_subject_length ]; then
+              # Truncate at word boundary if possible
+              truncated=$(echo "$safe_subject" | cut -c1-$max_subject_length)
+              # Try to cut at last dash to avoid breaking words
+              if echo "$truncated" | grep -q "-"; then
+                safe_subject=$(echo "$truncated" | sed 's/-[^-]*$//')
+              else
+                safe_subject="$truncated"
+              fi
+              # Add indicator that title was truncated
+              safe_subject="${safe_subject}-truncated"
+            fi
+            safe_subject=$(echo "$safe_subject" | tr '[:upper:]' '[:lower:]')
+            filename="_posts/${post_date}-${safe_subject}.md"
             
             # Skip if post already exists
             if [ ! -f "$filename" ]; then
@@ -64,16 +124,28 @@ jobs:
               deletions=$(git show --shortstat $hash | grep -o '[0-9]\+ deletion' | grep -o '[0-9]\+' || echo "0")
               
               # Create Jekyll front matter and content
+              # Escape title for YAML (handle quotes and special characters)
+              escaped_title=$(echo "$subject" | sed 's/"/\\"/g')
+              
+              # If title is very long, create a shorter display title but keep full title in content
+              display_title="$escaped_title"
+              if [ ${#display_title} -gt 100 ]; then
+                display_title="${escaped_title:0:97}..."
+              fi
+              
               cat > "$filename" << EOF
           ---
           layout: post
-          title: "$subject"
+          title: "$display_title"
+          full_title: "$escaped_title"
           date: $date
           author: $author
           commit: $hash
           categories: [commits, development]
           tags: [git, changelog]
           ---
+
+          # $escaped_title
 
           ## Commit Details
 
@@ -108,20 +180,16 @@ jobs:
             fi
           done < commits.log
 
-      - name: Commit generated posts
+      - name: Commit and push to gh-pages branch
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          # Add all generated files
+          git add .
           
-          # Configure git to use the GitHub token
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          
-          git add docs/_posts/
           if git diff --staged --quiet; then
             echo "No new posts to commit"
           else
             git commit -m "Auto-generate blog posts from commits [skip ci]"
-            git push origin HEAD:main
+            git push origin gh-pages
           fi
 
   # Build and deploy Jekyll site
@@ -133,19 +201,18 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
+      - name: Checkout gh-pages branch
         uses: actions/checkout@v4
         with:
-          ref: main  # Ensure we have the latest commits including auto-generated posts
-          fetch-depth: 0  # Fetch all history to get the latest posts
-          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: gh-pages
+          fetch-depth: 0
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.1'
           bundler-cache: true
-          working-directory: ./docs
+          # No working-directory needed since Jekyll files are in root of gh-pages
 
       - name: Setup Pages
         id: pages
@@ -153,7 +220,6 @@ jobs:
 
       - name: Build with Jekyll
         run: |
-          cd docs
           bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
@@ -161,7 +227,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./docs/_site
+          path: ./_site
 
       - name: Deploy to GitHub Pages
         id: deployment
