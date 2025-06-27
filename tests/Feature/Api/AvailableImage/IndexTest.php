@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -22,6 +23,7 @@ class IndexTest extends TestCase
         Storage::fake('local');
         Storage::fake('public');
         Event::fake();
+        Http::fake();
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
     }

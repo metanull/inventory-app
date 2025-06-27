@@ -28,8 +28,17 @@ class UpdateTest extends TestCase
     {
         $this->expectException(RouteNotFoundException::class);
 
-        $this->putJson(route('image-upload.update', 'non-existent-id'), [
+        $this->putJson(route('non-existent.update', 'non-existent-id'), [
             'file' => UploadedFile::fake()->image('updated.jpg'),
         ]);
+    }
+
+    public function test_update_resource_not_found(): void
+    {
+        $response = $this->putJson('/api/picture/non-existent-id', [
+            'file' => UploadedFile::fake()->image('updated.jpg'),
+        ]);
+
+        $response->assertNotFound();
     }
 }

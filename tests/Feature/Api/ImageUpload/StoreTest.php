@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -26,6 +27,7 @@ class StoreTest extends TestCase
 
         Storage::fake('local');
         Event::fake();
+        Http::fake();
     }
 
     public function test_store_allows_authenticated_users(): void

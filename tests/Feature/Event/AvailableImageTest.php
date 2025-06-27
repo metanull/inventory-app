@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -29,6 +30,7 @@ class AvailableImageTest extends TestCase
         Storage::disk('local')->makeDirectory('image_uploads');
         Storage::disk('public')->makeDirectory('images');
         Event::fake();
+        Http::fake();
         $this->user = User::factory()->create();
     }
 

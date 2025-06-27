@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Tests\TestCase;
@@ -23,6 +24,7 @@ class StoreTest extends TestCase
         Storage::fake('local');
         Storage::fake('public');
         Event::fake();
+        Http::fake();
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
     }
@@ -33,5 +35,14 @@ class StoreTest extends TestCase
         $this->expectException(RouteNotFoundException::class);
 
         $response = $this->postJson(route('available-image.store'), $availableImage);
+    }
+
+    public function test_store_method_is_not_allowed(): void
+    {
+        $availableImage = AvailableImage::factory()->make()->toArray();
+        
+        $response = $this->postJson('/api/available-image', $availableImage);
+
+        $response->assertMethodNotAllowed();
     }
 }
