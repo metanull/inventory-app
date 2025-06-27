@@ -40,7 +40,7 @@ class StoreTest extends TestCase
     public function test_store_method_is_not_allowed(): void
     {
         $availableImage = AvailableImage::factory()->make()->toArray();
-        
+
         $response = $this->postJson('/api/available-image', $availableImage);
 
         $response->assertMethodNotAllowed();

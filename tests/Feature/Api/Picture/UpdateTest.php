@@ -9,7 +9,6 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Tests\TestCase;
 
 class UpdateTest extends TestCase
@@ -101,5 +100,4 @@ class UpdateTest extends TestCase
         $response->assertJsonPath('data.internal_name', $data['internal_name']);
         $response->assertJsonPath('data.copyright_text', $data['copyright_text']);
     }
-
 }

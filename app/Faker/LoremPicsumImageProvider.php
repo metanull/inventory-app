@@ -101,12 +101,12 @@ class LoremPicsumImageProvider extends Base
             $image = imagecreate(1, 1);
             $white = imagecolorallocate($image, 255, 255, 255);
             imagefill($image, 0, 0, $white);
-            
+
             ob_start();
             imagepng($image);
             $content = ob_get_clean();
             imagedestroy($image);
-            
+
             return $content;
         }
 
