@@ -3,7 +3,7 @@
 use App\Http\Controllers\AvailableImageController;
 use App\Http\Controllers\ContextController;
 use App\Http\Controllers\CountryController;
-use App\http\controllers\DetailController;
+use App\http\Controllers\DetailController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LanguageController;
