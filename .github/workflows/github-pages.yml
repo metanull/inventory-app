@@ -1,0 +1,157 @@
+name: Generate GitHub Pages with Jekyll
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    types: [ closed ]
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Generate blog posts from commits
+  generate-posts:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for all branches
+
+      - name: Generate blog posts from commits
+        run: |
+          # Create _posts directory if it doesn't exist
+          mkdir -p docs/_posts
+          
+          # Get all commits on main branch
+          git log main --pretty=format:"%H|%ai|%s|%an|%ae" --reverse > commits.log
+          
+          # Generate Jekyll posts for each commit
+          while IFS='|' read -r hash date subject author email; do
+            # Format date for Jekyll (YYYY-MM-DD)
+            post_date=$(echo $date | cut -d' ' -f1)
+            post_time=$(echo $date | cut -d' ' -f2)
+            
+            # Create safe filename
+            safe_subject=$(echo "$subject" | sed 's/[^a-zA-Z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g' | tr '[:upper:]' '[:lower:]')
+            filename="docs/_posts/${post_date}-${safe_subject}.md"
+            
+            # Skip if post already exists
+            if [ ! -f "$filename" ]; then
+              echo "Creating post: $filename"
+              
+              # Get commit details
+              commit_message=$(git log -1 --pretty=format:"%B" $hash)
+              files_changed=$(git diff-tree --no-commit-id --name-only -r $hash | wc -l)
+              insertions=$(git show --shortstat $hash | grep -o '[0-9]\+ insertion' | grep -o '[0-9]\+' || echo "0")
+              deletions=$(git show --shortstat $hash | grep -o '[0-9]\+ deletion' | grep -o '[0-9]\+' || echo "0")
+              
+              # Create Jekyll front matter and content
+              cat > "$filename" << EOF
+          ---
+          layout: post
+          title: "$subject"
+          date: $date
+          author: $author
+          commit: $hash
+          categories: [commits, development]
+          tags: [git, changelog]
+          ---
+
+          ## Commit Details
+
+          **Author:** $author  
+          **Date:** $post_date at $post_time  
+          **Hash:** \`$hash\`  
+          **Files Changed:** $files_changed  
+          **Insertions:** ${insertions:-0}  
+          **Deletions:** ${deletions:-0}  
+
+          ## Commit Message
+
+          \`\`\`
+          $commit_message
+          \`\`\`
+
+          ## Files Modified
+
+          \`\`\`bash
+          $(git diff-tree --no-commit-id --name-only -r $hash)
+          \`\`\`
+
+          ## Changes Summary
+
+          \`\`\`diff
+          $(git show --stat $hash)
+          \`\`\`
+
+          ---
+          *This post was automatically generated from commit [\`${hash:0:7}\`](https://github.com/${{ github.repository }}/commit/$hash)*
+          EOF
+            fi
+          done < commits.log
+
+      - name: Commit generated posts
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add docs/_posts/
+          if git diff --staged --quiet; then
+            echo "No new posts to commit"
+          else
+            git commit -m "Auto-generate blog posts from commits [skip ci]"
+            git push
+          fi
+
+  # Build and deploy Jekyll site
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    needs: generate-posts
+    if: always() && (needs.generate-posts.result == 'success' || needs.generate-posts.result == 'skipped')
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main  # Ensure we have the latest commits including auto-generated posts
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true
+          working-directory: ./docs
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v4
+
+      - name: Build with Jekyll
+        run: |
+          cd docs
+          bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
+        env:
+          JEKYLL_ENV: production
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs/_site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
