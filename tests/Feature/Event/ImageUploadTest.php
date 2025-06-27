@@ -12,6 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -29,6 +30,7 @@ class ImageUploadTest extends TestCase
 
         Storage::fake('local');
         Event::fake();
+        Http::fake();
     }
 
     public function test_imageuploadlistener_listener_is_registered_for_imageuploadevent_event(): void

@@ -21,6 +21,8 @@ description: |
   - It provides a Database
     - For development and testing purposes, it uses SQLite in memory.
     - For production, it uses MariaDb.
+    - For development and testing purposes, it uses SQLite in memory.
+    - For production, it uses MariaDb.
   - It uses Eloquent ORM to define the database schema and interact with the database.
     - Every table is created via migrations
       - Migrations are defined in the `database/migrations` directory.
@@ -160,6 +162,25 @@ description: |
     - `composer ci-assert-no-changes` - asserts that there are no changes in the local repository
     - `composer ci-before-pull-request` - runs the `ci-assert-no-changes`, `ci-audit`, `ci-lint`, `ci-test` to verify code before a pull request is created
   - The repository uses GitHub Actions for CI/CD.
+  - It is deployed on a windows server.
+    - It uses powershell to run commands.
+    - It uses apache httpd 2.4 or higher as the web server.
+      - It is exposed though a reverse proxy.
+        - Reverse proxy is httpd 2.4 with mod_security and mod_proxy.
+        - The reverse proxy is configured to handle HTTPS requests.
+    - It uses MariaDB 10.5 or higher as the database server.
+    - It uses php 8.2 or higher as the PHP version.
+  - It has custom composer scripts for some tasks:
+    - `composer ci-install` - installs the php and node.js dependencies for the CI environment
+    - `composer ci-build` - builds the application for the CI environment
+    - `composer ci-audit` - runs the composer audit command to check for vulnerabilities
+    - `composer ci-lint` - runs Pint for code formatting and style checking in the CI environment
+    - `composer ci-test` - runs the tests in the CI environment
+    - `composer ci-reset` - resets the database in the CI environment
+    - `composer ci-seed` - seeds the database in the CI environment
+    - `composer ci-assert-no-changes` - asserts that there are no changes in the local repository
+    - `composer ci-before-pull-request` - runs the `ci-assert-no-changes`, `ci-audit`, `ci-lint`, `ci-test` to verify code before a pull request is created
+  - The repository uses GitHub Actions for CI/CD.
   - The structure of the repository is as follows:
     ```
     .
@@ -207,6 +228,14 @@ description: |
 - The repository uses GitHub Actions to run tests and code quality checks.
 - The default branch is `main`.
 - Pushing to the `main` branch requires a pull request.
+- The repository has GitHub rulesets configured for code quality and security:
+  - **no-force-push no-delete**: Prevents force pushes and branch deletion
+  - **requires-codeQL-scanning**: Mandates CodeQL security analysis
+  - **requires-linear-history**: Enforces linear git history (no merge commits)
+  - **requires-pull-request**: Requires pull requests for all changes with the following bypass permissions:
+    - Repository administrators can bypass review requirements
+    - Dependabot can bypass review requirements for dependency updates
+    - All other contributors must have their pull requests reviewed before merging
 ## Naming Conventions
 - The repository complies with Laravel's naming conventions.
   - It adheres to the PSR-12 coding standard.
@@ -236,6 +265,19 @@ description: |
 - Use comments to explain complex logic.
 - Use comments to clarify the purpose of a function or method.
 
+## General Guidelines
+- Generate reports and reviews in markdown format.
+- Generate reports and reviews so that the markdown can easily be copy pasted into a GitHub issue or pull request.
+- When AI agent's work is accepted.
+  - Generate an issue description with the issues addressed.
+  - Generate a pull request description with the changes made.
+  - Generate a commit message with the changes made.
+  - Generate a markdown report with the changes made.
+    - Make sure the report is in .gitignore file.
+    - If the report was already pushed to the repository, then delete it from the repository.
+  - Update the `CHANGELOG.md` file with the changes made.
+    - Check for other changes pushed to the repository
+    - If other change doccured singce `CHANGELOG.md` was last updated, also describe these changes.
 ## General Guidelines
 - Generate reports and reviews in markdown format.
 - Generate reports and reviews so that the markdown can easily be copy pasted into a GitHub issue or pull request.

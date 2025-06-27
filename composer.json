@@ -94,7 +94,7 @@
             "@php artisan db:seed --ansi"
         ],
         "ci-assert-no-changes": [
-            "cmd /c 'exit 0' && git diff --exit-code --quiet || ('Changes detected, please update the PR!' && cmd /c 'exit 1')"
+            "git diff --exit-code --quiet"
         ],
         "ci-list-changes": [
             "git diff --name-only --diff-filter=ACMRT HEAD"

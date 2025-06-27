@@ -6,6 +6,7 @@ use App\Models\AvailableImage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Tests\TestCase;
@@ -20,6 +21,7 @@ class AnonymousTest extends TestCase
         Storage::fake('local');
         Storage::fake('public');
         Event::fake();
+        Http::fake();
     }
 
     public function test_index_forbids_anonymous_access(): void
@@ -42,6 +44,15 @@ class AnonymousTest extends TestCase
         $this->expectException(RouteNotFoundException::class);
 
         $response = $this->postJson(route('available-image.store'), $availableImage);
+    }
+
+    public function test_store_method_is_not_allowed(): void
+    {
+        $availableImage = AvailableImage::factory()->make()->toArray();
+
+        $response = $this->postJson('/api/available-image', $availableImage);
+
+        $response->assertMethodNotAllowed();
     }
 
     public function test_update_forbids_anonymous_access(): void

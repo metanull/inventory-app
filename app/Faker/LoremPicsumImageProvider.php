@@ -95,6 +95,21 @@ class LoremPicsumImageProvider extends Base
      */
     protected function getImageContent(string $url): string
     {
+        // In testing environment, return a fake image content instead of making real HTTP requests
+        if (app()->environment('testing')) {
+            // Generate a valid 1x1 PNG image for testing
+            $image = imagecreate(1, 1);
+            $white = imagecolorallocate($image, 255, 255, 255);
+            imagefill($image, 0, 0, $white);
+
+            ob_start();
+            imagepng($image);
+            $content = ob_get_clean();
+            imagedestroy($image);
+
+            return $content;
+        }
+
         $response = Http::get($url);
         $response->throw();
 
