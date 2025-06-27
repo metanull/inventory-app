@@ -11,7 +11,14 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @if(!app()->environment('testing') && config('app.env') !== 'testing')
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @else
+            <!-- Testing environment: Skip Vite assets -->
+            <style>
+                body { font-family: 'Figtree', sans-serif; }
+            </style>
+        @endif
 
         <!-- Styles -->
         @livewireStyles
