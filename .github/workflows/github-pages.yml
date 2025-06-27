@@ -150,7 +150,7 @@ jobs:
             escaped_title=$(echo "$push_title" | sed 's/"/\\"/g')
             display_title="$escaped_title"
             if [ ${#display_title} -gt 100 ]; then
-              display_title="${escaped_title:0:97}..."
+              display_title=$(echo "$escaped_title" | cut -c1-97)...
             fi
             
             # Calculate total file changes across all commits
@@ -171,70 +171,70 @@ jobs:
             echo "Creating push post: $filename"
             
             # Create Jekyll front matter and content for push
-            cat > "$filename" << EOF
-          ---
-          layout: post
-          title: "$display_title"
-          full_title: "$escaped_title"
-          date: $push_date $push_time +0000
-          author: $pusher
-          push_sha: $push_sha
-          commit_count: $commit_count
-          post_type: $post_type
-          pr_info: "$pr_info"
-          categories: [pushes, development]
-          tags: [git, deployment, $post_type]
-          ---
-
-          # $escaped_title
-
-          ## Push Details
-
-          **Author:** $pusher  
-          **Date:** $push_date at $push_time  
-          **SHA:** \`$push_sha\`  
-          **Type:** $([ "$post_type" = "pull-request" ] && echo "Pull Request Merge" || echo "Direct Push")  
-          $([ -n "$pr_info" ] && echo "**Pull Request:** $pr_info")
-          **Commits:** $commit_count  
-          **Files Changed:** $total_files  
-          **Insertions:** $total_insertions  
-          **Deletions:** $total_deletions  
-
-          ## Commits in This Push
-
-          EOF
+            {
+              echo "---"
+              echo "layout: post"
+              echo "title: \"$display_title\""
+              echo "full_title: \"$escaped_title\""
+              echo "date: $push_date $push_time +0000"
+              echo "author: $pusher"
+              echo "push_sha: $push_sha"
+              echo "commit_count: $commit_count"
+              echo "post_type: $post_type"
+              echo "pr_info: \"$pr_info\""
+              echo "categories: [pushes, development]"
+              echo "tags: [git, deployment, $post_type]"
+              echo "---"
+              echo ""
+              echo "# $escaped_title"
+              echo ""
+              echo "## Push Details"
+              echo ""
+              echo "**Author:** $pusher  "
+              echo "**Date:** $push_date at $push_time  "
+              echo "**SHA:** \`$push_sha\`  "
+              echo "**Type:** $(if [ "$post_type" = "pull-request" ]; then echo "Pull Request Merge"; else echo "Direct Push"; fi)  "
+              if [ -n "$pr_info" ]; then echo "**Pull Request:** $pr_info"; fi
+              echo "**Commits:** $commit_count  "
+              echo "**Files Changed:** $total_files  "
+              echo "**Insertions:** $total_insertions  "
+              echo "**Deletions:** $total_deletions  "
+              echo ""
+              echo "## Commits in This Push"
+              echo ""
+            } > "$filename"
           
           # Add each commit as a subsection
           commit_num=1
           while IFS='|' read -r hash date subject author email; do
-            commit_short=\$(echo \$hash | cut -c1-7)
-            cat >> "\$filename" << EOF
-          ### Commit $commit_num: [\`\$commit_short\`](https://github.com/${{ github.repository }}/commit/\$hash)
-
-          **Author:** \$author  
-          **Date:** \$date  
-          **Message:** \$subject  
-
-          #### Files Modified
-          \`\`\`bash
-          \$(git diff-tree --no-commit-id --name-only -r \$hash)
-          \`\`\`
-
-          #### Changes
-          \`\`\`diff
-          \$(git show --stat \$hash)
-          \`\`\`
-
-          EOF
-            commit_num=\$((commit_num + 1))
-          done <<< "\$commits_in_push"
+            commit_short=$(echo $hash | cut -c1-7)
+            {
+              echo "### Commit $commit_num: [\`$commit_short\`](https://github.com/${{ github.repository }}/commit/$hash)"
+              echo ""
+              echo "**Author:** $author  "
+              echo "**Date:** $date  "
+              echo "**Message:** $subject  "
+              echo ""
+              echo "#### Files Modified"
+              echo "\`\`\`bash"
+              git diff-tree --no-commit-id --name-only -r $hash
+              echo "\`\`\`"
+              echo ""
+              echo "#### Changes"
+              echo "\`\`\`diff"
+              git show --stat $hash
+              echo "\`\`\`"
+              echo ""
+            } >> "$filename"
+            commit_num=$((commit_num + 1))
+          done <<< "$commits_in_push"
           
           # Add footer
-          cat >> "\$filename" << EOF
-
-          ---
-          *This post was automatically generated from push [\`${push_sha:0:7}\`](https://github.com/${{ github.repository }}/commit/$push_sha) containing $commit_count commit(s)*
-          EOF
+          {
+            echo ""
+            echo "---"
+            echo "*This post was automatically generated from push [\`$(echo $push_sha | cut -c1-7)\`](https://github.com/${{ github.repository }}/commit/$push_sha) containing $commit_count commit(s)*"
+          } >> "$filename"
           
           fi
 
