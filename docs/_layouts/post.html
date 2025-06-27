@@ -5,7 +5,18 @@ layout: default
 <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
+    <h1 class="post-title p-name" itemprop="name headline">
+      {%- if page.full_title -%}
+        {{ page.full_title | escape }}
+      {%- else -%}
+        {{ page.title | escape }}
+      {%- endif -%}
+    </h1>
+    {%- if page.full_title and page.full_title != page.title -%}
+      <p class="post-subtitle text-muted">
+        <small><em>Display title: {{ page.title | escape }}</em></small>
+      </p>
+    {%- endif -%}
     <p class="post-meta">
       <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
         {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
