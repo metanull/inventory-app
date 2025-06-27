@@ -3,9 +3,8 @@ name: Generate GitHub Pages with Jekyll
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
-    types: [ closed ]
+  # Removed pull_request trigger to avoid duplicate runs
+  # The workflow will run when PR is merged via the push to main
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -21,9 +20,10 @@ concurrency:
 
 jobs:
   # Generate blog posts from commits
+  # This job runs only when main branch is updated (direct push or PR merge)
   generate-posts:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    # Only run on push to main branch (includes PR merges)
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
