@@ -21,20 +21,37 @@ description: |
   - It provides a Database
   - It uses Eloquent ORM to define the database schema and interact with the database.
     - Every table is created via migrations
+      - Migrations are defined in the `database/migrations` directory.
+      - Migrations' `Schema::create()` instructions have `$table->timestamps();` to automatically add `created_at` and `updated_at` columns.
+      - Migrations have a `backward_compatibility` column of type `string`.
+        - This column is `nullable` and has a default value of `null`.
+        - This column is used to store the ID of the record in the previous version of the application.
+      - Most migrations have a `internal_name` column of type `string`.
+        - This column is used to store the internal name of the record.
+        - In general it is associated with a `unique` constraint.
+        - This column is not `nullable`.
+        - This column doesn't have a default value.
     - Every table has a Model
     - Every Model has factories for testing
     - Every Model has seeders for database seeding
     - It uses GUID identifiers
       - Every table has a single column primary key.
-        - The primary key is a `uuid` column, save for the Language and Country models:
+        - The name of the column is `id`.
+        - The type of the column is `uuid`, save for the Language, Country and User models:
           - Language uses the `ISO 639-1` code as identifier.
             - The code is a three-letter code.
           - Country uses the `ISO 3166-1 alpha-3` code as identifier.
             - The code is a three-letter code.
+          - User is a model provided by the Laravel framework.
+            - The User model uses the `id` column as primary key.
+            - The `id` column is an auto-incrementing integer.
         - The primary key is named `id`.
-      - Every `uuid` primary key is generated automatically through `HasUUID` trait, and the method `public function uniqueIds(): array{return ['id'];}`.
-        - The `HasUUID` trait is provided by the Laravel framework.
-        - The `HasUUID` trait is used in every Model that has a `uuid` primary key.
+      - Every `uuid` primary key is generated automatically through `HasUuids` trait, and the method `public function uniqueIds(): array{return ['id'];}`.
+        - The `HasUuids` trait is provided by the Laravel framework.
+        - The `HasUuids` trait is used in every Model that has a `uuid` primary key.
+        - The corresponding model doesn't allow the `id` field to be set manually.
+          - The `id` field is set automatically by the framework when the record is created.
+          - The `id` field is not included in the fillable fields of the Model.
     - Every Model has a Factory
       - The Factory is used to generate test data.
       - The Factory is used to seed the database.
