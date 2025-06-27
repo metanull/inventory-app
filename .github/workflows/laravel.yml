@@ -67,7 +67,7 @@ jobs:
         DB_CONNECTION: sqlite
         # DB_DATABASE: database/database.sqlite
       run: |
-        php artisan test --coverage --parallel --no-interaction --no-ansi --stop-on-failure
+        php artisan test --coverage --parallel --no-ansi --stop-on-failure
 
     - name: 'Setup > Image > Install Node.js'
       uses: actions/setup-node@v4
