@@ -50,7 +50,7 @@ repository: metanull/inventory-app
 # SEO
 author:
   name: Pascal Havelange
-  email: pascal@example.com
+  email: "havelangep [at] hotmail [dot] com"
 
 # Exclude from processing
 exclude:

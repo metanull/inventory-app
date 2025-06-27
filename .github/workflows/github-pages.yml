@@ -78,103 +78,165 @@ jobs:
           # Ensure _posts directory exists
           mkdir -p _posts
           
-          # Get all commits on main branch
-          git log main --pretty=format:"%H|%ai|%s|%an|%ae" --reverse > commits.log
+          # Generate a single blog post for this push/PR
+          push_date=$(date '+%Y-%m-%d')
+          push_time=$(date '+%H:%M:%S')
           
-          # Generate Jekyll posts for each commit
-          while IFS='|' read -r hash date subject author email; do
-            # Format date for Jekyll (YYYY-MM-DD)
-            post_date=$(echo $date | cut -d' ' -f1)
-            post_time=$(echo $date | cut -d' ' -f2)
-            
-            # Create safe filename with proper length limits
-            # Remove special characters and limit to reasonable length
-            safe_subject=$(echo "$subject" | sed 's/[^a-zA-Z0-9 ]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')
-            
-            # Limit filename to filesystem-safe length (most filesystems support 255 chars)
-            # Leave room for date prefix and .md extension: 255 - 10 (date) - 1 (dash) - 3 (.md) = 241
-            max_subject_length=200
-            if [ ${#safe_subject} -gt $max_subject_length ]; then
-              # Truncate at word boundary if possible
-              truncated=$(echo "$safe_subject" | cut -c1-$max_subject_length)
-              # Try to cut at last dash to avoid breaking words
-              if echo "$truncated" | grep -q "-"; then
-                safe_subject=$(echo "$truncated" | sed 's/-[^-]*$//')
-              else
-                safe_subject="$truncated"
-              fi
-              # Add indicator that title was truncated
-              safe_subject="${safe_subject}-truncated"
+          # Get information about this push
+          if [ "${{ github.event_name }}" = "push" ]; then
+            # Get commits in this push
+            if [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+              # Normal push - get commits between before and after
+              commit_range="${{ github.event.before }}..${{ github.sha }}"
+              commits_in_push=$(git log --pretty=format:"%H|%ai|%s|%an|%ae" $commit_range)
+            else
+              # First push to branch - get all commits
+              commits_in_push=$(git log --pretty=format:"%H|%ai|%s|%an|%ae" ${{ github.sha }})
             fi
-            safe_subject=$(echo "$safe_subject" | tr '[:upper:]' '[:lower:]')
-            filename="_posts/${post_date}-${safe_subject}.md"
             
-            # Skip if post already exists
-            if [ ! -f "$filename" ]; then
-              echo "Creating post: $filename"
-              
-              # Get commit details
-              commit_message=$(git log -1 --pretty=format:"%B" $hash)
-              files_changed=$(git diff-tree --no-commit-id --name-only -r $hash | wc -l)
+            # Count commits in this push
+            commit_count=$(echo "$commits_in_push" | wc -l)
+            if [ -z "$commits_in_push" ]; then
+              commit_count=0
+            fi
+            
+            # Get push information
+            pusher="${{ github.actor }}"
+            push_ref="${{ github.ref }}"
+            push_sha="${{ github.sha }}"
+            
+            # Check if this was a PR merge by looking at commit messages
+            pr_info=""
+            if echo "$commits_in_push" | grep -q "Merge pull request"; then
+              pr_number=$(echo "$commits_in_push" | grep "Merge pull request" | head -1 | sed 's/.*#\([0-9]*\).*/\1/')
+              pr_title=$(echo "$commits_in_push" | grep "Merge pull request" | head -1 | cut -d'|' -f3)
+              pr_info="PR #$pr_number"
+            fi
+            
+            # Create meaningful title for the push
+            if [ -n "$pr_info" ]; then
+              # PR merge - use PR title
+              push_title=$(echo "$pr_title" | sed 's/Merge pull request #[0-9]* from [^/]*\///')
+              post_type="pull-request"
+            else
+              # Direct push - use first commit subject or generic title
+              if [ $commit_count -eq 1 ]; then
+                push_title=$(echo "$commits_in_push" | head -1 | cut -d'|' -f3)
+                post_type="direct-push"
+              else
+                push_title="Multiple commits pushed to main"
+                post_type="direct-push"
+              fi
+            fi
+            
+            # Create safe filename
+            safe_title=$(echo "$push_title" | sed 's/[^a-zA-Z0-9 ]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')
+            max_title_length=150
+            if [ ${#safe_title} -gt $max_title_length ]; then
+              truncated=$(echo "$safe_title" | cut -c1-$max_title_length)
+              if echo "$truncated" | grep -q "-"; then
+                safe_title=$(echo "$truncated" | sed 's/-[^-]*$//')
+              else
+                safe_title="$truncated"
+              fi
+            fi
+            safe_title=$(echo "$safe_title" | tr '[:upper:]' '[:lower:]')
+            
+            # Create unique filename with timestamp to avoid conflicts
+            timestamp=$(date '+%H%M%S')
+            filename="_posts/${push_date}-${timestamp}-${safe_title}.md"
+            
+            # Escape title for YAML
+            escaped_title=$(echo "$push_title" | sed 's/"/\\"/g')
+            display_title="$escaped_title"
+            if [ ${#display_title} -gt 100 ]; then
+              display_title="${escaped_title:0:97}..."
+            fi
+            
+            # Calculate total file changes across all commits
+            total_files=0
+            total_insertions=0
+            total_deletions=0
+            
+            while IFS='|' read -r hash date subject author email; do
+              files=$(git diff-tree --no-commit-id --name-only -r $hash | wc -l)
               insertions=$(git show --shortstat $hash | grep -o '[0-9]\+ insertion' | grep -o '[0-9]\+' || echo "0")
               deletions=$(git show --shortstat $hash | grep -o '[0-9]\+ deletion' | grep -o '[0-9]\+' || echo "0")
               
-              # Create Jekyll front matter and content
-              # Escape title for YAML (handle quotes and special characters)
-              escaped_title=$(echo "$subject" | sed 's/"/\\"/g')
-              
-              # If title is very long, create a shorter display title but keep full title in content
-              display_title="$escaped_title"
-              if [ ${#display_title} -gt 100 ]; then
-                display_title="${escaped_title:0:97}..."
-              fi
-              
-              cat > "$filename" << EOF
+              total_files=$((total_files + files))
+              total_insertions=$((total_insertions + insertions))
+              total_deletions=$((total_deletions + deletions))
+            done <<< "$commits_in_push"
+            
+            echo "Creating push post: $filename"
+            
+            # Create Jekyll front matter and content for push
+            cat > "$filename" << EOF
           ---
           layout: post
           title: "$display_title"
           full_title: "$escaped_title"
-          date: $date
-          author: $author
-          commit: $hash
-          categories: [commits, development]
-          tags: [git, changelog]
+          date: $push_date $push_time +0000
+          author: $pusher
+          push_sha: $push_sha
+          commit_count: $commit_count
+          post_type: $post_type
+          pr_info: "$pr_info"
+          categories: [pushes, development]
+          tags: [git, deployment, $post_type]
           ---
 
           # $escaped_title
 
-          ## Commit Details
+          ## Push Details
 
-          **Author:** $author  
-          **Date:** $post_date at $post_time  
-          **Hash:** \`$hash\`  
-          **Files Changed:** $files_changed  
-          **Insertions:** ${insertions:-0}  
-          **Deletions:** ${deletions:-0}  
+          **Author:** $pusher  
+          **Date:** $push_date at $push_time  
+          **SHA:** \`$push_sha\`  
+          **Type:** $([ "$post_type" = "pull-request" ] && echo "Pull Request Merge" || echo "Direct Push")  
+          $([ -n "$pr_info" ] && echo "**Pull Request:** $pr_info")
+          **Commits:** $commit_count  
+          **Files Changed:** $total_files  
+          **Insertions:** $total_insertions  
+          **Deletions:** $total_deletions  
 
-          ## Commit Message
+          ## Commits in This Push
 
-          \`\`\`
-          $commit_message
-          \`\`\`
+          EOF
+          
+          # Add each commit as a subsection
+          commit_num=1
+          while IFS='|' read -r hash date subject author email; do
+            commit_short=\$(echo \$hash | cut -c1-7)
+            cat >> "\$filename" << EOF
+          ### Commit $commit_num: [\`\$commit_short\`](https://github.com/${{ github.repository }}/commit/\$hash)
 
-          ## Files Modified
+          **Author:** \$author  
+          **Date:** \$date  
+          **Message:** \$subject  
 
+          #### Files Modified
           \`\`\`bash
-          $(git diff-tree --no-commit-id --name-only -r $hash)
+          \$(git diff-tree --no-commit-id --name-only -r \$hash)
           \`\`\`
 
-          ## Changes Summary
-
+          #### Changes
           \`\`\`diff
-          $(git show --stat $hash)
+          \$(git show --stat \$hash)
           \`\`\`
+
+          EOF
+            commit_num=\$((commit_num + 1))
+          done <<< "\$commits_in_push"
+          
+          # Add footer
+          cat >> "\$filename" << EOF
 
           ---
-          *This post was automatically generated from commit [\`${hash:0:7}\`](https://github.com/${{ github.repository }}/commit/$hash)*
+          *This post was automatically generated from push [\`${push_sha:0:7}\`](https://github.com/${{ github.repository }}/commit/$push_sha) containing $commit_count commit(s)*
           EOF
-            fi
-          done < commits.log
+          
+          fi
 
       - name: Commit and push to gh-pages branch
         run: |

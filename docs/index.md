@@ -5,9 +5,10 @@ title: "Inventory Management API - Development Blog"
 
 # Inventory Management API - Development Blog
 
-[![CodeQL](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql) [![Laravel](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml) [![GitHub Pages](https://github.com/metanull/inventory-app/actions/workflows/github-pages.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-pages.yml)
+[![CodeQL](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql) [![Composer+Phpunit+Pint](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml) [![Dependabot](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates)[![GitHub Pages](https://github.com/metanull/inventory-app/actions/workflows/github-pages.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-pages.yml)
 
-Welcome to the development blog for the **Inventory Management API**! This blog automatically tracks our development progress by generating posts from every commit to the main branch.
+
+Welcome to the development blog for the **Inventory Management API**! This blog automatically tracks our development progress by generating posts from every push to the main branch, grouping related commits together by their original pull requests or direct pushes.
 
 ## About the Project
 
@@ -45,11 +46,12 @@ This API is part of a broader modernization effort for Museum With No Frontiers.
 
 ## Development Progress
 
-Below you'll find automatically generated blog posts documenting every commit to our main branch. Each post includes:
+Below you'll find automatically generated blog posts documenting every push to our main branch. Each post groups related commits and includes:
 
-- **Commit Details**: Author, date, hash, and file statistics
-- **Change Summary**: What was modified and why
-- **Code Diff**: Technical details of the changes
+- **Push Details**: Author, date, SHA, and commit count
+- **Pull Request Info**: PR number and title (for merged PRs)
+- **Commit Breakdown**: Individual commits with their changes
+- **File Statistics**: Total files changed, insertions, and deletions
 - **Impact Analysis**: How the changes affect the project
 
 ## Links
@@ -61,7 +63,7 @@ Below you'll find automatically generated blog posts documenting every commit to
 
 ---
 
-*This blog is automatically updated with each commit to the main branch. Posts are generated using GitHub Actions and Jekyll.*
+*This blog is automatically updated with each push to the main branch. Posts are generated using GitHub Actions and Jekyll, grouping commits by their original pull requests.*
 
 ## Technology Stack
 
