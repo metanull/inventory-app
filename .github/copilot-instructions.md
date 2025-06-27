@@ -19,6 +19,8 @@ description: |
     - It uses Blade as the templating engine.
     - It uses Tailwind CSS for styling.
   - It provides a Database
+    - For development and testing purposes, it uses SQLite in memory.
+    - For production, it uses MariaDb.
   - It uses Eloquent ORM to define the database schema and interact with the database.
     - Every table is created via migrations
       - Migrations are defined in the `database/migrations` directory.
@@ -139,6 +141,19 @@ description: |
       - To generate url, if the route has a name, always use the `route()` helper with the route's name. Otherwise use the `url()` helper with the route's path.
         - For example, if the route is named `user.index`, use `route('user.index')` to generate the URL for the index method of the UserController.
         - If the route is not named, use `url('/users')` to generate the URL for the index method of the UserController.
+  - It is deployed on a windows server.
+    - It uses powershell to run commands.
+  - It has custom composer scripts for some tasks:
+    - `composer ci-install` - installs the php and node.js dependencies for the CI environment
+    - `composer ci-build` - builds the application for the CI environment
+    - `composer ci-audit` - runs the composer audit command to check for vulnerabilities
+    - `composer ci-lint` - runs Pint for code formatting and style checking in the CI environment
+    - `composer ci-test` - runs the tests in the CI environment
+    - `composer ci-reset` - resets the database in the CI environment
+    - `composer ci-seed` - seeds the database in the CI environment
+    - `composer ci-assert-no-changes` - asserts that there are no changes in the local repository
+    - `composer ci-before-pull-request` - runs the `ci-assert-no-changes`, `ci-audit`, `ci-lint`, `ci-test` to verify code before a pull request is created
+  - The repository uses GitHub Actions for CI/CD.
   - The structure of the repository is as follows:
     ```
     .

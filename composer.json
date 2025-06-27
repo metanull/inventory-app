@@ -67,6 +67,9 @@
             "npm ci --no-fund --no-audit",
             "npm run build"
         ],
+        "ci-build": [
+            "npm run build"
+        ],
         "ci-audit": [
             "@composer validate --with-dependencies --strict --ansi",
             "@composer audit --format=summary",
@@ -84,14 +87,26 @@
             "@php -r \"file_exists('./database/database.sqlite') || touch('./database/database.sqlite');\"",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate --ansi",
+            "@php artisan optimize:clear --ansi"
+        ],
+        "ci-seed": [
             "@php artisan migrate:refresh --no-interaction --ansi",
             "@php artisan db:seed --ansi"
         ],
+        "ci-assert-no-changes": [
+            "cmd /c 'exit 0' && git diff --exit-code --quiet || ('Changes detected, please update the PR!' && cmd /c 'exit 1')"
+        ],
+        "ci-list-changes": [
+            "git diff --name-only --diff-filter=ACMRT HEAD"
+        ],
+        "ci-print-changes": [
+            "git status --porcelain"
+        ],
         "ci-before-pull-request": [
+            "@composer ci-assert-no-changes",
             "@composer ci-lint",
             "@composer ci-audit",
-            "@composer ci-test",
-            "git status --porcelain | php -r \"$s=file_get_contents('php://stdin');if(strlen(trim($s))) {printf('%c[%dmChanges detected, please update the pr!%c%c%c[0m%s',27,33,13,10,27,$s);exit(1);}exit(0);\""
+            "@composer ci-test"
         ]
 
     },
