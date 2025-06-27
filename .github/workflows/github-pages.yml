@@ -193,7 +193,11 @@ jobs:
               echo "**Author:** $pusher  "
               echo "**Date:** $push_date at $push_time  "
               echo "**SHA:** \`$push_sha\`  "
-              echo "**Type:** $(if [ "$post_type" = "pull-request" ]; then echo "Pull Request Merge"; else echo "Direct Push"; fi)  "
+              if [ "$post_type" = "pull-request" ]; then
+                echo "**Type:** Pull Request Merge  "
+              else
+                echo "**Type:** Direct Push  "
+              fi
               if [ -n "$pr_info" ]; then echo "**Pull Request:** $pr_info"; fi
               echo "**Commits:** $commit_count  "
               echo "**Files Changed:** $total_files  "
@@ -233,7 +237,8 @@ jobs:
           {
             echo ""
             echo "---"
-            echo "*This post was automatically generated from push [\`$(echo $push_sha | cut -c1-7)\`](https://github.com/${{ github.repository }}/commit/$push_sha) containing $commit_count commit(s)*"
+            short_sha=$(echo $push_sha | cut -c1-7)
+            echo "*This post was automatically generated from push [\`$short_sha\`](https://github.com/${{ github.repository }}/commit/$push_sha) containing $commit_count commit(s)*"
           } >> "$filename"
           
           fi
