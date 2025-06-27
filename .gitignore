@@ -20,6 +20,5 @@ yarn-error.log
 /auth.json
 
 # Generated documentation files
-GITHUB_PAGES_SETUP.md
 REVIEW.md
 *.report.md
