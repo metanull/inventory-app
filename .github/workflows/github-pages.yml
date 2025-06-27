@@ -30,7 +30,7 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for all branches
 
-      - name: Setup and checkout gh-pages branch
+      - name: Setup gh-pages branch and generate posts
         run: |
           # Configure git
           git config --local user.email "action@github.com"
@@ -74,12 +74,8 @@ jobs:
             # Remove docs/ prefix from config if present
             sed -i 's|baseurl: "/inventory-app"|baseurl: "/inventory-app"|g' _config.yml || true
           fi
-      - name: Generate blog posts from commits
-        run: |
-          # Ensure we're on gh-pages branch
-          git checkout gh-pages
           
-          # Create _posts directory if it doesn't exist
+          # Ensure _posts directory exists
           mkdir -p _posts
           
           # Get all commits on main branch
