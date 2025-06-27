@@ -3,12 +3,9 @@ layout: home
 title: "Inventory Management API - Development Blog"
 ---
 
-# Inventory Management API - Development Blog
-
 [![CodeQL](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql) [![Composer+Phpunit+Pint](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml) [![Dependabot](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates)[![GitHub Pages](https://github.com/metanull/inventory-app/actions/workflows/github-pages.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-pages.yml)
 
-
-Welcome to the development blog for the **Inventory Management API**! This blog automatically tracks our development progress by generating posts from every push to the main branch, grouping related commits together by their original pull requests or direct pushes.
+Welcome to the development blog for the **Inventory Management API**! This blog automatically tracks our development progress by generating daily summaries from commits pushed to the main branch, providing a comprehensive overview of project evolution and related issues.
 
 ## About the Project
 
@@ -46,13 +43,14 @@ This API is part of a broader modernization effort for Museum With No Frontiers.
 
 ## Development Progress
 
-Below you'll find automatically generated blog posts documenting every push to our main branch. Each post groups related commits and includes:
+Below you'll find automatically generated daily summaries documenting development activity on our main branch. Each summary includes:
 
-- **Push Details**: Author, date, SHA, and commit count
-- **Pull Request Info**: PR number and title (for merged PRs)
-- **Commit Breakdown**: Individual commits with their changes
-- **File Statistics**: Total files changed, insertions, and deletions
-- **Impact Analysis**: How the changes affect the project
+- **Daily Overview**: Date, total commits, contributors, and file statistics
+- **Related Issues/PRs**: Automatic extraction of GitHub issue and pull request references
+- **Pull Request Merges**: Summary of merged PRs with links to original requests
+- **Direct Commits**: Individual commits made directly to main branch  
+- **Contributor Activity**: Who contributed and how many commits they made
+- **Impact Analysis**: Total files changed, lines added/removed across all commits
 
 ## Links
 
@@ -63,7 +61,7 @@ Below you'll find automatically generated blog posts documenting every push to o
 
 ---
 
-*This blog is automatically updated with each push to the main branch. Posts are generated using GitHub Actions and Jekyll, grouping commits by their original pull requests.*
+*This blog is automatically updated daily with summaries of commits to the main branch. Daily posts are generated using GitHub Actions and Jekyll, providing a comprehensive overview of development activity and automatically linking to related GitHub issues and pull requests.*
 
 ## Technology Stack
 

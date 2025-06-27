@@ -2,7 +2,7 @@ title: Inventory Management API
 description: >-
   The Inventory Management API (inventory-app) is a RESTful API designed to manage 
   the content of the Museum With No Frontiers' inventory database. This blog tracks 
-  the development progress through automated commit-based posts.
+  the development progress through automated daily summaries of commits and related GitHub activity.
 
 url: "https://metanull.github.io"
 baseurl: "/inventory-app"

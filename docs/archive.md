@@ -1,12 +1,12 @@
 ---
 layout: default
-title: "Commit Archive"
+title: "Daily Archive"
 permalink: /archive/
 ---
 
-# All Commits
+# Development Daily Archive
 
-This page shows all commits to the main branch in chronological order.
+This page shows all daily development summaries in chronological order.
 
 <div class="archive-container">
   {% assign posts = site.posts | sort: 'date' | reverse %}
@@ -25,10 +25,15 @@ This page shows all commits to the main branch in chronological order.
     <li class="archive-item">
       <div class="archive-meta">
         <span class="archive-date">{{ post.date | date: "%b %-d" }}</span>
-        {% if post.commit %}
-          <a href="https://github.com/{{ site.repository }}/commit/{{ post.commit }}" target="_blank" class="commit-hash">
-            <code>{{ post.commit | slice: 0, 7 }}</code>
-          </a>
+        {% if post.commit_count %}
+          <span class="commit-count-badge">{{ post.commit_count }} commit{{ post.commit_count | pluralize: "", "s" }}</span>
+        {% endif %}
+        {% if post.github_refs and post.github_refs.size > 0 %}
+          <span class="github-refs">
+            {% for ref in post.github_refs %}
+              <a href="https://github.com/{{ site.repository }}/issues/{{ ref }}" target="_blank" class="issue-ref">#{{ ref }}</a>
+            {% endfor %}
+          </span>
         {% endif %}
         {% if post.author %}
           <span class="archive-author">{{ post.author }}</span>
@@ -37,6 +42,11 @@ This page shows all commits to the main branch in chronological order.
       <h3 class="archive-title">
         <a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
       </h3>
+      {% if post.excerpt %}
+        <div class="archive-excerpt">
+          {{ post.excerpt | strip_html | truncatewords: 20 }}
+        </div>
+      {% endif %}
     </li>
     
     {% if forloop.last %}</ul>{% endif %}
@@ -77,11 +87,41 @@ This page shows all commits to the main branch in chronological order.
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .archive-date {
   font-weight: 600;
   min-width: 60px;
+}
+
+.commit-count-badge {
+  background-color: #f1f3f4;
+  color: #0366d6;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.github-refs {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.issue-ref {
+  background-color: #e1f5fe;
+  color: #0366d6;
+  padding: 0.15rem 0.3rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.issue-ref:hover {
+  background-color: #b3e5fc;
+  text-decoration: none;
 }
 
 .commit-hash {
@@ -113,5 +153,12 @@ This page shows all commits to the main branch in chronological order.
 .archive-title a:hover {
   color: #0366d6;
   text-decoration: underline;
+}
+
+.archive-excerpt {
+  margin-top: 0.5rem;
+  color: #586069;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 </style>

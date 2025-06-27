@@ -5,18 +5,7 @@ layout: default
 <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">
-      {%- if page.full_title -%}
-        {{ page.full_title | escape }}
-      {%- else -%}
-        {{ page.title | escape }}
-      {%- endif -%}
-    </h1>
-    {%- if page.full_title and page.full_title != page.title -%}
-      <p class="post-subtitle text-muted">
-        <small><em>Display title: {{ page.title | escape }}</em></small>
-      </p>
-    {%- endif -%}
+    <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
     <p class="post-meta">
       <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
         {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
@@ -25,12 +14,23 @@ layout: default
       {%- if page.author -%}
         • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">{{ page.author }}</span></span>
       {%- endif -%}
+      {%- if page.commit_count -%}
+        • <span class="commit-count-badge">{{ page.commit_count }} commit{{ page.commit_count | pluralize: "", "s" }}</span>
+      {%- endif -%}
       {%- if page.commit -%}
         • <a href="https://github.com/{{ site.repository }}/commit/{{ page.commit }}" target="_blank">
             <code>{{ page.commit | slice: 0, 7 }}</code>
           </a>
       {%- endif -%}
     </p>
+    {%- if page.github_refs and page.github_refs.size > 0 -%}
+      <div class="post-github-refs">
+        <span class="refs-label">Related Issues/PRs:</span>
+        {%- for ref in page.github_refs -%}
+          <a href="https://github.com/{{ site.repository }}/issues/{{ ref }}" target="_blank" class="issue-ref">#{{ ref }}</a>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
   </header>
 
   <div class="post-content e-content" itemprop="articleBody">
@@ -131,5 +131,43 @@ layout: default
 .post-content pre code {
   background-color: transparent;
   padding: 0;
+}
+
+.commit-count-badge {
+  background-color: #f1f3f4;
+  color: #0366d6;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.post-github-refs {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.refs-label {
+  font-weight: 600;
+  color: #586069;
+  font-size: 0.9rem;
+}
+
+.issue-ref {
+  background-color: #e1f5fe;
+  color: #0366d6;
+  padding: 0.2rem 0.4rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.issue-ref:hover {
+  background-color: #b3e5fc;
+  text-decoration: none;
 }
 </style>
