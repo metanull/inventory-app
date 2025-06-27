@@ -45,7 +45,7 @@ jobs:
             post_time=$(echo $date | cut -d' ' -f2)
             
             # Create safe filename
-            safe_subject=$(echo "$subject" | sed 's/[^a-zA-Z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g' | tr '[:upper:]' '[:lower:]')
+            safe_subject=$(echo "$subject" | sed 's/[^a-zA-Z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g' | cut -c1-64 | tr '[:upper:]' '[:lower:]')
             filename="docs/_posts/${post_date}-${safe_subject}.md"
             
             # Skip if post already exists
