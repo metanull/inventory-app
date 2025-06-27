@@ -1,0 +1,124 @@
+---
+layout: default
+---
+
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
+        {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
+        {{ page.date | date: date_format }}
+      </time>
+      {%- if page.author -%}
+        • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">{{ page.author }}</span></span>
+      {%- endif -%}
+      {%- if page.commit -%}
+        • <a href="https://github.com/{{ site.repository }}/commit/{{ page.commit }}" target="_blank">
+            <code>{{ page.commit | slice: 0, 7 }}</code>
+          </a>
+      {%- endif -%}
+    </p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    {{ content }}
+  </div>
+
+  {%- if site.disqus.shortname -%}
+    {%- include disqus_comments.html -%}
+  {%- endif -%}
+
+  <footer class="post-footer">
+    <div class="post-navigation">
+      {%- if page.previous -%}
+        <a href="{{ page.previous.url | relative_url }}" class="previous-post">
+          ← {{ page.previous.title }}
+        </a>
+      {%- endif -%}
+      
+      {%- if page.next -%}
+        <a href="{{ page.next.url | relative_url }}" class="next-post">
+          {{ page.next.title }} →
+        </a>
+      {%- endif -%}
+    </div>
+    
+    <div class="post-tags">
+      {%- if page.tags -%}
+        <h4>Tags:</h4>
+        {%- for tag in page.tags -%}
+          <span class="tag">{{ tag }}</span>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </footer>
+
+  <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
+</article>
+
+<style>
+.post-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e1e5e9;
+}
+
+.post-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.post-navigation a {
+  color: #0366d6;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.post-navigation a:hover {
+  background-color: #f6f8fa;
+}
+
+.post-tags {
+  margin-top: 1rem;
+}
+
+.post-tags h4 {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.tag {
+  display: inline-block;
+  background-color: #f1f3f4;
+  color: #586069;
+  padding: 0.25rem 0.5rem;
+  margin: 0.25rem 0.25rem 0.25rem 0;
+  border-radius: 12px;
+  font-size: 0.875rem;
+}
+
+.post-content pre {
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  padding: 16px;
+  overflow: auto;
+}
+
+.post-content code {
+  background-color: #f6f8fa;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-size: 85%;
+}
+
+.post-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+</style>

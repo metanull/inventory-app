@@ -1,16 +1,25 @@
-# Inventory App
+---
+layout: home
+title: "Inventory Management API - Development Blog"
+---
 
-Welcome to the Inventory App project! This application provides a robust and secure REST API for managing your inventory database, built with Laravel 12+. It features user management, JWT authentication, comprehensive API documentation powered by [dedoc/Scramble](https://github.com/dedoc/scramble), and a battle-tested suite of 453+ automated tests.
+# Inventory Management API - Development Blog
 
-You can find the complete source code, issue tracker, and contribution guidelines for this project on its public GitHub repository: [metanull/inventory-app](https://github.com/metanull/inventory-app). We welcome feedback, bug reports, and pull requests from the community.
+[![CodeQL](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql) [![Laravel](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml) [![GitHub Pages](https://github.com/metanull/inventory-app/actions/workflows/github-pages.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-pages.yml)
+
+Welcome to the development blog for the **Inventory Management API**! This blog automatically tracks our development progress by generating posts from every commit to the main branch.
+
+## About the Project
+
+The **Inventory Management API** (inventory-app) is a RESTful API designed to manage the content of the Museum With No Frontiers' inventory database. This application serves as the management layer in a modern N-tier architecture, replacing legacy systems with a scalable, maintainable, and secure solution.
 
 ## Features
 
-- RESTful API for inventory management with complete CRUD operations
-- User authentication and JWT token management
-- Database-agnostic Eloquent models with UUID primary keys
-- Clean, maintainable, and secure codebase following Laravel best practices
-- Automated API documentation with interactive testing capabilities
+- **RESTful API** for inventory management with complete CRUD operations
+- **User Authentication** and JWT token management  
+- **Database-agnostic** Eloquent models with UUID primary keys
+- **Clean, maintainable** codebase following Laravel best practices
+- **Automated API Documentation** with interactive testing capabilities
 - **Comprehensive Test Suite**: 453 tests with 1163 assertions (100% reliable, ~5.6s execution)
 - **Image Processing Pipeline**: Automatic resizing, format optimization, and event-driven processing
 - **Advanced Query Features**: Model scopes, eager loading, and search capabilities
@@ -20,62 +29,39 @@ You can find the complete source code, issue tracker, and contribution guideline
 This project maintains high code quality standards through:
 
 - **Test Coverage**: 453+ automated tests covering all API endpoints and functionality
-- **Performance**: Fast test execution (~5.6 seconds) with parallel processing
+- **Performance**: Fast test execution (~5.6 seconds) with parallel processing  
 - **Reliability**: 100% test pass rate with proper isolation (no external dependencies)
 - **Code Standards**: Laravel Pint formatting and comprehensive linting
 - **Security**: CodeQL scanning and dependency vulnerability checks
 - **CI/CD**: Automated GitHub Actions workflow for continuous integration
 
-# Inventory Management API
-
-[![CodeQL](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql) [![Laravel](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml) [![Dependabot Updates](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates)
-
-
-The **Inventory Management API** (inventory-app) is a RESTful API designed to manage the content of the Museum With No Frontiers' inventory database. This application serves as the management layer in a modern N-tier architecture, replacing legacy systems with a scalable, maintainable, and secure solution.
-
-## Project Overview
+## Project Architecture
 
 This API is part of a broader modernization effort for Museum With No Frontiers. The new architecture consists of:
 
-- **Management REST API** (this application): Provides secure endpoints for managing and updating the inventory database.
-- **Public Consultation REST API**: Grants controlled, read-only access to inventory data for public-facing applications.
-- **Client-side Web Applications**: Deployed separately, these applications interact with the consultation API to present data to end users.
+- **Management REST API** (this application): Provides secure endpoints for managing and updating the inventory database
+- **Public Consultation REST API**: Grants controlled, read-only access to inventory data for public-facing applications  
+- **Client-side Web Applications**: Deployed separately, these applications interact with the consultation API to present data to end users
 
-## Why N-Tier Architecture?
+## Development Progress
 
-Adopting an N-tier architecture brings several advantages:
+Below you'll find automatically generated blog posts documenting every commit to our main branch. Each post includes:
 
-- **Separation of Concerns**: Each layer (management API, consultation API, frontend clients) has a distinct responsibility, making the system easier to maintain and evolve.
-- **Scalability**: Components can be scaled independently based on demand, improving performance and resource utilization.
-- **Security**: Sensitive management operations are isolated from public access, reducing the attack surface.
-- **Flexibility**: Decoupling backend and frontend allows for independent development, testing, and deployment of each component, enabling faster iteration and easier integration of new technologies.
+- **Commit Details**: Author, date, hash, and file statistics
+- **Change Summary**: What was modified and why
+- **Code Diff**: Technical details of the changes
+- **Impact Analysis**: How the changes affect the project
 
-## Recent Improvements
+## Links
 
-### Test Suite Enhancements (June 2025)
-- **Resolved HTTP 503 Errors**: Fixed persistent test failures by implementing proper HTTP request faking
-- **Enhanced Test Isolation**: All tests now use `Http::fake()`, `Event::fake()`, and `Storage::fake()` for complete isolation
-- **Improved Test Reliability**: 100% test pass rate with no external dependencies
-- **Custom Image Provider**: Enhanced `LoremPicsumImageProvider` to generate valid PNG images for testing
-- **Performance Optimization**: Test execution time improved to ~5.6 seconds with parallel processing
+- **[Source Code](https://github.com/metanull/inventory-app)**: Complete source code and issue tracking
+- **[API Documentation](https://github.com/metanull/inventory-app#api-documentation)**: Interactive API documentation  
+- **[Contributing](https://github.com/metanull/inventory-app#contributing)**: Guidelines for contributing to the project
+- **[Issues](https://github.com/metanull/inventory-app/issues)**: Bug reports and feature requests
 
-### Picture Model Correction (Issue #133)
-- **Fixed CRUD Testing**: Corrected Picture UpdateTest to include proper CRUD operations instead of route-not-found tests
-- **Enhanced Validation**: Added comprehensive validation testing for allowed update fields
-- **Route Testing**: Implemented dual test patterns for better route validation coverage
+---
 
-## Author
-
-This work is authored and maintained by Pascal Havelange.
-## References
-
-- [Museum With No Frontiers Portal](https://museumwnf.org): Access all MWNF products and resources.
-- [MWNF Credits](https://www.museumwnf.org/about/credits): Information about the stakeholders and contributors to the MWNF project.
-- [Project Repository on GitHub](https://github.com/metanull/inventory-app): Public source code and issue tracking for this API.
-- [MWNF Jira (Atlassian)](https://mwnf.atlassian.net/jira/software/c/projects/MWNF/boards/2): Project management and issue tracking.
-- [MWNF Confluence (Atlassian)](https://mwnf.atlassian.net/wiki): Project documentation and collaboration.
-- [MWNF Bitbucket (Atlassian)](https://bitbucket.org/mwnf): Additional code repositories and version control.
-- [Laravel Homepage](https://laravel.com): Official website for the Laravel framework.
+*This blog is automatically updated with each commit to the main branch. Posts are generated using GitHub Actions and Jekyll.*
 
 ## Technology Stack
 

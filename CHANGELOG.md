@@ -37,6 +37,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated all Blade views (welcome, app layout, guest layout) with conditional Vite loading
 - Enhanced phpunit.xml configuration with VITE_ENABLED=false for testing environment
 
+### Added
+- **GitHub Pages Blog Generation**: Automated Jekyll-based documentation system
+  - CI/CD workflow automatically generates blog posts for every commit to main branch
+  - Jekyll site with responsive minima theme deployed to GitHub Pages
+  - Custom layouts with commit navigation, author information, and GitHub links
+  - Archive page with searchable commit history and development timeline
+  - No local Ruby/Jekyll installation required - fully CI/CD driven
+  - Live documentation at: https://metanull.github.io/inventory-app
+- **Documentation Scripts**: Optional composer scripts for local Jekyll development
+  - `composer docs-install` - Install Jekyll dependencies locally
+  - `composer docs-build` - Build Jekyll site locally
+  - `composer docs-serve` - Serve site with live reload for development
+
 ## [2.4.0] - 2025-06-27
 
 ### Added

@@ -333,6 +333,25 @@ The project includes a comprehensive **GitHub Actions** workflow for:
 - ✅ **Dependency Updates** - Automated Dependabot integration
 - ✅ **Build Verification** - Asset compilation and validation
 
+### Documentation & GitHub Pages 📚
+
+The project automatically generates and maintains comprehensive documentation through **GitHub Pages**:
+
+- 🌐 **Live Documentation**: [https://metanull.github.io/inventory-app](https://metanull.github.io/inventory-app)
+- 📝 **Automated Blog Posts** - Every commit to `main` generates a detailed blog post
+- 🔄 **CI/CD Integration** - Jekyll builds and deploys automatically
+- 📊 **Commit Tracking** - Complete development history with diff statistics
+- 🎨 **Responsive Design** - Clean, mobile-friendly interface with search and navigation
+
+The documentation includes:
+- Development progress tracking through commit-based blog posts
+- Code changes and statistics for each commit
+- Author information and commit timestamps
+- Links to GitHub commits and pull requests
+- Searchable archive of all development activities
+
+> **Note**: GitHub Pages generation is fully automated - no local Ruby or Jekyll installation required!
+
 ### Performance Considerations
 
 - **Database Indexing** - Optimized indexes for common queries
