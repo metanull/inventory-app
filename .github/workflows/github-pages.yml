@@ -3,8 +3,11 @@ name: Generate GitHub Pages with Jekyll
 on:
   push:
     branches: [ main ]
-  # Removed pull_request trigger to avoid duplicate runs
-  # The workflow will run when PR is merged via the push to main
+  # Run daily at 6 AM UTC to aggregate commits by day  
+  schedule:
+    - cron: '0 6 * * *'
+  # Allow manual trigger
+  workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -19,18 +22,16 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Generate blog posts from commits
-  # This job runs only when main branch is updated (direct push or PR merge)
-  generate-posts:
+  # Generate daily blog posts from commits
+  generate-daily-posts:
     runs-on: ubuntu-latest
-    # Only run on push to main branch (includes PR merges)
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Fetch all history for all branches
 
-      - name: Setup gh-pages branch and generate posts
+      - name: Setup gh-pages branch and generate daily posts
         run: |
           # Configure git
           git config --local user.email "action@github.com"
@@ -51,7 +52,7 @@ jobs:
             git checkout main -- docs/_config.yml docs/Gemfile docs/_layouts/ docs/index.md docs/archive.md docs/README.md || true
             
             # Create basic structure for gh-pages
-            mkdir -p _posts _layouts
+            mkdir -p _posts _layouts _includes
             if [ -f docs/_config.yml ]; then
               cp docs/_config.yml _config.yml
             fi
@@ -60,6 +61,9 @@ jobs:
             fi
             if [ -d docs/_layouts ]; then
               cp -r docs/_layouts/* _layouts/
+            fi
+            if [ -d docs/_includes ]; then
+              cp -r docs/_includes/* _includes/
             fi
             if [ -f docs/index.md ]; then
               cp docs/index.md index.md
@@ -78,188 +82,182 @@ jobs:
           # Ensure _posts directory exists
           mkdir -p _posts
           
-          # Generate a single blog post for this push/PR
-          push_date=$(date '+%Y-%m-%d')
-          push_time=$(date '+%H:%M:%S')
+          # Function to extract GitHub references from text
+          extract_github_refs() {
+            local text="$1"
+            # Extract issue/PR references (#123, fixes #123, closes #456, etc.)
+            echo "$text" | grep -oE '(#[0-9]+|[Ff]ix(es|ed)?[[:space:]]+#[0-9]+|[Cc]lose(s|d)?[[:space:]]+#[0-9]+|[Rr]esolve(s|d)?[[:space:]]+#[0-9]+)' | \
+              sed -E 's/.*(#[0-9]+).*/\1/' | sort -u || true
+          }
           
-          # Get information about this push
+          # Determine date range for processing
           if [ "${{ github.event_name }}" = "push" ]; then
-            # Get commits in this push
-            if [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
-              # Normal push - get commits between before and after
-              commit_range="${{ github.event.before }}..${{ github.sha }}"
-              commits_in_push=$(git log --pretty=format:"%H|%ai|%s|%an|%ae" $commit_range)
-            else
-              # First push to branch - get all commits
-              commits_in_push=$(git log --pretty=format:"%H|%ai|%s|%an|%ae" ${{ github.sha }})
-            fi
-            
-            # Count commits in this push
-            commit_count=$(echo "$commits_in_push" | wc -l)
-            if [ -z "$commits_in_push" ]; then
-              commit_count=0
-            fi
-            
-            # Get push information
-            pusher="${{ github.actor }}"
-            push_ref="${{ github.ref }}"
-            push_sha="${{ github.sha }}"
-            
-            # Check if this was a PR merge by looking at commit messages
-            pr_info=""
-            if echo "$commits_in_push" | grep -q "Merge pull request"; then
-              pr_number=$(echo "$commits_in_push" | grep "Merge pull request" | head -1 | sed 's/.*#\([0-9]*\).*/\1/')
-              pr_title=$(echo "$commits_in_push" | grep "Merge pull request" | head -1 | cut -d'|' -f3)
-              pr_info="PR #$pr_number"
-            fi
-            
-            # Create meaningful title for the push
-            if [ -n "$pr_info" ]; then
-              # PR merge - use PR title
-              push_title=$(echo "$pr_title" | sed 's/Merge pull request #[0-9]* from [^/]*\///')
-              post_type="pull-request"
-            else
-              # Direct push - use first commit subject or generic title
-              if [ $commit_count -eq 1 ]; then
-                push_title=$(echo "$commits_in_push" | head -1 | cut -d'|' -f3)
-                post_type="direct-push"
-              else
-                push_title="Multiple commits pushed to main"
-                post_type="direct-push"
-              fi
-            fi
-            
-            # Create safe filename
-            safe_title=$(echo "$push_title" | sed 's/[^a-zA-Z0-9 ]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')
-            max_title_length=150
-            if [ ${#safe_title} -gt $max_title_length ]; then
-              truncated=$(echo "$safe_title" | cut -c1-$max_title_length)
-              if echo "$truncated" | grep -q "-"; then
-                safe_title=$(echo "$truncated" | sed 's/-[^-]*$//')
-              else
-                safe_title="$truncated"
-              fi
-            fi
-            safe_title=$(echo "$safe_title" | tr '[:upper:]' '[:lower:]')
-            
-            # Create unique filename with timestamp to avoid conflicts
-            timestamp=$(date '+%H%M%S')
-            filename="_posts/${push_date}-${timestamp}-${safe_title}.md"
-            
-            # Escape title for YAML
-            escaped_title=$(echo "$push_title" | sed 's/"/\\"/g')
-            display_title="$escaped_title"
-            if [ ${#display_title} -gt 100 ]; then
-              display_title=$(echo "$escaped_title" | cut -c1-97)...
-            fi
-            
-            # Calculate total file changes across all commits
-            total_files=0
-            total_insertions=0
-            total_deletions=0
-            
-            while IFS='|' read -r hash date subject author email; do
-              files=$(git diff-tree --no-commit-id --name-only -r $hash | wc -l)
-              insertions=$(git show --shortstat $hash | grep -o '[0-9]\+ insertion' | grep -o '[0-9]\+' || echo "0")
-              deletions=$(git show --shortstat $hash | grep -o '[0-9]\+ deletion' | grep -o '[0-9]\+' || echo "0")
-              
-              total_files=$((total_files + files))
-              total_insertions=$((total_insertions + insertions))
-              total_deletions=$((total_deletions + deletions))
-            done <<< "$commits_in_push"
-            
-            echo "Creating push post: $filename"
-            
-            # Create Jekyll front matter and content for push
-            {
-              echo "---"
-              echo "layout: post"
-              echo "title: \"$display_title\""
-              echo "full_title: \"$escaped_title\""
-              echo "date: $push_date $push_time +0000"
-              echo "author: $pusher"
-              echo "push_sha: $push_sha"
-              echo "commit_count: $commit_count"
-              echo "post_type: $post_type"
-              echo "pr_info: \"$pr_info\""
-              echo "categories: [pushes, development]"
-              echo "tags: [git, deployment, $post_type]"
-              echo "---"
-              echo ""
-              echo "# $escaped_title"
-              echo ""
-              echo "## Push Details"
-              echo ""
-              echo "**Author:** $pusher  "
-              echo "**Date:** $push_date at $push_time  "
-              echo "**SHA:** \`$push_sha\`  "
-              if [ "$post_type" = "pull-request" ]; then
-                echo "**Type:** Pull Request Merge  "
-              else
-                echo "**Type:** Direct Push  "
-              fi
-              if [ -n "$pr_info" ]; then echo "**Pull Request:** $pr_info"; fi
-              echo "**Commits:** $commit_count  "
-              echo "**Files Changed:** $total_files  "
-              echo "**Insertions:** $total_insertions  "
-              echo "**Deletions:** $total_deletions  "
-              echo ""
-              echo "## Commits in This Push"
-              echo ""
-            } > "$filename"
-          
-          # Add each commit as a subsection
-          commit_num=1
-          while IFS='|' read -r hash date subject author email; do
-            commit_short=$(echo $hash | cut -c1-7)
-            {
-              echo "### Commit $commit_num: [\`$commit_short\`](https://github.com/${{ github.repository }}/commit/$hash)"
-              echo ""
-              echo "**Author:** $author  "
-              echo "**Date:** $date  "
-              echo "**Message:** $subject  "
-              echo ""
-              echo "#### Files Modified"
-              echo "\`\`\`bash"
-              git diff-tree --no-commit-id --name-only -r $hash
-              echo "\`\`\`"
-              echo ""
-              echo "#### Changes"
-              echo "\`\`\`diff"
-              git show --stat $hash
-              echo "\`\`\`"
-              echo ""
-            } >> "$filename"
-            commit_num=$((commit_num + 1))
-          done <<< "$commits_in_push"
-          
-          # Add footer
-          {
-            echo ""
-            echo "---"
-            short_sha=$(echo $push_sha | cut -c1-7)
-            echo "*This post was automatically generated from push [\`$short_sha\`](https://github.com/${{ github.repository }}/commit/$push_sha) containing $commit_count commit(s)*"
-          } >> "$filename"
-          
+            # For push events, process today and yesterday (in case of late commits)
+            end_date=$(date '+%Y-%m-%d')
+            start_date=$(date -d '1 day ago' '+%Y-%m-%d')
+            echo "Processing commits from push event: $start_date to $end_date"
+          else
+            # For scheduled/manual runs, process last 7 days to catch anything missed
+            end_date=$(date '+%Y-%m-%d')
+            start_date=$(date -d '7 days ago' '+%Y-%m-%d')
+            echo "Processing commits from scheduled run: $start_date to $end_date"
           fi
-
+          
+          # Get all commits in the date range, grouped by date
+          current_date="$start_date"
+          while [ "$current_date" != "$(date -d "$end_date + 1 day" '+%Y-%m-%d')" ]; do
+            echo "Processing commits for $current_date..."
+            
+            # Get commits for this specific date
+            commits_today=$(git log --since="$current_date 00:00:00" --until="$current_date 23:59:59" \
+              --pretty=format:"%H|%ai|%s|%an|%ae" --reverse)
+            
+            if [ -n "$commits_today" ]; then
+              commit_count=$(echo "$commits_today" | wc -l)
+              echo "Found $commit_count commits for $current_date"
+              
+              # Check if post already exists for this date
+              existing_post="_posts/${current_date}-daily-development-summary.md"
+              if [ ! -f "$existing_post" ]; then
+                echo "Creating daily post: $existing_post"
+                
+                # Collect all GitHub references from commits
+                all_github_refs=""
+                pr_merges=""
+                direct_commits=""
+                total_files=0
+                total_insertions=0
+                total_deletions=0
+                unique_authors=""
+                
+                while IFS='|' read -r hash date subject author email; do
+                  # Collect GitHub references
+                  refs=$(extract_github_refs "$subject")
+                  if [ -n "$refs" ]; then
+                    all_github_refs="$all_github_refs $refs"
+                  fi
+                  
+                  # Categorize commits
+                  if echo "$subject" | grep -q "Merge pull request"; then
+                    pr_number=$(echo "$subject" | sed -n 's/.*#\([0-9]*\).*/\1/p')
+                    pr_title=$(echo "$subject" | sed 's/Merge pull request #[0-9]* from [^/]*//')
+                    pr_merges="$pr_merges\n- **PR #$pr_number**: $pr_title ([${hash:0:7}](https://github.com/${{ github.repository }}/commit/$hash))"
+                  else
+                    direct_commits="$direct_commits\n- **${hash:0:7}**: $subject ([view](https://github.com/${{ github.repository }}/commit/$hash)) - *by $author*"
+                  fi
+                  
+                  # Calculate file statistics
+                  files=$(git diff-tree --no-commit-id --name-only -r $hash | wc -l)
+                  insertions=$(git show --shortstat $hash | grep -o '[0-9]\+ insertion' | grep -o '[0-9]\+' || echo "0")
+                  deletions=$(git show --shortstat $hash | grep -o '[0-9]\+ deletion' | grep -o '[0-9]\+' || echo "0")
+                  
+                  total_files=$((total_files + files))
+                  total_insertions=$((total_insertions + insertions))
+                  total_deletions=$((total_deletions + deletions))
+                  
+                  # Collect unique authors
+                  if ! echo "$unique_authors" | grep -q "$author"; then
+                    unique_authors="$unique_authors $author"
+                  fi
+                done <<< "$commits_today"
+                
+                # Process unique GitHub references
+                unique_refs=$(echo "$all_github_refs" | tr ' ' '\n' | grep -E '^#[0-9]+$' | sort -u | tr '\n' ' ')
+                
+                # Generate daily summary title
+                day_name=$(date -d "$current_date" '+%A')
+                formatted_date=$(date -d "$current_date" '+%B %-d, %Y')
+                daily_title="Development Summary - $day_name, $formatted_date"
+                
+                # Create Jekyll front matter and content
+                {
+                  echo "---"
+                  echo "layout: post"
+                  echo "title: \"$daily_title\""
+                  echo "date: $current_date 12:00:00 +0000"
+                  echo "author: Development Team"
+                  echo "commit_count: $commit_count"
+                  echo "post_type: daily-summary"
+                  echo "categories: [daily, development]"
+                  echo "tags: [git, summary, development]"
+                  if [ -n "$unique_refs" ]; then
+                    echo "github_refs: [$(echo "$unique_refs" | sed 's/ /, /g' | sed 's/^, //' | sed 's/, $//' | sed 's/#//g')]"
+                  fi
+                  echo "---"
+                  echo ""
+                  echo "## Development Activity for $formatted_date"
+                  echo ""
+                  echo "### Summary"
+                  echo ""
+                  echo "**Total Commits:** $commit_count  "
+                  echo "**Contributors:** $(echo "$unique_authors" | wc -w)  "
+                  echo "**Files Changed:** $total_files  "
+                  echo "**Lines Added:** +$total_insertions  "
+                  echo "**Lines Removed:** -$total_deletions  "
+                  echo ""
+                  
+                  if [ -n "$unique_refs" ]; then
+                    echo "### Related Issues & Pull Requests"
+                    echo ""
+                    for ref in $unique_refs; do
+                      ref_num=$(echo "$ref" | sed 's/#//')
+                      echo "- [Issue/PR #$ref_num](https://github.com/${{ github.repository }}/issues/$ref_num)"
+                    done
+                    echo ""
+                  fi
+                  
+                  if [ -n "$pr_merges" ] && [ "$pr_merges" != "" ]; then
+                    echo "### Pull Requests Merged"
+                    echo ""
+                    echo -e "$pr_merges"
+                    echo ""
+                  fi
+                  
+                  if [ -n "$direct_commits" ] && [ "$direct_commits" != "" ]; then
+                    echo "### Direct Commits"
+                    echo ""
+                    echo -e "$direct_commits"
+                    echo ""
+                  fi
+                  
+                  echo "### Contributors"
+                  echo ""
+                  for author in $unique_authors; do
+                    author_commits=$(echo "$commits_today" | grep -c "|$author|" || echo "0")
+                    echo "- **$author** ($author_commits commit$([ $author_commits -ne 1 ] && echo 's'))"
+                  done
+                  echo ""
+                  echo "---"
+                  echo ""
+                  echo "*This daily summary was automatically generated from $commit_count commit(s) made on $formatted_date.*"
+                } > "$existing_post"
+              else
+                echo "Post already exists for $current_date, skipping..."
+              fi
+            else
+              echo "No commits found for $current_date"
+            fi
+            
+            # Move to next date
+            current_date=$(date -d "$current_date + 1 day" '+%Y-%m-%d')
+          done
       - name: Commit and push to gh-pages branch
         run: |
           # Add all generated files
           git add .
           
           if git diff --staged --quiet; then
-            echo "No new posts to commit"
+            echo "No new daily posts to commit"
           else
-            git commit -m "Auto-generate blog posts from commits [skip ci]"
+            git commit -m "Auto-generate daily blog posts [skip ci]"
             git push origin gh-pages
           fi
 
   # Build and deploy Jekyll site
   build-and-deploy:
     runs-on: ubuntu-latest
-    needs: generate-posts
-    if: always() && (needs.generate-posts.result == 'success' || needs.generate-posts.result == 'skipped')
+    needs: generate-daily-posts
+    if: always() && (needs.generate-daily-posts.result == 'success' || needs.generate-daily-posts.result == 'skipped')
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

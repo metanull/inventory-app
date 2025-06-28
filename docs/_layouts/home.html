@@ -3,28 +3,29 @@ layout: default
 ---
 
 <div class="home">
-  {%- if page.title -%}
-    <h1 class="page-heading">{{ page.title }}</h1>
-  {%- endif -%}
-
   {{ content }}
 
   {% assign posts = site.posts | sort: 'date' | reverse %}
   {%- if posts.size > 0 -%}
-    <h2 class="post-list-heading">{{ page.list_title | default: "Recent Commits" }}</h2>
+    <h2 class="post-list-heading">{{ page.list_title | default: "Recent Daily Summaries" }}</h2>
     <ul class="post-list">
       {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
       {%- for post in posts limit: 10 -%}
       <li>
         <div class="post-meta">
           <span class="post-date">{{ post.date | date: date_format }}</span>
-          {%- if post.commit -%}
-            <a href="https://github.com/{{ site.repository }}/commit/{{ post.commit }}" target="_blank" class="commit-hash">
-              <code>{{ post.commit | slice: 0, 7 }}</code>
-            </a>
+          {%- if post.commit_count -%}
+            <span class="commit-count">{{ post.commit_count }} commit{{ post.commit_count | pluralize: "", "s" }}</span>
           {%- endif -%}
           {%- if post.author -%}
             <span class="post-author">by {{ post.author }}</span>
+          {%- endif -%}
+          {%- if post.github_refs and post.github_refs.size > 0 -%}
+            <span class="github-refs">
+              {%- for ref in post.github_refs -%}
+                <a href="https://github.com/{{ site.repository }}/issues/{{ ref }}" target="_blank" class="issue-ref">#{{ ref }}</a>
+              {%- endfor -%}
+            </span>
           {%- endif -%}
         </div>
         <h3>
@@ -43,7 +44,7 @@ layout: default
 
     {%- if posts.size > 10 -%}
       <p class="rss-subscribe">
-        <a href="{{ '/archive' | relative_url }}">View all commits →</a>
+        <a href="{{ '/archive' | relative_url }}">View all daily summaries →</a>
       </p>
     {%- endif -%}
 
@@ -73,6 +74,16 @@ layout: default
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.commit-count {
+  background-color: #f1f3f4;
+  color: #0366d6;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .commit-hash {
@@ -83,6 +94,26 @@ layout: default
 
 .commit-hash:hover {
   text-decoration: underline;
+}
+
+.github-refs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.issue-ref {
+  background-color: #e1f5fe;
+  color: #0366d6;
+  padding: 0.2rem 0.4rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.issue-ref:hover {
+  background-color: #b3e5fc;
+  text-decoration: none;
 }
 
 .post-author {
