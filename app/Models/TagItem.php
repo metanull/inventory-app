@@ -5,25 +5,32 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Tag extends Model
+class TagItem extends Model
 {
     use HasFactory;
     use HasUuids;
 
     protected $fillable = [
-        'internal_name',
-        'backward_compatibility',
-        'description',
+        'tag_id',
+        'item_id',
     ];
 
     /**
-     * The items that belong to this tag.
+     * The tag associated with this relationship.
      */
-    public function items(): BelongsToMany
+    public function tag(): BelongsTo
     {
-        return $this->belongsToMany(Item::class, 'tag_items');
+        return $this->belongsTo(Tag::class);
+    }
+
+    /**
+     * The item associated with this relationship.
+     */
+    public function item(): BelongsTo
+    {
+        return $this->belongsTo(Item::class);
     }
 
     /**

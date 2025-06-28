@@ -12,6 +12,7 @@ use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\TagItemController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -64,6 +65,10 @@ Route::resource('context', ContextController::class)->except([
 ])->middleware('auth:sanctum');
 
 Route::resource('tag', TagController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('tag-item', TagItemController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 
