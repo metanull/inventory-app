@@ -103,13 +103,15 @@ jobs:
             echo "Processing commits from scheduled run: $start_date to $end_date"
           fi
           
+          echo "Looking for commits in 'main' branch for documentation generation..."
+          
           # Get all commits in the date range, grouped by date
           current_date="$start_date"
           while [ "$current_date" != "$(date -d "$end_date + 1 day" '+%Y-%m-%d')" ]; do
             echo "Processing commits for $current_date..."
             
-            # Get commits for this specific date
-            commits_today=$(git log --since="$current_date 00:00:00" --until="$current_date 23:59:59" \
+            # Get commits for this specific date from main branch
+            commits_today=$(git log main --since="$current_date 00:00:00" --until="$current_date 23:59:59" \
               --pretty=format:"%H|%ai|%s|%an|%ae" --reverse)
             
             if [ -n "$commits_today" ]; then
