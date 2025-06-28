@@ -50,7 +50,7 @@ class TagController extends Controller
         $validated = $request->validate([
             /** @ignoreParam */
             'id' => 'prohibited',
-            'internal_name' => 'required|string|unique:tags,internal_name,' . $tag->id,
+            'internal_name' => 'required|string|unique:tags,internal_name,'.$tag->id,
             'backward_compatibility' => 'nullable|string',
             'description' => 'required|string',
         ]);

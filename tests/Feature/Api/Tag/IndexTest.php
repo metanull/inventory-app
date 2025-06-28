@@ -36,9 +36,9 @@ class IndexTest extends TestCase
     public function test_index_returns_expected_structure()
     {
         Tag::factory()->count(3)->create();
-        
+
         $response = $this->get(route('tag.index'));
-        
+
         $response->assertOk();
         $response->assertJsonStructure([
             'data' => [
@@ -49,8 +49,8 @@ class IndexTest extends TestCase
                     'description',
                     'created_at',
                     'updated_at',
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
@@ -60,12 +60,12 @@ class IndexTest extends TestCase
     public function test_index_returns_all_tags()
     {
         $tags = Tag::factory()->count(3)->create();
-        
+
         $response = $this->get(route('tag.index'));
-        
+
         $response->assertOk();
         $response->assertJsonCount(3, 'data');
-        
+
         foreach ($tags as $tag) {
             $response->assertJsonPath('data.*.id', function ($ids) use ($tag) {
                 return in_array($tag->id, $ids);
@@ -79,7 +79,7 @@ class IndexTest extends TestCase
     public function test_index_returns_empty_array_when_no_tags_exist()
     {
         $response = $this->get(route('tag.index'));
-        
+
         $response->assertOk();
         $response->assertJsonCount(0, 'data');
     }

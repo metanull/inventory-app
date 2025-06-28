@@ -27,7 +27,7 @@ class ShowTest extends TestCase
     public function test_show_allows_authenticated_users()
     {
         $tag = Tag::factory()->create();
-        
+
         $response = $this->get(route('tag.show', $tag));
         $response->assertOk();
     }
@@ -38,9 +38,9 @@ class ShowTest extends TestCase
     public function test_show_returns_expected_structure()
     {
         $tag = Tag::factory()->create();
-        
+
         $response = $this->get(route('tag.show', $tag));
-        
+
         $response->assertOk();
         $response->assertJsonStructure([
             'data' => [
@@ -50,7 +50,7 @@ class ShowTest extends TestCase
                 'description',
                 'created_at',
                 'updated_at',
-            ]
+            ],
         ]);
     }
 
@@ -60,9 +60,9 @@ class ShowTest extends TestCase
     public function test_show_returns_correct_tag_data()
     {
         $tag = Tag::factory()->create();
-        
+
         $response = $this->get(route('tag.show', $tag));
-        
+
         $response->assertOk();
         $response->assertJsonPath('data.id', $tag->id);
         $response->assertJsonPath('data.internal_name', $tag->internal_name);
@@ -78,7 +78,7 @@ class ShowTest extends TestCase
     public function test_show_returns_404_for_non_existent_tag()
     {
         $nonExistentId = $this->faker->uuid();
-        
+
         $response = $this->get(route('tag.show', $nonExistentId));
         $response->assertNotFound();
     }

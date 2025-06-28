@@ -66,7 +66,7 @@ class FactoryTest extends TestCase
     public function test_factory_generates_words_for_description(): void
     {
         $tag = Tag::factory()->create();
-        
+
         // The description should contain multiple words (faker->words(5))
         $this->assertGreaterThan(10, strlen($tag->description)); // Should be more than just a single word
         $this->assertStringContainsString(' ', $tag->description); // Should contain spaces between words

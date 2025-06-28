@@ -52,7 +52,7 @@ class UpdateTest extends TestCase
                 'description',
                 'created_at',
                 'updated_at',
-            ]
+            ],
         ]);
     }
 
@@ -115,7 +115,7 @@ class UpdateTest extends TestCase
     {
         $tag = Tag::factory()->create();
         $data = Tag::factory()->make([
-            'backward_compatibility' => null
+            'backward_compatibility' => null,
         ])->except(['id']);
 
         $response = $this->putJson(route('tag.update', $tag), $data);
@@ -157,9 +157,9 @@ class UpdateTest extends TestCase
     {
         $tag1 = Tag::factory()->create();
         $tag2 = Tag::factory()->create();
-        
+
         $data = Tag::factory()->make([
-            'internal_name' => $tag2->internal_name
+            'internal_name' => $tag2->internal_name,
         ])->except(['id']);
 
         $response = $this->putJson(route('tag.update', $tag1), $data);
@@ -175,7 +175,7 @@ class UpdateTest extends TestCase
     {
         $tag = Tag::factory()->create();
         $data = Tag::factory()->make([
-            'internal_name' => $tag->internal_name
+            'internal_name' => $tag->internal_name,
         ])->except(['id']);
 
         $response = $this->putJson(route('tag.update', $tag), $data);

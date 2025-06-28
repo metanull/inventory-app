@@ -31,7 +31,7 @@ class AnonymousTest extends TestCase
     public function test_show_requires_authentication()
     {
         $tag = Tag::factory()->create();
-        
+
         $response = $this->getJson(route('tag.show', $tag));
         $response->assertUnauthorized();
     }
@@ -42,7 +42,7 @@ class AnonymousTest extends TestCase
     public function test_store_requires_authentication()
     {
         $data = Tag::factory()->make()->except(['id']);
-        
+
         $response = $this->postJson(route('tag.store'), $data);
         $response->assertUnauthorized();
     }
@@ -54,7 +54,7 @@ class AnonymousTest extends TestCase
     {
         $tag = Tag::factory()->create();
         $data = Tag::factory()->make()->except(['id']);
-        
+
         $response = $this->putJson(route('tag.update', $tag), $data);
         $response->assertUnauthorized();
     }
@@ -65,7 +65,7 @@ class AnonymousTest extends TestCase
     public function test_destroy_requires_authentication()
     {
         $tag = Tag::factory()->create();
-        
+
         $response = $this->deleteJson(route('tag.destroy', $tag));
         $response->assertUnauthorized();
     }

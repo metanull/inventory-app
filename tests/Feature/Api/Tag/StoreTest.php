@@ -50,7 +50,7 @@ class StoreTest extends TestCase
                 'description',
                 'created_at',
                 'updated_at',
-            ]
+            ],
         ]);
     }
 
@@ -107,7 +107,7 @@ class StoreTest extends TestCase
     public function test_store_accepts_nullable_backward_compatibility()
     {
         $data = Tag::factory()->make([
-            'backward_compatibility' => null
+            'backward_compatibility' => null,
         ])->except(['id']);
 
         $response = $this->postJson(route('tag.store'), $data);
@@ -140,7 +140,7 @@ class StoreTest extends TestCase
 
         $response->assertCreated();
         $response->assertJsonStructure(['data' => ['id']]);
-        
+
         $id = $response->json('data.id');
         $this->assertIsString($id);
         $this->assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $id);
@@ -153,7 +153,7 @@ class StoreTest extends TestCase
     {
         $existingTag = Tag::factory()->create();
         $data = Tag::factory()->make([
-            'internal_name' => $existingTag->internal_name
+            'internal_name' => $existingTag->internal_name,
         ])->except(['id']);
 
         $response = $this->postJson(route('tag.store'), $data);
