@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +25,20 @@ class Tag extends Model
     public function items(): BelongsToMany
     {
         return $this->belongsToMany(Item::class, 'tag_items');
+    }
+
+    /**
+     * Scope to get tags for a specific item.
+     *
+     * @param  string|Item  $item  The item ID or Item model instance
+     */
+    public function scopeForItem(Builder $query, $item): Builder
+    {
+        $itemId = $item instanceof Item ? $item->id : $item;
+
+        return $query->whereHas('items', function (Builder $query) use ($itemId) {
+            $query->where('items.id', $itemId);
+        });
     }
 
     /**
