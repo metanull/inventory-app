@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\TagResource;
+use App\Models\Item;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 
@@ -58,6 +59,16 @@ class TagController extends Controller
         $tag->refresh();
 
         return new TagResource($tag);
+    }
+
+    /**
+     * Get tags for a specific item.
+     */
+    public function forItem(Request $request, Item $item)
+    {
+        $tags = Tag::forItem($item)->get();
+
+        return TagResource::collection($tags);
     }
 
     /**

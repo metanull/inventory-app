@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ItemResource;
 use App\Models\Item;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
@@ -66,6 +67,50 @@ class ItemController extends Controller
         $item->load(['partner', 'country', 'project']);
 
         return new ItemResource($item);
+    }
+
+    /**
+     * Get items for a specific tag.
+     */
+    public function forTag(Request $request, Tag $tag)
+    {
+        $items = Item::forTag($tag)->with(['partner', 'country', 'project'])->get();
+
+        return ItemResource::collection($items);
+    }
+
+    /**
+     * Get items that have ALL of the specified tags (AND condition).
+     */
+    public function withAllTags(Request $request)
+    {
+        $validated = $request->validate([
+            'tags' => 'required|array|min:1',
+            'tags.*' => 'required|uuid|exists:tags,id',
+        ]);
+
+        $items = Item::withAllTags($validated['tags'])
+            ->with(['partner', 'country', 'project'])
+            ->get();
+
+        return ItemResource::collection($items);
+    }
+
+    /**
+     * Get items that have ANY of the specified tags (OR condition).
+     */
+    public function withAnyTags(Request $request)
+    {
+        $validated = $request->validate([
+            'tags' => 'required|array|min:1',
+            'tags.*' => 'required|uuid|exists:tags,id',
+        ]);
+
+        $items = Item::withAnyTags($validated['tags'])
+            ->with(['partner', 'country', 'project'])
+            ->get();
+
+        return ItemResource::collection($items);
     }
 
     /**

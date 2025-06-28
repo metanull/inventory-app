@@ -12,6 +12,7 @@ use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\TagItemController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -67,6 +68,14 @@ Route::resource('tag', TagController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 
+Route::get('tag/for-item/{item}', [TagController::class, 'forItem'])
+    ->name('tag.forItem')
+    ->middleware('auth:sanctum');
+
+Route::resource('tag-item', TagItemController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
 Route::resource('partner', PartnerController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
@@ -74,6 +83,18 @@ Route::resource('partner', PartnerController::class)->except([
 Route::resource('item', ItemController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
+
+Route::get('item/for-tag/{tag}', [ItemController::class, 'forTag'])
+    ->name('item.forTag')
+    ->middleware('auth:sanctum');
+
+Route::post('item/with-all-tags', [ItemController::class, 'withAllTags'])
+    ->name('item.withAllTags')
+    ->middleware('auth:sanctum');
+
+Route::post('item/with-any-tags', [ItemController::class, 'withAnyTags'])
+    ->name('item.withAnyTags')
+    ->middleware('auth:sanctum');
 
 Route::resource('picture', PictureController::class)->except([
     'create', 'edit',
