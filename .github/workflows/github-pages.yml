@@ -44,6 +44,38 @@ jobs:
           if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
             echo "gh-pages branch exists, checking it out..."
             git checkout -b gh-pages origin/gh-pages
+            
+            # Always update documentation files from main branch
+            git checkout main -- docs/_config.yml docs/Gemfile docs/_layouts/ docs/_includes/ docs/index.md docs/archive.md docs/api-documentation.md docs/swagger-ui.html docs/README.md || true
+            
+            # Copy updated files to root
+            if [ -f docs/_config.yml ]; then
+              cp docs/_config.yml _config.yml
+            fi
+            if [ -f docs/Gemfile ]; then
+              cp docs/Gemfile Gemfile
+            fi
+            if [ -d docs/_layouts ]; then
+              cp -r docs/_layouts/* _layouts/
+            fi
+            if [ -d docs/_includes ]; then
+              cp -r docs/_includes/* _includes/
+            fi
+            if [ -f docs/index.md ]; then
+              cp docs/index.md index.md
+            fi
+            if [ -f docs/archive.md ]; then
+              cp docs/archive.md archive.md
+            fi
+            if [ -f docs/api-documentation.md ]; then
+              cp docs/api-documentation.md api-documentation.md
+            fi
+            if [ -f docs/swagger-ui.html ]; then
+              cp docs/swagger-ui.html swagger-ui.html
+            fi
+            if [ -f docs/README.md ]; then
+              cp docs/README.md README.md
+            fi
           else
             echo "Creating new gh-pages branch..."
             gh_pages_exists=0
@@ -51,7 +83,7 @@ jobs:
             git rm -rf . || true
             
             # Copy Jekyll configuration and layouts from main
-            git checkout main -- docs/_config.yml docs/Gemfile docs/_layouts/ docs/index.md docs/archive.md docs/api-documentation.md docs/README.md || true
+            git checkout main -- docs/_config.yml docs/Gemfile docs/_layouts/ docs/_includes/ docs/index.md docs/archive.md docs/api-documentation.md docs/swagger-ui.html docs/README.md || true
             
             # Create basic structure for gh-pages
             mkdir -p _posts _layouts _includes
@@ -72,6 +104,12 @@ jobs:
             fi
             if [ -f docs/archive.md ]; then
               cp docs/archive.md archive.md
+            fi
+            if [ -f docs/api-documentation.md ]; then
+              cp docs/api-documentation.md api-documentation.md
+            fi
+            if [ -f docs/swagger-ui.html ]; then
+              cp docs/swagger-ui.html swagger-ui.html
             fi
             if [ -f docs/README.md ]; then
               cp docs/README.md README.md
