@@ -1,0 +1,4568 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "invetory-app",
+        "version": "0.0.1"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000/api"
+        }
+    ],
+    "security": [
+        {
+            "http": []
+        }
+    ],
+    "paths": {
+        "/available-image/{availableImage}/download": {
+            "get": {
+                "operationId": "available-image.download",
+                "summary": "Returns the file to the caller",
+                "tags": [
+                    "AvailableImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "availableImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The available image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Opt 1:   Broken (not on the default disk)\nreturn Storage::download($availableImage->path);\nOpt 2:   Works, but implies messing with the path field\n$name = basename($availableImage->path);\n$disk = config('localstorage.public.images.disk');\n$dir = trim(config('localstorage.public.images.directory'), '/');\nreturn Storage::disk($disk)->download($availableImage->path);\nOpt 3:   Works (as long as the path field is a relative path to the disk)\nreturn Storage::disk(config('localstorage.public.images.disk'))->download($availableImage->path);",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/available-image": {
+            "get": {
+                "operationId": "available-image.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "AvailableImage"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `AvailableImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/AvailableImageResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/available-image/{availableImage}": {
+            "get": {
+                "operationId": "available-image.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "AvailableImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "availableImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The available image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`AvailableImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/AvailableImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "available-image.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "AvailableImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "availableImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The available image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "comment": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`AvailableImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/AvailableImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "available-image.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "AvailableImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "availableImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The available image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/context/{context}/default": {
+            "patch": {
+                "operationId": "context.setDefault",
+                "summary": "Set a context as the default one",
+                "tags": [
+                    "Context"
+                ],
+                "parameters": [
+                    {
+                        "name": "context",
+                        "in": "path",
+                        "required": true,
+                        "description": "The context ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "is_default": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "is_default"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ContextResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ContextResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/context/default": {
+            "get": {
+                "operationId": "context.getDefault",
+                "summary": "Get the default context",
+                "tags": [
+                    "Context"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ContextResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ContextResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "No default context found"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/context": {
+            "get": {
+                "operationId": "context.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "Context"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `ContextResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ContextResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "context.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "Context"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "is_default": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "internal_name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ContextResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ContextResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/context/{context}": {
+            "get": {
+                "operationId": "context.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "Context"
+                ],
+                "parameters": [
+                    {
+                        "name": "context",
+                        "in": "path",
+                        "required": true,
+                        "description": "The context ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ContextResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ContextResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "context.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "Context"
+                ],
+                "parameters": [
+                    {
+                        "name": "context",
+                        "in": "path",
+                        "required": true,
+                        "description": "The context ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "is_default": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "internal_name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ContextResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ContextResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "context.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "Context"
+                ],
+                "parameters": [
+                    {
+                        "name": "context",
+                        "in": "path",
+                        "required": true,
+                        "description": "The context ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/country": {
+            "get": {
+                "operationId": "country.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "Country"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `CountryResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CountryResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "country.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "Country"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "minLength": 3,
+                                        "maxLength": 3
+                                    },
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "minLength": 2,
+                                        "maxLength": 2
+                                    }
+                                },
+                                "required": [
+                                    "id",
+                                    "internal_name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`CountryResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/CountryResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/country/{country}": {
+            "get": {
+                "operationId": "country.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "Country"
+                ],
+                "parameters": [
+                    {
+                        "name": "country",
+                        "in": "path",
+                        "required": true,
+                        "description": "The country ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`CountryResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/CountryResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "country.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "Country"
+                ],
+                "parameters": [
+                    {
+                        "name": "country",
+                        "in": "path",
+                        "required": true,
+                        "description": "The country ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "minLength": 2,
+                                        "maxLength": 2
+                                    }
+                                },
+                                "required": [
+                                    "internal_name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`CountryResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/CountryResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "country.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "Country"
+                ],
+                "parameters": [
+                    {
+                        "name": "country",
+                        "in": "path",
+                        "required": true,
+                        "description": "The country ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/detail": {
+            "get": {
+                "operationId": "detail.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "Detail"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `DetailResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/DetailResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "detail.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "Detail"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "item_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "item_id",
+                                    "internal_name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`DetailResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/DetailResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/detail/{detail}": {
+            "get": {
+                "operationId": "detail.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "Detail"
+                ],
+                "parameters": [
+                    {
+                        "name": "detail",
+                        "in": "path",
+                        "required": true,
+                        "description": "The detail ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`DetailResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/DetailResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "detail.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "Detail"
+                ],
+                "parameters": [
+                    {
+                        "name": "detail",
+                        "in": "path",
+                        "required": true,
+                        "description": "The detail ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "item_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "item_id",
+                                    "internal_name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`DetailResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/DetailResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "detail.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "Detail"
+                ],
+                "parameters": [
+                    {
+                        "name": "detail",
+                        "in": "path",
+                        "required": true,
+                        "description": "The detail ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/image-upload": {
+            "get": {
+                "operationId": "image-upload.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "ImageUpload"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `ImageUploadResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ImageUploadResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "image-upload.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "ImageUpload"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "contentMediaType": "application/octet-stream"
+                                    }
+                                },
+                                "required": [
+                                    "file"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ImageUploadResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ImageUploadResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/image-upload/{imageUpload}": {
+            "get": {
+                "operationId": "image-upload.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "ImageUpload"
+                ],
+                "parameters": [
+                    {
+                        "name": "imageUpload",
+                        "in": "path",
+                        "required": true,
+                        "description": "The image upload ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ImageUploadResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ImageUploadResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "image-upload.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "ImageUpload"
+                ],
+                "parameters": [
+                    {
+                        "name": "imageUpload",
+                        "in": "path",
+                        "required": true,
+                        "description": "The image upload ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/item": {
+            "get": {
+                "operationId": "item.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "Item"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `ItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ItemResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "item.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "Item"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "partner_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "object",
+                                            "monument"
+                                        ]
+                                    },
+                                    "country_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "minLength": 3,
+                                        "maxLength": 3
+                                    },
+                                    "project_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "internal_name",
+                                    "type"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/item/{item}": {
+            "get": {
+                "operationId": "item.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "Item"
+                ],
+                "parameters": [
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "item.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "Item"
+                ],
+                "parameters": [
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "partner_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "object",
+                                            "monument"
+                                        ]
+                                    },
+                                    "country_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "minLength": 3,
+                                        "maxLength": 3
+                                    },
+                                    "project_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "internal_name",
+                                    "type"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "item.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "Item"
+                ],
+                "parameters": [
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/item/for-tag/{tag}": {
+            "get": {
+                "operationId": "item.forTag",
+                "summary": "Get items for a specific tag",
+                "tags": [
+                    "Item"
+                ],
+                "parameters": [
+                    {
+                        "name": "tag",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tag ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `ItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ItemResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/item/with-all-tags": {
+            "post": {
+                "operationId": "item.withAllTags",
+                "summary": "Get items that have ALL of the specified tags (AND condition)",
+                "tags": [
+                    "Item"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tags": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "minItems": 1
+                                    }
+                                },
+                                "required": [
+                                    "tags"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Array of `ItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ItemResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/item/with-any-tags": {
+            "post": {
+                "operationId": "item.withAnyTags",
+                "summary": "Get items that have ANY of the specified tags (OR condition)",
+                "tags": [
+                    "Item"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tags": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "minItems": 1
+                                    }
+                                },
+                                "required": [
+                                    "tags"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Array of `ItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ItemResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/language/{language}/default": {
+            "patch": {
+                "operationId": "language.setDefault",
+                "summary": "Set a Language as the default one",
+                "tags": [
+                    "Language"
+                ],
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "path",
+                        "required": true,
+                        "description": "The language ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "is_default": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "is_default"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`LanguageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/LanguageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/language/default": {
+            "get": {
+                "operationId": "language.getDefault",
+                "summary": "Get the default Language",
+                "tags": [
+                    "Language"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`LanguageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/LanguageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "No default language found"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/language/english": {
+            "get": {
+                "operationId": "language.getEnglish",
+                "summary": "Get the english Language",
+                "tags": [
+                    "Language"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`LanguageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/LanguageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "No English language found"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/language": {
+            "get": {
+                "operationId": "language.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "Language"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `LanguageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/LanguageResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "language.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "Language"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "minLength": 3,
+                                        "maxLength": 3
+                                    },
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "minLength": 2,
+                                        "maxLength": 2
+                                    },
+                                    "is_default": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "id",
+                                    "internal_name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`LanguageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/LanguageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/language/{language}": {
+            "get": {
+                "operationId": "language.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "Language"
+                ],
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "path",
+                        "required": true,
+                        "description": "The language ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`LanguageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/LanguageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "language.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "Language"
+                ],
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "path",
+                        "required": true,
+                        "description": "The language ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "minLength": 2,
+                                        "maxLength": 2
+                                    },
+                                    "is_default": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "internal_name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`LanguageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/LanguageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "language.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "Language"
+                ],
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "path",
+                        "required": true,
+                        "description": "The language ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/mobile/acquire-token": {
+            "post": {
+                "operationId": "token.acquire",
+                "summary": "Acquire a token for the user",
+                "tags": [
+                    "MobileAppAuthentication"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "device_name": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "wipe_tokens": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "device_name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
+            }
+        },
+        "/mobile/wipe": {
+            "get": {
+                "operationId": "token.wipe",
+                "summary": "Revoke all the token for the current user",
+                "tags": [
+                    "MobileAppAuthentication"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/partner": {
+            "get": {
+                "operationId": "partner.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "Partner"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `PartnerResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/PartnerResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "partner.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "Partner"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "museum",
+                                            "institution",
+                                            "individual"
+                                        ]
+                                    },
+                                    "country_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "minLength": 3,
+                                        "maxLength": 3
+                                    }
+                                },
+                                "required": [
+                                    "internal_name",
+                                    "type"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`PartnerResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PartnerResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/partner/{partner}": {
+            "get": {
+                "operationId": "partner.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "Partner"
+                ],
+                "parameters": [
+                    {
+                        "name": "partner",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`PartnerResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PartnerResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "partner.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "Partner"
+                ],
+                "parameters": [
+                    {
+                        "name": "partner",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "museum",
+                                            "institution",
+                                            "individual"
+                                        ]
+                                    },
+                                    "country_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "minLength": 3,
+                                        "maxLength": 3
+                                    }
+                                },
+                                "required": [
+                                    "internal_name",
+                                    "type"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`PartnerResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PartnerResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "partner.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "Partner"
+                ],
+                "parameters": [
+                    {
+                        "name": "partner",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/picture": {
+            "get": {
+                "operationId": "picture.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "Picture"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `PictureResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/PictureResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "picture.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "Picture"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "contentMediaType": "application/octet-stream",
+                                        "maxLength": 16384
+                                    },
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "copyright_text": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "copyright_url": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uri"
+                                    }
+                                },
+                                "required": [
+                                    "file",
+                                    "internal_name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`PictureResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PictureResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/picture/{picture}": {
+            "get": {
+                "operationId": "picture.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "Picture"
+                ],
+                "parameters": [
+                    {
+                        "name": "picture",
+                        "in": "path",
+                        "required": true,
+                        "description": "The picture ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`PictureResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PictureResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "picture.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "Picture"
+                ],
+                "parameters": [
+                    {
+                        "name": "picture",
+                        "in": "path",
+                        "required": true,
+                        "description": "The picture ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "copyright_text": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "copyright_url": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uri"
+                                    }
+                                },
+                                "required": [
+                                    "internal_name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`PictureResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PictureResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "picture.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "Picture"
+                ],
+                "parameters": [
+                    {
+                        "name": "picture",
+                        "in": "path",
+                        "required": true,
+                        "description": "The picture ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/project/{project}/launched": {
+            "patch": {
+                "operationId": "project.setLaunched",
+                "summary": "Toggle Launched/not-launched on a project",
+                "tags": [
+                    "Project"
+                ],
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "required": true,
+                        "description": "The project ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "launch_date": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "date-time"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ProjectResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ProjectResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/project/{project}/enabled": {
+            "patch": {
+                "operationId": "project.setEnabled",
+                "summary": "Toggle Enable/disable on a project",
+                "tags": [
+                    "Project"
+                ],
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "required": true,
+                        "description": "The project ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "is_enabled": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "is_enabled"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ProjectResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ProjectResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/project/enabled": {
+            "get": {
+                "operationId": "project.enabled",
+                "summary": "Get all enabled projects (Enabled + launched)",
+                "tags": [
+                    "Project"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `ProjectResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ProjectResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/project": {
+            "get": {
+                "operationId": "project.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "Project"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `ProjectResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ProjectResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "project.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "Project"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "launch_date": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "date-time"
+                                    },
+                                    "is_launched": {
+                                        "type": "boolean"
+                                    },
+                                    "is_enabled": {
+                                        "type": "boolean"
+                                    },
+                                    "context_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "language_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "minLength": 3,
+                                        "maxLength": 3
+                                    }
+                                },
+                                "required": [
+                                    "internal_name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ProjectResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ProjectResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/project/{project}": {
+            "get": {
+                "operationId": "project.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "Project"
+                ],
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "required": true,
+                        "description": "The project ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ProjectResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ProjectResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "project.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "Project"
+                ],
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "required": true,
+                        "description": "The project ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "launch_date": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "date-time"
+                                    },
+                                    "is_launched": {
+                                        "type": "boolean"
+                                    },
+                                    "is_enabled": {
+                                        "type": "boolean"
+                                    },
+                                    "context_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "language_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "minLength": 3,
+                                        "maxLength": 3
+                                    }
+                                },
+                                "required": [
+                                    "internal_name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ProjectResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ProjectResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "project.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "Project"
+                ],
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "path",
+                        "required": true,
+                        "description": "The project ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/tag": {
+            "get": {
+                "operationId": "tag.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "Tag"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `TagResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/TagResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "tag.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "Tag"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "internal_name",
+                                    "description"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`TagResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/TagResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/tag/{tag}": {
+            "get": {
+                "operationId": "tag.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "Tag"
+                ],
+                "parameters": [
+                    {
+                        "name": "tag",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tag ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`TagResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/TagResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "tag.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "Tag"
+                ],
+                "parameters": [
+                    {
+                        "name": "tag",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tag ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "internal_name": {
+                                        "type": "string"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "internal_name",
+                                    "description"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`TagResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/TagResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "tag.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "Tag"
+                ],
+                "parameters": [
+                    {
+                        "name": "tag",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tag ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/tag/for-item/{item}": {
+            "get": {
+                "operationId": "tag.forItem",
+                "summary": "Get tags for a specific item",
+                "tags": [
+                    "Tag"
+                ],
+                "parameters": [
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `TagResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/TagResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/tag-item": {
+            "get": {
+                "operationId": "tag-item.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "TagItem"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `TagItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/TagItemResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "tag-item.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "TagItem"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tag_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "item_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "tag_id",
+                                    "item_id"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`TagItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/TagItemResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/tag-item/{tagItem}": {
+            "get": {
+                "operationId": "tag-item.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "TagItem"
+                ],
+                "parameters": [
+                    {
+                        "name": "tagItem",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tag item ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`TagItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/TagItemResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "tag-item.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "TagItem"
+                ],
+                "parameters": [
+                    {
+                        "name": "tagItem",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tag item ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tag_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "item_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "tag_id",
+                                    "item_id"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`TagItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/TagItemResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "tag-item.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "TagItem"
+                ],
+                "parameters": [
+                    {
+                        "name": "tagItem",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tag item ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "http": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        },
+        "schemas": {
+            "AvailableImageResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier of the picture (GUID)"
+                    },
+                    "path": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The path to the picture file"
+                    },
+                    "comment": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "A user defined comment associated with the file"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of creation"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of last modification"
+                    }
+                },
+                "required": [
+                    "id",
+                    "path",
+                    "comment",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "AvailableImageResource"
+            },
+            "ContextResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier of the context (GUID)"
+                    },
+                    "internal_name": {
+                        "type": "string",
+                        "description": "The name of the context, it shall only be used internally"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The legacy Id when this context corresponds to a legacy context from the MWNF3 database, nullable"
+                    },
+                    "is_default": {
+                        "type": "boolean",
+                        "description": "Indicates if this context is the default one. There is one single default context for the entire database."
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of creation"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of last modification"
+                    }
+                },
+                "required": [
+                    "id",
+                    "internal_name",
+                    "backward_compatibility",
+                    "is_default",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ContextResource"
+            },
+            "CountryResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier of the country (ISO 3166-1 alpha-3 code)"
+                    },
+                    "internal_name": {
+                        "type": "string",
+                        "description": "The name of the country, it shall only be used internally"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The legacy Id when this country corresponds to a legacy country from the MWNF3 database, nullable"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of creation"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of last modification"
+                    }
+                },
+                "required": [
+                    "id",
+                    "internal_name",
+                    "backward_compatibility",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "CountryResource"
+            },
+            "DetailResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier of the item (GUID)"
+                    },
+                    "internal_name": {
+                        "type": "string",
+                        "description": "The name of the item, it shall only be used internally"
+                    },
+                    "item": {
+                        "description": "The item this detail belongs to",
+                        "$ref": "#/components/schemas/ItemResource"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The legacy Id when this item corresponds to a legacy item from the MWNF3 database, nullable"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of creation"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of last modification"
+                    }
+                },
+                "required": [
+                    "id",
+                    "internal_name",
+                    "backward_compatibility",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "DetailResource"
+            },
+            "ImageUploadResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier of the picture (GUID)"
+                    },
+                    "path": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The path to the picture file"
+                    },
+                    "name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The original name of the uploaded file"
+                    },
+                    "extension": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The file extension of the uploaded file"
+                    },
+                    "mime_type": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The MIME type of the uploaded file"
+                    },
+                    "size": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "description": "The size of the uploaded file in bytes"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of creation"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of last modification"
+                    }
+                },
+                "required": [
+                    "id",
+                    "path",
+                    "name",
+                    "extension",
+                    "mime_type",
+                    "size",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ImageUploadResource"
+            },
+            "ItemResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier of the item (GUID)"
+                    },
+                    "internal_name": {
+                        "type": "string",
+                        "description": "The name of the item, it shall only be used internally"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The legacy Id when this item corresponds to a legacy item from the MWNF3 database, nullable"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "The type of the item, either 'object' or 'monument'"
+                    },
+                    "partner": {
+                        "description": "The partner owning the item",
+                        "$ref": "#/components/schemas/PartnerResource"
+                    },
+                    "project": {
+                        "description": "The project this item belongs to, nullable",
+                        "$ref": "#/components/schemas/ProjectResource"
+                    },
+                    "country": {
+                        "description": "The country this item is associated with, nullable",
+                        "$ref": "#/components/schemas/CountryResource"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of creation"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of last modification"
+                    }
+                },
+                "required": [
+                    "id",
+                    "internal_name",
+                    "backward_compatibility",
+                    "type",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ItemResource"
+            },
+            "LanguageResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier of the language (ISO 639-1 code)"
+                    },
+                    "internal_name": {
+                        "type": "string",
+                        "description": "The name of the language, it shall only be used internally"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The legacy Id when this language corresponds to a legacy language from the MWNF3 database, nullable"
+                    },
+                    "is_default": {
+                        "type": "boolean",
+                        "description": "Indicates if this language is the default one. There is one single default language for the entire database."
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of creation"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of last modification"
+                    }
+                },
+                "required": [
+                    "id",
+                    "internal_name",
+                    "backward_compatibility",
+                    "is_default",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "LanguageResource"
+            },
+            "PartnerResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier of the partner (GUID)"
+                    },
+                    "internal_name": {
+                        "type": "string",
+                        "description": "The name of the partner, it shall only be used internally"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The legacy Id when this partner corresponds to a legacy partner from the MWNF3 database, nullable"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "The type of the partner, either 'museum',  'institution' or 'individual'"
+                    },
+                    "country": {
+                        "description": "The country this partner is associated with, nullable",
+                        "$ref": "#/components/schemas/CountryResource"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of creation"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of last modification"
+                    }
+                },
+                "required": [
+                    "id",
+                    "internal_name",
+                    "backward_compatibility",
+                    "type",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "PartnerResource"
+            },
+            "PictureResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier of the picture (GUID)"
+                    },
+                    "internal_name": {
+                        "type": "string",
+                        "description": "The internal name of the picture"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The legacy Id when this picture corresponds to a legacy image from the MWNF3 database, nullable"
+                    },
+                    "path": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The path to the picture file"
+                    },
+                    "copyright_text": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The copyright text associated with the picture"
+                    },
+                    "copyright_url": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The URL for the copyright information"
+                    },
+                    "upload_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The original name of the uploaded file"
+                    },
+                    "upload_extension": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The file extension of the uploaded file"
+                    },
+                    "upload_mime_type": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The MIME type of the uploaded file"
+                    },
+                    "upload_size": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "description": "The size of the uploaded file in bytes"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of creation"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of last modification"
+                    }
+                },
+                "required": [
+                    "id",
+                    "internal_name",
+                    "backward_compatibility",
+                    "path",
+                    "copyright_text",
+                    "copyright_url",
+                    "upload_name",
+                    "upload_extension",
+                    "upload_mime_type",
+                    "upload_size",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "PictureResource"
+            },
+            "ProjectResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier of the project (GUID)"
+                    },
+                    "internal_name": {
+                        "type": "string",
+                        "description": "The name of the project, it shall only be used internally"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The legacy Id when this project corresponds to a legacy project from the MWNF3 database, nullable"
+                    },
+                    "launch_date": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Launch date of the project, nullable"
+                    },
+                    "is_launched": {
+                        "type": "boolean",
+                        "description": "Indicates if the project has been launched already"
+                    },
+                    "is_enabled": {
+                        "type": "boolean",
+                        "description": "Indicates if the project is enabled (active)"
+                    },
+                    "context": {
+                        "description": "The default context used within the project",
+                        "$ref": "#/components/schemas/ContextResource"
+                    },
+                    "language": {
+                        "description": "The default language used within the project",
+                        "$ref": "#/components/schemas/LanguageResource"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of creation"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of last modification"
+                    }
+                },
+                "required": [
+                    "id",
+                    "internal_name",
+                    "backward_compatibility",
+                    "launch_date",
+                    "is_launched",
+                    "is_enabled",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ProjectResource"
+            },
+            "TagItemResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier of the tag-item relationship (GUID)"
+                    },
+                    "tag_id": {
+                        "type": "string",
+                        "description": "The tag ID associated with this relationship"
+                    },
+                    "item_id": {
+                        "type": "string",
+                        "description": "The item ID associated with this relationship"
+                    },
+                    "tag": {
+                        "description": "The associated tag resource",
+                        "$ref": "#/components/schemas/TagResource"
+                    },
+                    "item": {
+                        "description": "The associated item resource",
+                        "$ref": "#/components/schemas/ItemResource"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of creation"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of last modification"
+                    }
+                },
+                "required": [
+                    "id",
+                    "tag_id",
+                    "item_id",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "TagItemResource"
+            },
+            "TagResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier of the tag (GUID)"
+                    },
+                    "internal_name": {
+                        "type": "string",
+                        "description": "The name of the tag, it shall only be used internally"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The legacy Id when this tag corresponds to a legacy tag from the previous database, nullable"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "The description of the tag"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of creation"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Date of last modification"
+                    }
+                },
+                "required": [
+                    "id",
+                    "internal_name",
+                    "backward_compatibility",
+                    "description",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "TagResource"
+            }
+        },
+        "responses": {
+            "ValidationException": {
+                "description": "Validation error",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Errors overview."
+                                },
+                                "errors": {
+                                    "type": "object",
+                                    "description": "A detailed description of each field that failed validation.",
+                                    "additionalProperties": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "required": [
+                                "message",
+                                "errors"
+                            ]
+                        }
+                    }
+                }
+            },
+            "ModelNotFoundException": {
+                "description": "Not found",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            },
+            "AuthenticationException": {
+                "description": "Unauthenticated",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
