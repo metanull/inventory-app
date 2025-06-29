@@ -20,7 +20,7 @@ class MobileAppAuthenticationController extends Controller
             'email' => 'required|email',
             'password' => 'required|string',
             'device_name' => 'required|string|max:255',
-            'wipe_tokens' => 'boolean|default:false',
+            'wipe_tokens' => 'sometimes|boolean',
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -29,7 +29,7 @@ class MobileAppAuthenticationController extends Controller
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-        if ($request->wipe_tokens) {
+        if ($request->boolean('wipe_tokens', false)) {
             $user->tokens()->delete();
         }
 

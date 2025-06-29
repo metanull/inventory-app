@@ -21,4 +21,7 @@ yarn-error.log
 
 # Generated documentation files
 REVIEW.md
+PR-DESCRIPTION.md
+ISSUE-DESCRIPTION.md
+COMMIT-MESSAGE.md
 *.report.md

@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Mobile Authentication Test Coverage**: Comprehensive test suite for MobileAppAuthenticationController
+  - **AnonymousTest**: Tests for unauthenticated access scenarios
+  - **AcquireTokenTest**: 12 test cases covering token acquisition with validation, authentication, and edge cases
+  - **WipeTokensTest**: Tests for token wiping functionality
+  - **Complete Coverage**: 16 tests total with 42 assertions ensuring API reliability
+
+### Fixed
+- **MobileAppAuthenticationController HTTP 500 Error**: Fixed critical validation error preventing mobile authentication
+  - Resolved invalid Laravel validation rule `'wipe_tokens' => 'boolean|default:false'`
+  - Implemented proper validation using `'wipe_tokens' => 'sometimes|boolean'`
+  - Enhanced boolean parameter handling with `$request->boolean('wipe_tokens', false)`
+  - Prevented "Method Illuminate\Validation\Validator::validateDefault does not exist" exception
+
+### Added
 - **Tag Management System**: Complete tagging functionality for content organization
   - **Tag Model**: New Tag model with full CRUD operations, factory, seeder, and comprehensive test suite
   - **TagItem Pivot Model**: Many-to-many relationship management between Tags and Items
