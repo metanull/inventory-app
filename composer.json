@@ -107,11 +107,11 @@
             "@php artisan scramble:export --path=docs/_openapi/api.json"
         ],
         "ci-before-pull-request": [
+            "@composer ci-openapi-doc",
             "@composer ci-assert-no-changes",
             "@composer ci-lint",
             "@composer ci-audit",
-            "@composer ci-test",
-            "@composer ci-openapi-doc"
+            "@composer ci-test"
         ],
 
         "docs-serve": [
