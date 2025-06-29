@@ -23,8 +23,11 @@ permalink: /swagger-ui.html
     <script src="https://unpkg.com/swagger-ui-dist@5.10.3/swagger-ui-standalone-preset.js"></script>
     <script>
         window.onload = function() {
+            // Construct the correct API URL based on the current location
+            const apiJsonUrl = '../api.json';
+            
             const ui = SwaggerUIBundle({
-                url: "{{ '/api.json' | relative_url }}",
+                url: apiJsonUrl,
                 dom_id: "#swagger-ui",
                 deepLinking: true,
                 presets: [ SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset ],
@@ -35,7 +38,13 @@ permalink: /swagger-ui.html
                 docExpansion: "list",
                 filter: true,
                 defaultModelsExpandDepth: 1,
-                defaultModelExpandDepth: 1
+                defaultModelExpandDepth: 1,
+                onComplete: function() {
+                    console.log('Swagger UI loaded successfully');
+                },
+                onFailure: function(err) {
+                    console.error('Swagger UI failed to load:', err);
+                }
             });
         };
     </script>
