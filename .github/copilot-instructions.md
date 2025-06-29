@@ -7,6 +7,10 @@ description: |
 # Copilot instructions for PHP files
 
 ## Context
+- I'm using a Windows workstation.
+  - The shell environment is PowerShell.
+  - The code editor is Visual Studio Code.
+  - The code editor has the GitHub Copilot extension installed.
 - This is a PHP application
   - It requires PHP 8.2 or higher.
   - It uses the Laravel Framework
@@ -159,8 +163,9 @@ description: |
     - `composer ci-test` - runs the tests in the CI environment
     - `composer ci-reset` - resets the database in the CI environment
     - `composer ci-seed` - seeds the database in the CI environment
+    - `composer ci-openapi-doc` - create an api.json file in `./docs/_openapi` directory
     - `composer ci-assert-no-changes` - asserts that there are no changes in the local repository
-    - `composer ci-before-pull-request` - runs the `ci-assert-no-changes`, `ci-audit`, `ci-lint`, `ci-test` to verify code before a pull request is created
+    - `composer ci-before-pull-request` - runs the `ci-openapi-doc`,`ci-assert-no-changes`, `ci-audit`, `ci-lint`, `ci-test` to verify code before a pull request is created
   - The repository uses GitHub Actions for CI/CD.
   - It is deployed on a windows server.
     - It uses powershell to run commands.

@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Tag Management System**: Complete tagging functionality for content organization
+  - **Tag Model**: New Tag model with full CRUD operations, factory, seeder, and comprehensive test suite
+  - **TagItem Pivot Model**: Many-to-many relationship management between Tags and Items
+  - **Enhanced API Endpoints**: Tag-specific endpoints for item-tag relationship management
+  - **Scope Methods**: Added tag-based scopes for efficient querying and filtering
+  - **Complete Test Coverage**: 40+ new tests covering all tag functionality
+- **API Documentation Consolidation**: Enhanced GitHub Pages integration
+  - Consolidated GitHub Pages documentation workflow
+  - Improved API documentation generation and deployment
+  - Enhanced Swagger UI integration with better error handling
+
+### Changed
+- **Test Suite Enhancement**: Expanded from 453 to 560 tests (1598 assertions)
+  - Added comprehensive Tag and TagItem test coverage
+  - Enhanced Item scope testing with tag relationships
+  - Improved overall test reliability and coverage
+- **Git History Organization**: Cleaned and reorganized git history for better maintainability
+  - Consolidated GitHub Pages commits into dedicated feature branch
+  - Preserved essential Tag functionality commits in main branch
+  - Improved linear git history following repository standards
+
 ### Fixed
 - **HTTP 503 Test Errors**: Resolved persistent HTTP 503 errors in test suite caused by real HTTP requests during testing
   - Enhanced `LoremPicsumImageProvider` to generate valid PNG images in testing environment
@@ -31,16 +53,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Test Suite Performance**: Test execution time improved to ~5.6 seconds with parallel execution
-- **Test Coverage**: Increased total tests from 442 to 453 passing tests (1163 assertions)
+- **Test Coverage**: Increased total tests from 442 to 560 passing tests (1598 assertions)
 - **Test Reliability**: All tests now pass consistently without external dependencies
 - Reordered GitHub Actions workflow to build assets before running tests
 - Updated all Blade views (welcome, app layout, guest layout) with conditional Vite loading
 - Enhanced phpunit.xml configuration with VITE_ENABLED=false for testing environment
 
+### Added
+- **GitHub Pages Blog Generation**: Automated Jekyll-based documentation system
+  - CI/CD workflow automatically generates blog posts for every commit to main branch
+  - Jekyll site with responsive minima theme deployed to GitHub Pages
+  - Custom layouts with commit navigation, author information, and GitHub links
+  - Archive page with searchable commit history and development timeline
+  - No local Ruby/Jekyll installation required - fully CI/CD driven
+  - Live documentation at: https://metanull.github.io/inventory-app
+- **Documentation Scripts**: Optional composer scripts for local Jekyll development
+  - `composer docs-install` - Install Jekyll dependencies locally
+  - `composer docs-build` - Build Jekyll site locally
+  - `composer docs-serve` - Serve site with live reload for development
+
 ## [2.4.0] - 2025-06-27
 
 ### Added
-- **Comprehensive Test Suite**: 442 tests covering all API endpoints and functionality
+- **Comprehensive Test Suite**: 560 tests covering all API endpoints and functionality
 - **Unit Tests**: Added comprehensive unit tests for all factories and model validation
 - **Feature Tests**: Complete API endpoint testing with proper authentication and validation
 - **Test Structure**: Organized tests following Laravel best practices with separate directories for each model
@@ -238,7 +273,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Code Quality
 - **PSR-12 Compliance**: All code follows PSR-12 coding standards
 - **Laravel Pint**: Automated code formatting and style checking
-- **Comprehensive Testing**: 442+ tests covering all functionality
+- **Comprehensive Testing**: 560+ tests covering all functionality
 - **Type Safety**: Proper type hints and return types throughout codebase
 
 ### Architecture Principles
