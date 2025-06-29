@@ -40,11 +40,13 @@ jobs:
           git config --local core.eol lf
           
           # Create or checkout gh-pages branch
+          gh_pages_exists=1
           if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
             echo "gh-pages branch exists, checking it out..."
             git checkout -b gh-pages origin/gh-pages
           else
             echo "Creating new gh-pages branch..."
+            gh_pages_exists=0
             git checkout --orphan gh-pages
             git rm -rf . || true
             
@@ -82,6 +84,11 @@ jobs:
           # Ensure _posts directory exists
           mkdir -p _posts
           
+          # Copy OpenAPI documentation from main branch
+          echo "Copying OpenAPI documentation from main branch..."
+          mkdir -p docs/_openapi
+          git checkout main -- docs/_openapi/api.json 2>/dev/null || echo "No OpenAPI documentation found in main branch"
+          
           # Function to extract GitHub references from text
           extract_github_refs() {
             local text="$1"
@@ -91,7 +98,13 @@ jobs:
           }
           
           # Determine date range for processing
-          if [ "${{ github.event_name }}" = "push" ]; then
+          if [ "$gh_pages_exists" = "0" ]; then
+            # For new gh-pages branch, process all commits since the beginning
+            echo "Processing all commits since repository creation (new gh-pages branch)"
+            start_date=$(git log main --reverse --format="%ad" --date=short | head -1)
+            end_date=$(date '+%Y-%m-%d')
+            echo "Processing commits from repository start: $start_date to $end_date"
+          elif [ "${{ github.event_name }}" = "push" ]; then
             # For push events, process today and yesterday (in case of late commits)
             end_date=$(date '+%Y-%m-%d')
             start_date=$(date -d '1 day ago' '+%Y-%m-%d')
