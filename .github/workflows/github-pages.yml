@@ -89,6 +89,82 @@ jobs:
           mkdir -p docs/_openapi
           git checkout main -- docs/_openapi/api.json 2>/dev/null || echo "No OpenAPI documentation found in main branch"
           
+          # Create Swagger UI page for OpenAPI documentation
+          echo "Setting up Swagger UI for OpenAPI documentation..."
+          mkdir -p api-docs
+          
+          # Create Swagger UI HTML file
+          echo '<!DOCTYPE html>' > api-docs/index.html
+          echo '<html lang="en">' >> api-docs/index.html
+          echo '<head>' >> api-docs/index.html
+          echo '    <meta charset="UTF-8">' >> api-docs/index.html
+          echo '    <meta name="viewport" content="width=device-width, initial-scale=1.0">' >> api-docs/index.html
+          echo '    <title>Inventory Management API Documentation</title>' >> api-docs/index.html
+          echo '    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.10.3/swagger-ui.css" />' >> api-docs/index.html
+          echo '    <style>' >> api-docs/index.html
+          echo '        html { box-sizing: border-box; overflow: -moz-scrollbars-vertical; overflow-y: scroll; }' >> api-docs/index.html
+          echo '        *, *:before, *:after { box-sizing: inherit; }' >> api-docs/index.html
+          echo '        body { margin:0; background: #fafafa; }' >> api-docs/index.html
+          echo '        .swagger-ui .topbar { background-color: #2c3e50; }' >> api-docs/index.html
+          echo '        .swagger-ui .topbar .download-url-wrapper { display: none; }' >> api-docs/index.html
+          echo '    </style>' >> api-docs/index.html
+          echo '</head>' >> api-docs/index.html
+          echo '<body>' >> api-docs/index.html
+          echo '    <div id="swagger-ui"></div>' >> api-docs/index.html
+          echo '    <script src="https://unpkg.com/swagger-ui-dist@5.10.3/swagger-ui-bundle.js"></script>' >> api-docs/index.html
+          echo '    <script src="https://unpkg.com/swagger-ui-dist@5.10.3/swagger-ui-standalone-preset.js"></script>' >> api-docs/index.html
+          echo '    <script>' >> api-docs/index.html
+          echo '        window.onload = function() {' >> api-docs/index.html
+          echo '            const ui = SwaggerUIBundle({' >> api-docs/index.html
+          echo '                url: "../docs/_openapi/api.json",' >> api-docs/index.html
+          echo '                dom_id: "#swagger-ui",' >> api-docs/index.html
+          echo '                deepLinking: true,' >> api-docs/index.html
+          echo '                presets: [ SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset ],' >> api-docs/index.html
+          echo '                plugins: [ SwaggerUIBundle.plugins.DownloadUrl ],' >> api-docs/index.html
+          echo '                layout: "StandaloneLayout",' >> api-docs/index.html
+          echo '                validatorUrl: null,' >> api-docs/index.html
+          echo '                tryItOutEnabled: true,' >> api-docs/index.html
+          echo '                docExpansion: "list",' >> api-docs/index.html
+          echo '                filter: true,' >> api-docs/index.html
+          echo '                defaultModelsExpandDepth: 1,' >> api-docs/index.html
+          echo '                defaultModelExpandDepth: 1' >> api-docs/index.html
+          echo '            });' >> api-docs/index.html
+          echo '        };' >> api-docs/index.html
+          echo '    </script>' >> api-docs/index.html
+          echo '</body>' >> api-docs/index.html
+          echo '</html>' >> api-docs/index.html
+          
+          # Create API documentation markdown page
+          echo '---' > api-documentation.md
+          echo 'layout: default' >> api-documentation.md
+          echo 'title: API Documentation' >> api-documentation.md
+          echo 'permalink: /api-documentation/' >> api-documentation.md
+          echo '---' >> api-documentation.md
+          echo '' >> api-documentation.md
+          echo '# API Documentation' >> api-documentation.md
+          echo '' >> api-documentation.md
+          echo 'This page provides interactive documentation for the Inventory Management API using Swagger UI.' >> api-documentation.md
+          echo '' >> api-documentation.md
+          echo '## Quick Links' >> api-documentation.md
+          echo '' >> api-documentation.md
+          echo '- [Download OpenAPI JSON Specification]({{ "/docs/_openapi/api.json" | relative_url }})' >> api-documentation.md
+          echo '- [Interactive API Documentation (Swagger UI)]({{ "/api-docs/" | relative_url }})' >> api-documentation.md
+          echo '' >> api-documentation.md
+          echo '## Interactive Documentation' >> api-documentation.md
+          echo '' >> api-documentation.md
+          echo '<iframe src="{{ "/api-docs/" | relative_url }}" width="100%" height="800px" frameborder="0" style="border: 1px solid #ddd; border-radius: 4px;"></iframe>' >> api-documentation.md
+          echo '' >> api-documentation.md
+          echo '## About the API' >> api-documentation.md
+          echo '' >> api-documentation.md
+          echo 'The Inventory Management API provides RESTful endpoints for managing museum inventory data. This documentation is automatically generated from the OpenAPI specification and updated with each deployment.' >> api-documentation.md
+          echo '' >> api-documentation.md
+          echo '### Features' >> api-documentation.md
+          echo '' >> api-documentation.md
+          echo '- Interactive API testing directly from the documentation' >> api-documentation.md
+          echo '- Detailed request/response examples' >> api-documentation.md
+          echo '- Schema definitions and validation rules' >> api-documentation.md
+          echo '- Authentication and authorization information' >> api-documentation.md
+          
           # Function to extract GitHub references from text
           extract_github_refs() {
             local text="$1"
