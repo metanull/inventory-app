@@ -82,6 +82,16 @@ All other models use UUID primary keys for optimal scalability and system integr
 - Flexible schema for additional item properties
 - JSON-based storage for complex data structures
 
+**Tag** 🏷️ - Content tagging and categorization system
+- Flexible tagging system for items
+- Supports hierarchical and multi-dimensional categorization
+- Many-to-many relationships with Items via TagItem pivot model
+
+**TagItem** 🔗 - Manages many-to-many relationships between Tags and Items
+- Pivot model for Tag-Item associations
+- Enables complex tagging scenarios and reporting
+- Supports tag-based filtering and organization
+
 **ImageUpload** 📤 - Upload tracking and processing status
 - Monitors image processing workflows
 - Tracks upload success/failure states
@@ -127,6 +137,12 @@ GET    /api/project/enabled           # Get all enabled projects
 PATCH  /api/project/{id}/launched     # Mark project as launched
 PATCH  /api/project/{id}/enabled      # Enable/disable project
 
+# Tag Management
+GET    /api/item/{id}/tags            # Get all tags for an item
+GET    /api/tag/{id}/items            # Get all items with a specific tag
+POST   /api/tag-item                  # Create tag-item relationship
+DELETE /api/tag-item/{id}             # Remove tag-item relationship
+
 # Specialized Access
 GET    /api/language/english          # Get English language specifically
 ```
@@ -138,7 +154,7 @@ GET    /api/language/english          # Get English language specifically
 - **Storage Flexibility** - Support for local and cloud storage (S3)
 
 #### 🧪 Comprehensive Testing
-- **453+ Tests** - Complete test coverage across all functionality with 1163 assertions
+- **560+ Tests** - Complete test coverage across all functionality with 1598 assertions
 - **Unit Tests** - Model validation, factory testing, and business logic validation
 - **Feature Tests** - Full API endpoint testing with authentication and authorization
 - **Integration Tests** - Cross-model relationship and workflow validation
@@ -170,6 +186,8 @@ The API provides full REST functionality for all models:
 | **Partners** | Standard CRUD + country relationships | Institution management |
 | **Projects** | Standard CRUD + launch/enable controls | Project lifecycle management |
 | **Items** | Standard CRUD + complex relationships | Central inventory management |
+| **Tags** | Standard CRUD + relationship management | Flexible content tagging |  
+| **TagItems** | Relationship CRUD + pivot operations | Tag-Item association management |
 | **Pictures** | Standard CRUD + upload processing | Event-driven image processing |
 | **Details** | Standard CRUD + metadata management | Flexible schema support |
 
@@ -238,15 +256,15 @@ Once running, access the interactive API documentation at:
 The application features a robust and comprehensive test suite designed for reliability and performance:
 
 #### Test Suite Overview
-- **453 Tests** - Complete coverage across all API endpoints and functionality
-- **1163 Assertions** - Thorough validation of application behavior
+- **560 Tests** - Complete coverage across all API endpoints and functionality
+- **1598 Assertions** - Thorough validation of application behavior
 - **~5.6 seconds** - Fast execution time with parallel processing
 - **100% Reliability** - All tests pass consistently without external dependencies
 
 #### Test Categories
 ```bash
 # Complete test suite
-php artisan test                    # All 453 tests
+php artisan test                    # All 560 tests
 
 # Parallel execution for CI/CD
 php artisan test --parallel         # Optimized for faster execution
@@ -327,7 +345,7 @@ SESSION_SECURE_COOKIE=true
 
 The project includes a comprehensive **GitHub Actions** workflow for:
 
-- ✅ **Automated Testing** - 453+ tests with 1163 assertions, ~5.6s execution time
+- ✅ **Automated Testing** - 560+ tests with 1598 assertions, ~5.6s execution time
 - ✅ **Code Quality Checks** - Laravel Pint formatting validation
 - ✅ **Security Scanning** - Composer audit and CodeQL analysis
 - ✅ **Dependency Updates** - Automated Dependabot integration
