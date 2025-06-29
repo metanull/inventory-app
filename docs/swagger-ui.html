@@ -24,16 +24,10 @@ permalink: /swagger-ui.html
     <script>
         window.onload = function() {
             // Construct the correct API URL based on the current location
-            const baseUrl = window.location.origin + '/inventory-app';
-            const apiUrl = baseUrl + '/api.json';
-            
-            // Debug information (remove after testing)
-            console.log('Current location:', window.location.href);
-            console.log('Base URL:', baseUrl);
-            console.log('API URL:', apiUrl);
+            const apiJsonUrl = '../api.json';
             
             const ui = SwaggerUIBundle({
-                url: apiUrl,
+                url: apiJsonUrl,
                 dom_id: "#swagger-ui",
                 deepLinking: true,
                 presets: [ SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset ],
