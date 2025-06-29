@@ -51,7 +51,7 @@ jobs:
             git rm -rf . || true
             
             # Copy Jekyll configuration and layouts from main
-            git checkout main -- docs/_config.yml docs/Gemfile docs/_layouts/ docs/index.md docs/archive.md docs/README.md || true
+            git checkout main -- docs/_config.yml docs/Gemfile docs/_layouts/ docs/index.md docs/archive.md docs/api-documentation.md docs/README.md || true
             
             # Create basic structure for gh-pages
             mkdir -p _posts _layouts _includes
