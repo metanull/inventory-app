@@ -62,3 +62,7 @@ exclude:
   - vendor/gems/
   - vendor/ruby/
   - README.md
+
+# Include additional files that Jekyll should process
+include:
+  - api.json
