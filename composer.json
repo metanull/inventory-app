@@ -102,13 +102,34 @@
         "ci-print-changes": [
             "git status --porcelain"
         ],
+        "ci-openapi-doc": [
+            "@php -r \"if (!is_dir('docs/_openapi')) { mkdir('docs/_openapi', 0755, true); }\"",
+            "@php artisan scramble:export --path=docs/_openapi/api.json"
+        ],
         "ci-before-pull-request": [
+            "@composer ci-openapi-doc",
             "@composer ci-assert-no-changes",
             "@composer ci-lint",
             "@composer ci-audit",
             "@composer ci-test"
-        ]
+        ],
 
+        "docs-serve": [
+            "echo 'Starting Jekyll development server...'",
+            "echo 'Note: This requires Ruby and Jekyll to be installed locally'",
+            "echo 'Visit: http://localhost:4000/inventory-app'",
+            "cd docs && bundle exec jekyll serve --baseurl '/inventory-app' --livereload"
+        ],
+        "docs-build": [
+            "echo 'Building Jekyll site locally...'",
+            "echo 'Note: This requires Ruby and Jekyll to be installed locally'",
+            "cd docs && bundle exec jekyll build --baseurl '/inventory-app'"
+        ],
+        "docs-install": [
+            "echo 'Installing Jekyll dependencies...'",
+            "echo 'Note: This requires Ruby and Bundler to be installed locally'",
+            "cd docs && bundle install"
+        ]
     },
     "extra": {
         "laravel": {

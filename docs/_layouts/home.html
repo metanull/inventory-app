@@ -1,0 +1,153 @@
+---
+layout: default
+---
+
+<div class="home">
+  {{ content }}
+
+  {% assign posts = site.posts | sort: 'date' | reverse %}
+  {%- if posts.size > 0 -%}
+    <h2 class="post-list-heading">{{ page.list_title | default: "Recent Daily Summaries" }}</h2>
+    <ul class="post-list">
+      {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
+      {%- for post in posts limit: 3 -%}
+      <li>
+        <div class="post-meta">
+          <span class="post-date">{{ post.date | date: date_format }}</span>
+          {%- if post.commit_count -%}
+            <span class="commit-count">{{ post.commit_count }} commit{{ post.commit_count | pluralize: "", "s" }}</span>
+          {%- endif -%}
+          {%- if post.author -%}
+            <span class="post-author">by {{ post.author }}</span>
+          {%- endif -%}
+          {%- if post.github_refs and post.github_refs.size > 0 -%}
+            <span class="github-refs">
+              {%- for ref in post.github_refs -%}
+                <a href="https://github.com/{{ site.repository }}/issues/{{ ref }}" target="_blank" class="issue-ref">#{{ ref }}</a>
+              {%- endfor -%}
+            </span>
+          {%- endif -%}
+        </div>
+        <h3>
+          <a class="post-link" href="{{ post.url | relative_url }}">
+            {{ post.title | escape }}
+          </a>
+        </h3>
+        {%- if site.show_excerpts -%}
+          <div class="post-excerpt">
+            {{ post.excerpt | strip_html | truncatewords: 30 }}
+          </div>
+        {%- endif -%}
+      </li>
+      {%- endfor -%}
+    </ul>
+
+    {%- if posts.size > 10 -%}
+      <p class="rss-subscribe">
+        <a href="{{ '/archive' | relative_url }}">View all daily summaries →</a>
+      </p>
+    {%- endif -%}
+
+    <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | relative_url }}">via RSS</a></p>
+  {%- endif -%}
+
+</div>
+
+<style>
+.post-list {
+  list-style: none;
+  padding: 0;
+}
+
+.post-list > li {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  background-color: #fafbfc;
+}
+
+.post-meta {
+  font-size: 0.9rem;
+  color: #586069;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.commit-count {
+  background-color: #f1f3f4;
+  color: #0366d6;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.commit-hash {
+  color: #0366d6;
+  text-decoration: none;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+.commit-hash:hover {
+  text-decoration: underline;
+}
+
+.github-refs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.issue-ref {
+  background-color: #e1f5fe;
+  color: #0366d6;
+  padding: 0.2rem 0.4rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.issue-ref:hover {
+  background-color: #b3e5fc;
+  text-decoration: none;
+}
+
+.post-author {
+  font-style: italic;
+}
+
+.post-link {
+  color: #0366d6;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.post-link:hover {
+  text-decoration: underline;
+}
+
+.post-excerpt {
+  margin-top: 0.5rem;
+  color: #586069;
+  line-height: 1.5;
+}
+
+.rss-subscribe {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+}
+
+.rss-subscribe a {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.rss-subscribe a:hover {
+  text-decoration: underline;
+}
+</style>

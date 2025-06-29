@@ -1,16 +1,68 @@
-title: Inventory-App
-description: The Inventory Management API (inventory-app) is a RESTful API designed to manage the content of the Museum With No Frontiers' inventory database.
-#show_downloads: true
-#google_analytics:
-#theme: jekyll-theme-leap-day
+title: Inventory Management API
+description: >-
+  The Inventory Management API (inventory-app) is a RESTful API designed to manage 
+  the content of the Museum With No Frontiers' inventory database. This blog tracks 
+  the development progress through automated daily summaries of commits and related GitHub activity.
 
-lsi: false
-safe: true
-source: gh-pages
-incremental: false
+url: "https://metanull.github.io"
+baseurl: "/inventory-app"
+
+# Build settings
+markdown: kramdown
 highlighter: rouge
-gist:
-  noscript: false
-kramdown:
-  math_engine: mathjax
-  syntax_highlighter: rouge
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Jekyll settings
+permalink: /:categories/:year/:month/:day/:title/
+timezone: UTC
+future: false
+safe: true
+incremental: false
+
+# Pagination
+paginate: 10
+paginate_path: "/page:num/"
+
+# Collections
+collections:
+  posts:
+    output: true
+    permalink: /:collection/:year/:month/:day/:title/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      author: "Development Team"
+      show_excerpts: true
+
+# Social links
+github_username: metanull
+repository: metanull/inventory-app
+
+# SEO
+author:
+  name: Pascal Havelange
+  email: "havelangep [at] hotmail [dot] com"
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - README.md
+
+# Include additional files that Jekyll should process
+include:
+  - api.json

@@ -1,6 +1,6 @@
 # Inventory Management API
 
-[![CodeQL](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql) [![Laravel](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml) [![Dependabot Updates](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates)
+[![CodeQL](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql) [![Composer+Phpunit+Pint](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml) [![Dependabot](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates)[![GitHub Pages](https://github.com/metanull/inventory-app/actions/workflows/github-pages.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-pages.yml)
 
 The **Inventory Management API** (inventory-app) is a RESTful API designed to manage the content of the Museum With No Frontiers' inventory database. This application serves as the management layer in a modern N-tier architecture, replacing legacy systems with a scalable, maintainable, and secure solution.
 
@@ -332,6 +332,25 @@ The project includes a comprehensive **GitHub Actions** workflow for:
 - ✅ **Security Scanning** - Composer audit and CodeQL analysis
 - ✅ **Dependency Updates** - Automated Dependabot integration
 - ✅ **Build Verification** - Asset compilation and validation
+
+### Documentation & GitHub Pages 📚
+
+The project automatically generates and maintains comprehensive documentation through **GitHub Pages**:
+
+- 🌐 **Live Documentation**: [https://metanull.github.io/inventory-app](https://metanull.github.io/inventory-app)
+- 📝 **Automated Blog Posts** - Every commit to `main` generates a detailed blog post
+- 🔄 **CI/CD Integration** - Jekyll builds and deploys automatically
+- 📊 **Commit Tracking** - Complete development history with diff statistics
+- 🎨 **Responsive Design** - Clean, mobile-friendly interface with search and navigation
+
+The documentation includes:
+- Development progress tracking through commit-based blog posts
+- Code changes and statistics for each commit
+- Author information and commit timestamps
+- Links to GitHub commits and pull requests
+- Searchable archive of all development activities
+
+> **Note**: GitHub Pages generation is fully automated - no local Ruby or Jekyll installation required!
 
 ### Performance Considerations
 
