@@ -19,6 +19,8 @@
         <div class="trigger">
           <a class="page-link" href="{{ "/" | relative_url }}">Home</a>
           <a class="page-link" href="{{ "/archive" | relative_url }}">Archive</a>
+          <a class="page-link" href="{{ "/api-documentation" | relative_url }}">API Docs</a>
+          <a class="page-link" href="{{ "/docs/_openapi/api.json" | relative_url }}">API JSON</a>
           {%- for path in page_paths -%}
             {%- assign my_page = site.pages | where: "path", path | first -%}
             {%- if my_page.title and my_page.title != "Inventory Management API - Development Blog" -%}
