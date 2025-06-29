@@ -224,6 +224,30 @@ description: |
     │           └── FactoryTest.php
     └── composer.json
     ```
+- When generating code, always:
+  - Run `composer ci-lint` to format the code and check for style issues.
+  - Run `composer ci-test` to run the tests and ensure that they pass.
+  - Generate an issue description with the issues addressed.
+    - Store the issue description in `ISSUE-DESCRIPTION.md` file.
+      - If the file exists, clear its content first.
+      - The description describes the problem that was solved or the feature that was implemented.
+    - Make sure the file is in `.gitignore`.
+  - Generate a pull request description with the changes made.
+    - Store the pull request description in `PR-DESCRIPTION.md` file.
+      - If the file exists, clear its content first.
+      - The description describes the changes made in the pull request.
+    - Make sure the file is in `.gitignore`.
+  - Generate a commit message with the changes made.
+    - Store the commit message in `COMMIT-MESSAGE.md` file.
+      - If the file exists, clear its content first.
+      - The commit message describes the changes made in the commit.
+    - Make sure the file is in `.gitignore`.
+  - Generate a markdown report with the changes made.
+    - Make sure the report is in .gitignore file.
+    - If the report was already pushed to the repository, then delete it from the repository.
+  - Update the `CHANGELOG.md` file with the changes made.
+    - Check for other changes pushed to the repository
+    - If other change doccured singce `CHANGELOG.md` was last updated, also describe these changes.
 ## Git Repository
 - The repository uses Git for version control.
 - The repository uses GitHub for hosting the code.
@@ -269,45 +293,6 @@ description: |
 ## Code Comments
 - Use comments to explain complex logic.
 - Use comments to clarify the purpose of a function or method.
-
-## General Instructions
-- Generate reports and reviews in markdown (.md) format.
-- Generate reports and reviews so that the markdown can easily be copy pasted into a GitHub issue or pull request.
-- Everytime the AI generated solution is complete.
-  - Generate an issue description with the issues addressed.
-    - Store the issue description in `ISSUE-DESCRIPTION.md` file.
-      - If the file exists, clear its content first.
-      - The description describes the problem that was solved or the feature that was implemented.
-    - Make sure the file is in `.gitignore`.
-  - Generate a pull request description with the changes made.
-    - Store the pull request description in `PR-DESCRIPTION.md` file.
-      - If the file exists, clear its content first.
-      - The description describes the changes made in the pull request.
-    - Make sure the file is in `.gitignore`.
-  - Generate a commit message with the changes made.
-    - Store the commit message in `COMMIT-MESSAGE.md` file.
-      - If the file exists, clear its content first.
-      - The commit message describes the changes made in the commit.
-    - Make sure the file is in `.gitignore`.
-  - Generate a markdown report with the changes made.
-    - Make sure the report is in .gitignore file.
-    - If the report was already pushed to the repository, then delete it from the repository.
-  - Update the `CHANGELOG.md` file with the changes made.
-    - Check for other changes pushed to the repository
-    - If other change doccured singce `CHANGELOG.md` was last updated, also describe these changes.
-## General Guidelines
-- Generate reports and reviews in markdown format.
-- Generate reports and reviews so that the markdown can easily be copy pasted into a GitHub issue or pull request.
-- When AI agent's work is accepted.
-  - Generate an issue description with the issues addressed.
-  - Generate a pull request description with the changes made.
-  - Generate a commit message with the changes made.
-  - Generate a markdown report with the changes made.
-    - Make sure the report is in .gitignore file.
-    - If the report was already pushed to the repository, then delete it from the repository.
-  - Update the `CHANGELOG.md` file with the changes made.
-    - Check for other changes pushed to the repository
-    - If other change doccured singce `CHANGELOG.md` was last updated, also describe these changes.
 
 ---
 applyTo: pull_request

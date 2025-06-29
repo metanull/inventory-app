@@ -7,14 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- **Mobile Authentication Test Coverage**: Comprehensive test suite for MobileAppAuthenticationController
-  - **AnonymousTest**: Tests for unauthenticated access scenarios
-  - **AcquireTokenTest**: 12 test cases covering token acquisition with validation, authentication, and edge cases
-  - **WipeTokensTest**: Tests for token wiping functionality
-  - **Complete Coverage**: 16 tests total with 42 assertions ensuring API reliability
-
 ### Fixed
+- **Jekyll Documentation Site Navigation**: Fixed duplicate navigation links in header
+  - Resolved improper Liquid template logic in `docs/_includes/header.html`
+  - Replaced invalid `if` condition syntax with proper `unless` negation
+  - Eliminated duplicate "API Documentation", "Daily Archive" and other page links
+  - Improved user experience with clean, semantic navigation HTML
 - **MobileAppAuthenticationController HTTP 500 Error**: Fixed critical validation error preventing mobile authentication
   - Resolved invalid Laravel validation rule `'wipe_tokens' => 'boolean|default:false'`
   - Implemented proper validation using `'wipe_tokens' => 'sometimes|boolean'`
