@@ -270,13 +270,25 @@ description: |
 - Use comments to explain complex logic.
 - Use comments to clarify the purpose of a function or method.
 
-## General Guidelines
-- Generate reports and reviews in markdown format.
+## General Instructions
+- Generate reports and reviews in markdown (.md) format.
 - Generate reports and reviews so that the markdown can easily be copy pasted into a GitHub issue or pull request.
-- When AI agent's work is accepted.
+- Everytime the AI generated solution is complete.
   - Generate an issue description with the issues addressed.
+    - Store the issue description in `ISSUE-DESCRIPTION.md` file.
+      - If the file exists, clear its content first.
+      - The description describes the problem that was solved or the feature that was implemented.
+    - Make sure the file is in `.gitignore`.
   - Generate a pull request description with the changes made.
+    - Store the pull request description in `PR-DESCRIPTION.md` file.
+      - If the file exists, clear its content first.
+      - The description describes the changes made in the pull request.
+    - Make sure the file is in `.gitignore`.
   - Generate a commit message with the changes made.
+    - Store the commit message in `COMMIT-MESSAGE.md` file.
+      - If the file exists, clear its content first.
+      - The commit message describes the changes made in the commit.
+    - Make sure the file is in `.gitignore`.
   - Generate a markdown report with the changes made.
     - Make sure the report is in .gitignore file.
     - If the report was already pushed to the repository, then delete it from the repository.
