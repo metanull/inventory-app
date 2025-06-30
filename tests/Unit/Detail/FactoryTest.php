@@ -18,7 +18,7 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf(Detail::class, $detail);
         $this->assertNotNull($detail->internal_name);
         $this->assertNotNull($detail->backward_compatibility);
-        $this->assertNull($detail->item_id);
+        $this->assertNotNull($detail->item_id); // Changed: now expects item_id to be set
     }
 
     public function test_factory_with_item(): void

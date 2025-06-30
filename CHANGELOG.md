@@ -30,6 +30,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Consolidated GitHub Pages documentation workflow
   - Improved API documentation generation and deployment
   - Enhanced Swagger UI integration with better error handling
+- **Contextualization Feature**: Comprehensive contextualized information storage for Items and Details
+  - **New Contextualization Model**: UUID-based model with relationships to Context, Item, and Detail entities
+  - **Flexible Association**: Each contextualization belongs to either an Item OR a Detail (mutually exclusive)
+  - **Context Integration**: Full integration with existing Context system including default context support
+  - **Extensible Design**: JSON `extra` field for storing additional unforeseen data
+  - **API Endpoints**: Complete REST API with specialized endpoints:
+    - Standard CRUD operations (`index`, `show`, `store`, `update`, `destroy`)
+    - Default context operations (`GET/POST /contextualizations/default-context`)
+    - Filtered endpoints (`/for-items`, `/for-details`)
+  - **Comprehensive Validation**: Application-level constraints ensuring exactly one of `item_id` or `detail_id` is set
+  - **Enhanced Models**: Added `contextualizations()` relationships to Item, Detail, and Context models
+  - **Complete Test Coverage**: 61 new tests covering all functionality including unit and feature tests
+  - **Factory & Seeding**: ContextualizationFactory with state methods and seeder for sample data
 
 ### Changed
 - **Test Suite Enhancement**: Expanded from 453 to 560 tests (1598 assertions)
