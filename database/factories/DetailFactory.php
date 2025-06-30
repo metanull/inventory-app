@@ -19,7 +19,7 @@ class DetailFactory extends Factory
     {
         return [
             'id' => $this->faker->unique()->uuid(),
-            'item_id' => null, // This must be set to a valid Item ID before saving
+            'item_id' => Item::factory(),
             'internal_name' => $this->faker->unique()->words(3, true),
             'backward_compatibility' => $this->faker->bothify('??;???;###;###'),
         ];

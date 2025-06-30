@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AvailableImageController;
 use App\Http\Controllers\ContextController;
+use App\Http\Controllers\ContextualizationController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DetailController;
 use App\Http\Controllers\ImageUploadController;
@@ -117,6 +118,27 @@ Route::resource('available-image', AvailableImageController::class)->except([
 ])->middleware('auth:sanctum');
 
 Route::resource('detail', DetailController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+// Contextualization routes
+Route::get('contextualization/default-context', [ContextualizationController::class, 'defaultContext'])
+    ->name('contextualization.defaultContext')
+    ->middleware('auth:sanctum');
+
+Route::get('contextualization/for-items', [ContextualizationController::class, 'forItems'])
+    ->name('contextualization.forItems')
+    ->middleware('auth:sanctum');
+
+Route::get('contextualization/for-details', [ContextualizationController::class, 'forDetails'])
+    ->name('contextualization.forDetails')
+    ->middleware('auth:sanctum');
+
+Route::post('contextualization/with-default-context', [ContextualizationController::class, 'storeWithDefaultContext'])
+    ->name('contextualization.storeWithDefaultContext')
+    ->middleware('auth:sanctum');
+
+Route::resource('contextualization', ContextualizationController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 

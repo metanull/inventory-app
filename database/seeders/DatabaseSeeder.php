@@ -19,6 +19,15 @@ class DatabaseSeeder extends Seeder
             CountrySeeder::class,
             ContextSeeder::class,
             ProjectSeeder::class,
+            TagSeeder::class,
+            PartnerSeeder::class,
+            ItemSeeder::class,
+            DetailSeeder::class,
+            TagItemSeeder::class,
+            PictureSeeder::class,
+            ImageUploadSeeder::class,
+            AvailableImageSeeder::class,
+            ContextualizationSeeder::class,
         ]);
     }
 }
