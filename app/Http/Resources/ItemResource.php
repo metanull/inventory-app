@@ -24,12 +24,20 @@ class ItemResource extends JsonResource
             'backward_compatibility' => $this->backward_compatibility,
             // The type of the item, either 'object' or 'monument'
             'type' => $this->type,
+            // Owner's reference number for the item
+            'owner_reference' => $this->owner_reference,
+            // MWNF reference number for the item
+            'mwnf_reference' => $this->mwnf_reference,
             // The partner owning the item
             'partner' => new PartnerResource($this->whenLoaded('partner')),
             // The project this item belongs to, nullable
             'project' => new ProjectResource($this->whenLoaded('project')),
             // The country this item is associated with, nullable
             'country' => new CountryResource($this->whenLoaded('country')),
+            // Artists associated with this item
+            'artists' => ArtistResource::collection($this->artists),
+            // Workshops associated with this item
+            'workshops' => WorkshopResource::collection($this->workshops),
             // Date of creation
             'created_at' => $this->created_at,
             // Date of last modification
