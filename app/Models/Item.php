@@ -19,6 +19,8 @@ class Item extends Model
         'partner',
         'country',
         'project',
+        'artists',
+        'workshops',
     ];
 
     protected $fillable = [
@@ -29,6 +31,8 @@ class Item extends Model
         'backward_compatibility',
         'country_id',
         'project_id',
+        'owner_reference',
+        'mwnf_reference',
     ];
 
     /**
@@ -69,6 +73,22 @@ class Item extends Model
     public function contextualizations(): HasMany
     {
         return $this->hasMany(Contextualization::class);
+    }
+
+    /**
+     * Artists associated with this item
+     */
+    public function artists(): BelongsToMany
+    {
+        return $this->belongsToMany(Artist::class, 'artist_item');
+    }
+
+    /**
+     * Workshops associated with this item
+     */
+    public function workshops(): BelongsToMany
+    {
+        return $this->belongsToMany(Workshop::class, 'item_workshop');
     }
 
     /**
@@ -129,5 +149,26 @@ class Item extends Model
     public function uniqueIds(): array
     {
         return ['id'];
+    }
+
+    // Accessors and Mutators to ensure null values instead of empty strings
+    public function getOwnerReferenceAttribute($value): ?string
+    {
+        return $value === '' ? null : $value;
+    }
+
+    public function setOwnerReferenceAttribute($value): void
+    {
+        $this->attributes['owner_reference'] = $value === '' ? null : $value;
+    }
+
+    public function getMwnfReferenceAttribute($value): ?string
+    {
+        return $value === '' ? null : $value;
+    }
+
+    public function setMwnfReferenceAttribute($value): void
+    {
+        $this->attributes['mwnf_reference'] = $value === '' ? null : $value;
     }
 }
