@@ -3090,6 +3090,316 @@
                 }
             }
         },
+        "/markdown/to-html": {
+            "post": {
+                "operationId": "markdown.toHtml",
+                "description": "Converts Markdown formatted text to HTML for display purposes.\nThe input is validated to ensure it contains safe Markdown content.",
+                "summary": "Convert Markdown to HTML",
+                "tags": [
+                    "Markdown\n\nAPI endpoints for Markdown processing and conversion",
+                    "Markdown"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "markdown": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "markdown"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        200
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/markdown/from-html": {
+            "post": {
+                "operationId": "markdown.fromHtml",
+                "description": "Converts HTML content to Markdown format with controlled tag support.\nOnly allowed HTML tags will be processed, others will be stripped.",
+                "summary": "Convert HTML to Markdown",
+                "tags": [
+                    "Markdown\n\nAPI endpoints for Markdown processing and conversion",
+                    "Markdown"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "html": {
+                                        "type": "string",
+                                        "maxLength": 65535
+                                    }
+                                },
+                                "required": [
+                                    "html"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        200
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/markdown/validate": {
+            "post": {
+                "operationId": "markdown.validate",
+                "description": "Validates Markdown content without converting it, useful for form validation.",
+                "summary": "Validate Markdown content",
+                "tags": [
+                    "Markdown\n\nAPI endpoints for Markdown processing and conversion",
+                    "Markdown"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "markdown": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "markdown"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        200
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/markdown/preview": {
+            "post": {
+                "operationId": "markdown.preview",
+                "description": "Generates an HTML preview of Markdown content for display purposes.\nThis is essentially the same as markdownToHtml but with a different semantic meaning.",
+                "summary": "Preview Markdown content",
+                "tags": [
+                    "Markdown\n\nAPI endpoints for Markdown processing and conversion",
+                    "Markdown"
+                ],
+                "responses": {
+                    "500": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Failed to convert markdown to HTML"
+                                            ]
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "html": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "html"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Validation failed"
+                                            ]
+                                        },
+                                        "errors": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "errors"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/markdown/is-markdown": {
+            "post": {
+                "operationId": "markdown.isMarkdown",
+                "description": "Analyzes content to determine if it appears to contain Markdown formatting.\nUseful for automatic detection of content type.",
+                "summary": "Check if content is Markdown",
+                "tags": [
+                    "Markdown\n\nAPI endpoints for Markdown processing and conversion",
+                    "Markdown"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "content": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "content"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        200
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/markdown/allowed-elements": {
+            "get": {
+                "operationId": "markdown.allowedElements",
+                "description": "Returns the list of HTML tags that are supported for HTML-to-Markdown conversion.",
+                "summary": "Get allowed HTML tags",
+                "tags": [
+                    "Markdown\n\nAPI endpoints for Markdown processing and conversion",
+                    "Markdown"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        200
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/mobile/acquire-token": {
             "post": {
                 "operationId": "token.acquire",

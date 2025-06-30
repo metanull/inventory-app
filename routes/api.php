@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\MarkdownController;
 use App\Http\Controllers\AvailableImageController;
 use App\Http\Controllers\ContextController;
 use App\Http\Controllers\ContextualizationController;
@@ -148,3 +149,24 @@ Route::post('mobile/acquire-token', [MobileAppAuthenticationController::class, '
 Route::get('mobile/wipe', [MobileAppAuthenticationController::class, 'wipe_tokens'])
     ->name('token.wipe')
     ->middleware('auth:sanctum');
+
+// Markdown conversion routes
+Route::prefix('markdown')->group(function () {
+    Route::post('to-html', [MarkdownController::class, 'markdownToHtml'])
+        ->name('markdown.toHtml');
+
+    Route::post('from-html', [MarkdownController::class, 'htmlToMarkdown'])
+        ->name('markdown.fromHtml');
+
+    Route::post('validate', [MarkdownController::class, 'validateMarkdown'])
+        ->name('markdown.validate');
+
+    Route::post('preview', [MarkdownController::class, 'previewMarkdown'])
+        ->name('markdown.preview');
+
+    Route::post('is-markdown', [MarkdownController::class, 'isMarkdown'])
+        ->name('markdown.isMarkdown');
+
+    Route::get('allowed-elements', [MarkdownController::class, 'getAllowedElements'])
+        ->name('markdown.allowedElements');
+});
