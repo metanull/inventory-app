@@ -5039,6 +5039,90 @@
             }
         },
         "schemas": {
+            "ArtistResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "place_of_birth": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "place_of_death": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "date_of_birth": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "date_of_death": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "period_of_activity": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "internal_name": {
+                        "type": "string"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ItemResource"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "place_of_birth",
+                    "place_of_death",
+                    "date_of_birth",
+                    "date_of_death",
+                    "period_of_activity",
+                    "internal_name",
+                    "backward_compatibility",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ArtistResource"
+            },
             "AvailableImageResource": {
                 "type": "object",
                 "properties": {
@@ -5395,6 +5479,20 @@
                         "type": "string",
                         "description": "The type of the item, either 'object' or 'monument'"
                     },
+                    "owner_reference": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Owner's reference number for the item"
+                    },
+                    "mwnf_reference": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "MWNF reference number for the item"
+                    },
                     "partner": {
                         "description": "The partner owning the item",
                         "$ref": "#/components/schemas/PartnerResource"
@@ -5406,6 +5504,20 @@
                     "country": {
                         "description": "The country this item is associated with, nullable",
                         "$ref": "#/components/schemas/CountryResource"
+                    },
+                    "artists": {
+                        "type": "array",
+                        "description": "Artists associated with this item",
+                        "items": {
+                            "$ref": "#/components/schemas/ArtistResource"
+                        }
+                    },
+                    "workshops": {
+                        "type": "array",
+                        "description": "Workshops associated with this item",
+                        "items": {
+                            "$ref": "#/components/schemas/WorkshopResource"
+                        }
                     },
                     "created_at": {
                         "type": [
@@ -5429,6 +5541,10 @@
                     "internal_name",
                     "backward_compatibility",
                     "type",
+                    "owner_reference",
+                    "mwnf_reference",
+                    "artists",
+                    "workshops",
                     "created_at",
                     "updated_at"
                 ],
@@ -5804,6 +5920,55 @@
                     "updated_at"
                 ],
                 "title": "TagResource"
+            },
+            "WorkshopResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "internal_name": {
+                        "type": "string"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ItemResource"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "internal_name",
+                    "backward_compatibility",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "WorkshopResource"
             }
         },
         "responses": {

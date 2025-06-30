@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Contextualization extends Model
 {
@@ -57,6 +58,14 @@ class Contextualization extends Model
     public function detail(): BelongsTo
     {
         return $this->belongsTo(Detail::class);
+    }
+
+    /**
+     * The internationalizations that belong to this contextualization.
+     */
+    public function internationalizations(): HasMany
+    {
+        return $this->hasMany(Internationalization::class);
     }
 
     /**
