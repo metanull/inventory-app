@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Event\ImageUpload;
 
 use App\Events\AvailableImageEvent;
 use App\Events\ImageUploadEvent;

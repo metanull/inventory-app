@@ -27,6 +27,8 @@ class ItemFactory extends Factory
             'type' => $this->faker->randomElement(['object', 'monument']),
             'project_id' => null, // This should be set to a valid project ID if needed
             'country_id' => null, // This should be set to a valid country ID if needed
+            'owner_reference' => $this->faker->bothify('???##'),
+            'mwnf_reference' => $this->faker->bothify('???##'),
         ];
     }
 
