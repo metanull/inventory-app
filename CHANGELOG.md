@@ -43,6 +43,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Enhanced Models**: Added `contextualizations()` relationships to Item, Detail, and Context models
   - **Complete Test Coverage**: 61 new tests covering all functionality including unit and feature tests
   - **Factory & Seeding**: ContextualizationFactory with state methods and seeder for sample data
+- **Database Seeders**: Complete seeding system for all key models
+  - **PartnerSeeder**: Seeds 5 business partners/organizations with proper country relationships
+  - **ItemSeeder**: Seeds 20 main inventory items with partner, country, and project associations
+  - **DetailSeeder**: Seeds 50 detailed information records linked to items
+  - **TagItemSeeder**: Seeds 30 tag-item relationships for content organization
+  - **PictureSeeder**: Seeds 15 item pictures for visual content testing
+  - **ImageUploadSeeder**: Seeds 10 uploaded image files for media functionality
+  - **AvailableImageSeeder**: Seeds 8 processed/available images for image workflow testing
+  - **Enhanced DatabaseSeeder**: Updated to include all missing seeders in proper dependency order
+  - **Complete Sample Data**: Full database population enabling comprehensive API testing and development
+- **API Documentation Consolidation**: Enhanced GitHub Pages integration
+  - Consolidated GitHub Pages documentation workflow
+  - Improved API documentation generation and deployment
+  - Enhanced Swagger UI integration with better error handling
+- **Contextualization Feature**: Comprehensive contextualized information storage for Items and Details
+  - **New Contextualization Model**: UUID-based model with relationships to Context, Item, and Detail entities
+  - **Flexible Association**: Each contextualization belongs to either an Item OR a Detail (mutually exclusive)
+  - **Context Integration**: Full integration with existing Context system including default context support
+  - **Extensible Design**: JSON `extra` field for storing additional unforeseen data
+  - **API Endpoints**: Complete REST API with specialized endpoints:
+    - Standard CRUD operations (`index`, `show`, `store`, `update`, `destroy`)
+    - Default context operations (`GET/POST /contextualizations/default-context`)
+    - Filtered endpoints (`/for-items`, `/for-details`)
+  - **Comprehensive Validation**: Application-level constraints ensuring exactly one of `item_id` or `detail_id` is set
+  - **Enhanced Models**: Added `contextualizations()` relationships to Item, Detail, and Context models
+  - **Complete Test Coverage**: 61 new tests covering all functionality including unit and feature tests
+  - **Factory & Seeding**: ContextualizationFactory with state methods and seeder for sample data
 
 ### Changed
 - **Test Suite Enhancement**: Expanded from 453 to 560 tests (1598 assertions)
