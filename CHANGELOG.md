@@ -20,6 +20,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Prevented "Method Illuminate\Validation\Validator::validateDefault does not exist" exception
 
 ### Added
+- **MarkdownService**: Comprehensive content processing service for markdown and HTML conversion
+  - **Bidirectional Conversion**: Convert between Markdown ↔ HTML formats with GitHub Flavored Markdown support
+  - **Content Validation**: Built-in validation for markdown and HTML content using Laravel validation rules
+  - **Security Features**: HTML sanitization, link safety, and protection against malicious content
+  - **API Endpoints**: Complete REST API for content processing:
+    - `POST /markdown/to-html` - Convert markdown to HTML
+    - `POST /markdown/from-html` - Convert HTML to markdown
+    - `POST /markdown/validate` - Validate markdown content
+    - `POST /markdown/preview` - Generate HTML preview
+    - `POST /markdown/is-markdown` - Detect markdown formatting
+    - `GET /markdown/allowed-elements` - Get supported elements
+  - **Format Detection**: Automatic detection of markdown formatting in text content
+  - **Table Support**: Full bidirectional table conversion between HTML and markdown
+  - **Code Block Protection**: Proper handling of code syntax and HTML-like content
+  - **Laravel Integration**: MarkdownRule for form validation and dependency injection support
+  - **Complete Test Coverage**: 690 tests including unit, feature, and integration tests
+  - **Library Integration**: CommonMark library with extensions and HTML-to-Markdown converter
 - **Tag Management System**: Complete tagging functionality for content organization
   - **Tag Model**: New Tag model with full CRUD operations, factory, seeder, and comprehensive test suite
   - **TagItem Pivot Model**: Many-to-many relationship management between Tags and Items
