@@ -3090,6 +3090,316 @@
                 }
             }
         },
+        "/markdown/to-html": {
+            "post": {
+                "operationId": "markdown.toHtml",
+                "description": "Converts Markdown formatted text to HTML for display purposes.\nThe input is validated to ensure it contains safe Markdown content.",
+                "summary": "Convert Markdown to HTML",
+                "tags": [
+                    "Markdown\n\nAPI endpoints for Markdown processing and conversion",
+                    "Markdown"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "markdown": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "markdown"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        200
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/markdown/from-html": {
+            "post": {
+                "operationId": "markdown.fromHtml",
+                "description": "Converts HTML content to Markdown format with controlled tag support.\nOnly allowed HTML tags will be processed, others will be stripped.",
+                "summary": "Convert HTML to Markdown",
+                "tags": [
+                    "Markdown\n\nAPI endpoints for Markdown processing and conversion",
+                    "Markdown"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "html": {
+                                        "type": "string",
+                                        "maxLength": 65535
+                                    }
+                                },
+                                "required": [
+                                    "html"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        200
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/markdown/validate": {
+            "post": {
+                "operationId": "markdown.validate",
+                "description": "Validates Markdown content without converting it, useful for form validation.",
+                "summary": "Validate Markdown content",
+                "tags": [
+                    "Markdown\n\nAPI endpoints for Markdown processing and conversion",
+                    "Markdown"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "markdown": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "markdown"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        200
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/markdown/preview": {
+            "post": {
+                "operationId": "markdown.preview",
+                "description": "Generates an HTML preview of Markdown content for display purposes.\nThis is essentially the same as markdownToHtml but with a different semantic meaning.",
+                "summary": "Preview Markdown content",
+                "tags": [
+                    "Markdown\n\nAPI endpoints for Markdown processing and conversion",
+                    "Markdown"
+                ],
+                "responses": {
+                    "500": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Failed to convert markdown to HTML"
+                                            ]
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "html": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "html"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Validation failed"
+                                            ]
+                                        },
+                                        "errors": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "errors"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/markdown/is-markdown": {
+            "post": {
+                "operationId": "markdown.isMarkdown",
+                "description": "Analyzes content to determine if it appears to contain Markdown formatting.\nUseful for automatic detection of content type.",
+                "summary": "Check if content is Markdown",
+                "tags": [
+                    "Markdown\n\nAPI endpoints for Markdown processing and conversion",
+                    "Markdown"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "content": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "content"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        200
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/markdown/allowed-elements": {
+            "get": {
+                "operationId": "markdown.allowedElements",
+                "description": "Returns the list of HTML tags that are supported for HTML-to-Markdown conversion.",
+                "summary": "Get allowed HTML tags",
+                "tags": [
+                    "Markdown\n\nAPI endpoints for Markdown processing and conversion",
+                    "Markdown"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        200
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/mobile/acquire-token": {
             "post": {
                 "operationId": "token.acquire",
@@ -4729,6 +5039,90 @@
             }
         },
         "schemas": {
+            "ArtistResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "place_of_birth": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "place_of_death": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "date_of_birth": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "date_of_death": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "period_of_activity": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "internal_name": {
+                        "type": "string"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ItemResource"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "place_of_birth",
+                    "place_of_death",
+                    "date_of_birth",
+                    "date_of_death",
+                    "period_of_activity",
+                    "internal_name",
+                    "backward_compatibility",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ArtistResource"
+            },
             "AvailableImageResource": {
                 "type": "object",
                 "properties": {
@@ -5085,6 +5479,20 @@
                         "type": "string",
                         "description": "The type of the item, either 'object' or 'monument'"
                     },
+                    "owner_reference": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Owner's reference number for the item"
+                    },
+                    "mwnf_reference": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "MWNF reference number for the item"
+                    },
                     "partner": {
                         "description": "The partner owning the item",
                         "$ref": "#/components/schemas/PartnerResource"
@@ -5096,6 +5504,20 @@
                     "country": {
                         "description": "The country this item is associated with, nullable",
                         "$ref": "#/components/schemas/CountryResource"
+                    },
+                    "artists": {
+                        "type": "array",
+                        "description": "Artists associated with this item",
+                        "items": {
+                            "$ref": "#/components/schemas/ArtistResource"
+                        }
+                    },
+                    "workshops": {
+                        "type": "array",
+                        "description": "Workshops associated with this item",
+                        "items": {
+                            "$ref": "#/components/schemas/WorkshopResource"
+                        }
                     },
                     "created_at": {
                         "type": [
@@ -5119,6 +5541,10 @@
                     "internal_name",
                     "backward_compatibility",
                     "type",
+                    "owner_reference",
+                    "mwnf_reference",
+                    "artists",
+                    "workshops",
                     "created_at",
                     "updated_at"
                 ],
@@ -5494,6 +5920,55 @@
                     "updated_at"
                 ],
                 "title": "TagResource"
+            },
+            "WorkshopResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "internal_name": {
+                        "type": "string"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ItemResource"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "internal_name",
+                    "backward_compatibility",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "WorkshopResource"
             }
         },
         "responses": {
