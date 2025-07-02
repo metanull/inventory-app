@@ -63,7 +63,6 @@
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
         ],
-        
         "ci-install": [
             "@composer install --ansi --no-interaction --no-progress --prefer-dist",
             "npm ci --no-fund --no-audit",
@@ -79,8 +78,7 @@
             "npm audit --audit-level moderate"
         ],
         "ci-lint": [
-            ".\\vendor\\bin\\pint --repair --no-interaction --ansi",
-            "exit 0"
+            ".\\vendor\\bin\\pint --no-interaction --ansi"
         ],
         "ci-test": [
             "@php artisan test --parallel --ansi"
@@ -117,7 +115,6 @@
             "@composer ci-audit",
             "@composer ci-test"
         ],
-
         "docs-serve": [
             "echo 'Starting Jekyll development server...'",
             "echo 'Note: This requires Ruby and Jekyll to be installed locally'",
