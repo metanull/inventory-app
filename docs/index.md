@@ -52,13 +52,17 @@ Below you'll find automatically generated daily summaries documenting developmen
 - **Contributor Activity**: Who contributed and how many commits they made
 - **Impact Analysis**: Total files changed, lines added/removed across all commits
 
-## 🔗 Links
+## 🔗 Related Projects
 
-### [Source Code](https://github.com/metanull/inventory-app)
-Complete source code and issue tracking
+- [Inventory Management UI](https://github.com/metanull/inventory-management-ui) - A frontend application for this API
 
-### [API Documentation](https://github.com/metanull/inventory-app#api-documentation)
+## 📚 Documentation Sections
+
+### [API Documentation](api-documentation)
 Interactive API documentation  
+
+### [Guidelines](guidelines/)
+Comprehensive development guidelines covering API integration, coding standards, and testing practices.
 
 ### [Contributing](contributing)
 Guidelines for contributing to the project, including development setup and workflow.
@@ -68,6 +72,9 @@ Historical development updates and project evolution.
 
 ### [Issues](https://github.com/metanull/inventory-app/issues)
 Bug reports and feature requests
+
+### [Source Code](https://github.com/metanull/inventory-app)
+Complete source code and issue tracking
 
 ## 🚀 Technology Stack
 

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Contributing
-nav_order: 2
+nav_order: 3
 ---
 
 # Contributing Guidelines
@@ -14,11 +14,11 @@ We welcome contributions to the Inventory Management UI! This document provides 
 
 ```bash
 # Fork the repository on GitHub, then clone your fork
-git clone https://github.com/YOUR-USERNAME/inventory-management-ui.git
-cd inventory-management-ui
+git clone https://github.com/YOUR-USERNAME/inventory-app.git
+cd inventory-app
 
 # Add the original repository as upstream
-git remote add upstream https://github.com/ORIGINAL-OWNER/inventory-management-ui.git
+git remote add upstream https://github.com/ORIGINAL-OWNER/inventory-app.git
 ```
 
 ### 2. Set Up Development Environment
