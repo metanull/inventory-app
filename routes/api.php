@@ -7,6 +7,7 @@ use App\Http\Controllers\ContextualizationController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DetailController;
 use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\InternationalizationController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MobileAppAuthenticationController;
@@ -140,6 +141,19 @@ Route::post('contextualization/with-default-context', [ContextualizationControll
     ->middleware('auth:sanctum');
 
 Route::resource('contextualization', ContextualizationController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+// Internationalization routes
+Route::get('internationalization/default-language', [InternationalizationController::class, 'inDefaultLanguage'])
+    ->name('internationalization.inDefaultLanguage')
+    ->middleware('auth:sanctum');
+
+Route::get('internationalization/english', [InternationalizationController::class, 'inEnglish'])
+    ->name('internationalization.inEnglish')
+    ->middleware('auth:sanctum');
+
+Route::resource('internationalization', InternationalizationController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 

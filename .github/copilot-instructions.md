@@ -1,3 +1,6 @@
+**CRITICAL: Awlays use PowerShell syntax when using `run_in_terminal`**
+**CRITICAL: Always append `; echo ""` to PowerShell commands when using `run_in_terminal`**
+
 ---
 applyTo: "*.php"
 title: PHP Coding Standards
