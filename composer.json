@@ -88,6 +88,8 @@
         "ci-reset": [
             "@php -r \"file_exists('./database/database.sqlite') || touch('./database/database.sqlite');\"",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan db:wipe --ansi",
+            "@php artisan migrate --ansi",
             "@php artisan key:generate --ansi",
             "@php artisan optimize:clear --ansi"
         ],
