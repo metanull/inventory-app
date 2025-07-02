@@ -65,8 +65,7 @@
         ],
         "ci-install": [
             "@composer install --ansi --no-interaction --no-progress --prefer-dist",
-            "npm ci --no-fund --no-audit",
-            "npm run build"
+            "npm ci --no-fund --no-audit"
         ],
         "ci-build": [
             "npm run build"
@@ -83,17 +82,26 @@
         "ci-test": [
             "@php artisan test --parallel --ansi"
         ],
-        "ci-reset": [
+        "ci-reset-db": [
             "@php -r \"file_exists('./database/database.sqlite') || touch('./database/database.sqlite');\"",
-            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
-            "@php artisan db:wipe --ansi",
-            "@php artisan migrate --ansi",
-            "@php artisan key:generate --ansi",
-            "@php artisan optimize:clear --ansi"
+            "@php artisan db:wipe --ansi"
         ],
         "ci-seed": [
             "@php artisan migrate:refresh --no-interaction --ansi",
             "@php artisan db:seed --ansi"
+        ],
+        "ci-reset-config": [
+            "@php artisan optimize:clear --ansi",
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan key:generate --ansi"
+        ],
+        "ci-reset": [
+            "@composer ci-reset-db",
+            "@composer ci-seed",
+            "@composer ci-reset-config",
+            "@composer ci-install",
+            "@composer ci-build",
+            "@composer ci-seed"
         ],
         "ci-assert-no-changes": [
             "git diff --exit-code --quiet"
