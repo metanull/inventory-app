@@ -229,28 +229,10 @@
     │           └── FactoryTest.php
     └── composer.json
     ```
-- When generating code, always:
+- When generating php code, always:
   - Run `composer ci-lint` to format the code and check for style issues.
   - Run `composer ci-test` to run the tests and ensure that they pass.
-  - Generate an issue description with the issues addressed.
-    - Store the issue description in `ISSUE-DESCRIPTION.md` file.
-      - If the file exists, clear its content first.
-      - The description describes the problem that was solved or the feature that was implemented.
-    - Make sure the file is in `.gitignore`.
-  - Generate a pull request description with the changes made.
-    - Store the pull request description in `PR-DESCRIPTION.md` file.
-      - If the file exists, clear its content first.
-      - The description describes the changes made in the pull request.
-    - Make sure the file is in `.gitignore`.
-  - Generate a commit message with the changes made.
-    - Store the commit message in `COMMIT-MESSAGE.md` file.
-      - If the file exists, clear its content first.
-      - The commit message describes the changes made in the commit.
-    - Make sure the file is in `.gitignore`.
-  - Generate a markdown report with the changes made.
-    - Make sure the report is in .gitignore file.
-    - If the report was already pushed to the repository, then delete it from the repository.
-  - Update the `CHANGELOG.md` file with the changes made.
+- Before pull requests, update the `CHANGELOG.md` file with the changes made.
     - Check for other changes pushed to the repository
     - If other change doccured singce `CHANGELOG.md` was last updated, also describe these changes.
 ## Git Repository
@@ -260,6 +242,7 @@
 - The repository uses GitHub pull requests to review and merge code changes.
 - The repository uses GitHub Actions for continuous integration and deployment.
 - The repository uses GitHub Actions to run tests and code quality checks.
+- github cli is available as `gh` command in the terminal.
 - The default branch is `main`.
 - Pushing to the `main` branch requires a pull request.
 - The repository has GitHub rulesets configured for code quality and security:
