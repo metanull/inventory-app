@@ -99,6 +99,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Enhanced Models**: Added `contextualizations()` relationships to Item, Detail, and Context models
   - **Complete Test Coverage**: 61 new tests covering all functionality including unit and feature tests
   - **Factory & Seeding**: ContextualizationFactory with state methods and seeder for sample data
+- **Internationalization Feature**: Complete internationalization management system for Laravel application
+  - **Core Model**: `Internationalization` model with UUID primary key and relationships to Contextualization, Language, and Author
+  - **Database Schema**: Migration with proper foreign key constraints, unique indexes, and timestamp tracking
+  - **API Endpoints**: Full CRUD REST API with resource-based responses:
+    - `GET /api/internationalizations` - List all internationalizations with pagination
+    - `GET /api/internationalizations/{id}` - Show specific internationalization details
+    - `POST /api/internationalizations` - Create new internationalization entries
+    - `PUT /api/internationalizations/{id}` - Update existing internationalization
+    - `DELETE /api/internationalizations/{id}` - Delete internationalization entries
+    - `GET /api/internationalizations/by-contextualization/{contextualization}` - Filter by contextualization
+    - `GET /api/internationalizations/by-language/{language}` - Filter by language
+    - `GET /api/internationalizations/by-author/{author}` - Filter by author
+  - **Resource Controller**: Exception handling for unique constraint violations with proper HTTP status codes
+  - **Factory and Seeder**: Test data generation and database seeding with proper relationship handling
+  - **Complete Test Suite**: 58 comprehensive tests (57 feature + 1 unit) covering all CRUD operations and edge cases
+  - **Performance Optimization**: Fast test execution (~15 seconds for full suite) with in-memory SQLite
+  - **Code Quality**: PSR-12 compliant, Pint formatted, comprehensive PHPDoc annotations
 
 ### Changed
 - **Test Suite Enhancement**: Expanded from 453 to 560 tests (1598 assertions)

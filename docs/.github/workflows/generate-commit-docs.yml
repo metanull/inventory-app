@@ -62,6 +62,9 @@ jobs:
       run: |
         cd docs
         bundle install
+
+    - name: Import OpenAPI specifications (api.json)
+        run: |
     
     - name: Generate documentation of the latest commits
       run: |

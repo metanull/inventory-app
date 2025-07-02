@@ -1,0 +1,131 @@
+---
+---
+
+/* Custom styles for the documentation site */
+
+/* Highlight callouts */
+.highlight {
+  background-color: #f8f9fa;
+  border-left: 4px solid #007bff;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.highlight p {
+  margin: 0;
+}
+
+/* Code blocks */
+.highlighter-rouge {
+  background-color: #f6f8fa;
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-size: 85%;
+}
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+table th,
+table td {
+  border: 1px solid #dfe2e5;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+table th {
+  background-color: #f6f8fa;
+  font-weight: 600;
+}
+
+/* Navigation enhancements */
+.site-nav .nav-list-item .nav-list-link {
+  font-weight: 500;
+}
+
+/* Blog post styling */
+.post-meta {
+  color: #586069;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.post-content h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .highlight {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border-radius: 0;
+  }
+  
+  table {
+    font-size: 0.875rem;
+  }
+  
+  table th,
+  table td {
+    padding: 6px 8px;
+  }
+}
+
+/* Footer styling */
+.site-footer {
+  border-top: 1px solid #e1e4e8;
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+
+/* Search improvements */
+.search-input {
+  border-radius: 4px;
+}
+
+/* Badge styles for commit types */
+.commit-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.commit-badge.feat {
+  background-color: #28a745;
+  color: white;
+}
+
+.commit-badge.fix {
+  background-color: #dc3545;
+  color: white;
+}
+
+.commit-badge.docs {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.commit-badge.refactor {
+  background-color: #6f42c1;
+  color: white;
+}
+
+.commit-badge.test {
+  background-color: #fd7e14;
+  color: white;
+}
+
+.commit-badge.chore {
+  background-color: #6c757d;
+  color: white;
+}
