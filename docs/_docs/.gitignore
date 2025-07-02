@@ -1,0 +1,2 @@
+# Ignore generated .md files in _docs directory
+*.md

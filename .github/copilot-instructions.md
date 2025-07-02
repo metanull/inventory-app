@@ -1,12 +1,14 @@
 **CRITICAL: Awlays use PowerShell syntax when using `run_in_terminal`**
 **CRITICAL: Always append `; echo ""` to PowerShell commands when using `run_in_terminal`**
-
----
-applyTo: "*.php"
-title: PHP Coding Standards
-description: |
-  Coding standards for PHP files in this repository.
----
+**CRITICAL: This is a PHP application with Laravel 12**
+**CRITICAL: docs/ contains a distinct Ruby application based on Jekyll**
+**CRITICAL: Always use wsl when interacting with Ruby**
+  ---
+  applyTo: "*.php"
+  title: PHP Coding Standards
+  description: |
+    Coding standards for PHP files in this repository.
+  ---
 # Copilot instructions for PHP files
 
 ## Context

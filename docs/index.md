@@ -1,28 +1,28 @@
 ---
-layout: home
-title: "Inventory Management API - Development Blog"
+layout: default
+title: Home
+nav_order: 1
 ---
 
 [![CodeQL](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql) [![Composer+Phpunit+Pint](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/laravel.yml) [![Dependabot](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates)[![GitHub Pages](https://github.com/metanull/inventory-app/actions/workflows/github-pages.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-pages.yml)
 
-Welcome to the development blog for the **Inventory Management API**! This blog automatically tracks our development progress by generating daily summaries from commits pushed to the main branch, providing a comprehensive overview of project evolution and related issues.
+# Inventory Management API
 
-## About the Project
+{: .highlight }
+> The **Inventory Management API** (inventory-app) is a RESTful API designed to manage the content of the Museum With No Frontiers' inventory database. This application serves as the management layer in a modern N-tier architecture, replacing legacy systems with a scalable, maintainable, and secure solution.
 
-The **Inventory Management API** (inventory-app) is a RESTful API designed to manage the content of the Museum With No Frontiers' inventory database. This application serves as the management layer in a modern N-tier architecture, replacing legacy systems with a scalable, maintainable, and secure solution.
+## ✨ Features
 
-## Features
+- 🚀 **RESTful API** for inventory management with complete CRUD operations
+- 🔒 **User Authentication** and JWT token management  
+- 🛡️ **Database-agnostic** Eloquent models with UUID primary keys
+- 📊 **Clean, maintainable** codebase following Laravel best practices
+- 📚 **Automated API Documentation** with interactive testing capabilities
+- ✅ **Comprehensive Test Suite**: 453 tests with 1163 assertions (100% reliable, ~5.6s execution)
+- 🎨 **Image Processing Pipeline**: Automatic resizing, format optimization, and event-driven processing
+- 🔧 **Advanced Query Features**: Model scopes, eager loading, and search capabilities
 
-- **RESTful API** for inventory management with complete CRUD operations
-- **User Authentication** and JWT token management  
-- **Database-agnostic** Eloquent models with UUID primary keys
-- **Clean, maintainable** codebase following Laravel best practices
-- **Automated API Documentation** with interactive testing capabilities
-- **Comprehensive Test Suite**: 453 tests with 1163 assertions (100% reliable, ~5.6s execution)
-- **Image Processing Pipeline**: Automatic resizing, format optimization, and event-driven processing
-- **Advanced Query Features**: Model scopes, eager loading, and search capabilities
-
-## Quality Assurance
+## 🎯 Quality Assurance
 
 This project maintains high code quality standards through:
 
@@ -33,7 +33,7 @@ This project maintains high code quality standards through:
 - **Security**: CodeQL scanning and dependency vulnerability checks
 - **CI/CD**: Automated GitHub Actions workflow for continuous integration
 
-## Project Architecture
+## 🏗️ Project Architecture
 
 This API is part of a broader modernization effort for Museum With No Frontiers. The new architecture consists of:
 
@@ -41,7 +41,7 @@ This API is part of a broader modernization effort for Museum With No Frontiers.
 - **Public Consultation REST API**: Grants controlled, read-only access to inventory data for public-facing applications  
 - **Client-side Web Applications**: Deployed separately, these applications interact with the consultation API to present data to end users
 
-## Development Progress
+## 📚 Development Progress
 
 Below you'll find automatically generated daily summaries documenting development activity on our main branch. Each summary includes:
 
@@ -52,18 +52,24 @@ Below you'll find automatically generated daily summaries documenting developmen
 - **Contributor Activity**: Who contributed and how many commits they made
 - **Impact Analysis**: Total files changed, lines added/removed across all commits
 
-## Links
+## 🔗 Links
 
-- **[Source Code](https://github.com/metanull/inventory-app)**: Complete source code and issue tracking
-- **[API Documentation](https://github.com/metanull/inventory-app#api-documentation)**: Interactive API documentation  
-- **[Contributing](https://github.com/metanull/inventory-app#contributing)**: Guidelines for contributing to the project
-- **[Issues](https://github.com/metanull/inventory-app/issues)**: Bug reports and feature requests
+### [Source Code](https://github.com/metanull/inventory-app)
+Complete source code and issue tracking
 
----
+### [API Documentation](https://github.com/metanull/inventory-app#api-documentation)
+Interactive API documentation  
 
-*This blog is automatically updated daily with summaries of commits to the main branch. Daily posts are generated using GitHub Actions and Jekyll, providing a comprehensive overview of development activity and automatically linking to related GitHub issues and pull requests.*
+### [Contributing](contributing)
+Guidelines for contributing to the project, including development setup and workflow.
 
-## Technology Stack
+### [Development Archive](development-archive)
+Historical development updates and project evolution.
+
+### [Issues](https://github.com/metanull/inventory-app/issues)
+Bug reports and feature requests
+
+## 🚀 Technology Stack
 
 ### About PHP
 
@@ -80,3 +86,11 @@ The Museum With No Frontiers' production websites are powered by [MariaDB](https
 ### About SQLite
 
 For development and demonstration purposes, this application uses [SQLite](https://www.sqlite.org), a lightweight, file-based database engine. SQLite requires no server setup and is fully integrated into the Laravel ecosystem, making it ideal for local development, testing, and prototyping. Its simplicity and portability allow developers to quickly spin up and share working environments without complex configuration.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/metanull/inventory-app/blob/main/LICENSE) file for details.
+
+---
+
+*Last updated: {{ site.time | date: "%B %d, %Y" }}*

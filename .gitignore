@@ -25,3 +25,10 @@ PR-DESCRIPTION.md
 ISSUE-DESCRIPTION.md
 COMMIT-MESSAGE.md
 *.report.md
+
+# docs generated files
+docs/*.log
+docs/_docs/*.md
+
+# Ruby/Jekyll dependencies
+docs/Gemfile.lock

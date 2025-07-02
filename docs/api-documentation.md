@@ -1,7 +1,7 @@
 ---
 layout: default
 title: API Documentation
-permalink: /api-documentation/
+nav_order: 4
 ---
 
 # API Documentation
