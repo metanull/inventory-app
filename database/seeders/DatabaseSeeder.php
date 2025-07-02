@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             ImageUploadSeeder::class,
             AvailableImageSeeder::class,
             ContextualizationSeeder::class,
+            InternationalizationSeeder::class,
         ]);
     }
 }

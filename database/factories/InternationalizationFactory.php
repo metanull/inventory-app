@@ -18,7 +18,7 @@ class InternationalizationFactory extends Factory
     {
         return [
             'contextualization_id' => \App\Models\Contextualization::factory(),
-            'language_id' => \App\Models\Language::inRandomOrder()->first()?->id ?? 'eng',
+            'language_id' => \App\Models\Language::factory(),
             'name' => $this->faker->words(3, true),
             'alternate_name' => $this->faker->optional(0.5)->words(3, true),
             'description' => $this->faker->sentence(),
@@ -41,17 +41,17 @@ class InternationalizationFactory extends Factory
                 ['additional_info' => $this->faker->paragraph()],
                 null,
             ]),
-            'author_id' => $this->faker->optional(0.7)->randomElement(
-                \App\Models\Author::pluck('id')->toArray() ?: [null]
+            'author_id' => $this->faker->optional(0.7)->passthrough(
+                \App\Models\Author::factory()
             ),
-            'text_copy_editor_id' => $this->faker->optional(0.5)->randomElement(
-                \App\Models\Author::pluck('id')->toArray() ?: [null]
+            'text_copy_editor_id' => $this->faker->optional(0.5)->passthrough(
+                \App\Models\Author::factory()
             ),
-            'translator_id' => $this->faker->optional(0.6)->randomElement(
-                \App\Models\Author::pluck('id')->toArray() ?: [null]
+            'translator_id' => $this->faker->optional(0.6)->passthrough(
+                \App\Models\Author::factory()
             ),
-            'translation_copy_editor_id' => $this->faker->optional(0.4)->randomElement(
-                \App\Models\Author::pluck('id')->toArray() ?: [null]
+            'translation_copy_editor_id' => $this->faker->optional(0.4)->passthrough(
+                \App\Models\Author::factory()
             ),
             'backward_compatibility' => $this->faker->optional(0.3)->uuid(),
         ];
