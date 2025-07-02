@@ -1,17 +1,17 @@
-name: Generate GitHub Pages with Jekyll
+name: Generate Commit Documentation
 
 on:
   push:
     branches: [ main ]
-  # Run daily at 6 AM UTC to aggregate commits by day  
   schedule:
-    - cron: '0 6 * * *'
-  # Allow manual trigger
+    # Run every day at 2 AM UTC
+    - cron: '0 2 * * *'
   workflow_dispatch:
+    # Allow manual triggering
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: write  # Write access needed to create/push to gh-pages branch
+  contents: read
   pages: write
   id-token: write
 
@@ -22,334 +22,77 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Generate daily blog posts from commits
-  generate-daily-posts:
+  
+  build:
     runs-on: ubuntu-latest
+    
+    # Override workflow permissions for this job to include contents: write for committing
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch all history for all branches
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for commit analysis
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
 
-      - name: Setup gh-pages branch and generate daily posts
-        run: |
-          # Configure git
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git config --local core.autocrlf false
-          git config --local core.eol lf
-          
-          # Create or checkout gh-pages branch
-          gh_pages_exists=1
-          if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
-            echo "gh-pages branch exists, checking it out..."
-            git checkout -b gh-pages origin/gh-pages
-            
-            # Always update documentation files from main branch
-            git checkout main -- docs/_config.yml docs/Gemfile docs/_layouts/ docs/_includes/ docs/index.md docs/archive.md docs/api-documentation.md docs/swagger-ui.html docs/README.md || true
-            
-            # Copy updated files to root
-            if [ -f docs/_config.yml ]; then
-              cp docs/_config.yml _config.yml
-            fi
-            if [ -f docs/Gemfile ]; then
-              cp docs/Gemfile Gemfile
-            fi
-            if [ -d docs/_layouts ]; then
-              cp -r docs/_layouts/* _layouts/
-            fi
-            if [ -d docs/_includes ]; then
-              cp -r docs/_includes/* _includes/
-            fi
-            if [ -f docs/index.md ]; then
-              cp docs/index.md index.md
-            fi
-            if [ -f docs/archive.md ]; then
-              cp docs/archive.md archive.md
-            fi
-            if [ -f docs/api-documentation.md ]; then
-              cp docs/api-documentation.md api-documentation.md
-            fi
-            if [ -f docs/swagger-ui.html ]; then
-              cp docs/swagger-ui.html swagger-ui.html
-            fi
-            if [ -f docs/README.md ]; then
-              cp docs/README.md README.md
-            fi
-          else
-            echo "Creating new gh-pages branch..."
-            gh_pages_exists=0
-            git checkout --orphan gh-pages
-            git rm -rf . || true
-            
-            # Copy Jekyll configuration and layouts from main
-            git checkout main -- docs/_config.yml docs/Gemfile docs/_layouts/ docs/_includes/ docs/index.md docs/archive.md docs/api-documentation.md docs/swagger-ui.html docs/README.md || true
-            
-            # Create basic structure for gh-pages
-            mkdir -p _posts _layouts _includes
-            if [ -f docs/_config.yml ]; then
-              cp docs/_config.yml _config.yml
-            fi
-            if [ -f docs/Gemfile ]; then
-              cp docs/Gemfile Gemfile
-            fi
-            if [ -d docs/_layouts ]; then
-              cp -r docs/_layouts/* _layouts/
-            fi
-            if [ -d docs/_includes ]; then
-              cp -r docs/_includes/* _includes/
-            fi
-            if [ -f docs/index.md ]; then
-              cp docs/index.md index.md
-            fi
-            if [ -f docs/archive.md ]; then
-              cp docs/archive.md archive.md
-            fi
-            if [ -f docs/api-documentation.md ]; then
-              cp docs/api-documentation.md api-documentation.md
-            fi
-            if [ -f docs/swagger-ui.html ]; then
-              cp docs/swagger-ui.html swagger-ui.html
-            fi
-            if [ -f docs/README.md ]; then
-              cp docs/README.md README.md
-            fi
-            
-            # Remove docs/ prefix from config if present
-            sed -i 's|baseurl: "/inventory-app"|baseurl: "/inventory-app"|g' _config.yml || true
-          fi
-          
-          # Ensure _posts directory exists
-          mkdir -p _posts
-          
-          # Copy OpenAPI documentation from main branch
-          echo "Copying OpenAPI documentation from main branch..."
-          git checkout main -- docs/_openapi/api.json 2>/dev/null || echo "No OpenAPI documentation found in main branch"
-          
-          # Copy API JSON to root for Jekyll to serve
-          if [ -f docs/_openapi/api.json ]; then
-            cp docs/_openapi/api.json api.json
-            echo "OpenAPI JSON copied to api.json for Jekyll"
-          else
-            echo "No OpenAPI JSON found to copy"
-          fi
-          
-          # Function to extract GitHub references from text
-          extract_github_refs() {
-            local text="$1"
-            # Extract issue/PR references (#123, fixes #123, closes #456, etc.)
-            echo "$text" | grep -oE '(#[0-9]+|[Ff]ix(es|ed)?[[:space:]]+#[0-9]+|[Cc]lose(s|d)?[[:space:]]+#[0-9]+|[Rr]esolve(s|d)?[[:space:]]+#[0-9]+)' | \
-              sed -E 's/.*(#[0-9]+).*/\1/' | sort -u || true
-          }
-          
-          # Determine date range for processing
-          if [ "$gh_pages_exists" = "0" ]; then
-            # For new gh-pages branch, process all commits since the beginning
-            echo "Processing all commits since repository creation (new gh-pages branch)"
-            start_date=$(git log main --reverse --format="%ad" --date=short | head -1)
-            end_date=$(date '+%Y-%m-%d')
-            echo "Processing commits from repository start: $start_date to $end_date"
-          elif [ "${{ github.event_name }}" = "push" ]; then
-            # For push events, process today and yesterday (in case of late commits)
-            end_date=$(date '+%Y-%m-%d')
-            start_date=$(date -d '1 day ago' '+%Y-%m-%d')
-            echo "Processing commits from push event: $start_date to $end_date"
-          else
-            # For scheduled/manual runs, process last 7 days to catch anything missed
-            end_date=$(date '+%Y-%m-%d')
-            start_date=$(date -d '7 days ago' '+%Y-%m-%d')
-            echo "Processing commits from scheduled run: $start_date to $end_date"
-          fi
-          
-          echo "Looking for commits in 'main' branch for documentation generation..."
-          
-          # Get all commits in the date range, grouped by date
-          current_date="$start_date"
-          while [ "$current_date" != "$(date -d "$end_date + 1 day" '+%Y-%m-%d')" ]; do
-            echo "Processing commits for $current_date..."
-            
-            # Get commits for this specific date from main branch
-            commits_today=$(git log main --since="$current_date 00:00:00" --until="$current_date 23:59:59" \
-              --pretty=format:"%H|%ai|%s|%an|%ae" --reverse)
-            
-            if [ -n "$commits_today" ]; then
-              commit_count=$(echo "$commits_today" | wc -l)
-              echo "Found $commit_count commits for $current_date"
-              
-              # Check if post already exists for this date
-              existing_post="_posts/${current_date}-daily-development-summary.md"
-              if [ ! -f "$existing_post" ]; then
-                echo "Creating daily post: $existing_post"
-                
-                # Collect all GitHub references from commits
-                all_github_refs=""
-                pr_merges=""
-                direct_commits=""
-                total_files=0
-                total_insertions=0
-                total_deletions=0
-                unique_authors=""
-                
-                while IFS='|' read -r hash date subject author email; do
-                  # Collect GitHub references
-                  refs=$(extract_github_refs "$subject")
-                  if [ -n "$refs" ]; then
-                    all_github_refs="$all_github_refs $refs"
-                  fi
-                  
-                  # Categorize commits
-                  if echo "$subject" | grep -q "Merge pull request"; then
-                    pr_number=$(echo "$subject" | sed -n 's/.*#\([0-9]*\).*/\1/p')
-                    pr_title=$(echo "$subject" | sed 's/Merge pull request #[0-9]* from [^/]*//')
-                    pr_merges="$pr_merges\n- **PR #$pr_number**: $pr_title ([${hash:0:7}](https://github.com/${{ github.repository }}/commit/$hash))"
-                  else
-                    direct_commits="$direct_commits\n- **${hash:0:7}**: $subject ([view](https://github.com/${{ github.repository }}/commit/$hash)) - *by $author*"
-                  fi
-                  
-                  # Calculate file statistics
-                  files=$(git diff-tree --no-commit-id --name-only -r $hash | wc -l)
-                  insertions=$(git show --shortstat $hash | grep -o '[0-9]\+ insertion' | grep -o '[0-9]\+' || echo "0")
-                  deletions=$(git show --shortstat $hash | grep -o '[0-9]\+ deletion' | grep -o '[0-9]\+' || echo "0")
-                  
-                  total_files=$((total_files + files))
-                  total_insertions=$((total_insertions + insertions))
-                  total_deletions=$((total_deletions + deletions))
-                  
-                  # Collect unique authors
-                  if ! echo "$unique_authors" | grep -q "$author"; then
-                    unique_authors="$unique_authors $author"
-                  fi
-                done <<< "$commits_today"
-                
-                # Process unique GitHub references
-                unique_refs=$(echo "$all_github_refs" | tr ' ' '\n' | grep -E '^#[0-9]+$' | sort -u | tr '\n' ' ')
-                
-                # Generate daily summary title
-                day_name=$(date -d "$current_date" '+%A')
-                formatted_date=$(date -d "$current_date" '+%B %-d, %Y')
-                daily_title="Development Summary - $day_name, $formatted_date"
-                
-                # Create Jekyll front matter and content
-                {
-                  echo "---"
-                  echo "layout: post"
-                  echo "title: \"$daily_title\""
-                  echo "date: $current_date 12:00:00 +0000"
-                  echo "author: Development Team"
-                  echo "commit_count: $commit_count"
-                  echo "post_type: daily-summary"
-                  echo "categories: [daily, development]"
-                  echo "tags: [git, summary, development]"
-                  if [ -n "$unique_refs" ]; then
-                    echo "github_refs: [$(echo "$unique_refs" | sed 's/ /, /g' | sed 's/^, //' | sed 's/, $//' | sed 's/#//g')]"
-                  fi
-                  echo "---"
-                  echo ""
-                  echo "## Development Activity for $formatted_date"
-                  echo ""
-                  echo "### Summary"
-                  echo ""
-                  echo "**Total Commits:** $commit_count  "
-                  echo "**Contributors:** $(echo "$unique_authors" | wc -w)  "
-                  echo "**Files Changed:** $total_files  "
-                  echo "**Lines Added:** +$total_insertions  "
-                  echo "**Lines Removed:** -$total_deletions  "
-                  echo ""
-                  
-                  if [ -n "$unique_refs" ]; then
-                    echo "### Related Issues & Pull Requests"
-                    echo ""
-                    for ref in $unique_refs; do
-                      ref_num=$(echo "$ref" | sed 's/#//')
-                      echo "- [Issue/PR #$ref_num](https://github.com/${{ github.repository }}/issues/$ref_num)"
-                    done
-                    echo ""
-                  fi
-                  
-                  if [ -n "$pr_merges" ] && [ "$pr_merges" != "" ]; then
-                    echo "### Pull Requests Merged"
-                    echo ""
-                    echo -e "$pr_merges"
-                    echo ""
-                  fi
-                  
-                  if [ -n "$direct_commits" ] && [ "$direct_commits" != "" ]; then
-                    echo "### Direct Commits"
-                    echo ""
-                    echo -e "$direct_commits"
-                    echo ""
-                  fi
-                  
-                  echo "### Contributors"
-                  echo ""
-                  for author in $unique_authors; do
-                    author_commits=$(echo "$commits_today" | grep -c "|$author|" || echo "0")
-                    echo "- **$author** ($author_commits commit$([ $author_commits -ne 1 ] && echo 's'))"
-                  done
-                  echo ""
-                  echo "---"
-                  echo ""
-                  echo "*This daily summary was automatically generated from $commit_count commit(s) made on $formatted_date.*"
-                } > "$existing_post"
-              else
-                echo "Post already exists for $current_date, skipping..."
-              fi
-            else
-              echo "No commits found for $current_date"
-            fi
-            
-            # Move to next date
-            current_date=$(date -d "$current_date + 1 day" '+%Y-%m-%d')
-          done
-      - name: Commit and push to gh-pages branch
-        run: |
-          # Add all generated files
-          git add .
-          
-          if git diff --staged --quiet; then
-            echo "No new daily posts to commit"
-          else
-            git commit -m "Auto-generate daily blog posts [skip ci]"
-            git push origin gh-pages
-          fi
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+    
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2.3'
+        working-directory: docs
+    
+    - name: Install Ruby dependencies
+      run: |
+        cd docs
+        bundle install
+    
+    - name: Generate documentation of the latest commits
+      run: |
+        python docs/generate-commit-docs.py
+    
+    - name: Build Jekyll site
+      run: |
+        cd docs
+        bundle exec jekyll build
+    
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: docs/_site
 
-  # Build and deploy Jekyll site
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    needs: generate-daily-posts
-    if: always() && (needs.generate-daily-posts.result == 'success' || needs.generate-daily-posts.result == 'skipped')
+  deploy:
+    needs: build
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    # Set the environment to github-pages for proper recognition
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout gh-pages branch
-        uses: actions/checkout@v4
-        with:
-          ref: gh-pages
-          fetch-depth: 0
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.1'
-          bundler-cache: true
-          # No working-directory needed since Jekyll files are in root of gh-pages
-
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v5
-
-      - name: Build with Jekyll
-        run: |
-          bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
-        env:
-          JEKYLL_ENV: production
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./_site
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
