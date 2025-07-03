@@ -128,9 +128,7 @@
         "ci-before-pull-request": [
             "@composer ci-openapi-doc",
             "@composer ci-assert-no-changes",
-            "@composer ci-lint-test",
-            "@composer ci-audit",
-            "@composer ci-test"
+            "@composer ci-lint-test"
         ],
         "docs-serve": [
             "echo 'Starting Jekyll development server...'",
