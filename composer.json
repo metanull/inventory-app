@@ -121,14 +121,14 @@
         ],
         "ci-before-push": [
             "@composer ci-openapi-doc",
-            "@composer ci-lint",
-            "@composer ci-audit",
-            "@composer ci-test"
+            "@composer ci-lint"
         ],
         "ci-before-pull-request": [
             "@composer ci-openapi-doc",
             "@composer ci-assert-no-changes",
-            "@composer ci-lint-test"
+            "@composer ci-lint-test",
+            "@composer ci-audit",
+            "@composer ci-test"
         ],
         "docs-serve": [
             "echo 'Starting Jekyll development server...'",
