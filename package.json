@@ -4,7 +4,8 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "pre-commit": "lint-staged"
+        "pre-commit": "lint-staged",
+        "pre-push": "composer ci-before-push"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.10",

@@ -79,6 +79,9 @@
         "ci-lint": [
             ".\\vendor\\bin\\pint --no-interaction --ansi"
         ],
+        "ci-lint-test": [
+            ".\\vendor\\bin\\pint --test --no-interaction --ansi"
+        ],
         "ci-test": [
             "@php artisan test --parallel --ansi"
         ],
@@ -116,10 +119,16 @@
             "@php -r \"if (!is_dir('docs/_openapi')) { mkdir('docs/_openapi', 0755, true); }\"",
             "@php artisan scramble:export --path=docs/_openapi/api.json"
         ],
+        "ci-before-push": [
+            "@composer ci-openapi-doc",
+            "@composer ci-lint",
+            "@composer ci-audit",
+            "@composer ci-test"
+        ],
         "ci-before-pull-request": [
             "@composer ci-openapi-doc",
             "@composer ci-assert-no-changes",
-            "@composer ci-lint",
+            "@composer ci-lint-test",
             "@composer ci-audit",
             "@composer ci-test"
         ],
