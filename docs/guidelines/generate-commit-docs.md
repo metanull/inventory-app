@@ -100,7 +100,7 @@ Page website, including a documentation of the history of the repostory in your 
 pipelines.
 
 {: .note }
-> **Python script for the generation of the pages**: [generate-commit-docs.py](https://github.com/metanull/inventory-management-ui/blob/main/docs/generate-commit-docs.py)
+> **Python script for the generation of the pages**: [generate-commit-docs.py](https://github.com/metanull/inventory-app/blob/main/docs/generate-commit-docs.py)
 
 ```yaml
 name: Generate Commit Documentation

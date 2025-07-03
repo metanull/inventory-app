@@ -59,17 +59,6 @@ class AvailableImageController extends Controller
      */
     public function download(AvailableImage $availableImage)
     {
-        /*
-            Opt 1:  // Broken (not on the default disk)
-                return Storage::download($availableImage->path);
-            Opt 2:  // Works, but implies messing with the path field
-                $name = basename($availableImage->path);
-                $disk = config('localstorage.public.images.disk');
-                $dir = trim(config('localstorage.public.images.directory'), '/');
-                return Storage::disk($disk)->download($availableImage->path);
-            Opt 3:  // Works (as long as the path field is a relative path to the disk)
-                return Storage::disk(config('localstorage.public.images.disk'))->download($availableImage->path);
-        */
         return Storage::disk(config('localstorage.public.images.disk'))->download($availableImage->path);
     }
 }

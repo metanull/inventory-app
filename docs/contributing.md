@@ -1,12 +1,12 @@
 ---
 layout: default
 title: Contributing
-nav_order: 2
+nav_order: 3
 ---
 
 # Contributing Guidelines
 
-We welcome contributions to the Inventory Management UI! This document provides guidelines for contributing to the project.
+We welcome contributions to the Inventory Management API! This document provides guidelines for contributing to this RESTful API project built with PHP 8.2+ and Laravel 12.
 
 ## 🚀 Getting Started
 
@@ -14,25 +14,54 @@ We welcome contributions to the Inventory Management UI! This document provides 
 
 ```bash
 # Fork the repository on GitHub, then clone your fork
-git clone https://github.com/YOUR-USERNAME/inventory-management-ui.git
-cd inventory-management-ui
+git clone https://github.com/YOUR-USERNAME/inventory-app.git
+cd inventory-app
 
 # Add the original repository as upstream
-git remote add upstream https://github.com/ORIGINAL-OWNER/inventory-management-ui.git
+git remote add upstream https://github.com/metanull/inventory-app.git
 ```
 
-### 2. Set Up Development Environment
+### 2. Retrieve Dependencies
 
 ```bash
-# Install dependencies
-npm install
+# Install PHP dependencies
+composer install
 
+# Install Node.js dependencies (for frontend assets and code quality tools)
+npm install
+```
+
+### 3. Set Up Development Environment
+
+#### Using our composer scripts
+
+_See `composer.json` for a list of ci/cd scripts_
+
+```bash
+composer ci-reset
+```
+
+#### Or using artisan
+
+```bash
 # Set up environment variables
 cp .env.example .env
 # Edit .env with your configuration
 
-# Start development server
-npm run dev
+# Generate application key
+php artisan key:generate
+
+# Set up database and run migrations
+php artisan migrate --seed
+
+# Build frontend assets
+npm run build
+```
+
+### 4. Start the Development Server
+
+```bash
+php artisan serve
 ```
 
 ## 📋 Essential Guidelines
@@ -40,20 +69,20 @@ npm run dev
 Before contributing, please review our development guidelines:
 
 ### [📖 Coding Guidelines](guidelines/coding-guidelines/)
-- Vue.js & TypeScript standards
-- Component structure and organization
-- Styling with Tailwind CSS
+
+- PHP 8.2+ and Laravel 12 standards
+- Model, Controller, and Resource structure
+- Database design with Eloquent ORM
 - Quality controls and best practices
-- Architecture patterns
+- API architecture patterns
+- RESTful API design principles
 
 ### [🧪 Testing Guidelines](guidelines/testing/)
-- Testing requirements and coverage
-- Unit and component testing standards
-- Code review criteria
 
-### [🔗 API Integration Guidelines](guidelines/api-integration/)
-- Backend API integration patterns
-- Authentication and error handling
+- Testing requirements and coverage (690+ tests)
+- Unit, Feature, and Integration testing standards
+- PHPUnit and Laravel testing best practices
+- Code review criteria and validation
 
 ## 📝 Contribution Process
 
@@ -69,10 +98,11 @@ git checkout -b fix/bug-description
 
 ### 2. Make Your Changes
 
-- Write clear, concise code following our [coding standards](guidelines/coding-guidelines/)
+- Write clear, concise PHP code following our [coding standards](guidelines/coding-guidelines/)
+- Follow Laravel best practices and conventions
 - Add tests for new functionality (see [testing guidelines](guidelines/testing/))
-- Update documentation as needed
-- Follow the existing project structure
+- Update API documentation as needed (uses Scramble for auto-generation)
+- Follow the existing project structure and patterns
 
 ### 3. Commit Your Changes
 
@@ -80,10 +110,10 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```bash
 # Examples of good commit messages
-git commit -m "feat: add tag management to item detail view"
-git commit -m "fix: resolve routing issue with detail views"
-git commit -m "docs: update API integration documentation"
-git commit -m "test: add unit tests for auth store"
+git commit -m "feat: add new API endpoint for tag management"
+git commit -m "fix: resolve validation issue in item controller"
+git commit -m "docs: update API documentation for new endpoints"
+git commit -m "test: add unit tests for markdown service"
 ```
 
 ### 4. Push and Create Pull Request
@@ -104,16 +134,15 @@ git push origin feature/your-feature-name
 #### Option B: Using GitHub CLI (Recommended)
 
 ```bash
-# Install GitHub CLI
-# Windows: choco install gh
-# macOS: brew install gh
-# Linux: sudo apt install gh
+# Install GitHub CLI (if not already installed)
+# Windows PowerShell: winget install GitHub.cli
+# Or use chocolatey: choco install gh
 
 # Authenticate (one-time setup)
 gh auth login
 
 # Create PR with auto-merge and squash
-gh pr create --title "feat: add new feature" --body "Description of changes" \
+gh pr create --title "feat: add new API endpoint" --body "Description of changes" \
   --assignee @me \
   --label "enhancement" \
   --auto-merge \
@@ -125,23 +154,28 @@ gh pr create --title "feat: add new feature" --body "Description of changes" \
 Before submitting your PR, ensure you've followed our guidelines:
 
 ### Code Quality
+
 - [ ] Code follows our [coding standards](guidelines/coding-guidelines/)
 - [ ] All [quality controls](guidelines/coding-guidelines/#quality-controls) pass
-- [ ] No linting errors
-- [ ] TypeScript compilation successful
-- [ ] Build completes without errors
+- [ ] No linting errors (`composer ci-lint`)
+- [ ] PHP syntax is valid
+- [ ] Build completes without errors (`composer ci-build`)
 
 ### Testing
+
 - [ ] Tests written for new functionality (see [testing guidelines](guidelines/testing/))
-- [ ] All tests pass
-- [ ] Test coverage meets requirements (80%+ for new code)
+- [ ] All tests pass (`composer ci-test`)
+- [ ] Test coverage maintained (aim for 80%+ on new code)
+- [ ] Database migrations tested
 
 ### Documentation
-- [ ] Code is self-documenting
+
+- [ ] Code is self-documenting with proper PHPDoc comments
 - [ ] Complex logic is commented
-- [ ] Documentation updated if needed
+- [ ] API documentation updated if needed (Scramble auto-generates from code)
 
 ### Git
+
 - [ ] Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
 - [ ] Branch is up to date with main
 - [ ] No merge conflicts
@@ -151,37 +185,43 @@ Before submitting your PR, ensure you've followed our guidelines:
 ### What We Look For
 
 1. **Code Quality**
-   - Follows our [coding guidelines](guidelines/coding-guidelines/)
-   - Proper error handling
-   - Clean, readable code structure
+    - Follows our [coding guidelines](guidelines/coding-guidelines/)
+    - Proper error handling and validation
+    - Clean, readable PHP code structure
+    - Laravel best practices compliance
 
 2. **Testing**
-   - Meets our [testing requirements](guidelines/testing/)
-   - Edge cases covered
+    - Meets our [testing requirements](guidelines/testing/)
+    - Unit tests for models and services
+    - Feature tests for API endpoints
+    - Edge cases covered
 
 3. **Performance**
-   - No unnecessary re-renders
-   - Efficient API calls
-   - Proper loading states
+    - Efficient database queries (avoid N+1 problems)
+    - Proper use of Eloquent relationships
+    - Appropriate caching where needed
+    - Optimized API responses
 
-4. **Accessibility**
-   - Semantic HTML
-   - Proper ARIA labels
-   - Keyboard navigation support
+4. **Security**
+    - Input validation and sanitization
+    - Proper authentication and authorization
+    - No SQL injection vulnerabilities
+    - Secure file upload handling
 
 ## 🎯 Areas for Contribution
 
 We especially welcome contributions in these areas:
 
-- **New features** - enhance existing functionality
+- **New API endpoints** - enhance existing functionality
 - **Bug fixes** - help us improve stability
-- **Performance improvements** - optimize the application
-- **Accessibility** - make the app more inclusive
-- **Documentation** - improve guides and examples
-- **Testing** - increase test coverage
-- **UI/UX improvements** - enhance user experience
-- **Entity enhancements** - improve CRUD operations for all entities
-- **File upload improvements** - enhance image upload functionality
+- **Performance improvements** - optimize database queries and API responses
+- **Security enhancements** - strengthen authentication and validation
+- **Documentation** - improve guides and API documentation
+- **Testing** - increase test coverage and add edge case tests
+- **Entity enhancements** - improve CRUD operations for all models
+- **Image processing improvements** - enhance upload and processing functionality
+- **Database optimizations** - improve migrations and seeding
+- **API feature additions** - new endpoints for better functionality
 
 ## 📞 Getting Help
 
@@ -194,12 +234,13 @@ For technical questions about our development practices, please refer to our [gu
 ## 🏆 Recognition
 
 Contributors will be recognized in:
+
 - The project's README
 - Release notes for significant contributions
 - GitHub's contributor list
 
-Thank you for contributing to the Inventory Management UI! 🎉
+Thank you for contributing to the Inventory Management API! 🎉
 
 ---
 
-*Last updated: {{ site.time | date: "%B %d, %Y" }}*
+_Last updated: {{ site.time | date: "%B %d, %Y" }}_

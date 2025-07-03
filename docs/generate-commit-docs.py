@@ -42,6 +42,28 @@ class CommitDocGenerator:
         sanitized = re.sub(r'\s+', ' ', sanitized)
         sanitized = sanitized.strip()
         return sanitized
+    
+    def escape_yaml_string(self, text):
+        """Escape a string for safe use in YAML front matter"""
+        if not text:
+            return '""'
+        
+        # If the string contains quotes, backslashes, or other special YAML characters,
+        # we need to escape them or use literal block style
+        if '"' in text or '\\' in text or '\n' in text or '\r' in text:
+            # Escape quotes and backslashes
+            escaped = text.replace('\\', '\\\\').replace('"', '\\"')
+            return f'"{escaped}"'
+        else:
+            # Safe to use as-is with quotes
+            return f'"{text}"'
+    
+    def jekyll_url_sanitize(self, filename_stem):
+        """Convert filename stem to Jekyll-style URL format (lowercase with hyphens)"""
+        # Jekyll converts filenames to lowercase and replaces underscores with hyphens
+        url_safe = filename_stem.lower().replace('_', '-')
+        return url_safe
+    
     def sanitize_filename(self, text):
         """Sanitize text for use in filenames"""
         sanitized = re.sub(r'[^a-zA-Z0-9._-]', '_', text)
@@ -189,13 +211,15 @@ class CommitDocGenerator:
         filename = f"{file_date}-{short_hash}-{safe_title}.md"
 
         safe_title_text = self.sanitize_title(commit['title'])
+        escaped_title = self.escape_yaml_string(commit['title'])
+        escaped_author = self.escape_yaml_string(commit['author'])
         
         # Generate content
         content = f"""---
 layout: default
-title: "{safe_title_text}"
+title: {escaped_title}
 date: {commit['date']}
-author: {commit['author']}
+author: {escaped_author}
 commit_hash: {commit['hash']}
 nav_exclude: true
 ---
@@ -218,8 +242,8 @@ nav_exclude: true
 
 ## Links
 
-- [View commit on GitHub](https://github.com/metanull/inventory-management-ui/commit/{commit['hash']})
-- [Browse repository at this commit](https://github.com/metanull/inventory-management-ui/tree/{commit['hash']})
+- [View commit on GitHub](https://github.com/metanull/inventory-app/commit/{commit['hash']})
+- [Browse repository at this commit](https://github.com/metanull/inventory-app/tree/{commit['hash']})
 
 ---
 
@@ -252,14 +276,16 @@ This directory contains automatically generated documentation for each commit to
             try:
                 with open(md_file, 'r', encoding='utf-8') as f:
                     content = f.read()
-                    title_match = re.search(r'^title:\s*"(.+)"$', content, re.MULTILINE)
+                    # Handle both quoted and escaped quoted titles
+                    title_match = re.search(r'^title:\s*"((?:[^"\\]|\\.)*)"\s*$', content, re.MULTILINE)
                     date_match = re.search(r'^date:\s*(.+)$', content, re.MULTILINE)
                     
                     if title_match and date_match:
-                        title = title_match.group(1)
+                        title = title_match.group(1).replace('\\"', '"').replace('\\\\', '\\')  # Unescape
                         date = date_match.group(1).split()[0]  # Just the date part
                         basename = md_file.stem
-                        index_content += f"- [{title}]({basename}/) - {date}\n"
+                        jekyll_url = self.jekyll_url_sanitize(basename)
+                        index_content += f"- [{title}]({{{{ site.baseurl }}}}/commits/{jekyll_url}/) - {date}\n"
             except Exception as e:
                 logger.warning(f"Could not process {md_file}: {e}")
         
