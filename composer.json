@@ -117,8 +117,7 @@
         ],
         "ci-openapi-doc": [
             "@php -r \"if (!is_dir('docs/_openapi')) { mkdir('docs/_openapi', 0755, true); }\"",
-            "@php artisan scramble:export --path=docs/_openapi/api.json",
-            ".\\vendor\\bin\\pint --no-interaction --ansi docs/_openapi/api.json"
+            "@php artisan scramble:export --path=docs/_openapi/api.json"
         ],
         "ci-before-push": [
             "@composer ci-openapi-doc",
