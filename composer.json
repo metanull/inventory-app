@@ -121,8 +121,8 @@
             "@php artisan scramble:export --path=docs/_openapi/api.json"
         ],
         "ci-before-push": [
-            "@composer ci-openapi-doc",
-            "@composer ci-lint"
+            "@composer ci-lint",
+            "@composer ci-openapi-doc"
         ],
         "ci-before-pull-request": [
             "@composer ci-openapi-doc",
