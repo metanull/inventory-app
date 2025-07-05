@@ -4,6 +4,7 @@
 **CRITICAL: docs/ contains a distinct Ruby application based on Jekyll**
 **CRITICAL: Always use wsl when interacting with Ruby**
 **CRITICAL: When creating a pull-request (pr), if on the main branch, always first create a dedicated branch for the pr, then create the pr from that branch**
+**CRITICAL: when creating a branch for a pull request, always use the `feature/` or `fix/` prefix, depending on the type of change**
 **CRITICAL: when using `gh pr create` always escape the `--assignee @me` like this: `--assignee "@me"` and never use `--label`**
 **CRITICAL: when using `gh pr create` always make the pr auto-merge in squash mode**
 **CRITICAL: when using `gh pr create` never use --merge --squash (as it is not supported), first create the pr, then make the pr 'auto-merge' in a second instruction**
