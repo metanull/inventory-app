@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             LanguageSeeder::class,
             CountrySeeder::class,
+            ContactSeeder::class,
             ContextSeeder::class,
             ProjectSeeder::class,
             TagSeeder::class,
