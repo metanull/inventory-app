@@ -74,14 +74,13 @@
         "ci-audit": [
             "@composer validate --with-dependencies --strict --ansi",
             "@composer audit --format=summary",
-            ".\\vendor\\bin\\pint --test --no-interaction --ansi",
             "npm audit --audit-level moderate"
         ],
         "ci-lint": [
-            ".\\vendor\\bin\\pint --no-interaction --ansi"
+            ".\\vendor\\bin\\pint --no-interaction --ansi --exclude=docs/_openapi/api.json"
         ],
         "ci-lint-test": [
-            ".\\vendor\\bin\\pint --test --no-interaction --ansi"
+            ".\\vendor\\bin\\pint --test --no-interaction --ansi --exclude=docs/_openapi/api.json"
         ],
         "ci-test": [
             "@php artisan test --parallel --ansi"
