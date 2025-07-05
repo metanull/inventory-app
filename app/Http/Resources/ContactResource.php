@@ -5,6 +5,9 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property-read array<int, array{id: string, name: string, label: string}> $languages Array of language objects for this contact.
+ */
 class ContactResource extends JsonResource
 {
     /**
