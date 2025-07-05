@@ -77,10 +77,10 @@
             "npm audit --audit-level moderate"
         ],
         "ci-lint": [
-            ".\\vendor\\bin\\pint --no-interaction --ansi --exclude=docs/_openapi/api.json"
+            ".\\vendor\\bin\\pint --no-interaction --ansi"
         ],
         "ci-lint-test": [
-            ".\\vendor\\bin\\pint --test --no-interaction --ansi --exclude=docs/_openapi/api.json"
+            ".\\vendor\\bin\\pint --test --no-interaction --ansi"
         ],
         "ci-test": [
             "@php artisan test --parallel --ansi"
