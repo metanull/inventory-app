@@ -44,6 +44,9 @@
         ],
         "*.php": [
             "composer ci-lint"
+        ],
+        "ignore": [
+            "docs/_openapi/api.json"
         ]
     }
 }
