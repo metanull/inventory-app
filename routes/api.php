@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\MarkdownController;
 use App\Http\Controllers\AvailableImageController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ContextController;
 use App\Http\Controllers\ContextualizationController;
 use App\Http\Controllers\CountryController;
@@ -120,6 +121,10 @@ Route::resource('available-image', AvailableImageController::class)->except([
 ])->middleware('auth:sanctum');
 
 Route::resource('detail', DetailController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('contact', ContactController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 
