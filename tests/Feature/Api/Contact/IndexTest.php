@@ -74,7 +74,6 @@ class IndexTest extends TestCase
                         '*' => [
                             'id',
                             'name',
-                            'code',
                             'label',
                         ],
                     ],

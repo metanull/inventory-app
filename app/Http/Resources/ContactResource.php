@@ -27,7 +27,6 @@ class ContactResource extends JsonResource
                     return [
                         'id' => $language->id,
                         'name' => $language->name,
-                        'code' => $language->code,
                         'label' => $language->pivot->label,
                     ];
                 });
