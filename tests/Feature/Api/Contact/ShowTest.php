@@ -71,7 +71,6 @@ class ShowTest extends TestCase
                     '*' => [
                         'id',
                         'name',
-                        'code',
                         'label',
                     ],
                 ],
