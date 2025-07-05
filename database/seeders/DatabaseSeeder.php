@@ -30,6 +30,9 @@ class DatabaseSeeder extends Seeder
             AvailableImageSeeder::class,
             ContextualizationSeeder::class,
             InternationalizationSeeder::class,
+            ArtistSeeder::class,
+            AuthorSeeder::class,
+            WorkshopSeeder::class,
         ]);
     }
 }
