@@ -1,0 +1,1076 @@
+[
+    {
+        "id": "abk",
+        "internal_name": "Abkhazian",
+        "backward_compatibility": "ab",
+        "is_default": false
+    },
+    {
+        "id": "aar",
+        "internal_name": "Afar",
+        "backward_compatibility": "aa",
+        "is_default": false
+    },
+    {
+        "id": "afr",
+        "internal_name": "Afrikaans",
+        "backward_compatibility": "af",
+        "is_default": false
+    },
+    {
+        "id": "aka",
+        "internal_name": "Akan",
+        "backward_compatibility": "ak",
+        "is_default": false
+    },
+    {
+        "id": "amh",
+        "internal_name": "Amharic",
+        "backward_compatibility": "am",
+        "is_default": false
+    },
+    {
+        "id": "ara",
+        "internal_name": "Arabic",
+        "backward_compatibility": "ar",
+        "is_default": false
+    },
+    {
+        "id": "arg",
+        "internal_name": "Aragonese",
+        "backward_compatibility": "an",
+        "is_default": false
+    },
+    {
+        "id": "asm",
+        "internal_name": "Assamese",
+        "backward_compatibility": "as",
+        "is_default": false
+    },
+    {
+        "id": "ava",
+        "internal_name": "Avaric",
+        "backward_compatibility": "av",
+        "is_default": false
+    },
+    {
+        "id": "ave",
+        "internal_name": "Avestan",
+        "backward_compatibility": "ae",
+        "is_default": false
+    },
+    {
+        "id": "aym",
+        "internal_name": "Aymara",
+        "backward_compatibility": "ay",
+        "is_default": false
+    },
+    {
+        "id": "aze",
+        "internal_name": "Azerbaijani",
+        "backward_compatibility": "az",
+        "is_default": false
+    },
+    {
+        "id": "bak",
+        "internal_name": "Bashkir",
+        "backward_compatibility": "ba",
+        "is_default": false
+    },
+    {
+        "id": "bam",
+        "internal_name": "Bambara",
+        "backward_compatibility": "bm",
+        "is_default": false
+    },
+    {
+        "id": "bel",
+        "internal_name": "Belarusian",
+        "backward_compatibility": "be",
+        "is_default": false
+    },
+    {
+        "id": "ben",
+        "internal_name": "Bengali",
+        "backward_compatibility": "bn",
+        "is_default": false
+    },
+    {
+        "id": "bis",
+        "internal_name": "Bislama",
+        "backward_compatibility": "bi",
+        "is_default": false
+    },
+    {
+        "id": "bod",
+        "internal_name": "Tibetan",
+        "backward_compatibility": "bo",
+        "is_default": false
+    },
+    {
+        "id": "bos",
+        "internal_name": "Bosnian",
+        "backward_compatibility": "bs",
+        "is_default": false
+    },
+    {
+        "id": "bre",
+        "internal_name": "Breton",
+        "backward_compatibility": "br",
+        "is_default": false
+    },
+    {
+        "id": "bul",
+        "internal_name": "Bulgarian",
+        "backward_compatibility": "bg",
+        "is_default": false
+    },
+    {
+        "id": "cat",
+        "internal_name": "Catalan",
+        "backward_compatibility": "ca",
+        "is_default": false
+    },
+    {
+        "id": "ces",
+        "internal_name": "Czech",
+        "backward_compatibility": "cs",
+        "is_default": false
+    },
+    {
+        "id": "chu",
+        "internal_name": "Church Slavic",
+        "backward_compatibility": "cu",
+        "is_default": false
+    },
+    {
+        "id": "chv",
+        "internal_name": "Chuvash",
+        "backward_compatibility": "cv",
+        "is_default": false
+    },
+    {
+        "id": "cor",
+        "internal_name": "Cornish",
+        "backward_compatibility": "kw",
+        "is_default": false
+    },
+    {
+        "id": "cos",
+        "internal_name": "Corsican",
+        "backward_compatibility": "co",
+        "is_default": false
+    },
+    {
+        "id": "cre",
+        "internal_name": "Cree",
+        "backward_compatibility": "cr",
+        "is_default": false
+    },
+    {
+        "id": "cym",
+        "internal_name": "Welsh",
+        "backward_compatibility": "cy",
+        "is_default": false
+    },
+    {
+        "id": "dan",
+        "internal_name": "Danish",
+        "backward_compatibility": "da",
+        "is_default": false
+    },
+    {
+        "id": "deu",
+        "internal_name": "Deutsch",
+        "backward_compatibility": "de",
+        "is_default": false
+    },
+    {
+        "id": "div",
+        "internal_name": "Divehi",
+        "backward_compatibility": "dv",
+        "is_default": false
+    },
+    {
+        "id": "dzo",
+        "internal_name": "Dzongkha",
+        "backward_compatibility": "dz",
+        "is_default": false
+    },
+    {
+        "id": "ell",
+        "internal_name": "Greek",
+        "backward_compatibility": "el",
+        "is_default": false
+    },
+    {
+        "id": "eng",
+        "internal_name": "English",
+        "backward_compatibility": "en",
+        "is_default": true
+    },
+    {
+        "id": "epo",
+        "internal_name": "Esperanto",
+        "backward_compatibility": "eo",
+        "is_default": false
+    },
+    {
+        "id": "est",
+        "internal_name": "Estonian",
+        "backward_compatibility": "et",
+        "is_default": false
+    },
+    {
+        "id": "eus",
+        "internal_name": "Basque",
+        "backward_compatibility": "eu",
+        "is_default": false
+    },
+    {
+        "id": "fas",
+        "internal_name": "Persian",
+        "backward_compatibility": "fa",
+        "is_default": false
+    },
+    {
+        "id": "fij",
+        "internal_name": "Fijian",
+        "backward_compatibility": "fj",
+        "is_default": false
+    },
+    {
+        "id": "fin",
+        "internal_name": "Finnish",
+        "backward_compatibility": "fi",
+        "is_default": false
+    },
+    {
+        "id": "fra",
+        "internal_name": "Français",
+        "backward_compatibility": "fr",
+        "is_default": false
+    },
+    {
+        "id": "fry",
+        "internal_name": "Western Frisian",
+        "backward_compatibility": "fy",
+        "is_default": false
+    },
+    {
+        "id": "ful",
+        "internal_name": "Fulah",
+        "backward_compatibility": "ff",
+        "is_default": false
+    },
+    {
+        "id": "gla",
+        "internal_name": "Scottish Gaelic",
+        "backward_compatibility": "gd",
+        "is_default": false
+    },
+    {
+        "id": "gle",
+        "internal_name": "Irish",
+        "backward_compatibility": "ga",
+        "is_default": false
+    },
+    {
+        "id": "glg",
+        "internal_name": "Galician",
+        "backward_compatibility": "gl",
+        "is_default": false
+    },
+    {
+        "id": "glv",
+        "internal_name": "Manx",
+        "backward_compatibility": "gv",
+        "is_default": false
+    },
+    {
+        "id": "grn",
+        "internal_name": "Guarani",
+        "backward_compatibility": "gn",
+        "is_default": false
+    },
+    {
+        "id": "guj",
+        "internal_name": "Gujarati",
+        "backward_compatibility": "gu",
+        "is_default": false
+    },
+    {
+        "id": "hat",
+        "internal_name": "Haitian",
+        "backward_compatibility": "ht",
+        "is_default": false
+    },
+    {
+        "id": "hau",
+        "internal_name": "Hausa",
+        "backward_compatibility": "ha",
+        "is_default": false
+    },
+    {
+        "id": "hbs",
+        "internal_name": "Serbo-Croatian",
+        "backward_compatibility": "sh",
+        "is_default": false
+    },
+    {
+        "id": "heb",
+        "internal_name": "Hebrew",
+        "backward_compatibility": "he",
+        "is_default": false
+    },
+    {
+        "id": "her",
+        "internal_name": "Herero",
+        "backward_compatibility": "hz",
+        "is_default": false
+    },
+    {
+        "id": "hin",
+        "internal_name": "Hindi",
+        "backward_compatibility": "hi",
+        "is_default": false
+    },
+    {
+        "id": "hmo",
+        "internal_name": "Hiri Motu",
+        "backward_compatibility": "ho",
+        "is_default": false
+    },
+    {
+        "id": "hrv",
+        "internal_name": "Croatian",
+        "backward_compatibility": "hr",
+        "is_default": false
+    },
+    {
+        "id": "hun",
+        "internal_name": "Hungarian",
+        "backward_compatibility": "hu",
+        "is_default": false
+    },
+    {
+        "id": "hye",
+        "internal_name": "Armenian",
+        "backward_compatibility": "hy",
+        "is_default": false
+    },
+    {
+        "id": "ibo",
+        "internal_name": "Igbo",
+        "backward_compatibility": "ig",
+        "is_default": false
+    },
+    {
+        "id": "ido",
+        "internal_name": "Ido",
+        "backward_compatibility": "io",
+        "is_default": false
+    },
+    {
+        "id": "iii",
+        "internal_name": "Sichuan Yi",
+        "backward_compatibility": "ii",
+        "is_default": false
+    },
+    {
+        "id": "iku",
+        "internal_name": "Inuktitut",
+        "backward_compatibility": "iu",
+        "is_default": false
+    },
+    {
+        "id": "ile",
+        "internal_name": "Interlingue",
+        "backward_compatibility": "ie",
+        "is_default": false
+    },
+    {
+        "id": "ina",
+        "internal_name": "Interlingua",
+        "backward_compatibility": "ia",
+        "is_default": false
+    },
+    {
+        "id": "ind",
+        "internal_name": "Indonesian",
+        "backward_compatibility": "id",
+        "is_default": false
+    },
+    {
+        "id": "ipk",
+        "internal_name": "Inupiaq",
+        "backward_compatibility": "ik",
+        "is_default": false
+    },
+    {
+        "id": "isl",
+        "internal_name": "Icelandic",
+        "backward_compatibility": "is",
+        "is_default": false
+    },
+    {
+        "id": "ita",
+        "internal_name": "Italiano",
+        "backward_compatibility": "it",
+        "is_default": false
+    },
+    {
+        "id": "jav",
+        "internal_name": "Javanese",
+        "backward_compatibility": "jv",
+        "is_default": false
+    },
+    {
+        "id": "jpn",
+        "internal_name": "Japanese",
+        "backward_compatibility": "ja",
+        "is_default": false
+    },
+    {
+        "id": "kal",
+        "internal_name": "Kalaallisut",
+        "backward_compatibility": "kl",
+        "is_default": false
+    },
+    {
+        "id": "kan",
+        "internal_name": "Kannada",
+        "backward_compatibility": "kn",
+        "is_default": false
+    },
+    {
+        "id": "kas",
+        "internal_name": "Kashmiri",
+        "backward_compatibility": "ks",
+        "is_default": false
+    },
+    {
+        "id": "kat",
+        "internal_name": "Georgian",
+        "backward_compatibility": "ka",
+        "is_default": false
+    },
+    {
+        "id": "kau",
+        "internal_name": "Kanuri",
+        "backward_compatibility": "kr",
+        "is_default": false
+    },
+    {
+        "id": "kaz",
+        "internal_name": "Kazakh",
+        "backward_compatibility": "kk",
+        "is_default": false
+    },
+    {
+        "id": "khm",
+        "internal_name": "Central Khmer",
+        "backward_compatibility": "km",
+        "is_default": false
+    },
+    {
+        "id": "kik",
+        "internal_name": "Kikuyu",
+        "backward_compatibility": "ki",
+        "is_default": false
+    },
+    {
+        "id": "kin",
+        "internal_name": "Kinyarwanda",
+        "backward_compatibility": "rw",
+        "is_default": false
+    },
+    {
+        "id": "kir",
+        "internal_name": "Kirghiz",
+        "backward_compatibility": "ky",
+        "is_default": false
+    },
+    {
+        "id": "kom",
+        "internal_name": "Komi",
+        "backward_compatibility": "kv",
+        "is_default": false
+    },
+    {
+        "id": "kon",
+        "internal_name": "Kongo",
+        "backward_compatibility": "kg",
+        "is_default": false
+    },
+    {
+        "id": "kor",
+        "internal_name": "Korean",
+        "backward_compatibility": "ko",
+        "is_default": false
+    },
+    {
+        "id": "kua",
+        "internal_name": "Kuanyama",
+        "backward_compatibility": "kj",
+        "is_default": false
+    },
+    {
+        "id": "kur",
+        "internal_name": "Kurdish",
+        "backward_compatibility": "ku",
+        "is_default": false
+    },
+    {
+        "id": "lao",
+        "internal_name": "Lao",
+        "backward_compatibility": "lo",
+        "is_default": false
+    },
+    {
+        "id": "lat",
+        "internal_name": "Latin",
+        "backward_compatibility": "la",
+        "is_default": false
+    },
+    {
+        "id": "lav",
+        "internal_name": "Latvian",
+        "backward_compatibility": "lv",
+        "is_default": false
+    },
+    {
+        "id": "lim",
+        "internal_name": "Limburgan",
+        "backward_compatibility": "li",
+        "is_default": false
+    },
+    {
+        "id": "lin",
+        "internal_name": "Lingala",
+        "backward_compatibility": "ln",
+        "is_default": false
+    },
+    {
+        "id": "lit",
+        "internal_name": "Lithuanian",
+        "backward_compatibility": "lt",
+        "is_default": false
+    },
+    {
+        "id": "ltz",
+        "internal_name": "Luxembourgish",
+        "backward_compatibility": "lb",
+        "is_default": false
+    },
+    {
+        "id": "lub",
+        "internal_name": "Luba-Katanga",
+        "backward_compatibility": "lu",
+        "is_default": false
+    },
+    {
+        "id": "lug",
+        "internal_name": "Ganda",
+        "backward_compatibility": "lg",
+        "is_default": false
+    },
+    {
+        "id": "mah",
+        "internal_name": "Marshallese",
+        "backward_compatibility": "mh",
+        "is_default": false
+    },
+    {
+        "id": "mal",
+        "internal_name": "Malayalam",
+        "backward_compatibility": "ml",
+        "is_default": false
+    },
+    {
+        "id": "mar",
+        "internal_name": "Marathi",
+        "backward_compatibility": "mr",
+        "is_default": false
+    },
+    {
+        "id": "mkd",
+        "internal_name": "Macedonian",
+        "backward_compatibility": "mk",
+        "is_default": false
+    },
+    {
+        "id": "mlg",
+        "internal_name": "Malagasy",
+        "backward_compatibility": "mg",
+        "is_default": false
+    },
+    {
+        "id": "mlt",
+        "internal_name": "Maltese",
+        "backward_compatibility": "mt",
+        "is_default": false
+    },
+    {
+        "id": "mon",
+        "internal_name": "Mongolian",
+        "backward_compatibility": "mn",
+        "is_default": false
+    },
+    {
+        "id": "mri",
+        "internal_name": "Maori",
+        "backward_compatibility": "mi",
+        "is_default": false
+    },
+    {
+        "id": "msa",
+        "internal_name": "Malay",
+        "backward_compatibility": "ms",
+        "is_default": false
+    },
+    {
+        "id": "mya",
+        "internal_name": "Burmese",
+        "backward_compatibility": "my",
+        "is_default": false
+    },
+    {
+        "id": "nau",
+        "internal_name": "Nauru",
+        "backward_compatibility": "na",
+        "is_default": false
+    },
+    {
+        "id": "nav",
+        "internal_name": "Navajo",
+        "backward_compatibility": "nv",
+        "is_default": false
+    },
+    {
+        "id": "nbl",
+        "internal_name": "South Ndebele",
+        "backward_compatibility": "nr",
+        "is_default": false
+    },
+    {
+        "id": "nde",
+        "internal_name": "North Ndebele",
+        "backward_compatibility": "nd",
+        "is_default": false
+    },
+    {
+        "id": "ndo",
+        "internal_name": "Ndonga",
+        "backward_compatibility": "ng",
+        "is_default": false
+    },
+    {
+        "id": "nep",
+        "internal_name": "Nepali",
+        "backward_compatibility": "ne",
+        "is_default": false
+    },
+    {
+        "id": "nld",
+        "internal_name": "Dutch",
+        "backward_compatibility": "nl",
+        "is_default": false
+    },
+    {
+        "id": "nno",
+        "internal_name": "Norwegian Nynorsk",
+        "backward_compatibility": "nn",
+        "is_default": false
+    },
+    {
+        "id": "nob",
+        "internal_name": "Norwegian Bokmål",
+        "backward_compatibility": "nb",
+        "is_default": false
+    },
+    {
+        "id": "nor",
+        "internal_name": "Norwegian",
+        "backward_compatibility": "no",
+        "is_default": false
+    },
+    {
+        "id": "nya",
+        "internal_name": "Chichewa",
+        "backward_compatibility": "ny",
+        "is_default": false
+    },
+    {
+        "id": "oci",
+        "internal_name": "Occitan",
+        "backward_compatibility": "oc",
+        "is_default": false
+    },
+    {
+        "id": "oji",
+        "internal_name": "Ojibwa",
+        "backward_compatibility": "oj",
+        "is_default": false
+    },
+    {
+        "id": "ori",
+        "internal_name": "Oriya",
+        "backward_compatibility": "or",
+        "is_default": false
+    },
+    {
+        "id": "orm",
+        "internal_name": "Oromo",
+        "backward_compatibility": "om",
+        "is_default": false
+    },
+    {
+        "id": "oss",
+        "internal_name": "Ossetian",
+        "backward_compatibility": "os",
+        "is_default": false
+    },
+    {
+        "id": "pan",
+        "internal_name": "Panjabi",
+        "backward_compatibility": "pa",
+        "is_default": false
+    },
+    {
+        "id": "pli",
+        "internal_name": "Pali",
+        "backward_compatibility": "pi",
+        "is_default": false
+    },
+    {
+        "id": "pol",
+        "internal_name": "Polish",
+        "backward_compatibility": "pl",
+        "is_default": false
+    },
+    {
+        "id": "por",
+        "internal_name": "Português",
+        "backward_compatibility": "pt",
+        "is_default": false
+    },
+    {
+        "id": "pus",
+        "internal_name": "Pashto",
+        "backward_compatibility": "ps",
+        "is_default": false
+    },
+    {
+        "id": "que",
+        "internal_name": "Quechua",
+        "backward_compatibility": "qu",
+        "is_default": false
+    },
+    {
+        "id": "roh",
+        "internal_name": "Romansh",
+        "backward_compatibility": "rm",
+        "is_default": false
+    },
+    {
+        "id": "ron",
+        "internal_name": "Romanian",
+        "backward_compatibility": "ro",
+        "is_default": false
+    },
+    {
+        "id": "run",
+        "internal_name": "Rundi",
+        "backward_compatibility": "rn",
+        "is_default": false
+    },
+    {
+        "id": "rus",
+        "internal_name": "Russian",
+        "backward_compatibility": "ru",
+        "is_default": false
+    },
+    {
+        "id": "sag",
+        "internal_name": "Sango",
+        "backward_compatibility": "sg",
+        "is_default": false
+    },
+    {
+        "id": "san",
+        "internal_name": "Sanskrit",
+        "backward_compatibility": "sa",
+        "is_default": false
+    },
+    {
+        "id": "sin",
+        "internal_name": "Sinhala",
+        "backward_compatibility": "si",
+        "is_default": false
+    },
+    {
+        "id": "slk",
+        "internal_name": "Slovak",
+        "backward_compatibility": "sk",
+        "is_default": false
+    },
+    {
+        "id": "slv",
+        "internal_name": "Slovenian",
+        "backward_compatibility": "sl",
+        "is_default": false
+    },
+    {
+        "id": "sme",
+        "internal_name": "Northern Sami",
+        "backward_compatibility": "se",
+        "is_default": false
+    },
+    {
+        "id": "smo",
+        "internal_name": "Samoan",
+        "backward_compatibility": "sm",
+        "is_default": false
+    },
+    {
+        "id": "sna",
+        "internal_name": "Shona",
+        "backward_compatibility": "sn",
+        "is_default": false
+    },
+    {
+        "id": "snd",
+        "internal_name": "Sindhi",
+        "backward_compatibility": "sd",
+        "is_default": false
+    },
+    {
+        "id": "som",
+        "internal_name": "Somali",
+        "backward_compatibility": "so",
+        "is_default": false
+    },
+    {
+        "id": "sot",
+        "internal_name": "Southern Sotho",
+        "backward_compatibility": "st",
+        "is_default": false
+    },
+    {
+        "id": "spa",
+        "internal_name": "Español",
+        "backward_compatibility": "es",
+        "is_default": false
+    },
+    {
+        "id": "sqi",
+        "internal_name": "Albanian",
+        "backward_compatibility": "sq",
+        "is_default": false
+    },
+    {
+        "id": "srd",
+        "internal_name": "Sardinian",
+        "backward_compatibility": "sc",
+        "is_default": false
+    },
+    {
+        "id": "srp",
+        "internal_name": "Serbian",
+        "backward_compatibility": "sr",
+        "is_default": false
+    },
+    {
+        "id": "ssw",
+        "internal_name": "Swati",
+        "backward_compatibility": "ss",
+        "is_default": false
+    },
+    {
+        "id": "sun",
+        "internal_name": "Sundanese",
+        "backward_compatibility": "su",
+        "is_default": false
+    },
+    {
+        "id": "swa",
+        "internal_name": "Swahili",
+        "backward_compatibility": "sw",
+        "is_default": false
+    },
+    {
+        "id": "swe",
+        "internal_name": "Swedish",
+        "backward_compatibility": "sv",
+        "is_default": false
+    },
+    {
+        "id": "tah",
+        "internal_name": "Tahitian",
+        "backward_compatibility": "ty",
+        "is_default": false
+    },
+    {
+        "id": "tam",
+        "internal_name": "Tamil",
+        "backward_compatibility": "ta",
+        "is_default": false
+    },
+    {
+        "id": "tat",
+        "internal_name": "Tatar",
+        "backward_compatibility": "tt",
+        "is_default": false
+    },
+    {
+        "id": "tel",
+        "internal_name": "Telugu",
+        "backward_compatibility": "te",
+        "is_default": false
+    },
+    {
+        "id": "tgk",
+        "internal_name": "Tajik",
+        "backward_compatibility": "tg",
+        "is_default": false
+    },
+    {
+        "id": "tgl",
+        "internal_name": "Tagalog",
+        "backward_compatibility": "tl",
+        "is_default": false
+    },
+    {
+        "id": "tha",
+        "internal_name": "Thai",
+        "backward_compatibility": "th",
+        "is_default": false
+    },
+    {
+        "id": "tir",
+        "internal_name": "Tigrinya",
+        "backward_compatibility": "ti",
+        "is_default": false
+    },
+    {
+        "id": "ton",
+        "internal_name": "Tonga",
+        "backward_compatibility": "to",
+        "is_default": false
+    },
+    {
+        "id": "tsn",
+        "internal_name": "Tswana",
+        "backward_compatibility": "tn",
+        "is_default": false
+    },
+    {
+        "id": "tso",
+        "internal_name": "Tsonga",
+        "backward_compatibility": "ts",
+        "is_default": false
+    },
+    {
+        "id": "tuk",
+        "internal_name": "Turkmen",
+        "backward_compatibility": "tk",
+        "is_default": false
+    },
+    {
+        "id": "tur",
+        "internal_name": "Turkish",
+        "backward_compatibility": "tr",
+        "is_default": false
+    },
+    {
+        "id": "twi",
+        "internal_name": "Twi",
+        "backward_compatibility": "tw",
+        "is_default": false
+    },
+    {
+        "id": "uig",
+        "internal_name": "Uighur",
+        "backward_compatibility": "ug",
+        "is_default": false
+    },
+    {
+        "id": "ukr",
+        "internal_name": "Ukrainian",
+        "backward_compatibility": "uk",
+        "is_default": false
+    },
+    {
+        "id": "urd",
+        "internal_name": "Urdu",
+        "backward_compatibility": "ur",
+        "is_default": false
+    },
+    {
+        "id": "uzb",
+        "internal_name": "Uzbek",
+        "backward_compatibility": "uz",
+        "is_default": false
+    },
+    {
+        "id": "ven",
+        "internal_name": "Venda",
+        "backward_compatibility": "ve",
+        "is_default": false
+    },
+    {
+        "id": "vie",
+        "internal_name": "Vietnamese",
+        "backward_compatibility": "vi",
+        "is_default": false
+    },
+    {
+        "id": "vol",
+        "internal_name": "Volapük",
+        "backward_compatibility": "vo",
+        "is_default": false
+    },
+    {
+        "id": "wln",
+        "internal_name": "Walloon",
+        "backward_compatibility": "wa",
+        "is_default": false
+    },
+    {
+        "id": "wol",
+        "internal_name": "Wolof",
+        "backward_compatibility": "wo",
+        "is_default": false
+    },
+    {
+        "id": "xho",
+        "internal_name": "Xhosa",
+        "backward_compatibility": "xh",
+        "is_default": false
+    },
+    {
+        "id": "yid",
+        "internal_name": "Yiddish",
+        "backward_compatibility": "yi",
+        "is_default": false
+    },
+    {
+        "id": "yor",
+        "internal_name": "Yoruba",
+        "backward_compatibility": "yo",
+        "is_default": false
+    },
+    {
+        "id": "zha",
+        "internal_name": "Zhuang",
+        "backward_compatibility": "za",
+        "is_default": false
+    },
+    {
+        "id": "zul",
+        "internal_name": "Zulu",
+        "backward_compatibility": "zu",
+        "is_default": false
+    }
+]

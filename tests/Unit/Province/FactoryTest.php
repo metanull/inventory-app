@@ -16,10 +16,6 @@ class FactoryTest extends TestCase
 
     public function test_province_factory_creates_valid_province(): void
     {
-        // Create languages and countries first
-        Language::factory(3)->create();
-        Country::factory(2)->create();
-
         $province = Province::factory()->create();
 
         $this->assertDatabaseHas('provinces', [
@@ -38,11 +34,7 @@ class FactoryTest extends TestCase
         // Check that country_id exists in countries table
         $this->assertDatabaseHas('countries', ['id' => $province->country_id]);
 
-        // Load the languages relationship manually for testing
-        $province->load('languages');
-
-        // Check that languages relationship is loaded
-        $this->assertTrue($province->relationLoaded('languages'));
+        // Check that languages relationship exists and is accessible
         $this->assertGreaterThan(0, $province->languages->count());
 
         // Check that each language relationship has the required pivot data
@@ -58,9 +50,6 @@ class FactoryTest extends TestCase
 
     public function test_province_factory_creates_multiple_provinces_with_unique_internal_names(): void
     {
-        Language::factory(3)->create();
-        Country::factory(2)->create();
-
         $provinces = Province::factory(5)->create();
 
         $this->assertCount(5, $provinces);
@@ -71,7 +60,6 @@ class FactoryTest extends TestCase
 
     public function test_province_has_country_relationship(): void
     {
-        Language::factory(3)->create();
         $country = Country::factory()->create();
 
         $province = Province::factory()->create(['country_id' => $country->id]);
@@ -82,10 +70,7 @@ class FactoryTest extends TestCase
 
     public function test_province_has_languages_relationship(): void
     {
-        $languages = Language::factory(3)->create();
-        $country = Country::factory()->create();
-
-        $province = Province::factory()->create(['country_id' => $country->id]);
+        $province = Province::factory()->create();
 
         $this->assertGreaterThan(0, $province->languages->count());
         $this->assertInstanceOf(ProvinceLanguage::class, $province->languages->first()->pivot);

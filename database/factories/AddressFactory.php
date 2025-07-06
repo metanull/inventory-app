@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Address;
 use App\Models\Country;
+use App\Models\Language;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -27,9 +28,7 @@ class AddressFactory extends Factory
     {
         return [
             'internal_name' => $this->faker->unique()->words(3, true),
-            'country_id' => function () {
-                return Country::inRandomOrder()->first()?->id ?? Country::factory()->create()->id;
-            },
+            'country_id' => Country::factory(),
         ];
     }
 
@@ -41,8 +40,14 @@ class AddressFactory extends Factory
     public function configure()
     {
         return $this->afterCreating(function (Address $address) {
-            // Automatically create language entries when an address is created
-            $languages = \App\Models\Language::inRandomOrder()->take(rand(1, 3))->get();
+            // Use existing languages if available, otherwise create new ones
+            $existingLanguages = Language::limit(3)->get();
+
+            if ($existingLanguages->count() >= 1) {
+                $languages = $existingLanguages->random(min($existingLanguages->count(), rand(1, 3)));
+            } else {
+                $languages = Language::factory(rand(1, 3))->create();
+            }
 
             foreach ($languages as $language) {
                 $address->languages()->attach($language->id, [

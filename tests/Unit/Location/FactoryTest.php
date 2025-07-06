@@ -16,10 +16,6 @@ class FactoryTest extends TestCase
 
     public function test_location_factory_creates_valid_location(): void
     {
-        // Create languages and countries first
-        Language::factory(3)->create();
-        Country::factory(2)->create();
-
         $location = Location::factory()->create();
 
         $this->assertDatabaseHas('locations', [
@@ -38,11 +34,7 @@ class FactoryTest extends TestCase
         // Check that country_id exists in countries table
         $this->assertDatabaseHas('countries', ['id' => $location->country_id]);
 
-        // Load the languages relationship manually for testing
-        $location->load('languages');
-
-        // Check that languages relationship is loaded
-        $this->assertTrue($location->relationLoaded('languages'));
+        // Check that languages relationship exists and is accessible
         $this->assertGreaterThan(0, $location->languages->count());
 
         // Check that each language relationship has the required pivot data
@@ -58,9 +50,6 @@ class FactoryTest extends TestCase
 
     public function test_location_factory_creates_multiple_locations_with_unique_internal_names(): void
     {
-        Language::factory(3)->create();
-        Country::factory(2)->create();
-
         $locations = Location::factory(5)->create();
 
         $this->assertCount(5, $locations);
@@ -71,7 +60,6 @@ class FactoryTest extends TestCase
 
     public function test_location_has_country_relationship(): void
     {
-        Language::factory(3)->create();
         $country = Country::factory()->create();
 
         $location = Location::factory()->create(['country_id' => $country->id]);
@@ -82,10 +70,7 @@ class FactoryTest extends TestCase
 
     public function test_location_has_languages_relationship(): void
     {
-        $languages = Language::factory(3)->create();
-        $country = Country::factory()->create();
-
-        $location = Location::factory()->create(['country_id' => $country->id]);
+        $location = Location::factory()->create();
 
         $this->assertGreaterThan(0, $location->languages->count());
         $this->assertInstanceOf(LocationLanguage::class, $location->languages->first()->pivot);
