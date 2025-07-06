@@ -38,6 +38,8 @@ class ItemResource extends JsonResource
             'artists' => ArtistResource::collection($this->artists),
             // Workshops associated with this item
             'workshops' => WorkshopResource::collection($this->workshops),
+            // Tags associated with this item
+            'tags' => TagResource::collection($this->whenLoaded('tags')),
             // Translations for this item (internationalization and contextualization)
             'translations' => ItemTranslationResource::collection($this->whenLoaded('translations')),
             // Date of creation

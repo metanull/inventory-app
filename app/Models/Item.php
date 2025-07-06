@@ -21,6 +21,7 @@ class Item extends Model
         'project',
         'artists',
         'workshops',
+        'tags',
     ];
 
     protected $fillable = [

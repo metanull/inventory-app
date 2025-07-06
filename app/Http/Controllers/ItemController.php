@@ -34,7 +34,7 @@ class ItemController extends Controller
         ]);
         $item = Item::create($validated);
         $item->refresh();
-        $item->load(['partner', 'country', 'project']);
+        $item->load(['partner', 'country', 'project', 'tags']);
 
         return new ItemResource($item);
     }
@@ -64,7 +64,7 @@ class ItemController extends Controller
         ]);
         $item->update($validated);
         $item->refresh();
-        $item->load(['partner', 'country', 'project']);
+        $item->load(['partner', 'country', 'project', 'tags']);
 
         return new ItemResource($item);
     }
@@ -74,7 +74,7 @@ class ItemController extends Controller
      */
     public function forTag(Request $request, Tag $tag)
     {
-        $items = Item::forTag($tag)->with(['partner', 'country', 'project'])->get();
+        $items = Item::forTag($tag)->with(['partner', 'country', 'project', 'tags'])->get();
 
         return ItemResource::collection($items);
     }
@@ -90,7 +90,7 @@ class ItemController extends Controller
         ]);
 
         $items = Item::withAllTags($validated['tags'])
-            ->with(['partner', 'country', 'project'])
+            ->with(['partner', 'country', 'project', 'tags'])
             ->get();
 
         return ItemResource::collection($items);
@@ -107,7 +107,7 @@ class ItemController extends Controller
         ]);
 
         $items = Item::withAnyTags($validated['tags'])
-            ->with(['partner', 'country', 'project'])
+            ->with(['partner', 'country', 'project', 'tags'])
             ->get();
 
         return ItemResource::collection($items);
