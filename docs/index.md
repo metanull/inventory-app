@@ -19,7 +19,7 @@ nav_order: 1
 - 🛡️ **Database-agnostic** Eloquent models with UUID primary keys
 - 📊 **Clean, maintainable** codebase following Laravel best practices
 - 📚 **Automated API Documentation** with interactive testing capabilities
-- ✅ **Comprehensive Test Suite**: 453 tests with 1163 assertions (100% reliable, ~5.6s execution)
+- ✅ **Comprehensive Test Suite**: 924 tests with 3632 assertions (100% reliable, high-speed execution)
 - 🎨 **Image Processing Pipeline**: Automatic resizing, format optimization, and event-driven processing
 - 🔧 **Advanced Query Features**: Model scopes, eager loading, and search capabilities
 
@@ -27,7 +27,7 @@ nav_order: 1
 
 This project maintains high code quality standards through:
 
-- **Test Coverage**: 453+ automated tests covering all API endpoints and functionality
+- **Test Coverage**: 924+ automated tests covering all API endpoints and functionality
 - **Performance**: Fast test execution (~5.6 seconds) with parallel processing
 - **Reliability**: 100% test pass rate with proper isolation (no external dependencies)
 - **Code Standards**: Laravel Pint formatting and comprehensive linting

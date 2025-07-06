@@ -79,7 +79,7 @@ Before contributing, please review our development guidelines:
 
 ### [🧪 Testing Guidelines](guidelines/testing/)
 
-- Testing requirements and coverage (690+ tests)
+- Testing requirements and coverage (924+ tests)
 - Unit, Feature, and Integration testing standards
 - PHPUnit and Laravel testing best practices
 - Code review criteria and validation
