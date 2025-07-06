@@ -56,6 +56,20 @@ class DetailTranslationFactory extends Factory
     }
 
     /**
+     * Create a translation with default context.
+     */
+    public function withDefaultContext(): static
+    {
+        return $this->state(function (array $attributes) {
+            $defaultContext = Context::default()->first();
+
+            return [
+                'context_id' => $defaultContext ? $defaultContext->id : Context::factory()->default(),
+            ];
+        });
+    }
+
+    /**
      * Create a translation without creating translations for the parent detail.
      */
     public function withoutDetailTranslations(): static
@@ -87,6 +101,18 @@ class DetailTranslationFactory extends Factory
         return $this->state(function (array $attributes) use ($contextId) {
             return [
                 'context_id' => $contextId,
+            ];
+        });
+    }
+
+    /**
+     * Create a translation for a specific detail.
+     */
+    public function forDetail(string $detailId): static
+    {
+        return $this->state(function (array $attributes) use ($detailId) {
+            return [
+                'detail_id' => $detailId,
             ];
         });
     }

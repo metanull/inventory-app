@@ -24,14 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - Full CRUD operations for all translation models
         - Proper API resources and controllers for each translation type
         - Updated main model endpoints to return embedded translations
-    - **Testing Coverage**: Complete test suite for all translation models with unique constraint compliance
-        - Unit tests for factories and model relationships
-        - Feature tests for all CRUD operations and anonymous access
-        - Updated existing tests to use new translation relationships
-        - Fixed all unique constraint violations through factory improvements
-        - Added `withoutTranslations()` factory states to prevent conflicts
-        - Updated translation factories to create unique languages instead of reusing seeded ones
-        - All 822 tests now pass successfully
+    - **Testing Coverage**: Complete test suite for all translation models
+        - Unit tests for factories with proper state methods and model relationships
+        - Feature tests for all CRUD operations and anonymous access validation
+        - Fixed factory state methods for default context handling
+        - All 924 tests pass successfully with 3632 assertions
+        - Comprehensive validation of unique constraints and field requirements
     - **Documentation**: Updated API documentation to reflect translation model changes and new endpoints
 
 ### Removed
@@ -170,6 +168,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Improved database deletion and recreation process
     - Better error handling for file system operations
     - More reliable test environment preparation
+- **Translation Factory State Methods**: Fixed factory test failures for ItemTranslation and DetailTranslation models
+    - Added missing `withDefaultContext()` and `forItem()`/`forDetail()` state methods to factories
+    - Fixed default context state method to use existing default context instead of creating new ones
+    - Corrected index filter tests to properly create multiple translations for the same parent model
+    - Enhanced factory imports and method signatures for proper type handling
+    - All translation-related tests now pass consistently
 
 ### Added (Previous Features)
 
