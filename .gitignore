@@ -32,3 +32,6 @@ docs/_docs/*.md
 
 # Ruby/Jekyll dependencies
 docs/Gemfile.lock
+
+# Debug scripts
+debug_*.php

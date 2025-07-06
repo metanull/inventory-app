@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Propaganistas\LaravelPhone\PhoneNumber;
 
 class Contact extends Model
 {
@@ -47,8 +48,14 @@ class Contact extends Model
      */
     public function formattedPhoneNumber(): ?string
     {
-        // Just return the original phone number for now in tests
-        return $this->phone_number;
+        if (! $this->phone_number) {
+            return null;
+        }
+        try {
+            return (new PhoneNumber($this->phone_number))->formatInternational();
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**
@@ -56,8 +63,14 @@ class Contact extends Model
      */
     public function formattedFaxNumber(): ?string
     {
-        // Just return the original fax number for now in tests
-        return $this->fax_number;
+        if (! $this->fax_number) {
+            return null;
+        }
+        try {
+            return (new PhoneNumber($this->fax_number))->formatInternational();
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**

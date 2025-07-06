@@ -25,11 +25,24 @@ class ContactFactory extends Factory
     public function definition(): array
     {
         return [
-            'internal_name' => $this->faker->unique()->word().'_'.$this->faker->numberBetween(1, 9999),
-            'phone_number' => $this->faker->phoneNumber(),
-            'fax_number' => $this->faker->optional(0.7)->phoneNumber(),
+            'internal_name' => $this->faker->unique()->words(3, true),
+            'phone_number' => $this->generateValidPhoneNumber(),
+            'fax_number' => $this->faker->optional(0.7)->passthrough($this->generateValidPhoneNumber()),
             'email' => $this->faker->optional(0.9)->safeEmail(),
         ];
+    }
+
+    /**
+     * Generate a valid international phone number that can be parsed by PhoneNumber library.
+     */
+    private function generateValidPhoneNumber(): string
+    {
+        // Generate a valid US phone number in international format
+        $areaCode = $this->faker->numberBetween(200, 999);
+        $exchange = $this->faker->numberBetween(200, 999);
+        $number = $this->faker->numberBetween(1000, 9999);
+
+        return "+1{$areaCode}{$exchange}{$number}";
     }
 
     /**
