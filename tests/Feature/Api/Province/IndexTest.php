@@ -50,11 +50,11 @@ class IndexTest extends TestCase
                         'id',
                         'internal_name',
                         'country_id',
-                        'languages' => [
+                        'translations' => [
                             '*' => [
                                 'id',
+                                'language_id',
                                 'name',
-                                'translated_name',
                             ],
                         ],
                         'created_at',
@@ -66,7 +66,7 @@ class IndexTest extends TestCase
         $this->assertCount(3, $response->json('data'));
     }
 
-    public function test_province_list_includes_languages_relationship(): void
+    public function test_province_list_includes_translations_relationship(): void
     {
         Language::factory(3)->create();
         Country::factory(2)->create();
@@ -78,13 +78,13 @@ class IndexTest extends TestCase
 
         $provinceData = collect($response->json('data'))->firstWhere('id', $province->id);
         $this->assertNotNull($provinceData);
-        $this->assertArrayHasKey('languages', $provinceData);
-        $this->assertGreaterThan(0, count($provinceData['languages']));
+        $this->assertArrayHasKey('translations', $provinceData);
+        $this->assertGreaterThan(0, count($provinceData['translations']));
 
-        foreach ($provinceData['languages'] as $language) {
-            $this->assertArrayHasKey('id', $language);
-            $this->assertArrayHasKey('name', $language);
-            $this->assertArrayHasKey('translated_name', $language);
+        foreach ($provinceData['translations'] as $translation) {
+            $this->assertArrayHasKey('id', $translation);
+            $this->assertArrayHasKey('language_id', $translation);
+            $this->assertArrayHasKey('name', $translation);
         }
     }
 }

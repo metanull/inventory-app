@@ -38,11 +38,15 @@ class ShowTest extends TestCase
                     'id',
                     'internal_name',
                     'country_id',
-                    'languages' => [
+                    'translations' => [
                         '*' => [
                             'id',
+                            'location_id',
+                            'language_id',
                             'name',
-                            'translated_name',
+                            'description',
+                            'created_at',
+                            'updated_at',
                         ],
                     ],
                     'created_at',
@@ -54,7 +58,7 @@ class ShowTest extends TestCase
             ->assertJsonPath('data.country_id', $Location->country_id);
     }
 
-    public function test_location_show_includes_languages_relationship(): void
+    public function test_location_show_includes_translations_relationship(): void
     {
         Language::factory(3)->create();
         Country::factory(2)->create();
@@ -65,13 +69,15 @@ class ShowTest extends TestCase
         $response->assertOk();
 
         $LocationData = $response->json('data');
-        $this->assertArrayHasKey('languages', $LocationData);
-        $this->assertGreaterThan(0, count($LocationData['languages']));
+        $this->assertArrayHasKey('translations', $LocationData);
+        $this->assertGreaterThan(0, count($LocationData['translations']));
 
-        foreach ($LocationData['languages'] as $language) {
-            $this->assertArrayHasKey('id', $language);
-            $this->assertArrayHasKey('name', $language);
-            $this->assertArrayHasKey('translated_name', $language);
+        foreach ($LocationData['translations'] as $translation) {
+            $this->assertArrayHasKey('id', $translation);
+            $this->assertArrayHasKey('location_id', $translation);
+            $this->assertArrayHasKey('language_id', $translation);
+            $this->assertArrayHasKey('name', $translation);
+            $this->assertArrayHasKey('description', $translation);
         }
     }
 

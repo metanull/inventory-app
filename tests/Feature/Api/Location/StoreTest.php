@@ -30,7 +30,7 @@ class StoreTest extends TestCase
         $country = Country::factory()->create();
 
         $LocationData = Location::factory()->make(['country_id' => $country->id])->toArray();
-        $LocationData['languages'] = [
+        $LocationData['translations'] = [
             [
                 'language_id' => $languages[0]->id,
                 'name' => $this->faker->words(2, true),
@@ -49,11 +49,13 @@ class StoreTest extends TestCase
                     'id',
                     'internal_name',
                     'country_id',
-                    'languages' => [
+                    'translations' => [
                         '*' => [
                             'id',
+                            'language_id',
                             'name',
-                            'translated_name',
+                            'created_at',
+                            'updated_at',
                         ],
                     ],
                     'created_at',
@@ -68,11 +70,11 @@ class StoreTest extends TestCase
             'country_id' => $LocationData['country_id'],
         ]);
 
-        // Check language relationships
-        foreach ($LocationData['languages'] as $languageData) {
-            $this->assertDatabaseHas('Location_language', [
-                'language_id' => $languageData['language_id'],
-                'name' => $languageData['name'],
+        // Check translation relationships
+        foreach ($LocationData['translations'] as $translationData) {
+            $this->assertDatabaseHas('location_translations', [
+                'language_id' => $translationData['language_id'],
+                'name' => $translationData['name'],
             ]);
         }
     }
@@ -82,7 +84,7 @@ class StoreTest extends TestCase
         $response = $this->postJson(route('location.store'), []);
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['internal_name', 'country_id', 'languages']);
+            ->assertJsonValidationErrors(['internal_name', 'country_id', 'translations']);
     }
 
     public function test_cannot_create_location_with_invalid_country(): void
@@ -91,7 +93,7 @@ class StoreTest extends TestCase
 
         $LocationData = Location::factory()->make()->toArray();
         $LocationData['country_id'] = 'invalid-country-id';
-        $LocationData['languages'] = [
+        $LocationData['translations'] = [
             [
                 'language_id' => $languages[0]->id,
                 'name' => $this->faker->words(2, true),
@@ -104,12 +106,12 @@ class StoreTest extends TestCase
             ->assertJsonValidationErrors(['country_id']);
     }
 
-    public function test_cannot_create_location_with_invalid_languages(): void
+    public function test_cannot_create_location_with_invalid_translations(): void
     {
         $country = Country::factory()->create();
 
         $LocationData = Location::factory()->make(['country_id' => $country->id])->toArray();
-        $LocationData['languages'] = [
+        $LocationData['translations'] = [
             [
                 'language_id' => 'invalid-language-id',
                 'name' => $this->faker->words(2, true),
@@ -119,7 +121,7 @@ class StoreTest extends TestCase
         $response = $this->postJson(route('location.store'), $LocationData);
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['languages.0.language_id']);
+            ->assertJsonValidationErrors(['translations.0.language_id']);
     }
 
     public function test_cannot_create_location_with_duplicate_internal_name(): void
@@ -132,7 +134,7 @@ class StoreTest extends TestCase
 
         $LocationData = Location::factory()->make(['country_id' => $country->id])->toArray();
         $LocationData['internal_name'] = $existingLocation->internal_name;
-        $LocationData['languages'] = [
+        $LocationData['translations'] = [
             [
                 'language_id' => $languages[0]->id,
                 'name' => $this->faker->words(2, true),
@@ -145,16 +147,16 @@ class StoreTest extends TestCase
             ->assertJsonValidationErrors(['internal_name']);
     }
 
-    public function test_cannot_create_location_without_languages(): void
+    public function test_cannot_create_location_without_translations(): void
     {
         $country = Country::factory()->create();
 
         $LocationData = Location::factory()->make(['country_id' => $country->id])->toArray();
-        $LocationData['languages'] = [];
+        $LocationData['translations'] = [];
 
         $response = $this->postJson(route('location.store'), $LocationData);
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['languages']);
+            ->assertJsonValidationErrors(['translations']);
     }
 }

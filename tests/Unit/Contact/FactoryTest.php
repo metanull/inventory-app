@@ -30,12 +30,12 @@ class FactoryTest extends TestCase
             'internal_name' => $contact->internal_name,
         ]);
 
-        // Check that the contact has languages attached
-        $this->assertTrue($contact->languages->count() > 0);
+        // Check that the contact has translations attached
+        $this->assertTrue($contact->translations->count() > 0);
 
-        // Check that each language has a label in the pivot
-        foreach ($contact->languages as $language) {
-            $this->assertNotNull($language->pivot->label);
+        // Check that each translation has a label
+        foreach ($contact->translations as $translation) {
+            $this->assertNotNull($translation->label);
         }
     }
 
@@ -65,28 +65,28 @@ class FactoryTest extends TestCase
     }
 
     #[Test]
-    public function it_properly_attaches_languages_with_labels()
+    public function it_properly_attaches_translations_with_labels()
     {
         $contact = Contact::factory()->create();
 
-        foreach ($contact->languages as $language) {
-            $this->assertDatabaseHas('contact_language', [
+        foreach ($contact->translations as $translation) {
+            $this->assertDatabaseHas('contact_translations', [
                 'contact_id' => $contact->id,
-                'language_id' => $language->id,
-                'label' => $language->pivot->label,
+                'language_id' => $translation->language_id,
+                'label' => $translation->label,
             ]);
         }
     }
 
     #[Test]
-    public function it_auto_loads_languages_relationship()
+    public function it_auto_loads_translations_relationship()
     {
         $contact = Contact::factory()->create();
 
         // Get a fresh instance of the contact from the database
         $freshContact = Contact::find($contact->id);
 
-        // The languages relationship should be automatically loaded
-        $this->assertTrue($freshContact->relationLoaded('languages'));
+        // The translations relationship should be automatically loaded
+        $this->assertTrue($freshContact->relationLoaded('translations'));
     }
 }

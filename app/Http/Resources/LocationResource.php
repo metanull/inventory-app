@@ -21,15 +21,8 @@ class LocationResource extends JsonResource
             'id' => $this->id,
             'internal_name' => $this->internal_name,
             'country_id' => $this->country_id,
-            'languages' => $this->whenLoaded('languages', function () {
-                // Returns array of objects: [{id: string, name: string, translated_name: string}, ...]
-                return $this->languages->map(function ($language) {
-                    return [
-                        'id' => $language->id,
-                        'name' => $language->name,
-                        'translated_name' => $language->pivot->name,
-                    ];
-                });
+            'translations' => $this->whenLoaded('translations', function () {
+                return LocationTranslationResource::collection($this->translations);
             }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

@@ -34,13 +34,13 @@ class DestroyTest extends TestCase
 
         $response->assertNoContent();
 
-        $this->assertDatabaseMissing('Locations', [
+        $this->assertDatabaseMissing('locations', [
             'id' => $Location->id,
         ]);
 
-        // Check that related language entries are also deleted (cascade)
-        $this->assertDatabaseMissing('Location_language', [
-            'Location_id' => $Location->id,
+        // Check that related translation entries are also deleted (cascade)
+        $this->assertDatabaseMissing('location_translations', [
+            'location_id' => $Location->id,
         ]);
     }
 

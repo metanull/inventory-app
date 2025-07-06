@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Location extends Model
 {
@@ -48,14 +47,11 @@ class Location extends Model
     }
 
     /**
-     * The languages that belong to the location.
+     * The translations that belong to the location.
      */
-    public function languages(): BelongsToMany
+    public function translations()
     {
-        return $this->belongsToMany(Language::class, 'location_language')
-            ->using(LocationLanguage::class)
-            ->withPivot('name', 'id')
-            ->withTimestamps();
+        return $this->hasMany(LocationTranslation::class);
     }
 
     /**
@@ -67,7 +63,7 @@ class Location extends Model
     {
         parent::boot();
 
-        // Note: We load languages in the controllers rather than automatically
+        // Note: We load translations in the controllers rather than automatically
         // to avoid issues with testing and performance
     }
 }

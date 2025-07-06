@@ -50,11 +50,24 @@ class AddressFactory extends Factory
             }
 
             foreach ($languages as $language) {
-                $address->languages()->attach($language->id, [
+                $address->translations()->create([
+                    'language_id' => $language->id,
                     'address' => $this->faker->streetAddress().', '.$this->faker->city().', '.$this->faker->country(),
                     'description' => $this->faker->optional(0.7)->sentence(),
                 ]);
             }
+        });
+    }
+
+    /**
+     * Create an address without translations.
+     *
+     * @return static
+     */
+    public function withoutTranslations()
+    {
+        return $this->afterCreating(function (Address $address) {
+            // Don't create any translations
         });
     }
 }

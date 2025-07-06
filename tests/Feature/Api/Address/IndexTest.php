@@ -50,12 +50,15 @@ class IndexTest extends TestCase
                         'id',
                         'internal_name',
                         'country_id',
-                        'languages' => [
+                        'translations' => [
                             '*' => [
                                 'id',
-                                'name',
+                                'address_id',
+                                'language_id',
                                 'address',
                                 'description',
+                                'created_at',
+                                'updated_at',
                             ],
                         ],
                         'created_at',

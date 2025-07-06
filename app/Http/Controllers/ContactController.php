@@ -17,7 +17,7 @@ class ContactController extends Controller
      */
     public function index()
     {
-        $contacts = Contact::with(['languages'])->get();
+        $contacts = Contact::with(['translations'])->get();
 
         return ContactResource::collection($contacts);
     }
@@ -29,12 +29,12 @@ class ContactController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'internal_name' => 'required|string|unique:contacts,internal_name',
-            'languages' => 'required|array|min:1',
-            'languages.*.language_id' => 'required|exists:languages,id',
-            'languages.*.label' => 'required|string',
             'phone_number' => 'nullable|string|regex:/^\+?[0-9\s\-\(\)]+$/',
             'fax_number' => 'nullable|string|regex:/^\+?[0-9\s\-\(\)]+$/',
             'email' => 'nullable|email',
+            'translations' => 'required|array|min:1',
+            'translations.*.language_id' => 'required|exists:languages,id',
+            'translations.*.label' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -49,14 +49,15 @@ class ContactController extends Controller
             'backward_compatibility' => $request->backward_compatibility,
         ]);
 
-        // Attach languages with labels
-        foreach ($request->languages as $languageData) {
-            $contact->languages()->attach($languageData['language_id'], [
-                'label' => $languageData['label'],
+        // Create translations
+        foreach ($request->translations as $translationData) {
+            $contact->translations()->create([
+                'language_id' => $translationData['language_id'],
+                'label' => $translationData['label'],
             ]);
         }
 
-        return (new ContactResource($contact->load('languages')))->response()->setStatusCode(201);
+        return (new ContactResource($contact->load('translations')))->response()->setStatusCode(201);
     }
 
     /**
@@ -66,7 +67,7 @@ class ContactController extends Controller
      */
     public function show(Contact $contact)
     {
-        return new ContactResource($contact->load('languages'));
+        return new ContactResource($contact->load('translations'));
     }
 
     /**
@@ -78,12 +79,12 @@ class ContactController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'internal_name' => 'required|string|unique:contacts,internal_name,'.$contact->id,
-            'languages' => 'array|min:1',
-            'languages.*.language_id' => 'required_with:languages|exists:languages,id',
-            'languages.*.label' => 'required_with:languages|string',
             'phone_number' => 'nullable|string|regex:/^\+?[0-9\s\-\(\)]+$/',
             'fax_number' => 'nullable|string|regex:/^\+?[0-9\s\-\(\)]+$/',
             'email' => 'nullable|email',
+            'translations' => 'array|min:1',
+            'translations.*.language_id' => 'required_with:translations|exists:languages,id',
+            'translations.*.label' => 'required_with:translations|string',
         ]);
 
         if ($validator->fails()) {
@@ -98,20 +99,21 @@ class ContactController extends Controller
             'backward_compatibility' => $request->backward_compatibility,
         ]);
 
-        // Update languages if provided
-        if ($request->has('languages')) {
-            // First detach all existing languages
-            $contact->languages()->detach();
+        // Update translations if provided
+        if ($request->has('translations')) {
+            // Delete existing translations
+            $contact->translations()->delete();
 
-            // Attach new languages with labels
-            foreach ($request->languages as $languageData) {
-                $contact->languages()->attach($languageData['language_id'], [
-                    'label' => $languageData['label'],
+            // Create new translations
+            foreach ($request->translations as $translationData) {
+                $contact->translations()->create([
+                    'language_id' => $translationData['language_id'],
+                    'label' => $translationData['label'],
                 ]);
             }
         }
 
-        return new ContactResource($contact->load('languages'));
+        return new ContactResource($contact->load('translations'));
     }
 
     /**

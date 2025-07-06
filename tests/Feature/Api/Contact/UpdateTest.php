@@ -38,7 +38,7 @@ class UpdateTest extends TestCase
             'internal_name' => 'updated-name',
             'phone_number' => '+15555555556',
             'email' => 'updated@example.com',
-            'languages' => [
+            'translations' => [
                 [
                     'language_id' => $languages[0]->id,
                     'label' => 'Updated Label',
@@ -59,8 +59,8 @@ class UpdateTest extends TestCase
             'email' => 'updated@example.com',
         ]);
 
-        // Check that languages were updated
-        $this->assertDatabaseHas('contact_language', [
+        // Check that translations were updated
+        $this->assertDatabaseHas('contact_translations', [
             'contact_id' => $contact->id,
             'language_id' => $languages[0]->id,
             'label' => 'Updated Label',
@@ -96,13 +96,13 @@ class UpdateTest extends TestCase
     }
 
     #[Test]
-    public function it_can_update_contact_without_changing_languages()
+    public function it_can_update_contact_without_changing_translations()
     {
         $contact = Contact::factory()->create([
             'internal_name' => 'original-name',
         ]);
 
-        $originalLanguageIds = $contact->languages->pluck('id')->toArray();
+        $originalTranslationIds = $contact->translations->pluck('id')->toArray();
 
         $data = [
             'internal_name' => 'updated-name',
@@ -113,11 +113,11 @@ class UpdateTest extends TestCase
         $response->assertOk();
         $response->assertJsonPath('data.internal_name', 'updated-name');
 
-        // Languages should remain the same
+        // Translations should remain the same
         $contact->refresh();
-        $updatedLanguageIds = $contact->languages->pluck('id')->toArray();
-        sort($originalLanguageIds);
-        sort($updatedLanguageIds);
-        $this->assertEquals($originalLanguageIds, $updatedLanguageIds);
+        $updatedTranslationIds = $contact->translations->pluck('id')->toArray();
+        sort($originalTranslationIds);
+        sort($updatedTranslationIds);
+        $this->assertEquals($originalTranslationIds, $updatedTranslationIds);
     }
 }

@@ -52,8 +52,8 @@ class DestroyTest extends TestCase
         Country::factory(2)->create();
         $address = Address::factory()->create();
 
-        // Ensure the address has language relations
-        $this->assertDatabaseHas('address_language', [
+        // Ensure the address has translation relations
+        $this->assertDatabaseHas('address_translations', [
             'address_id' => $address->id,
         ]);
 
@@ -61,12 +61,12 @@ class DestroyTest extends TestCase
 
         $response->assertNoContent();
 
-        // Verify the address and its language relations are deleted
+        // Verify the address and its translation relations are deleted
         $this->assertDatabaseMissing('addresses', [
             'id' => $address->id,
         ]);
 
-        $this->assertDatabaseMissing('address_language', [
+        $this->assertDatabaseMissing('address_translations', [
             'address_id' => $address->id,
         ]);
     }

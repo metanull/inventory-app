@@ -7,26 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Internationalization Refactoring**: Migrated from `*Language` pivot models to `*Translation` models
+    - **Translation Models**: Replaced `ContactLanguage`, `ProvinceLanguage`, `LocationLanguage`, `AddressLanguage` with proper translation models
+        - New models: `ContactTranslation`, `ProvinceTranslation`, `LocationTranslation`, `AddressTranslation`
+        - Changed from many-to-many relationships with pivot tables to one-to-many relationships with dedicated translation tables
+        - Updated all main models (`Contact`, `Province`, `Location`, `Address`) to use `translations()` hasMany relationships
+    - **Database Schema**: Updated database structure to follow Laravel translation conventions
+        - New migration tables: `contact_translations`, `province_translations`, `location_translations`, `address_translations`
+        - Removed old pivot tables: `contact_language`, `province_language`, `location_language`, `address_language`
+        - Each translation table includes foreign keys to parent model and language
+        - Added unique constraints on (model_id, language_id) combinations
+    - **API Endpoints**: Added new translation-specific API endpoints
+        - `/api/contact-translation`, `/api/province-translation`, `/api/location-translation`, `/api/address-translation`
+        - Full CRUD operations for all translation models
+        - Proper API resources and controllers for each translation type
+        - Updated main model endpoints to return embedded translations
+    - **Testing Coverage**: Complete test suite for all translation models
+        - Unit tests for factories with proper state methods and model relationships
+        - Feature tests for all CRUD operations and anonymous access validation
+        - Fixed factory state methods for default context handling
+        - All 924 tests pass successfully with 3632 assertions
+        - Comprehensive validation of unique constraints and field requirements
+    - **Documentation**: Updated API documentation to reflect translation model changes and new endpoints
+
+### Removed
+
+- **Contextualization and Internationalization Models**: Removed complex contextualization system deemed too complex for current requirements (July 6, 2025)
+    - **Contextualization Model**: Removed model, controller, resource, factory, seeder, and all related tests
+    - **Internationalization Model**: Removed model, controller, resource, factory, seeder, and all related tests
+    - **Database Tables**: Added migrations to drop `contextualizations` and `internationalizations` tables
+    - **API Endpoints**: Removed all contextualization and internationalization API routes
+    - **Model Relationships**: Cleaned up relationships in Item, Detail, Context, and Author models
+    - **Documentation**: Updated API documentation and field documentation
+
 ### Added
 
 - **Geographic Models**: Complete geographic data management system with internationalization support
     - **Province Model**: New Province model with UUID primary keys, country relationships, and multi-language support
         - Full CRUD API endpoints (`/api/provinces`)
-        - Language-specific content via ProvinceLanguage pivot model
+        - Language-specific content via ProvinceTranslation model
         - Factory, seeder, and comprehensive test coverage (40+ tests)
         - Required relationship to Country model
     - **Location Model**: New Location model for geographic locations within provinces
         - Full CRUD API endpoints (`/api/locations`)
-        - Language-specific content via LocationLanguage pivot model
+        - Language-specific content via LocationTranslation model
         - Relationships to both Country and Province models
         - Factory, seeder, and comprehensive test coverage (40+ tests)
     - **Address Model**: New Address model for detailed address information
         - Full CRUD API endpoints (`/api/addresses`)
-        - Language-specific content via AddressLanguage pivot model
+        - Language-specific content via AddressTranslation model
         - Relationships to Country, Province, and Location models
         - Factory, seeder, and comprehensive test coverage (40+ tests)
     - **Internationalization Support**: Multi-language pivot tables for all geographic models
-        - ProvinceLanguage, LocationLanguage, and AddressLanguage pivot models
+        - ProvinceTranslation, LocationTranslation, and AddressTranslation models
         - Language-specific name and description fields
         - API responses include all available language versions
         - Consistent with existing Contact model internationalization patterns
@@ -44,6 +79,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - Full CRUD operation testing for all endpoints
         - Authentication and authorization testing
         - Relationship and constraint validation
+- **Item and Detail Internationalization and Contextualization**: Complete internationalization and contextualization system for core inventory models
+    - **Translation Models**: New ItemTranslation and DetailTranslation models supporting multi-language, multi-context content
+        - ItemTranslation model with comprehensive field set: name, alternate_name, description, type, holder, owner, initial_owner, dates, location, dimensions, place_of_production, method_for_datation, method_for_provenance, obtention, bibliography
+        - DetailTranslation model with focused field set: name, alternate_name, description
+        - Both models support author relationships (author, text_copy_editor, translator, translation_copy_editor)
+        - UUID primary keys with foreign key relationships to items/details, languages, contexts, and authors
+        - Unique constraints on (model_id, language_id, context_id) combinations to prevent duplicates
+        - JSON extra field for extensible metadata storage
+    - **Database Schema**: New translation tables following Laravel internationalization conventions
+        - item_translations and detail_translations tables with proper indexing
+        - Foreign key constraints with cascade delete for parent models and set null for authors
+        - Context-aware translations enabling multiple versions per language
+        - Backward compatibility support for data migration
+    - **Eloquent Relationships**: Enhanced Item and Detail models with translation support
+        - hasMany relationships to translation models with eager loading support
+        - Helper methods for retrieving default context and contextualized translations
+        - Fallback logic for graceful handling of missing translations
+        - Scope methods for filtering by language and context
+    - **API Endpoints**: Full CRUD REST API for translation management
+        - `/api/item-translation` and `/api/detail-translation` endpoints
+        - Filtering capabilities by item_id, detail_id, language_id, context_id
+        - Default context filtering for simplified queries
+        - Comprehensive validation with proper error handling for unique constraint violations
+        - Nested relationship loading for complete translation data
+    - **Factory and Seeder Support**: Complete test data generation infrastructure
+        - ItemTranslationFactory and DetailTranslationFactory with state methods
+        - Support for default context, specific language/context, and author configurations
+        - ItemTranslationSeeder and DetailTranslationSeeder for sample data generation
+        - Integration with existing Item and Detail factories via withoutTranslations states
+    - **API Resource Integration**: Enhanced parent model resources with translation data
+        - ItemResource and DetailResource now include embedded translations
+        - ItemTranslationResource and DetailTranslationResource for dedicated translation endpoints
+        - Proper relationship loading with whenLoaded for performance optimization
+        - Complete field mapping with relationship data inclusion
+    - **Context and Language Integration**: Full integration with existing Context and Language systems
+        - Support for default context identification via Context model
+        - Language-specific content with ISO 639-1 language codes
+        - Context factory enhanced with default() state method for testing
+        - Seamless integration with existing geographic translation patterns
 - **Code Quality and Development Workflow Enhancements**: Comprehensive development environment improvements
     - **Husky Integration**: Automated Git hooks for code quality enforcement using [Husky](https://typicode.github.io/husky)
     - **lint-staged Implementation**: Efficient code formatting on staged files using [lint-staged](https://www.npmjs.com/package/lint-staged)
@@ -94,6 +168,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Improved database deletion and recreation process
     - Better error handling for file system operations
     - More reliable test environment preparation
+- **Translation Factory State Methods**: Fixed factory test failures for ItemTranslation and DetailTranslation models
+    - Added missing `withDefaultContext()` and `forItem()`/`forDetail()` state methods to factories
+    - Fixed default context state method to use existing default context instead of creating new ones
+    - Corrected index filter tests to properly create multiple translations for the same parent model
+    - Enhanced factory imports and method signatures for proper type handling
+    - All translation-related tests now pass consistently
 
 ### Added (Previous Features)
 

@@ -25,15 +25,8 @@ class ContactResource extends JsonResource
             'fax_number' => $this->fax_number,
             'formatted_fax_number' => $this->formattedFaxNumber(),
             'email' => $this->email,
-            'languages' => $this->whenLoaded('languages', function () {
-                // Returns array of objects: [{id: string, name: string, label: string}, ...]
-                return $this->languages->map(function ($language) {
-                    return [
-                        'id' => $language->id,
-                        'name' => $language->name,
-                        'label' => $language->pivot->label,
-                    ];
-                });
+            'translations' => $this->whenLoaded('translations', function () {
+                return ContactTranslationResource::collection($this->translations);
             }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

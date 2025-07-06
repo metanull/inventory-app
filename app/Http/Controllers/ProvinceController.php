@@ -17,7 +17,7 @@ class ProvinceController extends Controller
      */
     public function index()
     {
-        $provinces = Province::with(['languages'])->get();
+        $provinces = Province::with(['translations'])->get();
 
         return ProvinceResource::collection($provinces);
     }
@@ -30,9 +30,9 @@ class ProvinceController extends Controller
         $validator = Validator::make($request->all(), [
             'internal_name' => 'required|string|unique:provinces,internal_name',
             'country_id' => 'required|exists:countries,id',
-            'languages' => 'required|array|min:1',
-            'languages.*.language_id' => 'required|exists:languages,id',
-            'languages.*.name' => 'required|string',
+            'translations' => 'required|array|min:1',
+            'translations.*.language_id' => 'required|exists:languages,id',
+            'translations.*.name' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -45,14 +45,15 @@ class ProvinceController extends Controller
             'backward_compatibility' => $request->backward_compatibility,
         ]);
 
-        // Attach languages with names
-        foreach ($request->languages as $languageData) {
-            $province->languages()->attach($languageData['language_id'], [
-                'name' => $languageData['name'],
+        // Create translations
+        foreach ($request->translations as $translationData) {
+            $province->translations()->create([
+                'language_id' => $translationData['language_id'],
+                'name' => $translationData['name'],
             ]);
         }
 
-        return (new ProvinceResource($province->load('languages')))->response()->setStatusCode(201);
+        return (new ProvinceResource($province->load('translations')))->response()->setStatusCode(201);
     }
 
     /**
@@ -62,7 +63,7 @@ class ProvinceController extends Controller
      */
     public function show(Province $province)
     {
-        return new ProvinceResource($province->load('languages'));
+        return new ProvinceResource($province->load('translations'));
     }
 
     /**
@@ -75,9 +76,9 @@ class ProvinceController extends Controller
         $validator = Validator::make($request->all(), [
             'internal_name' => 'required|string|unique:provinces,internal_name,'.$province->id,
             'country_id' => 'required|exists:countries,id',
-            'languages' => 'array|min:1',
-            'languages.*.language_id' => 'required_with:languages|exists:languages,id',
-            'languages.*.name' => 'required_with:languages|string',
+            'translations' => 'array|min:1',
+            'translations.*.language_id' => 'required_with:translations|exists:languages,id',
+            'translations.*.name' => 'required_with:translations|string',
         ]);
 
         if ($validator->fails()) {
@@ -90,20 +91,21 @@ class ProvinceController extends Controller
             'backward_compatibility' => $request->backward_compatibility,
         ]);
 
-        // Update languages if provided
-        if ($request->has('languages')) {
-            // First detach all existing languages
-            $province->languages()->detach();
+        // Update translations if provided
+        if ($request->has('translations')) {
+            // Delete existing translations
+            $province->translations()->delete();
 
-            // Attach new languages with names
-            foreach ($request->languages as $languageData) {
-                $province->languages()->attach($languageData['language_id'], [
-                    'name' => $languageData['name'],
+            // Create new translations
+            foreach ($request->translations as $translationData) {
+                $province->translations()->create([
+                    'language_id' => $translationData['language_id'],
+                    'name' => $translationData['name'],
                 ]);
             }
         }
 
-        return new ProvinceResource($province->load('languages'));
+        return new ProvinceResource($province->load('translations'));
     }
 
     /**

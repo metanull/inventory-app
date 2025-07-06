@@ -1,5 +1,6 @@
 **CRITICAL: Awlays use PowerShell syntax when using `run_in_terminal`**
 **CRITICAL: This is a PHP application with Laravel 12**
+**CRITICAL: Always assert that the request I make is compliant with Laravel 12 recommendations, guidelines and best practices. If not make recommendations and ask confirmation before proceeding.**
 **CRITICAL: docs/ contains a distinct Ruby application based on Jekyll**
 **CRITICAL: Always use wsl when interacting with Ruby**
 **CRITICAL: When creating a pull-request (pr), if on the main branch, always first create a dedicated branch for the pr, then create the pr from that branch**

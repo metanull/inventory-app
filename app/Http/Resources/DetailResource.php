@@ -24,6 +24,8 @@ class DetailResource extends JsonResource
             'item' => new ItemResource($this->whenLoaded('item')),
             // The legacy Id when this item corresponds to a legacy item from the MWNF3 database, nullable
             'backward_compatibility' => $this->backward_compatibility,
+            // Translations for this detail (internationalization and contextualization)
+            'translations' => DetailTranslationResource::collection($this->whenLoaded('translations')),
             // Date of creation
             'created_at' => $this->created_at,
             // Date of last modification

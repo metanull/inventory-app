@@ -38,8 +38,8 @@ class DestroyTest extends TestCase
             'id' => $province->id,
         ]);
 
-        // Check that related language entries are also deleted (cascade)
-        $this->assertDatabaseMissing('province_language', [
+        // Check that related translation entries are also deleted (cascade)
+        $this->assertDatabaseMissing('province_translations', [
             'province_id' => $province->id,
         ]);
     }

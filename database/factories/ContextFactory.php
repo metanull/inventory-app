@@ -30,4 +30,12 @@ class ContextFactory extends Factory
             'is_default' => true,
         ]);
     }
+
+    /**
+     * Create a default context.
+     */
+    public function default(): Factory
+    {
+        return $this->withIsDefault();
+    }
 }

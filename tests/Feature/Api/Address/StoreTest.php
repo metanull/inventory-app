@@ -31,7 +31,7 @@ class StoreTest extends TestCase
         $data = [
             'internal_name' => 'test-address',
             'country_id' => $country->id,
-            'languages' => [
+            'translations' => [
                 [
                     'language_id' => Language::first()->id,
                     'address' => 'Test Address',
@@ -48,7 +48,7 @@ class StoreTest extends TestCase
                     'id',
                     'internal_name',
                     'country_id',
-                    'languages',
+                    'translations',
                     'created_at',
                     'updated_at',
                 ],
@@ -68,7 +68,6 @@ class StoreTest extends TestCase
             ->assertJsonValidationErrors([
                 'internal_name',
                 'country_id',
-                'languages',
             ]);
     }
 
@@ -79,7 +78,7 @@ class StoreTest extends TestCase
         $data = [
             'internal_name' => 'test-address',
             'country_id' => 'invalid',
-            'languages' => [
+            'translations' => [
                 [
                     'language_id' => Language::first()->id,
                     'address' => 'Test Address',
@@ -103,7 +102,7 @@ class StoreTest extends TestCase
             'id' => 'custom-id',
             'internal_name' => 'test-address',
             'country_id' => $country->id,
-            'languages' => [
+            'translations' => [
                 [
                     'language_id' => Language::first()->id,
                     'address' => 'Test Address',

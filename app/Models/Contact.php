@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
 class Contact extends Model
@@ -74,14 +73,11 @@ class Contact extends Model
     }
 
     /**
-     * The languages that belong to the contact.
+     * The translations that belong to the contact.
      */
-    public function languages(): BelongsToMany
+    public function translations()
     {
-        return $this->belongsToMany(Language::class, 'contact_language')
-            ->using(ContactLanguage::class)
-            ->withPivot('label', 'id')
-            ->withTimestamps();
+        return $this->hasMany(ContactTranslation::class);
     }
 
     /**
@@ -94,9 +90,9 @@ class Contact extends Model
         parent::boot();
 
         static::retrieved(function ($model) {
-            // Load the languages relationship when a contact is retrieved
-            if (! $model->relationLoaded('languages')) {
-                $model->load('languages');
+            // Load the translations relationship when a contact is retrieved
+            if (! $model->relationLoaded('translations')) {
+                $model->load('translations');
             }
         });
     }

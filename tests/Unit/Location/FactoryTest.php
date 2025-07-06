@@ -3,9 +3,8 @@
 namespace Tests\Unit\Location;
 
 use App\Models\Country;
-use App\Models\Language;
 use App\Models\Location;
-use App\Models\LocationLanguage;
+use App\Models\LocationTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -34,16 +33,16 @@ class FactoryTest extends TestCase
         // Check that country_id exists in countries table
         $this->assertDatabaseHas('countries', ['id' => $location->country_id]);
 
-        // Check that languages relationship exists and is accessible
-        $this->assertGreaterThan(0, $location->languages->count());
+        // Check that translations relationship exists and is accessible
+        $this->assertGreaterThan(0, $location->translations->count());
 
-        // Check that each language relationship has the required pivot data
-        foreach ($location->languages as $language) {
-            $this->assertNotEmpty($language->pivot->name);
-            $this->assertDatabaseHas('location_language', [
+        // Check that each translation has the required data
+        foreach ($location->translations as $translation) {
+            $this->assertNotEmpty($translation->name);
+            $this->assertDatabaseHas('location_translations', [
                 'location_id' => $location->id,
-                'language_id' => $language->id,
-                'name' => $language->pivot->name,
+                'language_id' => $translation->language_id,
+                'name' => $translation->name,
             ]);
         }
     }
@@ -68,11 +67,11 @@ class FactoryTest extends TestCase
         $this->assertEquals($country->internal_name, $location->country->internal_name);
     }
 
-    public function test_location_has_languages_relationship(): void
+    public function test_location_has_translations_relationship(): void
     {
         $location = Location::factory()->create();
 
-        $this->assertGreaterThan(0, $location->languages->count());
-        $this->assertInstanceOf(LocationLanguage::class, $location->languages->first()->pivot);
+        $this->assertGreaterThan(0, $location->translations->count());
+        $this->assertInstanceOf(LocationTranslation::class, $location->translations->first());
     }
 }

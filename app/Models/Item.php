@@ -68,14 +68,6 @@ class Item extends Model
     }
 
     /**
-     * Get all contextualizations for this item.
-     */
-    public function contextualizations(): HasMany
-    {
-        return $this->hasMany(Contextualization::class);
-    }
-
-    /**
      * Artists associated with this item
      */
     public function artists(): BelongsToMany
@@ -89,6 +81,51 @@ class Item extends Model
     public function workshops(): BelongsToMany
     {
         return $this->belongsToMany(Workshop::class, 'item_workshop');
+    }
+
+    /**
+     * Get all translations for this item.
+     */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(ItemTranslation::class);
+    }
+
+    /**
+     * Get the default context translation for this item in a specific language.
+     */
+    public function getDefaultTranslation(string $languageId): ?ItemTranslation
+    {
+        return $this->translations()
+            ->defaultContext()
+            ->forLanguage($languageId)
+            ->first();
+    }
+
+    /**
+     * Get a contextualized translation for this item.
+     */
+    public function getContextualizedTranslation(string $languageId, string $contextId): ?ItemTranslation
+    {
+        return $this->translations()
+            ->forLanguage($languageId)
+            ->forContext($contextId)
+            ->first();
+    }
+
+    /**
+     * Get translation with fallback logic: try specific context, then default context.
+     */
+    public function getTranslationWithFallback(string $languageId, ?string $contextId = null): ?ItemTranslation
+    {
+        if ($contextId) {
+            $translation = $this->getContextualizedTranslation($languageId, $contextId);
+            if ($translation) {
+                return $translation;
+            }
+        }
+
+        return $this->getDefaultTranslation($languageId);
     }
 
     /**

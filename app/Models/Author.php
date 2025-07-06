@@ -5,13 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Author Model
  *
  * Represents authors who write text content in the system.
- * Authors can be assigned to different roles in internationalization records.
  *
  * @property string $id Primary key (UUID)
  * @property string $name Author's name (unique)
@@ -47,38 +45,6 @@ class Author extends Model
     public function uniqueIds(): array
     {
         return ['id'];
-    }
-
-    /**
-     * Internationalization records where this author is the original author
-     */
-    public function authoredInternationalizations(): HasMany
-    {
-        return $this->hasMany(Internationalization::class, 'author_id');
-    }
-
-    /**
-     * Internationalization records where this author is the text copy editor
-     */
-    public function textCopyEditedInternationalizations(): HasMany
-    {
-        return $this->hasMany(Internationalization::class, 'text_copy_editor_id');
-    }
-
-    /**
-     * Internationalization records where this author is the translator
-     */
-    public function translatedInternationalizations(): HasMany
-    {
-        return $this->hasMany(Internationalization::class, 'translator_id');
-    }
-
-    /**
-     * Internationalization records where this author is the translation copy editor
-     */
-    public function translationCopyEditedInternationalizations(): HasMany
-    {
-        return $this->hasMany(Internationalization::class, 'translation_copy_editor_id');
     }
 
     /**
