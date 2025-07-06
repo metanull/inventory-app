@@ -58,6 +58,14 @@ Represents administrative divisions within countries (states, provinces, regions
 - `PUT /api/provinces/{id}` - Update province
 - `DELETE /api/provinces/{id}` - Delete province
 
+**Translation Endpoints:**
+
+- `GET /api/province-translation` - List all province translations
+- `GET /api/province-translation/{id}` - Get specific province translation
+- `POST /api/province-translation` - Create new province translation
+- `PUT /api/province-translation/{id}` - Update province translation
+- `DELETE /api/province-translation/{id}` - Delete province translation
+
 ### Location
 
 Represents geographic locations within provinces (cities, towns, districts).
@@ -78,6 +86,14 @@ Represents geographic locations within provinces (cities, towns, districts).
 - `PUT /api/locations/{id}` - Update location
 - `DELETE /api/locations/{id}` - Delete location
 
+**Translation Endpoints:**
+
+- `GET /api/location-translation` - List all location translations
+- `GET /api/location-translation/{id}` - Get specific location translation
+- `POST /api/location-translation` - Create new location translation
+- `PUT /api/location-translation/{id}` - Update location translation
+- `DELETE /api/location-translation/{id}` - Delete location translation
+
 ### Address
 
 Represents detailed address information within locations.
@@ -97,6 +113,14 @@ Represents detailed address information within locations.
 - `POST /api/addresses` - Create new address
 - `PUT /api/addresses/{id}` - Update address
 - `DELETE /api/addresses/{id}` - Delete address
+
+**Translation Endpoints:**
+
+- `GET /api/address-translation` - List all address translations
+- `GET /api/address-translation/{id}` - Get specific address translation
+- `POST /api/address-translation` - Create new address translation
+- `PUT /api/address-translation/{id}` - Update address translation
+- `DELETE /api/address-translation/{id}` - Delete address translation
 
 ## Contact Models
 
@@ -119,6 +143,14 @@ Represents individuals or organizations with contact information.
 - `PUT /api/contacts/{id}` - Update contact
 - `DELETE /api/contacts/{id}` - Delete contact
 
+**Translation Endpoints:**
+
+- `GET /api/contact-translation` - List all contact translations
+- `GET /api/contact-translation/{id}` - Get specific contact translation
+- `POST /api/contact-translation` - Create new contact translation
+- `PUT /api/contact-translation/{id}` - Update contact translation
+- `DELETE /api/contact-translation/{id}` - Delete contact translation
+
 ## Reference Models
 
 ### Country
@@ -138,23 +170,26 @@ ISO 639-1 language codes for internationalization.
 **Key Features:**
 
 - Three-letter primary key (ISO standard)
-- Used in all language pivot tables
+- Used in all translation models
 - Supports default language configuration
 
 ## Internationalization
 
-All major content models support internationalization through dedicated pivot tables:
+All major content models support internationalization through dedicated translation models:
 
 - **ContactTranslation** - Localized contact information
 - **ProvinceTranslation** - Localized province names and descriptions
 - **LocationTranslation** - Localized location names and descriptions
 - **AddressTranslation** - Localized address names and descriptions
 
-Each language pivot provides:
+Each translation model provides:
 
-- `name` - Localized display name
+- `name` - Localized display name (where applicable)
 - `description` - Localized description text
-- Language-specific content organization
+- `label` - Localized labels for contacts
+- `address` - Localized address text
+- Direct foreign key relationships to parent model and language
+- Follows Laravel's recommended translation pattern
 
 ## Data Relationships
 
@@ -166,10 +201,15 @@ Location (1) ──→ (N) Address
 Country (1) ──→ (N) Location (direct relationship)
 Country (1) ──→ (N) Address (direct relationship)
 
-Contact ←──→ ContactTranslation
-Province ←──→ ProvinceTranslation
-Location ←──→ LocationTranslation
-Address ←──→ AddressTranslation
+Contact (1) ──→ (N) ContactTranslation
+Province (1) ──→ (N) ProvinceTranslation
+Location (1) ──→ (N) LocationTranslation
+Address (1) ──→ (N) AddressTranslation
+
+Language (1) ──→ (N) ContactTranslation
+Language (1) ──→ (N) ProvinceTranslation
+Language (1) ──→ (N) LocationTranslation
+Language (1) ──→ (N) AddressTranslation
 ```
 
 ## Common Patterns
@@ -184,11 +224,14 @@ Most models use UUID primary keys for:
 
 ### Internationalization
 
-Multi-language support follows consistent patterns:
+Multi-language support follows Laravel's recommended translation pattern:
 
-- Pivot tables for language-specific content
+- Dedicated translation models instead of pivot tables
+- One-to-many relationships between main models and translations
+- Each translation record includes foreign keys to both parent model and language
 - ISO standard language codes
-- Consistent API response structure
+- Consistent API response structure with embedded translations
+- Full CRUD operations available for both main models and translations
 
 ### Timestamps
 

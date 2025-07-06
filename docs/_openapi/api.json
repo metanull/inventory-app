@@ -71,7 +71,7 @@
                                     "country_id": {
                                         "type": "integer"
                                     },
-                                    "languages": {
+                                    "translations": {
                                         "type": "array",
                                         "items": {
                                             "type": "object",
@@ -99,8 +99,7 @@
                                 },
                                 "required": [
                                     "internal_name",
-                                    "country_id",
-                                    "languages"
+                                    "country_id"
                                 ]
                             }
                         }
@@ -229,7 +228,7 @@
                                     "country_id": {
                                         "type": "integer"
                                     },
-                                    "languages": {
+                                    "translations": {
                                         "type": "array",
                                         "items": {
                                             "type": "object",
@@ -873,7 +872,7 @@
                                         ],
                                         "format": "email"
                                     },
-                                    "languages": {
+                                    "translations": {
                                         "type": "array",
                                         "items": {
                                             "type": "object",
@@ -895,7 +894,7 @@
                                 },
                                 "required": [
                                     "internal_name",
-                                    "languages"
+                                    "translations"
                                 ]
                             }
                         }
@@ -1037,7 +1036,7 @@
                                         ],
                                         "format": "email"
                                     },
-                                    "languages": {
+                                    "translations": {
                                         "type": "array",
                                         "items": {
                                             "type": "object",
@@ -3364,7 +3363,7 @@
                                     "country_id": {
                                         "type": "integer"
                                     },
-                                    "languages": {
+                                    "translations": {
                                         "type": "array",
                                         "items": {
                                             "type": "object",
@@ -3387,7 +3386,7 @@
                                 "required": [
                                     "internal_name",
                                     "country_id",
-                                    "languages"
+                                    "translations"
                                 ]
                             }
                         }
@@ -3513,7 +3512,7 @@
                                     "country_id": {
                                         "type": "integer"
                                     },
-                                    "languages": {
+                                    "translations": {
                                         "type": "array",
                                         "items": {
                                             "type": "object",
@@ -5321,7 +5320,7 @@
                                     "country_id": {
                                         "type": "integer"
                                     },
-                                    "languages": {
+                                    "translations": {
                                         "type": "array",
                                         "items": {
                                             "type": "object",
@@ -5344,7 +5343,7 @@
                                 "required": [
                                     "internal_name",
                                     "country_id",
-                                    "languages"
+                                    "translations"
                                 ]
                             }
                         }
@@ -5470,7 +5469,7 @@
                                     "country_id": {
                                         "type": "integer"
                                     },
-                                    "languages": {
+                                    "translations": {
                                         "type": "array",
                                         "items": {
                                             "type": "object",
@@ -6374,49 +6373,6 @@
             }
         },
         "schemas": {
-            "Address": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "internal_name": {
-                        "type": "string"
-                    },
-                    "country_id": {
-                        "type": "string"
-                    },
-                    "backward_compatibility": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    }
-                },
-                "required": [
-                    "id",
-                    "internal_name",
-                    "country_id",
-                    "backward_compatibility",
-                    "created_at",
-                    "updated_at"
-                ],
-                "title": "Address"
-            },
             "AddressResource": {
                 "type": "object",
                 "properties": {
@@ -6429,8 +6385,11 @@
                     "country_id": {
                         "type": "string"
                     },
-                    "languages": {
-                        "type": "string"
+                    "translations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AddressTranslationResource"
+                        }
                     },
                     "created_at": {
                         "type": [
@@ -6469,16 +6428,27 @@
                         "type": "string"
                     },
                     "address": {
-                        "$ref": "#/components/schemas/Address"
+                        "type": "string"
                     },
                     "description": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "created_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     },
                     "updated_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -6662,8 +6632,11 @@
                             "null"
                         ]
                     },
-                    "languages": {
-                        "type": "string"
+                    "translations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ContactTranslationResource"
+                        }
                     },
                     "created_at": {
                         "type": [
@@ -6709,10 +6682,18 @@
                         "type": "string"
                     },
                     "created_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     },
                     "updated_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -7091,8 +7072,11 @@
                     "country_id": {
                         "type": "string"
                     },
-                    "languages": {
-                        "type": "string"
+                    "translations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LocationTranslationResource"
+                        }
                     },
                     "created_at": {
                         "type": [
@@ -7134,13 +7118,24 @@
                         "type": "string"
                     },
                     "description": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "created_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     },
                     "updated_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -7390,8 +7385,11 @@
                     "country_id": {
                         "type": "string"
                     },
-                    "languages": {
-                        "type": "string"
+                    "translations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProvinceTranslationResource"
+                        }
                     },
                     "created_at": {
                         "type": [
@@ -7433,13 +7431,24 @@
                         "type": "string"
                     },
                     "description": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "created_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     },
                     "updated_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     }
                 },
                 "required": [

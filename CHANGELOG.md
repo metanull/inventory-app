@@ -18,15 +18,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - New migration tables: `contact_translations`, `province_translations`, `location_translations`, `address_translations`
         - Removed old pivot tables: `contact_language`, `province_language`, `location_language`, `address_language`
         - Each translation table includes foreign keys to parent model and language
+        - Added unique constraints on (model_id, language_id) combinations
     - **API Endpoints**: Added new translation-specific API endpoints
         - `/api/contact-translation`, `/api/province-translation`, `/api/location-translation`, `/api/address-translation`
         - Full CRUD operations for all translation models
         - Proper API resources and controllers for each translation type
-    - **Testing Coverage**: Complete test suite for all translation models
+        - Updated main model endpoints to return embedded translations
+    - **Testing Coverage**: Complete test suite for all translation models with unique constraint compliance
         - Unit tests for factories and model relationships
         - Feature tests for all CRUD operations and anonymous access
         - Updated existing tests to use new translation relationships
-    - **Documentation**: Updated API documentation to reflect translation model changes
+        - Fixed all unique constraint violations through factory improvements
+        - Added `withoutTranslations()` factory states to prevent conflicts
+        - Updated translation factories to create unique languages instead of reusing seeded ones
+        - All 822 tests now pass successfully
+    - **Documentation**: Updated API documentation to reflect translation model changes and new endpoints
 
 ### Removed
 
