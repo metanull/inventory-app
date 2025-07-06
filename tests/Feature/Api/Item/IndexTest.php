@@ -58,6 +58,7 @@ class IndexTest extends TestCase
                     'project',
                     'artists',
                     'workshops',
+                    'tags',
                     'created_at',
                     'updated_at',
                 ],

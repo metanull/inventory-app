@@ -8033,6 +8033,13 @@
                             "$ref": "#/components/schemas/WorkshopResource"
                         }
                     },
+                    "tags": {
+                        "type": "array",
+                        "description": "Tags associated with this item",
+                        "items": {
+                            "$ref": "#/components/schemas/TagResource"
+                        }
+                    },
                     "translations": {
                         "type": "array",
                         "description": "Translations for this item (internationalization and contextualization)",
