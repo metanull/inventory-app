@@ -163,16 +163,6 @@ GET    /api/tag/{id}/items            # Get all items with a specific tag
 POST   /api/tag-item                  # Create tag-item relationship
 DELETE /api/tag-item/{id}             # Remove tag-item relationship
 
-# Contextualization Management
-GET    /api/contextualization/default-context        # Get contextualizations with default context
-POST   /api/contextualization/default-context        # Create contextualization with default context
-GET    /api/contextualization/for-items              # Get contextualizations for items
-GET    /api/contextualization/for-details            # Get contextualizations for details
-
-# Internationalization
-GET    /api/internationalization/english             # Get English content
-GET    /api/internationalization/default             # Get default language content
-
 # Markdown Processing
 POST   /api/markdown/to-html          # Convert markdown to HTML
 POST   /api/markdown/from-html        # Convert HTML to markdown

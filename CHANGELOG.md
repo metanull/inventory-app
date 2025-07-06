@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- **Contextualization and Internationalization Models**: Removed complex contextualization system deemed too complex for current requirements (July 6, 2025)
+    - **Contextualization Model**: Removed model, controller, resource, factory, seeder, and all related tests
+    - **Internationalization Model**: Removed model, controller, resource, factory, seeder, and all related tests
+    - **Database Tables**: Added migrations to drop `contextualizations` and `internationalizations` tables
+    - **API Endpoints**: Removed all contextualization and internationalization API routes
+    - **Model Relationships**: Cleaned up relationships in Item, Detail, Context, and Author models
+    - **Documentation**: Updated API documentation and field documentation
+
 ### Added
 
 - **Geographic Models**: Complete geographic data management system with internationalization support

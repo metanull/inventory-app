@@ -31,8 +31,6 @@ class DatabaseSeeder extends Seeder
             PictureSeeder::class,
             ImageUploadSeeder::class,
             AvailableImageSeeder::class,
-            ContextualizationSeeder::class,
-            InternationalizationSeeder::class,
             ArtistSeeder::class,
             AuthorSeeder::class,
             WorkshopSeeder::class,

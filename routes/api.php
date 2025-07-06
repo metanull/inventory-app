@@ -5,11 +5,9 @@ use App\Http\Controllers\Api\MarkdownController;
 use App\Http\Controllers\AvailableImageController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ContextController;
-use App\Http\Controllers\ContextualizationController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DetailController;
 use App\Http\Controllers\ImageUploadController;
-use App\Http\Controllers\InternationalizationController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\LocationController;
@@ -140,40 +138,6 @@ Route::resource('location', LocationController::class)->except([
 ])->middleware('auth:sanctum');
 
 Route::resource('address', AddressController::class)->except([
-    'create', 'edit',
-])->middleware('auth:sanctum');
-
-// Contextualization routes
-Route::get('contextualization/default-context', [ContextualizationController::class, 'defaultContext'])
-    ->name('contextualization.defaultContext')
-    ->middleware('auth:sanctum');
-
-Route::get('contextualization/for-items', [ContextualizationController::class, 'forItems'])
-    ->name('contextualization.forItems')
-    ->middleware('auth:sanctum');
-
-Route::get('contextualization/for-details', [ContextualizationController::class, 'forDetails'])
-    ->name('contextualization.forDetails')
-    ->middleware('auth:sanctum');
-
-Route::post('contextualization/with-default-context', [ContextualizationController::class, 'storeWithDefaultContext'])
-    ->name('contextualization.storeWithDefaultContext')
-    ->middleware('auth:sanctum');
-
-Route::resource('contextualization', ContextualizationController::class)->except([
-    'create', 'edit',
-])->middleware('auth:sanctum');
-
-// Internationalization routes
-Route::get('internationalization/default-language', [InternationalizationController::class, 'inDefaultLanguage'])
-    ->name('internationalization.inDefaultLanguage')
-    ->middleware('auth:sanctum');
-
-Route::get('internationalization/english', [InternationalizationController::class, 'inEnglish'])
-    ->name('internationalization.inEnglish')
-    ->middleware('auth:sanctum');
-
-Route::resource('internationalization', InternationalizationController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 

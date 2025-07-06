@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
 class Context extends Model
@@ -28,14 +27,6 @@ class Context extends Model
     public function uniqueIds(): array
     {
         return ['id'];
-    }
-
-    /**
-     * Get all contextualizations for this context.
-     */
-    public function contextualizations(): HasMany
-    {
-        return $this->hasMany(Contextualization::class);
     }
 
     public function scopeDefault($query)
