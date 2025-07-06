@@ -16,10 +16,6 @@ class FactoryTest extends TestCase
 
     public function test_address_factory_creates_valid_address(): void
     {
-        // Create languages and countries first
-        Language::factory(3)->create();
-        Country::factory(2)->create();
-
         $address = Address::factory()->create();
 
         $this->assertDatabaseHas('addresses', [
@@ -38,11 +34,7 @@ class FactoryTest extends TestCase
         // Check that country_id exists in countries table
         $this->assertDatabaseHas('countries', ['id' => $address->country_id]);
 
-        // Load the languages relationship manually for testing
-        $address->load('languages');
-
-        // Check that languages relationship is loaded
-        $this->assertTrue($address->relationLoaded('languages'));
+        // Check that languages relationship exists and is accessible
         $this->assertGreaterThan(0, $address->languages->count());
 
         // Check that each language relationship has the required pivot data
@@ -58,9 +50,6 @@ class FactoryTest extends TestCase
 
     public function test_address_factory_creates_multiple_addresses_with_unique_internal_names(): void
     {
-        Language::factory(3)->create();
-        Country::factory(2)->create();
-
         $addresses = Address::factory(5)->create();
 
         $this->assertCount(5, $addresses);
@@ -71,7 +60,6 @@ class FactoryTest extends TestCase
 
     public function test_address_has_country_relationship(): void
     {
-        Language::factory(3)->create();
         $country = Country::factory()->create();
 
         $address = Address::factory()->create(['country_id' => $country->id]);
@@ -82,10 +70,7 @@ class FactoryTest extends TestCase
 
     public function test_address_has_languages_relationship(): void
     {
-        $languages = Language::factory(3)->create();
-        $country = Country::factory()->create();
-
-        $address = Address::factory()->create(['country_id' => $country->id]);
+        $address = Address::factory()->create();
 
         $this->assertGreaterThan(0, $address->languages->count());
         $this->assertInstanceOf(AddressLanguage::class, $address->languages->first()->pivot);

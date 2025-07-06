@@ -129,6 +129,10 @@ The project uses [Prettier](https://prettier.io/) for automatic code formatting,
 
 CSS and SCSS code quality is maintained using [Stylelint](https://stylelint.io/), a modern CSS linter that catches errors, enforces conventions, and suggests improvements. Stylelint integrates with our development workflow to ensure consistent CSS coding standards, proper syntax usage, and adherence to best practices across all stylesheets.
 
+### About GitHub Copilot and AI Agents
+
+This project leverages [GitHub Copilot](https://github.com/features/copilot) as an AI coding assistant, powered by advanced models such as **GPT-4.1** and **Claude Sonnet 4**. Copilot and similar agents accelerate development by providing intelligent code suggestions, automated documentation, and context-aware refactoring. These tools help maintain high code quality, reduce manual effort, and ensure best practices are followed throughout the codebase.
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/metanull/inventory-app/blob/main/LICENSE) file for details.
