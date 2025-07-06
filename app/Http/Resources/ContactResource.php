@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property-read array<int, array{id: string, name: string, label: string}> $languages Array of language objects for this contact.
+ * Contact resource for API responses.
  */
 class ContactResource extends JsonResource
 {
@@ -26,6 +26,7 @@ class ContactResource extends JsonResource
             'formatted_fax_number' => $this->formattedFaxNumber(),
             'email' => $this->email,
             'languages' => $this->whenLoaded('languages', function () {
+                // Returns array of objects: [{id: string, name: string, label: string}, ...]
                 return $this->languages->map(function ($language) {
                     return [
                         'id' => $language->id,
