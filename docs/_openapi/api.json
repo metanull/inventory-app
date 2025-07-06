@@ -2245,6 +2245,373 @@
                 }
             }
         },
+        "/detail-translation": {
+            "get": {
+                "operationId": "detail-translation.index",
+                "summary": "Display a listing of detail translations",
+                "tags": [
+                    "Detail Translations",
+                    "DetailTranslation"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DetailTranslationResource"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "detail-translation.store",
+                "summary": "Store a newly created detail translation",
+                "tags": [
+                    "Detail Translations",
+                    "DetailTranslation"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "detail_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "language_id": {
+                                        "type": "string",
+                                        "minLength": 3,
+                                        "maxLength": 3
+                                    },
+                                    "context_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "alternate_name": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 255
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "author_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "text_copy_editor_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "translator_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "translation_copy_editor_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 255
+                                    },
+                                    "extra": {
+                                        "type": [
+                                            "array",
+                                            "null"
+                                        ],
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "detail_id",
+                                    "language_id",
+                                    "context_id",
+                                    "name",
+                                    "description"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        201
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/detail-translation/{detailTranslation}": {
+            "get": {
+                "operationId": "detail-translation.show",
+                "summary": "Display the specified detail translation",
+                "tags": [
+                    "Detail Translations",
+                    "DetailTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "detailTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The detail translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`DetailTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/DetailTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "detail-translation.update",
+                "summary": "Update the specified detail translation",
+                "tags": [
+                    "Detail Translations",
+                    "DetailTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "detailTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The detail translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "detail_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "language_id": {
+                                        "type": "string",
+                                        "minLength": 3,
+                                        "maxLength": 3
+                                    },
+                                    "context_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "alternate_name": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 255
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "author_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "text_copy_editor_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "translator_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "translation_copy_editor_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 255
+                                    },
+                                    "extra": {
+                                        "type": [
+                                            "array",
+                                            "null"
+                                        ],
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`DetailTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/DetailTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "detail-translation.destroy",
+                "summary": "Remove the specified detail translation",
+                "tags": [
+                    "Detail Translations",
+                    "DetailTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "detailTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The detail translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        204
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/image-upload": {
             "get": {
                 "operationId": "image-upload.index",
@@ -2876,6 +3243,519 @@
                     },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/item-translation": {
+            "get": {
+                "operationId": "item-translation.index",
+                "summary": "Display a listing of item translations",
+                "tags": [
+                    "Item Translations",
+                    "ItemTranslation"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ItemTranslationResource"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "item-translation.store",
+                "summary": "Store a newly created item translation",
+                "tags": [
+                    "Item Translations",
+                    "ItemTranslation"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "item_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "language_id": {
+                                        "type": "string",
+                                        "minLength": 3,
+                                        "maxLength": 3
+                                    },
+                                    "context_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "alternate_name": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 255
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 255
+                                    },
+                                    "holder": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "owner": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "initial_owner": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "dates": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "location": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "dimensions": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "place_of_production": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "method_for_datation": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "method_for_provenance": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "obtention": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "bibliography": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "author_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "text_copy_editor_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "translator_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "translation_copy_editor_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 255
+                                    },
+                                    "extra": {
+                                        "type": [
+                                            "array",
+                                            "null"
+                                        ],
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "item_id",
+                                    "language_id",
+                                    "context_id",
+                                    "name",
+                                    "description"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        201
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/item-translation/{itemTranslation}": {
+            "get": {
+                "operationId": "item-translation.show",
+                "summary": "Display the specified item translation",
+                "tags": [
+                    "Item Translations",
+                    "ItemTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ItemTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "item-translation.update",
+                "summary": "Update the specified item translation",
+                "tags": [
+                    "Item Translations",
+                    "ItemTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "item_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "language_id": {
+                                        "type": "string",
+                                        "minLength": 3,
+                                        "maxLength": 3
+                                    },
+                                    "context_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "alternate_name": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 255
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 255
+                                    },
+                                    "holder": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "owner": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "initial_owner": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "dates": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "location": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "dimensions": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "place_of_production": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "method_for_datation": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "method_for_provenance": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "obtention": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "bibliography": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "author_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "text_copy_editor_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "translator_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "translation_copy_editor_id": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 255
+                                    },
+                                    "extra": {
+                                        "type": [
+                                            "array",
+                                            "null"
+                                        ],
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ItemTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "item-translation.destroy",
+                "summary": "Remove the specified item translation",
+                "tags": [
+                    "Item Translations",
+                    "ItemTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        204
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
@@ -6546,6 +7426,52 @@
                 ],
                 "title": "ArtistResource"
             },
+            "AuthorResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "internal_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "internal_name",
+                    "backward_compatibility",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "AuthorResource"
+            },
             "AvailableImageResource": {
                 "type": "object",
                 "properties": {
@@ -6821,6 +7747,13 @@
                         ],
                         "description": "The legacy Id when this item corresponds to a legacy item from the MWNF3 database, nullable"
                     },
+                    "translations": {
+                        "type": "array",
+                        "description": "Translations for this detail (internationalization and contextualization)",
+                        "items": {
+                            "$ref": "#/components/schemas/DetailTranslationResource"
+                        }
+                    },
                     "created_at": {
                         "type": [
                             "string",
@@ -6846,6 +7779,126 @@
                     "updated_at"
                 ],
                 "title": "DetailResource"
+            },
+            "DetailTranslationResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "detail_id": {
+                        "type": "string"
+                    },
+                    "language_id": {
+                        "type": "string"
+                    },
+                    "context_id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "alternate_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "author_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "text_copy_editor_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "translator_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "translation_copy_editor_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "extra": {
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {}
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "detail": {
+                        "description": "Relationship data",
+                        "$ref": "#/components/schemas/DetailResource"
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/LanguageResource"
+                    },
+                    "context": {
+                        "$ref": "#/components/schemas/ContextResource"
+                    },
+                    "author": {
+                        "$ref": "#/components/schemas/AuthorResource"
+                    },
+                    "text_copy_editor": {
+                        "$ref": "#/components/schemas/AuthorResource"
+                    },
+                    "translator": {
+                        "$ref": "#/components/schemas/AuthorResource"
+                    },
+                    "translation_copy_editor": {
+                        "$ref": "#/components/schemas/AuthorResource"
+                    }
+                },
+                "required": [
+                    "id",
+                    "detail_id",
+                    "language_id",
+                    "context_id",
+                    "name",
+                    "alternate_name",
+                    "description",
+                    "author_id",
+                    "text_copy_editor_id",
+                    "translator_id",
+                    "translation_copy_editor_id",
+                    "backward_compatibility",
+                    "extra",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "DetailTranslationResource"
             },
             "ImageUploadResource": {
                 "type": "object",
@@ -6980,6 +8033,13 @@
                             "$ref": "#/components/schemas/WorkshopResource"
                         }
                     },
+                    "translations": {
+                        "type": "array",
+                        "description": "Translations for this item (internationalization and contextualization)",
+                        "items": {
+                            "$ref": "#/components/schemas/ItemTranslationResource"
+                        }
+                    },
                     "created_at": {
                         "type": [
                             "string",
@@ -7010,6 +8070,210 @@
                     "updated_at"
                 ],
                 "title": "ItemResource"
+            },
+            "ItemTranslationResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "item_id": {
+                        "type": "string"
+                    },
+                    "language_id": {
+                        "type": "string"
+                    },
+                    "context_id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "alternate_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "holder": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "owner": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "initial_owner": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "dates": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "location": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "dimensions": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "place_of_production": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "method_for_datation": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "method_for_provenance": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "obtention": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "bibliography": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "author_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "text_copy_editor_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "translator_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "translation_copy_editor_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "extra": {
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {}
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "item": {
+                        "description": "Relationship data",
+                        "$ref": "#/components/schemas/ItemResource"
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/LanguageResource"
+                    },
+                    "context": {
+                        "$ref": "#/components/schemas/ContextResource"
+                    },
+                    "author": {
+                        "$ref": "#/components/schemas/AuthorResource"
+                    },
+                    "text_copy_editor": {
+                        "$ref": "#/components/schemas/AuthorResource"
+                    },
+                    "translator": {
+                        "$ref": "#/components/schemas/AuthorResource"
+                    },
+                    "translation_copy_editor": {
+                        "$ref": "#/components/schemas/AuthorResource"
+                    }
+                },
+                "required": [
+                    "id",
+                    "item_id",
+                    "language_id",
+                    "context_id",
+                    "name",
+                    "alternate_name",
+                    "description",
+                    "type",
+                    "holder",
+                    "owner",
+                    "initial_owner",
+                    "dates",
+                    "location",
+                    "dimensions",
+                    "place_of_production",
+                    "method_for_datation",
+                    "method_for_provenance",
+                    "obtention",
+                    "bibliography",
+                    "author_id",
+                    "text_copy_editor_id",
+                    "translator_id",
+                    "translation_copy_editor_id",
+                    "backward_compatibility",
+                    "extra",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ItemTranslationResource"
             },
             "LanguageResource": {
                 "type": "object",

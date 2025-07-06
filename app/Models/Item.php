@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Item extends Model
 {
@@ -80,6 +81,51 @@ class Item extends Model
     public function workshops(): BelongsToMany
     {
         return $this->belongsToMany(Workshop::class, 'item_workshop');
+    }
+
+    /**
+     * Get all translations for this item.
+     */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(ItemTranslation::class);
+    }
+
+    /**
+     * Get the default context translation for this item in a specific language.
+     */
+    public function getDefaultTranslation(string $languageId): ?ItemTranslation
+    {
+        return $this->translations()
+            ->defaultContext()
+            ->forLanguage($languageId)
+            ->first();
+    }
+
+    /**
+     * Get a contextualized translation for this item.
+     */
+    public function getContextualizedTranslation(string $languageId, string $contextId): ?ItemTranslation
+    {
+        return $this->translations()
+            ->forLanguage($languageId)
+            ->forContext($contextId)
+            ->first();
+    }
+
+    /**
+     * Get translation with fallback logic: try specific context, then default context.
+     */
+    public function getTranslationWithFallback(string $languageId, ?string $contextId = null): ?ItemTranslation
+    {
+        if ($contextId) {
+            $translation = $this->getContextualizedTranslation($languageId, $contextId);
+            if ($translation) {
+                return $translation;
+            }
+        }
+
+        return $this->getDefaultTranslation($languageId);
     }
 
     /**

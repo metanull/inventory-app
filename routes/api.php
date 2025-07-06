@@ -9,8 +9,10 @@ use App\Http\Controllers\ContactTranslationController;
 use App\Http\Controllers\ContextController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DetailController;
+use App\Http\Controllers\DetailTranslationController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ItemTranslationController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LocationTranslationController;
@@ -158,6 +160,14 @@ Route::resource('location-translation', LocationTranslationController::class)->e
 ])->middleware('auth:sanctum');
 
 Route::resource('address-translation', AddressTranslationController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('item-translation', ItemTranslationController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('detail-translation', DetailTranslationController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 

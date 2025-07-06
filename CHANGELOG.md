@@ -81,6 +81,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - Full CRUD operation testing for all endpoints
         - Authentication and authorization testing
         - Relationship and constraint validation
+- **Item and Detail Internationalization and Contextualization**: Complete internationalization and contextualization system for core inventory models
+    - **Translation Models**: New ItemTranslation and DetailTranslation models supporting multi-language, multi-context content
+        - ItemTranslation model with comprehensive field set: name, alternate_name, description, type, holder, owner, initial_owner, dates, location, dimensions, place_of_production, method_for_datation, method_for_provenance, obtention, bibliography
+        - DetailTranslation model with focused field set: name, alternate_name, description
+        - Both models support author relationships (author, text_copy_editor, translator, translation_copy_editor)
+        - UUID primary keys with foreign key relationships to items/details, languages, contexts, and authors
+        - Unique constraints on (model_id, language_id, context_id) combinations to prevent duplicates
+        - JSON extra field for extensible metadata storage
+    - **Database Schema**: New translation tables following Laravel internationalization conventions
+        - item_translations and detail_translations tables with proper indexing
+        - Foreign key constraints with cascade delete for parent models and set null for authors
+        - Context-aware translations enabling multiple versions per language
+        - Backward compatibility support for data migration
+    - **Eloquent Relationships**: Enhanced Item and Detail models with translation support
+        - hasMany relationships to translation models with eager loading support
+        - Helper methods for retrieving default context and contextualized translations
+        - Fallback logic for graceful handling of missing translations
+        - Scope methods for filtering by language and context
+    - **API Endpoints**: Full CRUD REST API for translation management
+        - `/api/item-translation` and `/api/detail-translation` endpoints
+        - Filtering capabilities by item_id, detail_id, language_id, context_id
+        - Default context filtering for simplified queries
+        - Comprehensive validation with proper error handling for unique constraint violations
+        - Nested relationship loading for complete translation data
+    - **Factory and Seeder Support**: Complete test data generation infrastructure
+        - ItemTranslationFactory and DetailTranslationFactory with state methods
+        - Support for default context, specific language/context, and author configurations
+        - ItemTranslationSeeder and DetailTranslationSeeder for sample data generation
+        - Integration with existing Item and Detail factories via withoutTranslations states
+    - **API Resource Integration**: Enhanced parent model resources with translation data
+        - ItemResource and DetailResource now include embedded translations
+        - ItemTranslationResource and DetailTranslationResource for dedicated translation endpoints
+        - Proper relationship loading with whenLoaded for performance optimization
+        - Complete field mapping with relationship data inclusion
+    - **Context and Language Integration**: Full integration with existing Context and Language systems
+        - Support for default context identification via Context model
+        - Language-specific content with ISO 639-1 language codes
+        - Context factory enhanced with default() state method for testing
+        - Seamless integration with existing geographic translation patterns
 - **Code Quality and Development Workflow Enhancements**: Comprehensive development environment improvements
     - **Husky Integration**: Automated Git hooks for code quality enforcement using [Husky](https://typicode.github.io/husky)
     - **lint-staged Implementation**: Efficient code formatting on staged files using [lint-staged](https://www.npmjs.com/package/lint-staged)

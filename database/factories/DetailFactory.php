@@ -38,4 +38,16 @@ class DetailFactory extends Factory
             ];
         });
     }
+
+    /**
+     * Create a detail without creating translations.
+     */
+    public function withoutTranslations(): self
+    {
+        return $this->state(function (array $attributes) {
+            // This state doesn't change the detail but signals to translation factories
+            // not to create translations for this detail
+            return [];
+        });
+    }
 }

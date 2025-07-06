@@ -72,4 +72,16 @@ class ItemFactory extends Factory
             'type' => 'monument',
         ]);
     }
+
+    /**
+     * Create an item without creating translations.
+     */
+    public function withoutTranslations(): self
+    {
+        return $this->state(function (array $attributes) {
+            // This state doesn't change the item but signals to translation factories
+            // not to create translations for this item
+            return [];
+        });
+    }
 }
