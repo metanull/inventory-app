@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Api\MarkdownController;
 use App\Http\Controllers\AvailableImageController;
 use App\Http\Controllers\ContactController;
@@ -11,10 +12,12 @@ use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\InternationalizationController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MobileAppAuthenticationController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TagItemController;
 use Illuminate\Http\Request;
@@ -125,6 +128,18 @@ Route::resource('detail', DetailController::class)->except([
 ])->middleware('auth:sanctum');
 
 Route::resource('contact', ContactController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('province', ProvinceController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('location', LocationController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('address', AddressController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 
