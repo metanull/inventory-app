@@ -2,28 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\Pivot;
-use Illuminate\Support\Str;
 
-class ContactLanguage extends Pivot
+class ContactTranslation extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'contact_language';
-
-    /**
-     * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = false;
+    protected $table = 'contact_translations';
 
     /**
      * The attributes that are mass assignable.
@@ -34,26 +27,21 @@ class ContactLanguage extends Pivot
         'contact_id',
         'language_id',
         'label',
+        'backward_compatibility',
     ];
 
     /**
-     * The "booted" method of the model.
+     * Get the unique identifiers for the model.
      *
-     * @return void
+     * @return array<int, string>
      */
-    protected static function boot()
+    public function uniqueIds(): array
     {
-        parent::boot();
-
-        static::creating(function ($model) {
-            if (empty($model->id)) {
-                $model->id = (string) Str::uuid();
-            }
-        });
+        return ['id'];
     }
 
     /**
-     * Get the contact that owns the contact language.
+     * Get the contact that owns the translation.
      */
     public function contact(): BelongsTo
     {
@@ -61,7 +49,7 @@ class ContactLanguage extends Pivot
     }
 
     /**
-     * Get the language that owns the contact language.
+     * Get the language for the translation.
      */
     public function language(): BelongsTo
     {

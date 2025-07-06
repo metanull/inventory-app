@@ -33,7 +33,7 @@ class UpdateTest extends TestCase
         $data = [
             'internal_name' => 'updated-address',
             'country_id' => Country::first()->id,
-            'languages' => [
+            'translations' => [
                 [
                     'language_id' => Language::first()->id,
                     'address' => 'Updated Address',
@@ -50,7 +50,7 @@ class UpdateTest extends TestCase
                     'id',
                     'internal_name',
                     'country_id',
-                    'languages',
+                    'translations',
                     'created_at',
                     'updated_at',
                 ],
@@ -70,7 +70,7 @@ class UpdateTest extends TestCase
         $data = [
             'internal_name' => 'test-address',
             'country_id' => $country->id,
-            'languages' => [
+            'translations' => [
                 [
                     'language_id' => Language::first()->id,
                     'address' => 'Test Address',
@@ -108,7 +108,7 @@ class UpdateTest extends TestCase
         $data = [
             'internal_name' => 'test-address',
             'country_id' => 'invalid',
-            'languages' => [
+            'translations' => [
                 [
                     'language_id' => Language::first()->id,
                     'address' => 'Test Address',
@@ -133,7 +133,7 @@ class UpdateTest extends TestCase
             'id' => 'new-id',
             'internal_name' => 'test-address',
             'country_id' => Country::first()->id,
-            'languages' => [
+            'translations' => [
                 [
                     'language_id' => Language::first()->id,
                     'address' => 'Test Address',
@@ -158,7 +158,7 @@ class UpdateTest extends TestCase
         $data = [
             'internal_name' => $newInternalName,
             'country_id' => $address->country_id,
-            'languages' => [
+            'translations' => [
                 [
                     'language_id' => Language::first()->id,
                     'address' => 'Test Address',

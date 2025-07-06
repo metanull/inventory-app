@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Internationalization Refactoring**: Migrated from `*Language` pivot models to `*Translation` models
+    - **Translation Models**: Replaced `ContactLanguage`, `ProvinceLanguage`, `LocationLanguage`, `AddressLanguage` with proper translation models
+        - New models: `ContactTranslation`, `ProvinceTranslation`, `LocationTranslation`, `AddressTranslation`
+        - Changed from many-to-many relationships with pivot tables to one-to-many relationships with dedicated translation tables
+        - Updated all main models (`Contact`, `Province`, `Location`, `Address`) to use `translations()` hasMany relationships
+    - **Database Schema**: Updated database structure to follow Laravel translation conventions
+        - New migration tables: `contact_translations`, `province_translations`, `location_translations`, `address_translations`
+        - Removed old pivot tables: `contact_language`, `province_language`, `location_language`, `address_language`
+        - Each translation table includes foreign keys to parent model and language
+    - **API Endpoints**: Added new translation-specific API endpoints
+        - `/api/contact-translation`, `/api/province-translation`, `/api/location-translation`, `/api/address-translation`
+        - Full CRUD operations for all translation models
+        - Proper API resources and controllers for each translation type
+    - **Testing Coverage**: Complete test suite for all translation models
+        - Unit tests for factories and model relationships
+        - Feature tests for all CRUD operations and anonymous access
+        - Updated existing tests to use new translation relationships
+    - **Documentation**: Updated API documentation to reflect translation model changes
+
 ### Removed
 
 - **Contextualization and Internationalization Models**: Removed complex contextualization system deemed too complex for current requirements (July 6, 2025)
@@ -22,21 +43,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Geographic Models**: Complete geographic data management system with internationalization support
     - **Province Model**: New Province model with UUID primary keys, country relationships, and multi-language support
         - Full CRUD API endpoints (`/api/provinces`)
-        - Language-specific content via ProvinceLanguage pivot model
+        - Language-specific content via ProvinceTranslation model
         - Factory, seeder, and comprehensive test coverage (40+ tests)
         - Required relationship to Country model
     - **Location Model**: New Location model for geographic locations within provinces
         - Full CRUD API endpoints (`/api/locations`)
-        - Language-specific content via LocationLanguage pivot model
+        - Language-specific content via LocationTranslation model
         - Relationships to both Country and Province models
         - Factory, seeder, and comprehensive test coverage (40+ tests)
     - **Address Model**: New Address model for detailed address information
         - Full CRUD API endpoints (`/api/addresses`)
-        - Language-specific content via AddressLanguage pivot model
+        - Language-specific content via AddressTranslation model
         - Relationships to Country, Province, and Location models
         - Factory, seeder, and comprehensive test coverage (40+ tests)
     - **Internationalization Support**: Multi-language pivot tables for all geographic models
-        - ProvinceLanguage, LocationLanguage, and AddressLanguage pivot models
+        - ProvinceTranslation, LocationTranslation, and AddressTranslation models
         - Language-specific name and description fields
         - API responses include all available language versions
         - Consistent with existing Contact model internationalization patterns

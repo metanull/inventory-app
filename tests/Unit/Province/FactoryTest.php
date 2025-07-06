@@ -3,9 +3,8 @@
 namespace Tests\Unit\Province;
 
 use App\Models\Country;
-use App\Models\Language;
 use App\Models\Province;
-use App\Models\ProvinceLanguage;
+use App\Models\ProvinceTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -34,16 +33,16 @@ class FactoryTest extends TestCase
         // Check that country_id exists in countries table
         $this->assertDatabaseHas('countries', ['id' => $province->country_id]);
 
-        // Check that languages relationship exists and is accessible
-        $this->assertGreaterThan(0, $province->languages->count());
+        // Check that translations relationship exists and is accessible
+        $this->assertGreaterThan(0, $province->translations->count());
 
-        // Check that each language relationship has the required pivot data
-        foreach ($province->languages as $language) {
-            $this->assertNotEmpty($language->pivot->name);
-            $this->assertDatabaseHas('province_language', [
+        // Check that each translation has the required data
+        foreach ($province->translations as $translation) {
+            $this->assertNotEmpty($translation->name);
+            $this->assertDatabaseHas('province_translations', [
                 'province_id' => $province->id,
-                'language_id' => $language->id,
-                'name' => $language->pivot->name,
+                'language_id' => $translation->language_id,
+                'name' => $translation->name,
             ]);
         }
     }
@@ -68,11 +67,11 @@ class FactoryTest extends TestCase
         $this->assertEquals($country->internal_name, $province->country->internal_name);
     }
 
-    public function test_province_has_languages_relationship(): void
+    public function test_province_has_translations_relationship(): void
     {
         $province = Province::factory()->create();
 
-        $this->assertGreaterThan(0, $province->languages->count());
-        $this->assertInstanceOf(ProvinceLanguage::class, $province->languages->first()->pivot);
+        $this->assertGreaterThan(0, $province->translations->count());
+        $this->assertInstanceOf(ProvinceTranslation::class, $province->translations->first());
     }
 }

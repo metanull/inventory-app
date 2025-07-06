@@ -3,9 +3,8 @@
 namespace Tests\Unit\Address;
 
 use App\Models\Address;
-use App\Models\AddressLanguage;
+use App\Models\AddressTranslation;
 use App\Models\Country;
-use App\Models\Language;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -34,16 +33,16 @@ class FactoryTest extends TestCase
         // Check that country_id exists in countries table
         $this->assertDatabaseHas('countries', ['id' => $address->country_id]);
 
-        // Check that languages relationship exists and is accessible
-        $this->assertGreaterThan(0, $address->languages->count());
+        // Check that translations relationship exists and is accessible
+        $this->assertGreaterThan(0, $address->translations->count());
 
-        // Check that each language relationship has the required pivot data
-        foreach ($address->languages as $language) {
-            $this->assertNotEmpty($language->pivot->address);
-            $this->assertDatabaseHas('address_language', [
+        // Check that each translation has the required data
+        foreach ($address->translations as $translation) {
+            $this->assertNotEmpty($translation->address);
+            $this->assertDatabaseHas('address_translations', [
                 'address_id' => $address->id,
-                'language_id' => $language->id,
-                'address' => $language->pivot->address,
+                'language_id' => $translation->language_id,
+                'address' => $translation->address,
             ]);
         }
     }
@@ -68,18 +67,18 @@ class FactoryTest extends TestCase
         $this->assertEquals($country->internal_name, $address->country->internal_name);
     }
 
-    public function test_address_has_languages_relationship(): void
+    public function test_address_has_translations_relationship(): void
     {
         $address = Address::factory()->create();
 
-        $this->assertGreaterThan(0, $address->languages->count());
-        $this->assertInstanceOf(AddressLanguage::class, $address->languages->first()->pivot);
+        $this->assertGreaterThan(0, $address->translations->count());
+        $this->assertInstanceOf(AddressTranslation::class, $address->translations->first());
 
         // Check that address and description are properly set
-        foreach ($address->languages as $language) {
-            $this->assertNotEmpty($language->pivot->address);
+        foreach ($address->translations as $translation) {
+            $this->assertNotEmpty($translation->address);
             // Description can be null, so we just check it exists as an attribute
-            $this->assertArrayHasKey('description', $language->pivot->getAttributes());
+            $this->assertArrayHasKey('description', $translation->getAttributes());
         }
     }
 }

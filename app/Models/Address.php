@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Address extends Model
 {
@@ -48,14 +47,11 @@ class Address extends Model
     }
 
     /**
-     * The languages that belong to the address.
+     * The translations that belong to the address.
      */
-    public function languages(): BelongsToMany
+    public function translations()
     {
-        return $this->belongsToMany(Language::class, 'address_language')
-            ->using(AddressLanguage::class)
-            ->withPivot('address', 'description', 'id')
-            ->withTimestamps();
+        return $this->hasMany(AddressTranslation::class);
     }
 
     /**

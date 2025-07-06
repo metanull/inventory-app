@@ -32,7 +32,7 @@ class StoreTest extends TestCase
             'phone_number' => '+15555555555',
             'fax_number' => '+15555555556',
             'email' => 'test@example.com',
-            'languages' => [
+            'translations' => [
                 [
                     'language_id' => $languages[0]->id,
                     'label' => 'Contact Label 1',
@@ -56,7 +56,7 @@ class StoreTest extends TestCase
                 'fax_number',
                 'formatted_fax_number',
                 'email',
-                'languages',
+                'translations',
                 'created_at',
                 'updated_at',
             ],
@@ -64,13 +64,13 @@ class StoreTest extends TestCase
         $response->assertJsonPath('data.internal_name', 'test-contact');
         $response->assertJsonPath('data.email', 'test@example.com');
 
-        // Check that languages were attached
-        $this->assertDatabaseHas('contact_language', [
+        // Check that translations were attached
+        $this->assertDatabaseHas('contact_translations', [
             'contact_id' => $response->json('data.id'),
             'language_id' => $languages[0]->id,
             'label' => 'Contact Label 1',
         ]);
-        $this->assertDatabaseHas('contact_language', [
+        $this->assertDatabaseHas('contact_translations', [
             'contact_id' => $response->json('data.id'),
             'language_id' => $languages[1]->id,
             'label' => 'Contact Label 2',
@@ -83,7 +83,7 @@ class StoreTest extends TestCase
         $languages = Language::all();
         $data = [
             'phone_number' => '+15555555555',
-            'languages' => [
+            'translations' => [
                 [
                     'language_id' => $languages[0]->id,
                     'label' => 'Contact Label',
@@ -98,18 +98,18 @@ class StoreTest extends TestCase
     }
 
     #[Test]
-    public function it_requires_at_least_one_language()
+    public function it_requires_at_least_one_translation()
     {
         $data = [
             'internal_name' => 'test-contact',
             'phone_number' => '+15555555555',
-            'languages' => [],
+            'translations' => [],
         ];
 
         $response = $this->postJson(route('contact.store'), $data);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['languages']);
+        $response->assertJsonValidationErrors(['translations']);
     }
 
     #[Test]
@@ -119,7 +119,7 @@ class StoreTest extends TestCase
         $data = [
             'internal_name' => 'test-contact',
             'phone_number' => 'not-a-phone-number',
-            'languages' => [
+            'translations' => [
                 [
                     'language_id' => $languages[0]->id,
                     'label' => 'Contact Label',
@@ -140,7 +140,7 @@ class StoreTest extends TestCase
         $data = [
             'internal_name' => 'test-contact',
             'email' => 'not-an-email',
-            'languages' => [
+            'translations' => [
                 [
                     'language_id' => $languages[0]->id,
                     'label' => 'Contact Label',

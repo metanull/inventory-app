@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\AddressTranslationController;
 use App\Http\Controllers\Api\MarkdownController;
 use App\Http\Controllers\AvailableImageController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ContactTranslationController;
 use App\Http\Controllers\ContextController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DetailController;
@@ -11,11 +13,13 @@ use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\LocationTranslationController;
 use App\Http\Controllers\MobileAppAuthenticationController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProvinceController;
+use App\Http\Controllers\ProvinceTranslationController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TagItemController;
 use Illuminate\Http\Request;
@@ -138,6 +142,22 @@ Route::resource('location', LocationController::class)->except([
 ])->middleware('auth:sanctum');
 
 Route::resource('address', AddressController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('contact-translation', ContactTranslationController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('province-translation', ProvinceTranslationController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('location-translation', LocationTranslationController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('address-translation', AddressTranslationController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 

@@ -42,7 +42,7 @@ class IndexTest extends TestCase
                     'fax_number',
                     'formatted_fax_number',
                     'email',
-                    'languages',
+                    'translations',
                     'created_at',
                     'updated_at',
                 ],
@@ -70,10 +70,10 @@ class IndexTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'languages' => [
+                    'translations' => [
                         '*' => [
                             'id',
-                            'name',
+                            'language_id',
                             'label',
                         ],
                     ],

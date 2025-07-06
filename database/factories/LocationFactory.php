@@ -50,10 +50,23 @@ class LocationFactory extends Factory
             }
 
             foreach ($languages as $language) {
-                $location->languages()->attach($language->id, [
+                $location->translations()->create([
+                    'language_id' => $language->id,
                     'name' => $this->faker->words(2, true),
                 ]);
             }
+        });
+    }
+
+    /**
+     * Create a location without translations.
+     *
+     * @return static
+     */
+    public function withoutTranslations()
+    {
+        return $this->afterCreating(function (Location $location) {
+            // Don't create any translations
         });
     }
 }

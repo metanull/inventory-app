@@ -50,10 +50,23 @@ class ProvinceFactory extends Factory
             }
 
             foreach ($languages as $language) {
-                $province->languages()->attach($language->id, [
+                $province->translations()->create([
+                    'language_id' => $language->id,
                     'name' => $this->faker->words(2, true),
                 ]);
             }
+        });
+    }
+
+    /**
+     * Create a province without translations.
+     *
+     * @return static
+     */
+    public function withoutTranslations()
+    {
+        return $this->afterCreating(function (Province $province) {
+            // Don't create any translations
         });
     }
 }

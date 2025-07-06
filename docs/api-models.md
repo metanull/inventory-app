@@ -46,7 +46,7 @@ Represents administrative divisions within countries (states, provinces, regions
 
 - UUID-based primary key
 - Required relationship to Country
-- Multi-language support via ProvinceLanguage pivot
+- Multi-language support via ProvinceTranslation model
 - Internal name for system identification
 - Support for localized names and descriptions
 
@@ -66,7 +66,7 @@ Represents geographic locations within provinces (cities, towns, districts).
 
 - UUID-based primary key
 - Required relationships to both Country and Province
-- Multi-language support via LocationLanguage pivot
+- Multi-language support via LocationTranslation model
 - Hierarchical geographic organization
 - Support for localized names and descriptions
 
@@ -86,7 +86,7 @@ Represents detailed address information within locations.
 
 - UUID-based primary key
 - Required relationships to Country, Province, and Location
-- Multi-language support via AddressLanguage pivot
+- Multi-language support via AddressTranslation model
 - Complete geographic hierarchy
 - Support for localized names and descriptions
 
@@ -107,7 +107,7 @@ Represents individuals or organizations with contact information.
 **Key Features:**
 
 - UUID-based primary key
-- Multi-language support via ContactLanguage pivot
+- Multi-language support via ContactTranslation model
 - Flexible contact information storage
 - Support for localized names and descriptions
 
@@ -145,10 +145,10 @@ ISO 639-1 language codes for internationalization.
 
 All major content models support internationalization through dedicated pivot tables:
 
-- **ContactLanguage** - Localized contact information
-- **ProvinceLanguage** - Localized province names and descriptions
-- **LocationLanguage** - Localized location names and descriptions
-- **AddressLanguage** - Localized address names and descriptions
+- **ContactTranslation** - Localized contact information
+- **ProvinceTranslation** - Localized province names and descriptions
+- **LocationTranslation** - Localized location names and descriptions
+- **AddressTranslation** - Localized address names and descriptions
 
 Each language pivot provides:
 
@@ -166,10 +166,10 @@ Location (1) ──→ (N) Address
 Country (1) ──→ (N) Location (direct relationship)
 Country (1) ──→ (N) Address (direct relationship)
 
-Contact ←──→ ContactLanguage
-Province ←──→ ProvinceLanguage
-Location ←──→ LocationLanguage
-Address ←──→ AddressLanguage
+Contact ←──→ ContactTranslation
+Province ←──→ ProvinceTranslation
+Location ←──→ LocationTranslation
+Address ←──→ AddressTranslation
 ```
 
 ## Common Patterns

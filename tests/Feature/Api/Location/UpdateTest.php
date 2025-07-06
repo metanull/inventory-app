@@ -35,7 +35,7 @@ class UpdateTest extends TestCase
         $updateData = [
             'internal_name' => $this->faker->unique()->words(2, true),
             'country_id' => $newCountry->id,
-            'languages' => [
+            'translations' => [
                 [
                     'language_id' => $languages[0]->id,
                     'name' => $this->faker->words(2, true),
@@ -55,11 +55,11 @@ class UpdateTest extends TestCase
                     'id',
                     'internal_name',
                     'country_id',
-                    'languages' => [
+                    'translations' => [
                         '*' => [
                             'id',
+                            'language_id',
                             'name',
-                            'translated_name',
                         ],
                     ],
                     'created_at',
@@ -76,17 +76,17 @@ class UpdateTest extends TestCase
             'country_id' => $updateData['country_id'],
         ]);
 
-        // Check language relationships were updated
-        foreach ($updateData['languages'] as $languageData) {
-            $this->assertDatabaseHas('Location_language', [
-                'Location_id' => $Location->id,
-                'language_id' => $languageData['language_id'],
-                'name' => $languageData['name'],
+        // Check translation relationships were updated
+        foreach ($updateData['translations'] as $translationData) {
+            $this->assertDatabaseHas('location_translations', [
+                'location_id' => $Location->id,
+                'language_id' => $translationData['language_id'],
+                'name' => $translationData['name'],
             ]);
         }
     }
 
-    public function test_can_update_location_without_languages(): void
+    public function test_can_update_location_without_translations(): void
     {
         Language::factory(3)->create();
         $country = Country::factory()->create();

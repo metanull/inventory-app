@@ -29,9 +29,9 @@ class DestroyTest extends TestCase
     {
         $contact = Contact::factory()->create();
 
-        // Get the contact languages before deletion
-        $contactLanguages = $contact->languages()->get();
-        $this->assertGreaterThan(0, $contactLanguages->count());
+        // Get the contact translations before deletion
+        $contactTranslations = $contact->translations()->get();
+        $this->assertGreaterThan(0, $contactTranslations->count());
 
         $response = $this->deleteJson(route('contact.destroy', ['contact' => $contact->id]));
 
@@ -40,11 +40,10 @@ class DestroyTest extends TestCase
         // Check that the contact was deleted
         $this->assertDatabaseMissing('contacts', ['id' => $contact->id]);
 
-        // Check that the related contact_language entries were also deleted (due to cascade)
-        foreach ($contactLanguages as $language) {
-            $this->assertDatabaseMissing('contact_language', [
-                'contact_id' => $contact->id,
-                'language_id' => $language->id,
+        // Check that the related contact_translations entries were also deleted (due to cascade)
+        foreach ($contactTranslations as $translation) {
+            $this->assertDatabaseMissing('contact_translations', [
+                'id' => $translation->id,
             ]);
         }
     }

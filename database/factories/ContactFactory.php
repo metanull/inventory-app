@@ -53,14 +53,33 @@ class ContactFactory extends Factory
     public function configure()
     {
         return $this->afterCreating(function (Contact $contact) {
-            // Generate random labels for random languages
-            $languages = \App\Models\Language::inRandomOrder()->take(rand(1, 3))->get();
+            // Use existing languages if available, otherwise create new ones
+            $existingLanguages = \App\Models\Language::limit(3)->get();
+
+            if ($existingLanguages->count() >= 1) {
+                $languages = $existingLanguages->random(min($existingLanguages->count(), rand(1, 3)));
+            } else {
+                $languages = \App\Models\Language::factory(rand(1, 3))->create();
+            }
 
             foreach ($languages as $language) {
-                $contact->languages()->attach($language->id, [
+                $contact->translations()->create([
+                    'language_id' => $language->id,
                     'label' => $this->faker->sentence(2),
                 ]);
             }
+        });
+    }
+
+    /**
+     * Create a contact without translations.
+     *
+     * @return static
+     */
+    public function withoutTranslations()
+    {
+        return $this->afterCreating(function (Contact $contact) {
+            // Don't create any translations
         });
     }
 }

@@ -38,12 +38,15 @@ class ShowTest extends TestCase
                     'id',
                     'internal_name',
                     'country_id',
-                    'languages' => [
+                    'translations' => [
                         '*' => [
                             'id',
-                            'name',
+                            'address_id',
+                            'language_id',
                             'address',
                             'description',
+                            'created_at',
+                            'updated_at',
                         ],
                     ],
                     'created_at',
@@ -73,12 +76,15 @@ class ShowTest extends TestCase
         $response->assertOk()
             ->assertJsonStructure([
                 'data' => [
-                    'languages' => [
+                    'translations' => [
                         '*' => [
                             'id',
-                            'name',
+                            'address_id',
+                            'language_id',
                             'address',
                             'description',
+                            'created_at',
+                            'updated_at',
                         ],
                     ],
                 ],
@@ -99,7 +105,7 @@ class ShowTest extends TestCase
         $this->assertArrayHasKey('id', $data);
         $this->assertArrayHasKey('internal_name', $data);
         $this->assertArrayHasKey('country_id', $data);
-        $this->assertArrayHasKey('languages', $data);
+        $this->assertArrayHasKey('translations', $data);
         $this->assertArrayHasKey('created_at', $data);
         $this->assertArrayHasKey('updated_at', $data);
     }

@@ -17,7 +17,7 @@ class AddressController extends Controller
      */
     public function index()
     {
-        $addresses = Address::with(['languages'])->get();
+        $addresses = Address::with(['translations'])->get();
 
         return AddressResource::collection($addresses);
     }
@@ -31,10 +31,10 @@ class AddressController extends Controller
             'id' => 'prohibited',
             'internal_name' => 'required|string|unique:addresses,internal_name',
             'country_id' => 'required|exists:countries,id',
-            'languages' => 'required|array|min:1',
-            'languages.*.language_id' => 'required|exists:languages,id',
-            'languages.*.address' => 'required|string',
-            'languages.*.description' => 'nullable|string',
+            'translations' => 'array|min:1',
+            'translations.*.language_id' => 'required|exists:languages,id',
+            'translations.*.address' => 'required|string',
+            'translations.*.description' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -47,15 +47,18 @@ class AddressController extends Controller
             'backward_compatibility' => $request->backward_compatibility,
         ]);
 
-        // Attach languages with addresses and descriptions
-        foreach ($request->languages as $languageData) {
-            $address->languages()->attach($languageData['language_id'], [
-                'address' => $languageData['address'],
-                'description' => $languageData['description'] ?? null,
-            ]);
+        // Create translations if provided
+        if ($request->has('translations')) {
+            foreach ($request->translations as $translationData) {
+                $address->translations()->create([
+                    'language_id' => $translationData['language_id'],
+                    'address' => $translationData['address'],
+                    'description' => $translationData['description'] ?? null,
+                ]);
+            }
         }
 
-        return (new AddressResource($address->load('languages')))->response()->setStatusCode(201);
+        return (new AddressResource($address->load('translations')))->response()->setStatusCode(201);
     }
 
     /**
@@ -65,7 +68,7 @@ class AddressController extends Controller
      */
     public function show(Address $address)
     {
-        return new AddressResource($address->load('languages'));
+        return new AddressResource($address->load('translations'));
     }
 
     /**
@@ -79,10 +82,10 @@ class AddressController extends Controller
             'id' => 'prohibited',
             'internal_name' => 'required|string|unique:addresses,internal_name,'.$address->id,
             'country_id' => 'required|exists:countries,id',
-            'languages' => 'array|min:1',
-            'languages.*.language_id' => 'required_with:languages|exists:languages,id',
-            'languages.*.address' => 'required_with:languages|string',
-            'languages.*.description' => 'nullable|string',
+            'translations' => 'array|min:1',
+            'translations.*.language_id' => 'required_with:translations|exists:languages,id',
+            'translations.*.address' => 'required_with:translations|string',
+            'translations.*.description' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -95,21 +98,22 @@ class AddressController extends Controller
             'backward_compatibility' => $request->backward_compatibility,
         ]);
 
-        // Update languages if provided
-        if ($request->has('languages')) {
-            // First detach all existing languages
-            $address->languages()->detach();
+        // Update translations if provided
+        if ($request->has('translations')) {
+            // Delete existing translations
+            $address->translations()->delete();
 
-            // Attach new languages with addresses and descriptions
-            foreach ($request->languages as $languageData) {
-                $address->languages()->attach($languageData['language_id'], [
-                    'address' => $languageData['address'],
-                    'description' => $languageData['description'] ?? null,
+            // Create new translations
+            foreach ($request->translations as $translationData) {
+                $address->translations()->create([
+                    'language_id' => $translationData['language_id'],
+                    'address' => $translationData['address'],
+                    'description' => $translationData['description'] ?? null,
                 ]);
             }
         }
 
-        return new AddressResource($address->load('languages'));
+        return new AddressResource($address->load('translations'));
     }
 
     /**

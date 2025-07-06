@@ -335,6 +335,259 @@
                 }
             }
         },
+        "/address-translation": {
+            "get": {
+                "operationId": "address-translation.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "AddressTranslation"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `AddressTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/AddressTranslationResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "address-translation.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "AddressTranslation"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "address_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "language_id": {
+                                        "type": "string"
+                                    },
+                                    "address": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "address_id",
+                                    "language_id",
+                                    "address"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`AddressTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/AddressTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/address-translation/{addressTranslation}": {
+            "get": {
+                "operationId": "address-translation.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "AddressTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "addressTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The address translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`AddressTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/AddressTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "address-translation.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "AddressTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "addressTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The address translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "address_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "language_id": {
+                                        "type": "string"
+                                    },
+                                    "address": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`AddressTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/AddressTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "address-translation.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "AddressTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "addressTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The address translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/available-image/{availableImage}/download": {
             "get": {
                 "operationId": "available-image.download",
@@ -864,6 +1117,249 @@
                         "in": "path",
                         "required": true,
                         "description": "The contact ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/contact-translation": {
+            "get": {
+                "operationId": "contact-translation.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "ContactTranslation"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `ContactTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ContactTranslationResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "contact-translation.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "ContactTranslation"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "contact_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "language_id": {
+                                        "type": "string"
+                                    },
+                                    "label": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    }
+                                },
+                                "required": [
+                                    "contact_id",
+                                    "language_id",
+                                    "label"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ContactTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ContactTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/contact-translation/{contactTranslation}": {
+            "get": {
+                "operationId": "contact-translation.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "ContactTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "contactTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The contact translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ContactTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ContactTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "contact-translation.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "ContactTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "contactTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The contact translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "contact_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "language_id": {
+                                        "type": "string"
+                                    },
+                                    "label": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ContactTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ContactTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "contact-translation.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "ContactTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "contactTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The contact translation ID",
                         "schema": {
                             "type": "string",
                             "format": "uuid"
@@ -3117,6 +3613,261 @@
                 }
             }
         },
+        "/location-translation": {
+            "get": {
+                "operationId": "location-translation.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "LocationTranslation"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `LocationTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/LocationTranslationResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "location-translation.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "LocationTranslation"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "location_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "language_id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "description": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "location_id",
+                                    "language_id",
+                                    "name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`LocationTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/LocationTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/location-translation/{locationTranslation}": {
+            "get": {
+                "operationId": "location-translation.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "LocationTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "locationTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The location translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`LocationTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/LocationTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "location-translation.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "LocationTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "locationTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The location translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "location_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "language_id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "description": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`LocationTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/LocationTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "location-translation.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "LocationTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "locationTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The location translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/markdown/to-html": {
             "post": {
                 "operationId": "markdown.toHtml",
@@ -4819,6 +5570,261 @@
                 }
             }
         },
+        "/province-translation": {
+            "get": {
+                "operationId": "province-translation.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "ProvinceTranslation"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `ProvinceTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ProvinceTranslationResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "province-translation.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "ProvinceTranslation"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "province_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "language_id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "description": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "province_id",
+                                    "language_id",
+                                    "name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ProvinceTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ProvinceTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/province-translation/{provinceTranslation}": {
+            "get": {
+                "operationId": "province-translation.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "ProvinceTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "provinceTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The province translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ProvinceTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ProvinceTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "province-translation.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "ProvinceTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "provinceTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The province translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "province_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "language_id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "description": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ProvinceTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ProvinceTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "province-translation.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "ProvinceTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "provinceTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The province translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/tag": {
             "get": {
                 "operationId": "tag.index",
@@ -5368,6 +6374,49 @@
             }
         },
         "schemas": {
+            "Address": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "internal_name": {
+                        "type": "string"
+                    },
+                    "country_id": {
+                        "type": "string"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "internal_name",
+                    "country_id",
+                    "backward_compatibility",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "Address"
+            },
             "AddressResource": {
                 "type": "object",
                 "properties": {
@@ -5406,6 +6455,42 @@
                     "updated_at"
                 ],
                 "title": "AddressResource"
+            },
+            "AddressTranslationResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "address_id": {
+                        "type": "string"
+                    },
+                    "language_id": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "$ref": "#/components/schemas/Address"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "address_id",
+                    "language_id",
+                    "address",
+                    "description",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "AddressTranslationResource"
             },
             "ArtistResource": {
                 "type": "object",
@@ -5607,6 +6692,38 @@
                     "updated_at"
                 ],
                 "title": "ContactResource"
+            },
+            "ContactTranslationResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "contact_id": {
+                        "type": "string"
+                    },
+                    "language_id": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "contact_id",
+                    "language_id",
+                    "label",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ContactTranslationResource"
             },
             "ContextResource": {
                 "type": "object",
@@ -6001,6 +7118,42 @@
                 ],
                 "title": "LocationResource"
             },
+            "LocationTranslationResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "location_id": {
+                        "type": "string"
+                    },
+                    "language_id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "location_id",
+                    "language_id",
+                    "name",
+                    "description",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "LocationTranslationResource"
+            },
             "PartnerResource": {
                 "type": "object",
                 "properties": {
@@ -6263,6 +7416,42 @@
                     "updated_at"
                 ],
                 "title": "ProvinceResource"
+            },
+            "ProvinceTranslationResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "province_id": {
+                        "type": "string"
+                    },
+                    "language_id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "province_id",
+                    "language_id",
+                    "name",
+                    "description",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ProvinceTranslationResource"
             },
             "TagItemResource": {
                 "type": "object",

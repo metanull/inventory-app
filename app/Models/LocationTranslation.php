@@ -2,28 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\Pivot;
-use Illuminate\Support\Str;
 
-class LocationLanguage extends Pivot
+class LocationTranslation extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'location_language';
-
-    /**
-     * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = false;
+    protected $table = 'location_translations';
 
     /**
      * The attributes that are mass assignable.
@@ -34,26 +27,22 @@ class LocationLanguage extends Pivot
         'location_id',
         'language_id',
         'name',
+        'description',
+        'backward_compatibility',
     ];
 
     /**
-     * The "booted" method of the model.
+     * Get the unique identifiers for the model.
      *
-     * @return void
+     * @return array<int, string>
      */
-    protected static function boot()
+    public function uniqueIds(): array
     {
-        parent::boot();
-
-        static::creating(function ($model) {
-            if (empty($model->id)) {
-                $model->id = (string) Str::uuid();
-            }
-        });
+        return ['id'];
     }
 
     /**
-     * Get the location that owns the location language.
+     * Get the location that owns the translation.
      */
     public function location(): BelongsTo
     {
@@ -61,7 +50,7 @@ class LocationLanguage extends Pivot
     }
 
     /**
-     * Get the language that owns the location language.
+     * Get the language for the translation.
      */
     public function language(): BelongsTo
     {

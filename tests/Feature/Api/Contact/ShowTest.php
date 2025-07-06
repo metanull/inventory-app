@@ -41,7 +41,7 @@ class ShowTest extends TestCase
                 'fax_number',
                 'formatted_fax_number',
                 'email',
-                'languages',
+                'translations',
                 'created_at',
                 'updated_at',
             ],
@@ -67,10 +67,10 @@ class ShowTest extends TestCase
         $response->assertOk();
         $response->assertJsonStructure([
             'data' => [
-                'languages' => [
+                'translations' => [
                     '*' => [
                         'id',
-                        'name',
+                        'language_id',
                         'label',
                     ],
                 ],

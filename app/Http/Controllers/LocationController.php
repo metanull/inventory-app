@@ -17,7 +17,7 @@ class LocationController extends Controller
      */
     public function index()
     {
-        $locations = Location::with(['languages'])->get();
+        $locations = Location::with(['translations'])->get();
 
         return LocationResource::collection($locations);
     }
@@ -30,9 +30,9 @@ class LocationController extends Controller
         $validator = Validator::make($request->all(), [
             'internal_name' => 'required|string|unique:locations,internal_name',
             'country_id' => 'required|exists:countries,id',
-            'languages' => 'required|array|min:1',
-            'languages.*.language_id' => 'required|exists:languages,id',
-            'languages.*.name' => 'required|string',
+            'translations' => 'required|array|min:1',
+            'translations.*.language_id' => 'required|exists:languages,id',
+            'translations.*.name' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -45,14 +45,15 @@ class LocationController extends Controller
             'backward_compatibility' => $request->backward_compatibility,
         ]);
 
-        // Attach languages with names
-        foreach ($request->languages as $languageData) {
-            $location->languages()->attach($languageData['language_id'], [
-                'name' => $languageData['name'],
+        // Create translations
+        foreach ($request->translations as $translationData) {
+            $location->translations()->create([
+                'language_id' => $translationData['language_id'],
+                'name' => $translationData['name'],
             ]);
         }
 
-        return (new LocationResource($location->load('languages')))->response()->setStatusCode(201);
+        return (new LocationResource($location->load('translations')))->response()->setStatusCode(201);
     }
 
     /**
@@ -62,7 +63,7 @@ class LocationController extends Controller
      */
     public function show(Location $location)
     {
-        return new LocationResource($location->load('languages'));
+        return new LocationResource($location->load('translations'));
     }
 
     /**
@@ -75,9 +76,9 @@ class LocationController extends Controller
         $validator = Validator::make($request->all(), [
             'internal_name' => 'required|string|unique:locations,internal_name,'.$location->id,
             'country_id' => 'required|exists:countries,id',
-            'languages' => 'array|min:1',
-            'languages.*.language_id' => 'required_with:languages|exists:languages,id',
-            'languages.*.name' => 'required_with:languages|string',
+            'translations' => 'array|min:1',
+            'translations.*.language_id' => 'required_with:translations|exists:languages,id',
+            'translations.*.name' => 'required_with:translations|string',
         ]);
 
         if ($validator->fails()) {
@@ -90,20 +91,21 @@ class LocationController extends Controller
             'backward_compatibility' => $request->backward_compatibility,
         ]);
 
-        // Update languages if provided
-        if ($request->has('languages')) {
-            // First detach all existing languages
-            $location->languages()->detach();
+        // Update translations if provided
+        if ($request->has('translations')) {
+            // Delete existing translations
+            $location->translations()->delete();
 
-            // Attach new languages with names
-            foreach ($request->languages as $languageData) {
-                $location->languages()->attach($languageData['language_id'], [
-                    'name' => $languageData['name'],
+            // Create new translations
+            foreach ($request->translations as $translationData) {
+                $location->translations()->create([
+                    'language_id' => $translationData['language_id'],
+                    'name' => $translationData['name'],
                 ]);
             }
         }
 
-        return new LocationResource($location->load('languages'));
+        return new LocationResource($location->load('translations'));
     }
 
     /**

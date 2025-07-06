@@ -30,7 +30,7 @@ class StoreTest extends TestCase
         $country = Country::factory()->create();
 
         $provinceData = Province::factory()->make(['country_id' => $country->id])->toArray();
-        $provinceData['languages'] = [
+        $provinceData['translations'] = [
             [
                 'language_id' => $languages[0]->id,
                 'name' => $this->faker->words(2, true),
@@ -49,11 +49,13 @@ class StoreTest extends TestCase
                     'id',
                     'internal_name',
                     'country_id',
-                    'languages' => [
+                    'translations' => [
                         '*' => [
                             'id',
+                            'language_id',
                             'name',
-                            'translated_name',
+                            'created_at',
+                            'updated_at',
                         ],
                     ],
                     'created_at',
@@ -69,10 +71,10 @@ class StoreTest extends TestCase
         ]);
 
         // Check language relationships
-        foreach ($provinceData['languages'] as $languageData) {
-            $this->assertDatabaseHas('province_language', [
-                'language_id' => $languageData['language_id'],
-                'name' => $languageData['name'],
+        foreach ($provinceData['translations'] as $translationData) {
+            $this->assertDatabaseHas('province_translations', [
+                'language_id' => $translationData['language_id'],
+                'name' => $translationData['name'],
             ]);
         }
     }
@@ -82,7 +84,7 @@ class StoreTest extends TestCase
         $response = $this->postJson(route('province.store'), []);
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['internal_name', 'country_id', 'languages']);
+            ->assertJsonValidationErrors(['internal_name', 'country_id', 'translations']);
     }
 
     public function test_cannot_create_province_with_invalid_country(): void
@@ -91,7 +93,7 @@ class StoreTest extends TestCase
 
         $provinceData = Province::factory()->make()->toArray();
         $provinceData['country_id'] = 'invalid-country-id';
-        $provinceData['languages'] = [
+        $provinceData['translations'] = [
             [
                 'language_id' => $languages[0]->id,
                 'name' => $this->faker->words(2, true),
@@ -104,12 +106,12 @@ class StoreTest extends TestCase
             ->assertJsonValidationErrors(['country_id']);
     }
 
-    public function test_cannot_create_province_with_invalid_languages(): void
+    public function test_cannot_create_province_with_invalid_translations(): void
     {
         $country = Country::factory()->create();
 
         $provinceData = Province::factory()->make(['country_id' => $country->id])->toArray();
-        $provinceData['languages'] = [
+        $provinceData['translations'] = [
             [
                 'language_id' => 'invalid-language-id',
                 'name' => $this->faker->words(2, true),
@@ -119,7 +121,7 @@ class StoreTest extends TestCase
         $response = $this->postJson(route('province.store'), $provinceData);
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['languages.0.language_id']);
+            ->assertJsonValidationErrors(['translations.0.language_id']);
     }
 
     public function test_cannot_create_province_with_duplicate_internal_name(): void
@@ -132,7 +134,7 @@ class StoreTest extends TestCase
 
         $provinceData = Province::factory()->make(['country_id' => $country->id])->toArray();
         $provinceData['internal_name'] = $existingProvince->internal_name;
-        $provinceData['languages'] = [
+        $provinceData['translations'] = [
             [
                 'language_id' => $languages[0]->id,
                 'name' => $this->faker->words(2, true),
@@ -145,16 +147,16 @@ class StoreTest extends TestCase
             ->assertJsonValidationErrors(['internal_name']);
     }
 
-    public function test_cannot_create_province_without_languages(): void
+    public function test_cannot_create_province_without_translations(): void
     {
         $country = Country::factory()->create();
 
         $provinceData = Province::factory()->make(['country_id' => $country->id])->toArray();
-        $provinceData['languages'] = [];
+        $provinceData['translations'] = [];
 
         $response = $this->postJson(route('province.store'), $provinceData);
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['languages']);
+            ->assertJsonValidationErrors(['translations']);
     }
 }
