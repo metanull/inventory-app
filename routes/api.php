@@ -122,6 +122,10 @@ Route::get('available-image/{available_image}/download', [AvailableImageControll
     ->name('available-image.download')
     ->middleware('auth:sanctum');
 
+Route::get('available-image/{available_image}/view', [AvailableImageController::class, 'view'])
+    ->name('available-image.view')
+    ->middleware('auth:sanctum');
+
 Route::resource('available-image', AvailableImageController::class)->except([
     'create', 'edit', 'store',
 ])->middleware('auth:sanctum');

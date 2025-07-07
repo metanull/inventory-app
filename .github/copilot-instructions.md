@@ -1,8 +1,8 @@
-**CRITICAL: Awlays use PowerShell syntax when using `run_in_terminal`**
 **CRITICAL: This is a PHP application with Laravel 12**
 **CRITICAL: Always assert that the request I make is compliant with Laravel 12 recommendations, guidelines and best practices. If not make recommendations and ask confirmation before proceeding.**
-**CRITICAL: docs/ contains a distinct Ruby application based on Jekyll**
-**CRITICAL: Always use wsl when interacting with Ruby**
+**CRITICAL: Awlays use PowerShell syntax when using `run_in_terminal`**
+**CRITICAL: This is a window system. The default console is powershell. Use the proper escaping for commands. By example"$" must be escaped as "`$" not as "\$"**
+**CRITICAL: docs/ contains a distinct Ruby application based on Jekyll. Always use `wsl` instead of powershell to interact with ruby**
 **CRITICAL: When creating a pull-request (pr), if on the main branch, always first create a dedicated branch for the pr, then create the pr from that branch**
 **CRITICAL: when creating a branch for a pull request, always use the `feature/` or `fix/` prefix, depending on the type of change**
 **CRITICAL: when using `gh pr create` always escape the `--assignee @me` like this: `--assignee "@me"` and never use `--label`**

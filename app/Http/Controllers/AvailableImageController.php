@@ -59,6 +59,38 @@ class AvailableImageController extends Controller
      */
     public function download(AvailableImage $availableImage)
     {
-        return Storage::disk(config('localstorage.public.images.disk'))->download($availableImage->path);
+        $disk = config('localstorage.public.images.disk');
+        $path = $availableImage->path;
+
+        if (! Storage::disk($disk)->exists($path)) {
+            abort(404, 'Image not found');
+        }
+
+        $fullPath = Storage::disk($disk)->path($path);
+        $filename = basename($path);
+
+        return response()->download($fullPath, $filename);
+    }
+
+    /**
+     * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
+     */
+    public function view(AvailableImage $availableImage)
+    {
+        $disk = config('localstorage.public.images.disk');
+        $path = $availableImage->path;
+
+        if (! Storage::disk($disk)->exists($path)) {
+            abort(404, 'Image not found');
+        }
+
+        $fullPath = Storage::disk($disk)->path($path);
+        $mimeType = mime_content_type($fullPath);
+
+        return response()->file($fullPath, [
+            'Content-Type' => $mimeType,
+            'Cache-Control' => 'public, max-age=3600',
+            'Content-Disposition' => 'inline',
+        ]);
     }
 }
