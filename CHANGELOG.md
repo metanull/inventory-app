@@ -27,6 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - Updated 881 tests to use `$item->tags()->attach()` and `$tag->items()->attach()` methods
         - Maintained all existing functionality and test coverage
         - All tests pass with improved performance and simpler code
+    - **Enhanced API**: Added quick tag editing endpoint for efficient tag management
+        - New `PATCH /api/item/{item}/tags` endpoint for updating item tags without full item update
+        - Supports both `attach` and `detach` operations in single request
+        - Prevents duplicate tag attachments and handles non-existent detachments gracefully
+        - Comprehensive validation for tag UUIDs and existence checks
+        - Returns updated item with all relationships loaded
+        - Complete test coverage with 15 test cases covering all scenarios
 - **Internationalization Refactoring**: Migrated from `*Language` pivot models to `*Translation` models
     - **Translation Models**: Replaced `ContactLanguage`, `ProvinceLanguage`, `LocationLanguage`, `AddressLanguage` with proper translation models
         - New models: `ContactTranslation`, `ProvinceTranslation`, `LocationTranslation`, `AddressTranslation`

@@ -70,6 +70,49 @@ class ItemController extends Controller
     }
 
     /**
+     * Update tags for the specified item without modifying other item properties.
+     *
+     * This endpoint allows quick editing of tag associations by specifying which tags
+     * to attach or detach from the item. It provides fine-grained control over tag
+     * operations without requiring a full item update.
+     *
+     * @param  Request  $request  - Contains 'attach' and/or 'detach' arrays of tag UUIDs
+     * @param  Item  $item  - The item to update tags for
+     * @return ItemResource - Updated item with current tag associations
+     */
+    public function updateTags(Request $request, Item $item)
+    {
+        $validated = $request->validate([
+            'attach' => 'sometimes|array',
+            'attach.*' => 'required|uuid|exists:tags,id',
+            'detach' => 'sometimes|array',
+            'detach.*' => 'required|uuid|exists:tags,id',
+        ]);
+
+        // Attach new tags (if any)
+        if (isset($validated['attach'])) {
+            // Only attach tags that aren't already attached to avoid duplicates
+            $existingTagIds = $item->tags()->pluck('tags.id')->toArray();
+            $tagsToAttach = array_diff($validated['attach'], $existingTagIds);
+
+            if (! empty($tagsToAttach)) {
+                $item->tags()->attach($tagsToAttach);
+            }
+        }
+
+        // Detach specified tags (if any)
+        if (isset($validated['detach'])) {
+            $item->tags()->detach($validated['detach']);
+        }
+
+        // Refresh and load relationships to return updated data
+        $item->refresh();
+        $item->load(['partner', 'country', 'project', 'tags']);
+
+        return new ItemResource($item);
+    }
+
+    /**
      * Get items for a specific tag.
      */
     public function forTag(Request $request, Tag $tag)
