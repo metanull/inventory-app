@@ -23,7 +23,6 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\ProvinceTranslationController;
 use App\Http\Controllers\TagController;
-use App\Http\Controllers\TagItemController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -82,10 +81,6 @@ Route::resource('tag', TagController::class)->except([
 Route::get('tag/for-item/{item}', [TagController::class, 'forItem'])
     ->name('tag.forItem')
     ->middleware('auth:sanctum');
-
-Route::resource('tag-item', TagItemController::class)->except([
-    'create', 'edit',
-])->middleware('auth:sanctum');
 
 Route::resource('partner', PartnerController::class)->except([
     'create', 'edit',

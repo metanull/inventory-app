@@ -4,7 +4,6 @@ namespace Tests\Feature\Api\Tag;
 
 use App\Models\Item;
 use App\Models\Tag;
-use App\Models\TagItem;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -31,8 +30,7 @@ class ScopeTest extends TestCase
         $tag2 = Tag::factory()->create();
         $tag3 = Tag::factory()->create();
 
-        TagItem::factory()->create(['tag_id' => $tag1->id, 'item_id' => $item->id]);
-        TagItem::factory()->create(['tag_id' => $tag2->id, 'item_id' => $item->id]);
+        $item->tags()->attach([$tag1->id, $tag2->id]);
 
         $response = $this->getJson(route('tag.forItem', $item));
 

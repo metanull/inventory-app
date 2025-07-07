@@ -4,7 +4,6 @@ namespace Tests\Unit\Tag;
 
 use App\Models\Item;
 use App\Models\Tag;
-use App\Models\TagItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -82,10 +81,9 @@ class FactoryTest extends TestCase
         $tag2 = Tag::factory()->create();
         $tag3 = Tag::factory()->create();
 
-        // Associate tags with items
-        TagItem::factory()->create(['tag_id' => $tag1->id, 'item_id' => $item1->id]);
-        TagItem::factory()->create(['tag_id' => $tag2->id, 'item_id' => $item1->id]);
-        TagItem::factory()->create(['tag_id' => $tag3->id, 'item_id' => $item2->id]);
+        // Associate tags with items using Eloquent relationships
+        $item1->tags()->attach([$tag1->id, $tag2->id]);
+        $item2->tags()->attach([$tag3->id]);
 
         $tagsForItem1 = Tag::forItem($item1)->get();
         $tagsForItem2 = Tag::forItem($item2)->get();
@@ -103,7 +101,7 @@ class FactoryTest extends TestCase
         $item = Item::factory()->create();
         $tag = Tag::factory()->create();
 
-        TagItem::factory()->create(['tag_id' => $tag->id, 'item_id' => $item->id]);
+        $item->tags()->attach($tag->id);
 
         $tagsForItem = Tag::forItem($item->id)->get();
 

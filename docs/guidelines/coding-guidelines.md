@@ -389,7 +389,6 @@ When adding new entities to the API:
 
 #### Supporting Models
 
-- **TagItems** - Many-to-many pivot for tag-item relationships
 - **Details** - Extended metadata and flexible information storage
 - **ImageUploads** - File upload tracking and processing status
 - **AvailableImages** - Image availability and accessibility management

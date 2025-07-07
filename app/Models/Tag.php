@@ -24,7 +24,7 @@ class Tag extends Model
      */
     public function items(): BelongsToMany
     {
-        return $this->belongsToMany(Item::class, 'tag_items');
+        return $this->belongsToMany(Item::class)->withTimestamps();
     }
 
     /**
