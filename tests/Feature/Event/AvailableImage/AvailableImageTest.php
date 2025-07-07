@@ -47,9 +47,8 @@ class AvailableImageTest extends TestCase
         $imageUpload = ImageUpload::factory()->create();
         $imageUploadEvent = new ImageUploadEvent($imageUpload);
         $imageUploadListener = new ImageUploadListener;
-        $imageUploadRelativePath = $imageUpload->path.'/'.$imageUpload->name;
         $imageUploadListener->handle($imageUploadEvent);
-        $this->assertFileExists(Storage::disk('local')->path($imageUploadRelativePath));
+        $this->assertFileExists(Storage::disk('local')->path($imageUpload->path));
     }
 
     public function test_availableimagelistener_creates_an_image_on_the_public_disk(): void
@@ -59,7 +58,7 @@ class AvailableImageTest extends TestCase
 
         // Dispatch the AvailableImageEvent, using the fake uploaded image's path as source
         $availableImage = AvailableImage::factory()->create([
-            'path' => $imageUpload->path.'/'.$imageUpload->name,
+            'path' => $imageUpload->path,
             'id' => $imageUpload->id,
         ]);
         $availableImageEvent = new AvailableImageEvent($availableImage);
@@ -79,7 +78,7 @@ class AvailableImageTest extends TestCase
 
         // Dispatch the AvailableImageEvent, using the fake uploaded image's path as source
         $availableImage = AvailableImage::factory()->create([
-            'path' => $imageUpload->path.'/'.$imageUpload->name,
+            'path' => $imageUpload->path,
             'id' => $imageUpload->id,
         ]);
         $availableImageEvent = new AvailableImageEvent($availableImage);
@@ -101,7 +100,7 @@ class AvailableImageTest extends TestCase
 
         // Dispatch the AvailableImageEvent, using the fake uploaded image's path as source
         $availableImage = AvailableImage::factory()->create([
-            'path' => $imageUpload->path.'/'.$imageUpload->name,
+            'path' => $imageUpload->path,
             'id' => $imageUpload->id,
         ]);
         $availableImageEvent = new AvailableImageEvent($availableImage);
@@ -111,6 +110,6 @@ class AvailableImageTest extends TestCase
         // The Listener should have created a new image in the public disk, and have updated
         // the path of the AvailableImage model to point to the new image in the public disk.
         $availableImage->refresh();
-        $this->assertFileDoesNotExist(Storage::disk('local')->path($imageUpload->path.'/'.$imageUpload->name));
+        $this->assertFileDoesNotExist(Storage::disk('local')->path($imageUpload->path));
     }
 }

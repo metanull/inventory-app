@@ -25,7 +25,7 @@ class ImageUploadFactory extends Factory
         $image_directory = dirname($image);
 
         return [
-            'path' => $image_directory,
+            'path' => $image,
             'name' => $image_name,
             'extension' => 'jpg',
             'mime_type' => Storage::disk($disk)->mimeType($image),

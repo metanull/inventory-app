@@ -50,6 +50,6 @@ class FactoryTest extends TestCase
     {
         $imageUpload = ImageUpload::factory()->create();
 
-        $this->assertFileExists(Storage::disk('local')->path($imageUpload->path.'/'.$imageUpload->name));
+        $this->assertFileExists(Storage::disk('local')->path($imageUpload->path));
     }
 }

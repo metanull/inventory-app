@@ -45,11 +45,8 @@ class ImageUploadListener
 
         // Get disk and directory config for the uploaded images
         $uploadDisk = config('localstorage.uploads.images.disk');
-        $uploadDir = trim(config('localstorage.uploads.images.directory'), '/');
 
-        $path = Storage::disk($uploadDisk)->path(
-            $uploadDir.'/'.$file->name
-        );
+        $path = Storage::disk($uploadDisk)->path($file->path);
 
         $normalizer = new WhitespacePathNormalizer;
         $path = $normalizer->normalizePath($path);
@@ -96,14 +93,13 @@ class ImageUploadListener
             AvailableImageEvent::dispatch($availableImage);
         } else {
             // If the file is not an image, delete it
-            Storage::disk($uploadDisk)->delete($uploadDir.'/'.$file->name);
+            Storage::disk($uploadDisk)->delete($file->path);
 
             // Optionally, you can log an error or throw an exception
             Log::error('Uploaded file was not a valid image.', [
                 'disk' => $uploadDisk,
-                'directory' => $uploadDir,
                 'name' => $file->name,
-                'path' => $path,
+                'path' => $file->path,
             ]);
         }
     }
