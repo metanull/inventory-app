@@ -98,13 +98,7 @@ All other models use UUID primary keys for optimal scalability and system integr
 
 - Flexible tagging system for items
 - Supports hierarchical and multi-dimensional categorization
-- Many-to-many relationships with Items via TagItem pivot model
-
-**TagItem** 🔗 - Manages many-to-many relationships between Tags and Items
-
-- Pivot model for Tag-Item associations
-- Enables complex tagging scenarios and reporting
-- Supports tag-based filtering and organization
+- Many-to-many relationships with Items via standard Laravel pivot table
 
 **ImageUpload** 📤 - Upload tracking and processing status
 
@@ -226,7 +220,6 @@ The API provides full REST functionality for all models:
 | **Projects**              | Standard CRUD + launch/enable controls  | Project lifecycle management                 |
 | **Items**                 | Standard CRUD + complex relationships   | Central inventory management                 |
 | **Tags**                  | Standard CRUD + relationship management | Flexible content tagging                     |
-| **TagItems**              | Relationship CRUD + pivot operations    | Tag-Item association management              |
 | **Pictures**              | Standard CRUD + upload processing       | Event-driven image processing                |
 | **Details**               | Standard CRUD + metadata management     | Flexible schema support                      |
 | **Contextualizations**    | Standard CRUD + context filtering       | Context-content association management       |

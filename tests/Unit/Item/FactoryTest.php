@@ -4,7 +4,6 @@ namespace Tests\Unit\Item;
 
 use App\Models\Item;
 use App\Models\Tag;
-use App\Models\TagItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -128,10 +127,9 @@ class FactoryTest extends TestCase
         $item2 = Item::factory()->create();
         $item3 = Item::factory()->create();
 
-        // Associate items with tags
-        TagItem::factory()->create(['tag_id' => $tag1->id, 'item_id' => $item1->id]);
-        TagItem::factory()->create(['tag_id' => $tag1->id, 'item_id' => $item2->id]);
-        TagItem::factory()->create(['tag_id' => $tag2->id, 'item_id' => $item3->id]);
+        // Associate items with tags using Eloquent relationships
+        $tag1->items()->attach([$item1->id, $item2->id]);
+        $tag2->items()->attach($item3->id);
 
         $itemsForTag1 = Item::forTag($tag1)->get();
         $itemsForTag2 = Item::forTag($tag2)->get();
@@ -154,15 +152,13 @@ class FactoryTest extends TestCase
         $item3 = Item::factory()->create();
 
         // Item1 has tag1 and tag2
-        TagItem::factory()->create(['tag_id' => $tag1->id, 'item_id' => $item1->id]);
-        TagItem::factory()->create(['tag_id' => $tag2->id, 'item_id' => $item1->id]);
+        $item1->tags()->attach([$tag1->id, $tag2->id]);
 
         // Item2 has only tag1
-        TagItem::factory()->create(['tag_id' => $tag1->id, 'item_id' => $item2->id]);
+        $item2->tags()->attach($tag1->id);
 
         // Item3 has tag2 and tag3
-        TagItem::factory()->create(['tag_id' => $tag2->id, 'item_id' => $item3->id]);
-        TagItem::factory()->create(['tag_id' => $tag3->id, 'item_id' => $item3->id]);
+        $item3->tags()->attach([$tag2->id, $tag3->id]);
 
         $itemsWithBothTags = Item::withAllTags([$tag1->id, $tag2->id])->get();
 
@@ -180,13 +176,13 @@ class FactoryTest extends TestCase
         $item3 = Item::factory()->create();
 
         // Item1 has tag1
-        TagItem::factory()->create(['tag_id' => $tag1->id, 'item_id' => $item1->id]);
+        $item1->tags()->attach($tag1->id);
 
         // Item2 has tag2
-        TagItem::factory()->create(['tag_id' => $tag2->id, 'item_id' => $item2->id]);
+        $item2->tags()->attach($tag2->id);
 
         // Item3 has tag3 (not in our search)
-        TagItem::factory()->create(['tag_id' => $tag3->id, 'item_id' => $item3->id]);
+        $item3->tags()->attach($tag3->id);
 
         $itemsWithAnyTags = Item::withAnyTags([$tag1->id, $tag2->id])->get();
 
@@ -202,8 +198,7 @@ class FactoryTest extends TestCase
         $tag2 = Tag::factory()->create();
         $item = Item::factory()->create();
 
-        TagItem::factory()->create(['tag_id' => $tag1->id, 'item_id' => $item->id]);
-        TagItem::factory()->create(['tag_id' => $tag2->id, 'item_id' => $item->id]);
+        $item->tags()->attach([$tag1->id, $tag2->id]);
 
         $itemsWithBothTags = Item::withAllTags([$tag1, $tag2])->get();
 
@@ -217,7 +212,7 @@ class FactoryTest extends TestCase
         $tag2 = Tag::factory()->create();
         $item = Item::factory()->create();
 
-        TagItem::factory()->create(['tag_id' => $tag1->id, 'item_id' => $item->id]);
+        $item->tags()->attach($tag1->id);
 
         $itemsWithAnyTags = Item::withAnyTags([$tag1, $tag2])->get();
 

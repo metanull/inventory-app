@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **TagItem Pivot Table Refactoring**: Simplified many-to-many relationship between Items and Tags
+    - **Removed TagItem Model**: Eliminated over-engineered TagItem model in favor of Laravel's standard pivot table approach
+    - **Database Schema**: Replaced `tag_items` table with proper Laravel `item_tag` pivot table
+        - Follows Laravel naming conventions (alphabetical order: `item_tag`)
+        - Uses composite primary key (`item_id`, `tag_id`) instead of separate UUID primary key
+        - Maintains foreign key constraints and timestamps
+    - **Removed TagItem Infrastructure**: Deleted all TagItem-related files
+        - Removed `TagItem` model, factory, seeder, controller, resource, and tests
+        - Updated `DatabaseSeeder` to use new `ItemTagSeeder` for pivot table population
+        - Cleaned TagItem imports and references from existing tests
+    - **Model Relationships**: Updated Item and Tag models to use standard Laravel `belongsToMany` relationships
+        - Removed custom pivot model specification
+        - Maintained `withTimestamps()` for created_at/updated_at tracking
+        - All existing scopes (`forTag`, `withAllTags`, `withAnyTags`, `forItem`) work unchanged
+    - **Test Suite Updates**: Fixed all tests to use Eloquent relationship methods instead of TagItem factory
+        - Updated 881 tests to use `$item->tags()->attach()` and `$tag->items()->attach()` methods
+        - Maintained all existing functionality and test coverage
+        - All tests pass with improved performance and simpler code
 - **Internationalization Refactoring**: Migrated from `*Language` pivot models to `*Translation` models
     - **Translation Models**: Replaced `ContactLanguage`, `ProvinceLanguage`, `LocationLanguage`, `AddressLanguage` with proper translation models
         - New models: `ContactTranslation`, `ProvinceTranslation`, `LocationTranslation`, `AddressTranslation`

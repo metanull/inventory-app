@@ -4,7 +4,6 @@ namespace Tests\Feature\Api\Item;
 
 use App\Models\Item;
 use App\Models\Tag;
-use App\Models\TagItem;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -31,8 +30,7 @@ class ScopeTest extends TestCase
         $item2 = Item::factory()->create();
         $item3 = Item::factory()->create();
 
-        TagItem::factory()->create(['tag_id' => $tag->id, 'item_id' => $item1->id]);
-        TagItem::factory()->create(['tag_id' => $tag->id, 'item_id' => $item2->id]);
+        $tag->items()->attach([$item1->id, $item2->id]);
 
         $response = $this->getJson(route('item.forTag', $tag));
 
@@ -74,15 +72,13 @@ class ScopeTest extends TestCase
         $item3 = Item::factory()->create();
 
         // Item1 has tag1 and tag2
-        TagItem::factory()->create(['tag_id' => $tag1->id, 'item_id' => $item1->id]);
-        TagItem::factory()->create(['tag_id' => $tag2->id, 'item_id' => $item1->id]);
+        $item1->tags()->attach([$tag1->id, $tag2->id]);
 
         // Item2 has only tag1
-        TagItem::factory()->create(['tag_id' => $tag1->id, 'item_id' => $item2->id]);
+        $item2->tags()->attach($tag1->id);
 
         // Item3 has tag2 and tag3
-        TagItem::factory()->create(['tag_id' => $tag2->id, 'item_id' => $item3->id]);
-        TagItem::factory()->create(['tag_id' => $tag3->id, 'item_id' => $item3->id]);
+        $item3->tags()->attach([$tag2->id, $tag3->id]);
 
         $response = $this->postJson(route('item.withAllTags'), [
             'tags' => [$tag1->id, $tag2->id],
@@ -103,13 +99,13 @@ class ScopeTest extends TestCase
         $item3 = Item::factory()->create();
 
         // Item1 has tag1
-        TagItem::factory()->create(['tag_id' => $tag1->id, 'item_id' => $item1->id]);
+        $item1->tags()->attach($tag1->id);
 
         // Item2 has tag2
-        TagItem::factory()->create(['tag_id' => $tag2->id, 'item_id' => $item2->id]);
+        $item2->tags()->attach($tag2->id);
 
         // Item3 has tag3 (not in our search)
-        TagItem::factory()->create(['tag_id' => $tag3->id, 'item_id' => $item3->id]);
+        $item3->tags()->attach($tag3->id);
 
         $response = $this->postJson(route('item.withAnyTags'), [
             'tags' => [$tag1->id, $tag2->id],
