@@ -90,6 +90,10 @@ Route::resource('item', ItemController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 
+Route::patch('item/{item}/tags', [ItemController::class, 'updateTags'])
+    ->name('item.updateTags')
+    ->middleware('auth:sanctum');
+
 Route::get('item/for-tag/{tag}', [ItemController::class, 'forTag'])
     ->name('item.forTag')
     ->middleware('auth:sanctum');
