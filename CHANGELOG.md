@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Image Upload Event Processing**: Fixed ImageUploadListener path resolution error preventing AvailableImage creation
+    - **Root Cause**: ImageUploadListener was incorrectly using original filename instead of stored hash path
+        - Controller stores files with hashed names for security (e.g., `image_uploads/hash123.jpg`)
+        - Listener was trying to access files using original names (e.g., `image_uploads/Skull.jpg`)
+        - This caused `exif_imagetype()` to fail with "No such file or directory" error
+    - **Solution**: Updated ImageUploadListener to use `$file->path` (actual stored path) instead of manually constructing path
+    - **Factory Fix**: Corrected ImageUploadFactory to store complete file path in `path` field instead of directory only
+    - **Test Updates**: Fixed all image upload tests to use proper path structure
+    - **Result**: Image upload workflow now properly creates AvailableImage records when ImageUpload events are processed
+
+### Added
+
+- **Image Viewing Endpoint**: New endpoint for direct image display in web applications
+    - **New Route**: `GET /api/available-image/{id}/view` for inline image display (complements existing download endpoint)
+    - **Browser-Friendly**: Returns images with `Content-Disposition: inline` for direct use in `<img src="">` tags
+    - **Caching Headers**: Includes `Cache-Control: public, max-age=3600` for optimal browser caching
+    - **Error Handling**: Proper 404 responses for missing image files
+    - **Security**: Maintains authentication requirements consistent with other endpoints
+
 ### Changed
 
 - **TagItem Pivot Table Refactoring**: Simplified many-to-many relationship between Items and Tags
