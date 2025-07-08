@@ -8,6 +8,7 @@
 **CRITICAL: when using `gh pr create` always escape the `--assignee @me` like this: `--assignee "@me"` and never use `--label`**
 **CRITICAL: when using `gh pr create` always make the pr auto-merge in squash mode**
 **CRITICAL: when using `gh pr create` never use --merge --squash (as it is not supported), first create the pr, then make the pr 'auto-merge' in a second instruction**
+**CRITICAL: when making a git commit, or a pull request, always store the message in a temporary markdown file (temp\_\*.md); and let use git use that file as an input to avoid escaping issues.**
 **CRITICAL: When adding a model, always make sure it has Migration, Resource, Controller, Factory, Seeder and Tests**
 **CRITICAL: When adding a seeder, always make sure that the seeder is called from database\seeders\DatabaseSeeder.php**
 **CRITICAL: Never modify migrations that have already been applied to the database; instead create a new migration that modifes the database schema**

@@ -35,3 +35,6 @@ docs/Gemfile.lock
 
 # Debug scripts
 debug_*.php
+
+# Temp Markdown files
+temp_*.md
