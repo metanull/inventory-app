@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('languages', function (Blueprint $table) {
-            $table->string('backward_compatibility', 2)->change();
+            $table->string('backward_compatibility', 2)->nullable(false)->change();
         });
     }
 };
