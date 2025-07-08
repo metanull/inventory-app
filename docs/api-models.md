@@ -18,6 +18,82 @@ The primary inventory entities representing museum objects, artifacts, or collec
 
 Additional descriptive information linked to Items, supporting detailed cataloging.
 
+### Pictures
+
+Polymorphic image attachment system that allows attaching images to Items, Details, and Partners.
+
+**Key Features:**
+
+- UUID-based primary key
+- Polymorphic relationships with Items, Details, and Partners via `pictureable_type` and `pictureable_id`
+- Complete image metadata: filename, original_filename, mime_type, size, width, height
+- File management with transactional operations
+- Automatic file moves from AvailableImage pool on attachment
+- Direct download and inline viewing capabilities
+
+**API Endpoints:**
+
+- `GET /api/picture` - List all pictures
+- `GET /api/picture/{id}` - Get specific picture
+- `POST /api/picture` - Create new picture (direct upload)
+- `PUT /api/picture/{id}` - Update picture metadata
+- `DELETE /api/picture/{id}` - Delete picture and associated file
+- `GET /api/picture/{id}/download` - Download picture file
+- `GET /api/picture/{id}/view` - View picture inline
+
+**Attachment Endpoints:**
+
+- `POST /api/picture/attach-to-item/{item}` - Attach AvailableImage to Item
+- `POST /api/picture/attach-to-detail/{detail}` - Attach AvailableImage to Detail
+- `POST /api/picture/attach-to-partner/{partner}` - Attach AvailableImage to Partner
+
+**Storage Configuration:**
+
+The Picture system uses a flexible storage configuration:
+
+```bash
+# Permanently attached pictures
+PICTURES_DISK=local_pictures
+PICTURES_PATH=pictures
+```
+
+**Attachment Workflow:**
+
+1. Images are uploaded and processed into AvailableImage records
+2. Use attachment endpoints to move images from available pool to permanent storage
+3. File is moved atomically and AvailableImage record is deleted
+4. Picture record is created with polymorphic relationship to target model
+
+### AvailableImage
+
+Processed image pool for attachment to models as Pictures.
+
+**Key Features:**
+
+- UUID-based primary key
+- Temporary storage for processed images awaiting attachment
+- Automatic cleanup when attached to models as Pictures
+- Download and preview capabilities before attachment
+- Support for multiple image formats and sizes
+
+**API Endpoints:**
+
+- `GET /api/available-image` - List all available images
+- `GET /api/available-image/{id}` - Get specific available image
+- `POST /api/available-image` - Create new available image (via upload processing)
+- `PUT /api/available-image/{id}` - Update available image metadata
+- `DELETE /api/available-image/{id}` - Delete available image and file
+- `GET /api/available-image/{id}/download` - Download available image file
+- `GET /api/available-image/{id}/view` - View available image inline
+
+**Storage Configuration:**
+
+```bash
+# Processed images awaiting attachment
+AVAILABLE_IMAGES_DISK=local_available_images
+AVAILABLE_IMAGES_PATH=available/images
+```
+
 ### Item Translations
 
 Context-aware, multi-language translations for Items providing comprehensive internationalization support.
@@ -312,6 +388,11 @@ Language (1) ──→ (N) DetailTranslation
 
 Context (1) ──→ (N) ItemTranslation
 Context (1) ──→ (N) DetailTranslation
+
+# Polymorphic Picture Relationships
+Item (1) ──→ (N) Picture (polymorphic: pictureable)
+Detail (1) ──→ (N) Picture (polymorphic: pictureable)
+Partner (1) ──→ (N) Picture (polymorphic: pictureable)
 ```
 
 ## Common Patterns

@@ -26,13 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - `GET /api/pictures/{id}` - Show specific picture details
         - `PUT /api/pictures/{id}` - Update picture metadata (internal_name, copyright info)
         - `DELETE /api/pictures/{id}` - Delete picture and associated file
+        - `GET /api/pictures/{id}/download` - Download picture file with proper Content-Disposition headers
+        - `GET /api/pictures/{id}/view` - View picture inline with caching headers for browser display
     - **Enhanced Model Relationships**: Updated Item, Detail, and Partner models with `morphMany` picture relationships
     - **Storage Configuration**: Added dedicated pictures storage configuration in `config/localstorage.php`
-    - **Comprehensive Test Coverage**: 68 tests covering all picture functionality
+    - **Comprehensive Test Coverage**: 81 tests covering all picture functionality
         - Unit tests for Picture factory and model relationships
         - Feature tests for all attachment endpoints with validation testing
         - CRUD operation tests with authentication and authorization
         - File handling tests with Storage facade mocking
+        - Download and view endpoint tests with proper header validation
         - Polymorphic relationship validation across all supported models
     - **Laravel Best Practices**: Implementation follows Laravel 12 recommendations
         - Uses Storage facade for all file operations
@@ -40,6 +43,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - Polymorphic relationships with proper indexing
         - Comprehensive validation with proper error handling
         - RESTful API design with proper HTTP status codes
+
+### Changed
+
+- **Storage Configuration Refactoring**: Improved clarity and organization of storage configuration
+    - **Renamed Configuration Keys**: Updated environment variable names for better self-documentation
+        - `UPLOAD_IMAGES_*` for ImageUpload storage (was `LOCAL_STORAGE_IMAGE_UPLOAD_*`)
+        - `AVAILABLE_IMAGES_*` for AvailableImage storage (was `LOCAL_STORAGE_IMAGE_*`)
+        - `PICTURES_*` for Picture storage (was `LOCAL_STORAGE_PICTURES_*`)
+    - **Configuration Structure**: Reorganized `config/localstorage.php` structure
+        - `uploads.images` for ImageUpload configuration
+        - `available.images` for AvailableImage configuration (was `public.images`)
+        - `pictures` for Picture configuration
+    - **Environment Files**: Updated `.env`, `.env.example`, and `.env.testing` with new variable names
+    - **Code Updates**: Updated all controllers, listeners, and factories to use new configuration paths
+    - **Clear Separation**: Each storage type now has distinct, self-explanatory configuration namespace
 
 ### Fixed
 

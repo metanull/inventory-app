@@ -122,8 +122,8 @@ class PictureController extends Controller
             $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
 
             // Define storage disks and directories
-            $availableImagesDisk = config('localstorage.public.images.disk', 'public');
-            $availableImagesDir = config('localstorage.public.images.directory', 'images');
+            $availableImagesDisk = config('localstorage.available.images.disk', 'public');
+            $availableImagesDir = config('localstorage.available.images.directory', 'images');
             $picturesDisk = config('localstorage.pictures.disk', 'public');
             $picturesDir = config('localstorage.pictures.directory', 'pictures');
 
@@ -170,5 +170,44 @@ class PictureController extends Controller
 
             return new PictureResource($picture);
         });
+    }
+
+    /**
+     * Returns the file to the caller for download.
+     */
+    public function download(Picture $picture)
+    {
+        $picturesDisk = config('localstorage.pictures.disk', 'public');
+        $path = $picture->path;
+
+        if (! Storage::disk($picturesDisk)->exists($path)) {
+            abort(404, 'Picture file not found');
+        }
+
+        $fullPath = Storage::disk($picturesDisk)->path($path);
+        $filename = $picture->upload_name;
+
+        return response()->download($fullPath, $filename);
+    }
+
+    /**
+     * Returns the picture file for direct viewing (e.g., for use in <img> src attribute).
+     */
+    public function view(Picture $picture)
+    {
+        $picturesDisk = config('localstorage.pictures.disk', 'public');
+        $path = $picture->path;
+
+        if (! Storage::disk($picturesDisk)->exists($path)) {
+            abort(404, 'Picture file not found');
+        }
+
+        $fileContent = Storage::disk($picturesDisk)->get($path);
+        $mimeType = $picture->upload_mime_type;
+
+        return response($fileContent, 200)
+            ->header('Content-Type', $mimeType)
+            ->header('Content-Disposition', 'inline; filename="'.$picture->upload_name.'"')
+            ->header('Cache-Control', 'public, max-age=3600');
     }
 }

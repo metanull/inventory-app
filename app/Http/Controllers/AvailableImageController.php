@@ -59,7 +59,7 @@ class AvailableImageController extends Controller
      */
     public function download(AvailableImage $availableImage)
     {
-        $disk = config('localstorage.public.images.disk');
+        $disk = config('localstorage.available.images.disk');
         $path = $availableImage->path;
 
         if (! Storage::disk($disk)->exists($path)) {
@@ -77,7 +77,7 @@ class AvailableImageController extends Controller
      */
     public function view(AvailableImage $availableImage)
     {
-        $disk = config('localstorage.public.images.disk');
+        $disk = config('localstorage.available.images.disk');
         $path = $availableImage->path;
 
         if (! Storage::disk($disk)->exists($path)) {

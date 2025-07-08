@@ -143,6 +143,15 @@ Route::post('partner/{partner}/pictures', [PictureController::class, 'attachToPa
     ->name('picture.attachToPartner')
     ->middleware('auth:sanctum');
 
+// Picture file access routes
+Route::get('picture/{picture}/download', [PictureController::class, 'download'])
+    ->name('picture.download')
+    ->middleware('auth:sanctum');
+
+Route::get('picture/{picture}/view', [PictureController::class, 'view'])
+    ->name('picture.view')
+    ->middleware('auth:sanctum');
+
 // Picture resource routes
 Route::resource('picture', PictureController::class)->except([
     'create', 'edit', 'store',

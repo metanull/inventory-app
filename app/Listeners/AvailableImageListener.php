@@ -40,8 +40,8 @@ class AvailableImageListener
         $uploadDisk = config('localstorage.uploads.images.disk');
         $uploadeDir = trim(config('localstorage.uploads.images.directory'), '/');
         // Get disk and directory where public images are stored
-        $finalDisk = config('localstorage.public.images.disk');
-        $finalDir = trim(config('localstorage.public.images.directory'), '/');
+        $finalDisk = config('localstorage.available.images.disk');
+        $finalDir = trim(config('localstorage.available.images.directory'), '/');
 
         // Get filename
         $filename = basename($file->path);

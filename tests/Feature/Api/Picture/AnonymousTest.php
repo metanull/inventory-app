@@ -87,4 +87,22 @@ class AnonymousTest extends TestCase
 
         $response->assertUnauthorized();
     }
+
+    public function test_download_requires_authentication(): void
+    {
+        $picture = Picture::factory()->forItem()->create();
+
+        $response = $this->getJson(route('picture.download', $picture));
+
+        $response->assertUnauthorized();
+    }
+
+    public function test_view_requires_authentication(): void
+    {
+        $picture = Picture::factory()->forItem()->create();
+
+        $response = $this->getJson(route('picture.view', $picture));
+
+        $response->assertUnauthorized();
+    }
 }
