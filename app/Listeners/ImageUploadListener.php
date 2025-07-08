@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
-use League\Flysystem\WhitespacePathNormalizer;
 
 /**
  * Class ImageUploadListener
@@ -46,21 +45,42 @@ class ImageUploadListener
         // Get disk and directory config for the uploaded images
         $uploadDisk = config('localstorage.uploads.images.disk');
 
-        $path = Storage::disk($uploadDisk)->path($file->path);
+        // Check if the file exists on the upload disk
+        if (! Storage::disk($uploadDisk)->exists($file->path)) {
+            Log::error('Uploaded file does not exist.', [
+                'disk' => $uploadDisk,
+                'name' => $file->name,
+                'path' => $file->path,
+            ]);
 
-        $normalizer = new WhitespacePathNormalizer;
-        $path = $normalizer->normalizePath($path);
+            return;
+        }
 
-        if (exif_imagetype($path)) {
-            $manager = new ImageManager(
-                new Driver
-            );
+        // Get the file contents for image validation and processing
+        $fileContents = Storage::disk($uploadDisk)->get($file->path);
+
+        // Check if contents were successfully retrieved
+        if ($fileContents === null) {
+            Log::error('Failed to retrieve file contents.', [
+                'disk' => $uploadDisk,
+                'name' => $file->name,
+                'path' => $file->path,
+            ]);
+
+            return;
+        }
+
+        try {
+            // Use Intervention Image Manager to read and validate the image
+            $manager = new ImageManager(new Driver);
+            $image = $manager->read($fileContents);
+
+            // If we get here, the image is valid
             $targetWidth = config('localstorage.available.images.max_width');
             $targetHeight = config('localstorage.available.images.max_height');
 
-            $imageUpload = $manager->read($path);
-            $width = $imageUpload->width();
-            $height = $imageUpload->height();
+            $width = $image->width();
+            $height = $image->height();
 
             // If the image is bigger than the target size, resize it (preserving the original aspect ratio)
             // Calculate the new dimensions while preserving the aspect ratio
@@ -79,27 +99,54 @@ class ImageUploadListener
             } else {
                 $doResize = false;
             }
-            if ($doResize) {
-                $imageUpload->resize($targetWidth, $targetHeight);
 
-                // Save the resized image back to the same path, type and quality
-                $imageUpload->encode();
-                $imageUpload->save($path);
+            if ($doResize) {
+                $image->resize($targetWidth, $targetHeight);
+                // Get the processed image data
+                $processedImageData = $image->encode()->toString();
+            } else {
+                // Use the original file contents if no resize needed
+                $processedImageData = $fileContents;
             }
 
-            $availableImage = new AvailableImage(['path' => $event->imageUpload->path]);
+            // Move the file from uploads to available images directory
+            $availableImageDisk = config('localstorage.available.images.disk');
+            $availableImageDirectory = config('localstorage.available.images.directory');
+
+            // Create the new path in the available images directory
+            $filename = basename($file->path);
+            $newPath = $availableImageDirectory.'/'.$filename;
+
+            // Store the processed image to the available images directory
+            $putResult = Storage::disk($availableImageDisk)->put($newPath, $processedImageData);
+
+            if (! $putResult) {
+                Log::error('Failed to store processed image.', [
+                    'disk' => $availableImageDisk,
+                    'path' => $newPath,
+                    'data_size' => strlen($processedImageData),
+                ]);
+
+                return;
+            }
+
+            // Clean up the original upload file
+            Storage::disk($uploadDisk)->delete($file->path);
+
+            $availableImage = new AvailableImage(['path' => $newPath]);
             $availableImage->id = $event->imageUpload->id;
             $availableImage->save();
             AvailableImageEvent::dispatch($availableImage);
-        } else {
-            // If the file is not an image, delete it
+
+        } catch (\Exception $e) {
+            // If the file is not a valid image or processing failed, delete it
             Storage::disk($uploadDisk)->delete($file->path);
 
-            // Optionally, you can log an error or throw an exception
-            Log::error('Uploaded file was not a valid image.', [
+            Log::error('Failed to process uploaded image.', [
                 'disk' => $uploadDisk,
                 'name' => $file->name,
                 'path' => $file->path,
+                'error' => $e->getMessage(),
             ]);
         }
     }

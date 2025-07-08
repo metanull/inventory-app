@@ -30,7 +30,7 @@ The Inventory Management API provides RESTful endpoints for managing museum inve
 - **Mobile Authentication** - Token-based authentication for mobile applications
 - **Internationalization** - Multi-language support with default language management
 
-### Picture Attachment Workflow
+### Picture Attachment & Detachment Workflow
 
 1. **Upload**: Images are uploaded via `POST /api/image-upload` and processed asynchronously
 2. **Processing**: Background events resize, validate, and optimize images
@@ -40,6 +40,10 @@ The Inventory Management API provides RESTful endpoints for managing museum inve
     - `POST /api/picture/attach-to-detail/{detail}` - Attach to Details
     - `POST /api/picture/attach-to-partner/{partner}` - Attach to Partners
 5. **Management**: Attached images become `Picture` records with full CRUD operations
+6. **Detachment**: Pictures can be detached and converted back to AvailableImages:
+    - `DELETE /api/picture/{picture}/detach-from-item/{item}` - Detach from Items
+    - `DELETE /api/picture/{picture}/detach-from-detail/{detail}` - Detach from Details
+    - `DELETE /api/picture/{picture}/detach-from-partner/{partner}` - Detach from Partners
 
 ### Features
 

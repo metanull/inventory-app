@@ -39,6 +39,22 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Drop the polymorphic pictures table
         Schema::dropIfExists('pictures');
+
+        // Recreate the previous pictures table structure (before polymorphic)
+        Schema::create('pictures', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('internal_name');
+            $table->string('backward_compatibility')->nullable();
+            $table->string('copyright_text')->nullable();
+            $table->string('copyright_url')->nullable();
+            $table->string('path')->nullable();
+            $table->string('upload_name')->nullable();
+            $table->string('upload_extension')->nullable();
+            $table->string('upload_mime_type')->nullable();
+            $table->unsignedBigInteger('upload_size')->nullable();
+            $table->timestamps();
+        });
     }
 };

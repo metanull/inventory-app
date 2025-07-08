@@ -167,6 +167,13 @@ DELETE /api/tag-item/{id}             # Remove tag-item relationship
 POST   /api/picture/attach-to-item/{item}        # Attach AvailableImage to Item
 POST   /api/picture/attach-to-detail/{detail}    # Attach AvailableImage to Detail
 POST   /api/picture/attach-to-partner/{partner}  # Attach AvailableImage to Partner
+
+# Picture Detachment System
+DELETE /api/picture/{picture}/detach-from-item/{item}       # Detach Picture from Item
+DELETE /api/picture/{picture}/detach-from-detail/{detail}   # Detach Picture from Detail
+DELETE /api/picture/{picture}/detach-from-partner/{partner} # Detach Picture from Partner
+
+# Picture Management
 GET    /api/picture/{id}/download                # Download attached picture
 GET    /api/picture/{id}/view                    # View attached picture inline
 
@@ -205,6 +212,10 @@ The application features a sophisticated image processing and attachment system:
     - `POST /api/picture/attach-to-detail/{detail}` - Attach to Details
     - `POST /api/picture/attach-to-partner/{partner}` - Attach to Partners
 5. **Management**: Attached images become `Picture` records with full CRUD operations
+6. **Detachment**: Pictures can be detached and converted back to AvailableImages:
+    - `DELETE /api/picture/{picture}/detach-from-item/{item}` - Detach from Items
+    - `DELETE /api/picture/{picture}/detach-from-detail/{detail}` - Detach from Details
+    - `DELETE /api/picture/{picture}/detach-from-partner/{partner}` - Detach from Partners
 
 #### Image Storage Configuration
 
@@ -386,6 +397,59 @@ php artisan test --coverage
 - **Authentication Testing** - Complete user authentication and authorization testing
 - **Validation Testing** - Comprehensive input validation and error handling tests
 
+### Enhanced Composer Commands
+
+The application provides enhanced composer commands that accept additional parameters for flexible development workflows:
+
+#### Testing Commands
+
+```bash
+# Standard test execution
+composer ci-test
+
+# Pass additional arguments using environment variable
+$env:COMPOSER_ARGS="--filter Integration"; composer ci-test
+
+# Common test filtering examples
+$env:COMPOSER_ARGS="--filter Picture"; composer ci-test
+$env:COMPOSER_ARGS="--filter DetachFromItemTest"; composer ci-test
+$env:COMPOSER_ARGS="--group=integration"; composer ci-test
+$env:COMPOSER_ARGS="--testsuite=Feature"; composer ci-test
+
+# Helper command for filter-based testing
+composer ci-test:filter "YourTestClass"
+```
+
+#### Linting Commands
+
+```bash
+# Standard linting
+composer ci-lint
+
+# Pass additional arguments using environment variable
+$env:COMPOSER_ARGS="--test"; composer ci-lint
+$env:COMPOSER_ARGS="--config=custom-pint.json"; composer ci-lint
+$env:COMPOSER_ARGS="--verbose"; composer ci-lint
+
+# Helper command for lint with arguments
+composer ci-lint:with-args --test --verbose
+```
+
+#### Environment Variable Usage
+
+The enhanced commands support the `COMPOSER_ARGS` environment variable to pass additional parameters:
+
+```powershell
+# PowerShell examples
+$env:COMPOSER_ARGS="--filter IntegrationTest"
+composer ci-test
+
+# Or inline
+$env:COMPOSER_ARGS="--coverage"; composer ci-test
+```
+
+This approach allows the composer commands to act as shortcuts to the underlying artisan commands while maintaining full parameter flexibility.
+
 ### Code Quality
 
 Maintain code standards:
@@ -398,7 +462,7 @@ Maintain code standards:
 ./vendor/bin/pint --bail
 
 # Pre-commit checks
-composer ci-before-pull-request
+composer ci-before:pull-request
 ```
 
 ## Deployment
@@ -453,6 +517,23 @@ The project includes a comprehensive **GitHub Actions** workflow for:
 - ✅ **Security Scanning** - Composer audit and CodeQL analysis
 - ✅ **Dependency Updates** - Automated Dependabot integration
 - ✅ **Build Verification** - Asset compilation and validation
+
+#### Enhanced CI Scripts
+
+The project includes enhanced PowerShell scripts in the `scripts/` directory for improved CI/CD operations:
+
+- **`ci-test.ps1`** - Enhanced test execution with argument passing support
+- **`ci-test-with-filter.ps1`** - Specialized test filtering capabilities
+- **`ci-lint.ps1`** - Enhanced linting with configurable options
+- **`ci-lint-with-args.ps1`** - Flexible linting with argument support
+
+These scripts provide:
+
+- Better error handling and reporting
+- Flexible argument passing through environment variables
+- Improved developer experience with clearer output
+- Support for specialized testing workflows (filtering, grouping, etc.)
+- Enhanced code quality validation with configurable rules
 
 ### Documentation & GitHub Pages 📚
 

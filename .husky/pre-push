@@ -1,1 +1,1 @@
-composer ci-before-push
+composer ci-before:push

@@ -19,18 +19,21 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Optionally, you could recreate the table here if needed
-        // Schema::create('pictures', function (Blueprint $table) { ... });
-        Schema::dropIfExists('pictures');
-
-        // Recreate the old pictures table structure for rollback
-        Schema::create('pictures', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('internal_name');
-            $table->string('backward_compatibility')->nullable();
-            $table->string('copyright_text')->nullable();
-            $table->string('copyright_url')->nullable();
-            $table->string('path');
-        });
+        // Only recreate the table if it doesn't exist
+        if (! Schema::hasTable('pictures')) {
+            Schema::create('pictures', function (Blueprint $table) {
+                $table->uuid('id')->primary();
+                $table->string('internal_name');
+                $table->string('backward_compatibility')->nullable();
+                $table->string('copyright_text')->nullable();
+                $table->string('copyright_url')->nullable();
+                $table->string('path')->nullable();
+                $table->string('upload_name')->nullable();
+                $table->string('upload_extension')->nullable();
+                $table->string('upload_mime_type')->nullable();
+                $table->unsignedBigInteger('upload_size')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 };
