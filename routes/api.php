@@ -18,6 +18,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LocationTranslationController;
 use App\Http\Controllers\MobileAppAuthenticationController;
 use App\Http\Controllers\PartnerController;
+use App\Http\Controllers\PictureController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\ProvinceTranslationController;
@@ -127,6 +128,24 @@ Route::resource('available-image', AvailableImageController::class)->except([
 
 Route::resource('detail', DetailController::class)->except([
     'create', 'edit',
+])->middleware('auth:sanctum');
+
+// Picture attachment routes
+Route::post('item/{item}/pictures', [PictureController::class, 'attachToItem'])
+    ->name('picture.attachToItem')
+    ->middleware('auth:sanctum');
+
+Route::post('detail/{detail}/pictures', [PictureController::class, 'attachToDetail'])
+    ->name('picture.attachToDetail')
+    ->middleware('auth:sanctum');
+
+Route::post('partner/{partner}/pictures', [PictureController::class, 'attachToPartner'])
+    ->name('picture.attachToPartner')
+    ->middleware('auth:sanctum');
+
+// Picture resource routes
+Route::resource('picture', PictureController::class)->except([
+    'create', 'edit', 'store',
 ])->middleware('auth:sanctum');
 
 Route::resource('contact', ContactController::class)->except([

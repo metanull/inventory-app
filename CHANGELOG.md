@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Picture Attachment System**: Complete image attachment functionality for Items, Details, and Partners
+    - **Polymorphic Picture Model**: New polymorphic Picture model with `uuidMorphs('pictureable')` for attaching images to multiple model types
+    - **Picture Attachment Endpoints**: RESTful endpoints for attaching AvailableImages to entities
+        - `POST /api/item/{item}/pictures` - Attach images to Items
+        - `POST /api/detail/{detail}/pictures` - Attach images to Details
+        - `POST /api/partner/{partner}/pictures` - Attach images to Partners
+    - **Complete Attachment Workflow**: Atomic transaction-based attachment process
+        - Validates AvailableImage existence and file presence
+        - Moves image files from AvailableImage directory to Pictures directory
+        - Creates Picture record with polymorphic relationship
+        - Removes AvailableImage record after successful attachment
+        - Handles file metadata extraction (size, mime type, extension)
+    - **Picture CRUD Operations**: Full REST API for Picture management
+        - `GET /api/pictures` - List all pictures with polymorphic relationships
+        - `GET /api/pictures/{id}` - Show specific picture details
+        - `PUT /api/pictures/{id}` - Update picture metadata (internal_name, copyright info)
+        - `DELETE /api/pictures/{id}` - Delete picture and associated file
+    - **Enhanced Model Relationships**: Updated Item, Detail, and Partner models with `morphMany` picture relationships
+    - **Storage Configuration**: Added dedicated pictures storage configuration in `config/localstorage.php`
+    - **Comprehensive Test Coverage**: 68 tests covering all picture functionality
+        - Unit tests for Picture factory and model relationships
+        - Feature tests for all attachment endpoints with validation testing
+        - CRUD operation tests with authentication and authorization
+        - File handling tests with Storage facade mocking
+        - Polymorphic relationship validation across all supported models
+    - **Laravel Best Practices**: Implementation follows Laravel 12 recommendations
+        - Uses Storage facade for all file operations
+        - Implements database transactions for data consistency
+        - Polymorphic relationships with proper indexing
+        - Comprehensive validation with proper error handling
+        - RESTful API design with proper HTTP status codes
+
 ### Fixed
 
 - **Image Upload Event Processing**: Fixed ImageUploadListener path resolution error preventing AvailableImage creation

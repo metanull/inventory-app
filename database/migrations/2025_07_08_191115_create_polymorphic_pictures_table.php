@@ -11,19 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::dropIfExists('pictures');
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        // Optionally, you could recreate the table here if needed
-        // Schema::create('pictures', function (Blueprint $table) { ... });
+        // Drop existing pictures table if it exists
         Schema::dropIfExists('pictures');
 
-        // Recreate the old pictures table structure for rollback
+        // Create new polymorphic pictures table
         Schema::create('pictures', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('internal_name');
@@ -31,6 +22,23 @@ return new class extends Migration
             $table->string('copyright_text')->nullable();
             $table->string('copyright_url')->nullable();
             $table->string('path');
+            $table->string('upload_name');
+            $table->string('upload_extension');
+            $table->string('upload_mime_type');
+            $table->bigInteger('upload_size');
+
+            // Polymorphic relationship columns (creates pictureable_type and pictureable_id)
+            $table->uuidMorphs('pictureable');
+
+            $table->timestamps();
         });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('pictures');
     }
 };

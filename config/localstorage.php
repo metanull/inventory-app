@@ -1,11 +1,8 @@
 <?php
 
 return [
-
     'uploads' => [
-
         'images' => [
-
             /*
             |--------------------------------------------------------------------------
             | The Maximum Size for Image Uploads
@@ -57,14 +54,11 @@ return [
             |
             */
             'directory' => env('LOCAL_STORAGE_IMAGE_UPLOAD_DIRECTORY', 'image_uploads'),
-
         ],
     ],
 
     'public' => [
-
         'images' => [
-
             /*
             |--------------------------------------------------------------------------
             | The Maximum Width and Height for Public Images
@@ -102,7 +96,32 @@ return [
             |
             */
             'directory' => env('LOCAL_STORAGE_IMAGE_DIRECTORY', 'images'),
-
         ],
+    ],
+
+    'pictures' => [
+        /*
+        |--------------------------------------------------------------------------
+        | The Disk for Attached Pictures
+        |--------------------------------------------------------------------------
+        |
+        | This disk is used to store pictures that are attached to Items, Details,
+        | or Partners. It is defined in the filesystem configuration. The default
+        | disk is set to **public**, but you can change it to any other disk
+        | defined in your filesystem configuration.
+        |
+        */
+        'disk' => env('LOCAL_STORAGE_PICTURES_DISK', 'public'),
+
+        /*
+        |--------------------------------------------------------------------------
+        | The Directory for Attached Pictures
+        |--------------------------------------------------------------------------
+        |
+        | This directory is used to store pictures that are attached to Items,
+        | Details, or Partners. It is relative to the _disk_ disk.
+        |
+        */
+        'directory' => env('LOCAL_STORAGE_PICTURES_DIRECTORY', 'pictures'),
     ],
 ];
