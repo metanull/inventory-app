@@ -143,6 +143,19 @@ Route::post('partner/{partner}/pictures', [PictureController::class, 'attachToPa
     ->name('picture.attachToPartner')
     ->middleware('auth:sanctum');
 
+// Picture detachment routes
+Route::delete('item/{item}/pictures/{picture}', [PictureController::class, 'detachFromItem'])
+    ->name('picture.detachFromItem')
+    ->middleware('auth:sanctum');
+
+Route::delete('detail/{detail}/pictures/{picture}', [PictureController::class, 'detachFromDetail'])
+    ->name('picture.detachFromDetail')
+    ->middleware('auth:sanctum');
+
+Route::delete('partner/{partner}/pictures/{picture}', [PictureController::class, 'detachFromPartner'])
+    ->name('picture.detachFromPartner')
+    ->middleware('auth:sanctum');
+
 // Picture file access routes
 Route::get('picture/{picture}/download', [PictureController::class, 'download'])
     ->name('picture.download')

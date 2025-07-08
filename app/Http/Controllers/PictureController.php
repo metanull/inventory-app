@@ -210,4 +210,89 @@ class PictureController extends Controller
             ->header('Content-Disposition', 'inline; filename="'.$picture->upload_name.'"')
             ->header('Cache-Control', 'public, max-age=3600');
     }
+
+    /**
+     * Detach a Picture from an Item and convert it back to AvailableImage.
+     */
+    public function detachFromItem(Request $request, Item $item, Picture $picture)
+    {
+        return $this->detachPicture($request, $item, $picture);
+    }
+
+    /**
+     * Detach a Picture from a Detail and convert it back to AvailableImage.
+     */
+    public function detachFromDetail(Request $request, Detail $detail, Picture $picture)
+    {
+        return $this->detachPicture($request, $detail, $picture);
+    }
+
+    /**
+     * Detach a Picture from a Partner and convert it back to AvailableImage.
+     */
+    public function detachFromPartner(Request $request, Partner $partner, Picture $picture)
+    {
+        return $this->detachPicture($request, $partner, $picture);
+    }
+
+    /**
+     * Common method to detach a picture from any pictureable model and convert it back to AvailableImage.
+     */
+    private function detachPicture(Request $request, $pictureable, Picture $picture)
+    {
+        $validated = $request->validate([
+            'comment' => 'nullable|string|max:1000',
+        ]);
+
+        // Validate that the picture belongs to the given pictureable model
+        if ($picture->pictureable_type !== get_class($pictureable) || $picture->pictureable_id !== $pictureable->id) {
+            return response()->json(['error' => 'Picture does not belong to this model'], 422);
+        }
+
+        return DB::transaction(function () use ($validated, $picture) {
+            // Define storage disks and directories
+            $picturesDisk = config('localstorage.pictures.disk', 'public');
+            $picturesDir = config('localstorage.pictures.directory', 'pictures');
+            $availableImagesDisk = config('localstorage.available.images.disk', 'public');
+            $availableImagesDir = config('localstorage.available.images.directory', 'images');
+
+            // Verify the picture file exists
+            if (! Storage::disk($picturesDisk)->exists($picture->path)) {
+                return response()->json(['error' => 'Picture file not found'], 404);
+            }
+
+            // Get the filename from the picture path
+            $filename = basename($picture->path);
+
+            // Create the new path for the available image
+            $newPath = $availableImagesDir.'/'.$filename;
+
+            // Move the file from pictures directory to available images directory
+            Storage::disk($availableImagesDisk)->writeStream(
+                $newPath,
+                Storage::disk($picturesDisk)->readStream($picture->path)
+            );
+
+            // Create the AvailableImage record
+            $availableImage = AvailableImage::create([
+                'path' => $newPath,
+                'comment' => $validated['comment'] ?? "Detached from {$picture->pictureable_type} ({$picture->pictureable_id})",
+            ]);
+
+            // Delete the picture file and record
+            Storage::disk($picturesDisk)->delete($picture->path);
+            $picture->delete();
+
+            return response()->json([
+                'message' => 'Picture detached successfully',
+                'available_image' => [
+                    'id' => $availableImage->id,
+                    'path' => $availableImage->path,
+                    'comment' => $availableImage->comment,
+                    'created_at' => $availableImage->created_at,
+                    'updated_at' => $availableImage->updated_at,
+                ],
+            ]);
+        });
+    }
 }
