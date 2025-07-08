@@ -83,16 +83,19 @@ All other models use UUID primary keys for optimal scalability and system integr
 
 #### Supporting Models
 
-**Picture** 🖼️ - Image management with automatic processing
+**Picture** 🖼️ - Polymorphic image attachment system
 
-- Event-driven upload and resizing workflow
-- Supports multiple image formats and sizes
-- Integrated with AWS S3 or local storage
+- Polymorphic relationships with Items, Details, and Partners
+- Automatic file management and metadata tracking
+- Support for multiple image formats with validation
+- Transactional attachment from AvailableImage pool
+- Direct download and inline viewing capabilities
 
 **Detail** 📋 - Extended metadata and detailed information
 
 - Flexible schema for additional item properties
 - JSON-based storage for complex data structures
+- Supports image attachments via polymorphic Pictures
 
 **Tag** 🏷️ - Content tagging and categorization system
 
@@ -104,11 +107,14 @@ All other models use UUID primary keys for optimal scalability and system integr
 
 - Monitors image processing workflows
 - Tracks upload success/failure states
+- Creates AvailableImage records upon successful processing
 
-**AvailableImage** 🎨 - Image availability and accessibility management
+**AvailableImage** 🎨 - Processed image pool for attachment
 
-- Controls image visibility and access permissions
-- Manages image versions and formats
+- Temporary storage for processed images awaiting attachment
+- Automatic cleanup when attached to models as Pictures
+- Download and preview capabilities before attachment
+- Support for multiple image formats and sizes
 
 ### Key Features
 
@@ -157,6 +163,18 @@ GET    /api/tag/{id}/items            # Get all items with a specific tag
 POST   /api/tag-item                  # Create tag-item relationship
 DELETE /api/tag-item/{id}             # Remove tag-item relationship
 
+# Picture Attachment System
+POST   /api/picture/attach-to-item/{item}        # Attach AvailableImage to Item
+POST   /api/picture/attach-to-detail/{detail}    # Attach AvailableImage to Detail
+POST   /api/picture/attach-to-partner/{partner}  # Attach AvailableImage to Partner
+GET    /api/picture/{id}/download                # Download attached picture
+GET    /api/picture/{id}/view                    # View attached picture inline
+
+# Image Management
+GET    /api/available-image/{id}/download        # Download available image
+GET    /api/available-image/{id}/view            # View available image inline
+POST   /api/image-upload                         # Upload new image for processing
+
 # Markdown Processing
 POST   /api/markdown/to-html          # Convert markdown to HTML
 POST   /api/markdown/from-html        # Convert HTML to markdown
@@ -169,19 +187,51 @@ GET    /api/markdown/allowed-elements # Get supported HTML elements
 POST   /api/mobile/acquire-token      # Acquire authentication token
 GET    /api/mobile/wipe               # Wipe user tokens
 
-# Image Downloads
-GET    /api/available-image/{id}/download  # Download processed image
-
 # Specialized Access
 GET    /api/language/english          # Get English language specifically
 ```
 
-#### 📱 Image Processing Pipeline
+# Image Processing Pipeline
+
+The application features a sophisticated image processing and attachment system:
+
+#### Image Upload and Processing Workflow
+
+1. **Upload**: Images are uploaded via `POST /api/image-upload` and processed asynchronously
+2. **Processing**: Background events resize, validate, and optimize images
+3. **Available Pool**: Successfully processed images become `AvailableImage` records
+4. **Attachment**: Images are attached to models via transactional operations:
+    - `POST /api/picture/attach-to-item/{item}` - Attach to Items
+    - `POST /api/picture/attach-to-detail/{detail}` - Attach to Details
+    - `POST /api/picture/attach-to-partner/{partner}` - Attach to Partners
+5. **Management**: Attached images become `Picture` records with full CRUD operations
+
+#### Image Storage Configuration
+
+The application uses a flexible storage configuration system with clear separation:
+
+```bash
+# Upload temporary storage
+UPLOAD_IMAGES_DISK=local_upload_images
+UPLOAD_IMAGES_PATH=uploads/images
+
+# Processed images awaiting attachment
+AVAILABLE_IMAGES_DISK=local_available_images
+AVAILABLE_IMAGES_PATH=available/images
+
+# Permanently attached pictures
+PICTURES_DISK=local_pictures
+PICTURES_PATH=pictures
+```
+
+#### Image Features
 
 - **Automatic Resizing** - Multiple image sizes generated on upload
 - **Format Optimization** - WebP conversion for web optimization
 - **Event-Driven Processing** - Laravel events for decoupled image handling
 - **Storage Flexibility** - Support for local and cloud storage (S3)
+- **Transactional Attachment** - Atomic file operations with database consistency
+- **Direct Access** - Download and inline viewing endpoints for all image types
 
 #### 🧪 Comprehensive Testing
 
@@ -211,22 +261,22 @@ GET    /api/language/english          # Get English language specifically
 
 The API provides full REST functionality for all models:
 
-| Resource                  | Endpoints                               | Special Features                             |
-| ------------------------- | --------------------------------------- | -------------------------------------------- |
-| **Countries**             | Standard CRUD + ISO code lookups        | ISO 3166-1 alpha-3 compliance                |
-| **Languages**             | Standard CRUD + default management      | ISO 639-1 compliance, English shortcut       |
-| **Contexts**              | Standard CRUD + default management      | Hierarchical organization                    |
-| **Partners**              | Standard CRUD + country relationships   | Institution management                       |
-| **Projects**              | Standard CRUD + launch/enable controls  | Project lifecycle management                 |
-| **Items**                 | Standard CRUD + complex relationships   | Central inventory management                 |
-| **Tags**                  | Standard CRUD + relationship management | Flexible content tagging                     |
-| **Pictures**              | Standard CRUD + upload processing       | Event-driven image processing                |
-| **Details**               | Standard CRUD + metadata management     | Flexible schema support                      |
-| **Contextualizations**    | Standard CRUD + context filtering       | Context-content association management       |
-| **AvailableImages**       | Standard CRUD + image downloads         | Processed image management                   |
-| **Markdown**              | Content processing utilities            | Markdown ↔ HTML conversion and validation   |
-| **Internationalization**  | Language-specific content               | Multi-language content retrieval             |
-| **Mobile Authentication** | Token management                        | Mobile app authentication and token handling |
+| Resource                  | Endpoints                               | Special Features                                  |
+| ------------------------- | --------------------------------------- | ------------------------------------------------- |
+| **Countries**             | Standard CRUD + ISO code lookups        | ISO 3166-1 alpha-3 compliance                     |
+| **Languages**             | Standard CRUD + default management      | ISO 639-1 compliance, English shortcut            |
+| **Contexts**              | Standard CRUD + default management      | Hierarchical organization                         |
+| **Partners**              | Standard CRUD + country relationships   | Institution management                            |
+| **Projects**              | Standard CRUD + launch/enable controls  | Project lifecycle management                      |
+| **Items**                 | Standard CRUD + complex relationships   | Central inventory management                      |
+| **Tags**                  | Standard CRUD + relationship management | Flexible content tagging                          |
+| **Pictures**              | Standard CRUD + polymorphic attachments | Attach to Items/Details/Partners, file management |
+| **Details**               | Standard CRUD + metadata management     | Flexible schema support, image attachments        |
+| **Contextualizations**    | Standard CRUD + context filtering       | Context-content association management            |
+| **AvailableImages**       | Standard CRUD + image downloads/views   | Processed image pool, attachment workflow         |
+| **Markdown**              | Content processing utilities            | Markdown ↔ HTML conversion and validation        |
+| **Internationalization**  | Language-specific content               | Multi-language content retrieval                  |
+| **Mobile Authentication** | Token management                        | Mobile app authentication and token handling      |
 
 All endpoints support:
 
@@ -379,12 +429,15 @@ DB_DATABASE=inventory_production
 DB_USERNAME=your-db-user
 DB_PASSWORD=your-secure-password
 
-# Image Storage (optional S3)
-FILESYSTEM_DISK=s3
-AWS_ACCESS_KEY_ID=your-aws-key
-AWS_SECRET_ACCESS_KEY=your-aws-secret
-AWS_DEFAULT_REGION=your-region
-AWS_BUCKET=your-bucket-name
+# Image Storage (updated configuration)
+UPLOAD_IMAGES_DISK=local_upload_images
+UPLOAD_IMAGES_PATH=uploads/images
+
+AVAILABLE_IMAGES_DISK=local_available_images
+AVAILABLE_IMAGES_PATH=available/images
+
+PICTURES_DISK=local_pictures
+PICTURES_PATH=pictures
 
 # Security
 SANCTUM_STATEFUL_DOMAINS=your-frontend-domain.com

@@ -106,10 +106,6 @@ Route::post('item/with-any-tags', [ItemController::class, 'withAnyTags'])
     ->name('item.withAnyTags')
     ->middleware('auth:sanctum');
 
-Route::resource('picture', PictureController::class)->except([
-    'create', 'edit',
-])->middleware('auth:sanctum');
-
 Route::resource('project', ProjectController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
@@ -132,6 +128,33 @@ Route::resource('available-image', AvailableImageController::class)->except([
 
 Route::resource('detail', DetailController::class)->except([
     'create', 'edit',
+])->middleware('auth:sanctum');
+
+// Picture attachment routes
+Route::post('item/{item}/pictures', [PictureController::class, 'attachToItem'])
+    ->name('picture.attachToItem')
+    ->middleware('auth:sanctum');
+
+Route::post('detail/{detail}/pictures', [PictureController::class, 'attachToDetail'])
+    ->name('picture.attachToDetail')
+    ->middleware('auth:sanctum');
+
+Route::post('partner/{partner}/pictures', [PictureController::class, 'attachToPartner'])
+    ->name('picture.attachToPartner')
+    ->middleware('auth:sanctum');
+
+// Picture file access routes
+Route::get('picture/{picture}/download', [PictureController::class, 'download'])
+    ->name('picture.download')
+    ->middleware('auth:sanctum');
+
+Route::get('picture/{picture}/view', [PictureController::class, 'view'])
+    ->name('picture.view')
+    ->middleware('auth:sanctum');
+
+// Picture resource routes
+Route::resource('picture', PictureController::class)->except([
+    'create', 'edit', 'store',
 ])->middleware('auth:sanctum');
 
 Route::resource('contact', ContactController::class)->except([

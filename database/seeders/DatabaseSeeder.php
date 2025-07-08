@@ -30,12 +30,12 @@ class DatabaseSeeder extends Seeder
             ItemTagSeeder::class,
             ItemTranslationSeeder::class,
             DetailTranslationSeeder::class,
-            PictureSeeder::class,
             ImageUploadSeeder::class,
             AvailableImageSeeder::class,
             ArtistSeeder::class,
             AuthorSeeder::class,
             WorkshopSeeder::class,
+            PictureSeeder::class,
         ]);
     }
 }

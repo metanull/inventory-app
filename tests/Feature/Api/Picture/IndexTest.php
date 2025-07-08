@@ -21,22 +21,16 @@ class IndexTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_index_allows_authenticated_users(): void
+    public function test_can_list_pictures(): void
     {
-        $response = $this->getJson(route('picture.index'));
-        $response->assertOk();
-    }
+        $pictures = collect([
+            Picture::factory()->forItem()->create(),
+            Picture::factory()->forDetail()->create(),
+            Picture::factory()->forPartner()->create(),
+        ]);
 
-    public function test_index_returns_ok_on_success(): void
-    {
         $response = $this->getJson(route('picture.index'));
-        $response->assertOk();
-    }
 
-    public function test_index_returns_the_expected_structure(): void
-    {
-        Picture::factory()->create();
-        $response = $this->getJson(route('picture.index'));
         $response->assertOk();
         $response->assertJsonStructure([
             'data' => [
@@ -51,19 +45,61 @@ class IndexTest extends TestCase
                     'upload_extension',
                     'upload_mime_type',
                     'upload_size',
+                    'pictureable_type',
+                    'pictureable_id',
                     'created_at',
                     'updated_at',
                 ],
             ],
         ]);
+
+        $response->assertJsonCount(3, 'data');
     }
 
-    public function test_index_returns_the_expected_data(): void
+    public function test_returns_empty_array_when_no_pictures(): void
     {
-        $picture = Picture::factory()->create();
         $response = $this->getJson(route('picture.index'));
+
         $response->assertOk();
-        $response->assertJsonPath('data.0.id', $picture->id);
-        $response->assertJsonPath('data.0.internal_name', $picture->internal_name);
+        $response->assertJsonCount(0, 'data');
+    }
+
+    public function test_requires_authentication(): void
+    {
+        $this->withoutAuthentication();
+
+        $response = $this->getJson(route('picture.index'));
+
+        $response->assertUnauthorized();
+    }
+
+    public function test_includes_polymorphic_relationship_data(): void
+    {
+        $itemPicture = Picture::factory()->forItem()->create();
+        $detailPicture = Picture::factory()->forDetail()->create();
+        $partnerPicture = Picture::factory()->forPartner()->create();
+
+        $response = $this->getJson(route('picture.index'));
+
+        $response->assertOk();
+        $response->assertJsonCount(3, 'data');
+
+        // Check that each picture has the correct pictureable_type
+        $responseData = $response->json('data');
+        $pictureableTypes = collect($responseData)->pluck('pictureable_type')->sort()->values();
+
+        $expectedTypes = [
+            'App\\Models\\Detail',
+            'App\\Models\\Item',
+            'App\\Models\\Partner',
+        ];
+
+        $this->assertEquals($expectedTypes, $pictureableTypes->toArray());
+    }
+
+    private function withoutAuthentication(): void
+    {
+        $this->user = null;
+        $this->app['auth']->forgetGuards();
     }
 }

@@ -5520,6 +5520,201 @@
                 }
             }
         },
+        "/item/{item}/pictures": {
+            "post": {
+                "operationId": "picture.attachToItem",
+                "summary": "Attach an AvailableImage to an Item",
+                "tags": [
+                    "Picture"
+                ],
+                "parameters": [
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/detail/{detail}/pictures": {
+            "post": {
+                "operationId": "picture.attachToDetail",
+                "summary": "Attach an AvailableImage to a Detail",
+                "tags": [
+                    "Picture"
+                ],
+                "parameters": [
+                    {
+                        "name": "detail",
+                        "in": "path",
+                        "required": true,
+                        "description": "The detail ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/partner/{partner}/pictures": {
+            "post": {
+                "operationId": "picture.attachToPartner",
+                "summary": "Attach an AvailableImage to a Partner",
+                "tags": [
+                    "Picture"
+                ],
+                "parameters": [
+                    {
+                        "name": "partner",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/picture/{picture}/download": {
+            "get": {
+                "operationId": "picture.download",
+                "summary": "Returns the file to the caller for download",
+                "tags": [
+                    "Picture"
+                ],
+                "parameters": [
+                    {
+                        "name": "picture",
+                        "in": "path",
+                        "required": true,
+                        "description": "The picture ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/picture/{picture}/view": {
+            "get": {
+                "operationId": "picture.view",
+                "summary": "Returns the picture file for direct viewing (e.g., for use in <img> src attribute)",
+                "tags": [
+                    "Picture"
+                ],
+                "parameters": [
+                    {
+                        "name": "picture",
+                        "in": "path",
+                        "required": true,
+                        "description": "The picture ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/picture": {
             "get": {
                 "operationId": "picture.index",
@@ -5548,83 +5743,6 @@
                                 }
                             }
                         }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
-            },
-            "post": {
-                "operationId": "picture.store",
-                "summary": "Store a newly created resource in storage",
-                "tags": [
-                    "Picture"
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "file": {
-                                        "type": "string",
-                                        "format": "binary",
-                                        "contentMediaType": "application/octet-stream",
-                                        "maxLength": 16384
-                                    },
-                                    "internal_name": {
-                                        "type": "string"
-                                    },
-                                    "backward_compatibility": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ]
-                                    },
-                                    "copyright_text": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ]
-                                    },
-                                    "copyright_url": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ],
-                                        "format": "uri"
-                                    }
-                                },
-                                "required": [
-                                    "file",
-                                    "internal_name"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "`PictureResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/PictureResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
@@ -5704,26 +5822,30 @@
                                 "type": "object",
                                 "properties": {
                                     "internal_name": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "maxLength": 255
                                     },
                                     "backward_compatibility": {
                                         "type": [
                                             "string",
                                             "null"
-                                        ]
+                                        ],
+                                        "maxLength": 255
                                     },
                                     "copyright_text": {
                                         "type": [
                                             "string",
                                             "null"
-                                        ]
+                                        ],
+                                        "maxLength": 1000
                                     },
                                     "copyright_url": {
                                         "type": [
                                             "string",
                                             "null"
                                         ],
-                                        "format": "uri"
+                                        "format": "uri",
+                                        "maxLength": 255
                                     }
                                 },
                                 "required": [
@@ -8352,7 +8474,7 @@
                 "properties": {
                     "id": {
                         "type": "string",
-                        "description": "The unique identifier of the picture (GUID)"
+                        "description": "The unique identifier of the picture (UUID)"
                     },
                     "internal_name": {
                         "type": "string",
@@ -8363,13 +8485,10 @@
                             "string",
                             "null"
                         ],
-                        "description": "The legacy Id when this picture corresponds to a legacy image from the MWNF3 database, nullable"
+                        "description": "The legacy ID when this picture corresponds to a legacy image from the MWNF3 database, nullable"
                     },
                     "path": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The path to the picture file"
                     },
                     "copyright_text": {
@@ -8387,32 +8506,28 @@
                         "description": "The URL for the copyright information"
                     },
                     "upload_name": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The original name of the uploaded file"
                     },
                     "upload_extension": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The file extension of the uploaded file"
                     },
                     "upload_mime_type": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The MIME type of the uploaded file"
                     },
                     "upload_size": {
-                        "type": [
-                            "integer",
-                            "null"
-                        ],
+                        "type": "integer",
                         "description": "The size of the uploaded file in bytes"
+                    },
+                    "pictureable_type": {
+                        "type": "string",
+                        "description": "The type of the parent model (Item, Detail, Partner)"
+                    },
+                    "pictureable_id": {
+                        "type": "string",
+                        "description": "The ID of the parent model"
                     },
                     "created_at": {
                         "type": [
@@ -8442,6 +8557,8 @@
                     "upload_extension",
                     "upload_mime_type",
                     "upload_size",
+                    "pictureable_type",
+                    "pictureable_id",
                     "created_at",
                     "updated_at"
                 ],

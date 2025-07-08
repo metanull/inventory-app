@@ -20,8 +20,9 @@ nav_order: 1
 - 📊 **Clean, maintainable** codebase following Laravel best practices
 - 📚 **Automated API Documentation** with interactive testing capabilities
 - ✅ **Comprehensive Test Suite**: 924 tests with 3632 assertions (100% reliable, high-speed execution)
-- 🎨 **Image Processing Pipeline**: Automatic resizing, format optimization, and event-driven processing
+- 🎨 **Polymorphic Picture System**: Attach images to Items, Details, and Partners with automatic file management
 - 🔧 **Advanced Query Features**: Model scopes, eager loading, and search capabilities
+- 📤 **Image Processing Pipeline**: Upload, process, and attach images with automatic optimization and transactional operations
 
 ## 🎯 Quality Assurance
 

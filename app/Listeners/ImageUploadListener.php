@@ -55,8 +55,8 @@ class ImageUploadListener
             $manager = new ImageManager(
                 new Driver
             );
-            $targetWidth = config('localstorage.public.images.max_width');
-            $targetHeight = config('localstorage.public.images.max_height');
+            $targetWidth = config('localstorage.available.images.max_width');
+            $targetHeight = config('localstorage.available.images.max_height');
 
             $imageUpload = $manager->read($path);
             $width = $imageUpload->width();

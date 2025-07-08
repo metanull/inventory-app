@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Item extends Model
 {
@@ -90,6 +91,14 @@ class Item extends Model
     public function translations(): HasMany
     {
         return $this->hasMany(ItemTranslation::class);
+    }
+
+    /**
+     * Get all pictures attached to this item.
+     */
+    public function pictures(): MorphMany
+    {
+        return $this->morphMany(Picture::class, 'pictureable');
     }
 
     /**
