@@ -5637,6 +5637,84 @@
                 }
             }
         },
+        "/picture/{picture}/download": {
+            "get": {
+                "operationId": "picture.download",
+                "summary": "Returns the file to the caller for download",
+                "tags": [
+                    "Picture"
+                ],
+                "parameters": [
+                    {
+                        "name": "picture",
+                        "in": "path",
+                        "required": true,
+                        "description": "The picture ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/picture/{picture}/view": {
+            "get": {
+                "operationId": "picture.view",
+                "summary": "Returns the picture file for direct viewing (e.g., for use in <img> src attribute)",
+                "tags": [
+                    "Picture"
+                ],
+                "parameters": [
+                    {
+                        "name": "picture",
+                        "in": "path",
+                        "required": true,
+                        "description": "The picture ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/picture": {
             "get": {
                 "operationId": "picture.index",
