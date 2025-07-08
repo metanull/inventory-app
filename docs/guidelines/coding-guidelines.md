@@ -310,10 +310,10 @@ composer ci-openapi-doc
 
 ```bash
 # Run all pre-commit checks
-composer ci-before-pull-request
+composer ci-before:pull-request
 
 # Ensure no uncommitted changes
-composer ci-assert-no-changes
+composer ci-git:assert-no-change
 ```
 
 ## 🏗️ Application Architecture

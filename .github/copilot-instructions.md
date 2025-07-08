@@ -12,6 +12,10 @@
 **CRITICAL: When adding a model, always make sure it has Migration, Resource, Controller, Factory, Seeder and Tests**
 **CRITICAL: When adding a seeder, always make sure that the seeder is called from database\seeders\DatabaseSeeder.php**
 **CRITICAL: Never modify migrations that have already been applied to the database; instead create a new migration that modifes the database schema**
+**CRITICAL: Always use Laravel framework's built-in feature to access storage files, such as Flysystem and `Storage::disk('local')->put('file.txt', 'contents')` instead of using the filesystem directly.**
+**CRITICAL: Always use Framework's built-in feature to access configuration files, such as `config('app.name')` instead of using the filesystem directly.**
+**CRITICAL: Always use Framework's built-in feature to read and store images, such as Intervention Image Manager functions.**
+**CRITICAL: The repository has githooks, when running git or gh commands always wait for the hooks to complete before checking the terminal output.**
 
 ---
 
@@ -183,8 +187,8 @@ Coding standards for PHP files in this repository.
         - `composer ci-reset` - resets the database in the CI environment
         - `composer ci-seed` - seeds the database in the CI environment
         - `composer ci-openapi-doc` - create an api.json file in `./docs/_openapi` directory
-        - `composer ci-assert-no-changes` - asserts that there are no changes in the local repository
-        - `composer ci-before-pull-request` - runs the `ci-openapi-doc`,`ci-assert-no-changes`, `ci-audit`, `ci-lint`, `ci-test` to verify code before a pull request is created
+        - `composer ci-git:assert-no-change` - asserts that there are no changes in the local repository
+        - `composer ci-before:pull-request` - runs the `ci-openapi-doc`,`ci-git:assert-no-change`, `ci-audit`, `ci-lint`, `ci-test` to verify code before a pull request is created
     - The repository uses GitHub Actions for CI/CD.
     - It is deployed on a windows server.
         - It uses powershell to run commands.
@@ -202,8 +206,8 @@ Coding standards for PHP files in this repository.
         - `composer ci-test` - runs the tests in the CI environment
         - `composer ci-reset` - resets the database in the CI environment
         - `composer ci-seed` - seeds the database in the CI environment
-        - `composer ci-assert-no-changes` - asserts that there are no changes in the local repository
-        - `composer ci-before-pull-request` - runs the `ci-assert-no-changes`, `ci-audit`, `ci-lint`, `ci-test` to verify code before a pull request is created
+        - `composer ci-git:assert-no-change` - asserts that there are no changes in the local repository
+        - `composer ci-before:pull-request` - runs the `ci-git:assert-no-change`, `ci-audit`, `ci-lint`, `ci-test` to verify code before a pull request is created
     - The repository uses GitHub Actions for CI/CD.
     - The structure of the repository is as follows:
         ```

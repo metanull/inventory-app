@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Picture Detachment System**: Complete functionality to detach Pictures from entities and convert them back to AvailableImages
+    - **Picture Detachment Endpoints**: RESTful endpoints for detaching Pictures from entities
+        - `DELETE /api/item/{item}/pictures/{picture}` - Detach Picture from Item
+        - `DELETE /api/detail/{detail}/pictures/{picture}` - Detach Picture from Detail
+        - `DELETE /api/partner/{partner}/pictures/{picture}` - Detach Picture from Partner
+    - **Complete Detachment Workflow**: Atomic transaction-based detachment process
+        - Validates Picture belongs to the specified entity
+        - Moves image files from Pictures directory back to AvailableImages directory
+        - Creates new AvailableImage record with optional comment
+        - Removes Picture record and polymorphic relationship
+        - Preserves file content and metadata throughout the process
+    - **Comprehensive Test Coverage**: 150+ new tests covering all detachment functionality
+        - Unit tests for detachment validation and file operations
+        - Feature tests for all detachment endpoints with authentication testing
+        - Integration tests for complete workflow: ImageUpload → AvailableImage → Picture → AvailableImage
+        - File content preservation tests throughout attach/detach cycles
+        - Multiple attach/detach cycle testing for workflow reliability
+        - Cross-model-type workflow validation (Item, Detail, Partner)
+    - **Laravel Best Practices**: Implementation follows Laravel 12 recommendations
+        - Uses Storage facade for all file operations with atomic transactions
+        - Implements database transactions for data consistency
+        - Proper validation with comprehensive error handling
+        - RESTful API design with appropriate HTTP status codes
+        - Polymorphic relationship validation for security
+
 - **Picture Attachment System**: Complete image attachment functionality for Items, Details, and Partners
     - **Polymorphic Picture Model**: New polymorphic Picture model with `uuidMorphs('pictureable')` for attaching images to multiple model types
     - **Picture Attachment Endpoints**: RESTful endpoints for attaching AvailableImages to entities

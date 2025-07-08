@@ -5637,6 +5637,216 @@
                 }
             }
         },
+        "/item/{item}/pictures/{picture}": {
+            "delete": {
+                "operationId": "picture.detachFromItem",
+                "summary": "Detach a Picture from an Item and convert it back to AvailableImage",
+                "tags": [
+                    "Picture"
+                ],
+                "parameters": [
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "picture",
+                        "in": "path",
+                        "required": true,
+                        "description": "The picture ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Picture does not belong to this model"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/detail/{detail}/pictures/{picture}": {
+            "delete": {
+                "operationId": "picture.detachFromDetail",
+                "summary": "Detach a Picture from a Detail and convert it back to AvailableImage",
+                "tags": [
+                    "Picture"
+                ],
+                "parameters": [
+                    {
+                        "name": "detail",
+                        "in": "path",
+                        "required": true,
+                        "description": "The detail ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "picture",
+                        "in": "path",
+                        "required": true,
+                        "description": "The picture ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Picture does not belong to this model"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/partner/{partner}/pictures/{picture}": {
+            "delete": {
+                "operationId": "picture.detachFromPartner",
+                "summary": "Detach a Picture from a Partner and convert it back to AvailableImage",
+                "tags": [
+                    "Picture"
+                ],
+                "parameters": [
+                    {
+                        "name": "partner",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "picture",
+                        "in": "path",
+                        "required": true,
+                        "description": "The picture ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Picture does not belong to this model"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/picture/{picture}/download": {
             "get": {
                 "operationId": "picture.download",
@@ -7249,6 +7459,16 @@
             }
         },
         "schemas": {
+            "Address": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "minItems": 0,
+                "maxItems": 0,
+                "additionalItems": false,
+                "title": "Address"
+            },
             "AddressResource": {
                 "type": "object",
                 "properties": {
@@ -7268,18 +7488,10 @@
                         }
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -7304,27 +7516,16 @@
                         "type": "string"
                     },
                     "address": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/Address"
                     },
                     "description": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -7348,57 +7549,31 @@
                         "type": "string"
                     },
                     "place_of_birth": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "place_of_death": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "date_of_birth": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "date_of_death": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "period_of_activity": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "internal_name": {
                         "type": "string"
                     },
                     "backward_compatibility": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "items": {
                         "type": "array",
@@ -7432,30 +7607,16 @@
                         "type": "string"
                     },
                     "internal_name": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "backward_compatibility": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -7476,33 +7637,19 @@
                         "description": "The unique identifier of the picture (GUID)"
                     },
                     "path": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The path to the picture file"
                     },
                     "comment": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "A user defined comment associated with the file"
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
+                        "type": "string",
                         "description": "Date of creation"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
+                        "type": "string",
                         "description": "Date of last modification"
                     }
                 },
@@ -7525,10 +7672,7 @@
                         "type": "string"
                     },
                     "phone_number": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "formatted_phone_number": {
                         "type": [
@@ -7537,10 +7681,7 @@
                         ]
                     },
                     "fax_number": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "formatted_fax_number": {
                         "type": [
@@ -7549,10 +7690,7 @@
                         ]
                     },
                     "email": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "translations": {
                         "type": "array",
@@ -7561,18 +7699,10 @@
                         }
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -7604,18 +7734,10 @@
                         "type": "string"
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -7689,10 +7811,7 @@
                         "description": "The name of the country, it shall only be used internally"
                     },
                     "backward_compatibility": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The legacy Id when this country corresponds to a legacy country from the MWNF3 database, nullable"
                     },
                     "created_at": {
@@ -7737,10 +7856,7 @@
                         "$ref": "#/components/schemas/ItemResource"
                     },
                     "backward_compatibility": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The legacy Id when this item corresponds to a legacy item from the MWNF3 database, nullable"
                     },
                     "translations": {
@@ -7751,19 +7867,11 @@
                         }
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
+                        "type": "string",
                         "description": "Date of creation"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
+                        "type": "string",
                         "description": "Date of last modification"
                     }
                 },
@@ -7795,64 +7903,34 @@
                         "type": "string"
                     },
                     "alternate_name": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "description": {
                         "type": "string"
                     },
                     "author_id": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "text_copy_editor_id": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "translator_id": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "translation_copy_editor_id": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "backward_compatibility": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "extra": {
-                        "type": [
-                            "array",
-                            "null"
-                        ],
-                        "items": {}
+                        "type": "string"
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "detail": {
                         "description": "Relationship data",
@@ -7904,54 +7982,31 @@
                         "description": "The unique identifier of the picture (GUID)"
                     },
                     "path": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The path to the picture file"
                     },
                     "name": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The original name of the uploaded file"
                     },
                     "extension": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The file extension of the uploaded file"
                     },
                     "mime_type": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The MIME type of the uploaded file"
                     },
                     "size": {
-                        "type": [
-                            "integer",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The size of the uploaded file in bytes"
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
+                        "type": "string",
                         "description": "Date of creation"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
+                        "type": "string",
                         "description": "Date of last modification"
                     }
                 },
@@ -7990,17 +8045,11 @@
                         "description": "The type of the item, either 'object' or 'monument'"
                     },
                     "owner_reference": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "Owner's reference number for the item"
                     },
                     "mwnf_reference": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "MWNF reference number for the item"
                     },
                     "partner": {
@@ -8093,136 +8142,70 @@
                         "type": "string"
                     },
                     "alternate_name": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "description": {
                         "type": "string"
                     },
                     "type": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "holder": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "owner": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "initial_owner": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "dates": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "location": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "dimensions": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "place_of_production": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "method_for_datation": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "method_for_provenance": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "obtention": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "bibliography": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "author_id": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "text_copy_editor_id": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "translator_id": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "translation_copy_editor_id": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "backward_compatibility": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "extra": {
-                        "type": [
-                            "array",
-                            "null"
-                        ],
-                        "items": {}
+                        "type": "string"
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "item": {
                         "description": "Relationship data",
@@ -8290,10 +8273,7 @@
                         "description": "The name of the language, it shall only be used internally"
                     },
                     "backward_compatibility": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The legacy Id when this language corresponds to a legacy language from the MWNF3 database, nullable"
                     },
                     "is_default": {
@@ -8346,18 +8326,10 @@
                         }
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -8385,24 +8357,13 @@
                         "type": "string"
                     },
                     "description": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -8518,7 +8479,7 @@
                         "description": "The MIME type of the uploaded file"
                     },
                     "upload_size": {
-                        "type": "integer",
+                        "type": "string",
                         "description": "The size of the uploaded file in bytes"
                     },
                     "pictureable_type": {
@@ -8530,19 +8491,11 @@
                         "description": "The ID of the parent model"
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
+                        "type": "string",
                         "description": "Date of creation"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
+                        "type": "string",
                         "description": "Date of last modification"
                     }
                 },
@@ -8654,18 +8607,10 @@
                         }
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -8693,24 +8638,13 @@
                         "type": "string"
                     },
                     "description": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -8736,10 +8670,7 @@
                         "description": "The name of the tag, it shall only be used internally"
                     },
                     "backward_compatibility": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The legacy Id when this tag corresponds to a legacy tag from the previous database, nullable"
                     },
                     "description": {
@@ -8747,19 +8678,11 @@
                         "description": "The description of the tag"
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
+                        "type": "string",
                         "description": "Date of creation"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
+                        "type": "string",
                         "description": "Date of last modification"
                     }
                 },
@@ -8786,24 +8709,13 @@
                         "type": "string"
                     },
                     "backward_compatibility": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "items": {
                         "type": "array",

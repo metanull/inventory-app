@@ -386,6 +386,59 @@ php artisan test --coverage
 - **Authentication Testing** - Complete user authentication and authorization testing
 - **Validation Testing** - Comprehensive input validation and error handling tests
 
+### Enhanced Composer Commands
+
+The application provides enhanced composer commands that accept additional parameters for flexible development workflows:
+
+#### Testing Commands
+
+```bash
+# Standard test execution
+composer ci-test
+
+# Pass additional arguments using environment variable
+$env:COMPOSER_ARGS="--filter Integration"; composer ci-test
+
+# Common test filtering examples
+$env:COMPOSER_ARGS="--filter Picture"; composer ci-test
+$env:COMPOSER_ARGS="--filter DetachFromItemTest"; composer ci-test
+$env:COMPOSER_ARGS="--group=integration"; composer ci-test
+$env:COMPOSER_ARGS="--testsuite=Feature"; composer ci-test
+
+# Helper command for filter-based testing
+composer ci-test:filter "YourTestClass"
+```
+
+#### Linting Commands
+
+```bash
+# Standard linting
+composer ci-lint
+
+# Pass additional arguments using environment variable
+$env:COMPOSER_ARGS="--test"; composer ci-lint
+$env:COMPOSER_ARGS="--config=custom-pint.json"; composer ci-lint
+$env:COMPOSER_ARGS="--verbose"; composer ci-lint
+
+# Helper command for lint with arguments
+composer ci-lint:with-args --test --verbose
+```
+
+#### Environment Variable Usage
+
+The enhanced commands support the `COMPOSER_ARGS` environment variable to pass additional parameters:
+
+```powershell
+# PowerShell examples
+$env:COMPOSER_ARGS="--filter IntegrationTest"
+composer ci-test
+
+# Or inline
+$env:COMPOSER_ARGS="--coverage"; composer ci-test
+```
+
+This approach allows the composer commands to act as shortcuts to the underlying artisan commands while maintaining full parameter flexibility.
+
 ### Code Quality
 
 Maintain code standards:
@@ -398,7 +451,7 @@ Maintain code standards:
 ./vendor/bin/pint --bail
 
 # Pre-commit checks
-composer ci-before-pull-request
+composer ci-before:pull-request
 ```
 
 ## Deployment
