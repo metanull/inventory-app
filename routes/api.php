@@ -18,7 +18,6 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LocationTranslationController;
 use App\Http\Controllers\MobileAppAuthenticationController;
 use App\Http\Controllers\PartnerController;
-use App\Http\Controllers\PictureController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\ProvinceTranslationController;
@@ -105,10 +104,6 @@ Route::post('item/with-all-tags', [ItemController::class, 'withAllTags'])
 Route::post('item/with-any-tags', [ItemController::class, 'withAnyTags'])
     ->name('item.withAnyTags')
     ->middleware('auth:sanctum');
-
-Route::resource('picture', PictureController::class)->except([
-    'create', 'edit',
-])->middleware('auth:sanctum');
 
 Route::resource('project', ProjectController::class)->except([
     'create', 'edit',
