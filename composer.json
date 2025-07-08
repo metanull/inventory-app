@@ -77,56 +77,69 @@
             "npm audit --audit-level moderate"
         ],
         "ci-lint": [
-            ".\\vendor\\bin\\pint --no-interaction --ansi"
+            "pwsh -File scripts/ci-lint.ps1"
         ],
-        "ci-lint-test": [
-            ".\\vendor\\bin\\pint --test --no-interaction --ansi"
+        "ci-lint:test": [
+            "@putenv COMPOSER_ARGS=--test",
+            "@composer ci-lint"
+        ],
+        "ci-lint:dirty": [
+            "@putenv COMPOSER_ARGS=--dirty",
+            "@composer ci-lint"
         ],
         "ci-test": [
-            "@php artisan test --parallel --ansi"
+            "pwsh -File scripts/ci-test.ps1"
         ],
-        "ci-reset-db": [
-            "@php -r \"file_exists('./database/database.sqlite') || touch('./database/database.sqlite');\"",
-            "@php artisan db:wipe --ansi"
+        "ci-test:filter": [
+            "pwsh -File scripts/ci-test-with-filter.ps1"
+        ],
+        "ci-lint:with-args": [
+            "pwsh -File scripts/ci-lint-with-args.ps1"
+        ],
+        "ci-reset:db": [
+            "@php artisan db:wipe --ansi --force",
+            "@php artisan migrate --no-interaction --ansi"
         ],
         "ci-seed": [
             "@php artisan migrate:refresh --no-interaction --ansi",
             "@php artisan db:seed --ansi"
         ],
-        "ci-reset-config": [
+        "ci-reset:config": [
             "@php artisan optimize:clear --ansi",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate --ansi"
         ],
         "ci-reset": [
-            "@composer ci-reset-db",
-            "@composer ci-seed",
-            "@composer ci-reset-config",
+            "@composer ci-reset:db",
+            "@composer ci-reset:config",
             "@composer ci-install",
             "@composer ci-build",
             "@composer ci-seed"
         ],
-        "ci-assert-no-changes": [
+        "ci-git:assert-no-change": [
             "git diff --exit-code --quiet"
         ],
-        "ci-list-changes": [
+        "ci-git:diff": [
             "git diff --name-only --diff-filter=ACMRT HEAD"
         ],
-        "ci-print-changes": [
+        "ci-git:status": [
             "git status --porcelain"
         ],
         "ci-openapi-doc": [
             "@php -r \"if (!is_dir('docs/_openapi')) { mkdir('docs/_openapi', 0755, true); }\"",
             "@php artisan scramble:export --path=docs/_openapi/api.json"
         ],
-        "ci-before-push": [
+        "ci-before:commit": [
+            "@composer ci-lint:dirty"
+        ],
+        "ci-before:push": [
             "@composer ci-openapi-doc",
             "@composer ci-lint"
         ],
-        "ci-before-pull-request": [
+        "ci-before:pull-request": [
             "@composer ci-openapi-doc",
-            "@composer ci-assert-no-changes",
-            "@composer ci-lint-test",
+            "@composer ci-git:assert-no-change",
+            "@composer ci-lint:test",
             "@composer ci-audit",
             "@composer ci-test"
         ],

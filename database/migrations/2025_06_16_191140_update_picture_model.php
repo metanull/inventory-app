@@ -29,8 +29,9 @@ return new class extends Migration
     {
         Schema::dropIfExists('pictures');
         Schema::create('pictures', function (Blueprint $table) {
-            $table->string('id')->primary();
+            $table->id();
             $table->string('path')->nullable();
+            $table->timestamps();
         });
     }
 };

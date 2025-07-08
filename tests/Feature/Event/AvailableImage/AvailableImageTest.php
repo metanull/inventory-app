@@ -45,10 +45,14 @@ class AvailableImageTest extends TestCase
     public function test_availableimagelistener_removes_uploaded_image_from_local_disk(): void
     {
         $imageUpload = ImageUpload::factory()->create();
+        // Create a valid image file since storage is faked
+        $minimalJpeg = base64_decode('/9j/4AAQSkZJRgABAQEAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=');
+        Storage::disk('local')->put($imageUpload->path, $minimalJpeg);
+
         $imageUploadEvent = new ImageUploadEvent($imageUpload);
         $imageUploadListener = new ImageUploadListener;
         $imageUploadListener->handle($imageUploadEvent);
-        $this->assertFileExists(Storage::disk('local')->path($imageUpload->path));
+        $this->assertFileDoesNotExist(Storage::disk('local')->path($imageUpload->path));
     }
 
     public function test_availableimagelistener_creates_an_image_on_the_public_disk(): void

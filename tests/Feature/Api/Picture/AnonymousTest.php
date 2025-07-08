@@ -88,6 +88,45 @@ class AnonymousTest extends TestCase
         $response->assertUnauthorized();
     }
 
+    public function test_detach_from_item_requires_authentication(): void
+    {
+        $item = \App\Models\Item::factory()->create();
+        $picture = Picture::factory()->forItem()->create([
+            'pictureable_id' => $item->id,
+            'pictureable_type' => get_class($item),
+        ]);
+
+        $response = $this->deleteJson(route('picture.detachFromItem', [$item, $picture]));
+
+        $response->assertUnauthorized();
+    }
+
+    public function test_detach_from_detail_requires_authentication(): void
+    {
+        $detail = \App\Models\Detail::factory()->create();
+        $picture = Picture::factory()->forDetail()->create([
+            'pictureable_id' => $detail->id,
+            'pictureable_type' => get_class($detail),
+        ]);
+
+        $response = $this->deleteJson(route('picture.detachFromDetail', [$detail, $picture]));
+
+        $response->assertUnauthorized();
+    }
+
+    public function test_detach_from_partner_requires_authentication(): void
+    {
+        $partner = \App\Models\Partner::factory()->create();
+        $picture = Picture::factory()->forPartner()->create([
+            'pictureable_id' => $partner->id,
+            'pictureable_type' => get_class($partner),
+        ]);
+
+        $response = $this->deleteJson(route('picture.detachFromPartner', [$partner, $picture]));
+
+        $response->assertUnauthorized();
+    }
+
     public function test_download_requires_authentication(): void
     {
         $picture = Picture::factory()->forItem()->create();
