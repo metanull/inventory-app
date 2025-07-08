@@ -16,6 +16,8 @@
 **CRITICAL: Always use Framework's built-in feature to access configuration files, such as `config('app.name')` instead of using the filesystem directly.**
 **CRITICAL: Always use Framework's built-in feature to read and store images, such as Intervention Image Manager functions.**
 **CRITICAL: The repository has githooks, when running git or gh commands always wait for the hooks to complete before checking the terminal output.**
+**CRITICAL: The project has composer scripts: run `ci-git:before-commit` before making a commit, `ci-git:before-push` before making a push and `ci-git:before-pull-request` before creating a pull request.**
+**CRITICAL: The composer script `ci-git:before-pull-request` also generates the OpenAPI documentation in `docs/_openapi/api.json` file. Then it checks that there are no changes in the git repository with `ci-git:assert-no-changes`, it permits detecting if api.json was forgotten in the last commit/push.**
 
 ---
 

@@ -23,6 +23,8 @@ nav_order: 1
 - 🎨 **Polymorphic Picture System**: Attach images to Items, Details, and Partners with automatic file management
 - 🔧 **Advanced Query Features**: Model scopes, eager loading, and search capabilities
 - 📤 **Image Processing Pipeline**: Upload, process, and attach images with automatic optimization and transactional operations
+- 🔄 **Picture Detachment System**: Complete workflow for detaching images and converting them back to available pool
+- 🛠️ **Enhanced CI/CD Scripts**: Improved PowerShell scripts for testing and linting with flexible argument support
 
 ## 🎯 Quality Assurance
 

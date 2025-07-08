@@ -167,6 +167,13 @@ DELETE /api/tag-item/{id}             # Remove tag-item relationship
 POST   /api/picture/attach-to-item/{item}        # Attach AvailableImage to Item
 POST   /api/picture/attach-to-detail/{detail}    # Attach AvailableImage to Detail
 POST   /api/picture/attach-to-partner/{partner}  # Attach AvailableImage to Partner
+
+# Picture Detachment System
+DELETE /api/picture/{picture}/detach-from-item/{item}       # Detach Picture from Item
+DELETE /api/picture/{picture}/detach-from-detail/{detail}   # Detach Picture from Detail
+DELETE /api/picture/{picture}/detach-from-partner/{partner} # Detach Picture from Partner
+
+# Picture Management
 GET    /api/picture/{id}/download                # Download attached picture
 GET    /api/picture/{id}/view                    # View attached picture inline
 
@@ -205,6 +212,10 @@ The application features a sophisticated image processing and attachment system:
     - `POST /api/picture/attach-to-detail/{detail}` - Attach to Details
     - `POST /api/picture/attach-to-partner/{partner}` - Attach to Partners
 5. **Management**: Attached images become `Picture` records with full CRUD operations
+6. **Detachment**: Pictures can be detached and converted back to AvailableImages:
+    - `DELETE /api/picture/{picture}/detach-from-item/{item}` - Detach from Items
+    - `DELETE /api/picture/{picture}/detach-from-detail/{detail}` - Detach from Details
+    - `DELETE /api/picture/{picture}/detach-from-partner/{partner}` - Detach from Partners
 
 #### Image Storage Configuration
 
@@ -506,6 +517,23 @@ The project includes a comprehensive **GitHub Actions** workflow for:
 - ✅ **Security Scanning** - Composer audit and CodeQL analysis
 - ✅ **Dependency Updates** - Automated Dependabot integration
 - ✅ **Build Verification** - Asset compilation and validation
+
+#### Enhanced CI Scripts
+
+The project includes enhanced PowerShell scripts in the `scripts/` directory for improved CI/CD operations:
+
+- **`ci-test.ps1`** - Enhanced test execution with argument passing support
+- **`ci-test-with-filter.ps1`** - Specialized test filtering capabilities
+- **`ci-lint.ps1`** - Enhanced linting with configurable options
+- **`ci-lint-with-args.ps1`** - Flexible linting with argument support
+
+These scripts provide:
+
+- Better error handling and reporting
+- Flexible argument passing through environment variables
+- Improved developer experience with clearer output
+- Support for specialized testing workflows (filtering, grouping, etc.)
+- Enhanced code quality validation with configurable rules
 
 ### Documentation & GitHub Pages 📚
 

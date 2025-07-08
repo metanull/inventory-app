@@ -11,9 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Picture Detachment System**: Complete functionality to detach Pictures from entities and convert them back to AvailableImages
     - **Picture Detachment Endpoints**: RESTful endpoints for detaching Pictures from entities
-        - `DELETE /api/item/{item}/pictures/{picture}` - Detach Picture from Item
-        - `DELETE /api/detail/{detail}/pictures/{picture}` - Detach Picture from Detail
-        - `DELETE /api/partner/{partner}/pictures/{picture}` - Detach Picture from Partner
+        - `DELETE /api/picture/{picture}/detach-from-item/{item}` - Detach Picture from Item
+        - `DELETE /api/picture/{picture}/detach-from-detail/{detail}` - Detach Picture from Detail
+        - `DELETE /api/picture/{picture}/detach-from-partner/{partner}` - Detach Picture from Partner
     - **Complete Detachment Workflow**: Atomic transaction-based detachment process
         - Validates Picture belongs to the specified entity
         - Moves image files from Pictures directory back to AvailableImages directory
@@ -33,6 +33,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - Proper validation with comprehensive error handling
         - RESTful API design with appropriate HTTP status codes
         - Polymorphic relationship validation for security
+
+- **Enhanced CI Scripts and Development Tools**: Improved CI/CD pipeline with new PowerShell scripts
+    - **New CI Scripts**: Added dedicated PowerShell scripts in `scripts/` directory
+        - `ci-test.ps1` - Enhanced test execution with argument passing support
+        - `ci-test-with-filter.ps1` - Specialized test filtering capabilities
+        - `ci-lint.ps1` - Enhanced linting with configurable options
+        - `ci-lint-with-args.ps1` - Flexible linting with argument support
+    - **Improved Development Workflow**: Better error handling and developer experience
+        - Support for `COMPOSER_ARGS` environment variable for flexible argument passing
+        - Enhanced output formatting and error reporting
+        - Specialized testing workflows (filtering, grouping, test suites)
+        - Configurable linting options for different validation levels
+    - **Updated Dependencies**: Enhanced package.json and composer.json configurations
+        - Additional dev dependencies for improved tooling
+        - Updated script definitions for better CI/CD integration
+        - Enhanced pre-push hooks for comprehensive code quality checks
 
 - **Picture Attachment System**: Complete image attachment functionality for Items, Details, and Partners
     - **Polymorphic Picture Model**: New polymorphic Picture model with `uuidMorphs('pictureable')` for attaching images to multiple model types
