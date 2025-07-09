@@ -8,26 +8,24 @@ category: "Responses"
 
 # DetailStore200Response
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**data** | [**DetailResource**](DetailResource.md) |  | [default to undefined]
+| Name     | Type                                    | Description | Notes                  |
+| -------- | --------------------------------------- | ----------- | ---------------------- |
+| **data** | [**DetailResource**](DetailResource.md) |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { DetailStore200Response } from './api';
+import { DetailStore200Response } from "./api";
 
 const instance: DetailStore200Response = {
-    data,
+  data,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
-
 ---
 
-*This documentation was automatically generated from the TypeScript API client.*
+_This documentation was automatically generated from the TypeScript API client._

@@ -71,6 +71,13 @@ docs/DetailTranslationShow200Response.md
 docs/DetailTranslationStoreRequest.md
 docs/DetailTranslationUpdateRequest.md
 docs/DetailTranslationsApi.md
+docs/GalleryApi.md
+docs/GalleryIndex200Response.md
+docs/GalleryResource.md
+docs/GalleryStore200Response.md
+docs/GalleryStoreRequest.md
+docs/GalleryTranslationResource.md
+docs/GalleryUpdateRequest.md
 docs/ImageUploadApi.md
 docs/ImageUploadIndex200Response.md
 docs/ImageUploadResource.md

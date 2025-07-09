@@ -8,44 +8,38 @@ category: "APIs"
 
 # DetailApi
 
-All URIs are relative to *http://localhost:8000/api*
+All URIs are relative to _http://localhost:8000/api_
 
-|Method | HTTP request | Description|
-|------------- | ------------- | -------------|
-|[**detailDestroy**](#detaildestroy) | **DELETE** /detail/{detail} | Remove the specified resource from storage|
-|[**detailIndex**](#detailindex) | **GET** /detail | Display a listing of the resource|
-|[**detailShow**](#detailshow) | **GET** /detail/{detail} | Display the specified resource|
-|[**detailStore**](#detailstore) | **POST** /detail | Store a newly created resource in storage|
-|[**detailUpdate**](#detailupdate) | **PUT** /detail/{detail} | Update the specified resource in storage|
+| Method                              | HTTP request                | Description                                |
+| ----------------------------------- | --------------------------- | ------------------------------------------ |
+| [**detailDestroy**](#detaildestroy) | **DELETE** /detail/{detail} | Remove the specified resource from storage |
+| [**detailIndex**](#detailindex)     | **GET** /detail             | Display a listing of the resource          |
+| [**detailShow**](#detailshow)       | **GET** /detail/{detail}    | Display the specified resource             |
+| [**detailStore**](#detailstore)     | **POST** /detail            | Store a newly created resource in storage  |
+| [**detailUpdate**](#detailupdate)   | **PUT** /detail/{detail}    | Update the specified resource in storage   |
 
 # **detailDestroy**
-> detailDestroy()
 
+> detailDestroy()
 
 ### Example
 
 ```typescript
-import {
-    DetailApi,
-    Configuration
-} from './api';
+import { DetailApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new DetailApi(configuration);
 
 let detail: string; //The detail ID (default to undefined)
 
-const { status, data } = await apiInstance.detailDestroy(
-    detail
-);
+const { status, data } = await apiInstance.detailDestroy(detail);
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **detail** | [**string**] | The detail ID | defaults to undefined|
-
+| Name       | Type         | Description   | Notes                 |
+| ---------- | ------------ | ------------- | --------------------- |
+| **detail** | [**string**] | The detail ID | defaults to undefined |
 
 ### Return type
 
@@ -57,30 +51,27 @@ void (empty response body)
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**204** | No content |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description     | Response headers |
+| ----------- | --------------- | ---------------- |
+| **204**     | No content      | -                |
+| **404**     | Not found       | -                |
+| **401**     | Unauthenticated | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **detailIndex**
-> DetailIndex200Response detailIndex()
 
+> DetailIndex200Response detailIndex()
 
 ### Example
 
 ```typescript
-import {
-    DetailApi,
-    Configuration
-} from './api';
+import { DetailApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new DetailApi(configuration);
@@ -89,8 +80,8 @@ const { status, data } = await apiInstance.detailIndex();
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
 
+This endpoint does not have any parameters.
 
 ### Return type
 
@@ -102,46 +93,40 @@ This endpoint does not have any parameters.
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | Array of &#x60;DetailResource&#x60; |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                         | Response headers |
+| ----------- | ----------------------------------- | ---------------- |
+| **200**     | Array of &#x60;DetailResource&#x60; | -                |
+| **401**     | Unauthenticated                     | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **detailShow**
-> DetailStore200Response detailShow()
 
+> DetailStore200Response detailShow()
 
 ### Example
 
 ```typescript
-import {
-    DetailApi,
-    Configuration
-} from './api';
+import { DetailApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new DetailApi(configuration);
 
 let detail: string; //The detail ID (default to undefined)
 
-const { status, data } = await apiInstance.detailShow(
-    detail
-);
+const { status, data } = await apiInstance.detailShow(detail);
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **detail** | [**string**] | The detail ID | defaults to undefined|
-
+| Name       | Type         | Description   | Notes                 |
+| ---------- | ------------ | ------------- | --------------------- |
+| **detail** | [**string**] | The detail ID | defaults to undefined |
 
 ### Return type
 
@@ -153,48 +138,41 @@ const { status, data } = await apiInstance.detailShow(
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;DetailResource&#x60; |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                | Response headers |
+| ----------- | -------------------------- | ---------------- |
+| **200**     | &#x60;DetailResource&#x60; | -                |
+| **404**     | Not found                  | -                |
+| **401**     | Unauthenticated            | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **detailStore**
-> DetailStore200Response detailStore(detailStoreRequest)
 
+> DetailStore200Response detailStore(detailStoreRequest)
 
 ### Example
 
 ```typescript
-import {
-    DetailApi,
-    Configuration,
-    DetailStoreRequest
-} from './api';
+import { DetailApi, Configuration, DetailStoreRequest } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new DetailApi(configuration);
 
 let detailStoreRequest: DetailStoreRequest; //
 
-const { status, data } = await apiInstance.detailStore(
-    detailStoreRequest
-);
+const { status, data } = await apiInstance.detailStore(detailStoreRequest);
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **detailStoreRequest** | **DetailStoreRequest**|  | |
-
+| Name                   | Type                   | Description | Notes |
+| ---------------------- | ---------------------- | ----------- | ----- |
+| **detailStoreRequest** | **DetailStoreRequest** |             |       |
 
 ### Return type
 
@@ -206,31 +184,27 @@ const { status, data } = await apiInstance.detailStore(
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
-
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;DetailResource&#x60; |  -  |
-|**422** | Validation error |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                | Response headers |
+| ----------- | -------------------------- | ---------------- |
+| **200**     | &#x60;DetailResource&#x60; | -                |
+| **422**     | Validation error           | -                |
+| **401**     | Unauthenticated            | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **detailUpdate**
-> DetailStore200Response detailUpdate(detailStoreRequest)
 
+> DetailStore200Response detailUpdate(detailStoreRequest)
 
 ### Example
 
 ```typescript
-import {
-    DetailApi,
-    Configuration,
-    DetailStoreRequest
-} from './api';
+import { DetailApi, Configuration, DetailStoreRequest } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new DetailApi(configuration);
@@ -239,18 +213,17 @@ let detail: string; //The detail ID (default to undefined)
 let detailStoreRequest: DetailStoreRequest; //
 
 const { status, data } = await apiInstance.detailUpdate(
-    detail,
-    detailStoreRequest
+  detail,
+  detailStoreRequest,
 );
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **detailStoreRequest** | **DetailStoreRequest**|  | |
-| **detail** | [**string**] | The detail ID | defaults to undefined|
-
+| Name                   | Type                   | Description   | Notes                 |
+| ---------------------- | ---------------------- | ------------- | --------------------- |
+| **detailStoreRequest** | **DetailStoreRequest** |               |                       |
+| **detail**             | [**string**]           | The detail ID | defaults to undefined |
 
 ### Return type
 
@@ -262,22 +235,20 @@ const { status, data } = await apiInstance.detailUpdate(
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
-
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;DetailResource&#x60; |  -  |
-|**422** | Validation error |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                | Response headers |
+| ----------- | -------------------------- | ---------------- |
+| **200**     | &#x60;DetailResource&#x60; | -                |
+| **422**     | Validation error           | -                |
+| **404**     | Not found                  | -                |
+| **401**     | Unauthenticated            | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
-
-
 ---
 
-*This documentation was automatically generated from the TypeScript API client.*
+_This documentation was automatically generated from the TypeScript API client._

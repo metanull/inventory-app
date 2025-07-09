@@ -8,44 +8,39 @@ category: "APIs"
 
 # ContactTranslationApi
 
-All URIs are relative to *http://localhost:8000/api*
+All URIs are relative to _http://localhost:8000/api_
 
-|Method | HTTP request | Description|
-|------------- | ------------- | -------------|
-|[**contactTranslationDestroy**](#contacttranslationdestroy) | **DELETE** /contact-translation/{contactTranslation} | Remove the specified resource from storage|
-|[**contactTranslationIndex**](#contacttranslationindex) | **GET** /contact-translation | Display a listing of the resource|
-|[**contactTranslationShow**](#contacttranslationshow) | **GET** /contact-translation/{contactTranslation} | Display the specified resource|
-|[**contactTranslationStore**](#contacttranslationstore) | **POST** /contact-translation | Store a newly created resource in storage|
-|[**contactTranslationUpdate**](#contacttranslationupdate) | **PUT** /contact-translation/{contactTranslation} | Update the specified resource in storage|
+| Method                                                      | HTTP request                                         | Description                                |
+| ----------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------ |
+| [**contactTranslationDestroy**](#contacttranslationdestroy) | **DELETE** /contact-translation/{contactTranslation} | Remove the specified resource from storage |
+| [**contactTranslationIndex**](#contacttranslationindex)     | **GET** /contact-translation                         | Display a listing of the resource          |
+| [**contactTranslationShow**](#contacttranslationshow)       | **GET** /contact-translation/{contactTranslation}    | Display the specified resource             |
+| [**contactTranslationStore**](#contacttranslationstore)     | **POST** /contact-translation                        | Store a newly created resource in storage  |
+| [**contactTranslationUpdate**](#contacttranslationupdate)   | **PUT** /contact-translation/{contactTranslation}    | Update the specified resource in storage   |
 
 # **contactTranslationDestroy**
-> contactTranslationDestroy()
 
+> contactTranslationDestroy()
 
 ### Example
 
 ```typescript
-import {
-    ContactTranslationApi,
-    Configuration
-} from './api';
+import { ContactTranslationApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ContactTranslationApi(configuration);
 
 let contactTranslation: string; //The contact translation ID (default to undefined)
 
-const { status, data } = await apiInstance.contactTranslationDestroy(
-    contactTranslation
-);
+const { status, data } =
+  await apiInstance.contactTranslationDestroy(contactTranslation);
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **contactTranslation** | [**string**] | The contact translation ID | defaults to undefined|
-
+| Name                   | Type         | Description                | Notes                 |
+| ---------------------- | ------------ | -------------------------- | --------------------- |
+| **contactTranslation** | [**string**] | The contact translation ID | defaults to undefined |
 
 ### Return type
 
@@ -57,30 +52,27 @@ void (empty response body)
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**204** | No content |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description     | Response headers |
+| ----------- | --------------- | ---------------- |
+| **204**     | No content      | -                |
+| **404**     | Not found       | -                |
+| **401**     | Unauthenticated | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **contactTranslationIndex**
-> ContactTranslationIndex200Response contactTranslationIndex()
 
+> ContactTranslationIndex200Response contactTranslationIndex()
 
 ### Example
 
 ```typescript
-import {
-    ContactTranslationApi,
-    Configuration
-} from './api';
+import { ContactTranslationApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ContactTranslationApi(configuration);
@@ -89,8 +81,8 @@ const { status, data } = await apiInstance.contactTranslationIndex();
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
 
+This endpoint does not have any parameters.
 
 ### Return type
 
@@ -102,46 +94,41 @@ This endpoint does not have any parameters.
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | Array of &#x60;ContactTranslationResource&#x60; |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                                     | Response headers |
+| ----------- | ----------------------------------------------- | ---------------- |
+| **200**     | Array of &#x60;ContactTranslationResource&#x60; | -                |
+| **401**     | Unauthenticated                                 | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **contactTranslationShow**
-> ContactTranslationStore200Response contactTranslationShow()
 
+> ContactTranslationStore200Response contactTranslationShow()
 
 ### Example
 
 ```typescript
-import {
-    ContactTranslationApi,
-    Configuration
-} from './api';
+import { ContactTranslationApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ContactTranslationApi(configuration);
 
 let contactTranslation: string; //The contact translation ID (default to undefined)
 
-const { status, data } = await apiInstance.contactTranslationShow(
-    contactTranslation
-);
+const { status, data } =
+  await apiInstance.contactTranslationShow(contactTranslation);
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **contactTranslation** | [**string**] | The contact translation ID | defaults to undefined|
-
+| Name                   | Type         | Description                | Notes                 |
+| ---------------------- | ------------ | -------------------------- | --------------------- |
+| **contactTranslation** | [**string**] | The contact translation ID | defaults to undefined |
 
 ### Return type
 
@@ -153,31 +140,31 @@ const { status, data } = await apiInstance.contactTranslationShow(
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;ContactTranslationResource&#x60; |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                            | Response headers |
+| ----------- | -------------------------------------- | ---------------- |
+| **200**     | &#x60;ContactTranslationResource&#x60; | -                |
+| **404**     | Not found                              | -                |
+| **401**     | Unauthenticated                        | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **contactTranslationStore**
-> ContactTranslationStore200Response contactTranslationStore(contactTranslationStoreRequest)
 
+> ContactTranslationStore200Response contactTranslationStore(contactTranslationStoreRequest)
 
 ### Example
 
 ```typescript
 import {
-    ContactTranslationApi,
-    Configuration,
-    ContactTranslationStoreRequest
-} from './api';
+  ContactTranslationApi,
+  Configuration,
+  ContactTranslationStoreRequest,
+} from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ContactTranslationApi(configuration);
@@ -185,16 +172,15 @@ const apiInstance = new ContactTranslationApi(configuration);
 let contactTranslationStoreRequest: ContactTranslationStoreRequest; //
 
 const { status, data } = await apiInstance.contactTranslationStore(
-    contactTranslationStoreRequest
+  contactTranslationStoreRequest,
 );
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **contactTranslationStoreRequest** | **ContactTranslationStoreRequest**|  | |
-
+| Name                               | Type                               | Description | Notes |
+| ---------------------------------- | ---------------------------------- | ----------- | ----- |
+| **contactTranslationStoreRequest** | **ContactTranslationStoreRequest** |             |       |
 
 ### Return type
 
@@ -206,31 +192,31 @@ const { status, data } = await apiInstance.contactTranslationStore(
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
-
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;ContactTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                            | Response headers |
+| ----------- | -------------------------------------- | ---------------- |
+| **200**     | &#x60;ContactTranslationResource&#x60; | -                |
+| **422**     | Validation error                       | -                |
+| **401**     | Unauthenticated                        | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **contactTranslationUpdate**
-> ContactTranslationStore200Response contactTranslationUpdate()
 
+> ContactTranslationStore200Response contactTranslationUpdate()
 
 ### Example
 
 ```typescript
 import {
-    ContactTranslationApi,
-    Configuration,
-    ContactTranslationUpdateRequest
-} from './api';
+  ContactTranslationApi,
+  Configuration,
+  ContactTranslationUpdateRequest,
+} from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ContactTranslationApi(configuration);
@@ -239,18 +225,17 @@ let contactTranslation: string; //The contact translation ID (default to undefin
 let contactTranslationUpdateRequest: ContactTranslationUpdateRequest; // (optional)
 
 const { status, data } = await apiInstance.contactTranslationUpdate(
-    contactTranslation,
-    contactTranslationUpdateRequest
+  contactTranslation,
+  contactTranslationUpdateRequest,
 );
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **contactTranslationUpdateRequest** | **ContactTranslationUpdateRequest**|  | |
-| **contactTranslation** | [**string**] | The contact translation ID | defaults to undefined|
-
+| Name                                | Type                                | Description                | Notes                 |
+| ----------------------------------- | ----------------------------------- | -------------------------- | --------------------- |
+| **contactTranslationUpdateRequest** | **ContactTranslationUpdateRequest** |                            |                       |
+| **contactTranslation**              | [**string**]                        | The contact translation ID | defaults to undefined |
 
 ### Return type
 
@@ -262,22 +247,20 @@ const { status, data } = await apiInstance.contactTranslationUpdate(
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
-
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;ContactTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                            | Response headers |
+| ----------- | -------------------------------------- | ---------------- |
+| **200**     | &#x60;ContactTranslationResource&#x60; | -                |
+| **422**     | Validation error                       | -                |
+| **404**     | Not found                              | -                |
+| **401**     | Unauthenticated                        | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
-
-
 ---
 
-*This documentation was automatically generated from the TypeScript API client.*
+_This documentation was automatically generated from the TypeScript API client._

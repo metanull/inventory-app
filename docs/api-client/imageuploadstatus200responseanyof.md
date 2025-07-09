@@ -8,28 +8,26 @@ category: "Other"
 
 # ImageUploadStatus200ResponseAnyOf
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**status** | **string** |  | [default to undefined]
-**available_image** | [**AvailableImageResource**](AvailableImageResource.md) |  | [default to undefined]
+| Name                | Type                                                    | Description | Notes                  |
+| ------------------- | ------------------------------------------------------- | ----------- | ---------------------- |
+| **status**          | **string**                                              |             | [default to undefined] |
+| **available_image** | [**AvailableImageResource**](AvailableImageResource.md) |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { ImageUploadStatus200ResponseAnyOf } from './api';
+import { ImageUploadStatus200ResponseAnyOf } from "./api";
 
 const instance: ImageUploadStatus200ResponseAnyOf = {
-    status,
-    available_image,
+  status,
+  available_image,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
-
 ---
 
-*This documentation was automatically generated from the TypeScript API client.*
+_This documentation was automatically generated from the TypeScript API client._

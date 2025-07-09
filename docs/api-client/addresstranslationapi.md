@@ -8,44 +8,39 @@ category: "APIs"
 
 # AddressTranslationApi
 
-All URIs are relative to *http://localhost:8000/api*
+All URIs are relative to _http://localhost:8000/api_
 
-|Method | HTTP request | Description|
-|------------- | ------------- | -------------|
-|[**addressTranslationDestroy**](#addresstranslationdestroy) | **DELETE** /address-translation/{addressTranslation} | Remove the specified resource from storage|
-|[**addressTranslationIndex**](#addresstranslationindex) | **GET** /address-translation | Display a listing of the resource|
-|[**addressTranslationShow**](#addresstranslationshow) | **GET** /address-translation/{addressTranslation} | Display the specified resource|
-|[**addressTranslationStore**](#addresstranslationstore) | **POST** /address-translation | Store a newly created resource in storage|
-|[**addressTranslationUpdate**](#addresstranslationupdate) | **PUT** /address-translation/{addressTranslation} | Update the specified resource in storage|
+| Method                                                      | HTTP request                                         | Description                                |
+| ----------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------ |
+| [**addressTranslationDestroy**](#addresstranslationdestroy) | **DELETE** /address-translation/{addressTranslation} | Remove the specified resource from storage |
+| [**addressTranslationIndex**](#addresstranslationindex)     | **GET** /address-translation                         | Display a listing of the resource          |
+| [**addressTranslationShow**](#addresstranslationshow)       | **GET** /address-translation/{addressTranslation}    | Display the specified resource             |
+| [**addressTranslationStore**](#addresstranslationstore)     | **POST** /address-translation                        | Store a newly created resource in storage  |
+| [**addressTranslationUpdate**](#addresstranslationupdate)   | **PUT** /address-translation/{addressTranslation}    | Update the specified resource in storage   |
 
 # **addressTranslationDestroy**
-> addressTranslationDestroy()
 
+> addressTranslationDestroy()
 
 ### Example
 
 ```typescript
-import {
-    AddressTranslationApi,
-    Configuration
-} from './api';
+import { AddressTranslationApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new AddressTranslationApi(configuration);
 
 let addressTranslation: string; //The address translation ID (default to undefined)
 
-const { status, data } = await apiInstance.addressTranslationDestroy(
-    addressTranslation
-);
+const { status, data } =
+  await apiInstance.addressTranslationDestroy(addressTranslation);
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **addressTranslation** | [**string**] | The address translation ID | defaults to undefined|
-
+| Name                   | Type         | Description                | Notes                 |
+| ---------------------- | ------------ | -------------------------- | --------------------- |
+| **addressTranslation** | [**string**] | The address translation ID | defaults to undefined |
 
 ### Return type
 
@@ -57,30 +52,27 @@ void (empty response body)
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**204** | No content |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description     | Response headers |
+| ----------- | --------------- | ---------------- |
+| **204**     | No content      | -                |
+| **404**     | Not found       | -                |
+| **401**     | Unauthenticated | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **addressTranslationIndex**
-> AddressTranslationIndex200Response addressTranslationIndex()
 
+> AddressTranslationIndex200Response addressTranslationIndex()
 
 ### Example
 
 ```typescript
-import {
-    AddressTranslationApi,
-    Configuration
-} from './api';
+import { AddressTranslationApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new AddressTranslationApi(configuration);
@@ -89,8 +81,8 @@ const { status, data } = await apiInstance.addressTranslationIndex();
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
 
+This endpoint does not have any parameters.
 
 ### Return type
 
@@ -102,46 +94,41 @@ This endpoint does not have any parameters.
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | Array of &#x60;AddressTranslationResource&#x60; |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                                     | Response headers |
+| ----------- | ----------------------------------------------- | ---------------- |
+| **200**     | Array of &#x60;AddressTranslationResource&#x60; | -                |
+| **401**     | Unauthenticated                                 | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **addressTranslationShow**
-> AddressTranslationStore200Response addressTranslationShow()
 
+> AddressTranslationStore200Response addressTranslationShow()
 
 ### Example
 
 ```typescript
-import {
-    AddressTranslationApi,
-    Configuration
-} from './api';
+import { AddressTranslationApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new AddressTranslationApi(configuration);
 
 let addressTranslation: string; //The address translation ID (default to undefined)
 
-const { status, data } = await apiInstance.addressTranslationShow(
-    addressTranslation
-);
+const { status, data } =
+  await apiInstance.addressTranslationShow(addressTranslation);
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **addressTranslation** | [**string**] | The address translation ID | defaults to undefined|
-
+| Name                   | Type         | Description                | Notes                 |
+| ---------------------- | ------------ | -------------------------- | --------------------- |
+| **addressTranslation** | [**string**] | The address translation ID | defaults to undefined |
 
 ### Return type
 
@@ -153,31 +140,31 @@ const { status, data } = await apiInstance.addressTranslationShow(
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;AddressTranslationResource&#x60; |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                            | Response headers |
+| ----------- | -------------------------------------- | ---------------- |
+| **200**     | &#x60;AddressTranslationResource&#x60; | -                |
+| **404**     | Not found                              | -                |
+| **401**     | Unauthenticated                        | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **addressTranslationStore**
-> AddressTranslationStore200Response addressTranslationStore(addressTranslationStoreRequest)
 
+> AddressTranslationStore200Response addressTranslationStore(addressTranslationStoreRequest)
 
 ### Example
 
 ```typescript
 import {
-    AddressTranslationApi,
-    Configuration,
-    AddressTranslationStoreRequest
-} from './api';
+  AddressTranslationApi,
+  Configuration,
+  AddressTranslationStoreRequest,
+} from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new AddressTranslationApi(configuration);
@@ -185,16 +172,15 @@ const apiInstance = new AddressTranslationApi(configuration);
 let addressTranslationStoreRequest: AddressTranslationStoreRequest; //
 
 const { status, data } = await apiInstance.addressTranslationStore(
-    addressTranslationStoreRequest
+  addressTranslationStoreRequest,
 );
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **addressTranslationStoreRequest** | **AddressTranslationStoreRequest**|  | |
-
+| Name                               | Type                               | Description | Notes |
+| ---------------------------------- | ---------------------------------- | ----------- | ----- |
+| **addressTranslationStoreRequest** | **AddressTranslationStoreRequest** |             |       |
 
 ### Return type
 
@@ -206,31 +192,31 @@ const { status, data } = await apiInstance.addressTranslationStore(
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
-
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;AddressTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                            | Response headers |
+| ----------- | -------------------------------------- | ---------------- |
+| **200**     | &#x60;AddressTranslationResource&#x60; | -                |
+| **422**     | Validation error                       | -                |
+| **401**     | Unauthenticated                        | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **addressTranslationUpdate**
-> AddressTranslationStore200Response addressTranslationUpdate()
 
+> AddressTranslationStore200Response addressTranslationUpdate()
 
 ### Example
 
 ```typescript
 import {
-    AddressTranslationApi,
-    Configuration,
-    AddressTranslationUpdateRequest
-} from './api';
+  AddressTranslationApi,
+  Configuration,
+  AddressTranslationUpdateRequest,
+} from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new AddressTranslationApi(configuration);
@@ -239,18 +225,17 @@ let addressTranslation: string; //The address translation ID (default to undefin
 let addressTranslationUpdateRequest: AddressTranslationUpdateRequest; // (optional)
 
 const { status, data } = await apiInstance.addressTranslationUpdate(
-    addressTranslation,
-    addressTranslationUpdateRequest
+  addressTranslation,
+  addressTranslationUpdateRequest,
 );
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **addressTranslationUpdateRequest** | **AddressTranslationUpdateRequest**|  | |
-| **addressTranslation** | [**string**] | The address translation ID | defaults to undefined|
-
+| Name                                | Type                                | Description                | Notes                 |
+| ----------------------------------- | ----------------------------------- | -------------------------- | --------------------- |
+| **addressTranslationUpdateRequest** | **AddressTranslationUpdateRequest** |                            |                       |
+| **addressTranslation**              | [**string**]                        | The address translation ID | defaults to undefined |
 
 ### Return type
 
@@ -262,22 +247,20 @@ const { status, data } = await apiInstance.addressTranslationUpdate(
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
-
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;AddressTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                            | Response headers |
+| ----------- | -------------------------------------- | ---------------- |
+| **200**     | &#x60;AddressTranslationResource&#x60; | -                |
+| **422**     | Validation error                       | -                |
+| **404**     | Not found                              | -                |
+| **401**     | Unauthenticated                        | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
-
-
 ---
 
-*This documentation was automatically generated from the TypeScript API client.*
+_This documentation was automatically generated from the TypeScript API client._
