@@ -125,6 +125,15 @@ docs/PictureDetachFromItem422Response.md
 docs/PictureIndex200Response.md
 docs/PictureResource.md
 docs/PictureShow200Response.md
+docs/PictureTranslationApi.md
+docs/PictureTranslationIndex200Response.md
+docs/PictureTranslationIndex200ResponseLinks.md
+docs/PictureTranslationIndex200ResponseMeta.md
+docs/PictureTranslationIndex200ResponseMetaLinksInner.md
+docs/PictureTranslationResource.md
+docs/PictureTranslationStore200Response.md
+docs/PictureTranslationStoreRequest.md
+docs/PictureTranslationUpdateRequest.md
 docs/PictureUpdateRequest.md
 docs/ProjectApi.md
 docs/ProjectEnabled200Response.md

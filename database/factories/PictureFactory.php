@@ -41,6 +41,14 @@ class PictureFactory extends Factory
     }
 
     /**
+     * Configure the model factory with default polymorphic relationship.
+     */
+    public function configure(): static
+    {
+        return $this->for(Item::factory(), 'pictureable');
+    }
+
+    /**
      * Configure the model factory to attach to an Item.
      */
     public function forItem(): static

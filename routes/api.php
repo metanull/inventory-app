@@ -19,6 +19,7 @@ use App\Http\Controllers\LocationTranslationController;
 use App\Http\Controllers\MobileAppAuthenticationController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PictureController;
+use App\Http\Controllers\PictureTranslationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\ProvinceTranslationController;
@@ -207,6 +208,10 @@ Route::resource('item-translation', ItemTranslationController::class)->except([
 ])->middleware('auth:sanctum');
 
 Route::resource('detail-translation', DetailTranslationController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('picture-translation', PictureTranslationController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 

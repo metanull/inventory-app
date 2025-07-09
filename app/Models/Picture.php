@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
@@ -76,5 +77,50 @@ class Picture extends Model
     public function pictureable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Get all translations for this picture.
+     */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(PictureTranslation::class);
+    }
+
+    /**
+     * Get the default context translation for this picture in a specific language.
+     */
+    public function getDefaultTranslation(string $languageId): ?PictureTranslation
+    {
+        return $this->translations()
+            ->defaultContext()
+            ->forLanguage($languageId)
+            ->first();
+    }
+
+    /**
+     * Get a contextualized translation for this picture.
+     */
+    public function getContextualizedTranslation(string $languageId, string $contextId): ?PictureTranslation
+    {
+        return $this->translations()
+            ->forLanguage($languageId)
+            ->forContext($contextId)
+            ->first();
+    }
+
+    /**
+     * Get translation with fallback logic: try specific context, then default context.
+     */
+    public function getTranslationWithFallback(string $languageId, ?string $contextId = null): ?PictureTranslation
+    {
+        if ($contextId) {
+            $translation = $this->getContextualizedTranslation($languageId, $contextId);
+            if ($translation) {
+                return $translation;
+            }
+        }
+
+        return $this->getDefaultTranslation($languageId);
     }
 }
