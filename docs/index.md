@@ -136,6 +136,26 @@ CSS and SCSS code quality is maintained using [Stylelint](https://stylelint.io/)
 
 This project leverages [GitHub Copilot](https://github.com/features/copilot) as an AI coding assistant, powered by advanced models such as **GPT-4.1** and **Claude Sonnet 4**. Copilot and similar agents accelerate development by providing intelligent code suggestions, automated documentation, and context-aware refactoring. These tools help maintain high code quality, reduce manual effort, and ensure best practices are followed throughout the codebase.
 
+### About OpenAPI Generator CLI
+
+The project uses [OpenAPI Generator CLI](https://github.com/OpenAPITools/openapi-generator-cli) to automatically generate TypeScript-Axios client libraries from the OpenAPI specification. This tool ensures that client libraries are always in sync with the API, reducing manual maintenance and providing type-safe interfaces for consuming the API. The generator creates comprehensive documentation and examples, making API integration seamless for developers.
+
+### About GitHub
+
+This project is hosted on [GitHub](https://github.com/metanull/inventory-app), a leading platform for version control and collaborative software development. GitHub provides robust tools for code review, issue tracking, project management, and team collaboration, enabling efficient development workflows and maintaining high code quality standards through peer review and automated checks.
+
+### About GitHub Pages
+
+The project documentation is deployed using [GitHub Pages](https://pages.github.com/), a static site hosting service that automatically builds and publishes documentation from the repository. GitHub Pages integration enables automatic documentation deployment, providing a professional documentation experience with minimal maintenance overhead and ensuring that documentation is always up-to-date with the latest changes.
+
+### About GitHub Actions
+
+Continuous integration and deployment are powered by [GitHub Actions](https://github.com/features/actions), a powerful automation platform that runs workflows directly in the repository. GitHub Actions handles automated testing, code quality checks, security scanning, and deployment processes, ensuring that every change is validated and deployed safely without manual intervention.
+
+### About GitHub npm Package Repository
+
+The TypeScript API client is published to [GitHub Packages](https://npm.pkg.github.com/), GitHub's integrated package registry that provides secure, private package hosting alongside the source code. This ensures that the API client packages are versioned, distributed, and managed in the same ecosystem as the source code, providing seamless integration and access control for development teams.
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/metanull/inventory-app/blob/main/LICENSE) file for details.

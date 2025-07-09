@@ -5,9 +5,9 @@ permissions:
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   laravel-validate:
@@ -15,76 +15,76 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: 'Setup > Image > Install php'
-      uses: shivammathur/setup-php@v2
-      with:
-        # php-version: '8.2'  # If not specified, setup-php will use the version defined in composer.lock
-        extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
-        coverage: xdebug
-        tools: pint, phpunit, pest
+      - name: "Setup > Image > Install php"
+        uses: shivammathur/setup-php@v2
+        with:
+          # php-version: '8.2'  # If not specified, setup-php will use the version defined in composer.lock
+          extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
+          coverage: xdebug
+          tools: pint, phpunit, pest
 
-    - name: 'Check > Composer > Check requirements'
-      run: |
-        composer check-platform-reqs
+      - name: "Check > Composer > Check requirements"
+        run: |
+          composer check-platform-reqs
 
-    - name: 'Check > Composer > Validate composer.json'
-      run: |
-        composer validate --with-dependencies --strict
+      - name: "Check > Composer > Validate composer.json"
+        run: |
+          composer validate --with-dependencies --strict
 
-    - name: 'Setup > Composer > Install Dependencies'
-      run: |
-        composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: "Setup > Composer > Install Dependencies"
+        run: |
+          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-    - name: 'Setup > Composer > Check Vulnerabilities'
-      run: |
-        composer audit --format=summary
+      - name: "Setup > Composer > Check Vulnerabilities"
+        run: |
+          composer audit --format=summary
 
-    - name: 'Setup > Laravel > Create .env file from example'
-      run: |
-        if(-not(Test-Path ".env.example")) {
-          throw "No .env.example file found!"
-        }
-        if(-not(Test-Path ".env")) {
-          Copy-Item .env.example .env -ErrorAction Stop
-        }
+      - name: "Setup > Laravel > Create .env file from example"
+        run: |
+          if(-not(Test-Path ".env.example")) {
+            throw "No .env.example file found!"
+          }
+          if(-not(Test-Path ".env")) {
+            Copy-Item .env.example .env -ErrorAction Stop
+          }
 
-    - name: 'Setup > Laravel > Generate application key'
-      run: |
-        php artisan key:generate
-    
-    - name: 'Setup > Laravel > Create database'
-      run: |
-        php artisan migrate --force
+      - name: "Setup > Laravel > Generate application key"
+        run: |
+          php artisan key:generate
 
-    - name: 'Setup > Image > Install Node.js'
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
+      - name: "Setup > Laravel > Create database"
+        run: |
+          php artisan migrate --force
 
-    - name: 'Setup > npm > Install Dependencies'
-      run: |
-        npm ci --no-audit --no-fund
+      - name: "Setup > Image > Install Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
 
-    - name: 'Check > npm > Check Vulnerabilities'
-      run: |
-        npm audit --audit-level moderate
+      - name: "Setup > npm > Install Dependencies"
+        run: |
+          npm ci --no-audit --no-fund
 
-    - name: 'Check > npm > Build'
-      run: |
-        npm run build --if-present
+      - name: "Check > npm > Check Vulnerabilities"
+        run: |
+          npm audit --audit-level moderate
 
-    - name: 'Check > Laravel > Linting'
-      run: |
-        ./vendor/bin/pint --bail
+      - name: "Check > npm > Build"
+        run: |
+          npm run build --if-present
 
-    - name: 'Check > Laravel > Run Tests'
-      env:
-        DB_CONNECTION: sqlite
-        # DB_DATABASE: database/database.sqlite
-      run: |
-        php artisan test --coverage --parallel --no-ansi --stop-on-failure
+      - name: "Check > Laravel > Linting"
+        run: |
+          ./vendor/bin/pint --bail
+
+      - name: "Check > Laravel > Run Tests"
+        env:
+          DB_CONNECTION: sqlite
+          # DB_DATABASE: database/database.sqlite
+        run: |
+          php artisan test --coverage --parallel --no-ansi --stop-on-failure
 
     #- name: 'Check > npm > Run Tests'
     #  run: |

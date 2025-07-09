@@ -20,6 +20,9 @@ Testing strategies, tools, and procedures including unit tests and integration t
 ### [Development Archive Documentation Generator](generate-commit-docs)
 Automatically generate documentation for Git commits on the main branch.
 
+### [API Client Documentation Generator](generate-api-client-docs)
+Automatically generate Jekyll-compatible documentation for the TypeScript API client.
+
 ---
 
 These guidelines ensure consistency, maintainability, and quality across the entire codebase.

@@ -1,2 +1,24 @@
 api.json
 swagger-ui.html
+
+# Ignore markdown files
+*.md
+**/*.md
+
+# Ignore generated files
+docs/_site/
+docs/api-client/docs/
+api-client/docs/
+
+# Ignore node_modules
+node_modules/
+
+# Ignore vendor directory
+vendor/
+
+# Ignore build outputs
+public/build/
+storage/
+
+# Ignore log files
+*.log
