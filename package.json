@@ -8,6 +8,7 @@
         "pre-push": "composer ci-before:push"
     },
     "devDependencies": {
+        "@openapitools/openapi-generator-cli": "^2.21.0",
         "@tailwindcss/forms": "^0.5.10",
         "@tailwindcss/typography": "^0.5.16",
         "axios": "^1.10.0",
@@ -27,16 +28,10 @@
         "@tailwindcss/vite": "^4.1.11"
     },
     "lint-staged": {
-        "*.{js,ts,vue}": [
-            "eslint --fix"
-        ],
         "*.{css,scss}": [
             "npx stylelint --fix"
         ],
         "*.{json,yml,yaml}": [
-            "npx prettier --write"
-        ],
-        "*.{md,txt}": [
             "npx prettier --write"
         ],
         "*.{html,vue}": [

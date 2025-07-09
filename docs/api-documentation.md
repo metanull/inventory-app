@@ -1,7 +1,7 @@
 ---
 layout: default
 title: API Documentation
-nav_order: 1
+nav_order: 2
 ---
 
 # API Documentation
@@ -12,6 +12,7 @@ This page provides interactive documentation for the Inventory Management API us
 
 - [Download OpenAPI JSON Specification]({{ '/api.json' | relative_url }})
 - [Interactive API Documentation (Swagger UI)]({{ '/swagger-ui.html' | relative_url }})
+- [TypeScript API Client Documentation]({{ '/api-client/' | relative_url }})
 
 ## Interactive Documentation
 
@@ -53,3 +54,47 @@ The Inventory Management API provides RESTful endpoints for managing museum inve
 - Authentication and authorization information
 - File upload and download capabilities
 - Polymorphic relationship management
+
+## TypeScript API Client
+
+The project provides an auto-generated TypeScript-Axios client library for seamless API integration:
+
+### Installation
+
+```bash
+npm install @metanull/inventory-app-api-client@latest
+```
+
+### Quick Start
+
+```typescript
+import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client';
+
+const api = new DefaultApi(new Configuration({ basePath: 'https://your.api.url' }));
+api.addressIndex().then(response => console.log(response.data));
+```
+
+### Package Information
+
+- **Package**: [`@metanull/inventory-app-api-client`](https://github.com/metanull/inventory-app/packages)
+- **Registry**: [GitHub Packages](https://npm.pkg.github.com/)
+- **Auto-generated**: Updated automatically with each API change
+- **Type-safe**: Full TypeScript support with comprehensive type definitions
+
+### Client Documentation
+
+The TypeScript client includes comprehensive documentation for all API endpoints:
+
+- **[TypeScript API Client Documentation](api-client/)** - Auto-generated documentation for all client methods
+- Method signatures and parameters
+- Response type definitions
+- Usage examples for each endpoint
+- Error handling patterns
+
+### Generation Process
+
+The client is automatically generated using:
+- [OpenAPI Generator CLI](https://github.com/OpenAPITools/openapi-generator-cli)
+- Published to [GitHub Packages](https://npm.pkg.github.com/)
+- Versioned automatically with each API update
+- Includes comprehensive documentation and examples

@@ -358,6 +358,43 @@ Once running, access the interactive API documentation at:
 - **Local Development**: `http://localhost:8000/docs/api`
 - **Swagger UI**: Complete API documentation with live testing capabilities
 
+### TypeScript API Client
+
+The project automatically generates a TypeScript-Axios client library from the OpenAPI specification:
+
+#### Installation
+
+```bash
+npm install @metanull/inventory-app-api-client@latest
+```
+
+#### Usage
+
+```typescript
+import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client';
+
+const api = new DefaultApi(new Configuration({ basePath: 'https://your.api.url' }));
+api.addressIndex().then(response => console.log(response.data));
+```
+
+#### Package Information
+
+- **Package**: [`@metanull/inventory-app-api-client`](https://github.com/metanull/inventory-app/packages)
+- **Registry**: [GitHub Packages](https://npm.pkg.github.com/)
+- **Documentation**: Auto-generated client documentation available in `/api-client/docs/`
+
+#### Generation & Publishing
+
+```powershell
+# Generate client from OpenAPI spec
+.\scripts\generate-api-client.ps1
+
+# Publish to GitHub Packages
+.\scripts\publish-api-client.ps1 -Credential (Get-Credential -Message "GitHub PAT")
+```
+
+The client is automatically versioned and published to GitHub Packages, ensuring type-safe API consumption with comprehensive documentation.
+
 ### Testing
 
 The application features a robust and comprehensive test suite designed for reliability and performance:

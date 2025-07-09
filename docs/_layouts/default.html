@@ -167,23 +167,34 @@
         />
     </head>
     <body>
-        <!-- Navigation breadcrumbs for local development -->
-        {% if page.parent or page.grand_parent %}
+        <!-- Navigation breadcrumbs for all pages except index -->
+        {% unless page.url == "/" or page.url == "/index.html" %}
         <nav class="nav-breadcrumbs">
             <a href="{{ '/' | relative_url }}">Home</a>
-            {% if page.grand_parent %} &gt;
-            <a
-                href="{{ site.baseurl }}/{{ page.grand_parent | downcase | replace: ' ', '-' }}/"
-                >{{ page.grand_parent }}</a
+            &nbsp;&#124;&nbsp;
+            <a href="{{ '/api-documentation/' | relative_url }}"
+                >API Documentation</a
             >
-            {% endif %} {% if page.parent %} &gt;
+            &nbsp;&#124;&nbsp;
+            <a href="{{ '/guidelines/' | relative_url }}">Guidelines</a>
+            &nbsp;&#124;&nbsp;
+            <a href="{{ '/contributing/' | relative_url }}">Contributing</a>
+            &nbsp;&#124;&nbsp;
+            <a href="{{ '/development-archive/' | relative_url }}"
+                >Development Archive</a
+            >
+
+            <!-- Show current page context -->
+            {% if page.parent %} &gt;
             <a
                 href="{{ site.baseurl }}/{{ page.parent | downcase | replace: ' ', '-' }}/"
                 >{{ page.parent }}</a
             >
-            {% endif %} &gt; <span class="current">{{ page.title }}</span>
+            {% endif %} {% if page.title %} &gt;
+            <span class="current">{{ page.title }}</span>
+            {% endif %}
         </nav>
-        {% endif %}
+        {% endunless %}
 
         <!-- Main content -->
         <main>{{ content }}</main>
