@@ -72,4 +72,11 @@ class AnonymousTest extends TestCase
         $response = $this->deleteJson(route('image-upload.destroy', $imageUpload->id));
         $response->assertUnauthorized();
     }
+
+    public function test_status_forbids_anonymous_access(): void
+    {
+        $uploadId = '550e8400-e29b-41d4-a716-446655440000';
+        $response = $this->getJson(route('image-upload.status', $uploadId));
+        $response->assertUnauthorized();
+    }
 }

@@ -115,6 +115,10 @@ Route::resource('image-upload', ImageUploadController::class)->except([
     'create', 'edit', 'update',
 ])->middleware('auth:sanctum');
 
+Route::get('image-upload/{id}/status', [ImageUploadController::class, 'status'])
+    ->name('image-upload.status')
+    ->middleware('auth:sanctum');
+
 Route::get('available-image/{available_image}/download', [AvailableImageController::class, 'download'])
     ->name('available-image.download')
     ->middleware('auth:sanctum');

@@ -1591,6 +1591,110 @@ export interface ImageUploadResource {
 /**
  * 
  * @export
+ * @interface ImageUploadStatus200Response
+ */
+export interface ImageUploadStatus200Response {
+    /**
+     * 
+     * @type {string}
+     * @memberof ImageUploadStatus200Response
+     */
+    'status': ImageUploadStatus200ResponseStatusEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof ImageUploadStatus200Response
+     */
+    'available_image': any | null;
+}
+
+export const ImageUploadStatus200ResponseStatusEnum = {
+    Processing: 'processing'
+} as const;
+
+export type ImageUploadStatus200ResponseStatusEnum = typeof ImageUploadStatus200ResponseStatusEnum[keyof typeof ImageUploadStatus200ResponseStatusEnum];
+
+/**
+ * 
+ * @export
+ * @interface ImageUploadStatus200ResponseAnyOf
+ */
+export interface ImageUploadStatus200ResponseAnyOf {
+    /**
+     * 
+     * @type {string}
+     * @memberof ImageUploadStatus200ResponseAnyOf
+     */
+    'status': ImageUploadStatus200ResponseAnyOfStatusEnum;
+    /**
+     * 
+     * @type {AvailableImageResource}
+     * @memberof ImageUploadStatus200ResponseAnyOf
+     */
+    'available_image': AvailableImageResource;
+}
+
+export const ImageUploadStatus200ResponseAnyOfStatusEnum = {
+    Processed: 'processed'
+} as const;
+
+export type ImageUploadStatus200ResponseAnyOfStatusEnum = typeof ImageUploadStatus200ResponseAnyOfStatusEnum[keyof typeof ImageUploadStatus200ResponseAnyOfStatusEnum];
+
+/**
+ * 
+ * @export
+ * @interface ImageUploadStatus200ResponseAnyOf1
+ */
+export interface ImageUploadStatus200ResponseAnyOf1 {
+    /**
+     * 
+     * @type {string}
+     * @memberof ImageUploadStatus200ResponseAnyOf1
+     */
+    'status': ImageUploadStatus200ResponseAnyOf1StatusEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof ImageUploadStatus200ResponseAnyOf1
+     */
+    'available_image': any | null;
+}
+
+export const ImageUploadStatus200ResponseAnyOf1StatusEnum = {
+    Processing: 'processing'
+} as const;
+
+export type ImageUploadStatus200ResponseAnyOf1StatusEnum = typeof ImageUploadStatus200ResponseAnyOf1StatusEnum[keyof typeof ImageUploadStatus200ResponseAnyOf1StatusEnum];
+
+/**
+ * 
+ * @export
+ * @interface ImageUploadStatus404Response
+ */
+export interface ImageUploadStatus404Response {
+    /**
+     * 
+     * @type {string}
+     * @memberof ImageUploadStatus404Response
+     */
+    'status': ImageUploadStatus404ResponseStatusEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof ImageUploadStatus404Response
+     */
+    'available_image': any | null;
+}
+
+export const ImageUploadStatus404ResponseStatusEnum = {
+    NotFound: 'not_found'
+} as const;
+
+export type ImageUploadStatus404ResponseStatusEnum = typeof ImageUploadStatus404ResponseStatusEnum[keyof typeof ImageUploadStatus404ResponseStatusEnum];
+
+/**
+ * 
+ * @export
  * @interface ImageUploadStore200Response
  */
 export interface ImageUploadStore200Response {
@@ -8583,6 +8687,44 @@ export const ImageUploadApiAxiosParamCreator = function (configuration?: Configu
             };
         },
         /**
+         * Returns the processing status. If processing is complete, returns the AvailableImage details. If the ImageUpload no longer exists, check if an AvailableImage exists with the same ID.
+         * @summary Get the processing status of an image upload
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        imageUploadStatus: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('imageUploadStatus', 'id', id)
+            const localVarPath = `/image-upload/{id}/status`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary Store a newly created resource in storage
          * @param {File} file 
@@ -8676,6 +8818,19 @@ export const ImageUploadApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Returns the processing status. If processing is complete, returns the AvailableImage details. If the ImageUpload no longer exists, check if an AvailableImage exists with the same ID.
+         * @summary Get the processing status of an image upload
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async imageUploadStatus(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ImageUploadStatus200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.imageUploadStatus(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ImageUploadApi.imageUploadStatus']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 
          * @summary Store a newly created resource in storage
          * @param {File} file 
@@ -8726,6 +8881,16 @@ export const ImageUploadApiFactory = function (configuration?: Configuration, ba
          */
         imageUploadShow(imageUpload: string, options?: RawAxiosRequestConfig): AxiosPromise<ImageUploadStore200Response> {
             return localVarFp.imageUploadShow(imageUpload, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Returns the processing status. If processing is complete, returns the AvailableImage details. If the ImageUpload no longer exists, check if an AvailableImage exists with the same ID.
+         * @summary Get the processing status of an image upload
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        imageUploadStatus(id: string, options?: RawAxiosRequestConfig): AxiosPromise<ImageUploadStatus200Response> {
+            return localVarFp.imageUploadStatus(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -8780,6 +8945,18 @@ export class ImageUploadApi extends BaseAPI {
      */
     public imageUploadShow(imageUpload: string, options?: RawAxiosRequestConfig) {
         return ImageUploadApiFp(this.configuration).imageUploadShow(imageUpload, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Returns the processing status. If processing is complete, returns the AvailableImage details. If the ImageUpload no longer exists, check if an AvailableImage exists with the same ID.
+     * @summary Get the processing status of an image upload
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ImageUploadApi
+     */
+    public imageUploadStatus(id: string, options?: RawAxiosRequestConfig) {
+        return ImageUploadApiFp(this.configuration).imageUploadStatus(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

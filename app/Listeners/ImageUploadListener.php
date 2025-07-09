@@ -136,6 +136,10 @@ class ImageUploadListener
             $availableImage = new AvailableImage(['path' => $newPath]);
             $availableImage->id = $event->imageUpload->id;
             $availableImage->save();
+
+            // Delete the ImageUpload record after successful processing
+            $event->imageUpload->delete();
+
             AvailableImageEvent::dispatch($availableImage);
 
         } catch (\Exception $e) {

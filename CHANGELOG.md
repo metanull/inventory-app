@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Image Upload Status Polling**: Real-time status polling for image processing workflow
+    - **Status Endpoint**: `GET /api/image-upload/{id}/status` to check processing progress
+    - **Processing States**: Returns `processing`, `processed`, or `not_found` status
+    - **AvailableImage Integration**: Returns AvailableImage details when processing complete
+    - **Automatic Cleanup**: ImageUpload records deleted after successful processing
+    - **Comprehensive Testing**: Integration and feature tests for status polling workflow
 - **Picture Detachment System**: Complete functionality to detach Pictures from entities and convert them back to AvailableImages
     - **Picture Detachment Endpoints**: RESTful endpoints for detaching Pictures from entities
         - `DELETE /api/picture/{picture}/detach-from-item/{item}` - Detach Picture from Item
@@ -25,6 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improved
 
+- **Image Processing Workflow**: Enhanced ImageUploadListener to properly clean up processed uploads
+    - ImageUpload records now deleted after successful processing
+    - Maintains same ID between ImageUpload and AvailableImage for tracking
+    - Improved error handling and logging for failed processing
 - **API Client Documentation**: Enhanced documentation for TypeScript API client
     - Added comprehensive API client development guide
     - Detailed versioning strategy explanation
