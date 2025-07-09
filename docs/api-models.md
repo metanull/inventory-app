@@ -64,6 +64,52 @@ PICTURES_PATH=pictures
 3. File is moved atomically and AvailableImage record is deleted
 4. Picture record is created with polymorphic relationship to target model
 
+### ImageUpload
+
+Upload tracking and processing status system for image uploads.
+
+**Key Features:**
+
+- UUID-based primary key
+- Monitors image processing workflows from upload to AvailableImage creation
+- Tracks upload metadata: filename, extension, mime_type, size, and storage path
+- Automatic cleanup after successful processing (record deleted when AvailableImage created)
+- Status polling capability to track processing progress
+- Event-driven processing via ImageUploadEvent/ImageUploadListener
+
+**API Endpoints:**
+
+- `GET /api/image-upload` - List all image uploads
+- `GET /api/image-upload/{id}` - Get specific image upload
+- `POST /api/image-upload` - Upload new image for processing
+- `DELETE /api/image-upload/{id}` - Delete image upload and associated file
+- `GET /api/image-upload/{id}/status` - Check processing status and get AvailableImage when ready
+
+**Status Polling:**
+
+The status endpoint provides real-time processing status:
+
+- `processing`: Upload exists, processing in progress
+- `processed`: Processing complete, returns AvailableImage details
+- `not_found`: No upload or processed image found
+
+**Processing Workflow:**
+
+1. Image uploaded via `POST /api/image-upload`
+2. ImageUploadEvent triggered for background processing
+3. Image validation, resizing, and optimization performed
+4. AvailableImage created with same ID as ImageUpload
+5. Original ImageUpload record deleted after successful processing
+6. Clients can poll `/api/image-upload/{id}/status` to track progress
+
+**Storage Configuration:**
+
+```bash
+# Temporary upload storage
+UPLOAD_IMAGES_DISK=local_upload_images
+UPLOAD_IMAGES_PATH=uploads/images
+```
+
 ### AvailableImage
 
 Processed image pool for attachment to models as Pictures.

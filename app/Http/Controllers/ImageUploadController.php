@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\ImageUploadEvent;
 use App\Http\Resources\ImageUploadResource;
+use App\Models\AvailableImage;
 use App\Models\ImageUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -80,6 +81,39 @@ class ImageUploadController extends Controller
     public function show(ImageUpload $imageUpload)
     {
         return new ImageUploadResource($imageUpload);
+    }
+
+    /**
+     * Get the processing status of an image upload.
+     *
+     * Returns the processing status. If processing is complete, returns the AvailableImage details.
+     * If the ImageUpload no longer exists, check if an AvailableImage exists with the same ID.
+     */
+    public function status(string $id)
+    {
+        // First check if the ImageUpload still exists (processing not complete)
+        $imageUpload = ImageUpload::find($id);
+        if ($imageUpload) {
+            return response()->json([
+                'status' => 'processing',
+                'available_image' => null,
+            ]);
+        }
+
+        // Check if an AvailableImage exists with this ID (processing complete)
+        $availableImage = AvailableImage::find($id);
+        if ($availableImage) {
+            return response()->json([
+                'status' => 'processed',
+                'available_image' => new \App\Http\Resources\AvailableImageResource($availableImage),
+            ]);
+        }
+
+        // Neither exists - this could be an error state or the resource was never created
+        return response()->json([
+            'status' => 'not_found',
+            'available_image' => null,
+        ], 404);
     }
 
     /**

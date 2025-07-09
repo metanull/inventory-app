@@ -2816,6 +2816,103 @@
                 }
             }
         },
+        "/image-upload/{id}/status": {
+            "get": {
+                "operationId": "image-upload.status",
+                "description": "Returns the processing status. If processing is complete, returns the AvailableImage details.\nIf the ImageUpload no longer exists, check if an AvailableImage exists with the same ID.",
+                "summary": "Get the processing status of an image upload",
+                "tags": [
+                    "ImageUpload"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Neither exists - this could be an error state or the resource was never created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "not_found"
+                                            ]
+                                        },
+                                        "available_image": {
+                                            "type": "null"
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "available_image"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "processed"
+                                                    ]
+                                                },
+                                                "available_image": {
+                                                    "$ref": "#/components/schemas/AvailableImageResource"
+                                                }
+                                            },
+                                            "required": [
+                                                "status",
+                                                "available_image"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "processing"
+                                                    ]
+                                                },
+                                                "available_image": {
+                                                    "type": "null"
+                                                }
+                                            },
+                                            "required": [
+                                                "status",
+                                                "available_image"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/item": {
             "get": {
                 "operationId": "item.index",

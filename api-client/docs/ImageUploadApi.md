@@ -7,6 +7,7 @@ All URIs are relative to *http://localhost:8000/api*
 |[**imageUploadDestroy**](#imageuploaddestroy) | **DELETE** /image-upload/{imageUpload} | Remove the specified resource from storage|
 |[**imageUploadIndex**](#imageuploadindex) | **GET** /image-upload | Display a listing of the resource|
 |[**imageUploadShow**](#imageuploadshow) | **GET** /image-upload/{imageUpload} | Display the specified resource|
+|[**imageUploadStatus**](#imageuploadstatus) | **GET** /image-upload/{id}/status | Get the processing status of an image upload|
 |[**imageUploadStore**](#imageuploadstore) | **POST** /image-upload | Store a newly created resource in storage|
 
 # **imageUploadDestroy**
@@ -153,6 +154,59 @@ const { status, data } = await apiInstance.imageUploadShow(
 |-------------|-------------|------------------|
 |**200** | &#x60;ImageUploadResource&#x60; |  -  |
 |**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **imageUploadStatus**
+> ImageUploadStatus200Response imageUploadStatus()
+
+Returns the processing status. If processing is complete, returns the AvailableImage details. If the ImageUpload no longer exists, check if an AvailableImage exists with the same ID.
+
+### Example
+
+```typescript
+import {
+    ImageUploadApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ImageUploadApi(configuration);
+
+let id: string; // (default to undefined)
+
+const { status, data } = await apiInstance.imageUploadStatus(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**ImageUploadStatus200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**404** | Neither exists - this could be an error state or the resource was never created |  -  |
+|**200** |  |  -  |
 |**401** | Unauthenticated |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
