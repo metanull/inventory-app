@@ -18,10 +18,12 @@ npm install @metanull/inventory-app-api-client@latest
 ## Usage
 
 ```typescript
-import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client';
+import { Configuration, DefaultApi } from "@metanull/inventory-app-api-client";
 
-const api = new DefaultApi(new Configuration({ basePath: 'https://your.api.url' }));
-api.addressIndex().then(response => console.log(response.data));
+const api = new DefaultApi(
+  new Configuration({ basePath: "https://your.api.url" }),
+);
+api.addressIndex().then((response) => console.log(response.data));
 ```
 
 ## Documentation Categories
@@ -216,15 +218,17 @@ api.addressIndex().then(response => console.log(response.data));
 ## Generation
 
 The client is generated using:
+
 ```powershell
 . ./scripts/generate-api-client.ps1
 ```
 
 And published using:
+
 ```powershell
 . ./scripts/publish-api-client.ps1 -Credential (Get-Credential -Message "GitHub PAT")
 ```
 
 ---
 
-*This documentation was automatically generated on 2025-07-09T17:37:44.655343*
+_This documentation was automatically generated on 2025-07-09T17:37:44.655343_

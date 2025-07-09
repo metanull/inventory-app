@@ -140,6 +140,55 @@ AVAILABLE_IMAGES_DISK=local_available_images
 AVAILABLE_IMAGES_PATH=available/images
 ```
 
+### Gallery
+
+Flexible polymorphic collections that can contain both Items and Details, providing advanced content organization capabilities.
+
+**Key Features:**
+
+- UUID-based primary key with auto-generation via HasUuids trait
+- Polymorphic many-to-many relationships with Items and Details via Galleryable model
+- Multi-language support through GalleryTranslation model
+- Partner relationships with contribution levels (Partner, Associated Partner, Minor Contributor)
+- Default Language and Context associations for display purposes
+- Internal naming system with unique constraints
+- Backward compatibility support for legacy system migration
+
+**API Endpoints:**
+
+- `GET /api/gallery` - List all galleries with relationships and translations
+- `GET /api/gallery/{id}` - Get specific gallery with full relationship data
+- `POST /api/gallery` - Create new gallery with translations and partner relationships
+- `PUT /api/gallery/{id}` - Update existing gallery
+- `DELETE /api/gallery/{id}` - Delete gallery and associated relationships
+
+**Relationship Structure:**
+
+- `galleries` - Main gallery table with UUID primary key
+- `gallery_translations` - Multi-language translations linked to galleries
+- `gallery_partner` - Partner relationships with contribution levels
+- `galleryables` - Polymorphic pivot table connecting galleries to Items and Details
+
+**Translation Support:**
+
+Gallery translations provide full internationalization capabilities:
+
+- Required relationships to Gallery, Language, and Context
+- Core fields: `name`, `description`
+- Extended fields: `summary`, `link`, `main_character`
+- Unique constraints prevent duplicate translations for same (gallery_id, language_id, context_id)
+- Context-aware translations enabling different versions per language
+- Fallback logic for retrieving translations with default context support
+
+**Polymorphic Relationships:**
+
+Galleries can contain mixed collections of Items and Details:
+
+- Flexible content organization beyond traditional item-only collections
+- Support for complex exhibition layouts mixing artifacts and detailed information
+- Efficient database design using polymorphic many-to-many pattern
+- Type-safe model relationships with proper eager loading support
+
 ### Item Translations
 
 Context-aware, multi-language translations for Items providing comprehensive internationalization support.
@@ -424,6 +473,7 @@ Location (1) ──→ (N) LocationTranslation
 Address (1) ──→ (N) AddressTranslation
 Item (1) ──→ (N) ItemTranslation
 Detail (1) ──→ (N) DetailTranslation
+Gallery (1) ──→ (N) GalleryTranslation
 
 Language (1) ──→ (N) ContactTranslation
 Language (1) ──→ (N) ProvinceTranslation
@@ -431,14 +481,23 @@ Language (1) ──→ (N) LocationTranslation
 Language (1) ──→ (N) AddressTranslation
 Language (1) ──→ (N) ItemTranslation
 Language (1) ──→ (N) DetailTranslation
+Language (1) ──→ (N) GalleryTranslation
 
 Context (1) ──→ (N) ItemTranslation
 Context (1) ──→ (N) DetailTranslation
+Context (1) ──→ (N) GalleryTranslation
 
 # Polymorphic Picture Relationships
 Item (1) ──→ (N) Picture (polymorphic: pictureable)
 Detail (1) ──→ (N) Picture (polymorphic: pictureable)
 Partner (1) ──→ (N) Picture (polymorphic: pictureable)
+
+# Gallery Polymorphic Relationships
+Gallery (N) ←──→ (N) Item (polymorphic: galleryable via galleryables)
+Gallery (N) ←──→ (N) Detail (polymorphic: galleryable via galleryables)
+
+# Gallery Partner Relationships
+Gallery (N) ←──→ (N) Partner (via gallery_partner with contribution_level)
 ```
 
 ## Common Patterns

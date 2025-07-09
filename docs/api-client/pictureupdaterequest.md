@@ -8,32 +8,30 @@ category: "Requests"
 
 # PictureUpdateRequest
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**internal_name** | **string** |  | [default to undefined]
-**backward_compatibility** | **string** |  | [optional] [default to undefined]
-**copyright_text** | **string** |  | [optional] [default to undefined]
-**copyright_url** | **string** |  | [optional] [default to undefined]
+| Name                       | Type       | Description | Notes                             |
+| -------------------------- | ---------- | ----------- | --------------------------------- |
+| **internal_name**          | **string** |             | [default to undefined]            |
+| **backward_compatibility** | **string** |             | [optional] [default to undefined] |
+| **copyright_text**         | **string** |             | [optional] [default to undefined] |
+| **copyright_url**          | **string** |             | [optional] [default to undefined] |
 
 ## Example
 
 ```typescript
-import { PictureUpdateRequest } from './api';
+import { PictureUpdateRequest } from "./api";
 
 const instance: PictureUpdateRequest = {
-    internal_name,
-    backward_compatibility,
-    copyright_text,
-    copyright_url,
+  internal_name,
+  backward_compatibility,
+  copyright_text,
+  copyright_url,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
-
 ---
 
-*This documentation was automatically generated from the TypeScript API client.*
+_This documentation was automatically generated from the TypeScript API client._

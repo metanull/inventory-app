@@ -8,46 +8,40 @@ category: "APIs"
 
 # ContextApi
 
-All URIs are relative to *http://localhost:8000/api*
+All URIs are relative to _http://localhost:8000/api_
 
-|Method | HTTP request | Description|
-|------------- | ------------- | -------------|
-|[**contextDestroy**](#contextdestroy) | **DELETE** /context/{context} | Remove the specified resource from storage|
-|[**contextGetDefault**](#contextgetdefault) | **GET** /context/default | Get the default context|
-|[**contextIndex**](#contextindex) | **GET** /context | Display a listing of the resource|
-|[**contextSetDefault**](#contextsetdefault) | **PATCH** /context/{context}/default | Set a context as the default one|
-|[**contextShow**](#contextshow) | **GET** /context/{context} | Display the specified resource|
-|[**contextStore**](#contextstore) | **POST** /context | Store a newly created resource in storage|
-|[**contextUpdate**](#contextupdate) | **PUT** /context/{context} | Update the specified resource in storage|
+| Method                                      | HTTP request                         | Description                                |
+| ------------------------------------------- | ------------------------------------ | ------------------------------------------ |
+| [**contextDestroy**](#contextdestroy)       | **DELETE** /context/{context}        | Remove the specified resource from storage |
+| [**contextGetDefault**](#contextgetdefault) | **GET** /context/default             | Get the default context                    |
+| [**contextIndex**](#contextindex)           | **GET** /context                     | Display a listing of the resource          |
+| [**contextSetDefault**](#contextsetdefault) | **PATCH** /context/{context}/default | Set a context as the default one           |
+| [**contextShow**](#contextshow)             | **GET** /context/{context}           | Display the specified resource             |
+| [**contextStore**](#contextstore)           | **POST** /context                    | Store a newly created resource in storage  |
+| [**contextUpdate**](#contextupdate)         | **PUT** /context/{context}           | Update the specified resource in storage   |
 
 # **contextDestroy**
-> contextDestroy()
 
+> contextDestroy()
 
 ### Example
 
 ```typescript
-import {
-    ContextApi,
-    Configuration
-} from './api';
+import { ContextApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ContextApi(configuration);
 
 let context: string; //The context ID (default to undefined)
 
-const { status, data } = await apiInstance.contextDestroy(
-    context
-);
+const { status, data } = await apiInstance.contextDestroy(context);
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **context** | [**string**] | The context ID | defaults to undefined|
-
+| Name        | Type         | Description    | Notes                 |
+| ----------- | ------------ | -------------- | --------------------- |
+| **context** | [**string**] | The context ID | defaults to undefined |
 
 ### Return type
 
@@ -59,30 +53,27 @@ void (empty response body)
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**204** | No content |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description     | Response headers |
+| ----------- | --------------- | ---------------- |
+| **204**     | No content      | -                |
+| **404**     | Not found       | -                |
+| **401**     | Unauthenticated | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **contextGetDefault**
-> ContextSetDefault200Response contextGetDefault()
 
+> ContextSetDefault200Response contextGetDefault()
 
 ### Example
 
 ```typescript
-import {
-    ContextApi,
-    Configuration
-} from './api';
+import { ContextApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ContextApi(configuration);
@@ -91,8 +82,8 @@ const { status, data } = await apiInstance.contextGetDefault();
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
 
+This endpoint does not have any parameters.
 
 ### Return type
 
@@ -104,30 +95,27 @@ This endpoint does not have any parameters.
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;ContextResource&#x60; |  -  |
-|**404** |  |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                 | Response headers |
+| ----------- | --------------------------- | ---------------- |
+| **200**     | &#x60;ContextResource&#x60; | -                |
+| **404**     |                             | -                |
+| **401**     | Unauthenticated             | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **contextIndex**
-> ContextIndex200Response contextIndex()
 
+> ContextIndex200Response contextIndex()
 
 ### Example
 
 ```typescript
-import {
-    ContextApi,
-    Configuration
-} from './api';
+import { ContextApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ContextApi(configuration);
@@ -136,8 +124,8 @@ const { status, data } = await apiInstance.contextIndex();
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
 
+This endpoint does not have any parameters.
 
 ### Return type
 
@@ -149,30 +137,26 @@ This endpoint does not have any parameters.
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | Array of &#x60;ContextResource&#x60; |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                          | Response headers |
+| ----------- | ------------------------------------ | ---------------- |
+| **200**     | Array of &#x60;ContextResource&#x60; | -                |
+| **401**     | Unauthenticated                      | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **contextSetDefault**
-> ContextSetDefault200Response contextSetDefault(contextSetDefaultRequest)
 
+> ContextSetDefault200Response contextSetDefault(contextSetDefaultRequest)
 
 ### Example
 
 ```typescript
-import {
-    ContextApi,
-    Configuration,
-    ContextSetDefaultRequest
-} from './api';
+import { ContextApi, Configuration, ContextSetDefaultRequest } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ContextApi(configuration);
@@ -181,18 +165,17 @@ let context: string; //The context ID (default to undefined)
 let contextSetDefaultRequest: ContextSetDefaultRequest; //
 
 const { status, data } = await apiInstance.contextSetDefault(
-    context,
-    contextSetDefaultRequest
+  context,
+  contextSetDefaultRequest,
 );
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **contextSetDefaultRequest** | **ContextSetDefaultRequest**|  | |
-| **context** | [**string**] | The context ID | defaults to undefined|
-
+| Name                         | Type                         | Description    | Notes                 |
+| ---------------------------- | ---------------------------- | -------------- | --------------------- |
+| **contextSetDefaultRequest** | **ContextSetDefaultRequest** |                |                       |
+| **context**                  | [**string**]                 | The context ID | defaults to undefined |
 
 ### Return type
 
@@ -204,48 +187,42 @@ const { status, data } = await apiInstance.contextSetDefault(
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
-
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;ContextResource&#x60; |  -  |
-|**422** | Validation error |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                 | Response headers |
+| ----------- | --------------------------- | ---------------- |
+| **200**     | &#x60;ContextResource&#x60; | -                |
+| **422**     | Validation error            | -                |
+| **404**     | Not found                   | -                |
+| **401**     | Unauthenticated             | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **contextShow**
-> ContextSetDefault200Response contextShow()
 
+> ContextSetDefault200Response contextShow()
 
 ### Example
 
 ```typescript
-import {
-    ContextApi,
-    Configuration
-} from './api';
+import { ContextApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ContextApi(configuration);
 
 let context: string; //The context ID (default to undefined)
 
-const { status, data } = await apiInstance.contextShow(
-    context
-);
+const { status, data } = await apiInstance.contextShow(context);
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **context** | [**string**] | The context ID | defaults to undefined|
-
+| Name        | Type         | Description    | Notes                 |
+| ----------- | ------------ | -------------- | --------------------- |
+| **context** | [**string**] | The context ID | defaults to undefined |
 
 ### Return type
 
@@ -257,48 +234,41 @@ const { status, data } = await apiInstance.contextShow(
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;ContextResource&#x60; |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                 | Response headers |
+| ----------- | --------------------------- | ---------------- |
+| **200**     | &#x60;ContextResource&#x60; | -                |
+| **404**     | Not found                   | -                |
+| **401**     | Unauthenticated             | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **contextStore**
-> ContextSetDefault200Response contextStore(contextStoreRequest)
 
+> ContextSetDefault200Response contextStore(contextStoreRequest)
 
 ### Example
 
 ```typescript
-import {
-    ContextApi,
-    Configuration,
-    ContextStoreRequest
-} from './api';
+import { ContextApi, Configuration, ContextStoreRequest } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ContextApi(configuration);
 
 let contextStoreRequest: ContextStoreRequest; //
 
-const { status, data } = await apiInstance.contextStore(
-    contextStoreRequest
-);
+const { status, data } = await apiInstance.contextStore(contextStoreRequest);
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **contextStoreRequest** | **ContextStoreRequest**|  | |
-
+| Name                    | Type                    | Description | Notes |
+| ----------------------- | ----------------------- | ----------- | ----- |
+| **contextStoreRequest** | **ContextStoreRequest** |             |       |
 
 ### Return type
 
@@ -310,31 +280,27 @@ const { status, data } = await apiInstance.contextStore(
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
-
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;ContextResource&#x60; |  -  |
-|**422** | Validation error |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                 | Response headers |
+| ----------- | --------------------------- | ---------------- |
+| **200**     | &#x60;ContextResource&#x60; | -                |
+| **422**     | Validation error            | -                |
+| **401**     | Unauthenticated             | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **contextUpdate**
-> ContextSetDefault200Response contextUpdate(contextStoreRequest)
 
+> ContextSetDefault200Response contextUpdate(contextStoreRequest)
 
 ### Example
 
 ```typescript
-import {
-    ContextApi,
-    Configuration,
-    ContextStoreRequest
-} from './api';
+import { ContextApi, Configuration, ContextStoreRequest } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ContextApi(configuration);
@@ -343,18 +309,17 @@ let context: string; //The context ID (default to undefined)
 let contextStoreRequest: ContextStoreRequest; //
 
 const { status, data } = await apiInstance.contextUpdate(
-    context,
-    contextStoreRequest
+  context,
+  contextStoreRequest,
 );
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **contextStoreRequest** | **ContextStoreRequest**|  | |
-| **context** | [**string**] | The context ID | defaults to undefined|
-
+| Name                    | Type                    | Description    | Notes                 |
+| ----------------------- | ----------------------- | -------------- | --------------------- |
+| **contextStoreRequest** | **ContextStoreRequest** |                |                       |
+| **context**             | [**string**]            | The context ID | defaults to undefined |
 
 ### Return type
 
@@ -366,22 +331,20 @@ const { status, data } = await apiInstance.contextUpdate(
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
-
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;ContextResource&#x60; |  -  |
-|**422** | Validation error |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                 | Response headers |
+| ----------- | --------------------------- | ---------------- |
+| **200**     | &#x60;ContextResource&#x60; | -                |
+| **422**     | Validation error            | -                |
+| **404**     | Not found                   | -                |
+| **401**     | Unauthenticated             | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
-
-
 ---
 
-*This documentation was automatically generated from the TypeScript API client.*
+_This documentation was automatically generated from the TypeScript API client._

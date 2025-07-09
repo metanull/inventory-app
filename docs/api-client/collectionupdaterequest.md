@@ -8,32 +8,30 @@ category: "Requests"
 
 # CollectionUpdateRequest
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**internal_name** | **string** |  | [optional] [default to undefined]
-**language_id** | **string** |  | [optional] [default to undefined]
-**context_id** | **string** |  | [optional] [default to undefined]
-**backward_compatibility** | **string** |  | [optional] [default to undefined]
+| Name                       | Type       | Description | Notes                             |
+| -------------------------- | ---------- | ----------- | --------------------------------- |
+| **internal_name**          | **string** |             | [optional] [default to undefined] |
+| **language_id**            | **string** |             | [optional] [default to undefined] |
+| **context_id**             | **string** |             | [optional] [default to undefined] |
+| **backward_compatibility** | **string** |             | [optional] [default to undefined] |
 
 ## Example
 
 ```typescript
-import { CollectionUpdateRequest } from './api';
+import { CollectionUpdateRequest } from "./api";
 
 const instance: CollectionUpdateRequest = {
-    internal_name,
-    language_id,
-    context_id,
-    backward_compatibility,
+  internal_name,
+  language_id,
+  context_id,
+  backward_compatibility,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
-
 ---
 
-*This documentation was automatically generated from the TypeScript API client.*
+_This documentation was automatically generated from the TypeScript API client._

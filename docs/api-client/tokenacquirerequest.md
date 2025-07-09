@@ -8,32 +8,30 @@ category: "Requests"
 
 # TokenAcquireRequest
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**email** | **string** |  | [default to undefined]
-**password** | **string** |  | [default to undefined]
-**device_name** | **string** |  | [default to undefined]
-**wipe_tokens** | **boolean** |  | [optional] [default to undefined]
+| Name            | Type        | Description | Notes                             |
+| --------------- | ----------- | ----------- | --------------------------------- |
+| **email**       | **string**  |             | [default to undefined]            |
+| **password**    | **string**  |             | [default to undefined]            |
+| **device_name** | **string**  |             | [default to undefined]            |
+| **wipe_tokens** | **boolean** |             | [optional] [default to undefined] |
 
 ## Example
 
 ```typescript
-import { TokenAcquireRequest } from './api';
+import { TokenAcquireRequest } from "./api";
 
 const instance: TokenAcquireRequest = {
-    email,
-    password,
-    device_name,
-    wipe_tokens,
+  email,
+  password,
+  device_name,
+  wipe_tokens,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
-
 ---
 
-*This documentation was automatically generated from the TypeScript API client.*
+_This documentation was automatically generated from the TypeScript API client._

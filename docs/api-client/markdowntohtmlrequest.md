@@ -8,26 +8,24 @@ category: "Requests"
 
 # MarkdownToHtmlRequest
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**markdown** | **string** |  | [default to undefined]
+| Name         | Type       | Description | Notes                  |
+| ------------ | ---------- | ----------- | ---------------------- |
+| **markdown** | **string** |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { MarkdownToHtmlRequest } from './api';
+import { MarkdownToHtmlRequest } from "./api";
 
 const instance: MarkdownToHtmlRequest = {
-    markdown,
+  markdown,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
-
 ---
 
-*This documentation was automatically generated from the TypeScript API client.*
+_This documentation was automatically generated from the TypeScript API client._

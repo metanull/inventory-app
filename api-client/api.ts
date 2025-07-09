@@ -1799,6 +1799,252 @@ export interface DetailTranslationUpdateRequest {
 /**
  * 
  * @export
+ * @interface GalleryIndex200Response
+ */
+export interface GalleryIndex200Response {
+    /**
+     * 
+     * @type {Array<GalleryResource>}
+     * @memberof GalleryIndex200Response
+     */
+    'data': Array<GalleryResource>;
+}
+/**
+ * 
+ * @export
+ * @interface GalleryResource
+ */
+export interface GalleryResource {
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryResource
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryResource
+     */
+    'internal_name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryResource
+     */
+    'backward_compatibility': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryResource
+     */
+    'created_at': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryResource
+     */
+    'updated_at': string | null;
+    /**
+     * Relationships
+     * @type {Array<GalleryTranslationResource>}
+     * @memberof GalleryResource
+     */
+    'translations'?: Array<GalleryTranslationResource>;
+    /**
+     * 
+     * @type {Array<PartnerResource>}
+     * @memberof GalleryResource
+     */
+    'partners'?: Array<PartnerResource>;
+    /**
+     * 
+     * @type {Array<ItemResource>}
+     * @memberof GalleryResource
+     */
+    'items'?: Array<ItemResource>;
+    /**
+     * 
+     * @type {Array<DetailResource>}
+     * @memberof GalleryResource
+     */
+    'details'?: Array<DetailResource>;
+    /**
+     * Computed attributes
+     * @type {string}
+     * @memberof GalleryResource
+     */
+    'items_count'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryResource
+     */
+    'details_count'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryResource
+     */
+    'total_content_count'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryResource
+     */
+    'partners_count'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryResource
+     */
+    'translations_count'?: string;
+}
+/**
+ * 
+ * @export
+ * @interface GalleryStore200Response
+ */
+export interface GalleryStore200Response {
+    /**
+     * 
+     * @type {GalleryResource}
+     * @memberof GalleryStore200Response
+     */
+    'data': GalleryResource;
+}
+/**
+ * 
+ * @export
+ * @interface GalleryStoreRequest
+ */
+export interface GalleryStoreRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryStoreRequest
+     */
+    'internal_name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryStoreRequest
+     */
+    'backward_compatibility'?: string | null;
+}
+/**
+ * 
+ * @export
+ * @interface GalleryTranslationResource
+ */
+export interface GalleryTranslationResource {
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryTranslationResource
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryTranslationResource
+     */
+    'gallery_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryTranslationResource
+     */
+    'language_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryTranslationResource
+     */
+    'context_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryTranslationResource
+     */
+    'title': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryTranslationResource
+     */
+    'description': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryTranslationResource
+     */
+    'url': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryTranslationResource
+     */
+    'backward_compatibility': string | null;
+    /**
+     * 
+     * @type {Array<any>}
+     * @memberof GalleryTranslationResource
+     */
+    'extra': Array<any> | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryTranslationResource
+     */
+    'created_at': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryTranslationResource
+     */
+    'updated_at': string | null;
+    /**
+     * Relationships
+     * @type {GalleryResource}
+     * @memberof GalleryTranslationResource
+     */
+    'gallery'?: GalleryResource;
+    /**
+     * 
+     * @type {LanguageResource}
+     * @memberof GalleryTranslationResource
+     */
+    'language'?: LanguageResource;
+    /**
+     * 
+     * @type {ContextResource}
+     * @memberof GalleryTranslationResource
+     */
+    'context'?: ContextResource;
+}
+/**
+ * 
+ * @export
+ * @interface GalleryUpdateRequest
+ */
+export interface GalleryUpdateRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryUpdateRequest
+     */
+    'internal_name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GalleryUpdateRequest
+     */
+    'backward_compatibility'?: string | null;
+}
+/**
+ * 
+ * @export
  * @interface ImageUploadIndex200Response
  */
 export interface ImageUploadIndex200Response {
@@ -9247,6 +9493,412 @@ export class DetailTranslationsApi extends BaseAPI {
      */
     public detailTranslationUpdate(detailTranslation: string, detailTranslationUpdateRequest?: DetailTranslationUpdateRequest, options?: RawAxiosRequestConfig) {
         return DetailTranslationsApiFp(this.configuration).detailTranslationUpdate(detailTranslation, detailTranslationUpdateRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * GalleryApi - axios parameter creator
+ * @export
+ */
+export const GalleryApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified gallery from storage
+         * @param {string} gallery The gallery ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        galleryDestroy: async (gallery: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'gallery' is not null or undefined
+            assertParamExists('galleryDestroy', 'gallery', gallery)
+            const localVarPath = `/gallery/{gallery}`
+                .replace(`{${"gallery"}}`, encodeURIComponent(String(gallery)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of the galleries
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        galleryIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/gallery`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified gallery
+         * @param {string} gallery The gallery ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        galleryShow: async (gallery: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'gallery' is not null or undefined
+            assertParamExists('galleryShow', 'gallery', gallery)
+            const localVarPath = `/gallery/{gallery}`
+                .replace(`{${"gallery"}}`, encodeURIComponent(String(gallery)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created gallery in storage
+         * @param {GalleryStoreRequest} galleryStoreRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        galleryStore: async (galleryStoreRequest: GalleryStoreRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'galleryStoreRequest' is not null or undefined
+            assertParamExists('galleryStore', 'galleryStoreRequest', galleryStoreRequest)
+            const localVarPath = `/gallery`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(galleryStoreRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified gallery in storage
+         * @param {string} gallery The gallery ID
+         * @param {GalleryUpdateRequest} [galleryUpdateRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        galleryUpdate: async (gallery: string, galleryUpdateRequest?: GalleryUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'gallery' is not null or undefined
+            assertParamExists('galleryUpdate', 'gallery', gallery)
+            const localVarPath = `/gallery/{gallery}`
+                .replace(`{${"gallery"}}`, encodeURIComponent(String(gallery)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(galleryUpdateRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * GalleryApi - functional programming interface
+ * @export
+ */
+export const GalleryApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = GalleryApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified gallery from storage
+         * @param {string} gallery The gallery ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async galleryDestroy(gallery: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.galleryDestroy(gallery, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GalleryApi.galleryDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of the galleries
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async galleryIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GalleryIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.galleryIndex(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GalleryApi.galleryIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified gallery
+         * @param {string} gallery The gallery ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async galleryShow(gallery: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GalleryStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.galleryShow(gallery, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GalleryApi.galleryShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created gallery in storage
+         * @param {GalleryStoreRequest} galleryStoreRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async galleryStore(galleryStoreRequest: GalleryStoreRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GalleryStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.galleryStore(galleryStoreRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GalleryApi.galleryStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified gallery in storage
+         * @param {string} gallery The gallery ID
+         * @param {GalleryUpdateRequest} [galleryUpdateRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async galleryUpdate(gallery: string, galleryUpdateRequest?: GalleryUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GalleryStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.galleryUpdate(gallery, galleryUpdateRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GalleryApi.galleryUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * GalleryApi - factory interface
+ * @export
+ */
+export const GalleryApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = GalleryApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified gallery from storage
+         * @param {string} gallery The gallery ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        galleryDestroy(gallery: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.galleryDestroy(gallery, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of the galleries
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        galleryIndex(options?: RawAxiosRequestConfig): AxiosPromise<GalleryIndex200Response> {
+            return localVarFp.galleryIndex(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified gallery
+         * @param {string} gallery The gallery ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        galleryShow(gallery: string, options?: RawAxiosRequestConfig): AxiosPromise<GalleryStore200Response> {
+            return localVarFp.galleryShow(gallery, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created gallery in storage
+         * @param {GalleryStoreRequest} galleryStoreRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        galleryStore(galleryStoreRequest: GalleryStoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<GalleryStore200Response> {
+            return localVarFp.galleryStore(galleryStoreRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified gallery in storage
+         * @param {string} gallery The gallery ID
+         * @param {GalleryUpdateRequest} [galleryUpdateRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        galleryUpdate(gallery: string, galleryUpdateRequest?: GalleryUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<GalleryStore200Response> {
+            return localVarFp.galleryUpdate(gallery, galleryUpdateRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * GalleryApi - object-oriented interface
+ * @export
+ * @class GalleryApi
+ * @extends {BaseAPI}
+ */
+export class GalleryApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified gallery from storage
+     * @param {string} gallery The gallery ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GalleryApi
+     */
+    public galleryDestroy(gallery: string, options?: RawAxiosRequestConfig) {
+        return GalleryApiFp(this.configuration).galleryDestroy(gallery, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of the galleries
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GalleryApi
+     */
+    public galleryIndex(options?: RawAxiosRequestConfig) {
+        return GalleryApiFp(this.configuration).galleryIndex(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified gallery
+     * @param {string} gallery The gallery ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GalleryApi
+     */
+    public galleryShow(gallery: string, options?: RawAxiosRequestConfig) {
+        return GalleryApiFp(this.configuration).galleryShow(gallery, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created gallery in storage
+     * @param {GalleryStoreRequest} galleryStoreRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GalleryApi
+     */
+    public galleryStore(galleryStoreRequest: GalleryStoreRequest, options?: RawAxiosRequestConfig) {
+        return GalleryApiFp(this.configuration).galleryStore(galleryStoreRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified gallery in storage
+     * @param {string} gallery The gallery ID
+     * @param {GalleryUpdateRequest} [galleryUpdateRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GalleryApi
+     */
+    public galleryUpdate(gallery: string, galleryUpdateRequest?: GalleryUpdateRequest, options?: RawAxiosRequestConfig) {
+        return GalleryApiFp(this.configuration).galleryUpdate(gallery, galleryUpdateRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

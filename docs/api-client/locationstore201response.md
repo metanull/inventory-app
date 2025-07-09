@@ -8,26 +8,24 @@ category: "Responses"
 
 # LocationStore201Response
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**data** | [**LocationResource**](LocationResource.md) |  | [default to undefined]
+| Name     | Type                                        | Description | Notes                  |
+| -------- | ------------------------------------------- | ----------- | ---------------------- |
+| **data** | [**LocationResource**](LocationResource.md) |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { LocationStore201Response } from './api';
+import { LocationStore201Response } from "./api";
 
 const instance: LocationStore201Response = {
-    data,
+  data,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
-
 ---
 
-*This documentation was automatically generated from the TypeScript API client.*
+_This documentation was automatically generated from the TypeScript API client._

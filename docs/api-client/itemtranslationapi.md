@@ -8,44 +8,39 @@ category: "APIs"
 
 # ItemTranslationApi
 
-All URIs are relative to *http://localhost:8000/api*
+All URIs are relative to _http://localhost:8000/api_
 
-|Method | HTTP request | Description|
-|------------- | ------------- | -------------|
-|[**itemTranslationDestroy**](#itemtranslationdestroy) | **DELETE** /item-translation/{itemTranslation} | Remove the specified item translation|
-|[**itemTranslationIndex**](#itemtranslationindex) | **GET** /item-translation | Display a listing of item translations|
-|[**itemTranslationShow**](#itemtranslationshow) | **GET** /item-translation/{itemTranslation} | Display the specified item translation|
-|[**itemTranslationStore**](#itemtranslationstore) | **POST** /item-translation | Store a newly created item translation|
-|[**itemTranslationUpdate**](#itemtranslationupdate) | **PUT** /item-translation/{itemTranslation} | Update the specified item translation|
+| Method                                                | HTTP request                                   | Description                            |
+| ----------------------------------------------------- | ---------------------------------------------- | -------------------------------------- |
+| [**itemTranslationDestroy**](#itemtranslationdestroy) | **DELETE** /item-translation/{itemTranslation} | Remove the specified item translation  |
+| [**itemTranslationIndex**](#itemtranslationindex)     | **GET** /item-translation                      | Display a listing of item translations |
+| [**itemTranslationShow**](#itemtranslationshow)       | **GET** /item-translation/{itemTranslation}    | Display the specified item translation |
+| [**itemTranslationStore**](#itemtranslationstore)     | **POST** /item-translation                     | Store a newly created item translation |
+| [**itemTranslationUpdate**](#itemtranslationupdate)   | **PUT** /item-translation/{itemTranslation}    | Update the specified item translation  |
 
 # **itemTranslationDestroy**
-> number itemTranslationDestroy()
 
+> number itemTranslationDestroy()
 
 ### Example
 
 ```typescript
-import {
-    ItemTranslationApi,
-    Configuration
-} from './api';
+import { ItemTranslationApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ItemTranslationApi(configuration);
 
 let itemTranslation: string; //The item translation ID (default to undefined)
 
-const { status, data } = await apiInstance.itemTranslationDestroy(
-    itemTranslation
-);
+const { status, data } =
+  await apiInstance.itemTranslationDestroy(itemTranslation);
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **itemTranslation** | [**string**] | The item translation ID | defaults to undefined|
-
+| Name                | Type         | Description             | Notes                 |
+| ------------------- | ------------ | ----------------------- | --------------------- |
+| **itemTranslation** | [**string**] | The item translation ID | defaults to undefined |
 
 ### Return type
 
@@ -57,30 +52,27 @@ const { status, data } = await apiInstance.itemTranslationDestroy(
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** |  |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description     | Response headers |
+| ----------- | --------------- | ---------------- |
+| **200**     |                 | -                |
+| **404**     | Not found       | -                |
+| **401**     | Unauthenticated | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **itemTranslationIndex**
-> Array<ItemTranslationResource> itemTranslationIndex()
 
+> Array<ItemTranslationResource> itemTranslationIndex()
 
 ### Example
 
 ```typescript
-import {
-    ItemTranslationApi,
-    Configuration
-} from './api';
+import { ItemTranslationApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ItemTranslationApi(configuration);
@@ -89,8 +81,8 @@ const { status, data } = await apiInstance.itemTranslationIndex();
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
 
+This endpoint does not have any parameters.
 
 ### Return type
 
@@ -102,46 +94,40 @@ This endpoint does not have any parameters.
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** |  |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description     | Response headers |
+| ----------- | --------------- | ---------------- |
+| **200**     |                 | -                |
+| **401**     | Unauthenticated | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **itemTranslationShow**
-> ItemTranslationShow200Response itemTranslationShow()
 
+> ItemTranslationShow200Response itemTranslationShow()
 
 ### Example
 
 ```typescript
-import {
-    ItemTranslationApi,
-    Configuration
-} from './api';
+import { ItemTranslationApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ItemTranslationApi(configuration);
 
 let itemTranslation: string; //The item translation ID (default to undefined)
 
-const { status, data } = await apiInstance.itemTranslationShow(
-    itemTranslation
-);
+const { status, data } = await apiInstance.itemTranslationShow(itemTranslation);
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **itemTranslation** | [**string**] | The item translation ID | defaults to undefined|
-
+| Name                | Type         | Description             | Notes                 |
+| ------------------- | ------------ | ----------------------- | --------------------- |
+| **itemTranslation** | [**string**] | The item translation ID | defaults to undefined |
 
 ### Return type
 
@@ -153,31 +139,31 @@ const { status, data } = await apiInstance.itemTranslationShow(
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;ItemTranslationResource&#x60; |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                         | Response headers |
+| ----------- | ----------------------------------- | ---------------- |
+| **200**     | &#x60;ItemTranslationResource&#x60; | -                |
+| **404**     | Not found                           | -                |
+| **401**     | Unauthenticated                     | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **itemTranslationStore**
-> number itemTranslationStore(itemTranslationStoreRequest)
 
+> number itemTranslationStore(itemTranslationStoreRequest)
 
 ### Example
 
 ```typescript
 import {
-    ItemTranslationApi,
-    Configuration,
-    ItemTranslationStoreRequest
-} from './api';
+  ItemTranslationApi,
+  Configuration,
+  ItemTranslationStoreRequest,
+} from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ItemTranslationApi(configuration);
@@ -185,16 +171,15 @@ const apiInstance = new ItemTranslationApi(configuration);
 let itemTranslationStoreRequest: ItemTranslationStoreRequest; //
 
 const { status, data } = await apiInstance.itemTranslationStore(
-    itemTranslationStoreRequest
+  itemTranslationStoreRequest,
 );
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **itemTranslationStoreRequest** | **ItemTranslationStoreRequest**|  | |
-
+| Name                            | Type                            | Description | Notes |
+| ------------------------------- | ------------------------------- | ----------- | ----- |
+| **itemTranslationStoreRequest** | **ItemTranslationStoreRequest** |             |       |
 
 ### Return type
 
@@ -206,31 +191,31 @@ const { status, data } = await apiInstance.itemTranslationStore(
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
-
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** |  |  -  |
-|**422** | Validation error |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description      | Response headers |
+| ----------- | ---------------- | ---------------- |
+| **200**     |                  | -                |
+| **422**     | Validation error | -                |
+| **401**     | Unauthenticated  | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **itemTranslationUpdate**
-> ItemTranslationShow200Response itemTranslationUpdate()
 
+> ItemTranslationShow200Response itemTranslationUpdate()
 
 ### Example
 
 ```typescript
 import {
-    ItemTranslationApi,
-    Configuration,
-    ItemTranslationUpdateRequest
-} from './api';
+  ItemTranslationApi,
+  Configuration,
+  ItemTranslationUpdateRequest,
+} from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ItemTranslationApi(configuration);
@@ -239,18 +224,17 @@ let itemTranslation: string; //The item translation ID (default to undefined)
 let itemTranslationUpdateRequest: ItemTranslationUpdateRequest; // (optional)
 
 const { status, data } = await apiInstance.itemTranslationUpdate(
-    itemTranslation,
-    itemTranslationUpdateRequest
+  itemTranslation,
+  itemTranslationUpdateRequest,
 );
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **itemTranslationUpdateRequest** | **ItemTranslationUpdateRequest**|  | |
-| **itemTranslation** | [**string**] | The item translation ID | defaults to undefined|
-
+| Name                             | Type                             | Description             | Notes                 |
+| -------------------------------- | -------------------------------- | ----------------------- | --------------------- |
+| **itemTranslationUpdateRequest** | **ItemTranslationUpdateRequest** |                         |                       |
+| **itemTranslation**              | [**string**]                     | The item translation ID | defaults to undefined |
 
 ### Return type
 
@@ -262,22 +246,20 @@ const { status, data } = await apiInstance.itemTranslationUpdate(
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
-
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;ItemTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
-|**404** | Not found |  -  |
-|**401** | Unauthenticated |  -  |
+
+| Status code | Description                         | Response headers |
+| ----------- | ----------------------------------- | ---------------- |
+| **200**     | &#x60;ItemTranslationResource&#x60; | -                |
+| **422**     | Validation error                    | -                |
+| **404**     | Not found                           | -                |
+| **401**     | Unauthenticated                     | -                |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
-
-
 ---
 
-*This documentation was automatically generated from the TypeScript API client.*
+_This documentation was automatically generated from the TypeScript API client._

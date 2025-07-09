@@ -2910,6 +2910,247 @@
                 }
             }
         },
+        "/gallery": {
+            "get": {
+                "operationId": "gallery.index",
+                "summary": "Display a listing of the galleries",
+                "tags": [
+                    "Gallery"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `GalleryResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/GalleryResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "gallery.store",
+                "summary": "Store a newly created gallery in storage",
+                "tags": [
+                    "Gallery"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "internal_name": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 255
+                                    }
+                                },
+                                "required": [
+                                    "internal_name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`GalleryResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/GalleryResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/gallery/{gallery}": {
+            "get": {
+                "operationId": "gallery.show",
+                "summary": "Display the specified gallery",
+                "tags": [
+                    "Gallery"
+                ],
+                "parameters": [
+                    {
+                        "name": "gallery",
+                        "in": "path",
+                        "required": true,
+                        "description": "The gallery ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`GalleryResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/GalleryResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "gallery.update",
+                "summary": "Update the specified gallery in storage",
+                "tags": [
+                    "Gallery"
+                ],
+                "parameters": [
+                    {
+                        "name": "gallery",
+                        "in": "path",
+                        "required": true,
+                        "description": "The gallery ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "internal_name": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "backward_compatibility": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 255
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`GalleryResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/GalleryResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "gallery.destroy",
+                "summary": "Remove the specified gallery from storage",
+                "tags": [
+                    "Gallery"
+                ],
+                "parameters": [
+                    {
+                        "name": "gallery",
+                        "in": "path",
+                        "required": true,
+                        "description": "The gallery ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/image-upload": {
             "get": {
                 "operationId": "image-upload.index",
@@ -9080,6 +9321,166 @@
                     "updated_at"
                 ],
                 "title": "DetailTranslationResource"
+            },
+            "GalleryResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "internal_name": {
+                        "type": "string"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "translations": {
+                        "type": "array",
+                        "description": "Relationships",
+                        "items": {
+                            "$ref": "#/components/schemas/GalleryTranslationResource"
+                        }
+                    },
+                    "partners": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PartnerResource"
+                        }
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ItemResource"
+                        }
+                    },
+                    "details": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DetailResource"
+                        }
+                    },
+                    "items_count": {
+                        "type": "string",
+                        "description": "Computed attributes"
+                    },
+                    "details_count": {
+                        "type": "string"
+                    },
+                    "total_content_count": {
+                        "type": "string"
+                    },
+                    "partners_count": {
+                        "type": "string"
+                    },
+                    "translations_count": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "internal_name",
+                    "backward_compatibility",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "GalleryResource"
+            },
+            "GalleryTranslationResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "gallery_id": {
+                        "type": "string"
+                    },
+                    "language_id": {
+                        "type": "string"
+                    },
+                    "context_id": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "extra": {
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {}
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "gallery": {
+                        "description": "Relationships",
+                        "$ref": "#/components/schemas/GalleryResource"
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/LanguageResource"
+                    },
+                    "context": {
+                        "$ref": "#/components/schemas/ContextResource"
+                    }
+                },
+                "required": [
+                    "id",
+                    "gallery_id",
+                    "language_id",
+                    "context_id",
+                    "title",
+                    "description",
+                    "url",
+                    "backward_compatibility",
+                    "extra",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "GalleryTranslationResource"
             },
             "ImageUploadResource": {
                 "type": "object",

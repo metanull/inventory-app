@@ -8,26 +8,24 @@ category: "Responses"
 
 # AddressStore422Response
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**errors** | **string** |  | [default to undefined]
+| Name       | Type       | Description | Notes                  |
+| ---------- | ---------- | ----------- | ---------------------- |
+| **errors** | **string** |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { AddressStore422Response } from './api';
+import { AddressStore422Response } from "./api";
 
 const instance: AddressStore422Response = {
-    errors,
+  errors,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
-
 ---
 
-*This documentation was automatically generated from the TypeScript API client.*
+_This documentation was automatically generated from the TypeScript API client._

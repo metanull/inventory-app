@@ -8,30 +8,28 @@ category: "Responses"
 
 # PictureTranslationIndex200Response
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**data** | [**Array&lt;PictureTranslationResource&gt;**](PictureTranslationResource.md) |  | [default to undefined]
-**meta** | [**PictureTranslationIndex200ResponseMeta**](PictureTranslationIndex200ResponseMeta.md) |  | [default to undefined]
-**links** | [**PictureTranslationIndex200ResponseLinks**](PictureTranslationIndex200ResponseLinks.md) |  | [default to undefined]
+| Name      | Type                                                                                      | Description | Notes                  |
+| --------- | ----------------------------------------------------------------------------------------- | ----------- | ---------------------- |
+| **data**  | [**Array&lt;PictureTranslationResource&gt;**](PictureTranslationResource.md)              |             | [default to undefined] |
+| **meta**  | [**PictureTranslationIndex200ResponseMeta**](PictureTranslationIndex200ResponseMeta.md)   |             | [default to undefined] |
+| **links** | [**PictureTranslationIndex200ResponseLinks**](PictureTranslationIndex200ResponseLinks.md) |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { PictureTranslationIndex200Response } from './api';
+import { PictureTranslationIndex200Response } from "./api";
 
 const instance: PictureTranslationIndex200Response = {
-    data,
-    meta,
-    links,
+  data,
+  meta,
+  links,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
-
 ---
 
-*This documentation was automatically generated from the TypeScript API client.*
+_This documentation was automatically generated from the TypeScript API client._
