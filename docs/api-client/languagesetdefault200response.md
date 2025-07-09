@@ -8,24 +8,26 @@ category: "Responses"
 
 # LanguageSetDefault200Response
 
+
 ## Properties
 
-| Name     | Type                                        | Description | Notes                  |
-| -------- | ------------------------------------------- | ----------- | ---------------------- |
-| **data** | [**LanguageResource**](LanguageResource.md) |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**data** | [**LanguageResource**](LanguageResource.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { LanguageSetDefault200Response } from "./api";
+import { LanguageSetDefault200Response } from './api';
 
 const instance: LanguageSetDefault200Response = {
-  data,
+    data,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
+
 ---
 
-_This documentation was automatically generated from the TypeScript API client._
+*This documentation was automatically generated from the TypeScript API client.*

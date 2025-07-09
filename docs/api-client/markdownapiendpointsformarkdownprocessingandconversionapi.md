@@ -8,19 +8,18 @@ category: "APIs"
 
 # MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi
 
-All URIs are relative to _http://localhost:8000/api_
+All URIs are relative to *http://localhost:8000/api*
 
-| Method                                                  | HTTP request                       | Description                  |
-| ------------------------------------------------------- | ---------------------------------- | ---------------------------- |
-| [**markdownAllowedElements**](#markdownallowedelements) | **GET** /markdown/allowed-elements | Get allowed HTML tags        |
-| [**markdownFromHtml**](#markdownfromhtml)               | **POST** /markdown/from-html       | Convert HTML to Markdown     |
-| [**markdownIsMarkdown**](#markdownismarkdown)           | **POST** /markdown/is-markdown     | Check if content is Markdown |
-| [**markdownPreview**](#markdownpreview)                 | **POST** /markdown/preview         | Preview Markdown content     |
-| [**markdownToHtml**](#markdowntohtml)                   | **POST** /markdown/to-html         | Convert Markdown to HTML     |
-| [**markdownValidate**](#markdownvalidate)               | **POST** /markdown/validate        | Validate Markdown content    |
+|Method | HTTP request | Description|
+|------------- | ------------- | -------------|
+|[**markdownAllowedElements**](#markdownallowedelements) | **GET** /markdown/allowed-elements | Get allowed HTML tags|
+|[**markdownFromHtml**](#markdownfromhtml) | **POST** /markdown/from-html | Convert HTML to Markdown|
+|[**markdownIsMarkdown**](#markdownismarkdown) | **POST** /markdown/is-markdown | Check if content is Markdown|
+|[**markdownPreview**](#markdownpreview) | **POST** /markdown/preview | Preview Markdown content|
+|[**markdownToHtml**](#markdowntohtml) | **POST** /markdown/to-html | Convert Markdown to HTML|
+|[**markdownValidate**](#markdownvalidate) | **POST** /markdown/validate | Validate Markdown content|
 
 # **markdownAllowedElements**
-
 > number markdownAllowedElements()
 
 Returns the list of HTML tags that are supported for HTML-to-Markdown conversion.
@@ -29,20 +28,19 @@ Returns the list of HTML tags that are supported for HTML-to-Markdown conversion
 
 ```typescript
 import {
-  MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi,
-  Configuration,
-} from "./api";
+    MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
-const apiInstance =
-  new MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi(configuration);
+const apiInstance = new MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi(configuration);
 
 const { status, data } = await apiInstance.markdownAllowedElements();
 ```
 
 ### Parameters
-
 This endpoint does not have any parameters.
+
 
 ### Return type
 
@@ -54,19 +52,18 @@ This endpoint does not have any parameters.
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     |             | -                |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **markdownFromHtml**
-
 > number markdownFromHtml(markdownFromHtmlRequest)
 
 Converts HTML content to Markdown format with controlled tag support. Only allowed HTML tags will be processed, others will be stripped.
@@ -75,27 +72,27 @@ Converts HTML content to Markdown format with controlled tag support. Only allow
 
 ```typescript
 import {
-  MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi,
-  Configuration,
-  MarkdownFromHtmlRequest,
-} from "./api";
+    MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi,
+    Configuration,
+    MarkdownFromHtmlRequest
+} from './api';
 
 const configuration = new Configuration();
-const apiInstance =
-  new MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi(configuration);
+const apiInstance = new MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi(configuration);
 
 let markdownFromHtmlRequest: MarkdownFromHtmlRequest; //
 
 const { status, data } = await apiInstance.markdownFromHtml(
-  markdownFromHtmlRequest,
+    markdownFromHtmlRequest
 );
 ```
 
 ### Parameters
 
-| Name                        | Type                        | Description | Notes |
-| --------------------------- | --------------------------- | ----------- | ----- |
-| **markdownFromHtmlRequest** | **MarkdownFromHtmlRequest** |             |       |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **markdownFromHtmlRequest** | **MarkdownFromHtmlRequest**|  | |
+
 
 ### Return type
 
@@ -107,20 +104,19 @@ const { status, data } = await apiInstance.markdownFromHtml(
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description      | Response headers |
-| ----------- | ---------------- | ---------------- |
-| **200**     |                  | -                |
-| **422**     | Validation error | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+|**422** | Validation error |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **markdownIsMarkdown**
-
 > number markdownIsMarkdown(markdownIsMarkdownRequest)
 
 Analyzes content to determine if it appears to contain Markdown formatting. Useful for automatic detection of content type.
@@ -129,27 +125,27 @@ Analyzes content to determine if it appears to contain Markdown formatting. Usef
 
 ```typescript
 import {
-  MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi,
-  Configuration,
-  MarkdownIsMarkdownRequest,
-} from "./api";
+    MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi,
+    Configuration,
+    MarkdownIsMarkdownRequest
+} from './api';
 
 const configuration = new Configuration();
-const apiInstance =
-  new MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi(configuration);
+const apiInstance = new MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi(configuration);
 
 let markdownIsMarkdownRequest: MarkdownIsMarkdownRequest; //
 
 const { status, data } = await apiInstance.markdownIsMarkdown(
-  markdownIsMarkdownRequest,
+    markdownIsMarkdownRequest
 );
 ```
 
 ### Parameters
 
-| Name                          | Type                          | Description | Notes |
-| ----------------------------- | ----------------------------- | ----------- | ----- |
-| **markdownIsMarkdownRequest** | **MarkdownIsMarkdownRequest** |             |       |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **markdownIsMarkdownRequest** | **MarkdownIsMarkdownRequest**|  | |
+
 
 ### Return type
 
@@ -161,19 +157,18 @@ const { status, data } = await apiInstance.markdownIsMarkdown(
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     |             | -                |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **markdownPreview**
-
 > MarkdownPreview200Response markdownPreview()
 
 Generates an HTML preview of Markdown content for display purposes. This is essentially the same as markdownToHtml but with a different semantic meaning.
@@ -182,20 +177,19 @@ Generates an HTML preview of Markdown content for display purposes. This is esse
 
 ```typescript
 import {
-  MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi,
-  Configuration,
-} from "./api";
+    MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
-const apiInstance =
-  new MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi(configuration);
+const apiInstance = new MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi(configuration);
 
 const { status, data } = await apiInstance.markdownPreview();
 ```
 
 ### Parameters
-
 This endpoint does not have any parameters.
+
 
 ### Return type
 
@@ -207,21 +201,20 @@ This endpoint does not have any parameters.
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **500**     |             | -                |
-| **200**     |             | -                |
-| **422**     |             | -                |
+|-------------|-------------|------------------|
+|**500** |  |  -  |
+|**200** |  |  -  |
+|**422** |  |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **markdownToHtml**
-
 > number markdownToHtml(markdownToHtmlRequest)
 
 Converts Markdown formatted text to HTML for display purposes. The input is validated to ensure it contains safe Markdown content.
@@ -230,27 +223,27 @@ Converts Markdown formatted text to HTML for display purposes. The input is vali
 
 ```typescript
 import {
-  MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi,
-  Configuration,
-  MarkdownToHtmlRequest,
-} from "./api";
+    MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi,
+    Configuration,
+    MarkdownToHtmlRequest
+} from './api';
 
 const configuration = new Configuration();
-const apiInstance =
-  new MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi(configuration);
+const apiInstance = new MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi(configuration);
 
 let markdownToHtmlRequest: MarkdownToHtmlRequest; //
 
 const { status, data } = await apiInstance.markdownToHtml(
-  markdownToHtmlRequest,
+    markdownToHtmlRequest
 );
 ```
 
 ### Parameters
 
-| Name                      | Type                      | Description | Notes |
-| ------------------------- | ------------------------- | ----------- | ----- |
-| **markdownToHtmlRequest** | **MarkdownToHtmlRequest** |             |       |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **markdownToHtmlRequest** | **MarkdownToHtmlRequest**|  | |
+
 
 ### Return type
 
@@ -262,20 +255,19 @@ const { status, data } = await apiInstance.markdownToHtml(
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description      | Response headers |
-| ----------- | ---------------- | ---------------- |
-| **200**     |                  | -                |
-| **422**     | Validation error | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+|**422** | Validation error |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **markdownValidate**
-
 > number markdownValidate(markdownToHtmlRequest)
 
 Validates Markdown content without converting it, useful for form validation.
@@ -284,27 +276,27 @@ Validates Markdown content without converting it, useful for form validation.
 
 ```typescript
 import {
-  MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi,
-  Configuration,
-  MarkdownToHtmlRequest,
-} from "./api";
+    MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi,
+    Configuration,
+    MarkdownToHtmlRequest
+} from './api';
 
 const configuration = new Configuration();
-const apiInstance =
-  new MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi(configuration);
+const apiInstance = new MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi(configuration);
 
 let markdownToHtmlRequest: MarkdownToHtmlRequest; //
 
 const { status, data } = await apiInstance.markdownValidate(
-  markdownToHtmlRequest,
+    markdownToHtmlRequest
 );
 ```
 
 ### Parameters
 
-| Name                      | Type                      | Description | Notes |
-| ------------------------- | ------------------------- | ----------- | ----- |
-| **markdownToHtmlRequest** | **MarkdownToHtmlRequest** |             |       |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **markdownToHtmlRequest** | **MarkdownToHtmlRequest**|  | |
+
 
 ### Return type
 
@@ -316,17 +308,19 @@ const { status, data } = await apiInstance.markdownValidate(
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     |             | -                |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
+
+
 ---
 
-_This documentation was automatically generated from the TypeScript API client._
+*This documentation was automatically generated from the TypeScript API client.*

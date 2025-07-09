@@ -8,24 +8,26 @@ category: "Responses"
 
 # PictureDetachFromItem422Response
 
+
 ## Properties
 
-| Name      | Type       | Description | Notes                  |
-| --------- | ---------- | ----------- | ---------------------- |
-| **error** | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**error** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { PictureDetachFromItem422Response } from "./api";
+import { PictureDetachFromItem422Response } from './api';
 
 const instance: PictureDetachFromItem422Response = {
-  error,
+    error,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
+
 ---
 
-_This documentation was automatically generated from the TypeScript API client._
+*This documentation was automatically generated from the TypeScript API client.*

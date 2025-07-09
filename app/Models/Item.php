@@ -33,6 +33,7 @@ class Item extends Model
         'backward_compatibility',
         'country_id',
         'project_id',
+        'collection_id',
         'owner_reference',
         'mwnf_reference',
     ];
@@ -59,6 +60,14 @@ class Item extends Model
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+
+    /**
+     * The collection that contains this item.
+     */
+    public function collection(): BelongsTo
+    {
+        return $this->belongsTo(Collection::class);
     }
 
     /**

@@ -4,6 +4,7 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AddressTranslationController;
 use App\Http\Controllers\Api\MarkdownController;
 use App\Http\Controllers\AvailableImageController;
+use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ContactTranslationController;
 use App\Http\Controllers\ContextController;
@@ -225,6 +226,10 @@ Route::post('mobile/acquire-token', [MobileAppAuthenticationController::class, '
 Route::get('mobile/wipe', [MobileAppAuthenticationController::class, 'wipe_tokens'])
     ->name('token.wipe')
     ->middleware('auth:sanctum');
+
+Route::resource('collection', CollectionController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
 
 // Markdown conversion routes
 Route::prefix('markdown')->group(function () {

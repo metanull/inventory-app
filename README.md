@@ -75,6 +75,15 @@ All other models use UUID primary keys for optimal scalability and system integr
 - Includes launch dates and enable/disable functionality
 - Can contain multiple Items
 
+**Collection** 📚 - Organizational groupings for museum items with translation support
+
+- Contains multiple Items through collection_id foreign key
+- Supports multi-language translations via CollectionTranslation model
+- Partner relationships with contribution levels (Partner, Associated Partner, Minor Contributor)
+- Has default Language and Context for display purposes
+- Full CRUD API endpoints with comprehensive validation
+- UUID primary key with proper relationships and indexing
+
 **Context** 📂 - Categorical or thematic organization system
 
 - Provides hierarchical content organization
@@ -163,6 +172,13 @@ GET    /api/tag/{id}/items            # Get all items with a specific tag
 POST   /api/tag-item                  # Create tag-item relationship
 DELETE /api/tag-item/{id}             # Remove tag-item relationship
 
+# Collection Management
+GET    /api/collection                # Get all collections with relationships
+GET    /api/collection/{id}           # Get specific collection with translations
+POST   /api/collection                # Create new collection
+PUT    /api/collection/{id}           # Update existing collection
+DELETE /api/collection/{id}           # Delete collection
+
 # Picture Attachment System
 POST   /api/picture/attach-to-item/{item}        # Attach AvailableImage to Item
 POST   /api/picture/attach-to-detail/{detail}    # Attach AvailableImage to Detail
@@ -246,7 +262,7 @@ PICTURES_PATH=pictures
 
 #### 🧪 Comprehensive Testing
 
-- **560+ Tests** - Complete test coverage across all functionality with 1598 assertions
+- **1098+ Tests** - Complete test coverage across all functionality with 4544+ assertions
 - **Unit Tests** - Model validation, factory testing, and business logic validation
 - **Feature Tests** - Full API endpoint testing with authentication and authorization
 - **Integration Tests** - Cross-model relationship and workflow validation

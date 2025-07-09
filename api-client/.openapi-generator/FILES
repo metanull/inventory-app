@@ -26,6 +26,13 @@ docs/AvailableImageIndex200Response.md
 docs/AvailableImageResource.md
 docs/AvailableImageShow200Response.md
 docs/AvailableImageUpdateRequest.md
+docs/CollectionApi.md
+docs/CollectionIndex200Response.md
+docs/CollectionResource.md
+docs/CollectionStore200Response.md
+docs/CollectionStoreRequest.md
+docs/CollectionTranslationResource.md
+docs/CollectionUpdateRequest.md
 docs/ContactApi.md
 docs/ContactIndex200Response.md
 docs/ContactResource.md

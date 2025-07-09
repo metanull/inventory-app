@@ -8,28 +8,30 @@ category: "Other"
 
 # AddressUpdateRequestTranslationsInner
 
+
 ## Properties
 
-| Name            | Type       | Description | Notes                             |
-| --------------- | ---------- | ----------- | --------------------------------- |
-| **language_id** | **number** |             | [optional] [default to undefined] |
-| **address**     | **string** |             | [optional] [default to undefined] |
-| **description** | **string** |             | [optional] [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**language_id** | **number** |  | [optional] [default to undefined]
+**address** | **string** |  | [optional] [default to undefined]
+**description** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { AddressUpdateRequestTranslationsInner } from "./api";
+import { AddressUpdateRequestTranslationsInner } from './api';
 
 const instance: AddressUpdateRequestTranslationsInner = {
-  language_id,
-  address,
-  description,
+    language_id,
+    address,
+    description,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
+
 ---
 
-_This documentation was automatically generated from the TypeScript API client._
+*This documentation was automatically generated from the TypeScript API client.*

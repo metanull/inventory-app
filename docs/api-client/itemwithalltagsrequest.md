@@ -8,24 +8,26 @@ category: "Requests"
 
 # ItemWithAllTagsRequest
 
+
 ## Properties
 
-| Name     | Type                    | Description | Notes                  |
-| -------- | ----------------------- | ----------- | ---------------------- |
-| **tags** | **Array&lt;string&gt;** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**tags** | **Array&lt;string&gt;** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ItemWithAllTagsRequest } from "./api";
+import { ItemWithAllTagsRequest } from './api';
 
 const instance: ItemWithAllTagsRequest = {
-  tags,
+    tags,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
+
 ---
 
-_This documentation was automatically generated from the TypeScript API client._
+*This documentation was automatically generated from the TypeScript API client.*

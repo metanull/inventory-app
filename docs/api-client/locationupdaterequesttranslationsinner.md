@@ -8,26 +8,28 @@ category: "Other"
 
 # LocationUpdateRequestTranslationsInner
 
+
 ## Properties
 
-| Name            | Type       | Description | Notes                             |
-| --------------- | ---------- | ----------- | --------------------------------- |
-| **language_id** | **number** |             | [optional] [default to undefined] |
-| **name**        | **string** |             | [optional] [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**language_id** | **number** |  | [optional] [default to undefined]
+**name** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { LocationUpdateRequestTranslationsInner } from "./api";
+import { LocationUpdateRequestTranslationsInner } from './api';
 
 const instance: LocationUpdateRequestTranslationsInner = {
-  language_id,
-  name,
+    language_id,
+    name,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
+
 ---
 
-_This documentation was automatically generated from the TypeScript API client._
+*This documentation was automatically generated from the TypeScript API client.*
