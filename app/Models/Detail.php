@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Detail extends Model
 {
@@ -49,6 +50,16 @@ class Detail extends Model
     public function pictures(): MorphMany
     {
         return $this->morphMany(Picture::class, 'pictureable');
+    }
+
+    /**
+     * Get all galleries that include this detail.
+     */
+    public function galleries(): MorphToMany
+    {
+        return $this->morphToMany(Gallery::class, 'galleryable')
+            ->withPivot(['order', 'backward_compatibility'])
+            ->withTimestamps();
     }
 
     /**

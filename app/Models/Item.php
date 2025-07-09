@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Item extends Model
 {
@@ -108,6 +109,16 @@ class Item extends Model
     public function pictures(): MorphMany
     {
         return $this->morphMany(Picture::class, 'pictureable');
+    }
+
+    /**
+     * Get all galleries that include this item.
+     */
+    public function galleries(): MorphToMany
+    {
+        return $this->morphToMany(Gallery::class, 'galleryable')
+            ->withPivot(['order', 'backward_compatibility'])
+            ->withTimestamps();
     }
 
     /**

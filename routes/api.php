@@ -11,6 +11,7 @@ use App\Http\Controllers\ContextController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DetailController;
 use App\Http\Controllers\DetailTranslationController;
+use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemTranslationController;
@@ -228,6 +229,10 @@ Route::get('mobile/wipe', [MobileAppAuthenticationController::class, 'wipe_token
     ->middleware('auth:sanctum');
 
 Route::resource('collection', CollectionController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('gallery', GalleryController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 
