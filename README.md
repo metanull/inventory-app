@@ -84,6 +84,16 @@ All other models use UUID primary keys for optimal scalability and system integr
 - Full CRUD API endpoints with comprehensive validation
 - UUID primary key with proper relationships and indexing
 
+**Gallery** 🖼️ - Flexible polymorphic collections for both Items and Details
+
+- Polymorphic many-to-many relationships with Items and Details via Galleryable model
+- Supports multi-language translations via GalleryTranslation model
+- Partner relationships with contribution levels (Partner, Associated Partner, Minor Contributor)
+- Has default Language and Context for display purposes
+- Full CRUD API endpoints with comprehensive validation
+- UUID primary key with proper relationships and indexing
+- Flexible content organization allowing mixed Item and Detail collections
+
 **Context** 📂 - Categorical or thematic organization system
 
 - Provides hierarchical content organization
@@ -178,6 +188,13 @@ GET    /api/collection/{id}           # Get specific collection with translation
 POST   /api/collection                # Create new collection
 PUT    /api/collection/{id}           # Update existing collection
 DELETE /api/collection/{id}           # Delete collection
+
+# Gallery Management
+GET    /api/gallery                   # Get all galleries with relationships
+GET    /api/gallery/{id}              # Get specific gallery with translations
+POST   /api/gallery                   # Create new gallery
+PUT    /api/gallery/{id}              # Update existing gallery
+DELETE /api/gallery/{id}              # Delete gallery
 
 # Picture Attachment System
 POST   /api/picture/attach-to-item/{item}        # Attach AvailableImage to Item

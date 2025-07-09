@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Gallery Model Implementation**: Complete Gallery model as the second type of collection system
+    - **Gallery Model**: UUID-based primary key with polymorphic many-to-many relationships
+    - **Polymorphic Relationships**: Can contain both Items and Details via Galleryable model
+    - **Translation Support**: Multi-language translations via GalleryTranslation model
+    - **Partner Relationships**: Contribution levels (Partner, Associated Partner, Minor Contributor)
+    - **Database Schema**: Complete migrations for galleries, gallery_translations, gallery_partner, and galleryables tables
+    - **API Endpoints**: Full CRUD operations with proper validation and resource formatting
+        - `GET /api/gallery` - List all galleries with relationships
+        - `GET /api/gallery/{id}` - Get specific gallery with translations
+        - `POST /api/gallery` - Create new gallery
+        - `PUT /api/gallery/{id}` - Update existing gallery
+        - `DELETE /api/gallery/{id}` - Delete gallery
+    - **Factory & Seeder**: Complete test data generation system
+    - **Comprehensive Testing**: Unit and feature tests for all functionality
+        - Unit tests for Gallery and GalleryTranslation factories
+        - Feature tests for all CRUD operations
+        - Anonymous access validation tests
+        - Relationship and validation tests
+    - **Model Updates**: Enhanced Item and Detail models with Gallery polymorphic relationships
 - **Image Upload Status Polling**: Real-time status polling for image processing workflow
     - **Status Endpoint**: `GET /api/image-upload/{id}/status` to check processing progress
     - **Processing States**: Returns `processing`, `processed`, or `not_found` status
