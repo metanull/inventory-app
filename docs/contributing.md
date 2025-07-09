@@ -185,28 +185,28 @@ Before submitting your PR, ensure you've followed our guidelines:
 ### What We Look For
 
 1. **Code Quality**
-    - Follows our [coding guidelines](guidelines/coding-guidelines/)
-    - Proper error handling and validation
-    - Clean, readable PHP code structure
-    - Laravel best practices compliance
+   - Follows our [coding guidelines](guidelines/coding-guidelines/)
+   - Proper error handling and validation
+   - Clean, readable PHP code structure
+   - Laravel best practices compliance
 
 2. **Testing**
-    - Meets our [testing requirements](guidelines/testing/)
-    - Unit tests for models and services
-    - Feature tests for API endpoints
-    - Edge cases covered
+   - Meets our [testing requirements](guidelines/testing/)
+   - Unit tests for models and services
+   - Feature tests for API endpoints
+   - Edge cases covered
 
 3. **Performance**
-    - Efficient database queries (avoid N+1 problems)
-    - Proper use of Eloquent relationships
-    - Appropriate caching where needed
-    - Optimized API responses
+   - Efficient database queries (avoid N+1 problems)
+   - Proper use of Eloquent relationships
+   - Appropriate caching where needed
+   - Optimized API responses
 
 4. **Security**
-    - Input validation and sanitization
-    - Proper authentication and authorization
-    - No SQL injection vulnerabilities
-    - Secure file upload handling
+   - Input validation and sanitization
+   - Proper authentication and authorization
+   - No SQL injection vulnerabilities
+   - Secure file upload handling
 
 ## 🎯 Areas for Contribution
 

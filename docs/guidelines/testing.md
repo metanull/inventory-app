@@ -235,24 +235,24 @@ class ImageUploadWorkflowTest extends TestCase
 ### What We Look For
 
 1. **Testing Coverage**
-    - Comprehensive test coverage for new functionality
-    - Tests pass consistently without flaky behavior
-    - Edge cases and error conditions covered
+   - Comprehensive test coverage for new functionality
+   - Tests pass consistently without flaky behavior
+   - Edge cases and error conditions covered
 
 2. **Test Quality**
-    - Tests are maintainable and easy to understand
-    - Clear test descriptions that explain the scenario
-    - Proper use of Laravel testing features
+   - Tests are maintainable and easy to understand
+   - Clear test descriptions that explain the scenario
+   - Proper use of Laravel testing features
 
 3. **Database Testing**
-    - Proper use of RefreshDatabase trait
-    - Database assertions verify expected state
-    - Factory usage for test data generation
+   - Proper use of RefreshDatabase trait
+   - Database assertions verify expected state
+   - Factory usage for test data generation
 
 4. **API Testing**
-    - All HTTP status codes tested
-    - JSON structure validation
-    - Authentication and authorization testing
+   - All HTTP status codes tested
+   - JSON structure validation
+   - Authentication and authorization testing
 
 ## Test Organization
 
@@ -365,20 +365,20 @@ import Countries from "@/views/Countries.vue";
 vi.mock("@/api/client");
 
 describe("Countries.vue", () => {
-    test("should load and display countries", async () => {
-        // Mock API response
-        vi.mocked(apiClient.getCountries).mockResolvedValue([
-            { id: "1", name: "United States", iso_code: "US" },
-        ]);
+  test("should load and display countries", async () => {
+    // Mock API response
+    vi.mocked(apiClient.getCountries).mockResolvedValue([
+      { id: "1", name: "United States", iso_code: "US" },
+    ]);
 
-        const wrapper = mount(Countries);
+    const wrapper = mount(Countries);
 
-        // Wait for async operations
-        await wrapper.vm.$nextTick();
+    // Wait for async operations
+    await wrapper.vm.$nextTick();
 
-        // Assert component behavior
-        expect(wrapper.text()).toContain("United States");
-    });
+    // Assert component behavior
+    expect(wrapper.text()).toContain("United States");
+  });
 });
 ```
 
@@ -501,33 +501,33 @@ php artisan db:seed --env=testing
 
 ```typescript
 describe("Countries API Integration", () => {
-    test("should create, read, update, and delete a country", async () => {
-        // Skip if destructive tests are disabled
-        if (!TEST_CONFIG.RUN_DESTRUCTIVE_TESTS) {
-            return;
-        }
+  test("should create, read, update, and delete a country", async () => {
+    // Skip if destructive tests are disabled
+    if (!TEST_CONFIG.RUN_DESTRUCTIVE_TESTS) {
+      return;
+    }
 
-        // Create
-        const newCountry = await apiClient.createCountry({
-            name: "Test Country",
-            iso_code: "TC",
-        });
-        createdResources.countries.push(newCountry.id);
-
-        // Read
-        const fetchedCountry = await apiClient.getCountry(newCountry.id);
-        expect(fetchedCountry.name).toBe("Test Country");
-
-        // Update
-        const updatedCountry = await apiClient.updateCountry(newCountry.id, {
-            name: "Updated Test Country",
-        });
-        expect(updatedCountry.name).toBe("Updated Test Country");
-
-        // Delete
-        await apiClient.deleteCountry(newCountry.id);
-        await expect(apiClient.getCountry(newCountry.id)).rejects.toThrow();
+    // Create
+    const newCountry = await apiClient.createCountry({
+      name: "Test Country",
+      iso_code: "TC",
     });
+    createdResources.countries.push(newCountry.id);
+
+    // Read
+    const fetchedCountry = await apiClient.getCountry(newCountry.id);
+    expect(fetchedCountry.name).toBe("Test Country");
+
+    // Update
+    const updatedCountry = await apiClient.updateCountry(newCountry.id, {
+      name: "Updated Test Country",
+    });
+    expect(updatedCountry.name).toBe("Updated Test Country");
+
+    // Delete
+    await apiClient.deleteCountry(newCountry.id);
+    await expect(apiClient.getCountry(newCountry.id)).rejects.toThrow();
+  });
 });
 ```
 
@@ -539,30 +539,25 @@ File: `vitest.config.ts`
 
 ```typescript
 export default defineConfig({
-    plugins: [vue()],
-    test: {
-        globals: true,
-        environment: "jsdom",
-        setupFiles: ["src/test/setup.ts"],
-        coverage: {
-            provider: "v8",
-            reporter: ["text", "json", "html"],
-            exclude: [
-                "node_modules/",
-                "src/test/",
-                "**/*.d.ts",
-                "**/*.config.*",
-            ],
-            thresholds: {
-                global: {
-                    branches: 80,
-                    functions: 85,
-                    lines: 85,
-                    statements: 85,
-                },
-            },
+  plugins: [vue()],
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: ["src/test/setup.ts"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      exclude: ["node_modules/", "src/test/", "**/*.d.ts", "**/*.config.*"],
+      thresholds: {
+        global: {
+          branches: 80,
+          functions: 85,
+          lines: 85,
+          statements: 85,
         },
+      },
     },
+  },
 });
 ```
 
@@ -572,21 +567,21 @@ File: `vitest.integration.config.ts`
 
 ```typescript
 export default defineConfig({
-    plugins: [vue()],
-    test: {
-        name: "integration",
-        include: ["**/integration.test.ts"],
-        environment: "jsdom",
-        globals: true,
-        // Run tests sequentially to avoid conflicts
-        pool: "forks",
-        poolOptions: {
-            forks: { singleFork: true },
-        },
-        // Longer timeout for network requests
-        testTimeout: 30000,
-        reporters: ["verbose"],
+  plugins: [vue()],
+  test: {
+    name: "integration",
+    include: ["**/integration.test.ts"],
+    environment: "jsdom",
+    globals: true,
+    // Run tests sequentially to avoid conflicts
+    pool: "forks",
+    poolOptions: {
+      forks: { singleFork: true },
     },
+    // Longer timeout for network requests
+    testTimeout: 30000,
+    reporters: ["verbose"],
+  },
 });
 ```
 
@@ -602,20 +597,20 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: "22"
-                  cache: "npm"
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
 
-            - run: npm ci
-            - run: npm run type-check
-            - run: npm run lint
-            - run: npm run test:coverage
-            - run: npm run build
+      - run: npm ci
+      - run: npm run type-check
+      - run: npm run lint
+      - run: npm run test:coverage
+      - run: npm run build
 ```
 
 ### Integration Tests in CI
@@ -631,21 +626,21 @@ To run integration tests in CI (if needed):
 
 ```yaml
 integration-test:
-    runs-on: ubuntu-latest
-    services:
-        api:
-            image: your-api-image
-            ports:
-                - 8000:8000
-    steps:
-        - uses: actions/checkout@v4
-        - uses: actions/setup-node@v4
-        - run: npm ci
-        - run: npm run test:integration
-          env:
-              VITE_API_BASE_URL: http://localhost:8000/api
-              VITE_TEST_EMAIL: test@example.com
-              VITE_TEST_PASSWORD: password123
+  runs-on: ubuntu-latest
+  services:
+    api:
+      image: your-api-image
+      ports:
+        - 8000:8000
+  steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+    - run: npm ci
+    - run: npm run test:integration
+      env:
+        VITE_API_BASE_URL: http://localhost:8000/api
+        VITE_TEST_EMAIL: test@example.com
+        VITE_TEST_PASSWORD: password123
 ```
 
 ## Test Scripts Reference
@@ -678,10 +673,10 @@ npm test
 ```typescript
 // Provide required props/mocks
 const wrapper = mount(Component, {
-    props: { required: "value" },
-    global: {
-        mocks: { $router: mockRouter },
-    },
+  props: { required: "value" },
+  global: {
+    mocks: { $router: mockRouter },
+  },
 });
 ```
 

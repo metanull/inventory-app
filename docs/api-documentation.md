@@ -37,14 +37,14 @@ The Inventory Management API provides RESTful endpoints for managing museum inve
 2. **Processing**: Background events resize, validate, and optimize images
 3. **Available Pool**: Successfully processed images become `AvailableImage` records
 4. **Attachment**: Images are attached to models via transactional operations:
-    - `POST /api/picture/attach-to-item/{item}` - Attach to Items
-    - `POST /api/picture/attach-to-detail/{detail}` - Attach to Details
-    - `POST /api/picture/attach-to-partner/{partner}` - Attach to Partners
+   - `POST /api/picture/attach-to-item/{item}` - Attach to Items
+   - `POST /api/picture/attach-to-detail/{detail}` - Attach to Details
+   - `POST /api/picture/attach-to-partner/{partner}` - Attach to Partners
 5. **Management**: Attached images become `Picture` records with full CRUD operations
 6. **Detachment**: Pictures can be detached and converted back to AvailableImages:
-    - `DELETE /api/picture/{picture}/detach-from-item/{item}` - Detach from Items
-    - `DELETE /api/picture/{picture}/detach-from-detail/{detail}` - Detach from Details
-    - `DELETE /api/picture/{picture}/detach-from-partner/{partner}` - Detach from Partners
+   - `DELETE /api/picture/{picture}/detach-from-item/{item}` - Detach from Items
+   - `DELETE /api/picture/{picture}/detach-from-detail/{detail}` - Detach from Details
+   - `DELETE /api/picture/{picture}/detach-from-partner/{partner}` - Detach from Partners
 
 ### Features
 
@@ -68,10 +68,12 @@ npm install @metanull/inventory-app-api-client@latest
 ### Quick Start
 
 ```typescript
-import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client';
+import { Configuration, DefaultApi } from "@metanull/inventory-app-api-client";
 
-const api = new DefaultApi(new Configuration({ basePath: 'https://your.api.url' }));
-api.addressIndex().then(response => console.log(response.data));
+const api = new DefaultApi(
+  new Configuration({ basePath: "https://your.api.url" }),
+);
+api.addressIndex().then((response) => console.log(response.data));
 ```
 
 ### Package Information
@@ -94,6 +96,7 @@ The TypeScript client includes comprehensive documentation for all API endpoints
 ### Generation Process
 
 The client is automatically generated using:
+
 - [OpenAPI Generator CLI](https://github.com/OpenAPITools/openapi-generator-cli)
 - Published to [GitHub Packages](https://npm.pkg.github.com/)
 - Versioned automatically with each API update

@@ -64,35 +64,45 @@ docs/api-client/
 ## Categories
 
 ### APIs (26 items)
+
 API endpoint documentation including:
+
 - Method signatures and parameters
 - Request/response examples
 - Authentication requirements
 - HTTP status codes and error handling
 
 ### Models (24 items)
+
 Data model documentation including:
+
 - Property definitions
 - Type information
 - Validation rules
 - Relationships between models
 
 ### Requests (39 items)
+
 Request object documentation including:
+
 - Required and optional parameters
 - Data types and validation
 - Example request bodies
 - Parameter descriptions
 
 ### Responses (48 items)
+
 Response object documentation including:
+
 - Response structure
 - Status codes
 - Error responses
 - Success response examples
 
 ### Other (9 items)
+
 Miscellaneous documentation including:
+
 - Inline objects
 - Translation structures
 - Utility types
@@ -112,6 +122,7 @@ LOG_FILE = "docs/client-docs.log"
 ## Link Fixing
 
 The generator automatically fixes common broken links:
+
 - `[Back to top](#)` - Links to page top
 - `[Back to API list](../README.md#documentation-for-api-endpoints)` → `[Back to API list]({{ site.baseurl }}/api-client/)`
 - `[Back to Model list](../README.md#documentation-for-models)` → `[Back to Model list]({{ site.baseurl }}/api-client/)`
@@ -153,6 +164,7 @@ The generated documentation is automatically included in the GitHub Pages build 
 ## Error Handling
 
 The generator includes comprehensive error handling:
+
 - Validates that required directories exist
 - Checks for markdown files before processing
 - Logs all operations for debugging
@@ -161,6 +173,7 @@ The generator includes comprehensive error handling:
 ## Logging
 
 All operations are logged to `docs/client-docs.log` with timestamps and severity levels:
+
 - INFO: Normal operations
 - WARNING: Non-fatal issues
 - ERROR: Fatal errors that prevent generation
@@ -168,6 +181,7 @@ All operations are logged to `docs/client-docs.log` with timestamps and severity
 ## Example Output
 
 Generated pages include:
+
 - Proper Jekyll front matter
 - Category classification
 - Fixed navigation links
@@ -175,6 +189,7 @@ Generated pages include:
 - Automatic timestamps
 
 The main index provides:
+
 - Installation instructions
 - Usage examples
 - Complete categorized listing of all documentation

@@ -1,20 +1,11 @@
-api.json
-swagger-ui.html
-
-# Ignore markdown files
-*.md
-**/*.md
-
-# Ignore generated files
-docs/_site/
-docs/api-client/docs/
-api-client/docs/
-
-# Ignore node_modules
-node_modules/
-
-# Ignore vendor directory
-vendor/
+# Defaults Ignore
+**/.git
+**/.svn
+**/.hg
+**/.github
+**/.vscode
+**/node_modules
+**/vendor
 
 # Ignore build outputs
 public/build/
@@ -22,3 +13,19 @@ storage/
 
 # Ignore log files
 *.log
+
+# Ignore jekyll cache
+**/.jekyll-cache/
+
+# # Ignore auto-generated files
+# docs/*.json
+# docs/*.yaml
+# docs/_site/
+# api-client/
+# 
+# # Ignore markdown files
+# **/*.md
+
+# Ignore unsupported files
+**/*.ps1
+**/*.php
