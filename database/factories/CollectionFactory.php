@@ -73,4 +73,20 @@ class CollectionFactory extends Factory
             'context_id' => Context::where('is_default', true)->first()?->id,
         ]);
     }
+
+    /**
+     * Configure the factory to create a collection with partners.
+     */
+    public function hasPartners(int $count = 1): Factory
+    {
+        return $this->afterCreating(function (Collection $collection) use ($count) {
+            $partners = \App\Models\Partner::factory()->count($count)->create();
+            foreach ($partners as $partner) {
+                $collection->partners()->attach($partner->id, [
+                    'collection_type' => 'collection',
+                    'level' => \App\Enums\PartnerLevel::PARTNER->value,
+                ]);
+            }
+        });
+    }
 }

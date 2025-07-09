@@ -25,11 +25,17 @@ The Inventory Management API provides RESTful endpoints for managing museum inve
 ### Key Features
 
 - **Complete CRUD Operations** - Full Create, Read, Update, Delete functionality for all models
-- **Polymorphic Picture System** - Attach images to Items, Details, and Partners
+- **Collection System** - Three types of collections with comprehensive translation support:
+  - **Collections** - Traditional item groupings with partner relationships
+  - **Galleries** - Flexible polymorphic collections for Items and Details
+  - **Exhibitions** - Hierarchical theme-based picture galleries with two-level theme structure
+- **Polymorphic Picture System** - Attach images to Items, Details, Partners, and Themes
+- **Hierarchical Theme Organization** - Support for main themes and subthemes in exhibitions
+- **Multi-Language Translation** - Complete internationalization for all collection types and themes
 - **Image Processing Pipeline** - Upload, process, and attach images with automatic optimization
 - **Markdown Support** - Convert and validate markdown content
 - **Mobile Authentication** - Token-based authentication for mobile applications
-- **Internationalization** - Multi-language support with default language management
+- **Partner Management** - Support for different contribution levels (Partner, Associated Partner, Minor Contributor)
 
 ### Picture Attachment & Detachment Workflow
 
@@ -40,6 +46,7 @@ The Inventory Management API provides RESTful endpoints for managing museum inve
    - `POST /api/picture/attach-to-item/{item}` - Attach to Items
    - `POST /api/picture/attach-to-detail/{detail}` - Attach to Details
    - `POST /api/picture/attach-to-partner/{partner}` - Attach to Partners
+   - Exhibition themes can contain pictures from both Items and Details
 5. **Management**: Attached images become `Picture` records with full CRUD operations
 6. **Detachment**: Pictures can be detached and converted back to AvailableImages:
    - `DELETE /api/picture/{picture}/detach-from-item/{item}` - Detach from Items
@@ -79,9 +86,11 @@ api.addressIndex().then((response) => console.log(response.data));
 ### Package Information
 
 - **Package**: [`@metanull/inventory-app-api-client`](https://github.com/metanull/inventory-app/packages)
+- **Latest Version**: `@metanull/inventory-app-api-client@1.1.8-dev.709.2313`
 - **Registry**: [GitHub Packages](https://npm.pkg.github.com/)
 - **Auto-generated**: Updated automatically with each API change
 - **Type-safe**: Full TypeScript support with comprehensive type definitions
+- **Exhibition Support**: Includes full TypeScript types for Exhibition and Theme APIs
 
 ### Client Documentation
 

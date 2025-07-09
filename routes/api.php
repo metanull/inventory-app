@@ -11,6 +11,8 @@ use App\Http\Controllers\ContextController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DetailController;
 use App\Http\Controllers\DetailTranslationController;
+use App\Http\Controllers\ExhibitionController;
+use App\Http\Controllers\ExhibitionTranslationController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\ItemController;
@@ -26,6 +28,8 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\ProvinceTranslationController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\ThemeController;
+use App\Http\Controllers\ThemeTranslationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -256,3 +260,19 @@ Route::prefix('markdown')->group(function () {
     Route::get('allowed-elements', [MarkdownController::class, 'getAllowedElements'])
         ->name('markdown.allowedElements');
 });
+
+Route::resource('exhibition', ExhibitionController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('exhibition-translation', ExhibitionTranslationController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('theme', ThemeController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');
+
+Route::resource('theme-translation', ThemeTranslationController::class)->except([
+    'create', 'edit',
+])->middleware('auth:sanctum');

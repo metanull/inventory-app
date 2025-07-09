@@ -40,15 +40,22 @@ class CollectionPartner extends Pivot
     public $incrementing = false;
 
     /**
+     * The primary key for the model.
+     *
+     * @var string[]
+     */
+    protected $primaryKey = ['collection_id', 'collection_type', 'partner_id'];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
         'collection_id',
+        'collection_type',
         'partner_id',
         'level',
-        'backward_compatibility',
     ];
 
     /**
@@ -57,7 +64,7 @@ class CollectionPartner extends Pivot
      * @var array<string, string>
      */
     protected $casts = [
-        'level' => PartnerLevel::class,
+        'level' => 'string',
     ];
 
     /**
@@ -67,7 +74,7 @@ class CollectionPartner extends Pivot
      */
     public function uniqueIds(): array
     {
-        return ['id'];
+        return ['collection_id', 'collection_type', 'partner_id'];
     }
 
     /**

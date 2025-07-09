@@ -1,6 +1,6 @@
 **CRITICAL: This is a PHP application with Laravel 12**
 **CRITICAL: Always assert that the request I make is compliant with Laravel 12 recommendations, guidelines and best practices. If not make recommendations and ask confirmation before proceeding.**
-**CRITICAL: Awlays use PowerShell syntax when using `run_in_terminal`**
+**CRITICAL: Always use PowerShell syntax when using `run_in_terminal`**
 **CRITICAL: This is a window system. The default console is powershell. Use the proper escaping for commands. By example"$" must be escaped as "`$" not as "\$"**
 **CRITICAL: docs/ contains a distinct Ruby application based on Jekyll. Always use `wsl bash -c 'COMMANDS'` instead of powershell to interact with ruby. by example: `PATH="$HOME/.local/share/gem/ruby/3.2.0/bin:$PATH" && bundle exec jekyll build'`**
 **CRITICAL: When creating a pull-request (pr), if on the main branch, always first create a dedicated branch for the pr, then create the pr from that branch**
@@ -18,7 +18,9 @@
 **CRITICAL: The repository has githooks, when running git or gh commands always wait for the hooks to complete before checking the terminal output.**
 **CRITICAL: The project has composer scripts: run `ci-before:commit` before making a commit, `ci-before:push` before making a push and `ci-before:pull-request` before creating a pull request.**
 **CRITICAL: The composer script `ci-git:before-pull-request` also generates the OpenAPI documentation in `docs/_openapi/api.json` file. Then it checks that there are no changes in the git repository with `ci-git:assert-no-changes`, it permits detecting if api.json was forgotten in the last commit/push.**
-
+**CRITICAL: Always `php artisan` to run `lint` or `test`**
+**CRITICAL: Never use vendor specific code or constants, use Laravel's framework or compatible ones.**
+**CRITICAL: In test, never assume existance of a record, create it using the factory.**
 ---
 
 applyTo: "\*.php"

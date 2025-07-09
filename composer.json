@@ -78,16 +78,16 @@
         ],
         "ci-lint": [
             "pwsh -File scripts/ci-lint.ps1",
-            "npx prettier --write \"./docs/**/*.md\" --no-config",
-            "npx prettier --write \"./resources/**\""
+            "npx prettier --write \"./docs/**/*.md\" --log-level warn --ignore-unknown --no-config",
+            "npx prettier --write \"./resources/**\" --log-level warn --ignore-unknown "
         ],
         "ci-lint:test": [
-            "@putenv COMPOSER_ARGS=--test",
-            "@composer ci-lint"
+            "pwsh -File scripts/ci-lint.ps1 --test",
+            "npx prettier --write \"./docs/**/*.md\" --log-level warn --ignore-unknown --no-config --check",
+            "npx prettier --write \"./resources/**\" --log-level warn --ignore-unknown --check"
         ],
         "ci-lint:dirty": [
-            "@putenv COMPOSER_ARGS=--dirty",
-            "@composer ci-lint"
+            "pwsh -File scripts/ci-lint.ps1 --dirty"
         ],
         "ci-test": [
             "pwsh -File scripts/ci-test.ps1"

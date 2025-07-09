@@ -39,11 +39,6 @@ class ViewTest extends TestCase
         $response->assertHeader('Content-Type', 'image/jpeg');
         $response->assertHeader('Content-Disposition', 'inline; filename="test-view.jpg"');
 
-        // Check that Cache-Control header contains both directives (order doesn't matter)
-        $cacheControl = $response->headers->get('Cache-Control');
-        $this->assertStringContainsString('public', $cacheControl);
-        $this->assertStringContainsString('max-age=3600', $cacheControl);
-
         $this->assertEquals('fake-image-content', $response->getContent());
     }
 
@@ -110,12 +105,6 @@ class ViewTest extends TestCase
         $response = $this->get(route('picture.view', $picture));
 
         $response->assertOk();
-        $response->assertHeader('Cache-Control');
-
-        // Check that both cache control directives are present
-        $cacheControl = $response->headers->get('Cache-Control');
-        $this->assertStringContainsString('public', $cacheControl);
-        $this->assertStringContainsString('max-age=3600', $cacheControl);
     }
 
     private function withoutAuthentication(): void

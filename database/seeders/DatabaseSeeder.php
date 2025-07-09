@@ -39,6 +39,8 @@ class DatabaseSeeder extends Seeder
             WorkshopSeeder::class,
             PictureSeeder::class,
             PictureTranslationSeeder::class,
+            ExhibitionSeeder::class,
+            ThemeSeeder::class,
         ]);
     }
 }
