@@ -94,6 +94,18 @@ All other models use UUID primary keys for optimal scalability and system integr
 - UUID primary key with proper relationships and indexing
 - Flexible content organization allowing mixed Item and Detail collections
 
+**Exhibition** 🎨 - Hierarchical theme-based picture galleries with comprehensive translation support
+
+- Organizes Pictures from Items and Details into hierarchical Themes
+- Two-level theme structure: Main Themes → Subthemes (2-level depth maximum)
+- Supports multi-language translations via ExhibitionTranslation model
+- Theme translations via ThemeTranslation model (title, description, introduction)
+- Partner relationships with contribution levels (Partner, Associated Partner, Minor Contributor)
+- Has default Language and Context for display purposes
+- Full CRUD API endpoints with comprehensive validation
+- UUID primary key with proper relationships and indexing
+- Polymorphic picture attachments supporting both Item and Detail pictures
+
 **Context** 📂 - Categorical or thematic organization system
 
 - Provides hierarchical content organization
@@ -195,6 +207,20 @@ GET    /api/gallery/{id}              # Get specific gallery with translations
 POST   /api/gallery                   # Create new gallery
 PUT    /api/gallery/{id}              # Update existing gallery
 DELETE /api/gallery/{id}              # Delete gallery
+
+# Exhibition Management
+GET    /api/exhibition-translation    # Get all exhibition translations with filtering
+GET    /api/exhibition-translation/{id} # Get specific exhibition translation
+POST   /api/exhibition-translation    # Create new exhibition translation
+PUT    /api/exhibition-translation/{id} # Update existing exhibition translation
+DELETE /api/exhibition-translation/{id} # Delete exhibition translation
+
+# Theme Management
+GET    /api/theme-translation         # Get all theme translations with filtering
+GET    /api/theme-translation/{id}    # Get specific theme translation
+POST   /api/theme-translation         # Create new theme translation
+PUT    /api/theme-translation/{id}    # Update existing theme translation
+DELETE /api/theme-translation/{id}    # Delete theme translation
 
 # Picture Attachment System
 POST   /api/picture/attach-to-item/{item}        # Attach AvailableImage to Item

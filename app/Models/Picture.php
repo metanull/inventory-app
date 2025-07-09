@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
  * Picture Model
@@ -122,5 +123,13 @@ class Picture extends Model
         }
 
         return $this->getDefaultTranslation($languageId);
+    }
+
+    /**
+     * Get all themes/subthemes this picture is attached to.
+     */
+    public function themes(): MorphToMany
+    {
+        return $this->morphedByMany(Theme::class, 'pictureable');
     }
 }

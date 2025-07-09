@@ -189,6 +189,70 @@ Galleries can contain mixed collections of Items and Details:
 - Efficient database design using polymorphic many-to-many pattern
 - Type-safe model relationships with proper eager loading support
 
+### Exhibition
+
+Hierarchical theme-based picture galleries providing sophisticated organization of visual content with comprehensive translation support.
+
+**Key Features:**
+
+- UUID-based primary key with auto-generation via HasUuids trait
+- Hierarchical theme organization with two-level depth (main themes → subthemes)
+- Polymorphic picture attachments supporting both Item and Detail pictures
+- Multi-language support through ExhibitionTranslation model
+- Theme-level translations via ThemeTranslation model
+- Partner relationships with contribution levels (Partner, Associated Partner, Minor Contributor)
+- Default Language and Context associations for display purposes
+- Internal naming system with unique constraints
+- Backward compatibility support for legacy system migration
+
+**API Endpoints:**
+
+- `GET /api/exhibition-translation` - List all exhibition translations with filtering
+- `GET /api/exhibition-translation/{id}` - Get specific exhibition translation
+- `POST /api/exhibition-translation` - Create new exhibition translation
+- `PUT /api/exhibition-translation/{id}` - Update existing exhibition translation
+- `DELETE /api/exhibition-translation/{id}` - Delete exhibition translation
+- `GET /api/theme-translation` - List all theme translations with filtering
+- `GET /api/theme-translation/{id}` - Get specific theme translation
+- `POST /api/theme-translation` - Create new theme translation
+- `PUT /api/theme-translation/{id}` - Update existing theme translation
+- `DELETE /api/theme-translation/{id}` - Delete theme translation
+
+**Relationship Structure:**
+
+- `exhibitions` - Main exhibition table with UUID primary key
+- `exhibition_translations` - Multi-language translations linked to exhibitions
+- `themes` - Hierarchical theme organization with parent-child relationships
+- `theme_translations` - Multi-language translations for themes
+- `picture` relationships - Polymorphic connections to Item and Detail pictures
+
+**Translation Support:**
+
+Exhibition translations provide full internationalization capabilities:
+
+- Required relationships to Exhibition, Language, and Context
+- Core fields: `title`, `description`
+- Optional fields: `url` for homepage links
+- Unique constraints prevent duplicate translations for same (exhibition_id, language_id, context_id)
+- Context-aware translations enabling different versions per language
+
+Theme translations support hierarchical content organization:
+
+- Required relationships to Theme, Language, and Context
+- Core fields: `title`, `description`, `introduction`
+- Unique constraints prevent duplicate translations for same (theme_id, language_id, context_id)
+- Support for both main themes and subthemes with consistent translation structure
+
+**Hierarchical Theme System:**
+
+Exhibitions organize pictures into a two-level hierarchical structure:
+
+- Main themes provide top-level categorization
+- Subthemes enable detailed organization within main themes
+- Polymorphic picture attachments to both Item and Detail pictures
+- Flexible content organization supporting complex exhibition layouts
+- Efficient database design with proper foreign key constraints and indexing
+
 ### Item Translations
 
 Context-aware, multi-language translations for Items providing comprehensive internationalization support.
@@ -434,6 +498,9 @@ All major content models support internationalization through dedicated translat
 
 - **ItemTranslation** - Complete localized content for inventory items with extensive field set including type, holder, owner, initial_owner, dates, location, dimensions, place_of_production, method_for_datation, method_for_provenance, obtention, bibliography
 - **DetailTranslation** - Localized descriptive information linked to items with focused field set (name, alternate_name, description)
+- **GalleryTranslation** - Localized gallery content with name, description, summary, link, and main_character fields
+- **ExhibitionTranslation** - Localized exhibition content with title, description, and optional URL fields
+- **ThemeTranslation** - Localized theme content with title, description, and introduction fields for hierarchical theme organization
 
 ### Geographic Translation Models
 
@@ -474,6 +541,11 @@ Address (1) ──→ (N) AddressTranslation
 Item (1) ──→ (N) ItemTranslation
 Detail (1) ──→ (N) DetailTranslation
 Gallery (1) ──→ (N) GalleryTranslation
+Exhibition (1) ──→ (N) ExhibitionTranslation
+Theme (1) ──→ (N) ThemeTranslation
+
+Exhibition (1) ──→ (N) Theme
+Theme (1) ──→ (N) Theme (parent-child relationship)
 
 Language (1) ──→ (N) ContactTranslation
 Language (1) ──→ (N) ProvinceTranslation

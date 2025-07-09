@@ -94,8 +94,9 @@ class Collection extends Model
      */
     public function partners(): BelongsToMany
     {
-        return $this->belongsToMany(Partner::class, 'collection_partner')
-            ->withPivot(['level', 'backward_compatibility'])
+        return $this->belongsToMany(Partner::class, 'collection_partner', 'collection_id', 'partner_id')
+            ->wherePivot('collection_type', '=', 'collection')
+            ->withPivot(['collection_type', 'level'])
             ->withTimestamps()
             ->using(CollectionPartner::class);
     }

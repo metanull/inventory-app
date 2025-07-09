@@ -81,6 +81,7 @@ class CollectionSeeder extends Seeder
 
                 foreach ($partners as $index => $partner) {
                     $collection->partners()->attach($partner->id, [
+                        'collection_type' => 'collection',
                         'level' => $levels[$index % count($levels)]->value,
                     ]);
                 }
