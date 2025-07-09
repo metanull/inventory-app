@@ -8,30 +8,32 @@ category: "Requests"
 
 # AddressTranslationUpdateRequest
 
+
 ## Properties
 
-| Name            | Type       | Description | Notes                             |
-| --------------- | ---------- | ----------- | --------------------------------- |
-| **address_id**  | **string** |             | [optional] [default to undefined] |
-| **language_id** | **string** |             | [optional] [default to undefined] |
-| **address**     | **string** |             | [optional] [default to undefined] |
-| **description** | **string** |             | [optional] [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**address_id** | **string** |  | [optional] [default to undefined]
+**language_id** | **string** |  | [optional] [default to undefined]
+**address** | **string** |  | [optional] [default to undefined]
+**description** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { AddressTranslationUpdateRequest } from "./api";
+import { AddressTranslationUpdateRequest } from './api';
 
 const instance: AddressTranslationUpdateRequest = {
-  address_id,
-  language_id,
-  address,
-  description,
+    address_id,
+    language_id,
+    address,
+    description,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
+
 ---
 
-_This documentation was automatically generated from the TypeScript API client._
+*This documentation was automatically generated from the TypeScript API client.*

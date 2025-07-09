@@ -8,24 +8,26 @@ category: "Responses"
 
 # ProvinceIndex200Response
 
+
 ## Properties
 
-| Name     | Type                                                     | Description | Notes                  |
-| -------- | -------------------------------------------------------- | ----------- | ---------------------- |
-| **data** | [**Array&lt;ProvinceResource&gt;**](ProvinceResource.md) |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**data** | [**Array&lt;ProvinceResource&gt;**](ProvinceResource.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ProvinceIndex200Response } from "./api";
+import { ProvinceIndex200Response } from './api';
 
 const instance: ProvinceIndex200Response = {
-  data,
+    data,
 };
 ```
 
 [Back to Model list]({{ site.baseurl }}/api-client/) [Back to API list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
+
 ---
 
-_This documentation was automatically generated from the TypeScript API client._
+*This documentation was automatically generated from the TypeScript API client.*

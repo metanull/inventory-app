@@ -234,7 +234,7 @@ api.addressIndex().then(response => console.log(response.data));
             for file_info in files:
                 title = file_info['title']
                 jekyll_filename = file_info['file'].stem.lower().replace('_', '-')
-                index_content += f"- [{title}]({{{{ site.baseurl }}}}/api-client/{jekyll_filename}/)\n"
+                index_content += f"- [{title}]({{{{ site.baseurl }}}}/api-client/{jekyll_filename})\n"
             
             index_content += "\n"
         

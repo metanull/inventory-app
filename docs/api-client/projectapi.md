@@ -8,41 +8,47 @@ category: "APIs"
 
 # ProjectApi
 
-All URIs are relative to _http://localhost:8000/api_
+All URIs are relative to *http://localhost:8000/api*
 
-| Method                                        | HTTP request                          | Description                                   |
-| --------------------------------------------- | ------------------------------------- | --------------------------------------------- |
-| [**projectDestroy**](#projectdestroy)         | **DELETE** /project/{project}         | Remove the specified resource from storage    |
-| [**projectEnabled**](#projectenabled)         | **GET** /project/enabled              | Get all enabled projects (Enabled + launched) |
-| [**projectIndex**](#projectindex)             | **GET** /project                      | Display a listing of the resource             |
-| [**projectSetEnabled**](#projectsetenabled)   | **PATCH** /project/{project}/enabled  | Toggle Enable/disable on a project            |
-| [**projectSetLaunched**](#projectsetlaunched) | **PATCH** /project/{project}/launched | Toggle Launched/not-launched on a project     |
-| [**projectShow**](#projectshow)               | **GET** /project/{project}            | Display the specified resource                |
-| [**projectStore**](#projectstore)             | **POST** /project                     | Store a newly created resource in storage     |
-| [**projectUpdate**](#projectupdate)           | **PUT** /project/{project}            | Update the specified resource in storage      |
+|Method | HTTP request | Description|
+|------------- | ------------- | -------------|
+|[**projectDestroy**](#projectdestroy) | **DELETE** /project/{project} | Remove the specified resource from storage|
+|[**projectEnabled**](#projectenabled) | **GET** /project/enabled | Get all enabled projects (Enabled + launched)|
+|[**projectIndex**](#projectindex) | **GET** /project | Display a listing of the resource|
+|[**projectSetEnabled**](#projectsetenabled) | **PATCH** /project/{project}/enabled | Toggle Enable/disable on a project|
+|[**projectSetLaunched**](#projectsetlaunched) | **PATCH** /project/{project}/launched | Toggle Launched/not-launched on a project|
+|[**projectShow**](#projectshow) | **GET** /project/{project} | Display the specified resource|
+|[**projectStore**](#projectstore) | **POST** /project | Store a newly created resource in storage|
+|[**projectUpdate**](#projectupdate) | **PUT** /project/{project} | Update the specified resource in storage|
 
 # **projectDestroy**
-
 > projectDestroy()
+
 
 ### Example
 
 ```typescript
-import { ProjectApi, Configuration } from "./api";
+import {
+    ProjectApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
 
 let project: string; //The project ID (default to undefined)
 
-const { status, data } = await apiInstance.projectDestroy(project);
+const { status, data } = await apiInstance.projectDestroy(
+    project
+);
 ```
 
 ### Parameters
 
-| Name        | Type         | Description    | Notes                 |
-| ----------- | ------------ | -------------- | --------------------- |
-| **project** | [**string**] | The project ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **project** | [**string**] | The project ID | defaults to undefined|
+
 
 ### Return type
 
@@ -54,27 +60,30 @@ void (empty response body)
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description     | Response headers |
-| ----------- | --------------- | ---------------- |
-| **204**     | No content      | -                |
-| **404**     | Not found       | -                |
-| **401**     | Unauthenticated | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | No content |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **projectEnabled**
-
 > ProjectEnabled200Response projectEnabled()
+
 
 ### Example
 
 ```typescript
-import { ProjectApi, Configuration } from "./api";
+import {
+    ProjectApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
@@ -83,8 +92,8 @@ const { status, data } = await apiInstance.projectEnabled();
 ```
 
 ### Parameters
-
 This endpoint does not have any parameters.
+
 
 ### Return type
 
@@ -96,26 +105,29 @@ This endpoint does not have any parameters.
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                          | Response headers |
-| ----------- | ------------------------------------ | ---------------- |
-| **200**     | Array of &#x60;ProjectResource&#x60; | -                |
-| **401**     | Unauthenticated                      | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Array of &#x60;ProjectResource&#x60; |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **projectIndex**
-
 > ProjectEnabled200Response projectIndex()
+
 
 ### Example
 
 ```typescript
-import { ProjectApi, Configuration } from "./api";
+import {
+    ProjectApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
@@ -124,8 +136,8 @@ const { status, data } = await apiInstance.projectIndex();
 ```
 
 ### Parameters
-
 This endpoint does not have any parameters.
+
 
 ### Return type
 
@@ -137,26 +149,30 @@ This endpoint does not have any parameters.
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                          | Response headers |
-| ----------- | ------------------------------------ | ---------------- |
-| **200**     | Array of &#x60;ProjectResource&#x60; | -                |
-| **401**     | Unauthenticated                      | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Array of &#x60;ProjectResource&#x60; |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **projectSetEnabled**
-
 > ProjectSetLaunched200Response projectSetEnabled(projectSetEnabledRequest)
+
 
 ### Example
 
 ```typescript
-import { ProjectApi, Configuration, ProjectSetEnabledRequest } from "./api";
+import {
+    ProjectApi,
+    Configuration,
+    ProjectSetEnabledRequest
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
@@ -165,17 +181,18 @@ let project: string; //The project ID (default to undefined)
 let projectSetEnabledRequest: ProjectSetEnabledRequest; //
 
 const { status, data } = await apiInstance.projectSetEnabled(
-  project,
-  projectSetEnabledRequest,
+    project,
+    projectSetEnabledRequest
 );
 ```
 
 ### Parameters
 
-| Name                         | Type                         | Description    | Notes                 |
-| ---------------------------- | ---------------------------- | -------------- | --------------------- |
-| **projectSetEnabledRequest** | **ProjectSetEnabledRequest** |                |                       |
-| **project**                  | [**string**]                 | The project ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectSetEnabledRequest** | **ProjectSetEnabledRequest**|  | |
+| **project** | [**string**] | The project ID | defaults to undefined|
+
 
 ### Return type
 
@@ -187,28 +204,32 @@ const { status, data } = await apiInstance.projectSetEnabled(
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                 | Response headers |
-| ----------- | --------------------------- | ---------------- |
-| **200**     | &#x60;ProjectResource&#x60; | -                |
-| **422**     | Validation error            | -                |
-| **404**     | Not found                   | -                |
-| **401**     | Unauthenticated             | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ProjectResource&#x60; |  -  |
+|**422** | Validation error |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **projectSetLaunched**
-
 > ProjectSetLaunched200Response projectSetLaunched()
+
 
 ### Example
 
 ```typescript
-import { ProjectApi, Configuration, ProjectSetLaunchedRequest } from "./api";
+import {
+    ProjectApi,
+    Configuration,
+    ProjectSetLaunchedRequest
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
@@ -217,17 +238,18 @@ let project: string; //The project ID (default to undefined)
 let projectSetLaunchedRequest: ProjectSetLaunchedRequest; // (optional)
 
 const { status, data } = await apiInstance.projectSetLaunched(
-  project,
-  projectSetLaunchedRequest,
+    project,
+    projectSetLaunchedRequest
 );
 ```
 
 ### Parameters
 
-| Name                          | Type                          | Description    | Notes                 |
-| ----------------------------- | ----------------------------- | -------------- | --------------------- |
-| **projectSetLaunchedRequest** | **ProjectSetLaunchedRequest** |                |                       |
-| **project**                   | [**string**]                  | The project ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectSetLaunchedRequest** | **ProjectSetLaunchedRequest**|  | |
+| **project** | [**string**] | The project ID | defaults to undefined|
+
 
 ### Return type
 
@@ -239,42 +261,48 @@ const { status, data } = await apiInstance.projectSetLaunched(
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                 | Response headers |
-| ----------- | --------------------------- | ---------------- |
-| **200**     | &#x60;ProjectResource&#x60; | -                |
-| **422**     | Validation error            | -                |
-| **404**     | Not found                   | -                |
-| **401**     | Unauthenticated             | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ProjectResource&#x60; |  -  |
+|**422** | Validation error |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **projectShow**
-
 > ProjectSetLaunched200Response projectShow()
+
 
 ### Example
 
 ```typescript
-import { ProjectApi, Configuration } from "./api";
+import {
+    ProjectApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
 
 let project: string; //The project ID (default to undefined)
 
-const { status, data } = await apiInstance.projectShow(project);
+const { status, data } = await apiInstance.projectShow(
+    project
+);
 ```
 
 ### Parameters
 
-| Name        | Type         | Description    | Notes                 |
-| ----------- | ------------ | -------------- | --------------------- |
-| **project** | [**string**] | The project ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **project** | [**string**] | The project ID | defaults to undefined|
+
 
 ### Return type
 
@@ -286,41 +314,48 @@ const { status, data } = await apiInstance.projectShow(project);
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                 | Response headers |
-| ----------- | --------------------------- | ---------------- |
-| **200**     | &#x60;ProjectResource&#x60; | -                |
-| **404**     | Not found                   | -                |
-| **401**     | Unauthenticated             | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ProjectResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **projectStore**
-
 > ProjectSetLaunched200Response projectStore(projectStoreRequest)
+
 
 ### Example
 
 ```typescript
-import { ProjectApi, Configuration, ProjectStoreRequest } from "./api";
+import {
+    ProjectApi,
+    Configuration,
+    ProjectStoreRequest
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
 
 let projectStoreRequest: ProjectStoreRequest; //
 
-const { status, data } = await apiInstance.projectStore(projectStoreRequest);
+const { status, data } = await apiInstance.projectStore(
+    projectStoreRequest
+);
 ```
 
 ### Parameters
 
-| Name                    | Type                    | Description | Notes |
-| ----------------------- | ----------------------- | ----------- | ----- |
-| **projectStoreRequest** | **ProjectStoreRequest** |             |       |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectStoreRequest** | **ProjectStoreRequest**|  | |
+
 
 ### Return type
 
@@ -332,27 +367,31 @@ const { status, data } = await apiInstance.projectStore(projectStoreRequest);
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                 | Response headers |
-| ----------- | --------------------------- | ---------------- |
-| **200**     | &#x60;ProjectResource&#x60; | -                |
-| **422**     | Validation error            | -                |
-| **401**     | Unauthenticated             | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ProjectResource&#x60; |  -  |
+|**422** | Validation error |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **projectUpdate**
-
 > ProjectSetLaunched200Response projectUpdate(projectStoreRequest)
+
 
 ### Example
 
 ```typescript
-import { ProjectApi, Configuration, ProjectStoreRequest } from "./api";
+import {
+    ProjectApi,
+    Configuration,
+    ProjectStoreRequest
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
@@ -361,17 +400,18 @@ let project: string; //The project ID (default to undefined)
 let projectStoreRequest: ProjectStoreRequest; //
 
 const { status, data } = await apiInstance.projectUpdate(
-  project,
-  projectStoreRequest,
+    project,
+    projectStoreRequest
 );
 ```
 
 ### Parameters
 
-| Name                    | Type                    | Description    | Notes                 |
-| ----------------------- | ----------------------- | -------------- | --------------------- |
-| **projectStoreRequest** | **ProjectStoreRequest** |                |                       |
-| **project**             | [**string**]            | The project ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectStoreRequest** | **ProjectStoreRequest**|  | |
+| **project** | [**string**] | The project ID | defaults to undefined|
+
 
 ### Return type
 
@@ -383,20 +423,22 @@ const { status, data } = await apiInstance.projectUpdate(
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                 | Response headers |
-| ----------- | --------------------------- | ---------------- |
-| **200**     | &#x60;ProjectResource&#x60; | -                |
-| **422**     | Validation error            | -                |
-| **404**     | Not found                   | -                |
-| **401**     | Unauthenticated             | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ProjectResource&#x60; |  -  |
+|**422** | Validation error |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
+
+
 ---
 
-_This documentation was automatically generated from the TypeScript API client._
+*This documentation was automatically generated from the TypeScript API client.*

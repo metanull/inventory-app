@@ -8,39 +8,44 @@ category: "APIs"
 
 # LocationTranslationApi
 
-All URIs are relative to _http://localhost:8000/api_
+All URIs are relative to *http://localhost:8000/api*
 
-| Method                                                        | HTTP request                                           | Description                                |
-| ------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------ |
-| [**locationTranslationDestroy**](#locationtranslationdestroy) | **DELETE** /location-translation/{locationTranslation} | Remove the specified resource from storage |
-| [**locationTranslationIndex**](#locationtranslationindex)     | **GET** /location-translation                          | Display a listing of the resource          |
-| [**locationTranslationShow**](#locationtranslationshow)       | **GET** /location-translation/{locationTranslation}    | Display the specified resource             |
-| [**locationTranslationStore**](#locationtranslationstore)     | **POST** /location-translation                         | Store a newly created resource in storage  |
-| [**locationTranslationUpdate**](#locationtranslationupdate)   | **PUT** /location-translation/{locationTranslation}    | Update the specified resource in storage   |
+|Method | HTTP request | Description|
+|------------- | ------------- | -------------|
+|[**locationTranslationDestroy**](#locationtranslationdestroy) | **DELETE** /location-translation/{locationTranslation} | Remove the specified resource from storage|
+|[**locationTranslationIndex**](#locationtranslationindex) | **GET** /location-translation | Display a listing of the resource|
+|[**locationTranslationShow**](#locationtranslationshow) | **GET** /location-translation/{locationTranslation} | Display the specified resource|
+|[**locationTranslationStore**](#locationtranslationstore) | **POST** /location-translation | Store a newly created resource in storage|
+|[**locationTranslationUpdate**](#locationtranslationupdate) | **PUT** /location-translation/{locationTranslation} | Update the specified resource in storage|
 
 # **locationTranslationDestroy**
-
 > locationTranslationDestroy()
+
 
 ### Example
 
 ```typescript
-import { LocationTranslationApi, Configuration } from "./api";
+import {
+    LocationTranslationApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LocationTranslationApi(configuration);
 
 let locationTranslation: string; //The location translation ID (default to undefined)
 
-const { status, data } =
-  await apiInstance.locationTranslationDestroy(locationTranslation);
+const { status, data } = await apiInstance.locationTranslationDestroy(
+    locationTranslation
+);
 ```
 
 ### Parameters
 
-| Name                    | Type         | Description                 | Notes                 |
-| ----------------------- | ------------ | --------------------------- | --------------------- |
-| **locationTranslation** | [**string**] | The location translation ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **locationTranslation** | [**string**] | The location translation ID | defaults to undefined|
+
 
 ### Return type
 
@@ -52,27 +57,30 @@ void (empty response body)
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description     | Response headers |
-| ----------- | --------------- | ---------------- |
-| **204**     | No content      | -                |
-| **404**     | Not found       | -                |
-| **401**     | Unauthenticated | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | No content |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **locationTranslationIndex**
-
 > LocationTranslationIndex200Response locationTranslationIndex()
+
 
 ### Example
 
 ```typescript
-import { LocationTranslationApi, Configuration } from "./api";
+import {
+    LocationTranslationApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LocationTranslationApi(configuration);
@@ -81,8 +89,8 @@ const { status, data } = await apiInstance.locationTranslationIndex();
 ```
 
 ### Parameters
-
 This endpoint does not have any parameters.
+
 
 ### Return type
 
@@ -94,41 +102,46 @@ This endpoint does not have any parameters.
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                                      | Response headers |
-| ----------- | ------------------------------------------------ | ---------------- |
-| **200**     | Array of &#x60;LocationTranslationResource&#x60; | -                |
-| **401**     | Unauthenticated                                  | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Array of &#x60;LocationTranslationResource&#x60; |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **locationTranslationShow**
-
 > LocationTranslationStore200Response locationTranslationShow()
+
 
 ### Example
 
 ```typescript
-import { LocationTranslationApi, Configuration } from "./api";
+import {
+    LocationTranslationApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LocationTranslationApi(configuration);
 
 let locationTranslation: string; //The location translation ID (default to undefined)
 
-const { status, data } =
-  await apiInstance.locationTranslationShow(locationTranslation);
+const { status, data } = await apiInstance.locationTranslationShow(
+    locationTranslation
+);
 ```
 
 ### Parameters
 
-| Name                    | Type         | Description                 | Notes                 |
-| ----------------------- | ------------ | --------------------------- | --------------------- |
-| **locationTranslation** | [**string**] | The location translation ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **locationTranslation** | [**string**] | The location translation ID | defaults to undefined|
+
 
 ### Return type
 
@@ -140,31 +153,31 @@ const { status, data } =
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                             | Response headers |
-| ----------- | --------------------------------------- | ---------------- |
-| **200**     | &#x60;LocationTranslationResource&#x60; | -                |
-| **404**     | Not found                               | -                |
-| **401**     | Unauthenticated                         | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;LocationTranslationResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **locationTranslationStore**
-
 > LocationTranslationStore200Response locationTranslationStore(locationTranslationStoreRequest)
+
 
 ### Example
 
 ```typescript
 import {
-  LocationTranslationApi,
-  Configuration,
-  LocationTranslationStoreRequest,
-} from "./api";
+    LocationTranslationApi,
+    Configuration,
+    LocationTranslationStoreRequest
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LocationTranslationApi(configuration);
@@ -172,15 +185,16 @@ const apiInstance = new LocationTranslationApi(configuration);
 let locationTranslationStoreRequest: LocationTranslationStoreRequest; //
 
 const { status, data } = await apiInstance.locationTranslationStore(
-  locationTranslationStoreRequest,
+    locationTranslationStoreRequest
 );
 ```
 
 ### Parameters
 
-| Name                                | Type                                | Description | Notes |
-| ----------------------------------- | ----------------------------------- | ----------- | ----- |
-| **locationTranslationStoreRequest** | **LocationTranslationStoreRequest** |             |       |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **locationTranslationStoreRequest** | **LocationTranslationStoreRequest**|  | |
+
 
 ### Return type
 
@@ -192,31 +206,31 @@ const { status, data } = await apiInstance.locationTranslationStore(
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                             | Response headers |
-| ----------- | --------------------------------------- | ---------------- |
-| **200**     | &#x60;LocationTranslationResource&#x60; | -                |
-| **422**     | Validation error                        | -                |
-| **401**     | Unauthenticated                         | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;LocationTranslationResource&#x60; |  -  |
+|**422** | Validation error |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **locationTranslationUpdate**
-
 > LocationTranslationStore200Response locationTranslationUpdate()
+
 
 ### Example
 
 ```typescript
 import {
-  LocationTranslationApi,
-  Configuration,
-  LocationTranslationUpdateRequest,
-} from "./api";
+    LocationTranslationApi,
+    Configuration,
+    LocationTranslationUpdateRequest
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LocationTranslationApi(configuration);
@@ -225,17 +239,18 @@ let locationTranslation: string; //The location translation ID (default to undef
 let locationTranslationUpdateRequest: LocationTranslationUpdateRequest; // (optional)
 
 const { status, data } = await apiInstance.locationTranslationUpdate(
-  locationTranslation,
-  locationTranslationUpdateRequest,
+    locationTranslation,
+    locationTranslationUpdateRequest
 );
 ```
 
 ### Parameters
 
-| Name                                 | Type                                 | Description                 | Notes                 |
-| ------------------------------------ | ------------------------------------ | --------------------------- | --------------------- |
-| **locationTranslationUpdateRequest** | **LocationTranslationUpdateRequest** |                             |                       |
-| **locationTranslation**              | [**string**]                         | The location translation ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **locationTranslationUpdateRequest** | **LocationTranslationUpdateRequest**|  | |
+| **locationTranslation** | [**string**] | The location translation ID | defaults to undefined|
+
 
 ### Return type
 
@@ -247,20 +262,22 @@ const { status, data } = await apiInstance.locationTranslationUpdate(
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                             | Response headers |
-| ----------- | --------------------------------------- | ---------------- |
-| **200**     | &#x60;LocationTranslationResource&#x60; | -                |
-| **422**     | Validation error                        | -                |
-| **404**     | Not found                               | -                |
-| **401**     | Unauthenticated                         | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;LocationTranslationResource&#x60; |  -  |
+|**422** | Validation error |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
+
+
 ---
 
-_This documentation was automatically generated from the TypeScript API client._
+*This documentation was automatically generated from the TypeScript API client.*

@@ -8,38 +8,44 @@ category: "APIs"
 
 # LocationApi
 
-All URIs are relative to _http://localhost:8000/api_
+All URIs are relative to *http://localhost:8000/api*
 
-| Method                                  | HTTP request                    | Description                    |
-| --------------------------------------- | ------------------------------- | ------------------------------ |
-| [**locationDestroy**](#locationdestroy) | **DELETE** /location/{location} | Remove the specified location  |
-| [**locationIndex**](#locationindex)     | **GET** /location               | Display a listing of locations |
-| [**locationShow**](#locationshow)       | **GET** /location/{location}    | Display the specified location |
-| [**locationStore**](#locationstore)     | **POST** /location              | Store a newly created location |
-| [**locationUpdate**](#locationupdate)   | **PUT** /location/{location}    | Update the specified location  |
+|Method | HTTP request | Description|
+|------------- | ------------- | -------------|
+|[**locationDestroy**](#locationdestroy) | **DELETE** /location/{location} | Remove the specified location|
+|[**locationIndex**](#locationindex) | **GET** /location | Display a listing of locations|
+|[**locationShow**](#locationshow) | **GET** /location/{location} | Display the specified location|
+|[**locationStore**](#locationstore) | **POST** /location | Store a newly created location|
+|[**locationUpdate**](#locationupdate) | **PUT** /location/{location} | Update the specified location|
 
 # **locationDestroy**
-
 > locationDestroy()
+
 
 ### Example
 
 ```typescript
-import { LocationApi, Configuration } from "./api";
+import {
+    LocationApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LocationApi(configuration);
 
 let location: string; //The location ID (default to undefined)
 
-const { status, data } = await apiInstance.locationDestroy(location);
+const { status, data } = await apiInstance.locationDestroy(
+    location
+);
 ```
 
 ### Parameters
 
-| Name         | Type         | Description     | Notes                 |
-| ------------ | ------------ | --------------- | --------------------- |
-| **location** | [**string**] | The location ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **location** | [**string**] | The location ID | defaults to undefined|
+
 
 ### Return type
 
@@ -51,27 +57,30 @@ void (empty response body)
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description     | Response headers |
-| ----------- | --------------- | ---------------- |
-| **204**     | No content      | -                |
-| **404**     | Not found       | -                |
-| **401**     | Unauthenticated | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | No content |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **locationIndex**
-
 > LocationIndex200Response locationIndex()
+
 
 ### Example
 
 ```typescript
-import { LocationApi, Configuration } from "./api";
+import {
+    LocationApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LocationApi(configuration);
@@ -80,8 +89,8 @@ const { status, data } = await apiInstance.locationIndex();
 ```
 
 ### Parameters
-
 This endpoint does not have any parameters.
+
 
 ### Return type
 
@@ -93,40 +102,46 @@ This endpoint does not have any parameters.
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                           | Response headers |
-| ----------- | ------------------------------------- | ---------------- |
-| **200**     | Array of &#x60;LocationResource&#x60; | -                |
-| **401**     | Unauthenticated                       | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Array of &#x60;LocationResource&#x60; |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **locationShow**
-
 > LocationStore201Response locationShow()
+
 
 ### Example
 
 ```typescript
-import { LocationApi, Configuration } from "./api";
+import {
+    LocationApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LocationApi(configuration);
 
 let location: string; //The location ID (default to undefined)
 
-const { status, data } = await apiInstance.locationShow(location);
+const { status, data } = await apiInstance.locationShow(
+    location
+);
 ```
 
 ### Parameters
 
-| Name         | Type         | Description     | Notes                 |
-| ------------ | ------------ | --------------- | --------------------- |
-| **location** | [**string**] | The location ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **location** | [**string**] | The location ID | defaults to undefined|
+
 
 ### Return type
 
@@ -138,41 +153,48 @@ const { status, data } = await apiInstance.locationShow(location);
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                  | Response headers |
-| ----------- | ---------------------------- | ---------------- |
-| **200**     | &#x60;LocationResource&#x60; | -                |
-| **404**     | Not found                    | -                |
-| **401**     | Unauthenticated              | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;LocationResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **locationStore**
-
 > LocationStore201Response locationStore(locationStoreRequest)
+
 
 ### Example
 
 ```typescript
-import { LocationApi, Configuration, LocationStoreRequest } from "./api";
+import {
+    LocationApi,
+    Configuration,
+    LocationStoreRequest
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LocationApi(configuration);
 
 let locationStoreRequest: LocationStoreRequest; //
 
-const { status, data } = await apiInstance.locationStore(locationStoreRequest);
+const { status, data } = await apiInstance.locationStore(
+    locationStoreRequest
+);
 ```
 
 ### Parameters
 
-| Name                     | Type                     | Description | Notes |
-| ------------------------ | ------------------------ | ----------- | ----- |
-| **locationStoreRequest** | **LocationStoreRequest** |             |       |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **locationStoreRequest** | **LocationStoreRequest**|  | |
+
 
 ### Return type
 
@@ -184,27 +206,31 @@ const { status, data } = await apiInstance.locationStore(locationStoreRequest);
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                  | Response headers |
-| ----------- | ---------------------------- | ---------------- |
-| **201**     | &#x60;LocationResource&#x60; | -                |
-| **422**     |                              | -                |
-| **401**     | Unauthenticated              | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | &#x60;LocationResource&#x60; |  -  |
+|**422** |  |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
 # **locationUpdate**
-
 > LocationStore201Response locationUpdate(locationUpdateRequest)
+
 
 ### Example
 
 ```typescript
-import { LocationApi, Configuration, LocationUpdateRequest } from "./api";
+import {
+    LocationApi,
+    Configuration,
+    LocationUpdateRequest
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LocationApi(configuration);
@@ -213,17 +239,18 @@ let location: string; //The location ID (default to undefined)
 let locationUpdateRequest: LocationUpdateRequest; //
 
 const { status, data } = await apiInstance.locationUpdate(
-  location,
-  locationUpdateRequest,
+    location,
+    locationUpdateRequest
 );
 ```
 
 ### Parameters
 
-| Name                      | Type                      | Description     | Notes                 |
-| ------------------------- | ------------------------- | --------------- | --------------------- |
-| **locationUpdateRequest** | **LocationUpdateRequest** |                 |                       |
-| **location**              | [**string**]              | The location ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **locationUpdateRequest** | **LocationUpdateRequest**|  | |
+| **location** | [**string**] | The location ID | defaults to undefined|
+
 
 ### Return type
 
@@ -235,20 +262,22 @@ const { status, data } = await apiInstance.locationUpdate(
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
 
 ### HTTP response details
-
-| Status code | Description                  | Response headers |
-| ----------- | ---------------------------- | ---------------- |
-| **200**     | &#x60;LocationResource&#x60; | -                |
-| **422**     |                              | -                |
-| **404**     | Not found                    | -                |
-| **401**     | Unauthenticated              | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;LocationResource&#x60; |  -  |
+|**422** |  |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
 
 [Back to top](#) [Back to API list]({{ site.baseurl }}/api-client/) [Back to Model list]({{ site.baseurl }}/api-client/) [Back to README]({{ site.baseurl }}/api-client/)
 
+
+
 ---
 
-_This documentation was automatically generated from the TypeScript API client._
+*This documentation was automatically generated from the TypeScript API client.*
