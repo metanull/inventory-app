@@ -37,14 +37,14 @@ The Inventory Management API provides RESTful endpoints for managing museum inve
 2. **Processing**: Background events resize, validate, and optimize images
 3. **Available Pool**: Successfully processed images become `AvailableImage` records
 4. **Attachment**: Images are attached to models via transactional operations:
-    - `POST /api/picture/attach-to-item/{item}` - Attach to Items
-    - `POST /api/picture/attach-to-detail/{detail}` - Attach to Details
-    - `POST /api/picture/attach-to-partner/{partner}` - Attach to Partners
+   - `POST /api/picture/attach-to-item/{item}` - Attach to Items
+   - `POST /api/picture/attach-to-detail/{detail}` - Attach to Details
+   - `POST /api/picture/attach-to-partner/{partner}` - Attach to Partners
 5. **Management**: Attached images become `Picture` records with full CRUD operations
 6. **Detachment**: Pictures can be detached and converted back to AvailableImages:
-    - `DELETE /api/picture/{picture}/detach-from-item/{item}` - Detach from Items
-    - `DELETE /api/picture/{picture}/detach-from-detail/{detail}` - Detach from Details
-    - `DELETE /api/picture/{picture}/detach-from-partner/{partner}` - Detach from Partners
+   - `DELETE /api/picture/{picture}/detach-from-item/{item}` - Detach from Items
+   - `DELETE /api/picture/{picture}/detach-from-detail/{detail}` - Detach from Details
+   - `DELETE /api/picture/{picture}/detach-from-partner/{partner}` - Detach from Partners
 
 ### Features
 
@@ -68,10 +68,12 @@ npm install @metanull/inventory-app-api-client@latest
 ### Quick Start
 
 ```typescript
-import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client';
+import { Configuration, DefaultApi } from "@metanull/inventory-app-api-client";
 
-const api = new DefaultApi(new Configuration({ basePath: 'https://your.api.url' }));
-api.addressIndex().then(response => console.log(response.data));
+const api = new DefaultApi(
+  new Configuration({ basePath: "https://your.api.url" }),
+);
+api.addressIndex().then((response) => console.log(response.data));
 ```
 
 ### Package Information
@@ -94,7 +96,240 @@ The TypeScript client includes comprehensive documentation for all API endpoints
 ### Generation Process
 
 The client is automatically generated using:
+
 - [OpenAPI Generator CLI](https://github.com/OpenAPITools/openapi-generator-cli)
 - Published to [GitHub Packages](https://npm.pkg.github.com/)
 - Versioned automatically with each API update
 - Includes comprehensive documentation and examples
+
+## API Client Development Guide
+
+This section provides comprehensive information about the API client generation, versioning, publishing, and integration process.
+
+### Project Scripts
+
+The project includes several PowerShell scripts for managing the API client lifecycle:
+
+#### 1. `generate-api-client.ps1`
+
+This script generates the TypeScript API client from the OpenAPI specification.
+
+**Location**: `scripts/generate-api-client.ps1`
+
+**Usage**:
+
+```powershell
+# Make output more verbose
+$InformationPreference = 'Continue'
+
+# Basic usage - generates with default settings (patch increment)
+.\scripts\generate-api-client.ps1
+
+# Force regeneration of package.json and README.md
+.\scripts\generate-api-client.ps1 -Force
+
+# Specify version increment type (major, minor, patch)
+.\scripts\generate-api-client.ps1 -IncrementType major
+.\scripts\generate-api-client.ps1 -IncrementType minor
+.\scripts\generate-api-client.ps1 -IncrementType patch
+
+# Use explicit version number
+.\scripts\generate-api-client.ps1 -Version "2.0.0"
+
+# Skip version incrementing
+.\scripts\generate-api-client.ps1 -NoVersionIncrement
+```
+
+**Parameters**:
+
+- `-Force`: Overwrites existing package.json and README.md files
+- `-Version`: Sets a specific version number, overriding automatic versioning
+- `-NoVersionIncrement`: Uses the base version without incrementing
+- `-IncrementType`: Specifies which part of version to increment ('major', 'minor', or 'patch')
+
+#### 2. `publish-api-client.ps1`
+
+This script publishes the generated API client to the npm registry.
+
+**Location**: `scripts/publish-api-client.ps1`
+
+**Usage**:
+
+```powershell
+# Perform a dry run (no actual publishing)
+.\scripts\publish-api-client.ps1 -DryRun
+
+# Publish to GitHub Packages with credentials
+.\scripts\publish-api-client.ps1 -Credential (Get-Secret github-package)
+
+# Publish to a different registry
+.\scripts\publish-api-client.ps1 -Registry "https://registry.npmjs.org/"
+```
+
+**Parameters**:
+
+- `-DryRun`: Tests the publishing process without actually publishing
+- `-Registry`: Specifies the npm registry URL (default: GitHub Packages)
+- `-Credential`: Provides authentication credentials for the registry
+
+### Versioning Strategy
+
+The API client uses semantic versioning with the following components:
+
+1. **Base Version** (`MAJOR.MINOR.PATCH`):
+   - MAJOR: Incremented for incompatible API changes
+   - MINOR: Incremented for backward-compatible new features
+   - PATCH: Incremented for backward-compatible bug fixes
+
+2. **Pre-release Identifier** (`-dev`):
+   - Indicates a development version not intended for production
+
+3. **Build Metadata** (`+yyyyMMdd.HHmm`):
+   - Timestamp that ensures each build has a unique identifier
+   - Format: year, month, day, hour, minute
+
+**Example Version**: `1.2.3-dev+20250709.1347`
+
+When publishing to npm, build metadata is converted to a compatible format:
+`1.2.3-dev.0709.1347`
+
+### Configuration
+
+The API client configuration is stored in `scripts/api-client-config.psd1` and includes:
+
+- Package metadata (name, description, author, license)
+- Versioning strategy and settings
+- File paths for input/output
+- Templates for package.json and README.md
+
+### API Client Generation Process
+
+1. **OpenAPI Specification**: The API client is generated from the OpenAPI specification at `docs/_openapi/api.json`
+
+2. **Generation**: The `generate-api-client.ps1` script:
+   - Reads the OpenAPI specification
+   - Determines the version number based on configuration
+   - Runs the OpenAPI Generator CLI
+   - Creates or updates package.json and README.md
+
+3. **Versioning**: Version numbers are determined by:
+   - Reading the existing version from package.json
+   - Incrementing according to the specified strategy
+   - Adding pre-release identifier and build metadata
+   - Generating a unique version for each build
+
+4. **Output**: The generated client is placed in the `api-client` directory
+
+### Publishing Process
+
+1. **Preparation**: The `publish-api-client.ps1` script:
+   - Validates that the client exists
+   - Reads version information
+   - Handles npm authentication
+   - Converts the version for npm compatibility
+
+2. **Publication**: The package is published to GitHub Packages by default
+   - Pre-release versions are tagged as 'dev'
+   - Build metadata is converted to npm-compatible format
+   - The publish command uses appropriate access settings
+
+3. **Authentication**: Authentication with GitHub Packages requires:
+   - A GitHub personal access token with appropriate permissions
+   - Configuration in the user's .npmrc file or via credentials
+
+### Integration in Client Projects
+
+To use the API client in a project:
+
+1. **Authentication Setup**:
+
+   Create or update `.npmrc` in your project root:
+
+   ```
+   @metanull:registry=https://npm.pkg.github.com
+   //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+   ```
+
+   Where `${GITHUB_TOKEN}` is your GitHub personal access token with package read permissions.
+
+2. **Installation**:
+
+   ```bash
+   # Latest stable version
+   npm install @metanull/inventory-app-api-client
+
+   # Latest development version
+   npm install @metanull/inventory-app-api-client@dev
+
+   # Specific version
+   npm install @metanull/inventory-app-api-client@1.2.3
+   ```
+
+3. **Usage**:
+
+   ```typescript
+   import {
+     Configuration,
+     DefaultApi,
+   } from "@metanull/inventory-app-api-client";
+
+   // Create API instance
+   const api = new DefaultApi(
+     new Configuration({
+       basePath: "https://your-api-url",
+       // Optional: Authentication
+       accessToken: "your-access-token",
+     }),
+   );
+
+   // Make API calls
+   async function fetchItems() {
+     try {
+       const response = await api.itemIndex();
+       return response.data;
+     } catch (error) {
+       console.error("API Error:", error);
+       throw error;
+     }
+   }
+   ```
+
+### Troubleshooting
+
+Common issues and their solutions:
+
+- **Version Conflicts**: If npm reports a version conflict when publishing:
+  - Use `.\scripts\generate-api-client.ps1 -IncrementType minor` to increment the version
+  - Run `.\scripts\publish-api-client.ps1 -DryRun` to verify the new version
+
+- **Authentication Issues**: If publishing fails with authorization errors:
+  - Verify your GitHub token has the `write:packages` scope
+  - Check that your .npmrc file is correctly configured
+  - Try running `npm login --registry=https://npm.pkg.github.com/` manually
+
+- **Generation Issues**: If client generation fails:
+  - Validate the OpenAPI specification with a tool like Swagger Editor
+  - Check for errors in the OpenAPI JSON file
+  - Try running with verbose logging: `.\scripts\generate-api-client.ps1 -Verbose`
+
+- **Script Output Visibility**: If you don't see informational messages:
+  - Use the `-InformationPreference Continue` parameter to ensure information stream is visible
+  - Example: `.\scripts\generate-api-client.ps1`
+  - Note: The scripts currently use `-InformationAction Continue` internally which may be overridden by your session's preferences
+
+### Best Practices
+
+1. **Version Management**:
+   - Use `-IncrementType major` for breaking API changes
+   - Use `-IncrementType minor` for new endpoints or parameters
+   - Use `-IncrementType patch` for bug fixes and minor updates
+
+2. **Client Updates**:
+   - Regenerate the client after any API changes
+   - Run tests against the new client before publishing
+   - Document breaking changes in release notes
+
+3. **Package Consumption**:
+   - Pin to specific versions in production applications
+   - Use `@latest` for development/testing purposes
+   - Consider using GitHub Actions to automate client updates

@@ -58,11 +58,13 @@ _docs/
 ## Requirements
 
 ### For Local Development
+
 - Python 3.x
 - Ruby 3.2.3 (for Jekyll)
 - Bundler gem installed
 
 ### For GitHub Actions (handled automatically)
+
 - GitHub repository with Actions enabled
 - GitHub Pages configured
 - Appropriate permissions:
@@ -73,12 +75,14 @@ _docs/
 ## Local Testing
 
 1. Install Ruby dependencies:
+
    ```bash
    cd docs
    bundle install
    ```
 
 2. Generate documentation:
+
    ```bash
    python docs/generate-commit-docs.py
    ```
@@ -95,11 +99,12 @@ The site will be generated in `docs/_site/`.
 
 ### Yaml
 
-The following GitHub Action pipeline can be used to automate the generation of the GitHub 
+The following GitHub Action pipeline can be used to automate the generation of the GitHub
 Page website, including a documentation of the history of the repostory in your CI/CD
 pipelines.
 
 {: .note }
+
 > **Python script for the generation of the pages**: [generate-commit-docs.py](https://github.com/metanull/inventory-app/blob/main/docs/generate-commit-docs.py)
 
 ```yaml
@@ -107,10 +112,10 @@ name: Generate Commit Documentation
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   schedule:
     # Run every day at 2 AM UTC
-    - cron: '0 2 * * *'
+    - cron: "0 2 * * *"
   workflow_dispatch:
     # Allow manual triggering
 
@@ -127,60 +132,59 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  
   build:
     runs-on: ubuntu-latest
-    
+
     # Override workflow permissions for this job to include contents: write for committing
     permissions:
       contents: write
       pages: write
       id-token: write
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Fetch full history for commit analysis
-        token: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Set up Git
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
 
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
-    
-    - name: Setup Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.2.3'
-        working-directory: docs
-    
-    - name: Install Ruby dependencies
-      run: |
-        cd docs
-        bundle install
-    
-    - name: Generate documentation of the latest commits
-      run: |
-        python docs/generate-commit-docs.py
-    
-    - name: Build Jekyll site
-      run: |
-        cd docs
-        bundle exec jekyll build
-    
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: docs/_site
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch full history for commit analysis
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2.3"
+          working-directory: docs
+
+      - name: Install Ruby dependencies
+        run: |
+          cd docs
+          bundle install
+
+      - name: Generate documentation of the latest commits
+        run: |
+          python docs/generate-commit-docs.py
+
+      - name: Build Jekyll site
+        run: |
+          cd docs
+          bundle exec jekyll build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_site
 
   deploy:
     needs: build
@@ -196,9 +200,9 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 ```

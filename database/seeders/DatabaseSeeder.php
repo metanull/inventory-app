@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
             AuthorSeeder::class,
             WorkshopSeeder::class,
             PictureSeeder::class,
+            PictureTranslationSeeder::class,
         ]);
     }
 }

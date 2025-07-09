@@ -9,24 +9,30 @@ nav_order: 4
 Welcome to the Inventory API development archive! Here you'll find the latest updates, changes, and improvements to the application throughout its development history.
 
 {: .highlight }
+
 > This page is automatically updated with the latest changes from our GitHub repository. Each entry represents a day's worth of development activity.
 
 ---
 
 {% for post in site.posts %}
+
 ## {{ post.date | date: "%B %d, %Y" }}
 
 {{ post.content }}
 
 ---
+
 {% endfor %}
 
 {% if site.docs %}
+
 ## Recent Commits
 
 {% assign sorted_docs = site.docs | sort: 'date' | reverse %}
 {% for doc in sorted_docs limit:10 %}
+
 ### [{{ doc.title }}]({{ doc.url | relative_url }})
+
 **{{ doc.date | date: "%B %d, %Y at %I:%M %p" }}** by {{ doc.author }}
 
 {% if doc.commit_hash %}
@@ -39,12 +45,13 @@ Welcome to the Inventory API development archive! Here you'll find the latest up
 [View full commit details]({{ doc.url | relative_url }})
 
 ---
+
 {% endfor %}
 {% endif %}
 
 ## Getting Started
 
-If you don't see any posts above, it means we haven't set up the automated blog generation yet, or there haven't been any recent updates. 
+If you don't see any posts above, it means we haven't set up the automated blog generation yet, or there haven't been any recent updates.
 
 The blog will automatically populate with:
 
@@ -65,6 +72,6 @@ To stay informed about the latest changes:
 
 ---
 
-*This page is automatically generated from our Git commit history and updated daily.*
+_This page is automatically generated from our Git commit history and updated daily._
 
-*Last updated: {{ site.time | date: "%B %d, %Y at %I:%M %p" }}*
+_Last updated: {{ site.time | date: "%B %d, %Y at %I:%M %p" }}_

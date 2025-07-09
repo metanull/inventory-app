@@ -88,73 +88,79 @@ Complete source code and issue tracking
 
 ## 🚀 Technology Stack
 
-### About PHP
+### Core Stack
+
+#### PHP
 
 This API is developed using [PHP](https://www.php.net), a widely-used open source scripting language especially suited for web development. PHP powers millions of websites and applications worldwide, offering a mature ecosystem, strong community support, and excellent performance for building scalable server-side solutions. Its flexibility and extensive library support make it a reliable choice for modern web APIs.
 
-### About Laravel
+#### Laravel
 
 This API is built using [Laravel](https://laravel.com), a modern PHP web application framework known for its elegant syntax, robust features, and developer-friendly tools. Laravel is open source and released under the [MIT license](https://opensource.org/licenses/MIT), allowing free use, modification, and distribution.
 
-### About MariaDB
+#### MariaDB
 
 The Museum With No Frontiers' production websites are powered by [MariaDB](https://mariadb.org), a popular open source relational database management system. MariaDB is renowned for its high performance, reliability, and compatibility with MySQL, making it a robust choice for mission-critical applications. Its active community and enterprise-grade features ensure ongoing support and scalability for MWNF's data infrastructure.
 
-### About SQLite
+#### SQLite
 
 For development and demonstration purposes, this application uses [SQLite](https://www.sqlite.org), a lightweight, file-based database engine. SQLite requires no server setup and is fully integrated into the Laravel ecosystem, making it ideal for local development, testing, and prototyping. Its simplicity and portability allow developers to quickly spin up and share working environments without complex configuration.
 
-### About Scramble
+### Documentation
+
+#### Scramble
 
 This API uses [de:doc Scramble](https://scramble.dedoc.co/usage/getting-started) for automated OpenAPI documentation generation. Scramble automatically analyzes your Laravel routes, controllers, and models to generate accurate, interactive API documentation. It provides real-time documentation updates, automatic schema generation from Eloquent models, and comprehensive request/response examples, making API documentation maintenance effortless and always up-to-date.
 
-### About Swagger UI
+#### Swagger UI
 
 The interactive API documentation is powered by [Swagger UI](https://swagger.io/docs/open-source-tools/swagger-ui/usage/installation/#unpkg), an industry-standard tool for exploring and testing APIs. Swagger UI provides a user-friendly interface where developers can visualize API endpoints, examine request/response schemas, and execute live API calls directly from the browser, making API integration and testing straightforward and efficient.
 
-### About Ruby & Jekyll
-
-The project documentation site is built using [Ruby 3](https://www.ruby-lang.org/) and [Jekyll](https://jekyllrb.com/), a static site generator that transforms markdown files into a beautiful, searchable documentation website. Jekyll's powerful templating system and GitHub Pages integration enable automatic documentation deployment, providing a professional documentation experience with minimal maintenance overhead.
-
-### About Husky
-
-The project uses [Husky](https://typicode.github.io/husky) for managing Git hooks, enabling automated code quality checks before commits and pushes. Husky ensures that all committed code meets our quality standards by running linting, formatting, and tests automatically, preventing low-quality code from entering the repository and maintaining consistent code standards across all contributors.
-
-### About lint-staged
-
-This project integrates [lint-staged](https://www.npmjs.com/package/lint-staged) to run code quality tools only on staged files, improving performance and developer experience. lint-staged works with Husky to automatically format and lint only the files being committed, ensuring fast pre-commit checks without processing the entire codebase unnecessarily.
-
-### About Prettier
-
-The project uses [Prettier](https://prettier.io/) for automatic code formatting, ensuring consistent code style across JavaScript, TypeScript, CSS, and Markdown files. Prettier automatically formats code on save and during pre-commit hooks, eliminating style discussions and maintaining a uniform codebase appearance without manual intervention.
-
-### About Stylelint
-
-CSS and SCSS code quality is maintained using [Stylelint](https://stylelint.io/), a modern CSS linter that catches errors, enforces conventions, and suggests improvements. Stylelint integrates with our development workflow to ensure consistent CSS coding standards, proper syntax usage, and adherence to best practices across all stylesheets.
-
-### About GitHub Copilot and AI Agents
-
-This project leverages [GitHub Copilot](https://github.com/features/copilot) as an AI coding assistant, powered by advanced models such as **GPT-4.1** and **Claude Sonnet 4**. Copilot and similar agents accelerate development by providing intelligent code suggestions, automated documentation, and context-aware refactoring. These tools help maintain high code quality, reduce manual effort, and ensure best practices are followed throughout the codebase.
-
-### About OpenAPI Generator CLI
+#### OpenAPI Generator CLI
 
 The project uses [OpenAPI Generator CLI](https://github.com/OpenAPITools/openapi-generator-cli) to automatically generate TypeScript-Axios client libraries from the OpenAPI specification. This tool ensures that client libraries are always in sync with the API, reducing manual maintenance and providing type-safe interfaces for consuming the API. The generator creates comprehensive documentation and examples, making API integration seamless for developers.
 
-### About GitHub
+#### Ruby & Jekyll
+
+The project documentation site is built using [Ruby 3](https://www.ruby-lang.org/) and [Jekyll](https://jekyllrb.com/), a static site generator that transforms markdown files into a beautiful, searchable documentation website. Jekyll's powerful templating system and GitHub Pages integration enable automatic documentation deployment, providing a professional documentation experience with minimal maintenance overhead.
+
+### Code Quality
+
+### PHPUnit
+
+The project uses [PHPUnit](https://phpunit.de/), the industry-standard testing framework for PHP, to ensure the reliability and correctness of all application code. PHPUnit enables developers to write unit and feature tests that validate business logic, API endpoints, and integration scenarios. Test execution is automated in the CI/CD pipeline and enforced by pre-commit hooks, guaranteeing that all code changes are thoroughly tested before being merged. This rigorous approach to testing helps maintain a robust, bug-free codebase and supports rapid, confident development.
+
+### Pint
+
+The project uses [Pint](https://laravel.com/docs/12.x/pint), Laravel's official PHP code style fixer, to ensure consistent code formatting and adherence to modern PHP and Laravel standards. Pint automatically formats PHP code according to the PSR-12 standard and Laravel's own conventions, reducing code review overhead and eliminating style inconsistencies. It is integrated into the CI/CD pipeline and pre-commit hooks, so all PHP files are automatically checked and fixed before being committed, helping maintain a clean and professional codebase at all times.
+
+### Prettier
+
+The project uses [Prettier](https://prettier.io/) for automatic code formatting, ensuring consistent code style across JavaScript, TypeScript, CSS, and Markdown files. Prettier automatically formats code on save and during pre-commit hooks, eliminating style discussions and maintaining a uniform codebase appearance without manual intervention.
+
+### Git Repository and CI/CD
+
+### GitHub
 
 This project is hosted on [GitHub](https://github.com/metanull/inventory-app), a leading platform for version control and collaborative software development. GitHub provides robust tools for code review, issue tracking, project management, and team collaboration, enabling efficient development workflows and maintaining high code quality standards through peer review and automated checks.
 
-### About GitHub Pages
+### GitHub Pages
 
 The project documentation is deployed using [GitHub Pages](https://pages.github.com/), a static site hosting service that automatically builds and publishes documentation from the repository. GitHub Pages integration enables automatic documentation deployment, providing a professional documentation experience with minimal maintenance overhead and ensuring that documentation is always up-to-date with the latest changes.
 
-### About GitHub Actions
+### GitHub Actions
 
 Continuous integration and deployment are powered by [GitHub Actions](https://github.com/features/actions), a powerful automation platform that runs workflows directly in the repository. GitHub Actions handles automated testing, code quality checks, security scanning, and deployment processes, ensuring that every change is validated and deployed safely without manual intervention.
 
-### About GitHub npm Package Repository
+### GitHub npm Package Repository
 
 The TypeScript API client is published to [GitHub Packages](https://npm.pkg.github.com/), GitHub's integrated package registry that provides secure, private package hosting alongside the source code. This ensures that the API client packages are versioned, distributed, and managed in the same ecosystem as the source code, providing seamless integration and access control for development teams.
+
+### AI assistant
+
+#### GitHub Copilot and AI Agents
+
+This project leverages [GitHub Copilot](https://github.com/features/copilot) as an AI coding assistant, powered by advanced models such as **GPT-4.1** and **Claude Sonnet 4**. Copilot and similar agents accelerate development by providing intelligent code suggestions, automated documentation, and context-aware refactoring. These tools help maintain high code quality, reduce manual effort, and ensure best practices are followed throughout the codebase.
 
 ## 📄 License
 

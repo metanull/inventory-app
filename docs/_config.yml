@@ -120,7 +120,6 @@ aux_links:
   "View on GitHub":
     - "https://github.com/metanull/inventory-app"
 
-
 # Include additional files that Jekyll should process
 include:
   - api.json

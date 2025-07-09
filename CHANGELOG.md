@@ -18,6 +18,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - Validates Picture belongs to the specified entity
         - Moves image files from Pictures directory back to AvailableImages directory
         - Creates new AvailableImage record with optional comment
+- **Picture Translation Support**: Added translation support to the Picture model
+    - Created PictureTranslation model, migration, factory, seeder, resource and controller
+    - Updated Picture model with translation handling methods
+    - Added corresponding feature and unit tests
+
+### Improved
+
+- **API Client Documentation**: Enhanced documentation for TypeScript API client
+    - Added comprehensive API client development guide
+    - Detailed versioning strategy explanation
+    - Added troubleshooting section and best practices
+    - Improved integration instructions with authentication setup
+
+### Fixed
+
+- **API Client Versioning**: Fixed versioning system to prevent conflicts during npm package publishing
+    - Added support for proper semantic versioning
+    - Improved handling of build metadata for npm compatibility
+    - Added parameter to specify version increment type (major, minor, patch)
         - Removes Picture record and polymorphic relationship
         - Preserves file content and metadata throughout the process
     - **Comprehensive Test Coverage**: 150+ new tests covering all detachment functionality

@@ -78,8 +78,8 @@
         ],
         "ci-lint": [
             "pwsh -File scripts/ci-lint.ps1",
-            "npx prettier --write \"./docs/_openapi/\" --no-config",
-            "npx prettier --write \"./docs/api-client/\" --no-config"
+            "npx prettier --write \"./docs/**/*.md\" --no-config",
+            "npx prettier --write \"./resources/**\""
         ],
         "ci-lint:test": [
             "@putenv COMPOSER_ARGS=--test",

@@ -3214,6 +3214,392 @@ export interface PictureShow200Response {
 /**
  * 
  * @export
+ * @interface PictureTranslationIndex200Response
+ */
+export interface PictureTranslationIndex200Response {
+    /**
+     * 
+     * @type {Array<PictureTranslationResource>}
+     * @memberof PictureTranslationIndex200Response
+     */
+    'data': Array<PictureTranslationResource>;
+    /**
+     * 
+     * @type {PictureTranslationIndex200ResponseMeta}
+     * @memberof PictureTranslationIndex200Response
+     */
+    'meta': PictureTranslationIndex200ResponseMeta;
+    /**
+     * 
+     * @type {PictureTranslationIndex200ResponseLinks}
+     * @memberof PictureTranslationIndex200Response
+     */
+    'links': PictureTranslationIndex200ResponseLinks;
+}
+/**
+ * 
+ * @export
+ * @interface PictureTranslationIndex200ResponseLinks
+ */
+export interface PictureTranslationIndex200ResponseLinks {
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationIndex200ResponseLinks
+     */
+    'first': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationIndex200ResponseLinks
+     */
+    'last': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationIndex200ResponseLinks
+     */
+    'prev': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationIndex200ResponseLinks
+     */
+    'next': string | null;
+}
+/**
+ * 
+ * @export
+ * @interface PictureTranslationIndex200ResponseMeta
+ */
+export interface PictureTranslationIndex200ResponseMeta {
+    /**
+     * 
+     * @type {number}
+     * @memberof PictureTranslationIndex200ResponseMeta
+     */
+    'current_page': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PictureTranslationIndex200ResponseMeta
+     */
+    'from': number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof PictureTranslationIndex200ResponseMeta
+     */
+    'last_page': number;
+    /**
+     * Generated paginator links.
+     * @type {Array<PictureTranslationIndex200ResponseMetaLinksInner>}
+     * @memberof PictureTranslationIndex200ResponseMeta
+     */
+    'links': Array<PictureTranslationIndex200ResponseMetaLinksInner>;
+    /**
+     * Base path for paginator generated URLs.
+     * @type {string}
+     * @memberof PictureTranslationIndex200ResponseMeta
+     */
+    'path': string | null;
+    /**
+     * Number of items shown per page.
+     * @type {number}
+     * @memberof PictureTranslationIndex200ResponseMeta
+     */
+    'per_page': number;
+    /**
+     * Number of the last item in the slice.
+     * @type {number}
+     * @memberof PictureTranslationIndex200ResponseMeta
+     */
+    'to': number | null;
+    /**
+     * Total number of items being paginated.
+     * @type {number}
+     * @memberof PictureTranslationIndex200ResponseMeta
+     */
+    'total': number;
+}
+/**
+ * 
+ * @export
+ * @interface PictureTranslationIndex200ResponseMetaLinksInner
+ */
+export interface PictureTranslationIndex200ResponseMetaLinksInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationIndex200ResponseMetaLinksInner
+     */
+    'url': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationIndex200ResponseMetaLinksInner
+     */
+    'label': string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PictureTranslationIndex200ResponseMetaLinksInner
+     */
+    'active': boolean;
+}
+/**
+ * 
+ * @export
+ * @interface PictureTranslationResource
+ */
+export interface PictureTranslationResource {
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationResource
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationResource
+     */
+    'picture_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationResource
+     */
+    'language_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationResource
+     */
+    'context_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationResource
+     */
+    'description': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationResource
+     */
+    'caption': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationResource
+     */
+    'author_id': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationResource
+     */
+    'text_copy_editor_id': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationResource
+     */
+    'translator_id': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationResource
+     */
+    'translation_copy_editor_id': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationResource
+     */
+    'backward_compatibility': string | null;
+    /**
+     * 
+     * @type {Array<any>}
+     * @memberof PictureTranslationResource
+     */
+    'extra': Array<any> | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationResource
+     */
+    'created_at': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationResource
+     */
+    'updated_at': string | null;
+}
+/**
+ * 
+ * @export
+ * @interface PictureTranslationStore200Response
+ */
+export interface PictureTranslationStore200Response {
+    /**
+     * 
+     * @type {PictureTranslationResource}
+     * @memberof PictureTranslationStore200Response
+     */
+    'data': PictureTranslationResource;
+}
+/**
+ * 
+ * @export
+ * @interface PictureTranslationStoreRequest
+ */
+export interface PictureTranslationStoreRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationStoreRequest
+     */
+    'picture_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationStoreRequest
+     */
+    'language_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationStoreRequest
+     */
+    'context_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationStoreRequest
+     */
+    'description': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationStoreRequest
+     */
+    'caption': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationStoreRequest
+     */
+    'author_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationStoreRequest
+     */
+    'text_copy_editor_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationStoreRequest
+     */
+    'translator_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationStoreRequest
+     */
+    'translation_copy_editor_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationStoreRequest
+     */
+    'backward_compatibility'?: string | null;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PictureTranslationStoreRequest
+     */
+    'extra'?: Array<string> | null;
+}
+/**
+ * 
+ * @export
+ * @interface PictureTranslationUpdateRequest
+ */
+export interface PictureTranslationUpdateRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationUpdateRequest
+     */
+    'picture_id'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationUpdateRequest
+     */
+    'language_id'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationUpdateRequest
+     */
+    'context_id'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationUpdateRequest
+     */
+    'description'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationUpdateRequest
+     */
+    'caption'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationUpdateRequest
+     */
+    'author_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationUpdateRequest
+     */
+    'text_copy_editor_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationUpdateRequest
+     */
+    'translator_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationUpdateRequest
+     */
+    'translation_copy_editor_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PictureTranslationUpdateRequest
+     */
+    'backward_compatibility'?: string | null;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof PictureTranslationUpdateRequest
+     */
+    'extra'?: Array<string> | null;
+}
+/**
+ * 
+ * @export
  * @interface PictureUpdateRequest
  */
 export interface PictureUpdateRequest {
@@ -13829,6 +14215,412 @@ export class PictureApi extends BaseAPI {
      */
     public pictureView(picture: string, options?: RawAxiosRequestConfig) {
         return PictureApiFp(this.configuration).pictureView(picture, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * PictureTranslationApi - axios parameter creator
+ * @export
+ */
+export const PictureTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} pictureTranslation The picture translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        pictureTranslationDestroy: async (pictureTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'pictureTranslation' is not null or undefined
+            assertParamExists('pictureTranslationDestroy', 'pictureTranslation', pictureTranslation)
+            const localVarPath = `/picture-translation/{pictureTranslation}`
+                .replace(`{${"pictureTranslation"}}`, encodeURIComponent(String(pictureTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        pictureTranslationIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/picture-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} pictureTranslation The picture translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        pictureTranslationShow: async (pictureTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'pictureTranslation' is not null or undefined
+            assertParamExists('pictureTranslationShow', 'pictureTranslation', pictureTranslation)
+            const localVarPath = `/picture-translation/{pictureTranslation}`
+                .replace(`{${"pictureTranslation"}}`, encodeURIComponent(String(pictureTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {PictureTranslationStoreRequest} pictureTranslationStoreRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        pictureTranslationStore: async (pictureTranslationStoreRequest: PictureTranslationStoreRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'pictureTranslationStoreRequest' is not null or undefined
+            assertParamExists('pictureTranslationStore', 'pictureTranslationStoreRequest', pictureTranslationStoreRequest)
+            const localVarPath = `/picture-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(pictureTranslationStoreRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} pictureTranslation The picture translation ID
+         * @param {PictureTranslationUpdateRequest} [pictureTranslationUpdateRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        pictureTranslationUpdate: async (pictureTranslation: string, pictureTranslationUpdateRequest?: PictureTranslationUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'pictureTranslation' is not null or undefined
+            assertParamExists('pictureTranslationUpdate', 'pictureTranslation', pictureTranslation)
+            const localVarPath = `/picture-translation/{pictureTranslation}`
+                .replace(`{${"pictureTranslation"}}`, encodeURIComponent(String(pictureTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(pictureTranslationUpdateRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * PictureTranslationApi - functional programming interface
+ * @export
+ */
+export const PictureTranslationApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = PictureTranslationApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} pictureTranslation The picture translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async pictureTranslationDestroy(pictureTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureTranslationDestroy(pictureTranslation, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PictureTranslationApi.pictureTranslationDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async pictureTranslationIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PictureTranslationIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureTranslationIndex(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PictureTranslationApi.pictureTranslationIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} pictureTranslation The picture translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async pictureTranslationShow(pictureTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PictureTranslationStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureTranslationShow(pictureTranslation, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PictureTranslationApi.pictureTranslationShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {PictureTranslationStoreRequest} pictureTranslationStoreRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async pictureTranslationStore(pictureTranslationStoreRequest: PictureTranslationStoreRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PictureTranslationStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureTranslationStore(pictureTranslationStoreRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PictureTranslationApi.pictureTranslationStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} pictureTranslation The picture translation ID
+         * @param {PictureTranslationUpdateRequest} [pictureTranslationUpdateRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async pictureTranslationUpdate(pictureTranslation: string, pictureTranslationUpdateRequest?: PictureTranslationUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PictureTranslationStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureTranslationUpdate(pictureTranslation, pictureTranslationUpdateRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PictureTranslationApi.pictureTranslationUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * PictureTranslationApi - factory interface
+ * @export
+ */
+export const PictureTranslationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = PictureTranslationApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} pictureTranslation The picture translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        pictureTranslationDestroy(pictureTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.pictureTranslationDestroy(pictureTranslation, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        pictureTranslationIndex(options?: RawAxiosRequestConfig): AxiosPromise<PictureTranslationIndex200Response> {
+            return localVarFp.pictureTranslationIndex(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} pictureTranslation The picture translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        pictureTranslationShow(pictureTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<PictureTranslationStore200Response> {
+            return localVarFp.pictureTranslationShow(pictureTranslation, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {PictureTranslationStoreRequest} pictureTranslationStoreRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        pictureTranslationStore(pictureTranslationStoreRequest: PictureTranslationStoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<PictureTranslationStore200Response> {
+            return localVarFp.pictureTranslationStore(pictureTranslationStoreRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} pictureTranslation The picture translation ID
+         * @param {PictureTranslationUpdateRequest} [pictureTranslationUpdateRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        pictureTranslationUpdate(pictureTranslation: string, pictureTranslationUpdateRequest?: PictureTranslationUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<PictureTranslationStore200Response> {
+            return localVarFp.pictureTranslationUpdate(pictureTranslation, pictureTranslationUpdateRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * PictureTranslationApi - object-oriented interface
+ * @export
+ * @class PictureTranslationApi
+ * @extends {BaseAPI}
+ */
+export class PictureTranslationApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified resource from storage
+     * @param {string} pictureTranslation The picture translation ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PictureTranslationApi
+     */
+    public pictureTranslationDestroy(pictureTranslation: string, options?: RawAxiosRequestConfig) {
+        return PictureTranslationApiFp(this.configuration).pictureTranslationDestroy(pictureTranslation, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of the resource
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PictureTranslationApi
+     */
+    public pictureTranslationIndex(options?: RawAxiosRequestConfig) {
+        return PictureTranslationApiFp(this.configuration).pictureTranslationIndex(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified resource
+     * @param {string} pictureTranslation The picture translation ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PictureTranslationApi
+     */
+    public pictureTranslationShow(pictureTranslation: string, options?: RawAxiosRequestConfig) {
+        return PictureTranslationApiFp(this.configuration).pictureTranslationShow(pictureTranslation, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created resource in storage
+     * @param {PictureTranslationStoreRequest} pictureTranslationStoreRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PictureTranslationApi
+     */
+    public pictureTranslationStore(pictureTranslationStoreRequest: PictureTranslationStoreRequest, options?: RawAxiosRequestConfig) {
+        return PictureTranslationApiFp(this.configuration).pictureTranslationStore(pictureTranslationStoreRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} pictureTranslation The picture translation ID
+     * @param {PictureTranslationUpdateRequest} [pictureTranslationUpdateRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof PictureTranslationApi
+     */
+    public pictureTranslationUpdate(pictureTranslation: string, pictureTranslationUpdateRequest?: PictureTranslationUpdateRequest, options?: RawAxiosRequestConfig) {
+        return PictureTranslationApiFp(this.configuration).pictureTranslationUpdate(pictureTranslation, pictureTranslationUpdateRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
