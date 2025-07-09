@@ -34,8 +34,12 @@ npm outdated @metanull/inventory-app-api-client
 To regenerate the client after updating the OpenAPI spec, run:
 
 ```powershell
-# Generate with auto-incrementing version
+# Generate with auto-incrementing patch version (default)
 .\scripts\generate-api-client.ps1
+
+# Increment major or minor version
+.\scripts\generate-api-client.ps1 -IncrementType major
+.\scripts\generate-api-client.ps1 -IncrementType minor
 
 # Generate with specific version
 .\scripts\generate-api-client.ps1 -Version "2.0.0"

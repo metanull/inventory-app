@@ -2,7 +2,7 @@
     # Client package configuration
     PackageConfig = @{
         Name = '@metanull/inventory-app-api-client'
-        Version = '1.0.0'  # Base version - will be auto-incremented
+        Version = '1.0.1'  # Base version - will be auto-incremented
         Main = 'index.js'
         Types = 'index.d.ts'
         Description = 'TypeScript-Axios client for inventory-app API'
@@ -18,6 +18,7 @@
         # For auto-increment: which part to increment (major, minor, patch)
         IncrementType = 'patch'
         # Include build metadata in version (e.g., 1.0.0+20250109.1234)
+        # Build metadata will be converted to a unique version suffix during npm publish
         IncludeBuildMetadata = $true
         # Include pre-release identifier for development versions
         PreReleaseIdentifier = 'dev'
@@ -92,8 +93,12 @@ npm outdated {1}
 To regenerate the client after updating the OpenAPI spec, run:
 
 ```powershell
-# Generate with auto-incrementing version
+# Generate with auto-incrementing patch version (default)
 .\scripts\generate-api-client.ps1
+
+# Increment major or minor version
+.\scripts\generate-api-client.ps1 -IncrementType major
+.\scripts\generate-api-client.ps1 -IncrementType minor
 
 # Generate with specific version
 .\scripts\generate-api-client.ps1 -Version "2.0.0"
