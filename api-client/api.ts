@@ -555,6 +555,282 @@ export interface AvailableImageUpdateRequest {
 /**
  * 
  * @export
+ * @interface CollectionIndex200Response
+ */
+export interface CollectionIndex200Response {
+    /**
+     * 
+     * @type {Array<CollectionResource>}
+     * @memberof CollectionIndex200Response
+     */
+    'data': Array<CollectionResource>;
+}
+/**
+ * 
+ * @export
+ * @interface CollectionResource
+ */
+export interface CollectionResource {
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionResource
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionResource
+     */
+    'internal_name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionResource
+     */
+    'language_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionResource
+     */
+    'context_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionResource
+     */
+    'backward_compatibility': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionResource
+     */
+    'created_at': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionResource
+     */
+    'updated_at': string | null;
+    /**
+     * Relationships
+     * @type {LanguageResource}
+     * @memberof CollectionResource
+     */
+    'language'?: LanguageResource;
+    /**
+     * 
+     * @type {ContextResource}
+     * @memberof CollectionResource
+     */
+    'context'?: ContextResource;
+    /**
+     * 
+     * @type {Array<CollectionTranslationResource>}
+     * @memberof CollectionResource
+     */
+    'translations'?: Array<CollectionTranslationResource>;
+    /**
+     * 
+     * @type {Array<PartnerResource>}
+     * @memberof CollectionResource
+     */
+    'partners'?: Array<PartnerResource>;
+    /**
+     * 
+     * @type {Array<ItemResource>}
+     * @memberof CollectionResource
+     */
+    'items'?: Array<ItemResource>;
+    /**
+     * Computed attributes
+     * @type {string}
+     * @memberof CollectionResource
+     */
+    'items_count'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionResource
+     */
+    'partners_count'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionResource
+     */
+    'translations_count'?: string;
+}
+/**
+ * 
+ * @export
+ * @interface CollectionStore200Response
+ */
+export interface CollectionStore200Response {
+    /**
+     * 
+     * @type {CollectionResource}
+     * @memberof CollectionStore200Response
+     */
+    'data': CollectionResource;
+}
+/**
+ * 
+ * @export
+ * @interface CollectionStoreRequest
+ */
+export interface CollectionStoreRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionStoreRequest
+     */
+    'internal_name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionStoreRequest
+     */
+    'language_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionStoreRequest
+     */
+    'context_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionStoreRequest
+     */
+    'backward_compatibility'?: string | null;
+}
+/**
+ * 
+ * @export
+ * @interface CollectionTranslationResource
+ */
+export interface CollectionTranslationResource {
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionTranslationResource
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionTranslationResource
+     */
+    'collection_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionTranslationResource
+     */
+    'language_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionTranslationResource
+     */
+    'context_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionTranslationResource
+     */
+    'title': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionTranslationResource
+     */
+    'description': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionTranslationResource
+     */
+    'url': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionTranslationResource
+     */
+    'backward_compatibility': string | null;
+    /**
+     * 
+     * @type {Array<any>}
+     * @memberof CollectionTranslationResource
+     */
+    'extra': Array<any> | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionTranslationResource
+     */
+    'created_at': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionTranslationResource
+     */
+    'updated_at': string | null;
+    /**
+     * Relationships
+     * @type {CollectionResource}
+     * @memberof CollectionTranslationResource
+     */
+    'collection'?: CollectionResource;
+    /**
+     * 
+     * @type {LanguageResource}
+     * @memberof CollectionTranslationResource
+     */
+    'language'?: LanguageResource;
+    /**
+     * 
+     * @type {ContextResource}
+     * @memberof CollectionTranslationResource
+     */
+    'context'?: ContextResource;
+}
+/**
+ * 
+ * @export
+ * @interface CollectionUpdateRequest
+ */
+export interface CollectionUpdateRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionUpdateRequest
+     */
+    'internal_name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionUpdateRequest
+     */
+    'language_id'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionUpdateRequest
+     */
+    'context_id'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionUpdateRequest
+     */
+    'backward_compatibility'?: string | null;
+}
+/**
+ * 
+ * @export
  * @interface ContactIndex200Response
  */
 export interface ContactIndex200Response {
@@ -5567,6 +5843,412 @@ export class AvailableImageApi extends BaseAPI {
      */
     public availableImageView(availableImage: string, options?: RawAxiosRequestConfig) {
         return AvailableImageApiFp(this.configuration).availableImageView(availableImage, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * CollectionApi - axios parameter creator
+ * @export
+ */
+export const CollectionApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified collection from storage
+         * @param {string} collection The collection ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionDestroy: async (collection: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collection' is not null or undefined
+            assertParamExists('collectionDestroy', 'collection', collection)
+            const localVarPath = `/collection/{collection}`
+                .replace(`{${"collection"}}`, encodeURIComponent(String(collection)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of the collections
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/collection`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified collection
+         * @param {string} collection The collection ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionShow: async (collection: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collection' is not null or undefined
+            assertParamExists('collectionShow', 'collection', collection)
+            const localVarPath = `/collection/{collection}`
+                .replace(`{${"collection"}}`, encodeURIComponent(String(collection)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created collection in storage
+         * @param {CollectionStoreRequest} collectionStoreRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionStore: async (collectionStoreRequest: CollectionStoreRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionStoreRequest' is not null or undefined
+            assertParamExists('collectionStore', 'collectionStoreRequest', collectionStoreRequest)
+            const localVarPath = `/collection`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(collectionStoreRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified collection in storage
+         * @param {string} collection The collection ID
+         * @param {CollectionUpdateRequest} [collectionUpdateRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionUpdate: async (collection: string, collectionUpdateRequest?: CollectionUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collection' is not null or undefined
+            assertParamExists('collectionUpdate', 'collection', collection)
+            const localVarPath = `/collection/{collection}`
+                .replace(`{${"collection"}}`, encodeURIComponent(String(collection)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(collectionUpdateRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * CollectionApi - functional programming interface
+ * @export
+ */
+export const CollectionApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = CollectionApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified collection from storage
+         * @param {string} collection The collection ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionDestroy(collection: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDestroy(collection, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of the collections
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionIndex(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified collection
+         * @param {string} collection The collection ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionShow(collection: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionShow(collection, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created collection in storage
+         * @param {CollectionStoreRequest} collectionStoreRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionStore(collectionStoreRequest: CollectionStoreRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionStore(collectionStoreRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified collection in storage
+         * @param {string} collection The collection ID
+         * @param {CollectionUpdateRequest} [collectionUpdateRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionUpdate(collection: string, collectionUpdateRequest?: CollectionUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionUpdate(collection, collectionUpdateRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * CollectionApi - factory interface
+ * @export
+ */
+export const CollectionApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = CollectionApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified collection from storage
+         * @param {string} collection The collection ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionDestroy(collection: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.collectionDestroy(collection, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of the collections
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionIndex(options?: RawAxiosRequestConfig): AxiosPromise<CollectionIndex200Response> {
+            return localVarFp.collectionIndex(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified collection
+         * @param {string} collection The collection ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionShow(collection: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionStore200Response> {
+            return localVarFp.collectionShow(collection, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created collection in storage
+         * @param {CollectionStoreRequest} collectionStoreRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionStore(collectionStoreRequest: CollectionStoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionStore200Response> {
+            return localVarFp.collectionStore(collectionStoreRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified collection in storage
+         * @param {string} collection The collection ID
+         * @param {CollectionUpdateRequest} [collectionUpdateRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionUpdate(collection: string, collectionUpdateRequest?: CollectionUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionStore200Response> {
+            return localVarFp.collectionUpdate(collection, collectionUpdateRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * CollectionApi - object-oriented interface
+ * @export
+ * @class CollectionApi
+ * @extends {BaseAPI}
+ */
+export class CollectionApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified collection from storage
+     * @param {string} collection The collection ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionApi
+     */
+    public collectionDestroy(collection: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionDestroy(collection, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of the collections
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionApi
+     */
+    public collectionIndex(options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionIndex(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified collection
+     * @param {string} collection The collection ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionApi
+     */
+    public collectionShow(collection: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionShow(collection, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created collection in storage
+     * @param {CollectionStoreRequest} collectionStoreRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionApi
+     */
+    public collectionStore(collectionStoreRequest: CollectionStoreRequest, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionStore(collectionStoreRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified collection in storage
+     * @param {string} collection The collection ID
+     * @param {CollectionUpdateRequest} [collectionUpdateRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionApi
+     */
+    public collectionUpdate(collection: string, collectionUpdateRequest?: CollectionUpdateRequest, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionUpdate(collection, collectionUpdateRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
