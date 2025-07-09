@@ -138,14 +138,6 @@ The project uses [Pint](https://laravel.com/docs/12.x/pint), Laravel's official 
 
 The project uses [Prettier](https://prettier.io/) for automatic code formatting, ensuring consistent code style across JavaScript, TypeScript, CSS, and Markdown files. Prettier automatically formats code on save and during pre-commit hooks, eliminating style discussions and maintaining a uniform codebase appearance without manual intervention.
 
-### lint-staged
-
-This project integrates [lint-staged](https://www.npmjs.com/package/lint-staged) to run code quality tools only on staged files, improving performance and developer experience. lint-staged works with Husky to automatically format and lint only the files being committed, ensuring fast pre-commit checks without processing the entire codebase unnecessarily.
-
-### Husky
-
-The project uses [Husky](https://typicode.github.io/husky) for managing Git hooks, enabling automated code quality checks before commits and pushes. Husky ensures that all committed code meets our quality standards by running linting, formatting, and tests automatically, preventing low-quality code from entering the repository and maintaining consistent code standards across all contributors.
-
 ### Git Repository and CI/CD
 
 ### GitHub
