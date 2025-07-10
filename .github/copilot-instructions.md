@@ -15,11 +15,9 @@
 **CRITICAL: Always use Laravel framework's built-in feature to access storage files, such as Flysystem and `Storage::disk('local')->put('file.txt', 'contents')` instead of using the filesystem directly.**
 **CRITICAL: Always use Framework's built-in feature to access configuration files, such as `config('app.name')` instead of using the filesystem directly.**
 **CRITICAL: Always use Framework's built-in feature to read and store images, such as Intervention Image Manager functions.**
-**CRITICAL: The repository has githooks, when running git or gh commands always wait for the hooks to complete before checking the terminal output.**
-**CRITICAL: The project has composer scripts: run `ci-before:commit` before making a commit, `ci-before:push` before making a push and `ci-before:pull-request` before creating a pull request.**
-**CRITICAL: The composer script `ci-git:before-pull-request` also generates the OpenAPI documentation in `docs/_openapi/api.json` file. Then it checks that there are no changes in the git repository with `ci-git:assert-no-changes`, it permits detecting if api.json was forgotten in the last commit/push.**
-**CRITICAL: Always `php artisan` to run `lint` or `test`**
-**CRITICAL: Never use vendor specific code or constants, use Laravel's framework or compatible ones.**
+**CRITICAL: When running commands in the terminal (composer, git, gh, npm...) always wait for them to complete before checking the terminal output.**
+**CRITICAL: To run `lint` or `test`, use the `php artisan` syntax (`php artisan test`, `php artisan lint`).**
+**CRITICAL: Never use vendor specific code and avoid low level php function when Laravel's framework offer.**
 **CRITICAL: In test, never assume existance of a record, create it using the factory.**
 ---
 
