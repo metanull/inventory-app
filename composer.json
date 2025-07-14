@@ -65,8 +65,19 @@
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
         ],
         "ci-install": [
-            "@composer install --ansi --no-interaction --no-progress --prefer-dist",
-            "npm ci --no-fund --no-audit"
+            "@composer install --ansi --no-interaction --no-progress --prefer-dist --optimize-autoloader",
+            "npm ci --no-fund --no-audit --prefer-offline"
+        ],
+        "ci-install:fast": [
+            "npx concurrently -c \"#93c5fd,#c4b5fd\" \"composer install --ansi --no-interaction --no-progress --prefer-dist --optimize-autoloader\" \"npm ci --no-fund --no-audit --prefer-offline\" --names='composer,npm'"
+        ],
+        "ci-install:quick": [
+            "@composer dump-autoload --optimize --ansi",
+            "npm ci --no-fund --no-audit --prefer-offline"
+        ],
+        "ci-install:prod": [
+            "@composer install --ansi --no-interaction --no-progress --prefer-dist --optimize-autoloader --classmap-authoritative --no-dev",
+            "npm ci --no-fund --no-audit --prefer-offline --omit=dev"
         ],
         "ci-build": [
             "npm run build"
@@ -104,6 +115,9 @@
         ],
         "ci-seed": [
             "@php artisan migrate:refresh --no-interaction --ansi",
+            "@php artisan db:seed --ansi"
+        ],
+        "ci-seed:quick": [
             "@php artisan db:seed --ansi"
         ],
         "ci-reset:config": [

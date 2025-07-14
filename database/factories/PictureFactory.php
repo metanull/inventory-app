@@ -23,8 +23,9 @@ class PictureFactory extends Factory
         $disk = config('localstorage.pictures.disk');
         $directory = config('localstorage.pictures.directory');
 
-        $image = $this->faker->image(disk: $disk, directory: $directory, options: ['grayscale' => true]);
-        $filename = basename($image);
+        // Use our custom LoremPicsumImageProvider instead of the deprecated faker image method
+        $imagePath = $this->faker->image(640, 480, $disk, $directory, null, null, ['grayscale' => true]);
+        $filename = basename($imagePath);
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
 
         return [
@@ -32,20 +33,22 @@ class PictureFactory extends Factory
             'backward_compatibility' => $this->faker->optional()->bothify('???/???/???/##'),
             'copyright_text' => $this->faker->optional()->words(4, true),
             'copyright_url' => $this->faker->optional()->url(),
-            'path' => $image,
+            'path' => $imagePath,
             'upload_name' => $filename,
             'upload_extension' => $extension,
             'upload_mime_type' => 'image/jpeg',
-            'upload_size' => Storage::disk($disk)->size($image),
+            'upload_size' => Storage::disk($disk)->size($imagePath),
         ];
     }
 
     /**
-     * Configure the model factory with default polymorphic relationship.
+     * Configure the model factory.
      */
     public function configure(): static
     {
-        return $this->for(Item::factory(), 'pictureable');
+        // Don't set a default polymorphic relationship
+        // This allows the factory to create standalone pictures by default
+        return $this;
     }
 
     /**
@@ -70,5 +73,19 @@ class PictureFactory extends Factory
     public function forPartner(): static
     {
         return $this->for(Partner::factory(), 'pictureable');
+    }
+
+    /**
+     * Configure the model factory to create standalone pictures (no polymorphic relationship).
+     * Useful for many-to-many relationships like themes.
+     */
+    public function standalone(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'pictureable_type' => null,
+                'pictureable_id' => null,
+            ];
+        });
     }
 }

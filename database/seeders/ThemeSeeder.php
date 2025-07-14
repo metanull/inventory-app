@@ -26,9 +26,9 @@ class ThemeSeeder extends Seeder
                     'language_id' => 'eng',
                     'context_id' => $defaultContext->id,
                 ]);
-                // Attach random pictures
-                $pictures = \App\Models\Picture::inRandomOrder()->take(2)->pluck('id');
-                $theme->pictures()->attach($pictures);
+                // Create standalone pictures for this theme (without direct polymorphic relationship)
+                $pictures = \App\Models\Picture::factory()->standalone()->count(2)->create();
+                $theme->pictures()->attach($pictures->pluck('id'));
                 // Add subthemes
                 Theme::factory()->count(2)->create([
                     'exhibition_id' => $theme->exhibition_id,
@@ -39,9 +39,9 @@ class ThemeSeeder extends Seeder
                         'language_id' => 'eng',
                         'context_id' => $defaultContext->id,
                     ]);
-                    // Attach random pictures to subthemes
-                    $pictures = \App\Models\Picture::inRandomOrder()->take(2)->pluck('id');
-                    $subtheme->pictures()->attach($pictures);
+                    // Create standalone pictures for this subtheme (without direct polymorphic relationship)
+                    $pictures = \App\Models\Picture::factory()->standalone()->count(2)->create();
+                    $subtheme->pictures()->attach($pictures->pluck('id'));
                 });
             });
         });
