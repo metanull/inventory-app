@@ -441,6 +441,65 @@ class AttachToItemTest extends TestCase
         $this->assertEquals(strlen($testContent), Storage::disk('public')->size($picture->path));
     }
 
+    public function test_allows_multiple_pictures_per_item(): void
+    {
+        $item = Item::factory()->create();
+        $availableImage1 = AvailableImage::factory()->create();
+        $availableImage2 = AvailableImage::factory()->create();
+
+        // Mock the storage operations
+        Storage::fake('public');
+        Storage::disk('public')->put($availableImage1->path, 'fake-image-content-1');
+        Storage::disk('public')->put($availableImage2->path, 'fake-image-content-2');
+
+        // First attachment
+        $response1 = $this->postJson(route('picture.attachToItem', $item), [
+            'available_image_id' => $availableImage1->id,
+            'internal_name' => 'Picture 1',
+        ]);
+        $response1->assertCreated();
+
+        // Second attachment to same item should succeed
+        $response2 = $this->postJson(route('picture.attachToItem', $item), [
+            'available_image_id' => $availableImage2->id,
+            'internal_name' => 'Picture 2',
+        ]);
+        $response2->assertCreated();
+
+        // Verify both pictures are attached to the item
+        $this->assertEquals(2, $item->pictures()->count());
+    }
+
+    public function test_prevents_attaching_same_available_image_twice(): void
+    {
+        $item = Item::factory()->create();
+        $availableImage = AvailableImage::factory()->create();
+
+        // Mock the storage operations
+        Storage::fake('public');
+        Storage::disk('public')->put($availableImage->path, 'fake-image-content');
+
+        // First attachment should succeed and delete the available image
+        $response1 = $this->postJson(route('picture.attachToItem', $item), [
+            'available_image_id' => $availableImage->id,
+            'internal_name' => 'Picture 1',
+        ]);
+        $response1->assertCreated();
+
+        // Verify the available image was deleted after first attachment
+        $this->assertDatabaseMissing('available_images', [
+            'id' => $availableImage->id,
+        ]);
+
+        // Second attachment with same available_image_id should fail because it no longer exists
+        $response2 = $this->postJson(route('picture.attachToItem', $item), [
+            'available_image_id' => $availableImage->id, // This ID no longer exists
+            'internal_name' => 'Picture 2',
+        ]);
+        $response2->assertUnprocessable();
+        $response2->assertJsonValidationErrors(['available_image_id']);
+    }
+
     private function withoutAuthentication(): void
     {
         $this->user = null;

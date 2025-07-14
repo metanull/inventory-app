@@ -77,4 +77,26 @@ class StoreTest extends TestCase
 
         $this->assertDatabaseHas('countries', ['id' => $data['id']]);
     }
+
+    /**
+     * Validation: Assert store prevents duplicate key.
+     */
+    public function test_store_prevents_duplicate_key(): void
+    {
+        // First, create a country
+        $existingCountry = Country::factory()->create([
+            'id' => 'TST',
+            'internal_name' => 'Test Country',
+            'backward_compatibility' => 'TC',
+        ]);
+
+        // Try to create another country with the same ID (primary key)
+        $response = $this->postJson(route('country.store'), [
+            'id' => 'TST', // Same ID as existing country
+            'internal_name' => 'Different Test Country',
+            'backward_compatibility' => 'DC',
+        ]);
+
+        $response->assertUnprocessable();
+    }
 }

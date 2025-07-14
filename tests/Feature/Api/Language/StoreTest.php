@@ -173,4 +173,23 @@ class StoreTest extends TestCase
 
         $response->assertJsonPath('data.is_default', false);
     }
+
+    public function test_store_prevents_duplicate_key(): void
+    {
+        // First, create a language
+        $existingLanguage = \App\Models\Language::factory()->create([
+            'id' => 'TST',
+            'internal_name' => 'Test Language',
+            'backward_compatibility' => 'TT',
+        ]);
+
+        // Try to create another language with the same ID (primary key)
+        $response = $this->postJson(route('language.store'), [
+            'id' => 'TST', // Same ID as existing language
+            'internal_name' => 'Different Test Language',
+            'backward_compatibility' => 'DT',
+        ]);
+
+        $response->assertUnprocessable();
+    }
 }

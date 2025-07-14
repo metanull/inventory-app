@@ -22,7 +22,7 @@ class CountryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id' => 'required|string|size:3',
+            'id' => 'required|string|size:3|unique:countries,id',
             'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string|size:2',
         ]);
