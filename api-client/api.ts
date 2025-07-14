@@ -2662,6 +2662,38 @@ export interface ImageUploadStore200Response {
 /**
  * 
  * @export
+ * @interface InfoVersion200Response
+ */
+export interface InfoVersion200Response {
+    /**
+     * 
+     * @type {InfoVersion200ResponseVersion}
+     * @memberof InfoVersion200Response
+     */
+    'version': InfoVersion200ResponseVersion;
+    /**
+     * 
+     * @type {string}
+     * @memberof InfoVersion200Response
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof InfoVersion200Response
+     */
+    'timestamp': string;
+}
+/**
+ * 
+ * @export
+ * @interface InfoVersion200ResponseVersion
+ */
+export interface InfoVersion200ResponseVersion {
+}
+/**
+ * 
+ * @export
  * @interface InlineObject
  */
 export interface InlineObject {
@@ -4236,13 +4268,13 @@ export interface PictureResource {
      * @type {string}
      * @memberof PictureResource
      */
-    'pictureable_type': string;
+    'pictureable_type': string | null;
     /**
      * The ID of the parent model
      * @type {string}
      * @memberof PictureResource
      */
-    'pictureable_id': string;
+    'pictureable_id': string | null;
     /**
      * Date of creation
      * @type {string}
@@ -12168,6 +12200,243 @@ export class ImageUploadApi extends BaseAPI {
      */
     public imageUploadStore(file: File, options?: RawAxiosRequestConfig) {
         return ImageUploadApiFp(this.configuration).imageUploadStore(file, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * InfoApi - axios parameter creator
+ * @export
+ */
+export const InfoApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Lightweight endpoint for health monitoring that returns only the essential health status information.
+         * @summary Get only the health check status
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        infoHealth: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/health`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Returns basic application information including: - Application name and version - Health check status for key services - Timestamp of the response
+         * @summary Get application information including version and health status
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        infoIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/info`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Simple endpoint that returns just the version information for deployment tracking and API compatibility checks.
+         * @summary Get application version information only
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        infoVersion: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/version`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * InfoApi - functional programming interface
+ * @export
+ */
+export const InfoApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = InfoApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Lightweight endpoint for health monitoring that returns only the essential health status information.
+         * @summary Get only the health check status
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async infoHealth(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.infoHealth(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['InfoApi.infoHealth']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Returns basic application information including: - Application name and version - Health check status for key services - Timestamp of the response
+         * @summary Get application information including version and health status
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async infoIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.infoIndex(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['InfoApi.infoIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Simple endpoint that returns just the version information for deployment tracking and API compatibility checks.
+         * @summary Get application version information only
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async infoVersion(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<InfoVersion200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.infoVersion(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['InfoApi.infoVersion']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * InfoApi - factory interface
+ * @export
+ */
+export const InfoApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = InfoApiFp(configuration)
+    return {
+        /**
+         * Lightweight endpoint for health monitoring that returns only the essential health status information.
+         * @summary Get only the health check status
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        infoHealth(options?: RawAxiosRequestConfig): AxiosPromise<string> {
+            return localVarFp.infoHealth(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Returns basic application information including: - Application name and version - Health check status for key services - Timestamp of the response
+         * @summary Get application information including version and health status
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        infoIndex(options?: RawAxiosRequestConfig): AxiosPromise<string> {
+            return localVarFp.infoIndex(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Simple endpoint that returns just the version information for deployment tracking and API compatibility checks.
+         * @summary Get application version information only
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        infoVersion(options?: RawAxiosRequestConfig): AxiosPromise<InfoVersion200Response> {
+            return localVarFp.infoVersion(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * InfoApi - object-oriented interface
+ * @export
+ * @class InfoApi
+ * @extends {BaseAPI}
+ */
+export class InfoApi extends BaseAPI {
+    /**
+     * Lightweight endpoint for health monitoring that returns only the essential health status information.
+     * @summary Get only the health check status
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof InfoApi
+     */
+    public infoHealth(options?: RawAxiosRequestConfig) {
+        return InfoApiFp(this.configuration).infoHealth(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Returns basic application information including: - Application name and version - Health check status for key services - Timestamp of the response
+     * @summary Get application information including version and health status
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof InfoApi
+     */
+    public infoIndex(options?: RawAxiosRequestConfig) {
+        return InfoApiFp(this.configuration).infoIndex(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Simple endpoint that returns just the version information for deployment tracking and API compatibility checks.
+     * @summary Get application version information only
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof InfoApi
+     */
+    public infoVersion(options?: RawAxiosRequestConfig) {
+        return InfoApiFp(this.configuration).infoVersion(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

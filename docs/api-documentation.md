@@ -25,6 +25,10 @@ The Inventory Management API provides RESTful endpoints for managing museum inve
 ### Key Features
 
 - **Complete CRUD Operations** - Full Create, Read, Update, Delete functionality for all models
+- **Application Information** - Health check and version endpoints for monitoring:
+  - `GET /api/info` - Complete application information with health status
+  - `GET /api/health` - Health check endpoint for monitoring systems
+  - `GET /api/version` - Application version information
 - **Collection System** - Three types of collections with comprehensive translation support:
   - **Collections** - Traditional item groupings with partner relationships
   - **Galleries** - Flexible polymorphic collections for Items and Details

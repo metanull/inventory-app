@@ -15,6 +15,7 @@ use App\Http\Controllers\ExhibitionController;
 use App\Http\Controllers\ExhibitionTranslationController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\InfoController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemTranslationController;
 use App\Http\Controllers\LanguageController;
@@ -32,6 +33,11 @@ use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\ThemeTranslationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+// Public info endpoints for monitoring and API information
+Route::get('/info', [InfoController::class, 'index'])->name('info.index');
+Route::get('/health', [InfoController::class, 'health'])->name('info.health');
+Route::get('/version', [InfoController::class, 'version'])->name('info.version');
 
 Route::get('/user', function (Request $request) {
     return $request->user();

@@ -6,7 +6,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8000/api"
+            "url": "http://localhost/api"
         }
     ],
     "security": [
@@ -4072,6 +4072,98 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/info": {
+            "get": {
+                "operationId": "info.index",
+                "description": "Returns basic application information including:\n- Application name and version\n- Health check status for key services\n- Timestamp of the response",
+                "summary": "Get application information including version and health status",
+                "tags": [
+                    "Info"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "operationId": "info.health",
+                "description": "Lightweight endpoint for health monitoring that returns\nonly the essential health status information.",
+                "summary": "Get only the health check status",
+                "tags": [
+                    "Info"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/version": {
+            "get": {
+                "operationId": "info.version",
+                "description": "Simple endpoint that returns just the version information\nfor deployment tracking and API compatibility checks.",
+                "summary": "Get application version information only",
+                "tags": [
+                    "Info"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "version": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "1.0.0-dev"
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "timestamp": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "version",
+                                        "name",
+                                        "timestamp"
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -11558,11 +11650,17 @@
                         "description": "The size of the uploaded file in bytes"
                     },
                     "pictureable_type": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The type of the parent model (Item, Detail, Partner)"
                     },
                     "pictureable_id": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The ID of the parent model"
                     },
                     "created_at": {
