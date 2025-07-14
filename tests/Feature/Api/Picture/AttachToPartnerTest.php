@@ -202,6 +202,65 @@ class AttachToPartnerTest extends TestCase
         $response->assertJsonPath('data.path', 'pictures/partner-logo.gif');
     }
 
+    public function test_allows_multiple_pictures_per_partner(): void
+    {
+        $partner = Partner::factory()->create();
+        $availableImage1 = AvailableImage::factory()->create();
+        $availableImage2 = AvailableImage::factory()->create();
+
+        // Mock the storage operations
+        Storage::fake('public');
+        Storage::disk('public')->put($availableImage1->path, 'fake-image-content-1');
+        Storage::disk('public')->put($availableImage2->path, 'fake-image-content-2');
+
+        // First attachment
+        $response1 = $this->postJson(route('picture.attachToPartner', $partner), [
+            'available_image_id' => $availableImage1->id,
+            'internal_name' => 'Picture 1',
+        ]);
+        $response1->assertCreated();
+
+        // Second attachment to same partner should succeed
+        $response2 = $this->postJson(route('picture.attachToPartner', $partner), [
+            'available_image_id' => $availableImage2->id,
+            'internal_name' => 'Picture 2',
+        ]);
+        $response2->assertCreated();
+
+        // Verify both pictures are attached to the partner
+        $this->assertEquals(2, $partner->pictures()->count());
+    }
+
+    public function test_prevents_attaching_same_available_image_twice(): void
+    {
+        $partner = Partner::factory()->create();
+        $availableImage = AvailableImage::factory()->create();
+
+        // Mock the storage operations
+        Storage::fake('public');
+        Storage::disk('public')->put($availableImage->path, 'fake-image-content');
+
+        // First attachment should succeed and delete the available image
+        $response1 = $this->postJson(route('picture.attachToPartner', $partner), [
+            'available_image_id' => $availableImage->id,
+            'internal_name' => 'Picture 1',
+        ]);
+        $response1->assertCreated();
+
+        // Verify the available image was deleted after first attachment
+        $this->assertDatabaseMissing('available_images', [
+            'id' => $availableImage->id,
+        ]);
+
+        // Second attachment with same available_image_id should fail because it no longer exists
+        $response2 = $this->postJson(route('picture.attachToPartner', $partner), [
+            'available_image_id' => $availableImage->id, // This ID no longer exists after first attachment
+            'internal_name' => 'Picture 2',
+        ]);
+        $response2->assertUnprocessable();
+        $response2->assertJsonValidationErrors(['available_image_id']);
+    }
+
     private function withoutAuthentication(): void
     {
         $this->user = null;

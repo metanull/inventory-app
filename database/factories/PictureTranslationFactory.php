@@ -30,8 +30,14 @@ class PictureTranslationFactory extends Factory
     {
         return [
             'picture_id' => Picture::factory(),
-            'language_id' => Language::factory(),
-            'context_id' => Context::factory(),
+            'language_id' => function () {
+                // Use existing language or create a new one if none exist
+                return Language::inRandomOrder()->first()?->id ?? Language::factory()->create()->id;
+            },
+            'context_id' => function () {
+                // Use existing context or create a new one if none exist
+                return Context::inRandomOrder()->first()?->id ?? Context::factory()->create()->id;
+            },
             'description' => $this->faker->paragraph,
             'caption' => $this->faker->sentence,
             'author_id' => $this->faker->optional()->randomElement([Author::factory(), null]),

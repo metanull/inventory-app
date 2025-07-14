@@ -22,7 +22,7 @@ class LanguageController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id' => 'required|string|size:3',
+            'id' => 'required|string|size:3|unique:languages,id',
             'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string|size:2',
             'is_default' => 'prohibited|boolean',
