@@ -47,6 +47,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Created PictureTranslation model, migration, factory, seeder, resource and controller
     - Updated Picture model with translation handling methods
     - Added corresponding feature and unit tests
+- **Info API Endpoints**: Health check and application information endpoints for monitoring
+    - **Info Endpoint** (`GET /api/info`): Complete application information including version and health status
+    - **Health Endpoint** (`GET /api/health`): Dedicated health check endpoint with database and cache validation
+    - **Version Endpoint** (`GET /api/version`): Application version information for deployment tracking
+    - **Public Access**: All endpoints are publicly accessible for monitoring systems
+    - **Health Checks**: Automated validation of database connectivity and cache operations
+    - **Version Detection**: Smart version detection from environment variable, git commit hash, or fallback
+    - **Comprehensive Testing**: Full test coverage for all endpoints and scenarios
+    - **Documentation**: Updated API documentation with Info endpoint details
 
 ### Improved
 

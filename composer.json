@@ -130,7 +130,7 @@
         "ci-openapi-doc": [
             "@php -r \"if (!is_dir('docs/_openapi')) { mkdir('docs/_openapi', 0755, true); }\"",
             "@php artisan scramble:export --path=docs/_openapi/api.json",
-            "pwsh -File scripts/generate-api-client.ps1"
+            "pwsh -File scripts/generate-api-client.ps1 -Force"
         ],
         "ci-before:commit": [
             "@composer ci-lint:dirty"

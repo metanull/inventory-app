@@ -101,6 +101,9 @@ docs/ImageUploadStatus200ResponseAnyOf.md
 docs/ImageUploadStatus200ResponseAnyOf1.md
 docs/ImageUploadStatus404Response.md
 docs/ImageUploadStore200Response.md
+docs/InfoApi.md
+docs/InfoVersion200Response.md
+docs/InfoVersion200ResponseVersion.md
 docs/InlineObject.md
 docs/InlineObject1.md
 docs/ItemApi.md

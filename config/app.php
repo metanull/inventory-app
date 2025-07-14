@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -131,5 +130,4 @@ return [
         'password' => env('APP_DEFAULT_USER_PASSWORD', 'password'),
         'email' => env('APP_DEFAULT_USER_EMAIL', 'user@example.com'),
     ],
-
 ];

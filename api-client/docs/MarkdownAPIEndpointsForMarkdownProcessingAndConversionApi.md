@@ -1,6 +1,6 @@
 # MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi
 
-All URIs are relative to *http://localhost:8000/api*
+All URIs are relative to *http://localhost/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
