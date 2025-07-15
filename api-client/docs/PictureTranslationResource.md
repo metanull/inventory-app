@@ -5,20 +5,20 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** |  | [default to undefined]
-**picture_id** | **string** |  | [default to undefined]
-**language_id** | **string** |  | [default to undefined]
-**context_id** | **string** |  | [default to undefined]
-**description** | **string** |  | [default to undefined]
-**caption** | **string** |  | [default to undefined]
-**author_id** | **string** |  | [default to undefined]
-**text_copy_editor_id** | **string** |  | [default to undefined]
-**translator_id** | **string** |  | [default to undefined]
-**translation_copy_editor_id** | **string** |  | [default to undefined]
-**backward_compatibility** | **string** |  | [default to undefined]
-**extra** | **Array&lt;any&gt;** |  | [default to undefined]
-**created_at** | **string** |  | [default to undefined]
-**updated_at** | **string** |  | [default to undefined]
+**id** | **string** | The unique identifier (GUID) | [default to undefined]
+**picture_id** | **string** | The picture this translation belongs to (PictureResource id) | [default to undefined]
+**language_id** | **string** | The language of this translation (LanguageResource id) | [default to undefined]
+**context_id** | **string** | The context of this translation (ContextResource id) | [default to undefined]
+**description** | **string** | The description of the picture translation | [default to undefined]
+**caption** | **string** | The caption of the picture translation | [default to undefined]
+**author_id** | **string** | The author of the translation (AuthorResource id) | [default to undefined]
+**text_copy_editor_id** | **string** | The text copy editor of the translation (UserResource id) | [default to undefined]
+**translator_id** | **string** | The translator of the translation (UserResource id) | [default to undefined]
+**translation_copy_editor_id** | **string** | The translation copy editor of the translation (UserResource id) | [default to undefined]
+**backward_compatibility** | **string** | The Id(s) of matching resource in the legacy system (if any). | [default to undefined]
+**extra** | **object** | Extra data for translation (object, may be null) | [default to undefined]
+**created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
+**updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
 
 ## Example
 

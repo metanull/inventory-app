@@ -15,12 +15,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  *
  * Represents a gallery containing a combination of Items and Details.
  * Galleries organize mixed content types and provide translation and partner support.
- *
- * @property string $id Primary key (UUID)
- * @property string $internal_name Internal name for gallery
- * @property string|null $backward_compatibility Legacy ID for migration/compatibility
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
  */
 class Gallery extends Model
 {

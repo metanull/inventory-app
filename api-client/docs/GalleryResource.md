@@ -5,20 +5,20 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** |  | [default to undefined]
-**internal_name** | **string** |  | [default to undefined]
-**backward_compatibility** | **string** |  | [default to undefined]
-**created_at** | **string** |  | [default to undefined]
-**updated_at** | **string** |  | [default to undefined]
-**translations** | [**Array&lt;GalleryTranslationResource&gt;**](GalleryTranslationResource.md) | Relationships | [optional] [default to undefined]
-**partners** | [**Array&lt;PartnerResource&gt;**](PartnerResource.md) |  | [optional] [default to undefined]
-**items** | [**Array&lt;ItemResource&gt;**](ItemResource.md) |  | [optional] [default to undefined]
-**details** | [**Array&lt;DetailResource&gt;**](DetailResource.md) |  | [optional] [default to undefined]
-**items_count** | **string** | Computed attributes | [optional] [default to undefined]
-**details_count** | **string** |  | [optional] [default to undefined]
-**total_content_count** | **string** |  | [optional] [default to undefined]
-**partners_count** | **string** |  | [optional] [default to undefined]
-**translations_count** | **string** |  | [optional] [default to undefined]
+**id** | **string** | The unique identifier (GUID) | [default to undefined]
+**internal_name** | **string** | A name for this resource, for internal use only. | [default to undefined]
+**backward_compatibility** | **string** | The Id(s) of matching resource in the legacy system (if any). | [default to undefined]
+**created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
+**updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
+**translations** | [**Array&lt;GalleryTranslationResource&gt;**](GalleryTranslationResource.md) | Translations for this gallery (GalleryTranslationResource[]) | [optional] [default to undefined]
+**partners** | [**Array&lt;PartnerResource&gt;**](PartnerResource.md) | Partners associated with this gallery (PartnerResource[]) | [optional] [default to undefined]
+**items** | [**Array&lt;ItemResource&gt;**](ItemResource.md) | Items associated with this gallery (ItemResource[]) | [optional] [default to undefined]
+**details** | [**Array&lt;DetailResource&gt;**](DetailResource.md) | Details associated with this gallery (DetailResource[]) | [optional] [default to undefined]
+**items_count** | **string** | The number of items in this gallery (computed) | [optional] [default to undefined]
+**details_count** | **string** | The number of details in this gallery (computed) | [optional] [default to undefined]
+**total_content_count** | **string** | The total number of content items in this gallery (computed) | [optional] [default to undefined]
+**partners_count** | **string** | The total number of partners in this gallery (computed) | [optional] [default to undefined]
+**translations_count** | **string** | The total number of translations in this gallery (computed) | [optional] [default to undefined]
 
 ## Example
 

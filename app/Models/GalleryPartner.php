@@ -12,14 +12,6 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  *
  * Represents the many-to-many relationship between galleries and partners.
  * Includes contribution level information and timestamps.
- *
- * @property string $id Primary key (UUID)
- * @property string $gallery_id Foreign key to galleries table
- * @property string $partner_id Foreign key to partners table
- * @property string $level Partner contribution level (PartnerLevel enum)
- * @property string|null $backward_compatibility Legacy ID for migration/compatibility
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
  */
 class GalleryPartner extends Pivot
 {

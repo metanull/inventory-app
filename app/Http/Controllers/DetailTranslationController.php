@@ -65,7 +65,7 @@ class DetailTranslationController extends Controller
             'translator_id' => 'nullable|uuid|exists:authors,id',
             'translation_copy_editor_id' => 'nullable|uuid|exists:authors,id',
             'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|array',
+            'extra' => 'nullable|json',
         ]);
 
         try {
@@ -115,7 +115,7 @@ class DetailTranslationController extends Controller
             'translator_id' => 'nullable|uuid|exists:authors,id',
             'translation_copy_editor_id' => 'nullable|uuid|exists:authors,id',
             'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|array',
+            'extra' => 'nullable|json',
         ]);
 
         try {

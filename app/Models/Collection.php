@@ -15,14 +15,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * Represents a collection of museum items with translation and partner support.
  * Collections organize items and provide context for display purposes.
- *
- * @property string $id Primary key (UUID)
- * @property string $internal_name Internal name for collection
- * @property string $language_id Default language for display (ISO 639-1)
- * @property string $context_id Default context for display
- * @property string|null $backward_compatibility Legacy ID for migration/compatibility
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
  */
 class Collection extends Model
 {

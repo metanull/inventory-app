@@ -34,7 +34,7 @@ class PictureTranslationController extends Controller
             'translator_id' => 'nullable|uuid|exists:authors,id',
             'translation_copy_editor_id' => 'nullable|uuid|exists:authors,id',
             'backward_compatibility' => 'nullable|string',
-            'extra' => 'nullable|array',
+            'extra' => 'nullable|json',
         ]);
 
         // Validate unique constraint
@@ -85,7 +85,7 @@ class PictureTranslationController extends Controller
             'translator_id' => 'nullable|uuid|exists:authors,id',
             'translation_copy_editor_id' => 'nullable|uuid|exists:authors,id',
             'backward_compatibility' => 'nullable|string',
-            'extra' => 'nullable|array',
+            'extra' => 'nullable|json',
         ]);
 
         // Check if any of the unique constraint fields are being updated

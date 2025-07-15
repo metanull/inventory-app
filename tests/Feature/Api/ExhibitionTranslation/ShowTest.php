@@ -86,7 +86,7 @@ class ShowTest extends TestCase
 
     public function test_show_exhibition_translation_with_extra_data(): void
     {
-        $extraData = ['notes' => 'Test note', 'metadata' => ['key' => 'value']];
+        $extraData = ['custom_field' => 'custom_value', 'another_field' => 'another_value'];
         $translation = ExhibitionTranslation::factory()->withExtra($extraData)->create();
 
         $response = $this->getJson(route('exhibition-translation.show', ['exhibition_translation' => $translation->id]));

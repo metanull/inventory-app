@@ -97,17 +97,15 @@ class ProjectController extends Controller
 
     /**
      * Toggle Launched/not-launched on a project.
+     * Important: It is independant from the `launch_date` value. It is an idicator showing that
+     * the project is to be considered 'laucnhed' as soon as the launch date it reached.
      */
     public function setLaunched(Request $request, Project $project)
     {
         $validated = $request->validate([
-            'launch_date' => 'nullable|date',
+            'is_launched' => 'required|boolean',
         ]);
-        if ($validated['launch_date'] === null) {
-            $validated['is_launched'] = false;
-        } else {
-            $validated['is_launched'] = true;
-        }
+
         $project->update($validated);
         $project->refresh();
 
@@ -115,10 +113,14 @@ class ProjectController extends Controller
     }
 
     /**
-     * Get all enabled projects (Enabled + launched).
+     * Get all visible projects.
+     * The project becomes "visible" when all conditions are matched:
+     * - is_enabled is true
+     * - is_launched is true
+     * - current date >= launch_date
      */
     public function enabled()
     {
-        return ProjectResource::collection(Project::enabled()->get());
+        return ProjectResource::collection(Project::visible()->get());
     }
 }

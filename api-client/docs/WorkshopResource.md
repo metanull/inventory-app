@@ -5,13 +5,13 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** |  | [default to undefined]
-**name** | **string** |  | [default to undefined]
-**internal_name** | **string** |  | [default to undefined]
-**backward_compatibility** | **string** |  | [default to undefined]
-**created_at** | **string** |  | [default to undefined]
-**updated_at** | **string** |  | [default to undefined]
-**items** | [**Array&lt;ItemResource&gt;**](ItemResource.md) |  | [optional] [default to undefined]
+**id** | **string** | The unique identifier (GUID) | [default to undefined]
+**name** | **string** | The name of the workshop | [default to undefined]
+**internal_name** | **string** | A name for this resource, for internal use only. | [default to undefined]
+**backward_compatibility** | **string** | The Id(s) of matching resource in the legacy system (if any). | [default to undefined]
+**created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
+**updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
+**items** | [**Array&lt;ItemResource&gt;**](ItemResource.md) | Items associated with this workshop (ItemResource[]) | [optional] [default to undefined]
 
 ## Example
 

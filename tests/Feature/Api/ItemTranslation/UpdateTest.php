@@ -87,6 +87,11 @@ class UpdateTest extends TestCase
             'backward_compatibility' => 'new-compatibility-id',
         ];
 
+        // Convert extra field to JSON string for API request
+        if (isset($updateData['extra']) && is_array($updateData['extra'])) {
+            $updateData['extra'] = json_encode($updateData['extra']);
+        }
+
         $response = $this->putJson(route('item-translation.update', $translation->id), $updateData);
 
         $response->assertOk();

@@ -166,7 +166,7 @@ All other models use UUID primary keys for optimal scalability and system integr
 #### 📊 Advanced Query Features
 
 - **Model Scopes** - Predefined query filters for common operations
-    - `Project::enabled()` - Get all enabled projects
+    - `Project::visible()` - Get all visible projects (enabled, launched, and launch_date passed)
     - `Language::default()` - Get default language
     - `Context::default()` - Get default context
 - **Eager Loading** - Optimized database queries with relationship preloading

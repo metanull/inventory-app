@@ -12,21 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * Represents language and context-specific translations for Pictures.
  * Supports internationalization and contextualization of Picture content.
- *
- * @property string $id Primary key (UUID)
- * @property string $picture_id Foreign key to pictures table
- * @property string $language_id Foreign key to languages table (ISO 639-1)
- * @property string $context_id Foreign key to contexts table
- * @property string $description Translated contextual description of the picture
- * @property string $caption Image's caption in the given language
- * @property string|null $author_id Author of the translation
- * @property string|null $text_copy_editor_id Copy editor for the original text
- * @property string|null $translator_id Translator
- * @property string|null $translation_copy_editor_id Copy editor for the translation
- * @property string|null $backward_compatibility Legacy ID for migration/compatibility
- * @property array|null $extra Additional arbitrary data (JSON)
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
  */
 class PictureTranslation extends Model
 {
@@ -64,7 +49,7 @@ class PictureTranslation extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'extra' => 'array',
+        'extra' => 'object',
     ];
 
     /**

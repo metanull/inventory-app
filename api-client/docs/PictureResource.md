@@ -5,9 +5,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** | The unique identifier of the picture (UUID) | [default to undefined]
-**internal_name** | **string** | The internal name of the picture | [default to undefined]
-**backward_compatibility** | **string** | The legacy ID when this picture corresponds to a legacy image from the MWNF3 database, nullable | [default to undefined]
+**id** | **string** | The unique identifier (GUID) | [default to undefined]
+**internal_name** | **string** | A name for this resource, for internal use only. | [default to undefined]
+**backward_compatibility** | **string** | The Id(s) of matching resource in the legacy system (if any). | [default to undefined]
 **path** | **string** | The path to the picture file | [default to undefined]
 **copyright_text** | **string** | The copyright text associated with the picture | [default to undefined]
 **copyright_url** | **string** | The URL for the copyright information | [default to undefined]

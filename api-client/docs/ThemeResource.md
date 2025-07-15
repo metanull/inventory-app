@@ -5,15 +5,15 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** |  | [default to undefined]
-**exhibition_id** | **string** |  | [default to undefined]
-**parent_id** | **string** |  | [default to undefined]
-**internal_name** | **string** |  | [default to undefined]
-**backward_compatibility** | **string** |  | [default to undefined]
-**translations** | [**Array&lt;ThemeTranslationResource&gt;**](ThemeTranslationResource.md) |  | [optional] [default to undefined]
-**subthemes** | [**Array&lt;ThemeResource&gt;**](ThemeResource.md) |  | [optional] [default to undefined]
-**created_at** | **string** |  | [default to undefined]
-**updated_at** | **string** |  | [default to undefined]
+**id** | **string** | The unique identifier (GUID) | [default to undefined]
+**exhibition_id** | **string** | The exhibition this theme belongs to (ExhibitionResource id) | [default to undefined]
+**parent_id** | **string** | The parent theme of this theme (ThemeResource id) | [default to undefined]
+**internal_name** | **string** | A name for this resource, for internal use only. | [default to undefined]
+**backward_compatibility** | **string** | The Id(s) of matching resource in the legacy system (if any). | [default to undefined]
+**translations** | [**Array&lt;ThemeTranslationResource&gt;**](ThemeTranslationResource.md) | Translations for this theme (ThemeTranslationResource[]) | [optional] [default to undefined]
+**subthemes** | [**Array&lt;ThemeResource&gt;**](ThemeResource.md) | Subthemes of this theme (ThemeResource[]) | [optional] [default to undefined]
+**created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
+**updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
 
 ## Example
 

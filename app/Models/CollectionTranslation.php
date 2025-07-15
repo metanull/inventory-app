@@ -12,18 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * Represents language and context-specific translations for Collections.
  * Supports internationalization and contextualization of Collection content.
- *
- * @property string $id Primary key (UUID)
- * @property string $collection_id Foreign key to collections table
- * @property string $language_id Foreign key to languages table (ISO 639-1)
- * @property string $context_id Foreign key to contexts table
- * @property string $title Collection title in the given language
- * @property string $description Collection description in the given language
- * @property string|null $url Optional URL for the collection's homepage
- * @property string|null $backward_compatibility Legacy ID for migration/compatibility
- * @property array|null $extra Additional arbitrary data (JSON)
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
  */
 class CollectionTranslation extends Model
 {
@@ -58,7 +46,7 @@ class CollectionTranslation extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'extra' => 'array',
+        'extra' => 'object',
     ];
 
     /**

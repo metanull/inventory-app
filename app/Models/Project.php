@@ -65,6 +65,38 @@ class Project extends Model
         'is_enabled' => 'boolean',
     ];
 
+    /**
+     * Scope a query to only include enabled projects.
+     */
+    public function scopeIsEnabled($query)
+    {
+        return $query->where('is_enabled', true);
+    }
+
+    /**
+     * Scope a query to only include launched projects.
+     */
+    public function scopeIsLaunched($query)
+    {
+        return $query->where('is_launched', true);
+    }
+
+    /**
+     * Scope a query to only include projects with launch_date passed.
+     */
+    public function scopeIsLaunchDatePassed($query)
+    {
+        return $query->whereDate('launch_date', '<=', now());
+    }
+
+    /**
+     * Scope a query to only include visible projects (enabled, launched, and launch_date passed).
+     */
+    public function scopeVisible($query)
+    {
+        return $query->isEnabled()->isLaunched()->isLaunchDatePassed();
+    }
+
     public function scopeEnabled($query)
     {
         return $query->where('is_enabled', true)

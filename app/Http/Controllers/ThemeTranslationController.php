@@ -60,7 +60,7 @@ class ThemeTranslationController extends Controller
             'description' => 'required|string',
             'introduction' => 'required|string',
             'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|array',
+            'extra' => 'nullable|json',
         ]);
 
         try {
@@ -106,7 +106,7 @@ class ThemeTranslationController extends Controller
             'description' => 'sometimes|required|string',
             'introduction' => 'sometimes|required|string',
             'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|array',
+            'extra' => 'nullable|json',
         ]);
 
         try {

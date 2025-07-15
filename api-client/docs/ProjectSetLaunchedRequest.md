@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**launch_date** | **string** |  | [optional] [default to undefined]
+**is_launched** | **boolean** |  | [default to undefined]
 
 ## Example
 
@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 import { ProjectSetLaunchedRequest } from './api';
 
 const instance: ProjectSetLaunchedRequest = {
-    launch_date,
+    is_launched,
 };
 ```
 

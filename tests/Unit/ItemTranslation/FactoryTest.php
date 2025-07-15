@@ -136,12 +136,12 @@ class FactoryTest extends TestCase
 
     public function test_factory_handles_json_extra_field(): void
     {
-        $extraData = ['notes' => 'Test note', 'additional_info' => 'Test info'];
+        $extraData = ['custom_field' => 'custom_value', 'another_field' => 'another_value'];
         $translation = ItemTranslation::factory()->create([
             'extra' => $extraData,
         ]);
 
-        $this->assertEquals($extraData, $translation->extra);
+        $this->assertEquals((object) $extraData, $translation->extra);
     }
 
     public function test_factory_enforces_unique_constraint_on_item_language_context_combination(): void

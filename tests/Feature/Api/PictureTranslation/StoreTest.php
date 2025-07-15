@@ -24,6 +24,11 @@ class StoreTest extends TestCase
     {
         $pictureTranslationData = \App\Models\PictureTranslation::factory()->make()->toArray();
 
+        // Convert extra field to JSON string for API request
+        if (isset($pictureTranslationData['extra']) && is_array($pictureTranslationData['extra'])) {
+            $pictureTranslationData['extra'] = json_encode($pictureTranslationData['extra']);
+        }
+
         $response = $this->postJson('/api/picture-translation', $pictureTranslationData);
         $response->assertCreated();
         $response->assertJsonPath('data.description', $pictureTranslationData['description']);
@@ -36,6 +41,11 @@ class StoreTest extends TestCase
     public function test_create_picture_translation_stores_in_database(): void
     {
         $pictureTranslationData = \App\Models\PictureTranslation::factory()->make()->toArray();
+
+        // Convert extra field to JSON string if it's an array
+        if (isset($pictureTranslationData['extra']) && is_array($pictureTranslationData['extra'])) {
+            $pictureTranslationData['extra'] = json_encode($pictureTranslationData['extra']);
+        }
 
         $response = $this->postJson('/api/picture-translation', $pictureTranslationData);
         $response->assertCreated();
@@ -52,6 +62,11 @@ class StoreTest extends TestCase
     public function test_create_picture_translation_returns_correct_structure(): void
     {
         $pictureTranslationData = \App\Models\PictureTranslation::factory()->make()->toArray();
+
+        // Convert extra field to JSON string for API request
+        if (isset($pictureTranslationData['extra']) && is_array($pictureTranslationData['extra'])) {
+            $pictureTranslationData['extra'] = json_encode($pictureTranslationData['extra']);
+        }
 
         $response = $this->postJson('/api/picture-translation', $pictureTranslationData);
         $response->assertCreated();

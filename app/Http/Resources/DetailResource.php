@@ -14,21 +14,20 @@ class DetailResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // return parent::toArray($request);
         return [
-            // The unique identifier of the item (GUID)
+            // The unique identifier (GUID)
             'id' => $this->id,
-            // The name of the item, it shall only be used internally
+            // A name for this resource, for internal use only.
             'internal_name' => $this->internal_name,
-            // The item this detail belongs to
+            // The item this detail belongs to (ItemResource)
             'item' => new ItemResource($this->whenLoaded('item')),
-            // The legacy Id when this item corresponds to a legacy item from the MWNF3 database, nullable
+            // The Id(s) of matching resource in the legacy system (if any).
             'backward_compatibility' => $this->backward_compatibility,
-            // Translations for this detail (internationalization and contextualization)
+            // Translations for this detail (internationalization and contextualization) (DetailTranslationResource[])
             'translations' => DetailTranslationResource::collection($this->whenLoaded('translations')),
-            // Date of creation
+            // The date of creation of the resource (managed by the system)
             'created_at' => $this->created_at,
-            // Date of last modification
+            // The date of last modification of the resource (managed by the system)
             'updated_at' => $this->updated_at,
         ];
     }

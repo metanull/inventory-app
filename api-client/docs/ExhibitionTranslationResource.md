@@ -5,17 +5,17 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** |  | [default to undefined]
-**exhibition_id** | **string** |  | [default to undefined]
-**language_id** | **string** |  | [default to undefined]
-**context_id** | **string** |  | [default to undefined]
-**title** | **string** |  | [default to undefined]
-**description** | **string** |  | [default to undefined]
-**url** | **string** |  | [default to undefined]
-**backward_compatibility** | **string** |  | [default to undefined]
-**extra** | **Array&lt;any&gt;** |  | [default to undefined]
-**created_at** | **string** |  | [default to undefined]
-**updated_at** | **string** |  | [default to undefined]
+**id** | **string** | The unique identifier (GUID) | [default to undefined]
+**exhibition_id** | **string** | The exhibition this translation belongs to (ExhibitionResource id) | [default to undefined]
+**language_id** | **string** | The language of this translation (LanguageResource id) | [default to undefined]
+**context_id** | **string** | The context of this translation (ContextResource id) | [default to undefined]
+**title** | **string** | The title of the exhibition translation | [default to undefined]
+**description** | **string** | The description of the exhibition translation | [default to undefined]
+**url** | **string** | The URL for the exhibition translation | [default to undefined]
+**backward_compatibility** | **string** | The Id(s) of matching resource in the legacy system (if any). | [default to undefined]
+**extra** | **object** | Extra data for translation (object, may be null) | [default to undefined]
+**created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
+**updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
 
 ## Example
 

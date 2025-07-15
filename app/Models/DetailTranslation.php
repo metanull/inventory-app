@@ -12,22 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * Represents language and context-specific translations for Details.
  * Supports internationalization and contextualization of Detail content.
- *
- * @property string $id Primary key (UUID)
- * @property string $detail_id Foreign key to details table
- * @property string $language_id Foreign key to languages table (ISO 639-1)
- * @property string $context_id Foreign key to contexts table
- * @property string $name Main name/title in the given language
- * @property string|null $alternate_name Alternate name/title in the given language
- * @property string $description Main description in the given language
- * @property string|null $author_id Author of the translation
- * @property string|null $text_copy_editor_id Copy editor for the original text
- * @property string|null $translator_id Translator
- * @property string|null $translation_copy_editor_id Copy editor for the translation
- * @property string|null $backward_compatibility Legacy ID for migration/compatibility
- * @property array|null $extra Additional arbitrary data (JSON)
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
  */
 class DetailTranslation extends Model
 {
@@ -66,7 +50,7 @@ class DetailTranslation extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'extra' => 'array',
+        'extra' => 'object',
     ];
 
     /**

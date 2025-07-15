@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **description** | **string** |  | [default to undefined]
 **url** | **string** |  | [optional] [default to undefined]
 **backward_compatibility** | **string** |  | [optional] [default to undefined]
-**extra** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
+**extra** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
