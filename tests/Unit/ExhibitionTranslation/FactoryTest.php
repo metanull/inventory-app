@@ -99,10 +99,10 @@ class FactoryTest extends TestCase
 
     public function test_exhibition_translation_factory_can_create_with_extra_data(): void
     {
-        $extraData = ['notes' => 'Test note', 'metadata' => ['key' => 'value']];
+        $extraData = ['custom_field' => 'custom_value', 'another_field' => 'another_value'];
         $translation = ExhibitionTranslation::factory()->withExtra($extraData)->create();
 
-        $this->assertEquals($extraData, $translation->extra);
+        $this->assertEquals((object) $extraData, $translation->extra);
     }
 
     public function test_exhibition_translation_has_exhibition_relationship(): void
@@ -158,7 +158,7 @@ class FactoryTest extends TestCase
         $casts = $translation->getCasts();
 
         $this->assertArrayHasKey('extra', $casts);
-        $this->assertEquals('array', $casts['extra']);
+        $this->assertEquals('object', $casts['extra']);
     }
 
     public function test_exhibition_translation_unique_ids_configuration(): void

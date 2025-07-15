@@ -85,7 +85,7 @@ class FactoryTest extends TestCase
         $extraData = ['custom_field' => 'custom_value', 'another_field' => 'another_value'];
         $pictureTranslation = PictureTranslation::factory()->withExtra($extraData)->create();
 
-        $this->assertEquals($extraData, $pictureTranslation->extra);
+        $this->assertEquals((object) $extraData, $pictureTranslation->extra);
     }
 
     public function test_factory_creates_picture_translation_with_language_states(): void

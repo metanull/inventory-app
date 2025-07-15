@@ -16,11 +16,11 @@ class ProjectResource extends JsonResource
     {
         // return parent::toArray($request);
         return [
-            // The unique identifier of the project (GUID)
+            // The unique identifier (GUID)
             'id' => $this->id,
-            // The name of the project, it shall only be used internally
+            // A name for this resource, for internal use only.
             'internal_name' => $this->internal_name,
-            // The legacy Id when this project corresponds to a legacy project from the MWNF3 database, nullable
+            // The Id(s) of matching resource in the legacy system (if any).
             'backward_compatibility' => $this->backward_compatibility,
             // Launch date of the project, nullable
             'launch_date' => $this->launch_date,
@@ -28,13 +28,13 @@ class ProjectResource extends JsonResource
             'is_launched' => $this->is_launched,
             // Indicates if the project is enabled (active)
             'is_enabled' => $this->is_enabled,
-            // The default context used within the project
+            // The default context used within the project (ContextResource)
             'context' => new ContextResource($this->whenLoaded('context')),
-            // The default language used within the project
+            // The default language used within the project (LanguageResource)
             'language' => new LanguageResource($this->whenLoaded('language')),
-            // Date of creation
+            // The date of creation of the resource (managed by the system)
             'created_at' => $this->created_at,
-            // Date of last modification
+            // The date of last modification of the resource (managed by the system)
             'updated_at' => $this->updated_at,
         ];
     }

@@ -85,9 +85,9 @@ if (-not $whoami) {
     if ($Credential) {
         $npmUser = $Credential.UserName
         $npmPass = $Credential.GetNetworkCredential().Password
-        $npmEmail = $CredentialEmail
-        $loginInput = "${npmUser}`n${npmPass}`n${npmEmail}`n"
+        $loginInput = "${npmUser}`n${npmPass}`n"
         $loginInput | & npm login --registry $Registry
+        Remove-Variable -Name loginInput -ErrorAction SilentlyContinue
     } else {
         & npm login --registry $Registry
     }

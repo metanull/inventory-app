@@ -12,34 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * Represents language and context-specific translations for Items.
  * Supports internationalization and contextualization of Item content.
- *
- * @property string $id Primary key (UUID)
- * @property string $item_id Foreign key to items table
- * @property string $language_id Foreign key to languages table (ISO 639-1)
- * @property string $context_id Foreign key to contexts table
- * @property string $name Main name/title in the given language
- * @property string|null $alternate_name Alternate name/title in the given language
- * @property string $description Main description in the given language
- * @property string|null $type Type/category in the given language
- * @property string|null $holder Current holder information in the given language
- * @property string|null $owner Current owner in the given language
- * @property string|null $initial_owner Initial owner in the given language
- * @property string|null $dates Date-related information in the given language
- * @property string|null $location Location information in the given language
- * @property string|null $dimensions Dimensions in the given language
- * @property string|null $place_of_production Place of production in the given language
- * @property string|null $method_for_datation Method used for dating in the given language
- * @property string|null $method_for_provenance Method used for provenance in the given language
- * @property string|null $obtention How the item was obtained, in the given language
- * @property string|null $bibliography Bibliographic references in the given language
- * @property string|null $author_id Author of the translation
- * @property string|null $text_copy_editor_id Copy editor for the original text
- * @property string|null $translator_id Translator
- * @property string|null $translation_copy_editor_id Copy editor for the translation
- * @property string|null $backward_compatibility Legacy ID for migration/compatibility
- * @property array|null $extra Additional arbitrary data (JSON)
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
  */
 class ItemTranslation extends Model
 {
@@ -90,7 +62,7 @@ class ItemTranslation extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'extra' => 'array',
+        'extra' => 'object',
     ];
 
     /**

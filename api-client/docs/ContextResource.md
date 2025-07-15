@@ -5,12 +5,12 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** | The unique identifier of the context (GUID) | [default to undefined]
-**internal_name** | **string** | The name of the context, it shall only be used internally | [default to undefined]
-**backward_compatibility** | **string** | The legacy Id when this context corresponds to a legacy context from the MWNF3 database, nullable | [default to undefined]
+**id** | **string** | The unique identifier (GUID) | [default to undefined]
+**internal_name** | **string** | A name for this resource, for internal use only. | [default to undefined]
+**backward_compatibility** | **string** | The Id(s) of matching resource in the legacy system (if any). | [default to undefined]
 **is_default** | **boolean** | Indicates if this context is the default one. There is one single default context for the entire database. | [default to undefined]
-**created_at** | **string** | Date of creation | [default to undefined]
-**updated_at** | **string** | Date of last modification | [default to undefined]
+**created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
+**updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
 
 ## Example
 

@@ -60,7 +60,7 @@ class ExhibitionTranslationController extends Controller
             'description' => 'required|string',
             'url' => 'nullable|url|max:255',
             'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|array',
+            'extra' => 'nullable|json',
         ]);
 
         try {
@@ -106,7 +106,7 @@ class ExhibitionTranslationController extends Controller
             'description' => 'sometimes|required|string',
             'url' => 'nullable|url|max:255',
             'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|array',
+            'extra' => 'nullable|json',
         ]);
 
         try {

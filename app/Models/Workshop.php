@@ -12,13 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  *
  * Represents workshops where items were created.
  * Workshops can be associated with multiple items through a many-to-many relationship.
- *
- * @property string $id Primary key (UUID)
- * @property string $name Workshop's name
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * @property string|null $backward_compatibility Legacy system reference
- * @property string $internal_name Internal identifier
  */
 class Workshop extends Model
 {

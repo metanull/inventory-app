@@ -53,4 +53,22 @@ class AnonymousTest extends TestCase
         $response = $this->deleteJson(route('project.destroy', $project));
         $response->assertUnauthorized();
     }
+
+    public function test_set_launched_forbids_anonymous_access(): void
+    {
+        $project = Project::factory()->create();
+
+        $response = $this->patchJson(route('project.setLaunched', $project), []);
+
+        $response->assertUnauthorized();
+    }
+
+    public function test_set_enabled_forbids_anonymous_access(): void
+    {
+        $project = Project::factory()->create();
+
+        $response = $this->patchJson(route('project.setEnabled', $project), []);
+
+        $response->assertUnauthorized();
+    }
 }

@@ -12,18 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * Represents language and context-specific translations for Galleries.
  * Supports internationalization and contextualization of Gallery content.
- *
- * @property string $id Primary key (UUID)
- * @property string $gallery_id Foreign key to galleries table
- * @property string $language_id Foreign key to languages table (ISO 639-1)
- * @property string $context_id Foreign key to contexts table
- * @property string $title Main title in the given language
- * @property string $description Main description in the given language
- * @property string|null $url Optional URL to the gallery homepage
- * @property string|null $backward_compatibility Legacy ID for migration/compatibility
- * @property array|null $extra Additional arbitrary data (JSON)
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
  */
 class GalleryTranslation extends Model
 {
@@ -58,7 +46,7 @@ class GalleryTranslation extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'extra' => 'array',
+        'extra' => 'object',
     ];
 
     /**

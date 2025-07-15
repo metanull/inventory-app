@@ -10,13 +10,6 @@ use Illuminate\Database\Eloquent\Model;
  * Author Model
  *
  * Represents authors who write text content in the system.
- *
- * @property string $id Primary key (UUID)
- * @property string $name Author's name (unique)
- * @property string|null $internal_name Internal name for multilingual support
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * @property string|null $backward_compatibility Legacy system reference
  */
 class Author extends Model
 {

@@ -13,12 +13,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * Represents an Exhibition collection, which contains Themes (to be implemented next).
  * Supports translation and partner relationships.
- *
- * @property string $id Primary key (UUID)
- * @property string|null $backward_compatibility Legacy ID for migration/compatibility
- * @property string $internal_name Internal name (unique)
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
  */
 class Exhibition extends Model
 {

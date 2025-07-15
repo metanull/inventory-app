@@ -16,7 +16,7 @@ Name | Type | Description | Notes
 **translator_id** | **string** |  | [optional] [default to undefined]
 **translation_copy_editor_id** | **string** |  | [optional] [default to undefined]
 **backward_compatibility** | **string** |  | [optional] [default to undefined]
-**extra** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
+**extra** | **string** |  | [optional] [default to undefined]
 
 ## Example
 

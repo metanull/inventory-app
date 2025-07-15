@@ -5,12 +5,12 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** |  | [default to undefined]
-**internal_name** | **string** |  | [default to undefined]
-**country_id** | **string** |  | [default to undefined]
-**translations** | [**Array&lt;LocationTranslationResource&gt;**](LocationTranslationResource.md) |  | [optional] [default to undefined]
-**created_at** | **string** |  | [default to undefined]
-**updated_at** | **string** |  | [default to undefined]
+**id** | **string** | The unique identifier (GUID) | [default to undefined]
+**internal_name** | **string** | A name for this resource, for internal use only. | [default to undefined]
+**country_id** | **string** | The country this location belongs to (CountryResource id) | [default to undefined]
+**translations** | [**Array&lt;LocationTranslationResource&gt;**](LocationTranslationResource.md) | Translations for this location (LocationTranslationResource[]) | [optional] [default to undefined]
+**created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
+**updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
 
 ## Example
 

@@ -15,11 +15,11 @@ class PictureResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            // The unique identifier of the picture (UUID)
+            // The unique identifier (GUID)
             'id' => $this->id,
-            // The internal name of the picture
+            // A name for this resource, for internal use only.
             'internal_name' => $this->internal_name,
-            // The legacy ID when this picture corresponds to a legacy image from the MWNF3 database, nullable
+            // The Id(s) of matching resource in the legacy system (if any).
             'backward_compatibility' => $this->backward_compatibility,
             // The path to the picture file
             'path' => $this->path,

@@ -5,10 +5,10 @@ All URIs are relative to *http://localhost/api*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**projectDestroy**](#projectdestroy) | **DELETE** /project/{project} | Remove the specified resource from storage|
-|[**projectEnabled**](#projectenabled) | **GET** /project/enabled | Get all enabled projects (Enabled + launched)|
+|[**projectEnabled**](#projectenabled) | **GET** /project/enabled | Get all visible projects. The project becomes \&quot;visible\&quot; when all conditions are matched: - is_enabled is true - is_launched is true - current date &gt;&#x3D; launch_date|
 |[**projectIndex**](#projectindex) | **GET** /project | Display a listing of the resource|
 |[**projectSetEnabled**](#projectsetenabled) | **PATCH** /project/{project}/enabled | Toggle Enable/disable on a project|
-|[**projectSetLaunched**](#projectsetlaunched) | **PATCH** /project/{project}/launched | Toggle Launched/not-launched on a project|
+|[**projectSetLaunched**](#projectsetlaunched) | **PATCH** /project/{project}/launched | Toggle Launched/not-launched on a project. Important: It is independant from the &#x60;launch_date&#x60; value. It is an idicator showing that the project is to be considered \&#39;laucnhed\&#39; as soon as the launch date it reached|
 |[**projectShow**](#projectshow) | **GET** /project/{project} | Display the specified resource|
 |[**projectStore**](#projectstore) | **POST** /project | Store a newly created resource in storage|
 |[**projectUpdate**](#projectupdate) | **PUT** /project/{project} | Update the specified resource in storage|
@@ -211,7 +211,7 @@ const { status, data } = await apiInstance.projectSetEnabled(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **projectSetLaunched**
-> ProjectSetLaunched200Response projectSetLaunched()
+> ProjectSetLaunched200Response projectSetLaunched(projectSetLaunchedRequest)
 
 
 ### Example
@@ -227,7 +227,7 @@ const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
 
 let project: string; //The project ID (default to undefined)
-let projectSetLaunchedRequest: ProjectSetLaunchedRequest; // (optional)
+let projectSetLaunchedRequest: ProjectSetLaunchedRequest; //
 
 const { status, data } = await apiInstance.projectSetLaunched(
     project,

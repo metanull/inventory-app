@@ -11,18 +11,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * ThemeTranslation Model
  *
  * Represents language/context-specific translations for Themes.
- *
- * @property string $id Primary key (UUID)
- * @property string $theme_id Foreign key to themes table
- * @property string $language_id Foreign key to languages table (ISO 639-1)
- * @property string $context_id Foreign key to contexts table
- * @property string $title
- * @property string $description
- * @property string $introduction
- * @property string|null $backward_compatibility
- * @property array|null $extra
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
  */
 class ThemeTranslation extends Model
 {
@@ -42,7 +30,7 @@ class ThemeTranslation extends Model
     ];
 
     protected $casts = [
-        'extra' => 'array',
+        'extra' => 'object',
     ];
 
     public function uniqueIds(): array

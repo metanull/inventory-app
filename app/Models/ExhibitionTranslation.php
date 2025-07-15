@@ -11,18 +11,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * ExhibitionTranslation Model
  *
  * Represents language/context-specific translations for Exhibitions.
- *
- * @property string $id Primary key (UUID)
- * @property string $exhibition_id Foreign key to exhibitions table
- * @property string $language_id Foreign key to languages table (ISO 639-1)
- * @property string $context_id Foreign key to contexts table
- * @property string $title
- * @property string $description
- * @property string|null $url
- * @property string|null $backward_compatibility
- * @property array|null $extra
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
  */
 class ExhibitionTranslation extends Model
 {
@@ -42,7 +30,7 @@ class ExhibitionTranslation extends Model
     ];
 
     protected $casts = [
-        'extra' => 'array',
+        'extra' => 'object',
     ];
 
     public function uniqueIds(): array

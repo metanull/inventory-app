@@ -14,21 +14,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  *
  * Represents images that can be attached to Items, Details, or Partners.
  * Uses polymorphic relationships to support multiple parent types.
- *
- * @property string $id Primary key (UUID)
- * @property string $internal_name Internal name for the picture
- * @property string|null $backward_compatibility Legacy system reference
- * @property string|null $copyright_text Copyright text
- * @property string|null $copyright_url Copyright URL
- * @property string $path Path to the image file
- * @property string $upload_name Original filename
- * @property string $upload_extension File extension
- * @property string $upload_mime_type MIME type
- * @property int $upload_size File size in bytes
- * @property string $pictureable_type Type of parent model (Item, Detail, Partner)
- * @property string $pictureable_id ID of parent model
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
  */
 class Picture extends Model
 {

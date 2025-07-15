@@ -14,14 +14,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  *
  * Represents a Theme or Subtheme within an Exhibition.
  * Supports translation and parent-child hierarchy (2 levels: theme, subtheme).
- *
- * @property string $id Primary key (UUID)
- * @property string $exhibition_id Foreign key to exhibitions table
- * @property string|null $parent_id Parent theme (null for main themes)
- * @property string|null $backward_compatibility
- * @property string $internal_name
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
  */
 class Theme extends Model
 {

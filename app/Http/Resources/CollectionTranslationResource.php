@@ -21,21 +21,34 @@ class CollectionTranslationResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            // The unique identifier (GUID)
             'id' => $this->id,
+            // The collection this translation belongs to (CollectionResource id)
             'collection_id' => $this->collection_id,
+            // The language of this translation (LanguageResource id)
             'language_id' => $this->language_id,
+            // The context of this translation (ContextResource id)
             'context_id' => $this->context_id,
+            // The title of the collection translation
             'title' => $this->title,
+            // The description of the collection translation
             'description' => $this->description,
+            // The URL for the collection translation
             'url' => $this->url,
+            // The Id(s) of matching resource in the legacy system (if any).
             'backward_compatibility' => $this->backward_compatibility,
+            // Extra data for translation (object, may be null)
             'extra' => $this->extra,
+            // The date of creation of the resource (managed by the system)
             'created_at' => $this->created_at,
+            // The date of last modification of the resource (managed by the system)
             'updated_at' => $this->updated_at,
 
-            // Relationships
+            // The collection relationship (CollectionResource)
             'collection' => new CollectionResource($this->whenLoaded('collection')),
+            // The language relationship (LanguageResource)
             'language' => new LanguageResource($this->whenLoaded('language')),
+            // The context relationship (ContextResource)
             'context' => new ContextResource($this->whenLoaded('context')),
         ];
     }

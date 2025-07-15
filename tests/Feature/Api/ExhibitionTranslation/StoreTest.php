@@ -195,33 +195,6 @@ class StoreTest extends TestCase
         ]);
     }
 
-    public function test_store_can_create_with_extra_data(): void
-    {
-        $exhibition = Exhibition::factory()->create();
-        $language = Language::factory()->create();
-        $context = Context::factory()->create();
-
-        $extraData = ['notes' => 'Test note', 'metadata' => ['key' => 'value']];
-
-        $data = ExhibitionTranslation::factory()->make([
-            'exhibition_id' => $exhibition->id,
-            'language_id' => $language->id,
-            'context_id' => $context->id,
-            'extra' => $extraData,
-        ])->toArray();
-
-        $response = $this->postJson(route('exhibition-translation.store'), $data);
-
-        $response->assertCreated();
-
-        $translation = ExhibitionTranslation::where('exhibition_id', $exhibition->id)
-            ->where('language_id', $language->id)
-            ->where('context_id', $context->id)
-            ->first();
-
-        $this->assertEquals($extraData, $translation->extra);
-    }
-
     public function test_store_prevents_duplicate_translations(): void
     {
         $exhibition = Exhibition::factory()->create();

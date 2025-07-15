@@ -14,17 +14,16 @@ class CountryResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // return parent::toArray($request);
         return [
-            // The unique identifier of the country (ISO 3166-1 alpha-3 code)
+            // The unique identifier (ISO 3166-1 alpha-3 code)
             'id' => $this->id,
-            // The name of the country, it shall only be used internally
+            // A name for this resource, for internal use only.
             'internal_name' => $this->internal_name,
-            // The legacy Id when this country corresponds to a legacy country from the MWNF3 database, nullable
+            // The Id(s) of matching resource in the legacy system (if any).
             'backward_compatibility' => $this->backward_compatibility,
-            // Date of creation
+            // The date of creation of the resource (managed by the system)
             'created_at' => $this->created_at,
-            // Date of last modification
+            // The date of last modification of the resource (managed by the system)
             'updated_at' => $this->updated_at,
         ];
     }

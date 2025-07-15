@@ -12,15 +12,6 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * Represents the polymorphic many-to-many relationship between galleries
  * and their content (Items and Details).
  * Includes ordering information and timestamps.
- *
- * @property int $id Primary key (auto-incrementing)
- * @property string $gallery_id Foreign key to galleries table
- * @property string $galleryable_id Foreign key to the related model
- * @property string $galleryable_type Type of the related model (Item or Detail)
- * @property int $order Order position in the gallery
- * @property string|null $backward_compatibility Legacy ID for migration/compatibility
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
  */
 class Galleryable extends Pivot
 {

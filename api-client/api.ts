@@ -43,37 +43,37 @@ export interface AddressIndex200Response {
  */
 export interface AddressResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof AddressResource
      */
     'id': string;
     /**
-     * 
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof AddressResource
      */
     'internal_name': string;
     /**
-     * 
+     * The country this address belongs to (CountryResource id)
      * @type {string}
      * @memberof AddressResource
      */
     'country_id': string;
     /**
-     * 
+     * Translations for this address (AddressTranslationResource[])
      * @type {Array<AddressTranslationResource>}
      * @memberof AddressResource
      */
     'translations'?: Array<AddressTranslationResource>;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof AddressResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof AddressResource
      */
@@ -181,43 +181,43 @@ export interface AddressTranslationIndex200Response {
  */
 export interface AddressTranslationResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof AddressTranslationResource
      */
     'id': string;
     /**
-     * 
+     * The address this translation belongs to (AddressResource id)
      * @type {string}
      * @memberof AddressTranslationResource
      */
     'address_id': string;
     /**
-     * 
+     * The language of this translation (LanguageResource id)
      * @type {string}
      * @memberof AddressTranslationResource
      */
     'language_id': string;
     /**
-     * 
+     * The address translation text
      * @type {string}
      * @memberof AddressTranslationResource
      */
     'address': string;
     /**
-     * 
+     * The description of the address translation
      * @type {string}
      * @memberof AddressTranslationResource
      */
     'description': string | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof AddressTranslationResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof AddressTranslationResource
      */
@@ -361,73 +361,73 @@ export interface AddressUpdateRequestTranslationsInner {
  */
 export interface ArtistResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof ArtistResource
      */
     'id': string;
     /**
-     * 
+     * The name of the artist
      * @type {string}
      * @memberof ArtistResource
      */
     'name': string;
     /**
-     * 
+     * The place of birth of the artist
      * @type {string}
      * @memberof ArtistResource
      */
     'place_of_birth': string | null;
     /**
-     * 
+     * The place of death of the artist
      * @type {string}
      * @memberof ArtistResource
      */
     'place_of_death': string | null;
     /**
-     * 
+     * The date of birth of the artist
      * @type {string}
      * @memberof ArtistResource
      */
     'date_of_birth': string | null;
     /**
-     * 
+     * The date of death of the artist
      * @type {string}
      * @memberof ArtistResource
      */
     'date_of_death': string | null;
     /**
-     * 
+     * The period of activity of the artist
      * @type {string}
      * @memberof ArtistResource
      */
     'period_of_activity': string | null;
     /**
-     * 
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof ArtistResource
      */
     'internal_name': string;
     /**
-     * 
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof ArtistResource
      */
     'backward_compatibility': string | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof ArtistResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof ArtistResource
      */
     'updated_at': string | null;
     /**
-     * 
+     * Items associated with this artist (ItemResource[])
      * @type {Array<ItemResource>}
      * @memberof ArtistResource
      */
@@ -440,37 +440,37 @@ export interface ArtistResource {
  */
 export interface AuthorResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof AuthorResource
      */
     'id': string;
     /**
-     * 
+     * The name of the author
      * @type {string}
      * @memberof AuthorResource
      */
     'name': string;
     /**
-     * 
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof AuthorResource
      */
     'internal_name': string | null;
     /**
-     * 
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof AuthorResource
      */
     'backward_compatibility': string | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof AuthorResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof AuthorResource
      */
@@ -496,7 +496,7 @@ export interface AvailableImageIndex200Response {
  */
 export interface AvailableImageResource {
     /**
-     * The unique identifier of the picture (GUID)
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof AvailableImageResource
      */
@@ -514,13 +514,13 @@ export interface AvailableImageResource {
      */
     'comment': string | null;
     /**
-     * Date of creation
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof AvailableImageResource
      */
     'created_at': string | null;
     /**
-     * Date of last modification
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof AvailableImageResource
      */
@@ -572,79 +572,79 @@ export interface CollectionIndex200Response {
  */
 export interface CollectionResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof CollectionResource
      */
     'id': string;
     /**
-     * 
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof CollectionResource
      */
     'internal_name': string;
     /**
-     * 
+     * The language this collection belongs to (LanguageResource id)
      * @type {string}
      * @memberof CollectionResource
      */
     'language_id': string;
     /**
-     * 
+     * The context this collection belongs to (ContextResource id)
      * @type {string}
      * @memberof CollectionResource
      */
     'context_id': string;
     /**
-     * 
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof CollectionResource
      */
     'backward_compatibility': string | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof CollectionResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof CollectionResource
      */
     'updated_at': string | null;
     /**
-     * Relationships
+     * The language relationship (LanguageResource)
      * @type {LanguageResource}
      * @memberof CollectionResource
      */
     'language'?: LanguageResource;
     /**
-     * 
+     * The context relationship (ContextResource)
      * @type {ContextResource}
      * @memberof CollectionResource
      */
     'context'?: ContextResource;
     /**
-     * 
+     * Translations for this collection (CollectionTranslationResource[])
      * @type {Array<CollectionTranslationResource>}
      * @memberof CollectionResource
      */
     'translations'?: Array<CollectionTranslationResource>;
     /**
-     * 
+     * Partners associated with this collection (PartnerResource[])
      * @type {Array<PartnerResource>}
      * @memberof CollectionResource
      */
     'partners'?: Array<PartnerResource>;
     /**
-     * 
+     * Items associated with this collection (ItemResource[])
      * @type {Array<ItemResource>}
      * @memberof CollectionResource
      */
     'items'?: Array<ItemResource>;
     /**
-     * Computed attributes
+     * The number of items in this collection (computed)
      * @type {string}
      * @memberof CollectionResource
      */
@@ -713,85 +713,85 @@ export interface CollectionStoreRequest {
  */
 export interface CollectionTranslationResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof CollectionTranslationResource
      */
     'id': string;
     /**
-     * 
+     * The collection this translation belongs to (CollectionResource id)
      * @type {string}
      * @memberof CollectionTranslationResource
      */
     'collection_id': string;
     /**
-     * 
+     * The language of this translation (LanguageResource id)
      * @type {string}
      * @memberof CollectionTranslationResource
      */
     'language_id': string;
     /**
-     * 
+     * The context of this translation (ContextResource id)
      * @type {string}
      * @memberof CollectionTranslationResource
      */
     'context_id': string;
     /**
-     * 
+     * The title of the collection translation
      * @type {string}
      * @memberof CollectionTranslationResource
      */
     'title': string;
     /**
-     * 
+     * The description of the collection translation
      * @type {string}
      * @memberof CollectionTranslationResource
      */
     'description': string;
     /**
-     * 
+     * The URL for the collection translation
      * @type {string}
      * @memberof CollectionTranslationResource
      */
     'url': string | null;
     /**
-     * 
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof CollectionTranslationResource
      */
     'backward_compatibility': string | null;
     /**
-     * 
-     * @type {Array<any>}
+     * Extra data for translation (object, may be null)
+     * @type {object}
      * @memberof CollectionTranslationResource
      */
-    'extra': Array<any> | null;
+    'extra': object | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof CollectionTranslationResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof CollectionTranslationResource
      */
     'updated_at': string | null;
     /**
-     * Relationships
+     * The collection relationship (CollectionResource)
      * @type {CollectionResource}
      * @memberof CollectionTranslationResource
      */
     'collection'?: CollectionResource;
     /**
-     * 
+     * The language relationship (LanguageResource)
      * @type {LanguageResource}
      * @memberof CollectionTranslationResource
      */
     'language'?: LanguageResource;
     /**
-     * 
+     * The context relationship (ContextResource)
      * @type {ContextResource}
      * @memberof CollectionTranslationResource
      */
@@ -848,61 +848,61 @@ export interface ContactIndex200Response {
  */
 export interface ContactResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof ContactResource
      */
     'id': string;
     /**
-     * 
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof ContactResource
      */
     'internal_name': string;
     /**
-     * 
+     * The phone number of the contact
      * @type {string}
      * @memberof ContactResource
      */
     'phone_number': string | null;
     /**
-     * 
+     * The formatted phone number of the contact
      * @type {string}
      * @memberof ContactResource
      */
     'formatted_phone_number': string | null;
     /**
-     * 
+     * The fax number of the contact
      * @type {string}
      * @memberof ContactResource
      */
     'fax_number': string | null;
     /**
-     * 
+     * The formatted fax number of the contact
      * @type {string}
      * @memberof ContactResource
      */
     'formatted_fax_number': string | null;
     /**
-     * 
+     * The email address of the contact
      * @type {string}
      * @memberof ContactResource
      */
     'email': string | null;
     /**
-     * 
+     * Translations for this contact (ContactTranslationResource[])
      * @type {Array<ContactTranslationResource>}
      * @memberof ContactResource
      */
     'translations'?: Array<ContactTranslationResource>;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof ContactResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof ContactResource
      */
@@ -997,37 +997,37 @@ export interface ContactTranslationIndex200Response {
  */
 export interface ContactTranslationResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof ContactTranslationResource
      */
     'id': string;
     /**
-     * 
+     * The contact this translation belongs to (ContactResource id)
      * @type {string}
      * @memberof ContactTranslationResource
      */
     'contact_id': string;
     /**
-     * 
+     * The language of this translation (LanguageResource id)
      * @type {string}
      * @memberof ContactTranslationResource
      */
     'language_id': string;
     /**
-     * 
+     * The label for the contact translation
      * @type {string}
      * @memberof ContactTranslationResource
      */
     'label': string;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof ContactTranslationResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof ContactTranslationResource
      */
@@ -1192,19 +1192,19 @@ export interface ContextIndex200Response {
  */
 export interface ContextResource {
     /**
-     * The unique identifier of the context (GUID)
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof ContextResource
      */
     'id': string;
     /**
-     * The name of the context, it shall only be used internally
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof ContextResource
      */
     'internal_name': string;
     /**
-     * The legacy Id when this context corresponds to a legacy context from the MWNF3 database, nullable
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof ContextResource
      */
@@ -1216,13 +1216,13 @@ export interface ContextResource {
      */
     'is_default': boolean;
     /**
-     * Date of creation
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof ContextResource
      */
     'created_at': string | null;
     /**
-     * Date of last modification
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof ContextResource
      */
@@ -1299,31 +1299,31 @@ export interface CountryIndex200Response {
  */
 export interface CountryResource {
     /**
-     * The unique identifier of the country (ISO 3166-1 alpha-3 code)
+     * The unique identifier (ISO 3166-1 alpha-3 code)
      * @type {string}
      * @memberof CountryResource
      */
     'id': string;
     /**
-     * The name of the country, it shall only be used internally
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof CountryResource
      */
     'internal_name': string;
     /**
-     * The legacy Id when this country corresponds to a legacy country from the MWNF3 database, nullable
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof CountryResource
      */
     'backward_compatibility': string | null;
     /**
-     * Date of creation
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof CountryResource
      */
     'created_at': string | null;
     /**
-     * Date of last modification
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof CountryResource
      */
@@ -1406,43 +1406,43 @@ export interface DetailIndex200Response {
  */
 export interface DetailResource {
     /**
-     * The unique identifier of the item (GUID)
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof DetailResource
      */
     'id': string;
     /**
-     * The name of the item, it shall only be used internally
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof DetailResource
      */
     'internal_name': string;
     /**
-     * The item this detail belongs to
+     * The item this detail belongs to (ItemResource)
      * @type {ItemResource}
      * @memberof DetailResource
      */
     'item'?: ItemResource;
     /**
-     * The legacy Id when this item corresponds to a legacy item from the MWNF3 database, nullable
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof DetailResource
      */
     'backward_compatibility': string | null;
     /**
-     * Translations for this detail (internationalization and contextualization)
+     * Translations for this detail (internationalization and contextualization) (DetailTranslationResource[])
      * @type {Array<DetailTranslationResource>}
      * @memberof DetailResource
      */
     'translations'?: Array<DetailTranslationResource>;
     /**
-     * Date of creation
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof DetailResource
      */
     'created_at': string | null;
     /**
-     * Date of last modification
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof DetailResource
      */
@@ -1493,133 +1493,133 @@ export interface DetailStoreRequest {
  */
 export interface DetailTranslationResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof DetailTranslationResource
      */
     'id': string;
     /**
-     * 
+     * The detail this translation belongs to (DetailResource id)
      * @type {string}
      * @memberof DetailTranslationResource
      */
     'detail_id': string;
     /**
-     * 
+     * The language of this translation (LanguageResource id)
      * @type {string}
      * @memberof DetailTranslationResource
      */
     'language_id': string;
     /**
-     * 
+     * The context of this translation (ContextResource id)
      * @type {string}
      * @memberof DetailTranslationResource
      */
     'context_id': string;
     /**
-     * 
+     * The name of the detail translation
      * @type {string}
      * @memberof DetailTranslationResource
      */
     'name': string;
     /**
-     * 
+     * The alternate name of the detail translation
      * @type {string}
      * @memberof DetailTranslationResource
      */
     'alternate_name': string | null;
     /**
-     * 
+     * The description of the detail translation
      * @type {string}
      * @memberof DetailTranslationResource
      */
     'description': string;
     /**
-     * 
+     * The author of the translation (AuthorResource id)
      * @type {string}
      * @memberof DetailTranslationResource
      */
     'author_id': string | null;
     /**
-     * 
+     * The text copy editor of the translation (UserResource id)
      * @type {string}
      * @memberof DetailTranslationResource
      */
     'text_copy_editor_id': string | null;
     /**
-     * 
+     * The translator of the translation (UserResource id)
      * @type {string}
      * @memberof DetailTranslationResource
      */
     'translator_id': string | null;
     /**
-     * 
+     * The translation copy editor of the translation (UserResource id)
      * @type {string}
      * @memberof DetailTranslationResource
      */
     'translation_copy_editor_id': string | null;
     /**
-     * 
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof DetailTranslationResource
      */
     'backward_compatibility': string | null;
     /**
-     * 
-     * @type {Array<any>}
+     * Extra data for translation (object, may be null)
+     * @type {object}
      * @memberof DetailTranslationResource
      */
-    'extra': Array<any> | null;
+    'extra': object | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof DetailTranslationResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof DetailTranslationResource
      */
     'updated_at': string | null;
     /**
-     * Relationship data
+     * The detail relationship (DetailResource)
      * @type {DetailResource}
      * @memberof DetailTranslationResource
      */
     'detail'?: DetailResource;
     /**
-     * 
+     * The language relationship (LanguageResource)
      * @type {LanguageResource}
      * @memberof DetailTranslationResource
      */
     'language'?: LanguageResource;
     /**
-     * 
+     * The context relationship (ContextResource)
      * @type {ContextResource}
      * @memberof DetailTranslationResource
      */
     'context'?: ContextResource;
     /**
-     * 
+     * The author relationship (AuthorResource)
      * @type {AuthorResource}
      * @memberof DetailTranslationResource
      */
     'author'?: AuthorResource;
     /**
-     * 
+     * The text copy editor relationship (AuthorResource)
      * @type {AuthorResource}
      * @memberof DetailTranslationResource
      */
     'text_copy_editor'?: AuthorResource;
     /**
-     * 
+     * The translator relationship (AuthorResource)
      * @type {AuthorResource}
      * @memberof DetailTranslationResource
      */
     'translator'?: AuthorResource;
     /**
-     * 
+     * The translation copy editor relationship (AuthorResource)
      * @type {AuthorResource}
      * @memberof DetailTranslationResource
      */
@@ -1712,10 +1712,10 @@ export interface DetailTranslationStoreRequest {
     'backward_compatibility'?: string | null;
     /**
      * 
-     * @type {Array<string>}
+     * @type {string}
      * @memberof DetailTranslationStoreRequest
      */
-    'extra'?: Array<string> | null;
+    'extra'?: string | null;
 }
 /**
  * 
@@ -1791,10 +1791,10 @@ export interface DetailTranslationUpdateRequest {
     'backward_compatibility'?: string | null;
     /**
      * 
-     * @type {Array<string>}
+     * @type {string}
      * @memberof DetailTranslationUpdateRequest
      */
-    'extra'?: Array<string> | null;
+    'extra'?: string | null;
 }
 /**
  * 
@@ -1939,43 +1939,43 @@ export interface ExhibitionIndex200ResponseMetaLinksInner {
  */
 export interface ExhibitionResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof ExhibitionResource
      */
     'id': string;
     /**
-     * 
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof ExhibitionResource
      */
     'internal_name': string;
     /**
-     * 
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof ExhibitionResource
      */
     'backward_compatibility': string | null;
     /**
-     * 
+     * Translations for this exhibition (ExhibitionTranslationResource[])
      * @type {Array<ExhibitionTranslationResource>}
      * @memberof ExhibitionResource
      */
     'translations'?: Array<ExhibitionTranslationResource>;
     /**
-     * 
+     * Partners associated with this exhibition (PartnerResource[])
      * @type {Array<PartnerResource>}
      * @memberof ExhibitionResource
      */
     'partners'?: Array<PartnerResource>;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof ExhibitionResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof ExhibitionResource
      */
@@ -2020,67 +2020,67 @@ export interface ExhibitionStoreRequest {
  */
 export interface ExhibitionTranslationResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof ExhibitionTranslationResource
      */
     'id': string;
     /**
-     * 
+     * The exhibition this translation belongs to (ExhibitionResource id)
      * @type {string}
      * @memberof ExhibitionTranslationResource
      */
     'exhibition_id': string;
     /**
-     * 
+     * The language of this translation (LanguageResource id)
      * @type {string}
      * @memberof ExhibitionTranslationResource
      */
     'language_id': string;
     /**
-     * 
+     * The context of this translation (ContextResource id)
      * @type {string}
      * @memberof ExhibitionTranslationResource
      */
     'context_id': string;
     /**
-     * 
+     * The title of the exhibition translation
      * @type {string}
      * @memberof ExhibitionTranslationResource
      */
     'title': string;
     /**
-     * 
+     * The description of the exhibition translation
      * @type {string}
      * @memberof ExhibitionTranslationResource
      */
     'description': string;
     /**
-     * 
+     * The URL for the exhibition translation
      * @type {string}
      * @memberof ExhibitionTranslationResource
      */
     'url': string | null;
     /**
-     * 
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof ExhibitionTranslationResource
      */
     'backward_compatibility': string | null;
     /**
-     * 
-     * @type {Array<any>}
+     * Extra data for translation (object, may be null)
+     * @type {object}
      * @memberof ExhibitionTranslationResource
      */
-    'extra': Array<any> | null;
+    'extra': object | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof ExhibitionTranslationResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof ExhibitionTranslationResource
      */
@@ -2149,10 +2149,10 @@ export interface ExhibitionTranslationStoreRequest {
     'backward_compatibility'?: string | null;
     /**
      * 
-     * @type {Array<string>}
+     * @type {string}
      * @memberof ExhibitionTranslationStoreRequest
      */
-    'extra'?: Array<string> | null;
+    'extra'?: string | null;
 }
 /**
  * 
@@ -2204,10 +2204,10 @@ export interface ExhibitionTranslationUpdateRequest {
     'backward_compatibility'?: string | null;
     /**
      * 
-     * @type {Array<string>}
+     * @type {string}
      * @memberof ExhibitionTranslationUpdateRequest
      */
-    'extra'?: Array<string> | null;
+    'extra'?: string | null;
 }
 /**
  * 
@@ -2248,85 +2248,85 @@ export interface GalleryIndex200Response {
  */
 export interface GalleryResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof GalleryResource
      */
     'id': string;
     /**
-     * 
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof GalleryResource
      */
     'internal_name': string;
     /**
-     * 
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof GalleryResource
      */
     'backward_compatibility': string | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof GalleryResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof GalleryResource
      */
     'updated_at': string | null;
     /**
-     * Relationships
+     * Translations for this gallery (GalleryTranslationResource[])
      * @type {Array<GalleryTranslationResource>}
      * @memberof GalleryResource
      */
     'translations'?: Array<GalleryTranslationResource>;
     /**
-     * 
+     * Partners associated with this gallery (PartnerResource[])
      * @type {Array<PartnerResource>}
      * @memberof GalleryResource
      */
     'partners'?: Array<PartnerResource>;
     /**
-     * 
+     * Items associated with this gallery (ItemResource[])
      * @type {Array<ItemResource>}
      * @memberof GalleryResource
      */
     'items'?: Array<ItemResource>;
     /**
-     * 
+     * Details associated with this gallery (DetailResource[])
      * @type {Array<DetailResource>}
      * @memberof GalleryResource
      */
     'details'?: Array<DetailResource>;
     /**
-     * Computed attributes
+     * The number of items in this gallery (computed)
      * @type {string}
      * @memberof GalleryResource
      */
     'items_count'?: string;
     /**
-     * 
+     * The number of details in this gallery (computed)
      * @type {string}
      * @memberof GalleryResource
      */
     'details_count'?: string;
     /**
-     * 
+     * The total number of content items in this gallery (computed)
      * @type {string}
      * @memberof GalleryResource
      */
     'total_content_count'?: string;
     /**
-     * 
+     * The total number of partners in this gallery (computed)
      * @type {string}
      * @memberof GalleryResource
      */
     'partners_count'?: string;
     /**
-     * 
+     * The total number of translations in this gallery (computed)
      * @type {string}
      * @memberof GalleryResource
      */
@@ -2371,85 +2371,85 @@ export interface GalleryStoreRequest {
  */
 export interface GalleryTranslationResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof GalleryTranslationResource
      */
     'id': string;
     /**
-     * 
+     * The gallery this translation belongs to (GalleryResource id)
      * @type {string}
      * @memberof GalleryTranslationResource
      */
     'gallery_id': string;
     /**
-     * 
+     * The language of this translation (LanguageResource id)
      * @type {string}
      * @memberof GalleryTranslationResource
      */
     'language_id': string;
     /**
-     * 
+     * The context of this translation (ContextResource id)
      * @type {string}
      * @memberof GalleryTranslationResource
      */
     'context_id': string;
     /**
-     * 
+     * The title of the gallery translation
      * @type {string}
      * @memberof GalleryTranslationResource
      */
     'title': string;
     /**
-     * 
+     * The description of the gallery translation
      * @type {string}
      * @memberof GalleryTranslationResource
      */
     'description': string;
     /**
-     * 
+     * The URL for the gallery translation
      * @type {string}
      * @memberof GalleryTranslationResource
      */
     'url': string | null;
     /**
-     * 
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof GalleryTranslationResource
      */
     'backward_compatibility': string | null;
     /**
-     * 
-     * @type {Array<any>}
+     * Extra data for translation (object, may be null)
+     * @type {object}
      * @memberof GalleryTranslationResource
      */
-    'extra': Array<any> | null;
+    'extra': object | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof GalleryTranslationResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof GalleryTranslationResource
      */
     'updated_at': string | null;
     /**
-     * Relationships
+     * The gallery relationship (GalleryResource)
      * @type {GalleryResource}
      * @memberof GalleryTranslationResource
      */
     'gallery'?: GalleryResource;
     /**
-     * 
+     * The language relationship (LanguageResource)
      * @type {LanguageResource}
      * @memberof GalleryTranslationResource
      */
     'language'?: LanguageResource;
     /**
-     * 
+     * The context relationship (ContextResource)
      * @type {ContextResource}
      * @memberof GalleryTranslationResource
      */
@@ -2494,7 +2494,7 @@ export interface ImageUploadIndex200Response {
  */
 export interface ImageUploadResource {
     /**
-     * The unique identifier of the picture (GUID)
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof ImageUploadResource
      */
@@ -2530,13 +2530,13 @@ export interface ImageUploadResource {
      */
     'size': number | null;
     /**
-     * Date of creation
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof ImageUploadResource
      */
     'created_at': string | null;
     /**
-     * Date of last modification
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof ImageUploadResource
      */
@@ -2743,91 +2743,91 @@ export interface ItemIndex200Response {
  */
 export interface ItemResource {
     /**
-     * The unique identifier of the item (GUID)
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof ItemResource
      */
     'id': string;
     /**
-     * The name of the item, it shall only be used internally
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof ItemResource
      */
     'internal_name': string;
     /**
-     * The legacy Id when this item corresponds to a legacy item from the MWNF3 database, nullable
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof ItemResource
      */
     'backward_compatibility': string | null;
     /**
-     * The type of the item, either \'object\' or \'monument\'
+     * The type of the item, either \'object\' or \'monument\'.
      * @type {string}
      * @memberof ItemResource
      */
     'type': string;
     /**
-     * Owner\'s reference number for the item
+     * Owner\'s reference number for the item (external reference from owner)
      * @type {string}
      * @memberof ItemResource
      */
     'owner_reference': string | null;
     /**
-     * MWNF reference number for the item
+     * MWNF reference number for the item (reference from MWNF system)
      * @type {string}
      * @memberof ItemResource
      */
     'mwnf_reference': string | null;
     /**
-     * The partner owning the item
+     * The partner owning the item (PartnerResource)
      * @type {PartnerResource}
      * @memberof ItemResource
      */
     'partner'?: PartnerResource;
     /**
-     * The project this item belongs to, nullable
+     * The project this item belongs to, nullable (ProjectResource)
      * @type {ProjectResource}
      * @memberof ItemResource
      */
     'project'?: ProjectResource;
     /**
-     * The country this item is associated with, nullable
+     * The country this item is associated with, nullable (CountryResource)
      * @type {CountryResource}
      * @memberof ItemResource
      */
     'country'?: CountryResource;
     /**
-     * Artists associated with this item
+     * Artists associated with this item (ArtistResource[])
      * @type {Array<ArtistResource>}
      * @memberof ItemResource
      */
     'artists': Array<ArtistResource>;
     /**
-     * Workshops associated with this item
+     * Workshops associated with this item (WorkshopResource[])
      * @type {Array<WorkshopResource>}
      * @memberof ItemResource
      */
     'workshops': Array<WorkshopResource>;
     /**
-     * Tags associated with this item
+     * Tags associated with this item (TagResource[])
      * @type {Array<TagResource>}
      * @memberof ItemResource
      */
     'tags'?: Array<TagResource>;
     /**
-     * Translations for this item (internationalization and contextualization)
+     * Translations for this item (internationalization and contextualization) (ItemTranslationResource[])
      * @type {Array<ItemTranslationResource>}
      * @memberof ItemResource
      */
     'translations'?: Array<ItemTranslationResource>;
     /**
-     * Date of creation
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof ItemResource
      */
     'created_at': string | null;
     /**
-     * Date of last modification
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof ItemResource
      */
@@ -2904,205 +2904,205 @@ export type ItemStoreRequestTypeEnum = typeof ItemStoreRequestTypeEnum[keyof typ
  */
 export interface ItemTranslationResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'id': string;
     /**
-     * 
+     * The item this translation belongs to (ItemResource id)
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'item_id': string;
     /**
-     * 
+     * The language of this translation (LanguageResource id)
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'language_id': string;
     /**
-     * 
+     * The context of this translation (ContextResource id)
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'context_id': string;
     /**
-     * 
+     * The name of the item translation
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'name': string;
     /**
-     * 
+     * The alternate name of the item translation
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'alternate_name': string | null;
     /**
-     * 
+     * The description of the item translation
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'description': string;
     /**
-     * 
+     * The type of the item translation
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'type': string | null;
     /**
-     * 
+     * The holder of the item
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'holder': string | null;
     /**
-     * 
+     * The owner of the item
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'owner': string | null;
     /**
-     * 
+     * The initial owner of the item
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'initial_owner': string | null;
     /**
-     * 
+     * The dates associated with the item
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'dates': string | null;
     /**
-     * 
+     * The location associated with the item
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'location': string | null;
     /**
-     * 
+     * The dimensions of the item
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'dimensions': string | null;
     /**
-     * 
+     * The place of production of the item
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'place_of_production': string | null;
     /**
-     * 
+     * The method for datation of the item
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'method_for_datation': string | null;
     /**
-     * 
+     * The method for provenance of the item
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'method_for_provenance': string | null;
     /**
-     * 
+     * The obtention of the item
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'obtention': string | null;
     /**
-     * 
+     * The bibliography for the item
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'bibliography': string | null;
     /**
-     * 
+     * The author of the item (AuthorResource id)
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'author_id': string | null;
     /**
-     * 
+     * The copy-editor of the item (AuthorResource id)
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'text_copy_editor_id': string | null;
     /**
-     * 
+     * The translator of the item translation (AuthorResource id)
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'translator_id': string | null;
     /**
-     * 
+     * The copy-editor of the item translation (AuthorResource id)
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'translation_copy_editor_id': string | null;
     /**
-     * 
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'backward_compatibility': string | null;
     /**
-     * 
-     * @type {Array<any>}
+     * Extra data for translation (object, may be null)
+     * @type {object}
      * @memberof ItemTranslationResource
      */
-    'extra': Array<any> | null;
+    'extra': object | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof ItemTranslationResource
      */
     'updated_at': string | null;
     /**
-     * Relationship data
+     * The item relationship (ItemResource)
      * @type {ItemResource}
      * @memberof ItemTranslationResource
      */
     'item'?: ItemResource;
     /**
-     * 
+     * The language relationship (LanguageResource)
      * @type {LanguageResource}
      * @memberof ItemTranslationResource
      */
     'language'?: LanguageResource;
     /**
-     * 
+     * The context relationship (ContextResource)
      * @type {ContextResource}
      * @memberof ItemTranslationResource
      */
     'context'?: ContextResource;
     /**
-     * 
+     * The author relationship (AuthorResource)
      * @type {AuthorResource}
      * @memberof ItemTranslationResource
      */
     'author'?: AuthorResource;
     /**
-     * 
+     * The copy-editor relationship (AuthorResource)
      * @type {AuthorResource}
      * @memberof ItemTranslationResource
      */
     'text_copy_editor'?: AuthorResource;
     /**
-     * 
+     * The translator relationship (AuthorResource)
      * @type {AuthorResource}
      * @memberof ItemTranslationResource
      */
     'translator'?: AuthorResource;
     /**
-     * 
+     * The translation copy-editor relationship (AuthorResource)
      * @type {AuthorResource}
      * @memberof ItemTranslationResource
      */
@@ -3267,10 +3267,10 @@ export interface ItemTranslationStoreRequest {
     'backward_compatibility'?: string | null;
     /**
      * 
-     * @type {Array<string>}
+     * @type {string}
      * @memberof ItemTranslationStoreRequest
      */
-    'extra'?: Array<string> | null;
+    'extra'?: string | null;
 }
 /**
  * 
@@ -3418,10 +3418,10 @@ export interface ItemTranslationUpdateRequest {
     'backward_compatibility'?: string | null;
     /**
      * 
-     * @type {Array<string>}
+     * @type {string}
      * @memberof ItemTranslationUpdateRequest
      */
-    'extra'?: Array<string> | null;
+    'extra'?: string | null;
 }
 /**
  * 
@@ -3515,19 +3515,19 @@ export interface LanguageIndex200Response {
  */
 export interface LanguageResource {
     /**
-     * The unique identifier of the language (ISO 639-1 code)
+     * The unique identifier (ISO 639-1 code)
      * @type {string}
      * @memberof LanguageResource
      */
     'id': string;
     /**
-     * The name of the language, it shall only be used internally
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof LanguageResource
      */
     'internal_name': string;
     /**
-     * The legacy Id when this language corresponds to a legacy language from the MWNF3 database, nullable
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof LanguageResource
      */
@@ -3539,13 +3539,13 @@ export interface LanguageResource {
      */
     'is_default': boolean;
     /**
-     * Date of creation
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof LanguageResource
      */
     'created_at': string | null;
     /**
-     * Date of last modification
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof LanguageResource
      */
@@ -3640,37 +3640,37 @@ export interface LocationIndex200Response {
  */
 export interface LocationResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof LocationResource
      */
     'id': string;
     /**
-     * 
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof LocationResource
      */
     'internal_name': string;
     /**
-     * 
+     * The country this location belongs to (CountryResource id)
      * @type {string}
      * @memberof LocationResource
      */
     'country_id': string;
     /**
-     * 
+     * Translations for this location (LocationTranslationResource[])
      * @type {Array<LocationTranslationResource>}
      * @memberof LocationResource
      */
     'translations'?: Array<LocationTranslationResource>;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof LocationResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof LocationResource
      */
@@ -3753,43 +3753,43 @@ export interface LocationTranslationIndex200Response {
  */
 export interface LocationTranslationResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof LocationTranslationResource
      */
     'id': string;
     /**
-     * 
+     * The location this translation belongs to (LocationResource id)
      * @type {string}
      * @memberof LocationTranslationResource
      */
     'location_id': string;
     /**
-     * 
+     * The language of this translation (LanguageResource id)
      * @type {string}
      * @memberof LocationTranslationResource
      */
     'language_id': string;
     /**
-     * 
+     * The name of the location translation
      * @type {string}
      * @memberof LocationTranslationResource
      */
     'name': string;
     /**
-     * 
+     * The description of the location translation
      * @type {string}
      * @memberof LocationTranslationResource
      */
     'description': string | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof LocationTranslationResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof LocationTranslationResource
      */
@@ -4069,43 +4069,43 @@ export interface PartnerIndex200Response {
  */
 export interface PartnerResource {
     /**
-     * The unique identifier of the partner (GUID)
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof PartnerResource
      */
     'id': string;
     /**
-     * The name of the partner, it shall only be used internally
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof PartnerResource
      */
     'internal_name': string;
     /**
-     * The legacy Id when this partner corresponds to a legacy partner from the MWNF3 database, nullable
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof PartnerResource
      */
     'backward_compatibility': string | null;
     /**
-     * The type of the partner, either \'museum\',  \'institution\' or \'individual\'
+     * The type of the partner, either \'museum\', \'institution\' or \'individual\'.
      * @type {string}
      * @memberof PartnerResource
      */
     'type': string;
     /**
-     * The country this partner is associated with, nullable
+     * The country this partner is associated with, nullable (CountryResource)
      * @type {CountryResource}
      * @memberof PartnerResource
      */
     'country'?: CountryResource;
     /**
-     * Date of creation
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof PartnerResource
      */
     'created_at': string | null;
     /**
-     * Date of last modification
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof PartnerResource
      */
@@ -4204,19 +4204,19 @@ export interface PictureIndex200Response {
  */
 export interface PictureResource {
     /**
-     * The unique identifier of the picture (UUID)
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof PictureResource
      */
     'id': string;
     /**
-     * The internal name of the picture
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof PictureResource
      */
     'internal_name': string;
     /**
-     * The legacy ID when this picture corresponds to a legacy image from the MWNF3 database, nullable
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof PictureResource
      */
@@ -4333,85 +4333,85 @@ export interface PictureTranslationIndex200Response {
  */
 export interface PictureTranslationResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof PictureTranslationResource
      */
     'id': string;
     /**
-     * 
+     * The picture this translation belongs to (PictureResource id)
      * @type {string}
      * @memberof PictureTranslationResource
      */
     'picture_id': string;
     /**
-     * 
+     * The language of this translation (LanguageResource id)
      * @type {string}
      * @memberof PictureTranslationResource
      */
     'language_id': string;
     /**
-     * 
+     * The context of this translation (ContextResource id)
      * @type {string}
      * @memberof PictureTranslationResource
      */
     'context_id': string;
     /**
-     * 
+     * The description of the picture translation
      * @type {string}
      * @memberof PictureTranslationResource
      */
     'description': string;
     /**
-     * 
+     * The caption of the picture translation
      * @type {string}
      * @memberof PictureTranslationResource
      */
     'caption': string;
     /**
-     * 
+     * The author of the translation (AuthorResource id)
      * @type {string}
      * @memberof PictureTranslationResource
      */
     'author_id': string | null;
     /**
-     * 
+     * The text copy editor of the translation (UserResource id)
      * @type {string}
      * @memberof PictureTranslationResource
      */
     'text_copy_editor_id': string | null;
     /**
-     * 
+     * The translator of the translation (UserResource id)
      * @type {string}
      * @memberof PictureTranslationResource
      */
     'translator_id': string | null;
     /**
-     * 
+     * The translation copy editor of the translation (UserResource id)
      * @type {string}
      * @memberof PictureTranslationResource
      */
     'translation_copy_editor_id': string | null;
     /**
-     * 
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof PictureTranslationResource
      */
     'backward_compatibility': string | null;
     /**
-     * 
-     * @type {Array<any>}
+     * Extra data for translation (object, may be null)
+     * @type {object}
      * @memberof PictureTranslationResource
      */
-    'extra': Array<any> | null;
+    'extra': object | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof PictureTranslationResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof PictureTranslationResource
      */
@@ -4498,10 +4498,10 @@ export interface PictureTranslationStoreRequest {
     'backward_compatibility'?: string | null;
     /**
      * 
-     * @type {Array<string>}
+     * @type {string}
      * @memberof PictureTranslationStoreRequest
      */
-    'extra'?: Array<string> | null;
+    'extra'?: string | null;
 }
 /**
  * 
@@ -4571,10 +4571,10 @@ export interface PictureTranslationUpdateRequest {
     'backward_compatibility'?: string | null;
     /**
      * 
-     * @type {Array<string>}
+     * @type {string}
      * @memberof PictureTranslationUpdateRequest
      */
-    'extra'?: Array<string> | null;
+    'extra'?: string | null;
 }
 /**
  * 
@@ -4627,19 +4627,19 @@ export interface ProjectEnabled200Response {
  */
 export interface ProjectResource {
     /**
-     * The unique identifier of the project (GUID)
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof ProjectResource
      */
     'id': string;
     /**
-     * The name of the project, it shall only be used internally
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof ProjectResource
      */
     'internal_name': string;
     /**
-     * The legacy Id when this project corresponds to a legacy project from the MWNF3 database, nullable
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof ProjectResource
      */
@@ -4663,25 +4663,25 @@ export interface ProjectResource {
      */
     'is_enabled': boolean;
     /**
-     * The default context used within the project
+     * The default context used within the project (ContextResource)
      * @type {ContextResource}
      * @memberof ProjectResource
      */
     'context'?: ContextResource;
     /**
-     * The default language used within the project
+     * The default language used within the project (LanguageResource)
      * @type {LanguageResource}
      * @memberof ProjectResource
      */
     'language'?: LanguageResource;
     /**
-     * Date of creation
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof ProjectResource
      */
     'created_at': string | null;
     /**
-     * Date of last modification
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof ProjectResource
      */
@@ -4721,10 +4721,10 @@ export interface ProjectSetLaunched200Response {
 export interface ProjectSetLaunchedRequest {
     /**
      * 
-     * @type {string}
+     * @type {boolean}
      * @memberof ProjectSetLaunchedRequest
      */
-    'launch_date'?: string | null;
+    'is_launched': boolean;
 }
 /**
  * 
@@ -4795,37 +4795,37 @@ export interface ProvinceIndex200Response {
  */
 export interface ProvinceResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof ProvinceResource
      */
     'id': string;
     /**
-     * 
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof ProvinceResource
      */
     'internal_name': string;
     /**
-     * 
+     * The country this province belongs to (CountryResource id)
      * @type {string}
      * @memberof ProvinceResource
      */
     'country_id': string;
     /**
-     * 
+     * Translations for this province (ProvinceTranslationResource[])
      * @type {Array<ProvinceTranslationResource>}
      * @memberof ProvinceResource
      */
     'translations'?: Array<ProvinceTranslationResource>;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof ProvinceResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof ProvinceResource
      */
@@ -4864,43 +4864,43 @@ export interface ProvinceTranslationIndex200Response {
  */
 export interface ProvinceTranslationResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof ProvinceTranslationResource
      */
     'id': string;
     /**
-     * 
+     * The province this translation belongs to (ProvinceResource id)
      * @type {string}
      * @memberof ProvinceTranslationResource
      */
     'province_id': string;
     /**
-     * 
+     * The language of this translation (LanguageResource id)
      * @type {string}
      * @memberof ProvinceTranslationResource
      */
     'language_id': string;
     /**
-     * 
+     * The name of the province translation
      * @type {string}
      * @memberof ProvinceTranslationResource
      */
     'name': string;
     /**
-     * 
+     * The description of the province translation
      * @type {string}
      * @memberof ProvinceTranslationResource
      */
     'description': string | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof ProvinceTranslationResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof ProvinceTranslationResource
      */
@@ -5107,55 +5107,55 @@ export interface ThemeIndex200Response {
  */
 export interface ThemeResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof ThemeResource
      */
     'id': string;
     /**
-     * 
+     * The exhibition this theme belongs to (ExhibitionResource id)
      * @type {string}
      * @memberof ThemeResource
      */
     'exhibition_id': string;
     /**
-     * 
+     * The parent theme of this theme (ThemeResource id)
      * @type {string}
      * @memberof ThemeResource
      */
     'parent_id': string | null;
     /**
-     * 
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof ThemeResource
      */
     'internal_name': string;
     /**
-     * 
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof ThemeResource
      */
     'backward_compatibility': string | null;
     /**
-     * 
+     * Translations for this theme (ThemeTranslationResource[])
      * @type {Array<ThemeTranslationResource>}
      * @memberof ThemeResource
      */
     'translations'?: Array<ThemeTranslationResource>;
     /**
-     * 
+     * Subthemes of this theme (ThemeResource[])
      * @type {Array<ThemeResource>}
      * @memberof ThemeResource
      */
     'subthemes'?: Array<ThemeResource>;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof ThemeResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof ThemeResource
      */
@@ -5212,67 +5212,67 @@ export interface ThemeStoreRequest {
  */
 export interface ThemeTranslationResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof ThemeTranslationResource
      */
     'id': string;
     /**
-     * 
+     * The theme this translation belongs to (ThemeResource id)
      * @type {string}
      * @memberof ThemeTranslationResource
      */
     'theme_id': string;
     /**
-     * 
+     * The language of this translation (LanguageResource id)
      * @type {string}
      * @memberof ThemeTranslationResource
      */
     'language_id': string;
     /**
-     * 
+     * The context of this translation (ContextResource id)
      * @type {string}
      * @memberof ThemeTranslationResource
      */
     'context_id': string;
     /**
-     * 
+     * The title of the theme translation
      * @type {string}
      * @memberof ThemeTranslationResource
      */
     'title': string;
     /**
-     * 
+     * The description of the theme translation
      * @type {string}
      * @memberof ThemeTranslationResource
      */
     'description': string;
     /**
-     * 
+     * The introduction of the theme translation
      * @type {string}
      * @memberof ThemeTranslationResource
      */
     'introduction': string;
     /**
-     * 
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof ThemeTranslationResource
      */
     'backward_compatibility': string | null;
     /**
-     * 
-     * @type {Array<any>}
+     * Extra data for translation (object, may be null)
+     * @type {object}
      * @memberof ThemeTranslationResource
      */
-    'extra': Array<any> | null;
+    'extra': object | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof ThemeTranslationResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof ThemeTranslationResource
      */
@@ -5341,10 +5341,10 @@ export interface ThemeTranslationStoreRequest {
     'backward_compatibility'?: string | null;
     /**
      * 
-     * @type {Array<string>}
+     * @type {string}
      * @memberof ThemeTranslationStoreRequest
      */
-    'extra'?: Array<string> | null;
+    'extra'?: string | null;
 }
 /**
  * 
@@ -5396,10 +5396,10 @@ export interface ThemeTranslationUpdateRequest {
     'backward_compatibility'?: string | null;
     /**
      * 
-     * @type {Array<string>}
+     * @type {string}
      * @memberof ThemeTranslationUpdateRequest
      */
-    'extra'?: Array<string> | null;
+    'extra'?: string | null;
 }
 /**
  * 
@@ -5439,43 +5439,43 @@ export interface TokenAcquireRequest {
  */
 export interface WorkshopResource {
     /**
-     * 
+     * The unique identifier (GUID)
      * @type {string}
      * @memberof WorkshopResource
      */
     'id': string;
     /**
-     * 
+     * The name of the workshop
      * @type {string}
      * @memberof WorkshopResource
      */
     'name': string;
     /**
-     * 
+     * A name for this resource, for internal use only.
      * @type {string}
      * @memberof WorkshopResource
      */
     'internal_name': string;
     /**
-     * 
+     * The Id(s) of matching resource in the legacy system (if any).
      * @type {string}
      * @memberof WorkshopResource
      */
     'backward_compatibility': string | null;
     /**
-     * 
+     * The date of creation of the resource (managed by the system)
      * @type {string}
      * @memberof WorkshopResource
      */
     'created_at': string | null;
     /**
-     * 
+     * The date of last modification of the resource (managed by the system)
      * @type {string}
      * @memberof WorkshopResource
      */
     'updated_at': string | null;
     /**
-     * 
+     * Items associated with this workshop (ItemResource[])
      * @type {Array<ItemResource>}
      * @memberof WorkshopResource
      */
@@ -18317,7 +18317,7 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @summary Get all enabled projects (Enabled + launched)
+         * @summary Get all visible projects. The project becomes \"visible\" when all conditions are matched: - is_enabled is true - is_launched is true - current date >= launch_date
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -18429,15 +18429,17 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @summary Toggle Launched/not-launched on a project
+         * @summary Toggle Launched/not-launched on a project. Important: It is independant from the `launch_date` value. It is an idicator showing that the project is to be considered \'laucnhed\' as soon as the launch date it reached
          * @param {string} project The project ID
-         * @param {ProjectSetLaunchedRequest} [projectSetLaunchedRequest] 
+         * @param {ProjectSetLaunchedRequest} projectSetLaunchedRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        projectSetLaunched: async (project: string, projectSetLaunchedRequest?: ProjectSetLaunchedRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        projectSetLaunched: async (project: string, projectSetLaunchedRequest: ProjectSetLaunchedRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'project' is not null or undefined
             assertParamExists('projectSetLaunched', 'project', project)
+            // verify required parameter 'projectSetLaunchedRequest' is not null or undefined
+            assertParamExists('projectSetLaunched', 'projectSetLaunchedRequest', projectSetLaunchedRequest)
             const localVarPath = `/project/{project}/launched`
                 .replace(`{${"project"}}`, encodeURIComponent(String(project)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -18616,7 +18618,7 @@ export const ProjectApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Get all enabled projects (Enabled + launched)
+         * @summary Get all visible projects. The project becomes \"visible\" when all conditions are matched: - is_enabled is true - is_launched is true - current date >= launch_date
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -18654,13 +18656,13 @@ export const ProjectApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Toggle Launched/not-launched on a project
+         * @summary Toggle Launched/not-launched on a project. Important: It is independant from the `launch_date` value. It is an idicator showing that the project is to be considered \'laucnhed\' as soon as the launch date it reached
          * @param {string} project The project ID
-         * @param {ProjectSetLaunchedRequest} [projectSetLaunchedRequest] 
+         * @param {ProjectSetLaunchedRequest} projectSetLaunchedRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async projectSetLaunched(project: string, projectSetLaunchedRequest?: ProjectSetLaunchedRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProjectSetLaunched200Response>> {
+        async projectSetLaunched(project: string, projectSetLaunchedRequest: ProjectSetLaunchedRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProjectSetLaunched200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.projectSetLaunched(project, projectSetLaunchedRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProjectApi.projectSetLaunched']?.[localVarOperationServerIndex]?.url;
@@ -18728,7 +18730,7 @@ export const ProjectApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
-         * @summary Get all enabled projects (Enabled + launched)
+         * @summary Get all visible projects. The project becomes \"visible\" when all conditions are matched: - is_enabled is true - is_launched is true - current date >= launch_date
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -18757,13 +18759,13 @@ export const ProjectApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
-         * @summary Toggle Launched/not-launched on a project
+         * @summary Toggle Launched/not-launched on a project. Important: It is independant from the `launch_date` value. It is an idicator showing that the project is to be considered \'laucnhed\' as soon as the launch date it reached
          * @param {string} project The project ID
-         * @param {ProjectSetLaunchedRequest} [projectSetLaunchedRequest] 
+         * @param {ProjectSetLaunchedRequest} projectSetLaunchedRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        projectSetLaunched(project: string, projectSetLaunchedRequest?: ProjectSetLaunchedRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProjectSetLaunched200Response> {
+        projectSetLaunched(project: string, projectSetLaunchedRequest: ProjectSetLaunchedRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProjectSetLaunched200Response> {
             return localVarFp.projectSetLaunched(project, projectSetLaunchedRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -18821,7 +18823,7 @@ export class ProjectApi extends BaseAPI {
 
     /**
      * 
-     * @summary Get all enabled projects (Enabled + launched)
+     * @summary Get all visible projects. The project becomes \"visible\" when all conditions are matched: - is_enabled is true - is_launched is true - current date >= launch_date
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ProjectApi
@@ -18856,14 +18858,14 @@ export class ProjectApi extends BaseAPI {
 
     /**
      * 
-     * @summary Toggle Launched/not-launched on a project
+     * @summary Toggle Launched/not-launched on a project. Important: It is independant from the `launch_date` value. It is an idicator showing that the project is to be considered \'laucnhed\' as soon as the launch date it reached
      * @param {string} project The project ID
-     * @param {ProjectSetLaunchedRequest} [projectSetLaunchedRequest] 
+     * @param {ProjectSetLaunchedRequest} projectSetLaunchedRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ProjectApi
      */
-    public projectSetLaunched(project: string, projectSetLaunchedRequest?: ProjectSetLaunchedRequest, options?: RawAxiosRequestConfig) {
+    public projectSetLaunched(project: string, projectSetLaunchedRequest: ProjectSetLaunchedRequest, options?: RawAxiosRequestConfig) {
         return ProjectApiFp(this.configuration).projectSetLaunched(project, projectSetLaunchedRequest, options).then((request) => request(this.axios, this.basePath));
     }
 

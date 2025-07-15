@@ -5,13 +5,13 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** |  | [default to undefined]
-**province_id** | **string** |  | [default to undefined]
-**language_id** | **string** |  | [default to undefined]
-**name** | **string** |  | [default to undefined]
-**description** | **string** |  | [default to undefined]
-**created_at** | **string** |  | [default to undefined]
-**updated_at** | **string** |  | [default to undefined]
+**id** | **string** | The unique identifier (GUID) | [default to undefined]
+**province_id** | **string** | The province this translation belongs to (ProvinceResource id) | [default to undefined]
+**language_id** | **string** | The language of this translation (LanguageResource id) | [default to undefined]
+**name** | **string** | The name of the province translation | [default to undefined]
+**description** | **string** | The description of the province translation | [default to undefined]
+**created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
+**updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
 
 ## Example
 

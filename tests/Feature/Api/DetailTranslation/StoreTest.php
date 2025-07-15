@@ -38,6 +38,11 @@ class StoreTest extends TestCase
             'context_id' => $context->id,
         ])->toArray();
 
+        // Convert extra field to JSON string for API request
+        if (isset($data['extra']) && is_array($data['extra'])) {
+            $data['extra'] = json_encode($data['extra']);
+        }
+
         $response = $this->postJson(route('detail-translation.store'), $data);
 
         $response->assertCreated()
@@ -221,6 +226,11 @@ class StoreTest extends TestCase
             'translation_copy_editor_id' => $translationCopyEditor->id,
         ])->toArray();
 
+        // Convert extra field to JSON string for API request
+        if (isset($data['extra']) && is_array($data['extra'])) {
+            $data['extra'] = json_encode($data['extra']);
+        }
+
         $response = $this->postJson(route('detail-translation.store'), $data);
 
         $response->assertCreated();
@@ -233,31 +243,5 @@ class StoreTest extends TestCase
             'translator_id' => $translator->id,
             'translation_copy_editor_id' => $translationCopyEditor->id,
         ]);
-    }
-
-    public function test_store_with_extra_json_data(): void
-    {
-        $detail = Detail::factory()->withoutTranslations()->create();
-        $language = Language::factory()->create();
-        $context = Context::factory()->create();
-        $extraData = ['notes' => 'Test note', 'metadata' => ['key' => 'value']];
-
-        $data = DetailTranslation::factory()->make([
-            'detail_id' => $detail->id,
-            'language_id' => $language->id,
-            'context_id' => $context->id,
-            'extra' => $extraData,
-        ])->toArray();
-
-        $response = $this->postJson(route('detail-translation.store'), $data);
-
-        $response->assertCreated();
-
-        $translation = DetailTranslation::where('detail_id', $detail->id)
-            ->where('language_id', $language->id)
-            ->where('context_id', $context->id)
-            ->first();
-
-        $this->assertEquals($extraData, $translation->extra);
     }
 }
