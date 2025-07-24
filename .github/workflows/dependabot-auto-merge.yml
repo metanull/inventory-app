@@ -1,4 +1,4 @@
-name: dependabot-auto-merge # https://dev.to/peter_fox/laravel-tip-automatically-updating-your-projects-dependencies-in-github-12ea#:~:text=We%20only%20need%20to%20create%20a%20.github%20folder,updated%20as%20well%20as%20both%20composer%20and%20npm.
+name: Dependabot Auto-Merge
 on: pull_request_target
 
 permissions:

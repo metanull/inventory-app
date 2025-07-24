@@ -1,4 +1,4 @@
-name: Laravel
+name: Continuous Integration
 
 permissions:
   contents: read
