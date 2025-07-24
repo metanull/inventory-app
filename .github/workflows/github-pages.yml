@@ -1,4 +1,4 @@
-name: Generate Documentation and GitHub Pages Deployment
+name: GitHub Pages
 
 on:
   push:
