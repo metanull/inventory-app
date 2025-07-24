@@ -93,7 +93,5 @@ class CollectionSeeder extends Seeder
                 $item->update(['collection_id' => $collection->id]);
             }
         }
-
-        $this->command->info('CollectionSeeder completed successfully');
     }
 }

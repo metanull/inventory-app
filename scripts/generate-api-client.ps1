@@ -220,7 +220,7 @@ if (-not (Test-Path -Path $ReadmePath) -or $Force) {
     Write-Information "✔ README.md created"
 }
 
-Write-Information "`nAPI client generation completed successfully!"
+Write-Information "`n✔ API client generation completed successfully!"
 Write-Information "Output directory: $OutputPath"
 Write-Information "Generated version: $ClientVersion"
 Write-Information "Edit the files as needed before publishing."

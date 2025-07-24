@@ -26,9 +26,11 @@ class ThemeSeeder extends Seeder
                     'language_id' => 'eng',
                     'context_id' => $defaultContext->id,
                 ]);
-                // Attach random pictures
-                $pictures = \App\Models\Picture::inRandomOrder()->take(2)->pluck('id');
-                $theme->pictures()->attach($pictures);
+                // Attach random pictures (ensure unique pictures per theme)
+                $pictures = \App\Models\Picture::inRandomOrder()->take(4)->pluck('id')->unique()->take(2);
+                if ($pictures->isNotEmpty()) {
+                    $theme->pictures()->sync($pictures);
+                }
                 // Add subthemes
                 Theme::factory()->count(2)->create([
                     'exhibition_id' => $theme->exhibition_id,
@@ -39,9 +41,11 @@ class ThemeSeeder extends Seeder
                         'language_id' => 'eng',
                         'context_id' => $defaultContext->id,
                     ]);
-                    // Attach random pictures to subthemes
-                    $pictures = \App\Models\Picture::inRandomOrder()->take(2)->pluck('id');
-                    $subtheme->pictures()->attach($pictures);
+                    // Attach random pictures to subthemes (ensure unique pictures per subtheme)
+                    $pictures = \App\Models\Picture::inRandomOrder()->take(4)->pluck('id')->unique()->take(2);
+                    if ($pictures->isNotEmpty()) {
+                        $subtheme->pictures()->sync($pictures);
+                    }
                 });
             });
         });

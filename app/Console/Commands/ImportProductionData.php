@@ -50,7 +50,7 @@ class ImportProductionData extends Command
             $seeder->setCommand($this);
             $seeder->run();
 
-            $this->info('Production data import completed successfully.');
+            $this->info('Production data (Languages, Countries) import completed successfully.');
 
             return Command::SUCCESS;
         } catch (\Exception $e) {

@@ -12,6 +12,6 @@ class ImageUploadSeeder extends Seeder
      */
     public function run(): void
     {
-        ImageUpload::factory()->count(10)->create();
+        ImageUpload::factory()->count(5)->create();
     }
 }
