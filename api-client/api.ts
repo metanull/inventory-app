@@ -4268,13 +4268,13 @@ export interface PictureResource {
      * @type {string}
      * @memberof PictureResource
      */
-    'pictureable_type': string | null;
+    'pictureable_type': string;
     /**
      * The ID of the parent model
      * @type {string}
      * @memberof PictureResource
      */
-    'pictureable_id': string | null;
+    'pictureable_id': string;
     /**
      * Date of creation
      * @type {string}

@@ -4,6 +4,7 @@ namespace App\Faker;
 
 use Faker\Provider\Base;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\WhitespacePathNormalizer;
 
@@ -86,12 +87,12 @@ class LoremPicsumImageProvider extends Base
     }
 
     /**
-     * Download a remote image and return its contents.
+     * Download a remote image and return its contents with automatic fallback to local images.
      *
      * @param  string  $url  The URL of the image to download
      * @return string The image contents
      *
-     * @throws \Illuminate\Http\Client\RequestException If the HTTP request fails
+     * @throws \RuntimeException If both remote download and local fallback fail
      */
     protected function getImageContent(string $url): string
     {
@@ -110,10 +111,82 @@ class LoremPicsumImageProvider extends Base
             return $content;
         }
 
-        $response = Http::get($url);
-        $response->throw();
+        // Try to download from remote URL first
+        try {
+            $response = Http::timeout(10)->get($url);
+            $response->throw();
 
-        return $response->body();
+            return $response->body();
+        } catch (\Exception $e) {
+            // Log the network failure for debugging
+            Log::info('Remote image download failed, falling back to local images', [
+                'url' => $url,
+                'error' => $e->getMessage(),
+            ]);
+
+            // Fallback to local image
+            return $this->getLocalImageContent();
+        }
+    }
+
+    /**
+     * Get content from a random local seed image as fallback.
+     *
+     * @return string The local image contents
+     *
+     * @throws \RuntimeException If no local images are available
+     */
+    protected function getLocalImageContent(): string
+    {
+        $seedImagesPath = 'database/seeders/data/images';
+        $seedImages = [
+            'alan_haverty.jpg',
+            'alejandro_escamilla.jpg',
+            'aleks_dorohovich.jpg',
+            'allyson_souza.jpg',
+            'art_wave.jpg',
+            'austin_neill.jpg',
+            'christopher_sardegna_2.jpg',
+            'christopher_sardegna.jpg',
+            'how_soon_ngu.jpg',
+            'ireneuilia.jpg',
+            'j_duclos.jpg',
+            'jeffrey_kam.jpg',
+            'luke_chesser_2.jpg',
+            'luke_chesser_3.jpg',
+            'luke_chesser.jpg',
+            'margaret_barley.jpg',
+            'nicholas_swanson_2.jpg',
+            'nicholas_swanson.jpg',
+            'nithya_ramanujam.jpg',
+            'oleg_chursin.jpg',
+            'rodrigo_melo.jpg',
+            'ryan_mcguire.jpg',
+            'sebastian_muller.jpg',
+            'shane_colella.jpg',
+            'shyamanta_baruah.jpg',
+            'tony_naccarato.jpg',
+            'tyler_wanlass_2.jpg',
+            'tyler_wanlass.jpg',
+            'vadim_sherbakov.jpg',
+        ];
+
+        // Select a random image
+        $filename = $seedImages[array_rand($seedImages)];
+        $sourcePath = base_path($seedImagesPath.'/'.$filename);
+
+        // Verify source file exists
+        if (! file_exists($sourcePath)) {
+            throw new \RuntimeException("Local seed image not found: {$sourcePath}. Please ensure seed images are available.");
+        }
+
+        // Read the image content
+        $imageContents = file_get_contents($sourcePath);
+        if ($imageContents === false) {
+            throw new \RuntimeException("Failed to read local seed image: {$sourcePath}");
+        }
+
+        return $imageContents;
     }
 
     /**

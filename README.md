@@ -396,8 +396,22 @@ All endpoints support:
 5. **Database setup**
 
     ```bash
+    # Standard seeding (slower, network-dependent)
     php artisan migrate --seed
+    
+    # OR: Fast seeding with local images (recommended for development)
+    # First setup local images (one-time):
+    .\scripts\download-seed-images.ps1
+    
+    # Add to .env file:
+    # FAKER_USE_LOCAL_IMAGES=true
+    
+    # Then use optimized seeding:
+    php artisan migrate
+    php artisan db:seed --class=FastDatabaseSeeder
     ```
+
+    > 🚀 **Performance Note**: The optimized seeding is **99.4% faster** for image operations and eliminates network dependencies. See [Seeding Optimization Guide](docs/SEEDING_OPTIMIZATION.md) for details.
 
 6. **Build frontend assets**
 

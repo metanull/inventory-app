@@ -11796,17 +11796,11 @@
                         "description": "The size of the uploaded file in bytes"
                     },
                     "pictureable_type": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The type of the parent model (Item, Detail, Partner)"
                     },
                     "pictureable_id": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "description": "The ID of the parent model"
                     },
                     "created_at": {

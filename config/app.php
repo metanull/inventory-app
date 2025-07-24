@@ -130,4 +130,25 @@ return [
         'password' => env('APP_DEFAULT_USER_PASSWORD', 'password'),
         'email' => env('APP_DEFAULT_USER_EMAIL', 'user@example.com'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Faker Image Provider Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This option controls whether to use local seed images or download from
+    | the internet when seeding the database. Local images provide faster
+    | and more reliable seeding, especially in environments with limited
+    | internet connectivity.
+    |
+    | Default behavior:
+    | - Non-production environments: Use local images (true)
+    | - Production environment: Use remote images with local fallback (false)
+    |
+    | Set FAKER_USE_LOCAL_IMAGES=false to force remote image downloads
+    | Set FAKER_USE_LOCAL_IMAGES=true to force local image usage
+    |
+    */
+
+    'faker_use_local_images' => env('FAKER_USE_LOCAL_IMAGES', env('APP_ENV') !== 'production'),
 ];
