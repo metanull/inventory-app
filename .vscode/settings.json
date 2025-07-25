@@ -1,3 +1,32 @@
 {
-    "phpunit.phpunit": "vendor/bin/pest"
+    "phpunit.phpunit": "vendor/bin/pest",
+    "eslint.workingDirectories": [
+        { "mode": "auto" }
+    ],
+    "eslint.options": {
+        "configFile": "./eslint.config.js"
+    },
+    "tailwindCSS.includeLanguages": {
+        "html": "html",
+        "vue": "html",
+        "blade": "html"
+    },
+    "tailwindCSS.files.exclude": [
+        "**/.git/**",
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/vendor/**",
+        "**/storage/**",
+        "**/bootstrap/cache/**"
+    ],
+    "files.associations": {
+        "*.blade.php": "blade"
+    },
+    "emmet.includeLanguages": {
+        "blade": "html",
+        "vue": "html"
+    },
+    "css.validate": false,
+    "less.validate": false,
+    "scss.validate": false
 }

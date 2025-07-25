@@ -419,10 +419,37 @@ All endpoints support:
     npm run build
     ```
 
-7. **Start development server**
+7. **Start development environment**
+
     ```bash
-    php artisan serve
+    # Quick start with integrated development script
+    composer dev-start
+    
+    # OR: Start with database reset
+    composer dev-start -- --reset
+    
+    # OR: Traditional method (requires two terminals)
+    php artisan serve        # Terminal 1: Laravel API
+    npm run dev             # Terminal 2: Vite frontend server
     ```
+
+    The `composer dev-start` command automatically:
+    - ✅ Starts both Laravel and Vite servers concurrently
+    - ✅ Handles port conflicts and cleanup
+    - ✅ Provides clear status information
+    - ✅ Supports database reset option
+
+    Access your application at: **http://localhost:8000**
+
+### 📚 Comprehensive Documentation
+
+For detailed setup instructions, production deployment, and troubleshooting:
+
+- 🚀 **[Complete Deployment Guide](https://metanull.github.io/inventory-app/deployment/)** - Production and development setup
+- 💻 **[Development Environment](https://metanull.github.io/inventory-app/development-setup/)** - Local development guide  
+- 🔧 **[Configuration Guide](https://metanull.github.io/inventory-app/configuration/)** - Environment and application settings
+- 🌐 **[Server Configuration](https://metanull.github.io/inventory-app/server-configuration/)** - Apache/Nginx setup
+- 🛠️ **[Testing & Troubleshooting](https://metanull.github.io/inventory-app/testing-troubleshooting/)** - Common issues and solutions
 
 ### API Documentation
 
@@ -617,6 +644,32 @@ PICTURES_PATH=pictures
 SANCTUM_STATEFUL_DOMAINS=your-frontend-domain.com
 SESSION_SECURE_COOKIE=true
 ```
+
+### Web Server Configuration
+
+The `deployment/` directory contains ready-to-use web server configuration files:
+
+- **`apache.conf`** - Apache virtual host for Linux/Unix systems
+- **`apache-windows.conf`** - Apache virtual host for Windows Server
+- **`nginx.conf`** - Nginx server block configuration
+- **`deploy-windows.ps1`** - Automated deployment script for Windows
+
+These configurations include:
+- ✅ **Security headers** and SSL/TLS optimization
+- ✅ **Laravel URL rewriting** and proper routing
+- ✅ **Static asset caching** and performance optimization
+- ✅ **Access restrictions** for sensitive directories
+- ✅ **Production-ready SSL** configuration templates
+
+**Quick setup example (Windows):**
+```powershell
+# Copy your application files to C:\inetpub\wwwroot\inventory-app
+# Update deployment/apache-windows.conf with your paths
+# Run the deployment script as Administrator
+.\deployment\deploy-windows.ps1 -Domain "your-domain.com"
+```
+
+See `deployment/README.md` for detailed installation instructions.
 
 ### CI/CD Pipeline
 

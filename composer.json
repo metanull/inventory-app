@@ -64,6 +64,30 @@
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
         ],
+        "dev-start": [
+            "echo 'Starting development environment in new PowerShell window...'",
+            "pwsh -Command \"Start-Process pwsh -ArgumentList '-File', 'scripts/Start-Dev.ps1' -WindowStyle Normal\""
+        ],
+        "dev:start": [
+            "echo 'Starting development environment in new PowerShell window...'",
+            "pwsh -Command \"Start-Process pwsh -ArgumentList '-File', 'scripts/Start-Dev.ps1' -WindowStyle Normal\""
+        ],
+        "dev:test": [
+            "echo 'Testing development environment status...'",
+            "pwsh -File scripts/Test-Dev.ps1"
+        ],
+        "dev:monitor": [
+            "echo 'Starting development environment monitor in new PowerShell window...'",
+            "pwsh -Command \"Start-Process pwsh -ArgumentList '-File', 'scripts/Monitor-Dev.ps1' -WindowStyle Normal\""
+        ],
+        "dev:stop": [
+            "echo 'Stopping development environment...'",
+            "pwsh -File scripts/Stop-Dev.ps1"
+        ],
+        "dev:restart": [
+            "@composer dev:stop",
+            "@composer dev:start"
+        ],
         "ci-install": [
             "@composer install --ansi --no-interaction --no-progress --prefer-dist",
             "npm ci --no-fund --no-audit"
