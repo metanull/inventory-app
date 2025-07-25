@@ -69,6 +69,10 @@ Below you'll find automatically generated daily summaries documenting developmen
 
 Interactive API documentation
 
+### [Database models](models/)
+
+Overview of the database models in the application, their main properties, and relationships.
+
 ### [Guidelines](guidelines/)
 
 Comprehensive development guidelines covering API integration, coding standards, and testing practices.
