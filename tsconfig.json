@@ -1,0 +1,42 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": [
+    "env.d.ts",
+    "resources/js/**/*",
+    "resources/js/**/*.vue",
+    "api-client/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "vendor",
+    "storage",
+    "bootstrap/cache",
+    "resources/js/**/__tests__/*"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./resources/js/*"],
+      "@metanull/inventory-app-api-client": ["./api-client/index.ts"]
+    },
+    "types": [
+      "vite/client",
+      "vitest/globals"
+    ],
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    // "exactOptionalPropertyTypes": true, // Disabled due to incompatibility with @metanull/inventory-app-api-client
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve"
+  }
+}

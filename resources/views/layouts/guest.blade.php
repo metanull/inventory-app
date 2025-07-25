@@ -8,8 +8,9 @@
         <title>{{ config('app.name', 'Laravel') }}</title>
 
         <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
         @if(!app()->environment('testing') && config('app.env') !== 'testing')
@@ -17,8 +18,12 @@
         @else
             <!-- Testing environment: Skip Vite assets -->
             <style>
-                body { font-family: 'Figtree', sans-serif; }
-                .font-sans { font-family: 'Figtree', sans-serif; }
+                body { 
+                    font-family: 'Inter', system-ui, sans-serif; 
+                    background-color: #f9fafb;
+                    color: #111827;
+                }
+                .font-sans { font-family: 'Inter', system-ui, sans-serif; }
             </style>
         @endif
 

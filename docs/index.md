@@ -63,7 +63,7 @@ Below you'll find automatically generated daily summaries documenting developmen
 
 - [Inventory Management UI](https://github.com/metanull/inventory-management-ui) - A frontend application for this API
 
-## 📚 Documentation Sections
+## Documentation Sections
 
 ### [API Documentation](api-documentation)
 
@@ -72,6 +72,10 @@ Interactive API documentation
 ### [Database models](models/)
 
 Overview of the database models in the application, their main properties, and relationships.
+
+### [Deployment Guide](deployment/)
+
+Comprehensive deployment instructions for production and development environments.
 
 ### [Guidelines](guidelines/)
 
