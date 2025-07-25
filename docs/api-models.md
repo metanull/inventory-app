@@ -1,7 +1,7 @@
 ---
 layout: default
 title: API Models
-nav_order: 2
+nav_order: 7
 ---
 
 # API Models
