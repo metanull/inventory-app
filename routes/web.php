@@ -22,7 +22,7 @@ Route::prefix('web')->group(function () {
         'verified',
     ])->group(function () {
         Route::get('/dashboard', function () {
-            return view('dashboard');
+            return view('jetstream');
         })->name('dashboard');
     });
 

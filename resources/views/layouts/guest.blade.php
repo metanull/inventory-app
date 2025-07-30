@@ -7,6 +7,12 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+        <link rel="apple-touch-icon" href="{{ asset('favicon.svg') }}">
+        <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +20,7 @@
 
         <!-- Scripts -->
         @if(!app()->environment('testing') && config('app.env') !== 'testing')
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
+            @vite(['resources/css/app.css'])
         @else
             <!-- Testing environment: Skip Vite assets -->
             <style>
