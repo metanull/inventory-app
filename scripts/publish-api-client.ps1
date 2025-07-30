@@ -26,6 +26,7 @@
 #>
 
 [CmdletBinding()]
+[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingPositionalParameters", "", Justification = "Positional parameters are required for compatibility with npm CLI commands.")]
 param(
     [switch]$DryRun,
     [string]$Registry = "https://npm.pkg.github.com/",
@@ -88,7 +89,8 @@ if (-not $whoami) {
         $loginInput = "${npmUser}`n${npmPass}`n"
         $loginInput | & npm login --registry $Registry
         Remove-Variable -Name loginInput -ErrorAction SilentlyContinue
-    } else {
+    }
+    else {
         & npm login --registry $Registry
     }
     # Re-check login
@@ -106,36 +108,38 @@ $PublishArgs = @("publish", "--access", "public", "--registry", $Registry)
 # AND adding a unique identifier to ensure no conflicts with previous versions
 if ($PackageVersion -match '^(.+?)(?:\+(.+))?$') {
     $CleanVersion = $Matches[1]
-    
+
     # If we found build metadata, generate a unique version using the timestamp from the build metadata
     if ($Matches.Count -gt 2 -and $Matches[2]) {
         $BuildInfo = $Matches[2]
-        
+
         # Parse the date from build metadata (expected format: yyyyMMdd.HHmm)
         if ($BuildInfo -match '(\d{8})\.(\d{4})') {
             $DatePart = $Matches[1]
             $TimePart = $Matches[2]
-            
+
             # Create a unique suffix based on the build timestamp (mmdd.HHMM format to keep it shorter)
             $UniqueSuffix = $DatePart.Substring(4, 4) + "." + $TimePart
-            
+
             # If it's already a prerelease version (has a dash), add the unique suffix after it
             if ($CleanVersion -match '^(.+?)-(.+)$') {
                 $VersionBase = $Matches[1]
                 $PreReleaseTag = $Matches[2]
                 $UniqueVersion = "$VersionBase-$PreReleaseTag.$UniqueSuffix"
-            } else {
+            }
+            else {
                 # Otherwise add it as a prerelease suffix
                 $UniqueVersion = "$CleanVersion-$UniqueSuffix"
             }
-            
+
             # Update package.json with the unique version
             $PackageContent = Get-Content -Path $PackageJsonPath -Raw
             $PackageContent = $PackageContent -replace "`"version`": `"$([regex]::Escape($PackageVersion))`"", "`"version`": `"$UniqueVersion`""
             Set-Content -Path $PackageJsonPath -Value $PackageContent -Encoding UTF8
             Write-Information "Modified version for npm compatibility: $UniqueVersion (from $PackageVersion)"
             $PackageVersion = $UniqueVersion
-        } else {
+        }
+        else {
             # Fallback if we can't parse the build metadata
             $PackageContent = Get-Content -Path $PackageJsonPath -Raw
             $PackageContent = $PackageContent -replace "`"version`": `"$([regex]::Escape($PackageVersion))`"", "`"version`": `"$CleanVersion`""
@@ -154,7 +158,8 @@ if ($PackageVersion -match '-') {
 if ($DryRun) {
     $PublishArgs += "--dry-run"
     Write-Information "Performing dry run..."
-} else {
+}
+else {
     Write-Information "Publishing to npm..."
 }
 
@@ -165,19 +170,23 @@ try {
         if ($DryRun) {
             Write-Information "✔ Dry run completed successfully!"
             Write-Information "Package would be published as: $PackageName@$PackageVersion"
-        } else {
+        }
+        else {
             Write-Information "✔ Package published successfully!"
             Write-Information "Published: $PackageName@$PackageVersion"
             Write-Information "Install with: npm install $PackageName"
         }
-    } else {
+    }
+    else {
         Write-Error "npm publish failed with exit code: $LASTEXITCODE"
         exit 1
     }
-} catch {
+}
+catch {
     Write-Error "Failed to publish package: $_"
     exit 1
-} finally {
+}
+finally {
     # Return to project root
     Set-Location -Path $ProjectRoot
 }

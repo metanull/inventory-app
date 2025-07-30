@@ -1,54 +1,64 @@
+﻿<#
+.SYNOPSIS
+    Check for issues in the project using various tools
+.DESCRIPTION
+    This script runs a series of checks on the project to identify formatting, linting, type issues, and build errors.
+    It generates a report summarizing the results of each check.
+#>
 [CmdletBinding()]
+[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingPositionalParameters", "", Justification = "Positional parameters are required for compatibility with npx CLI commands.")]
 param()
-Process {
-    # Create a header for the issues file
-    @"
-# Issues Report
-Generated on: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
 
-"@
-
-    # Run format check (prettier)
-    Write-Information "Running format check..."
-    @"
-## Format Issues
-
-"@
-
-    npx prettier --log-level warn --no-color --check resources/js/ 2>&1
-
-    # Run linting (eslint)
-    Write-Information "Running lint check..."
-    @"
-
-## Lint Issues
-
-"@
-    
-    npx eslint --quiet --no-fix --format stylish 2>&1
-
-    # Run type-check (vue-tsc)
-    Write-Information "Running type check..."
-    @"
-
-## TypeScript Issues
-
-"@
-    
-    npx vue-tsc --noEmit --pretty false 2>&1
-
-    # Run build (vite build)
-    Write-Information "Running build check..."
-    @"
-
-## Build Issues
-
-"@
-    
-    npm run build 2>&1
-
-    @"
-"@
-
-    Write-Information "All issues have been written to $tempFile"
+Function headline([int]$level, [string]$message) {
+    $mdTitle = ''.PadRight($level, '#')
+    "$mdTitle $message`n"
 }
+
+$stages = @()
+Write-Information "Checking for issues in the project..."
+
+# Create a header for the issues file
+Write-Output -InputObject (headline 1 "Issues Report")
+Write-Output -InputObject "Generated on: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")"
+Write-Output -InputObject ""
+
+# Run format check (prettier)
+Write-Information "Running format check..."
+Write-Output -InputObject (headline 2 "Format Issues")
+Write-Output -InputObject ""
+$stage = [PSCustomObject]@{Name = "Format Check"; Status = $null; StartTime = (Get-Date); EndTime = $null }
+npx prettier --log-level warn --no-color --check resources/js/ 2>&1
+$stage.Status = $LASTEXITCODE
+$stage.EndTime = (Get-Date)
+$stages += $stage
+
+# Run linting (eslint)
+Write-Information "Running lint check..."
+Write-Output -InputObject (headline 2 "Lint Issues")
+Write-Output -InputObject ""
+$stage = [PSCustomObject]@{Name = "Lint Check"; Status = $null; StartTime = (Get-Date); EndTime = $null }
+npx eslint --quiet --no-fix --format stylish 2>&1
+$stage.Status = $LASTEXITCODE
+$stage.EndTime = (Get-Date)
+$stages += $stage
+
+# Run type-check (vue-tsc)
+Write-Information "Running type check..."
+Write-Output -InputObject (headline 2 "Type Issues")
+Write-Output -InputObject ""
+$stage = [PSCustomObject]@{Name = "Type Check"; Status = $LASTEXITCODE; StartTime = (Get-Date); EndTime = (Get-Date) }
+npx vue-tsc --noEmit --pretty false 2>&1
+$stage.Status = $LASTEXITCODE
+$stage.EndTime = (Get-Date)
+$stages += $stage
+
+# Run build (vite build)
+Write-Information "Running build check..."
+Write-Output -InputObject (headline 2 "Build Issues")
+Write-Output -InputObject ""
+$stage = [PSCustomObject]@{Name = "Build Check"; Status = $null; StartTime = (Get-Date); EndTime = $null }
+npm run build 2>&1
+$stage.Status = $LASTEXITCODE
+$stage.EndTime = (Get-Date)
+$stages += $stage
+

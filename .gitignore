@@ -17,6 +17,9 @@ Homestead.json
 Homestead.yaml
 /auth.json
 
+# PowerShell Module Build Output
+scripts/MetaNull.LaravelUtils/build/
+
 # Task completion reports (temporary files)
 *_COMPLETE.md
 *_TESTING_COMPLETE.md

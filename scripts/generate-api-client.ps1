@@ -28,7 +28,7 @@
 .EXAMPLE
     .\scripts\generate-api-client.ps1 -Force
     Generates the API client and overwrites existing package.json and README.md files.
-    
+
 .EXAMPLE
     .\scripts\generate-api-client.ps1 -IncrementType minor
     Generates the API client and increments the minor version number.
@@ -72,18 +72,18 @@ function Get-ClientVersion {
         [string]$OpenApiSpecPath,
         [string]$OverrideIncrementType
     )
-    
+
     if ($ExplicitVersion) {
         return $ExplicitVersion
     }
-    
+
     $BaseVersion = $Config.PackageConfig.Version
     $VersionConfig = $Config.Versioning
-    
+
     if ($NoIncrement -or $VersionConfig.Strategy -eq 'manual') {
         return $BaseVersion
     }
-    
+
     switch ($VersionConfig.Strategy) {
         'auto' {
             # Try to read existing version from package.json and increment
@@ -92,7 +92,7 @@ function Get-ClientVersion {
                 try {
                     $ExistingPackage = Get-Content -Path $ExistingPackageJson -Raw | ConvertFrom-Json
                     $ExistingVersion = $ExistingPackage.version
-                    
+
                     # Parse version (assuming semver format)
                     # Match the version with optional prerelease and build metadata
                     if ($ExistingVersion -match '^(\d+)\.(\d+)\.(\d+)(?:-([^+]+))?(?:\+(.+))?') {
@@ -101,7 +101,10 @@ function Get-ClientVersion {
                         $Patch = [int]$Matches[3]
                         # Capture prerelease part if present
                         $PreRelease = if ($Matches.Count -gt 4 -and $Matches[4]) { $Matches[4] } else { $null }
-                        
+                        if($PreRelease) {
+                            Write-Warning "Existing version has pre-release identifier: $PreRelease. Incrementing will not change it."
+                        }
+
                         # Always increment according to the strategy
                         # This follows semantic versioning conventions
                         # Use the override increment type if provided, otherwise use the config value
@@ -111,7 +114,7 @@ function Get-ClientVersion {
                             'minor' { $Minor++; $Patch = 0 }
                             'patch' { $Patch++ }
                         }
-                        
+
                         $NewVersion = "$Major.$Minor.$Patch"
                     } else {
                         $NewVersion = $BaseVersion
@@ -123,12 +126,12 @@ function Get-ClientVersion {
                 $NewVersion = $BaseVersion
             }
         }
-        
+
         'timestamp' {
             $Timestamp = Get-Date -Format "yyyyMMdd.HHmm"
             $NewVersion = "$BaseVersion-$Timestamp"
         }
-        
+
         'hash' {
             if (Test-Path -Path $OpenApiSpecPath) {
                 $Hash = Get-FileHash -Path $OpenApiSpecPath -Algorithm SHA256
@@ -138,12 +141,12 @@ function Get-ClientVersion {
                 $NewVersion = $BaseVersion
             }
         }
-        
+
         default {
             $NewVersion = $BaseVersion
         }
     }
-    
+
     # Add pre-release identifier if configured
     if ($VersionConfig.PreReleaseIdentifier -and -not $ExplicitVersion) {
         # Check if it already has a prerelease identifier
@@ -151,7 +154,7 @@ function Get-ClientVersion {
             $NewVersion = "$NewVersion-$($VersionConfig.PreReleaseIdentifier)"
         }
     }
-    
+
     # Add build metadata if configured
     if ($VersionConfig.IncludeBuildMetadata -and -not $ExplicitVersion) {
         # First remove any existing build metadata
@@ -161,7 +164,7 @@ function Get-ClientVersion {
         $BuildMetadata = Get-Date -Format "yyyyMMdd.HHmm"
         $NewVersion = "$NewVersion+$BuildMetadata"
     }
-    
+
     return $NewVersion
 }
 

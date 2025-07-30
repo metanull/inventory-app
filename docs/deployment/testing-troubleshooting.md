@@ -487,9 +487,9 @@ pm.max_requests = 1000
 
 ### Development Script Issues
 
-#### Start-Dev.ps1 Script Errors
+#### Start-DevServer.ps1 Script Errors
 
-**Problem**: PowerShell execution policy or script errors.
+**Problem**: PowerShell execution policy or script errors with MetaNull.LaravelUtils module.
 
 **Solutions**:
 
@@ -498,13 +498,13 @@ pm.max_requests = 1000
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 # Run with parameters
-.\scripts\Start-Dev.ps1 -Reset
+.\scripts\Start-DevServer.ps1 -Reset
 
 # Run with custom ports
-.\scripts\Start-Dev.ps1 -LaravelPort 8001 -VitePort 5174
+.\scripts\Start-DevServer.ps1 -LaravelPort 8001 -VitePort 5174
 
 # Debug script issues
-.\scripts\Start-Dev.ps1 -Verbose
+.\scripts\Start-DevServer.ps1 -Verbose
 ```
 
 #### Composer dev-start Issues
@@ -518,7 +518,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 pwsh --version
 
 # Run script directly
-pwsh -File scripts/Start-Dev.ps1
+pwsh -File scripts/Start-DevServer.ps1
 
 # Check composer script syntax
 composer validate
