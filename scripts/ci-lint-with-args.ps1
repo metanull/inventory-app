@@ -6,7 +6,7 @@ param(
     [string[]]$Args
 )
 
-Write-Host "Running lint with args: $($Args -join ' ')" -ForegroundColor Green
+Write-Information "Running lint with args: $($Args -join ' ')"
 
 # Set environment variable and run ci-lint
 $env:COMPOSER_ARGS = $Args -join ' '

@@ -229,7 +229,7 @@ composer dev-start
 composer dev-start -- --reset
 ```
 
-The development script (`scripts/Start-Dev.ps1`) will:
+The development script (`scripts/Start-DevServer.ps1`) will:
 
 - ✅ Start PHP artisan serve (Laravel API)
 - ✅ Start npm run dev (Vite frontend server)
@@ -506,19 +506,19 @@ export NODE_OPTIONS="--max-old-space-size=4096"
 
 ## Step 9: Development Scripts
 
-### 9.1 Start-Dev.ps1 Script
+### 9.1 Start-DevServer.ps1 Script
 
-The project includes a PowerShell script for easy development:
+The project includes a PowerShell script for easy development using the MetaNull.LaravelUtils module:
 
 ```powershell
 # Basic start
-.\scripts\Start-Dev.ps1
+.\scripts\Start-DevServer.ps1
 
 # Start with database reset
-.\scripts\Start-Dev.ps1 -Reset
+.\scripts\Start-DevServer.ps1 -Reset
 
 # Start with custom ports
-.\scripts\Start-Dev.ps1 -LaravelPort 8001 -VitePort 5174
+.\scripts\Start-DevServer.ps1 -LaravelPort 8001 -VitePort 5174
 ```
 
 ### 9.2 Composer Scripts

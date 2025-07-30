@@ -1,4 +1,4 @@
-@{
+﻿@{
     # Client package configuration
     PackageConfig = @{
         Name = '@metanull/inventory-app-api-client'
@@ -10,7 +10,7 @@
         Author = 'Pascal Havelange'
         License = 'MIT'
     }
-    
+
     # Version management configuration
     Versioning = @{
         # Strategy: 'auto' (auto-increment), 'timestamp' (date-based), 'hash' (API spec hash), 'manual' (use base version)
@@ -23,7 +23,7 @@
         # Include pre-release identifier for development versions
         PreReleaseIdentifier = 'dev'
     }
-    
+
     # File paths configuration
     Paths = @{
         OpenApiSpec = 'docs/_openapi/api.json'
@@ -31,13 +31,13 @@
         PackageJsonFile = 'package.json'
         ReadmeFile = 'README.md'
     }
-    
+
     # OpenAPI Generator configuration
     Generator = @{
         Type = 'typescript-axios'
         Command = 'npx openapi-generator-cli generate'
     }
-    
+
     # Templates
     Templates = @{
         PackageJson = @'
@@ -55,7 +55,7 @@
   "license": "{7}"
 }}
 '@
-        
+
         ReadmeContent = @'
 # {0}
 
