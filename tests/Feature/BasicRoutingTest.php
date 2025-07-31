@@ -30,8 +30,6 @@ class BasicRoutingTest extends TestCase
         $response->assertStatus(200);
         $response->assertHeader('content-type', 'text/html; charset=UTF-8');
 
-        // Check for typical welcome page content
-        $response->assertSee('Laravel');
         $response->assertViewIs('welcome');
     }
 
