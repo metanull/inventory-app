@@ -1,3 +1,8 @@
+---
+layout: default
+title: Contact
+parent: Database Models
+---
 # Contact
 
 **Namespace:** `App\Models\Contact`

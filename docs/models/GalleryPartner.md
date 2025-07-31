@@ -1,3 +1,8 @@
+---
+layout: default
+title: GalleryPartner
+parent: Database Models
+---
 # GalleryPartner
 
 **Namespace:** `App\Models\GalleryPartner`

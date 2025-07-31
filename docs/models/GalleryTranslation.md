@@ -1,3 +1,8 @@
+---
+layout: default
+title: GalleryTranslation
+parent: Database Models
+---
 # GalleryTranslation
 
 **Namespace:** `App\Models\GalleryTranslation`

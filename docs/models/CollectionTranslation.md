@@ -1,3 +1,8 @@
+---
+layout: default
+title: CollectionTranslation
+parent: Database Models
+---
 # CollectionTranslation
 
 **Namespace:** `App\Models\CollectionTranslation`

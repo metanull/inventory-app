@@ -1,3 +1,8 @@
+---
+layout: default
+title: Detail
+parent: Database Models
+---
 # Detail
 
 **Namespace:** `App\Models\Detail`

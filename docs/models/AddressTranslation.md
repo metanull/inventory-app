@@ -1,3 +1,9 @@
+---
+layout: default
+title: AddressTranslation
+parent: Database Models
+---
+
 # AddressTranslation
 
 **Namespace:** `App\Models\AddressTranslation`

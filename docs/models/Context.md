@@ -1,3 +1,8 @@
+---
+layout: default
+title: Context
+parent: Database Models
+---
 # Context
 
 **Namespace:** `App\Models\Context`

@@ -1,3 +1,8 @@
+---
+layout: default
+title: Tag
+parent: Database Models
+---
 # Tag
 
 **Namespace:** `App\Models\Tag`

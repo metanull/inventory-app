@@ -1,3 +1,8 @@
+---
+layout: default
+title: Theme
+parent: Database Models
+---
 # Theme
 
 **Namespace:** `App\Models\Theme`

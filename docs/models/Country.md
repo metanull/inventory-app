@@ -1,3 +1,8 @@
+---
+layout: default
+title: Country
+parent: Database Models
+---
 # Country
 
 **Namespace:** `App\Models\Country`

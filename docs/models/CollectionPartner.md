@@ -1,3 +1,8 @@
+---
+layout: default
+title: CollectionPartner
+parent: Database Models
+---
 # CollectionPartner
 
 **Namespace:** `App\Models\CollectionPartner`

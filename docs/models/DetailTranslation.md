@@ -1,3 +1,8 @@
+---
+layout: default
+title: DetailTranslation
+parent: Database Models
+---
 # DetailTranslation
 
 **Namespace:** `App\Models\DetailTranslation`

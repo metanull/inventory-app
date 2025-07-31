@@ -1,3 +1,9 @@
+---
+layout: default
+title: Item
+parent: Database Models
+---
+
 # Item
 
 **Namespace:** `App\Models\Item`

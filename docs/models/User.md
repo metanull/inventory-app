@@ -1,3 +1,8 @@
+---
+layout: default
+title: User
+parent: Database Models
+---
 # User
 
 **Namespace:** `App\Models\User`

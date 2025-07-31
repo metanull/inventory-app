@@ -17,16 +17,12 @@ class FactoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        // Seed required data for foreign key constraints
-        $this->artisan('db:seed', ['--class' => 'LanguageSeeder']);
-        $this->artisan('db:seed', ['--class' => 'ContextSeeder']);
     }
 
     public function test_theme_translation_factory_creates_valid_translation(): void
     {
         $theme = Theme::factory()->create();
-        $context = Context::first();
+        $context = Context::factory()->create();
 
         $translation = ThemeTranslation::factory()->create([
             'theme_id' => $theme->id,
@@ -53,7 +49,7 @@ class FactoryTest extends TestCase
     {
         $theme1 = Theme::factory()->create();
         $theme2 = Theme::factory()->create();
-        $context = Context::first();
+        $context = Context::factory()->create();
 
         $translation1 = ThemeTranslation::factory()->create([
             'theme_id' => $theme1->id,
@@ -72,7 +68,7 @@ class FactoryTest extends TestCase
     public function test_theme_translation_factory_can_create_with_specific_theme(): void
     {
         $theme = Theme::factory()->create();
-        $context = Context::first();
+        $context = Context::factory()->create();
 
         $translation = ThemeTranslation::factory()->create([
             'theme_id' => $theme->id,

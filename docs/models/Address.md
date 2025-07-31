@@ -1,3 +1,9 @@
+---
+layout: default
+title: Address
+parent: Database Models
+---
+
 # Address
 
 **Namespace:** `App\Models\Address`
