@@ -1,3 +1,9 @@
+---
+layout: default
+title: Author
+parent: Database Models
+---
+
 # Author
 
 **Namespace:** `App\Models\Author`

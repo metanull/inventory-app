@@ -1,3 +1,8 @@
+---
+layout: default
+title: ExhibitionTranslation
+parent: Database Models
+---
 # ExhibitionTranslation
 
 **Namespace:** `App\Models\ExhibitionTranslation`

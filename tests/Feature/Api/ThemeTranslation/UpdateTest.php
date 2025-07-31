@@ -21,10 +21,6 @@ class UpdateTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
-
-        // Seed required data
-        $this->artisan('db:seed', ['--class' => 'LanguageSeeder']);
-        $this->artisan('db:seed', ['--class' => 'ContextSeeder']);
     }
 
     public function test_can_update_theme_translation(): void

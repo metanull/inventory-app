@@ -1,3 +1,9 @@
+---
+layout: default
+title: Artist
+parent: Database Models
+---
+
 # Artist
 
 **Namespace:** `App\Models\Artist`

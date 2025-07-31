@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api\ThemeTranslation;
 
 use App\Models\Context;
+use App\Models\Language;
 use App\Models\Theme;
 use App\Models\ThemeTranslation;
 use App\Models\User;
@@ -22,10 +23,6 @@ class IndexTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
-
-        // Seed required data
-        $this->artisan('db:seed', ['--class' => 'LanguageSeeder']);
-        $this->artisan('db:seed', ['--class' => 'ContextSeeder']);
     }
 
     public function test_can_list_theme_translations(): void
@@ -82,10 +79,13 @@ class IndexTest extends TestCase
 
     public function test_can_filter_theme_translations_by_language_id(): void
     {
-        $translation1 = ThemeTranslation::factory()->create(['language_id' => 'eng']);
-        ThemeTranslation::factory()->create(['language_id' => 'fra']);
+        $language1 = Language::factory()->create();
+        $language2 = Language::factory()->create();
 
-        $response = $this->getJson('/api/theme-translation?language_id=eng');
+        $translation1 = ThemeTranslation::factory()->create(['language_id' => $language1->id]);
+        ThemeTranslation::factory()->create(['language_id' => $language2->id]);
+
+        $response = $this->getJson("/api/theme-translation?language_id={$language1->id}");
 
         $response->assertOk()
             ->assertJsonCount(1, 'data')

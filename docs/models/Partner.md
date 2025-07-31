@@ -1,3 +1,9 @@
+---
+layout: default
+title: Partner
+parent: Database Models
+---
+
 # Partner
 
 **Namespace:** `App\Models\Partner`

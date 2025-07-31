@@ -1,3 +1,9 @@
+---
+layout: default
+title: AvailableImage
+parent: Database Models
+---
+
 # AvailableImage
 
 **Namespace:** `App\Models\AvailableImage`

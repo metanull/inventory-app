@@ -87,43 +87,43 @@ Click any model name below to view its detailed documentation with properties, r
 
 | Model                                                   | Category       | Description                                   |
 | ------------------------------------------------------- | -------------- | --------------------------------------------- |
-| 📍 [Address](Address.md)                                | Geographic     | Physical addresses with country relationships |
-| 🌍 [AddressTranslation](AddressTranslation.md)          | Translation    | Multi-language address translations           |
-| 🎨 [Artist](Artist.md)                                  | People         | Artists who create items in collections       |
-| ✍️ [Author](Author.md)                                  | People         | Authors of written content                    |
-| 🖼️ [AvailableImage](AvailableImage.md)                  | Media          | Available images with metadata                |
-| 📦 [Collection](Collection.md)                          | Content        | Collections of museum items                   |
-| 🤝 [CollectionPartner](CollectionPartner.md)            | Relationship   | Collection-partner associations               |
-| 🌍 [CollectionTranslation](CollectionTranslation.md)    | Translation    | Multi-language collection content             |
-| 📞 [Contact](Contact.md)                                | Communication  | Contact information storage                   |
-| 🌍 [ContactTranslation](ContactTranslation.md)          | Translation    | Multi-language contact labels                 |
-| ⚙️ [Context](Context.md)                                | Configuration  | Application context settings                  |
-| 🗺️ [Country](Country.md)                                | Geographic     | Countries using ISO codes                     |
-| 📋 [Detail](Detail.md)                                  | Content        | Detailed item descriptions                    |
-| 🌍 [DetailTranslation](DetailTranslation.md)            | Translation    | Multi-language detail content                 |
-| 🏛️ [Exhibition](Exhibition.md)                          | Content        | Museum exhibitions                            |
-| 🌍 [ExhibitionTranslation](ExhibitionTranslation.md)    | Translation    | Multi-language exhibition content             |
-| 🖼️ [Gallery](Gallery.md)                                | Content        | Image galleries                               |
-| 🔗 [Galleryable](Galleryable.md)                        | Relationship   | Gallery content associations                  |
-| 🤝 [GalleryPartner](GalleryPartner.md)                  | Relationship   | Gallery-partner associations                  |
-| 🌍 [GalleryTranslation](GalleryTranslation.md)          | Translation    | Multi-language gallery content                |
-| 📤 [ImageUpload](ImageUpload.md)                        | Media          | Uploaded image metadata                       |
-| 🏺 [Item](Item.md)                                      | Content        | Core museum items                             |
-| 🌍 [ItemTranslation](ItemTranslation.md)                | Translation    | Multi-language item content                   |
-| 🌐 [Language](Language.md)                              | Configuration  | Supported languages (ISO codes)               |
-| 📍 [Location](Location.md)                              | Geographic     | Specific locations                            |
-| 🌍 [LocationTranslation](LocationTranslation.md)        | Translation    | Multi-language location names                 |
-| 🏢 [Partner](Partner.md)                                | Organization   | Institutional partners                        |
-| 📸 [Picture](Picture.md)                                | Media          | Images with metadata and relationships        |
-| 🌍 [PictureTranslation](PictureTranslation.md)          | Translation    | Multi-language picture descriptions           |
-| 📊 [Project](Project.md)                                | Management     | Project management                            |
-| 🗺️ [Province](Province.md)                              | Geographic     | Administrative provinces                      |
-| 🌍 [ProvinceTranslation](ProvinceTranslation.md)        | Translation    | Multi-language province names                 |
-| 🏷️ [Tag](Tag.md)                                        | Classification | Content tagging system                        |
-| 🎯 [Theme](Theme.md)                                    | Content        | Exhibition themes and subthemes               |
-| 🌍 [ThemeTranslation](ThemeTranslation.md)              | Translation    | Multi-language theme content                  |
-| 👤 [User](User.md)                                      | System         | Application users                             |
-| 🔨 [Workshop](Workshop.md)                              | Content        | Workshop information                          |
+| 📍 [Address](Address)                                   | Geographic     | Physical addresses with country relationships |
+| 🌍 [AddressTranslation](AddressTranslation)             | Translation    | Multi-language address translations           |
+| 🎨 [Artist](Artist)                                     | People         | Artists who create items in collections       |
+| ✍️ [Author](Author)                                     | People         | Authors of written content                    |
+| 🖼️ [AvailableImage](AvailableImage)                     | Media          | Available images with metadata                |
+| 📦 [Collection](Collection)                             | Content        | Collections of museum items                   |
+| 🤝 [CollectionPartner](CollectionPartner)               | Relationship   | Collection-partner associations               |
+| 🌍 [CollectionTranslation](CollectionTranslation)       | Translation    | Multi-language collection content             |
+| 📞 [Contact](Contact)                                   | Communication  | Contact information storage                   |
+| 🌍 [ContactTranslation](ContactTranslation)             | Translation    | Multi-language contact labels                 |
+| ⚙️ [Context](Context)                                   | Configuration  | Application context settings                  |
+| 🗺️ [Country](Country)                                   | Geographic     | Countries using ISO codes                     |
+| 📋 [Detail](Detail)                                     | Content        | Detailed item descriptions                    |
+| 🌍 [DetailTranslation](DetailTranslation)               | Translation    | Multi-language detail content                 |
+| 🏛️ [Exhibition](Exhibition)                             | Content        | Museum exhibitions                            |
+| 🌍 [ExhibitionTranslation](ExhibitionTranslation)       | Translation    | Multi-language exhibition content             |
+| 🖼️ [Gallery](Gallery)                                   | Content        | Image galleries                               |
+| 🔗 [Galleryable](Galleryable)                           | Relationship   | Gallery content associations                  |
+| 🤝 [GalleryPartner](GalleryPartner)                     | Relationship   | Gallery-partner associations                  |
+| 🌍 [GalleryTranslation](GalleryTranslation)             | Translation    | Multi-language gallery content                |
+| 📤 [ImageUpload](ImageUpload)                           | Media          | Uploaded image metadata                       |
+| 🏺 [Item](Item)                                         | Content        | Core museum items                             |
+| 🌍 [ItemTranslation](ItemTranslation)                   | Translation    | Multi-language item content                   |
+| 🌐 [Language](Language)                                 | Configuration  | Supported languages (ISO codes)               |
+| 📍 [Location](Location)                                 | Geographic     | Specific locations                            |
+| 🌍 [LocationTranslation](LocationTranslation)           | Translation    | Multi-language location names                 |
+| 🏢 [Partner](Partner)                                   | Organization   | Institutional partners                        |
+| 📸 [Picture](Picture)                                   | Media          | Images with metadata and relationships        |
+| 🌍 [PictureTranslation](PictureTranslation)             | Translation    | Multi-language picture descriptions           |
+| 📊 [Project](Project)                                   | Management     | Project management                            |
+| 🗺️ [Province](Province)                                 | Geographic     | Administrative provinces                      |
+| 🌍 [ProvinceTranslation](ProvinceTranslation)           | Translation    | Multi-language province names                 |
+| 🏷️ [Tag](Tag)                                           | Classification | Content tagging system                        |
+| 🎯 [Theme](Theme)                                       | Content        | Exhibition themes and subthemes               |
+| 🌍 [ThemeTranslation](ThemeTranslation)                 | Translation    | Multi-language theme content                  |
+| 👤 [User](User)                                         | System         | Application users                             |
+| 🔨 [Workshop](Workshop)                                 | Content        | Workshop information                          |
 
 ---
 

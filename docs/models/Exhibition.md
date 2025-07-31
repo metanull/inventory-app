@@ -1,3 +1,8 @@
+---
+layout: default
+title: Exhibition
+parent: Database Models
+---
 # Exhibition
 
 **Namespace:** `App\Models\Exhibition`

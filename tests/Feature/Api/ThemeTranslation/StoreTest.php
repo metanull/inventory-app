@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api\ThemeTranslation;
 
 use App\Models\Context;
+use App\Models\Language;
 use App\Models\Theme;
 use App\Models\ThemeTranslation;
 use App\Models\User;
@@ -22,16 +23,12 @@ class StoreTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
-
-        // Seed required data
-        $this->artisan('db:seed', ['--class' => 'LanguageSeeder']);
-        $this->artisan('db:seed', ['--class' => 'ContextSeeder']);
     }
 
     public function test_can_create_theme_translation(): void
     {
         $theme = Theme::factory()->create();
-        $context = \App\Models\Context::first();
+        $context = Context::factory()->create();
         $data = ThemeTranslation::factory()->make([
             'theme_id' => $theme->id,
             'context_id' => $context->id,
@@ -136,10 +133,13 @@ class StoreTest extends TestCase
 
     public function test_can_create_theme_translation_with_same_theme_but_different_language(): void
     {
-        $existing = ThemeTranslation::factory()->create(['language_id' => 'eng']);
+        $language1 = Language::factory()->create();
+        $language2 = Language::factory()->create();
+
+        $existing = ThemeTranslation::factory()->create(['language_id' => $language1->id]);
         $data = ThemeTranslation::factory()->make([
             'theme_id' => $existing->theme_id,
-            'language_id' => 'fra',
+            'language_id' => $language2->id,
             'context_id' => $existing->context_id,
         ])->toArray();
 

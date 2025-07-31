@@ -1,3 +1,9 @@
+---
+layout: default
+title: Collection
+parent: Database Models
+---
+
 # Collection
 
 **Namespace:** `App\Models\Collection`

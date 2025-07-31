@@ -1,3 +1,8 @@
+---
+layout: default
+title: ProvinceTranslation
+parent: Database Models
+---
 # ProvinceTranslation
 
 **Namespace:** `App\Models\ProvinceTranslation`
