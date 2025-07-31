@@ -65,22 +65,6 @@
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
         ],
-        "dev:start": [
-            "echo 'Starting development environment in new PowerShell window...'",
-            "pwsh -Command \"Start-Process pwsh -ArgumentList '-File', 'scripts/Start-DevServer.ps1' -WindowStyle Normal\""
-        ],
-        "dev:test": [
-            "echo 'Testing development environment status...'",
-            "pwsh -File scripts/Test-DevServer.ps1"
-        ],
-        "dev:stop": [
-            "echo 'Stopping development environment...'",
-            "pwsh -File scripts/Stop-DevServer.ps1"
-        ],
-        "dev:restart": [
-            "@composer dev:stop",
-            "@composer dev:start"
-        ],
         "ci-install": [
             "@composer install --ansi --no-interaction --no-progress --prefer-dist",
             "npm ci --no-fund --no-audit"
@@ -94,26 +78,20 @@
             "npm audit --audit-level moderate"
         ],
         "ci-lint": [
-            "pwsh -File scripts/ci-lint.ps1",
+            ".\\vendor\\bin\\pint --no-interaction --ansi",
             "npx prettier --write \"./docs/**/*.md\" --log-level warn --ignore-unknown --no-config",
             "npx prettier --write \"./resources/**\" --log-level warn --ignore-unknown "
         ],
         "ci-lint:test": [
-            "pwsh -File scripts/ci-lint.ps1 --test",
+            ".\\vendor\\bin\\pint --no-interaction --ansi --test",
             "npx prettier --write \"./docs/**/*.md\" --log-level warn --ignore-unknown --no-config --check",
             "npx prettier --write \"./resources/**\" --log-level warn --ignore-unknown --check"
         ],
         "ci-lint:dirty": [
-            "pwsh -File scripts/ci-lint.ps1 --dirty"
+            ".\\vendor\\bin\\pint --no-interaction --ansi --dirty"
         ],
         "ci-test": [
-            "pwsh -File scripts/ci-test.ps1"
-        ],
-        "ci-test:filter": [
-            "pwsh -File scripts/ci-test-with-filter.ps1"
-        ],
-        "ci-lint:with-args": [
-            "pwsh -File scripts/ci-lint-with-args.ps1"
+            "@php artisan test --compact --no-interaction --ansi"
         ],
         "ci-reset:db": [
             "@php artisan db:wipe --ansi --force",

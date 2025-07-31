@@ -23,29 +23,22 @@ git clone https://github.com/metanull/ManageMyOwnWebServerOnWindows.git
 Import-Module ".\ManageMyOwnWebServerOnWindows\source\MetaNull.LaravelUtils.psd1"
 ```
 
+
 ## Available Functions
 
 The module provides the following Laravel development functions:
 
-- `Start-Laravel` - Start Laravel development server
-- `Stop-Laravel` - Stop Laravel development server  
-- `Test-Laravel` - Test Laravel server status
-- `Start-LaravelVite` - Start Vite development server
-- `Stop-LaravelVite` - Stop Vite development server
-- `Test-LaravelVite` - Test Vite server status
-- `Start-LaravelQueue` - Start Laravel queue worker
-- `Stop-LaravelQueue` - Stop Laravel queue worker
-- `Test-LaravelQueue` - Test Laravel queue status
-- `Start-LaravelWeb` - Start web server
-- `Stop-LaravelWeb` - Stop web server
-- `Test-LaravelWeb` - Test web server status
-
-## Usage in This Project
-
-This project now uses simplified wrapper scripts that automatically load the module:
-
-- `Start-DevServer.ps1` - Starts Laravel development environment
-- `Stop-DevServer.ps1` - Stops Laravel development environment  
-- `Test-DevServer.ps1` - Tests Laravel development environment status
-
-These scripts will automatically offer to install the module if it's not already available.
+- `Start-DevelopmentServer` - Start the full Laravel development environment (web, vite, queue)
+  - `Start-WorkerWeb` - Start the Laravel web server
+  - `Start-WorkerVite` - Start the Vite development server
+  - `Start-WorkerQueue` - Start Laravel queue worker(s)
+- `Stop-DevelopmentServer` - Stop the full Laravel development environment
+  - `Stop-WorkerWeb` - Stop the Laravel web server
+  - `Stop-WorkerVite` - Stop the Vite development server
+  - `Stop-WorkerQueue` - Stop Laravel queue worker(s)
+- `Test-DevelopmentServer` - Test the status of the full Laravel development environment
+  - `Test-WorkerWeb` - Test the Laravel web server status
+  - `Test-WorkerVite` - Test the Vite development server status
+  - `Test-WorkerWeb` - Test the Laravel web server status
+- `Invoke-Linter` - Run linter on the Laravel application
+- `Invoke-Test` - Run tests on the Laravel application
