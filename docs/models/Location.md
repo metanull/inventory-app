@@ -3,6 +3,7 @@ layout: default
 title: Location
 parent: Database Models
 ---
+
 # Location
 
 **Namespace:** `App\Models\Location`

@@ -1,0 +1,355 @@
+
+
+# Deploy Laravel App
+#
+
+# NOTE: This workflow uses the GitHub environment "MWNF-SVR" for deployment.
+# Set the following environment variables and secrets in the MWNF-SVR environment:
+#
+# Variables:
+#   PHP_PATH, COMPOSER_PATH, NODE_PATH, NPM_PATH, MARIADB_PATH
+#   DEPLOY_PATH, WEBSERVER_PATH, BACKUP_PATH
+#   APP_NAME, APP_ENV, APP_DEBUG, APP_URL
+#   DB_CONNECTION, DB_HOST, DB_PORT
+#   APACHE_SERVICE_USER (optional, defaults to SYSTEM)
+#
+# Secrets:
+#   APP_KEY, MARIADB_DATABASE, MARIADB_USER, MARIADB_SECRET
+#
+# Do NOT hardcode sensitive or server-specific paths in this file for production.
+
+name: Deploy on self-hosted MWNF-SVR environment
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: [self-hosted, windows]
+    environment:
+      name: MWNF-SVR
+    env:
+      PHP_PATH: ${{ vars.PHP_PATH || 'C:\\Program Files\\PHP\\php.exe' }}
+      COMPOSER_PATH: ${{ vars.COMPOSER_PATH || 'C:\\ProgramData\\ComposerSetup\\bin\\composer.exe' }}
+      NODE_PATH: ${{ vars.NODE_PATH || 'C:\\Program Files\\nodejs\\node.exe' }}
+      NPM_PATH: ${{ vars.NPM_PATH || 'C:\\Program Files\\nodejs\\npm.ps1' }}
+      MARIADB_PATH: ${{ vars.MARIADB_PATH || 'C:\\Program Files\\MariaDB 10.5\\bin\\mysql.exe' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check required environment variables
+        run: |
+          Write-Host "Environment variables are configured in GitHub environment MWNF-SVR"
+
+          $missing = @()
+          if (-not (Test-Path $env:PHP_PATH)) { Write-Error "PHP not found at $env:PHP_PATH"; $missing += "PHP" }
+          if (-not (Test-Path $env:COMPOSER_PATH)) { Write-Error "Composer not found at $env:COMPOSER_PATH"; $missing += "Composer" }
+          if (-not (Test-Path $env:NODE_PATH)) { Write-Error "Node.js not found at $env:NODE_PATH"; $missing += "Node.js" }
+          if (-not (Test-Path $env:NPM_PATH)) { Write-Error "NPM not found at $env:NPM_PATH"; $missing += "NPM" }
+          if (-not (Test-Path $env:MARIADB_PATH)) { Write-Error "MariaDB not found at $env:MARIADB_PATH"; $missing += "MariaDB" }
+          if (-not $env:APP_KEY -or $env:APP_KEY -eq "") {
+            Write-Warning "APP_KEY environment variable is not defined. You must generate an application key using:"
+            Write-Warning '  php artisan key:generate --show'
+            Write-Warning "Then set the APP_KEY secret in the MWNF-SVR environment in GitHub."
+          }
+
+          if ($missing.Count -gt 0) {
+            Write-Error "Missing required executables: $($missing -join ', ')"
+            exit 1
+          }
+        shell: powershell
+
+      - name: Check PHP version
+        run: |
+          & "$env:PHP_PATH" -v
+          if ((& "$env:PHP_PATH" -r "echo version_compare(PHP_VERSION, '8.2', '>=');") -ne 1) { exit 1 }
+        shell: powershell
+
+      - name: Check Composer
+        run: |
+          & "$env:COMPOSER_PATH" --version
+        shell: powershell
+
+      - name: Check Node.js
+        run: |
+          & "$env:NODE_PATH" --version
+        shell: powershell
+
+      - name: Check NPM
+        run: |
+          & "$env:NPM_PATH" --version
+        shell: powershell
+
+      - name: Check MariaDB
+        run: |
+          & "$env:MARIADB_PATH" --version
+        shell: powershell
+
+      - name: Install PHP dependencies
+        run: |
+          & "$env:COMPOSER_PATH" install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+        shell: powershell
+
+      - name: Install Node.js dependencies
+        run: |
+          & "$env:NPM_PATH" install --no-audit --no-fund
+        shell: powershell
+
+      - name: Build frontend assets
+        run: |
+          & "$env:NPM_PATH" run build
+        shell: powershell
+
+      - name: Prepare deployment package
+        run: |
+          # Create deployment directory
+          $deployDir = "deployment-package"
+          if (Test-Path $deployDir) { Remove-Item $deployDir -Recurse -Force }
+          New-Item -ItemType Directory -Path $deployDir
+
+          # Copy application files (excluding dev dependencies and build artifacts)
+          $excludeDirs = @('.git', 'node_modules', 'tests', '.github', 'docs', 'storage/logs', 'storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views')
+          $excludeFiles = @('*.log', '.env*', 'composer.lock', 'package-lock.json', 'webpack.mix.js', 'vite.config.js')
+          
+          Get-ChildItem -Path . | Where-Object { 
+            $_.Name -notin $excludeDirs -and 
+            $_.Name -notlike ".*" -and
+            $_.Name -ne $deployDir
+          } | Copy-Item -Destination $deployDir -Recurse -Force
+
+          # Copy specific required files
+          Copy-Item "composer.lock" "$deployDir/" -Force
+          Copy-Item ".env.example" "$deployDir/" -Force
+          
+          # Create required directories in package
+          @('storage/logs', 'storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views', 'bootstrap/cache') | ForEach-Object {
+            New-Item -ItemType Directory -Path "$deployDir/$_" -Force
+          }
+        shell: powershell
+
+      - name: Create deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: laravel-app-${{ github.sha }}
+          path: deployment-package/
+          retention-days: 7
+          compression-level: 9
+
+  deploy:
+    needs: build
+    runs-on: [self-hosted, windows]
+    environment:
+      name: MWNF-SVR
+    env:
+      PHP_PATH: ${{ vars.PHP_PATH || 'C:\\Program Files\\PHP\\php.exe' }}
+      COMPOSER_PATH: ${{ vars.COMPOSER_PATH || 'C:\\ProgramData\\ComposerSetup\\bin\\composer.exe' }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH || 'C:\\Apache24\\htdocs\\inventory-app' }}
+      WEBSERVER_PATH: ${{ vars.WEBSERVER_PATH || 'C:\\Apache24\\htdocs\\inventory-app' }}
+      BACKUP_PATH: ${{ vars.BACKUP_PATH || 'C:\\Apache24\\htdocs\\inventory-app-backup' }}
+
+    steps:
+      - name: Download deployment artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: laravel-app-${{ github.sha }}
+          path: deployment-package/
+
+      - name: Create backup of current production
+        run: |
+          if (Test-Path "$env:WEBSERVER_PATH") {
+            $backupName = "backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+            $backupFullPath = Join-Path $env:BACKUP_PATH $backupName
+            Write-Host "Creating backup: $backupFullPath"
+            Copy-Item "$env:WEBSERVER_PATH" -Destination $backupFullPath -Recurse -Force
+            
+            # Keep only last 5 backups
+            Get-ChildItem $env:BACKUP_PATH | Sort-Object CreationTime -Descending | Select-Object -Skip 5 | Remove-Item -Recurse -Force
+          }
+        shell: powershell
+
+      - name: Deploy to staging location
+        run: |
+          $stagingPath = "$env:DEPLOY_PATH-staging"
+          if (Test-Path $stagingPath) { Remove-Item $stagingPath -Recurse -Force }
+          Copy-Item "deployment-package" -Destination $stagingPath -Recurse -Force
+          Write-Host "Application deployed to staging: $stagingPath"
+        shell: powershell
+
+      - name: Promote staging to production
+        run: |
+          # Define local function for robocopy operations
+          function Invoke-RobocopyMirror {
+            param(
+              [string]$Source,
+              [string]$Destination,
+              [string]$Operation
+            )
+            
+            $logFile = "$env:BACKUP_PATH\robocopy-$Operation-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
+            $robocopyCmd = "robocopy `"$Source`" `"$Destination`" /MIR /COPY:DAT /NP /NFL /NDL /LOG:`"$logFile`""
+            Write-Host "Running: $robocopyCmd"
+            $robocopyResult = Invoke-Expression $robocopyCmd
+            $robocopyExitCode = $LASTEXITCODE
+            Write-Host $robocopyResult
+            
+            if ($robocopyExitCode -le 2) {
+              Write-Host "Robocopy $Operation succeeded with exit code $robocopyExitCode"
+              $global:LASTEXITCODE = 0
+            } else {
+              Write-Error "Robocopy $Operation failed with exit code $robocopyExitCode. See log: $logFile"
+              exit $robocopyExitCode
+            }
+          }
+          
+          $stagingPath = "$env:DEPLOY_PATH-staging"
+          $oldPath = "$env:WEBSERVER_PATH-old"
+          
+          # Move current production to old (if exists) using robocopy
+          if (Test-Path "$env:WEBSERVER_PATH") {
+            if (Test-Path $oldPath) { Remove-Item $oldPath -Recurse -Force -ErrorAction SilentlyContinue }
+            Invoke-RobocopyMirror -Source "$env:WEBSERVER_PATH" -Destination $oldPath -Operation "move-to-old"
+            Write-Host "Current production copied to $oldPath"
+          }
+          
+          # Move staging to production
+          Invoke-RobocopyMirror -Source $stagingPath -Destination "$env:WEBSERVER_PATH" -Operation "deploy"
+          Write-Host "Staging promoted to production: $env:WEBSERVER_PATH"
+          
+          # Clean up old version after successful deployment
+          if (Test-Path $oldPath) { Remove-Item $oldPath -Recurse -Force -ErrorAction SilentlyContinue }
+        shell: powershell
+
+  configure:
+    needs: deploy
+    runs-on: [self-hosted, windows]
+    environment:
+      name: MWNF-SVR
+    env:
+      PHP_PATH: ${{ vars.PHP_PATH || 'C:\\Program Files\\PHP\\php.exe' }}
+      WEBSERVER_PATH: ${{ vars.WEBSERVER_PATH || 'C:\\Apache24\\htdocs\\inventory-app' }}
+      BACKUP_PATH: ${{ vars.BACKUP_PATH || 'C:\\Apache24\\htdocs\\inventory-app-backup' }}
+      APACHE_SERVICE_USER: ${{ vars.APACHE_SERVICE_USER || 'SYSTEM' }}
+      # Laravel environment variables
+      APP_NAME: ${{ vars.APP_NAME || 'inventory-app' }}
+      APP_ENV: ${{ vars.APP_ENV || 'production' }}
+      APP_KEY: ${{ secrets.APP_KEY || 'base64:YOUR_DEFAULT_APP_KEY_HERE' }}  
+      APP_DEBUG: ${{ vars.APP_DEBUG || 'false' }}
+      APP_URL: ${{ vars.APP_URL || 'http://localhost' }}
+      # Database configuration
+      DB_CONNECTION: ${{ vars.DB_CONNECTION || 'mysql'}}
+      DB_HOST: ${{ vars.DB_HOST || '127.0.0.1' }}
+      DB_PORT: ${{ vars.DB_PORT || '3306' }}
+      DB_DATABASE: ${{ secrets.MARIADB_DATABASE }}
+      DB_USERNAME: ${{ secrets.MARIADB_USER }}
+      DB_PASSWORD: ${{ secrets.MARIADB_SECRET }}
+      # Default user for initial login
+      APP_DEFAULT_USER_EMAIL: ${{ vars.APP_DEFAULT_USER_EMAIL || 'user@example.com' }}
+      APP_DEFAULT_USER_USERNAME: ${{ vars.APP_DEFAULT_USER_USERNAME || 'user' }}
+      APP_DEFAULT_USER_PASSWORD: ${{ vars.APP_DEFAULT_USER_PASSWORD || 'password' }}
+      # Mail configuration
+      MAIL_MAILER: ${{ vars.MAIL_MAILER || 'log' }}
+      MAIL_HOST: ${{ vars.MAIL_HOST || '127.0.0.1' }}
+      MAIL_PORT: ${{ vars.MAIL_PORT || '25' }}
+      MAIL_USERNAME: ${{ vars.MAIL_USERNAME || 'null' }}
+      MAIL_PASSWORD: ${{ vars.MAIL_PASSWORD || 'null' }}
+      MAIL_ENCRYPTION: ${{ vars.MAIL_ENCRYPTION || 'null' }}
+      MAIL_FROM_ADDRESS: ${{ vars.MAIL_FROM_ADDRESS || 'user@example.com' }}
+      MAIL_FROM_NAME: ${{ vars.MAIL_FROM_NAME || 'Inventory App' }}
+
+    steps:
+      - name: Generate production .env file
+        run: |
+          $envExamplePath = Join-Path $env:WEBSERVER_PATH ".env.example"
+          $envPath = Join-Path $env:WEBSERVER_PATH ".env"
+          
+          # Copy .env.example as base
+          if (-not (Test-Path $envExamplePath)) {
+            Write-Error ".env.example not found in deployment package"
+            exit 1
+          }
+          Copy-Item $envExamplePath $envPath -Force
+          
+          # Read the .env content
+          $envContent = Get-Content $envPath -Raw
+          
+          # Replace environment-specific values using environment variables
+          $replacements = @{
+            'APP_NAME=Inventory-App' = "APP_NAME=""$env:APP_NAME"""
+            'APP_ENV=production' = "APP_ENV=$env:APP_ENV"
+            'APP_KEY=' = "APP_KEY=$env:APP_KEY"
+            'APP_DEBUG=false' = "APP_DEBUG=$env:APP_DEBUG"
+            'APP_URL=http://localhost' = "APP_URL=$env:APP_URL"
+            'LOG_LEVEL=debug' = "LOG_LEVEL=error"
+            'DB_CONNECTION=mysql' = "DB_CONNECTION=$env:DB_CONNECTION"
+            'DB_HOST=127.0.0.1' = "DB_HOST=$env:DB_HOST"
+            'DB_PORT=3306' = "DB_PORT=$env:DB_PORT"
+            'DB_DATABASE=laravel' = "DB_DATABASE=$env:DB_DATABASE"
+            'DB_USERNAME=root' = "DB_USERNAME=$env:DB_USERNAME"
+            'DB_PASSWORD=' = "DB_PASSWORD=$env:DB_PASSWORD"
+            'APP_DEFAULT_USER_EMAIL=user@example.com' = "APP_DEFAULT_USER_EMAIL=$env:APP_DEFAULT_USER_EMAIL"
+            'APP_DEFAULT_USER_USERNAME=user' = "APP_DEFAULT_USER_USERNAME=$env:APP_DEFAULT_USER_USERNAME"
+            'APP_DEFAULT_USER_PASSWORD=password' = "APP_DEFAULT_USER_PASSWORD=$env:APP_DEFAULT_USER_PASSWORD"
+            'MAIL_MAILER=log' = "MAIL_MAILER=$env:MAIL_MAILER"
+            'MAIL_HOST=127.0.0.1' = "MAIL_HOST=$env:MAIL_HOST"
+            'MAIL_PORT=25' = "MAIL_PORT=$env:MAIL_PORT"
+            'MAIL_USERNAME=null' = "MAIL_USERNAME=$env:MAIL_USERNAME"
+            'MAIL_PASSWORD=null' = "MAIL_PASSWORD=$env:MAIL_PASSWORD"
+            'MAIL_ENCRYPTION=null' = "MAIL_ENCRYPTION=$env:MAIL_ENCRYPTION"
+            'MAIL_FROM_ADDRESS="user@example.com"' = "MAIL_FROM_ADDRESS=`"$env:MAIL_FROM_ADDRESS`""
+          }
+          
+          # Apply replacements
+          foreach ($key in $replacements.Keys) {
+            $envContent = $envContent -replace [regex]::Escape($key), $replacements[$key]
+          }
+          
+          # Write updated content back to .env
+          Set-Content -Path $envPath -Value $envContent -Encoding UTF8 -NoNewline
+          Write-Host "Production .env file created from template: $envPath"
+        shell: powershell
+
+      - name: Set file permissions
+        run: |
+          # Set appropriate permissions for Laravel directories
+          $paths = @(
+            "storage",
+            "bootstrap/cache"
+          )
+          
+          $serviceUser = $env:APACHE_SERVICE_USER
+          Write-Host "Setting permissions for Apache service user: $serviceUser"
+          
+          foreach ($path in $paths) {
+            $fullPath = Join-Path $env:WEBSERVER_PATH $path
+            if (Test-Path $fullPath) {
+              # Grant full access to the Apache service account and Administrators
+              icacls $fullPath /grant "${serviceUser}:(OI)(CI)F" /T
+              icacls $fullPath /grant "Administrators:(OI)(CI)F" /T
+              # icacls $fullPath /grant "$($env:USERNAME):(OI)(CI)F" /T
+              Write-Host "Permissions set for: $fullPath"
+            }
+          }
+        shell: powershell
+
+      - name: Run database migrations
+        run: |
+          Push-Location $env:WEBSERVER_PATH
+          & "$env:PHP_PATH" artisan migrate --force
+          Pop-Location
+        shell: powershell
+
+      - name: Cache Laravel configuration
+        run: |
+          Push-Location $env:WEBSERVER_PATH
+          & "$env:PHP_PATH" artisan config:cache
+          & "$env:PHP_PATH" artisan route:cache
+          & "$env:PHP_PATH" artisan view:cache
+          Pop-Location
+        shell: powershell

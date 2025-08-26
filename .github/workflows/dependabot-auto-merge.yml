@@ -1,4 +1,5 @@
-name: Dependabot Auto-Merge
+name: Dependabot PR auto approval and merge
+
 on: pull_request_target
 
 permissions:
@@ -11,33 +12,21 @@ jobs:
     if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Dependabot metadata
-        id: metadata
+        id: dependabot-metadata
         uses: dependabot/fetch-metadata@v2.4.0
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Auto-merge Dependabot PRs for semver-minor updates
-        if: ${{steps.metadata.outputs.update-type == 'version-update:semver-minor'}}
-        run: |
-          gh pr merge --auto --merge "$PR_URL" --admin || \
-          curl -X PUT \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls/${{ github.event.pull_request.number }}/merge" \
-            -d '{"commit_title":"Auto-merge dependency update","commit_message":"","merge_method":"merge"}'
+      - name: Approve minor dependabot pull-request updates
+        if: ${{ steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major' }}
+        run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Auto-merge Dependabot PRs for semver-patch updates
-        if: ${{steps.metadata.outputs.update-type == 'version-update:semver-patch'}}
-        run: |
-          gh pr merge --auto --merge "$PR_URL" --admin || \
-          curl -X PUT \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls/${{ github.event.pull_request.number }}/merge" \
-            -d '{"commit_title":"Auto-merge dependency update","commit_message":"","merge_method":"merge"}'
+      - name: Enable auto-merge on minor dependabot pull-request updates
+        if: ${{ steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major' }}
+        run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
