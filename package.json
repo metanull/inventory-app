@@ -37,7 +37,7 @@
         "vue-router": "^4.5.0"
     },
     "devDependencies": {
-        "@openapitools/openapi-generator-cli": "^2.21.0",
+        "@openapitools/openapi-generator-cli": "^2.23.1",
         "@pinia/testing": "^1.0.2",
         "@types/form-data": "^2.2.1",
         "@types/node": "^24.0.8",
