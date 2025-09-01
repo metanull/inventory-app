@@ -1,13 +1,13 @@
+/**
+ * Vue.js application styles
+ */
+@import '../css/shared.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  html {
-    font-family: 'Inter', system-ui, sans-serif;
-  }
-
-  body {
+/* Vue.js specific styles below */
+@layer components {
     @apply bg-gray-50 text-gray-900;
   }
 }
