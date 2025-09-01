@@ -2,9 +2,7 @@
  * Laravel Blade application styles
  */
 @import './shared.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Blade-specific styles below */
 @layer components {

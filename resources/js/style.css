@@ -2,9 +2,7 @@
  * Vue.js application styles
  */
 @import '../css/shared.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Vue.js specific styles below */
 @layer components {
