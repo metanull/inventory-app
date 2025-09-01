@@ -223,7 +223,7 @@
     // Format launch_date for HTML date input (YYYY-MM-DD)
     let formattedLaunchDate = ''
     if (project.value.launch_date) {
-      formattedLaunchDate = project.value.launch_date.split('T')[0]
+      formattedLaunchDate = project.value.launch_date?.split('T')[0] ?? ''
     }
 
     return {
