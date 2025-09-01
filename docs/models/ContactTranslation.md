@@ -3,6 +3,7 @@ layout: default
 title: ContactTranslation
 parent: Database Models
 ---
+
 # ContactTranslation
 
 **Namespace:** `App\Models\ContactTranslation`

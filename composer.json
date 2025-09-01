@@ -91,7 +91,7 @@
             ".\\vendor\\bin\\pint --no-interaction --ansi --dirty"
         ],
         "ci-test": [
-            "@php artisan test --compact --no-interaction --ansi"
+            "@php artisan test --compact --parallel --ansi"
         ],
         "ci-reset:db": [
             "@php artisan db:wipe --ansi --force",

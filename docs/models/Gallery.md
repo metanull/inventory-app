@@ -3,6 +3,7 @@ layout: default
 title: Gallery
 parent: Database Models
 ---
+
 # Gallery
 
 **Namespace:** `App\Models\Gallery`

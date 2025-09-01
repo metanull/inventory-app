@@ -3,6 +3,7 @@ layout: default
 title: Galleryable
 parent: Database Models
 ---
+
 # Galleryable
 
 **Namespace:** `App\Models\Galleryable`
