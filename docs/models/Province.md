@@ -3,6 +3,7 @@ layout: default
 title: Province
 parent: Database Models
 ---
+
 # Province
 
 **Namespace:** `App\Models\Province`

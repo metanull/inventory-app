@@ -8,6 +8,7 @@ export default {
     './index.html',
     './src/**/*.{vue,js,ts,jsx,tsx}'
   ],
+  darkMode: 'class', // Enable dark mode with class strategy
   theme: {
     extend: {
       colors: {
@@ -28,12 +29,19 @@ export default {
           700: '#374151',
           800: '#1f2937',
           900: '#111827',
+          950: '#0a0c10', // Added for Tailwind v4
         },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
     },
+  },
+  future: {
+    // Enable v4 features
+    hoverOnlyWhenSupported: true,
+    respectDefaultRingColorOpacity: true,
+    disableColorOpacityUtilitiesByDefault: true,
   },
   plugins: [],
 };

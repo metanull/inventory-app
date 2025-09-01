@@ -3,6 +3,7 @@ layout: default
 title: LocationTranslation
 parent: Database Models
 ---
+
 # LocationTranslation
 
 **Namespace:** `App\Models\LocationTranslation`

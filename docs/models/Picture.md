@@ -3,6 +3,7 @@ layout: default
 title: Picture
 parent: Database Models
 ---
+
 # Picture
 
 **Namespace:** `App\Models\Picture`
