@@ -23,6 +23,16 @@ jobs:
     runs-on: [self-hosted, windows]
     environment:
       name: MWNF-SVR
+    env:
+      PHP_PATH: ${{ vars.PHP_PATH }}
+      COMPOSER_PATH: ${{ vars.COMPOSER_PATH }}
+      NODE_PATH: ${{ vars.NODE_PATH }}
+      NPM_PATH: ${{ vars.NPM_PATH }}
+      MARIADB_PATH: ${{ vars.MARIADB_PATH }}
+      ENV_PATH: ${{ vars.ENV_PATH }}
+      MARIADB_DATABASE: ${{ secrets.MARIADB_DATABASE }}
+      MARIADB_SECRET: ${{ secrets.MARIADB_SECRET }}
+      MARIADB_USER: ${{ secrets.MARIADB_USER }}
 
     steps:
       - name: Checkout code
@@ -30,12 +40,16 @@ jobs:
 
       - name: Check required environment variables
         run: |
-          $required = @('PHP_PATH','COMPOSER_PATH','NODE_PATH','NPM_PATH','MARIADB_PATH','ENV_PATH')
-          $missing = $required | Where-Object { [string]::IsNullOrEmpty([System.Environment]::GetEnvironmentVariable($_)) }
-          if ($missing.Count -gt 0) {
-            Write-Error "Missing required environment variables: $($missing -join ', ')"
-            exit 1
-          }
+          Write-Host "Environment variables are configured in GitHub environment MWNF-SVR"
+          Write-Host "PHP_PATH: $env:PHP_PATH"
+          Write-Host "COMPOSER_PATH: $env:COMPOSER_PATH"
+          Write-Host "NODE_PATH: $env:NODE_PATH"
+          Write-Host "NPM_PATH: $env:NPM_PATH"
+          Write-Host "MARIADB_PATH: $env:MARIADB_PATH"
+          Write-Host "ENV_PATH: $env:ENV_PATH"
+          Write-Host "MARIADB_DATABASE: $env:MARIADB_DATABASE"
+          Write-Host "MARIADB_USER: $env:MARIADB_USER"
+          Write-Host "MARIADB_SECRET: [REDACTED]"
         shell: powershell
 
       - name: Check PHP version
@@ -83,12 +97,12 @@ jobs:
 
       - name: Install Node.js dependencies
         run: |
-          npm install --no-audit --no-fund
+          & "$env:NPM_PATH" install --no-audit --no-fund
         shell: powershell
 
       - name: Build frontend assets
         run: |
-          npm run build
+          & "$env:NPM_PATH" run build
         shell: powershell
 
       - name: Run database migrations
