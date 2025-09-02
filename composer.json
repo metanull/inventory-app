@@ -75,7 +75,7 @@
         "ci-audit": [
             "@composer validate --with-dependencies --strict --ansi",
             "@composer audit --format=summary",
-            "npm audit --audit-level moderate"
+            "npm audit --audit-level high"
         ],
         "ci-lint": [
             ".\\vendor\\bin\\pint --no-interaction --ansi",

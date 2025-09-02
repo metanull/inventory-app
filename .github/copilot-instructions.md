@@ -2,7 +2,7 @@
 **CRITICAL: Always assert that the request I make is compliant with Laravel 12 recommendations, guidelines and best practices. If not make recommendations and ask confirmation before proceeding.**
 **CRITICAL: Always use PowerShell syntax when using `run_in_terminal`**
 **CRITICAL: This is a window system. The default console is powershell. Use the proper escaping for commands. By example"$" must be escaped as "`$" not as "\$"**
-**CRITICAL: docs/ contains a distinct Ruby application based on Jekyll. Always use `wsl bash -c 'COMMANDS'` instead of powershell to interact with ruby. by example: `PATH="$HOME/.local/share/gem/ruby/3.2.0/bin:$PATH" && bundle exec jekyll build'`**
+**CRITICAL: docs/ contains a distinct Ruby application based on Jekyll. Always use `wsl bash -c 'COMMANDS'` instead of PowerShell to interact with Ruby. Example: `wsl bash -lc 'cd docs && PATH="$HOME/.local/share/gem/ruby/3.2.0/bin:$PATH" && bundle exec jekyll build'`**
 **CRITICAL: When creating a pull-request (pr), if on the main branch, always first create a dedicated branch for the pr, then create the pr from that branch**
 **CRITICAL: when creating a branch for a pull request, always use the `feature/` or `fix/` prefix, depending on the type of change**
 **CRITICAL: when using `gh pr create` always escape the `--assignee @me` like this: `--assignee "@me"` and never use `--label`**
@@ -16,7 +16,7 @@
 **CRITICAL: Always use Framework's built-in feature to access configuration files, such as `config('app.name')` instead of using the filesystem directly.**
 **CRITICAL: Always use Framework's built-in feature to read and store images, such as Intervention Image Manager functions.**
 **CRITICAL: When running commands in the terminal (composer, git, gh, npm...) always wait for them to complete before checking the terminal output.**
-**CRITICAL: To run `lint` or `test`, use the `php artisan` syntax (`php artisan test`, `php artisan lint`).**
+**CRITICAL: To run `test`, use `php artisan test`. For linting, prefer the standard vendor binary: `vendor/bin/pint` (Windows: `.\\vendor\\bin\\pint`). Project aliases like `php artisan lint` or `composer ci-lint` are optional shortcuts only after dependencies are installed.**
 **CRITICAL: Never use vendor specific code and avoid low level php function when Laravel's framework offer.**
 **CRITICAL: In test, never assume existance of a record, create it using the factory.**
 ---
@@ -48,14 +48,12 @@ Coding standards for PHP files in this repository.
         - It uses Blade as the templating engine.
         - It uses Tailwind CSS for styling.
     - It provides a Database
-        - For development and testing purposes, it uses SQLite in memory.
-        - For production, it uses MariaDb.
-        - For development and testing purposes, it uses SQLite in memory.
-        - For production, it uses MariaDb.
+    - For development and testing purposes, it uses SQLite (typically in-memory for tests) and MariaDB for production.
     - It uses Eloquent ORM to define the database schema and interact with the database.
         - Every table is created via migrations
             - Migrations are defined in the `database/migrations` directory.
             - Migrations' `Schema::create()` instructions have `$table->timestamps();` to automatically add `created_at` and `updated_at` columns.
+            - Soft deletes are not used by default; do not add `$table->softDeletes()` unless explicitly required.
             - Migrations have a `backward_compatibility` column of type `string`.
                 - This column is `nullable` and has a default value of `null`.
                 - This column is used to store the ID of the record in the previous version of the application.
@@ -71,10 +69,8 @@ Coding standards for PHP files in this repository.
             - Every table has a single column primary key.
                 - The name of the column is `id`.
                 - The type of the column is `uuid`, save for the Language, Country and User models:
-                    - Language uses the `ISO 639-1` code as identifier.
-                        - The code is a three-letter code.
-                    - Country uses the `ISO 3166-1 alpha-3` code as identifier.
-                        - The code is a three-letter code.
+                    - Language uses the `ISO 639-3` code as identifier (three letters).
+                    - Country uses the `ISO 3166-1 alpha-3` code as identifier (three letters).
                     - User is a model provided by the Laravel framework.
                         - The User model uses the `id` column as primary key.
                         - The `id` column is an auto-incrementing integer.
@@ -82,6 +78,7 @@ Coding standards for PHP files in this repository.
             - Every `uuid` primary key is generated automatically through `HasUuids` trait, and the method `public function uniqueIds(): array{return ['id'];}`.
                 - The `HasUuids` trait is provided by the Laravel framework.
                 - The `HasUuids` trait is used in every Model that has a `uuid` primary key.
+                - Models with UUID primary keys set `$incrementing = false;` and `$keyType = 'string';`.
                 - The corresponding model doesn't allow the `id` field to be set manually.
                     - The `id` field is set automatically by the framework when the record is created.
                     - The `id` field is not included in the fillable fields of the Model.
@@ -92,21 +89,21 @@ Coding standards for PHP files in this repository.
             - The Factory is defined in the `database/factories` directory.
             - The Factory uses the `Faker` library to generate random data.
             - The Factory uses the `HasFactory` trait, which is provided by the Laravel framework.
-        - Every Model has a Seeder
+    - Every Model has a Seeder
             - The Seeder is used to seed the database with initial data.
             - The Seeder is defined in the `database/seeders` directory.
             - The Seeder uses the Factory to generate test data.
-            - The Seeder uses the `HasSeeder` trait, which is provided by the Laravel framework.
-            - The Language and Country models are seeded with the ISO 639-1 and ISO 3166-1 alpha-3 codes, respectively.
+            - Seeders extend `Illuminate\\Database\\Seeder` and are registered in `DatabaseSeeder`.
+            - The Language and Country models are seeded with the ISO 639-3 and ISO 3166-1 alpha-3 codes, respectively.
                 - These Seeders are already defined in the `database/seeders/LanguageSeeder.php` and `database/seeders/CountrySeeder.php` files.
     - It provides a REST API
         - The routes are defined in the `routes/api.php` file.
         - It exposes methodes to interact with the database.
         - It uses Resource controllers
             - Controllers are defined in the `app/Http/Controllers` directory.
-            - Every Controller method that accepts input data uses the `Request` class to validate the input.
+            - Every Controller method that accepts input data uses the `Request` object to validate the input.
                 - The Validation in the controller is aligned with the constraints defined in the Model, Factory and Migration.
-            - Every Controller method that returns data uses the `Resource` class to format the output.
+            - Every Controller method that returns data uses the `Resource` object to format the output.
         - Every Model has a Resource
         - Every Model has a Controller
             - Every Controller uses the Resource
@@ -154,10 +151,10 @@ Coding standards for PHP files in this repository.
                         - when the model forbids deletion, this file contains one single test that asserts that the `destroy` method returns a `405 Method Not Allowed` response.
             - The test class has `setUp()`.
                 - In AnonymousTest.php, the `setUp()` is empty.
-                - In the other test files the class has a `protected ?User $user = null;` property and the `setUp()` method creates and authenticates a user with
+                - In the other test files the class has a `protected ?User $user = null;` property and the `setUp()` method creates and authenticates a user with Sanctum and the appropriate API guard
                     ```
                     $this->user = User::factory()->create();
-                    $this->actingAs($this->user);
+                    $this->$actingAs($this->user);
                     ```
             - The tests use the `RefreshDatabase` trait to reset the database state before each test.
             - The tests use the `WithFaker` trait to generate random data for tests.
@@ -190,7 +187,7 @@ Coding standards for PHP files in this repository.
         - `composer ci-seed` - seeds the database in the CI environment
         - `composer ci-openapi-doc` - create an api.json file in `./docs/_openapi` directory
         - `composer ci-git:assert-no-change` - asserts that there are no changes in the local repository
-        - `composer ci-before:pull-request` - runs the `ci-openapi-doc`,`ci-git:assert-no-change`, `ci-audit`, `ci-lint`, `ci-test` to verify code before a pull request is created
+    - `composer ci-before:pull-request` - runs `ci-openapi-doc`, `ci-lint:test`, `ci-audit`, `ci-test`, then `ci-git:assert-no-change` to verify code before a pull request is created
     - The repository uses GitHub Actions for CI/CD.
     - It is deployed on a windows server.
         - It uses powershell to run commands.
@@ -209,7 +206,7 @@ Coding standards for PHP files in this repository.
         - `composer ci-reset` - resets the database in the CI environment
         - `composer ci-seed` - seeds the database in the CI environment
         - `composer ci-git:assert-no-change` - asserts that there are no changes in the local repository
-        - `composer ci-before:pull-request` - runs the `ci-git:assert-no-change`, `ci-audit`, `ci-lint`, `ci-test` to verify code before a pull request is created
+    - `composer ci-before:pull-request` - runs `ci-openapi-doc`, `ci-lint:test`, `ci-audit`, `ci-test`, then `ci-git:assert-no-change` to verify code before a pull request is created
     - The repository uses GitHub Actions for CI/CD.
     - The structure of the repository is as follows:
         ```
@@ -288,7 +285,7 @@ Coding standards for PHP files in this repository.
 - It uses `camelCase` for variable and function names.
 - It uses `PascalCase` for class names and methods.
 - It uses `UPPER_CASE` for constants.
-- It uses `snake_case` for file names.
+- PHP class files follow PSR-4 and use PascalCase to match class names. Use `snake_case` for config and migration filenames only.
 
 ## Error Handling
 
@@ -299,7 +296,7 @@ Coding standards for PHP files in this repository.
 ## Annotation
 
 - Use PHPDoc for class and method annotations.
-- Use Laravel's built-in validation annotations for request validation.
+- Use Laravel Form Request classes for request validation (no validation annotations in Laravel). Use PHPDoc and Scramble annotations only for documentation.
 - Use dedoc/Scramble annotations for Controller methods.
 - When adding annotations, ensure they are clear and concise.
 - When adding annotations, explain the purpose of that annotation.
