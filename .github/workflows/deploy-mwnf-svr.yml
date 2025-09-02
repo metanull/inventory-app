@@ -193,7 +193,7 @@ jobs:
             )
             
             $logFile = "$env:BACKUP_PATH\robocopy-$Operation-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
-            $robocopyCmd = "robocopy `"$Source`" `"$Destination`" /MIR /COPY:DAT /NP /R:2 /W:2 /LOG:`"$logFile`""
+            $robocopyCmd = "robocopy `"$Source`" `"$Destination`" /MIR /COPY:DAT /NP /NFL /NDL /LOG:`"$logFile`""
             Write-Host "Running: $robocopyCmd"
             $robocopyResult = Invoke-Expression $robocopyCmd
             $robocopyExitCode = $LASTEXITCODE
@@ -202,7 +202,6 @@ jobs:
             if ($robocopyExitCode -le 2) {
               Write-Host "Robocopy $Operation succeeded with exit code $robocopyExitCode"
               $global:LASTEXITCODE = 0
-              return $true
             } else {
               Write-Error "Robocopy $Operation failed with exit code $robocopyExitCode. See log: $logFile"
               exit $robocopyExitCode
@@ -216,10 +215,10 @@ jobs:
           if (Test-Path "$env:WEBSERVER_PATH") {
             if (Test-Path $oldPath) { Remove-Item $oldPath -Recurse -Force -ErrorAction SilentlyContinue }
             Invoke-RobocopyMirror -Source "$env:WEBSERVER_PATH" -Destination $oldPath -Operation "move-to-old"
-            Write-Host "Current production copied to old: $oldPath"
+            Write-Host "Current production copied to $oldPath"
           }
           
-          # Use robocopy to copy staging to production
+          # Move staging to production
           Invoke-RobocopyMirror -Source $stagingPath -Destination "$env:WEBSERVER_PATH" -Operation "deploy"
           Write-Host "Staging promoted to production: $env:WEBSERVER_PATH"
           
