@@ -4,6 +4,8 @@ import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
+    root: './', // Explicitly set root to current directory
+    base: './', // Ensure relative paths for assets
     plugins: [
         vue(),
         laravel({
@@ -30,16 +32,16 @@ export default defineConfig({
         },
     },
     build: {
-            target: 'esnext',
-            sourcemap: true,
-            outDir: 'public/build', // Ensures assets and manifest are placed correctly
-            manifest: 'manifest.json', // Place manifest directly in build dir, not .vite subdir
-            rollupOptions: {
-                input: [
-                    'resources/js/app.ts',
-                    'resources/css/app.css',
-                ],
-            },
-            assetsInlineLimit: 0,
+        target: 'esnext',
+        sourcemap: true,
+        outDir: 'public/build', // Ensures assets and manifest are placed correctly
+        manifest: 'manifest.json', // Place manifest directly in build dir, not .vite subdir
+        rollupOptions: {
+            input: [
+                'resources/js/app.ts',
+                'resources/css/app.css',
+            ],
         },
+        assetsInlineLimit: 0,
+    },
 });
