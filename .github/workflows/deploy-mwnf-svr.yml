@@ -213,9 +213,9 @@ jobs:
       APACHE_SERVICE_USER: ${{ vars.APACHE_SERVICE_USER || 'SYSTEM' }}
       # Laravel environment variables
       APP_NAME: ${{ vars.APP_NAME || 'inventory-app' }}
-      APP_ENV: ${{ vars.APP_ENV || 'local' }}
+      APP_ENV: ${{ vars.APP_ENV || 'production' }}
       APP_KEY: ${{ secrets.APP_KEY || 'base64:YOUR_DEFAULT_APP_KEY_HERE' }}  
-      APP_DEBUG: ${{ vars.APP_DEBUG || 'true' }}
+      APP_DEBUG: ${{ vars.APP_DEBUG || 'false' }}
       APP_URL: ${{ vars.APP_URL || 'http://localhost' }}
       # Database configuration
       DB_CONNECTION: ${{ vars.DB_CONNECTION || 'mysql'}}
@@ -224,6 +224,19 @@ jobs:
       DB_DATABASE: ${{ secrets.MARIADB_DATABASE }}
       DB_USERNAME: ${{ secrets.MARIADB_USER }}
       DB_PASSWORD: ${{ secrets.MARIADB_SECRET }}
+      # Default user for initial login
+      APP_DEFAULT_USER_EMAIL: ${{ vars.APP_DEFAULT_USER_EMAIL || 'user@example.com' }}
+      APP_DEFAULT_USER_USERNAME: ${{ vars.APP_DEFAULT_USER_USERNAME || 'user' }}
+      APP_DEFAULT_USER_PASSWORD: ${{ vars.APP_DEFAULT_USER_PASSWORD || 'password' }}
+      # Mail configuration
+      MAIL_MAILER: ${{ vars.MAIL_MAILER || 'log' }}
+      MAIL_HOST: ${{ vars.MAIL_HOST || '127.0.0.1' }}
+      MAIL_PORT: ${{ vars.MAIL_PORT || '25' }}
+      MAIL_USERNAME: ${{ vars.MAIL_USERNAME || 'null' }}
+      MAIL_PASSWORD: ${{ vars.MAIL_PASSWORD || 'null' }}
+      MAIL_ENCRYPTION: ${{ vars.MAIL_ENCRYPTION || 'null' }}
+      MAIL_FROM_ADDRESS: ${{ vars.MAIL_FROM_ADDRESS || 'user@example.com' }}
+      MAIL_FROM_NAME: ${{ vars.MAIL_FROM_NAME || 'Inventory App' }}
 
     steps:
       - name: Generate production .env file
@@ -243,10 +256,10 @@ jobs:
           
           # Replace environment-specific values using environment variables
           $replacements = @{
-            'APP_NAME=Laravel' = "APP_NAME=""$env:APP_NAME"""
-            'APP_ENV=local' = "APP_ENV=$env:APP_ENV"
+            'APP_NAME=Inventory-App' = "APP_NAME=""$env:APP_NAME"""
+            'APP_ENV=production' = "APP_ENV=$env:APP_ENV"
             'APP_KEY=' = "APP_KEY=$env:APP_KEY"
-            'APP_DEBUG=true' = "APP_DEBUG=$env:APP_DEBUG"
+            'APP_DEBUG=false' = "APP_DEBUG=$env:APP_DEBUG"
             'APP_URL=http://localhost' = "APP_URL=$env:APP_URL"
             'LOG_LEVEL=debug' = "LOG_LEVEL=error"
             'DB_CONNECTION=mysql' = "DB_CONNECTION=$env:DB_CONNECTION"
@@ -255,6 +268,16 @@ jobs:
             'DB_DATABASE=laravel' = "DB_DATABASE=$env:DB_DATABASE"
             'DB_USERNAME=root' = "DB_USERNAME=$env:DB_USERNAME"
             'DB_PASSWORD=' = "DB_PASSWORD=$env:DB_PASSWORD"
+            'APP_DEFAULT_USER_EMAIL=user@example.com' = "APP_DEFAULT_USER_EMAIL=$env:APP_DEFAULT_USER_EMAIL"
+            'APP_DEFAULT_USER_USERNAME=user' = "APP_DEFAULT_USER_USERNAME=$env:APP_DEFAULT_USER_USERNAME"
+            'APP_DEFAULT_USER_PASSWORD=password' = "APP_DEFAULT_USER_PASSWORD=$env:APP_DEFAULT_USER_PASSWORD"
+            'MAIL_MAILER=log' = "MAIL_MAILER=$env:MAIL_MAILER"
+            'MAIL_HOST=127.0.0.1' = "MAIL_HOST=$env:MAIL_HOST"
+            'MAIL_PORT=25' = "MAIL_PORT=$env:MAIL_PORT"
+            'MAIL_USERNAME=null' = "MAIL_USERNAME=$env:MAIL_USERNAME"
+            'MAIL_PASSWORD=null' = "MAIL_PASSWORD=$env:MAIL_PASSWORD"
+            'MAIL_ENCRYPTION=null' = "MAIL_ENCRYPTION=$env:MAIL_ENCRYPTION"
+            'MAIL_FROM_ADDRESS="user@example.com"' = "MAIL_FROM_ADDRESS=`"$env:MAIL_FROM_ADDRESS`""
           }
           
           # Apply replacements
