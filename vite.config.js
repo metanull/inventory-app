@@ -4,8 +4,6 @@ import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
-    root: './', // Explicitly set root to current directory
-    base: './', // Ensure relative paths for assets
     plugins: [
         vue(),
         laravel({
@@ -15,6 +13,29 @@ export default defineConfig({
             ],
             refresh: true,
         }),
+        // Custom plugin to normalize manifest paths
+        {
+            name: 'normalize-manifest-paths',
+            generateBundle(options, bundle) {
+                const manifestKey = 'manifest.json';
+                if (bundle[manifestKey]) {
+                    const manifest = JSON.parse(bundle[manifestKey].source);
+                    const normalizedManifest = {};
+                    
+                    for (const [key, value] of Object.entries(manifest)) {
+                        // Normalize the key to be relative to project root
+                        const normalizedKey = key.replace(/^.*[\\\/]resources[\\\/]/, 'resources/');
+                        // Normalize the src path as well
+                        if (value.src) {
+                            value.src = value.src.replace(/^.*[\\\/]resources[\\\/]/, 'resources/');
+                        }
+                        normalizedManifest[normalizedKey] = value;
+                    }
+                    
+                    bundle[manifestKey].source = JSON.stringify(normalizedManifest, null, 2);
+                }
+            }
+        }
     ],
     resolve: {
         alias: {
