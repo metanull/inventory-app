@@ -3,4 +3,5 @@ protected $commands = [
     \App\Console\Commands\Pint\RepairCommand::class,
     \App\Console\Commands\Pint\BailCommand::class,
     \App\Console\Commands\TestMailInfrastructure::class,
+    \App\Console\Commands\CreateUser::class,
 ];

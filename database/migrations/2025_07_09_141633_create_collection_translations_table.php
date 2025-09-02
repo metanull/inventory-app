@@ -33,7 +33,7 @@ return new class extends Migration
             $table->foreign('context_id')->references('id')->on('contexts')->onDelete('cascade');
 
             // Unique constraint
-            $table->unique(['collection_id', 'language_id', 'context_id']);
+            $table->unique(['collection_id', 'language_id', 'context_id'], 'col_tr_col_lang_ctx_unique');
 
             // Indexes for performance
             $table->index(['collection_id', 'language_id']);
