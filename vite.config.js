@@ -24,12 +24,35 @@ export default defineConfig({
                     
                     for (const [key, value] of Object.entries(manifest)) {
                         // Normalize the key to be relative to project root
-                        const normalizedKey = key.replace(/^.*[\\\/]resources[\\\/]/, 'resources/');
-                        // Normalize the src path as well
-                        if (value.src) {
-                            value.src = value.src.replace(/^.*[\\\/]resources[\\\/]/, 'resources/');
+                        // Handle both Windows and Unix paths, and extract everything from 'resources/' onwards
+                        let normalizedKey = key;
+                        const resourcesIndex = key.lastIndexOf('resources/');
+                        if (resourcesIndex !== -1) {
+                            normalizedKey = key.substring(resourcesIndex);
+                        } else {
+                            // Fallback for Windows paths with backslashes
+                            const resourcesIndexWin = key.lastIndexOf('resources\\');
+                            if (resourcesIndexWin !== -1) {
+                                normalizedKey = key.substring(resourcesIndexWin).replace(/\\/g, '/');
+                            }
                         }
-                        normalizedManifest[normalizedKey] = value;
+                        
+                        // Normalize the src path as well
+                        const normalizedValue = { ...value };
+                        if (normalizedValue.src) {
+                            const srcResourcesIndex = normalizedValue.src.lastIndexOf('resources/');
+                            if (srcResourcesIndex !== -1) {
+                                normalizedValue.src = normalizedValue.src.substring(srcResourcesIndex);
+                            } else {
+                                // Fallback for Windows paths with backslashes
+                                const srcResourcesIndexWin = normalizedValue.src.lastIndexOf('resources\\');
+                                if (srcResourcesIndexWin !== -1) {
+                                    normalizedValue.src = normalizedValue.src.substring(srcResourcesIndexWin).replace(/\\/g, '/');
+                                }
+                            }
+                        }
+                        
+                        normalizedManifest[normalizedKey] = normalizedValue;
                     }
                     
                     bundle[manifestKey].source = JSON.stringify(normalizedManifest, null, 2);
