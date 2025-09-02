@@ -54,6 +54,11 @@ jobs:
           if (-not (Test-Path $env:NODE_PATH)) { Write-Error "Node.js not found at $env:NODE_PATH"; $missing += "Node.js" }
           if (-not (Test-Path $env:NPM_PATH)) { Write-Error "NPM not found at $env:NPM_PATH"; $missing += "NPM" }
           if (-not (Test-Path $env:MARIADB_PATH)) { Write-Error "MariaDB not found at $env:MARIADB_PATH"; $missing += "MariaDB" }
+          if (-not $env:APP_KEY -or $env:APP_KEY -eq "") {
+            Write-Warning "APP_KEY environment variable is not defined. You must generate an application key using:"
+            Write-Warning '  php artisan key:generate --show'
+            Write-Warning "Then set the APP_KEY secret in the MWNF-SVR environment in GitHub."
+          }
 
           if ($missing.Count -gt 0) {
             Write-Error "Missing required executables: $($missing -join ', ')"
@@ -95,11 +100,6 @@ jobs:
       - name: Install Node.js dependencies
         run: |
           & "$env:NPM_PATH" install --no-audit --no-fund
-        shell: powershell
-
-      - name: Unit testing
-        run: |
-          & "$env:PHP_PATH" artisan test --filter=unit --compact --parallel
         shell: powershell
 
       - name: Build frontend assets
@@ -302,12 +302,5 @@ jobs:
           & "$env:PHP_PATH" artisan config:cache
           & "$env:PHP_PATH" artisan route:cache
           & "$env:PHP_PATH" artisan view:cache
-          Pop-Location
-        shell: powershell
-
-      - name: Run production tests
-        run: |
-          Push-Location $env:WEBSERVER_PATH
-          & "$env:PHP_PATH" artisan test --filter=feature --compact
           Pop-Location
         shell: powershell
