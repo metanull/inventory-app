@@ -33,9 +33,11 @@ class TestMailInfrastructure extends Command
                     ->subject('Laravel Mail Test');
             });
             $this->info("Test email sent to {$recipient}. Check your inbox.");
+
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Failed to send test email: ' . $e->getMessage());
+            $this->error('Failed to send test email: '.$e->getMessage());
+
             return Command::FAILURE;
         }
     }
