@@ -202,6 +202,7 @@ jobs:
           Write-Host $robocopyResult
           if ($robocopyExitCode -le 2) {
             Write-Host "Robocopy succeeded with exit code $robocopyExitCode. Staging promoted to production: $env:WEBSERVER_PATH"
+            $global:LASTEXITCODE = 0
           } else {
             Write-Error "Robocopy failed with exit code $robocopyExitCode. See log: $robocopyLog"
             exit $robocopyExitCode

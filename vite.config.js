@@ -30,8 +30,16 @@ export default defineConfig({
         },
     },
     build: {
-        target: 'esnext',
-        sourcemap: true,
-        outDir: 'public/build', // Ensures assets and manifest are placed correctly
-    },
+            target: 'esnext',
+            sourcemap: true,
+            outDir: 'public/build', // Ensures assets and manifest are placed correctly
+            manifest: true,
+            rollupOptions: {
+                input: [
+                    'resources/js/app.ts',
+                    'resources/css/app.css',
+                ],
+            },
+            assetsInlineLimit: 0,
+        },
 });
