@@ -8,7 +8,7 @@
 #   PHP_PATH, COMPOSER_PATH, NODE_PATH, MARIADB_PATH
 # Do NOT hardcode sensitive or server-specific paths in this file for production.
 
-name: Deploy Laravel App
+name: Deploy on self-hosted MWNF-SVR environment
 
 permissions:
   contents: read
