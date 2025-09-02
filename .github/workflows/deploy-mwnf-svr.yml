@@ -193,8 +193,12 @@ jobs:
             Move-Item "$env:WEBSERVER_PATH" $oldPath
           }
           
-          # Move staging to production
-          Move-Item $stagingPath "$env:WEBSERVER_PATH"
+          # Use robocopy to copy staging to production
+          $robocopyLog = "$env:BACKUP_PATH\robocopy-deploy-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
+          $robocopyCmd = "robocopy `"$stagingPath`" `"$env:WEBSERVER_PATH`" /MIR /COPYALL /NP /R:2 /W:2 /LOG:`"$robocopyLog`""
+          Write-Host "Running: $robocopyCmd"
+          $robocopyResult = Invoke-Expression $robocopyCmd
+          Write-Host $robocopyResult
           Write-Host "Staging promoted to production: $env:WEBSERVER_PATH"
           
           # Clean up old version after successful deployment
@@ -307,6 +311,7 @@ jobs:
               # Grant full access to the Apache service account and Administrators
               icacls $fullPath /grant "${serviceUser}:(OI)(CI)F" /T
               icacls $fullPath /grant "Administrators:(OI)(CI)F" /T
+              icacls $fullPath /grant "$($env:USERNAME):(OI)(CI)F" /T
               Write-Host "Permissions set for: $fullPath"
             }
           }
