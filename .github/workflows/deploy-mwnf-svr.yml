@@ -1,0 +1,135 @@
+
+
+# Deploy Laravel App
+#
+
+# NOTE: This workflow uses the GitHub environment "MWNF-SVR" for deployment.
+# Set the following environment variables and secrets in the MWNF-SVR environment:
+#   PHP_PATH, COMPOSER_PATH, NODE_PATH, MARIADB_PATH
+# Do NOT hardcode sensitive or server-specific paths in this file for production.
+
+name: Deploy Laravel App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, windows]
+    environment:
+      name: MWNF-SVR
+    env:
+      PHP_PATH: ${{ vars.PHP_PATH }}
+      COMPOSER_PATH: ${{ vars.COMPOSER_PATH }}
+      NODE_PATH: ${{ vars.NODE_PATH }}
+      NPM_PATH: ${{ vars.NPM_PATH }}
+      MARIADB_PATH: ${{ vars.MARIADB_PATH }}
+      ENV_PATH: ${{ vars.ENV_PATH }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check required environment variables
+        run: |
+          $required = @('PHP_PATH','COMPOSER_PATH','NODE_PATH','NPM_PATH','MARIADB_PATH','ENV_PATH')
+          $missing = $required | Where-Object { -not $env:$_ }
+          if ($missing.Count -gt 0) {
+            Write-Error "Missing required environment variables: $($missing -join ', ')"
+            exit 1
+          }
+        shell: pwsh
+
+      - name: Check PHP version
+        run: |
+          & "$env:PHP_PATH" -v
+          if ((& "$env:PHP_PATH" -r "echo version_compare(PHP_VERSION, '8.2', '>=');") -ne 1) { exit 1 }
+        shell: pwsh
+
+      - name: Check Composer
+        run: |
+          & "$env:COMPOSER_PATH" --version
+        shell: pwsh
+
+      - name: Check Node.js
+        run: |
+          & "$env:NODE_PATH" --version
+        shell: pwsh
+
+      - name: Check NPM
+        run: |
+          & "$env:NPM_PATH" --version
+        shell: pwsh
+
+      - name: Check MariaDB
+        run: |
+          & "$env:MARIADB_PATH" --version
+        shell: pwsh
+
+      - name: Ensure .env file exists
+        run: |
+          if (-not (Test-Path "$env:ENV_PATH")) {
+            Write-Host ".env file not found, copying from .env.example..."
+            Copy-Item ".env.example" "$env:ENV_PATH"
+          }
+          if (-not (Test-Path "$env:ENV_PATH")) {
+            Write-Error ".env file is missing and could not be created. Deployment cannot continue."
+            exit 1
+          }
+        shell: pwsh
+
+      - name: Install PHP dependencies
+        run: |
+          & "$env:COMPOSER_PATH" install --no-interaction --prefer-dist --optimize-autoloader
+        shell: pwsh
+
+      - name: Install Node.js dependencies
+        run: |
+          npm install --no-audit --no-fund
+        shell: pwsh
+
+      - name: Build frontend assets
+        run: |
+          npm run build
+        shell: pwsh
+
+      - name: Run database migrations
+        run: |
+          & "$env:PHP_PATH" artisan migrate --force
+        shell: pwsh
+
+      - name: Run Laravel tests
+        run: |
+          & "$env:PHP_PATH" artisan test
+        shell: pwsh
+
+      - name: Laravel cache:clear
+        run: |
+          & "$env:PHP_PATH" artisan cache:clear
+        shell: pwsh
+
+      - name: Laravel config:clear
+        run: |
+          & "$env:PHP_PATH" artisan config:clear
+        shell: pwsh
+
+      - name: Laravel config:cache
+        run: |
+          & "$env:PHP_PATH" artisan config:cache
+        shell: pwsh
+
+      - name: Laravel route:clear
+        run: |
+          & "$env:PHP_PATH" artisan route:clear
+        shell: pwsh
+
+      - name: Laravel route:cache
+        run: |
+          & "$env:PHP_PATH" artisan route:cache
+        shell: pwsh
+
+      - name: Laravel view:clear
+        run: |
+          & "$env:PHP_PATH" artisan view:clear
+        shell: pwsh
