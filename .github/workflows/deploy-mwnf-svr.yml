@@ -198,8 +198,14 @@ jobs:
           $robocopyCmd = "robocopy `"$stagingPath`" `"$env:WEBSERVER_PATH`" /MIR /COPY:DAT /NP /R:2 /W:2 /LOG:`"$robocopyLog`""
           Write-Host "Running: $robocopyCmd"
           $robocopyResult = Invoke-Expression $robocopyCmd
+          $robocopyExitCode = $LASTEXITCODE
           Write-Host $robocopyResult
-          Write-Host "Staging promoted to production: $env:WEBSERVER_PATH"
+          if ($robocopyExitCode -le 2) {
+            Write-Host "Robocopy succeeded with exit code $robocopyExitCode. Staging promoted to production: $env:WEBSERVER_PATH"
+          } else {
+            Write-Error "Robocopy failed with exit code $robocopyExitCode. See log: $robocopyLog"
+            exit $robocopyExitCode
+          }
           
           # Clean up old version after successful deployment
           if (Test-Path $oldPath) { Remove-Item $oldPath -Recurse -Force }
