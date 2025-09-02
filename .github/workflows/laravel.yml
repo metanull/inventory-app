@@ -43,11 +43,11 @@ jobs:
 
       - name: "Setup > Laravel > Create .env file from example"
         run: |
-          if(-not(Test-Path ".env.example")) {
-            throw "No .env.example file found!"
+          if(-not(Test-Path ".env.local.example")) {
+            throw "No .env.local.example file found!"
           }
           if(-not(Test-Path ".env")) {
-            Copy-Item .env.example .env -ErrorAction Stop
+            Copy-Item .env.local.example .env -ErrorAction Stop
           }
 
       - name: "Setup > Laravel > Generate application key"
