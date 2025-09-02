@@ -32,5 +32,6 @@ export default defineConfig({
     build: {
         target: 'esnext',
         sourcemap: true,
+        outDir: 'public/build', // Ensures assets and manifest are placed correctly
     },
 });
