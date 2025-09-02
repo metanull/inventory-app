@@ -58,7 +58,8 @@ jobs:
           if ($missing.Count -gt 0) {
             Write-Error "Missing required executables: $($missing -join ', ')"
             exit 1
-          }  shell: powershell
+          }
+        shell: powershell
 
       - name: Check PHP version
         run: |
