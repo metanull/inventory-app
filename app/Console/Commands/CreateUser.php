@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use App\Models\User;
 
 class CreateUser extends Command
 {
@@ -31,16 +31,17 @@ class CreateUser extends Command
         $email = $this->argument('email');
         $password = Str::random(20);
 
-        $user = new User();
+        $user = new User;
         $user->name = $username;
         $user->email = $email;
         $user->password = bcrypt($password);
         $user->save();
 
-        $this->info("User created successfully.");
+        $this->info('User created successfully.');
         $this->line("Username: {$username}");
         $this->line("Email: {$email}");
         $this->line("Password: {$password}");
+
         return Command::SUCCESS;
     }
 }

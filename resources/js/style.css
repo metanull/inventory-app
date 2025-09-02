@@ -2,12 +2,11 @@
  * Vue.js application styles
  */
 @import '../css/shared.css';
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Vue.js specific styles below */
 @layer components {
-    @apply bg-gray-50 text-gray-900;
-  }
+  @apply bg-gray-50 text-gray-900;
 }
 
 @layer components {

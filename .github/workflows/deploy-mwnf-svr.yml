@@ -318,7 +318,7 @@ jobs:
               # Grant full access to the Apache service account and Administrators
               icacls $fullPath /grant "${serviceUser}:(OI)(CI)F" /T
               icacls $fullPath /grant "Administrators:(OI)(CI)F" /T
-              icacls $fullPath /grant "$($env:USERNAME):(OI)(CI)F" /T
+              # icacls $fullPath /grant "$($env:USERNAME):(OI)(CI)F" /T
               Write-Host "Permissions set for: $fullPath"
             }
           }

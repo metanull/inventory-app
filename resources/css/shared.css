@@ -1,7 +1,7 @@
 /**
  * Shared styles between Laravel Blade and Vue.js applications
  */
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-primary-50: oklch(0.977 0.013 236.62);
