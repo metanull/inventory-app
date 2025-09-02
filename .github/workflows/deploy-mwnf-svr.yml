@@ -37,7 +37,7 @@ jobs:
       - name: Check required environment variables
         run: |
           $required = @('PHP_PATH','COMPOSER_PATH','NODE_PATH','NPM_PATH','MARIADB_PATH','ENV_PATH')
-          $missing = $required | Where-Object { -not $env:$_ }
+          $missing = $required | Where-Object { -not ${env:$_} }
           if ($missing.Count -gt 0) {
             Write-Error "Missing required environment variables: $($missing -join ', ')"
             exit 1
