@@ -8,7 +8,10 @@
 #   PHP_PATH, COMPOSER_PATH, NODE_PATH, MARIADB_PATH
 # Do NOT hardcode sensitive or server-specific paths in this file for production.
 
-name: Deploy Laravel App
+name: Deploy on self-hosted MWNF-SVR environment
+
+permissions:
+  contents: read
 
 on:
   push:
@@ -39,33 +42,33 @@ jobs:
             Write-Error "Missing required environment variables: $($missing -join ', ')"
             exit 1
           }
-        shell: pwsh
+        shell: powershell
 
       - name: Check PHP version
         run: |
           & "$env:PHP_PATH" -v
           if ((& "$env:PHP_PATH" -r "echo version_compare(PHP_VERSION, '8.2', '>=');") -ne 1) { exit 1 }
-        shell: pwsh
+        shell: powershell
 
       - name: Check Composer
         run: |
           & "$env:COMPOSER_PATH" --version
-        shell: pwsh
+        shell: powershell
 
       - name: Check Node.js
         run: |
           & "$env:NODE_PATH" --version
-        shell: pwsh
+        shell: powershell
 
       - name: Check NPM
         run: |
           & "$env:NPM_PATH" --version
-        shell: pwsh
+        shell: powershell
 
       - name: Check MariaDB
         run: |
           & "$env:MARIADB_PATH" --version
-        shell: pwsh
+        shell: powershell
 
       - name: Ensure .env file exists
         run: |
@@ -77,59 +80,59 @@ jobs:
             Write-Error ".env file is missing and could not be created. Deployment cannot continue."
             exit 1
           }
-        shell: pwsh
+        shell: powershell
 
       - name: Install PHP dependencies
         run: |
           & "$env:COMPOSER_PATH" install --no-interaction --prefer-dist --optimize-autoloader
-        shell: pwsh
+        shell: powershell
 
       - name: Install Node.js dependencies
         run: |
           npm install --no-audit --no-fund
-        shell: pwsh
+        shell: powershell
 
       - name: Build frontend assets
         run: |
           npm run build
-        shell: pwsh
+        shell: powershell
 
       - name: Run database migrations
         run: |
           & "$env:PHP_PATH" artisan migrate --force
-        shell: pwsh
+        shell: powershell
 
       - name: Run Laravel tests
         run: |
           & "$env:PHP_PATH" artisan test
-        shell: pwsh
+        shell: powershell
 
       - name: Laravel cache:clear
         run: |
           & "$env:PHP_PATH" artisan cache:clear
-        shell: pwsh
+        shell: powershell
 
       - name: Laravel config:clear
         run: |
           & "$env:PHP_PATH" artisan config:clear
-        shell: pwsh
+        shell: powershell
 
       - name: Laravel config:cache
         run: |
           & "$env:PHP_PATH" artisan config:cache
-        shell: pwsh
+        shell: powershell
 
       - name: Laravel route:clear
         run: |
           & "$env:PHP_PATH" artisan route:clear
-        shell: pwsh
+        shell: powershell
 
       - name: Laravel route:cache
         run: |
           & "$env:PHP_PATH" artisan route:cache
-        shell: pwsh
+        shell: powershell
 
       - name: Laravel view:clear
         run: |
           & "$env:PHP_PATH" artisan view:clear
-        shell: pwsh
+        shell: powershell
