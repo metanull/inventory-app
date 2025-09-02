@@ -23,13 +23,7 @@ jobs:
     runs-on: [self-hosted, windows]
     environment:
       name: MWNF-SVR
-    env:
-      PHP_PATH: ${{ vars.PHP_PATH }}
-      COMPOSER_PATH: ${{ vars.COMPOSER_PATH }}
-      NODE_PATH: ${{ vars.NODE_PATH }}
-      NPM_PATH: ${{ vars.NPM_PATH }}
-      MARIADB_PATH: ${{ vars.MARIADB_PATH }}
-      ENV_PATH: ${{ vars.ENV_PATH }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -37,7 +31,7 @@ jobs:
       - name: Check required environment variables
         run: |
           $required = @('PHP_PATH','COMPOSER_PATH','NODE_PATH','NPM_PATH','MARIADB_PATH','ENV_PATH')
-          $missing = $required | Where-Object { -not ${env:$_} }
+          $missing = $required | Where-Object { [string]::IsNullOrEmpty([System.Environment]::GetEnvironmentVariable($_)) }
           if ($missing.Count -gt 0) {
             Write-Error "Missing required environment variables: $($missing -join ', ')"
             exit 1
