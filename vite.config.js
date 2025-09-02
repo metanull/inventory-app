@@ -16,46 +16,47 @@ export default defineConfig({
         // Custom plugin to normalize manifest paths
         {
             name: 'normalize-manifest-paths',
-            generateBundle(options, bundle) {
-                const manifestKey = 'manifest.json';
-                if (bundle[manifestKey]) {
-                    const manifest = JSON.parse(bundle[manifestKey].source);
-                    const normalizedManifest = {};
-                    
-                    for (const [key, value] of Object.entries(manifest)) {
-                        // Normalize the key to be relative to project root
-                        // Handle both Windows and Unix paths, and extract everything from 'resources/' onwards
-                        let normalizedKey = key;
-                        const resourcesIndex = key.lastIndexOf('resources/');
-                        if (resourcesIndex !== -1) {
-                            normalizedKey = key.substring(resourcesIndex);
-                        } else {
-                            // Fallback for Windows paths with backslashes
-                            const resourcesIndexWin = key.lastIndexOf('resources\\');
-                            if (resourcesIndexWin !== -1) {
-                                normalizedKey = key.substring(resourcesIndexWin).replace(/\\/g, '/');
-                            }
+            async writeBundle() {
+                const manifestPath = 'public/build/manifest.json';
+                const { readFileSync, writeFileSync, existsSync } = await import('fs');
+                
+                if (!existsSync(manifestPath)) return;
+                
+                const normalizePath = (path) => {
+                    const resourcesIndex = Math.max(
+                        path.lastIndexOf('resources/'),
+                        path.lastIndexOf('resources\\')
+                    );
+                    return resourcesIndex !== -1 
+                        ? path.substring(resourcesIndex).replace(/\\/g, '/')
+                        : path;
+                };
+                
+                console.log('🔧 Normalizing manifest paths...');
+                const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+                let hasChanges = false;
+                
+                const normalizedManifest = Object.fromEntries(
+                    Object.entries(manifest).map(([key, value]) => {
+                        const normalizedKey = normalizePath(key);
+                        const normalizedValue = {
+                            ...value,
+                            ...(value.src && { src: normalizePath(value.src) })
+                        };
+                        
+                        if (normalizedKey !== key || (value.src && normalizedValue.src !== value.src)) {
+                            hasChanges = true;
                         }
                         
-                        // Normalize the src path as well
-                        const normalizedValue = { ...value };
-                        if (normalizedValue.src) {
-                            const srcResourcesIndex = normalizedValue.src.lastIndexOf('resources/');
-                            if (srcResourcesIndex !== -1) {
-                                normalizedValue.src = normalizedValue.src.substring(srcResourcesIndex);
-                            } else {
-                                // Fallback for Windows paths with backslashes
-                                const srcResourcesIndexWin = normalizedValue.src.lastIndexOf('resources\\');
-                                if (srcResourcesIndexWin !== -1) {
-                                    normalizedValue.src = normalizedValue.src.substring(srcResourcesIndexWin).replace(/\\/g, '/');
-                                }
-                            }
-                        }
-                        
-                        normalizedManifest[normalizedKey] = normalizedValue;
-                    }
-                    
-                    bundle[manifestKey].source = JSON.stringify(normalizedManifest, null, 2);
+                        return [normalizedKey, normalizedValue];
+                    })
+                );
+                
+                if (hasChanges) {
+                    writeFileSync(manifestPath, JSON.stringify(normalizedManifest, null, 2));
+                    console.log('✅ Manifest paths normalized successfully');
+                } else {
+                    console.log('ℹ️  Manifest paths were already normalized');
                 }
             }
         }
