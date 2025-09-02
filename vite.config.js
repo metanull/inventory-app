@@ -33,7 +33,7 @@ export default defineConfig({
             target: 'esnext',
             sourcemap: true,
             outDir: 'public/build', // Ensures assets and manifest are placed correctly
-            manifest: true,
+            manifest: 'manifest.json', // Place manifest directly in build dir, not .vite subdir
             rollupOptions: {
                 input: [
                     'resources/js/app.ts',
