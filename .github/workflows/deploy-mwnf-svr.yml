@@ -195,7 +195,7 @@ jobs:
           
           # Use robocopy to copy staging to production
           $robocopyLog = "$env:BACKUP_PATH\robocopy-deploy-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
-          $robocopyCmd = "robocopy `"$stagingPath`" `"$env:WEBSERVER_PATH`" /MIR /COPYALL /NP /R:2 /W:2 /LOG:`"$robocopyLog`""
+          $robocopyCmd = "robocopy `"$stagingPath`" `"$env:WEBSERVER_PATH`" /MIR /COPY:DAT /NP /R:2 /W:2 /LOG:`"$robocopyLog`""
           Write-Host "Running: $robocopyCmd"
           $robocopyResult = Invoke-Expression $robocopyCmd
           Write-Host $robocopyResult
