@@ -138,10 +138,14 @@
 
   // Information description
   const informationDescription = computed(() => {
-    if (mode.value === 'create') {
-      return 'Configure the basic properties for this new context.'
+    switch (mode.value) {
+      case 'create':
+        return 'Create a new context in your inventory system.'
+      case 'edit':
+        return 'Edit detailed information about this context.'
+      default:
+        return 'Detailed information about this context.'
     }
-    return 'View and edit the basic properties of this context.'
   })
 
   // Status cards configuration
