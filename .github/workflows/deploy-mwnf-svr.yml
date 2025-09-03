@@ -195,9 +195,12 @@ jobs:
                 Write-Error "Please manually remove or move this directory before deployment"
                 exit 1
               }
-              Remove-Item "$env:WEBSERVER_PATH" -Force
-              if ($LASTEXITCODE -ne 0) {
-                Write-Error "Failed to remove existing symlink"
+              try {
+                # Use [System.IO.Directory]::Delete instead of Remove-Item to avoid problem deleting symlink
+                [System.IO.Directory]::Delete($env:WEBSERVER_PATH, $true)
+                # Remove-Item "$env:WEBSERVER_PATH" -Force
+              } catch {
+                Write-Error "Failed to remove existing symlink: $_"
                 exit 1
               }
             }
@@ -206,6 +209,7 @@ jobs:
 
       - name: Create production symlink
         run: |
+          # The runner's user has received 'Create Symbloik Links' permission through `secpol.msc` (Local Security Policy) → Local Policies → User Rights Assignment → Create symbolic links
           Write-Host "Creating symlink: $env:WEBSERVER_PATH -> $env:STAGING_PATH"
           New-Item -ItemType SymbolicLink -Path "$env:WEBSERVER_PATH" -Target "$env:STAGING_PATH" -Force
           if ($LASTEXITCODE -ne 0) {
