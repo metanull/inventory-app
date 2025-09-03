@@ -274,9 +274,9 @@
         enterViewMode()
 
         // Remove edit query parameter if present
-        if (route.query.mode === 'edit') {
+        if (route.query.edit) {
           const query = { ...route.query }
-          delete query.mode
+          delete query.edit
           await router.replace({ query })
         }
       }
@@ -378,7 +378,7 @@
         await fetchContext()
 
         // Check if we should start in edit mode from query parameter
-        if (route.query.mode === 'edit' && context.value) {
+        if (route.query.edit === 'true' && context.value) {
           enterEditMode()
         } else {
           enterViewMode()
