@@ -57,21 +57,21 @@ vi.mock('@/stores/deleteConfirmation')
 
 const mockContexts: ContextResource[] = [
   createMockContext({
-    id: '1',
+    id: '123e4567-e89b-12d3-a456-426614174000',
     internal_name: 'Production',
     backward_compatibility: 'prod',
     is_default: true,
     created_at: '2023-01-01T00:00:00Z',
   }),
   createMockContext({
-    id: '2',
+    id: '123e4567-e89b-12d3-a456-426614174001',
     internal_name: 'Development',
     backward_compatibility: 'dev',
     is_default: false,
     created_at: '2023-02-01T00:00:00Z',
   }),
   createMockContext({
-    id: '3',
+    id: '123e4567-e89b-12d3-a456-426614174002',
     internal_name: 'Testing',
     backward_compatibility: null,
     is_default: false,
@@ -406,9 +406,9 @@ describe('Contexts.vue', () => {
       const vm = wrapper.vm as unknown as ContextsComponentInstance
       const spy = vi.spyOn(router, 'push')
 
-      vm.openContextDetail('1')
+      vm.openContextDetail('123e4567-e89b-12d3-a456-426614174000')
 
-      expect(spy).toHaveBeenCalledWith('/contexts/1')
+      expect(spy).toHaveBeenCalledWith('/contexts/123e4567-e89b-12d3-a456-426614174000')
     })
 
     it('should navigate to new context', async () => {

@@ -172,7 +172,7 @@ describe('ProjectDetail Component', () => {
 
     it('should mount correctly for existing project view', async () => {
       const mockProject = {
-        id: '1',
+        id: '123e4567-e89b-12d3-a456-426614174000',
         internal_name: 'Test Project',
         display_name: 'Test Project Display',
         backward_compatibility: null,
@@ -186,7 +186,7 @@ describe('ProjectDetail Component', () => {
       mockProjectStore.fetchProject.mockResolvedValue(mockProject)
       mockProjectStore.currentProject = mockProject
 
-      router.push('/projects/1')
+      router.push('/projects/123e4567-e89b-12d3-a456-426614174000')
       await router.isReady()
 
       const wrapper = mount(ProjectDetail, {
@@ -197,12 +197,14 @@ describe('ProjectDetail Component', () => {
 
       await flushPromises()
       expect(wrapper.exists()).toBe(true)
-      expect(mockProjectStore.fetchProject).toHaveBeenCalledWith('1')
+      expect(mockProjectStore.fetchProject).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000'
+      )
     })
 
     it('should mount correctly for project edit', async () => {
       const mockProject = {
-        id: '1',
+        id: '123e4567-e89b-12d3-a456-426614174001',
         internal_name: 'Test Project',
         display_name: 'Test Project Display',
         backward_compatibility: null,
@@ -216,7 +218,7 @@ describe('ProjectDetail Component', () => {
       mockProjectStore.fetchProject.mockResolvedValue(mockProject)
       mockProjectStore.currentProject = mockProject
 
-      router.push('/projects/1/edit')
+      router.push('/projects/123e4567-e89b-12d3-a456-426614174001/edit')
       await router.isReady()
 
       const wrapper = mount(ProjectDetail, {
@@ -227,7 +229,9 @@ describe('ProjectDetail Component', () => {
 
       await flushPromises()
       expect(wrapper.exists()).toBe(true)
-      expect(mockProjectStore.fetchProject).toHaveBeenCalledWith('1')
+      expect(mockProjectStore.fetchProject).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174001'
+      )
     })
   })
 
@@ -276,7 +280,7 @@ describe('ProjectDetail Component', () => {
   describe('Route Parameter Handling', () => {
     it('should handle string route parameters correctly', async () => {
       const mockProject = {
-        id: '1',
+        id: '123e4567-e89b-12d3-a456-426614174002',
         internal_name: 'Test Project',
         display_name: 'Test Project Display',
         backward_compatibility: null,
@@ -289,7 +293,7 @@ describe('ProjectDetail Component', () => {
 
       mockProjectStore.fetchProject.mockResolvedValue(mockProject)
 
-      router.push('/projects/123')
+      router.push('/projects/123e4567-e89b-12d3-a456-426614174002')
       await router.isReady()
 
       mount(ProjectDetail, {
@@ -300,8 +304,10 @@ describe('ProjectDetail Component', () => {
 
       await flushPromises()
 
-      // Should call fetchProject with string "123"
-      expect(mockProjectStore.fetchProject).toHaveBeenCalledWith('123')
+      // Should call fetchProject with string GUID
+      expect(mockProjectStore.fetchProject).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174002'
+      )
     })
 
     it('should handle invalid route parameters', async () => {
@@ -329,7 +335,7 @@ describe('ProjectDetail Component', () => {
             setTimeout(
               () =>
                 resolve({
-                  id: '1',
+                  id: '123e4567-e89b-12d3-a456-426614174003',
                   internal_name: 'Test Project',
                   display_name: 'Test Project Display',
                   is_enabled: true,
@@ -340,7 +346,7 @@ describe('ProjectDetail Component', () => {
           )
       )
 
-      router.push('/projects/1')
+      router.push('/projects/123e4567-e89b-12d3-a456-426614174003')
       await router.isReady()
 
       mount(ProjectDetail, {

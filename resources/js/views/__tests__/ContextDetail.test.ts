@@ -40,10 +40,15 @@ vi.mock('@heroicons/vue/24/solid', () => ({
 }))
 
 vi.mock('@heroicons/vue/24/outline', () => ({
-  CogIcon: { name: 'CogIcon', render: () => null },
+  CheckIcon: { name: 'CheckIcon', render: () => null },
+  XMarkIcon: { name: 'XMarkIcon', render: () => null },
+  PlusIcon: { name: 'PlusIcon', render: () => null },
   ArrowLeftIcon: { name: 'ArrowLeftIcon', render: () => null },
-  PencilIcon: { name: 'PencilIcon', render: () => null },
   TrashIcon: { name: 'TrashIcon', render: () => null },
+  PencilIcon: { name: 'PencilIcon', render: () => null },
+  EyeIcon: { name: 'EyeIcon', render: () => null },
+  StarIcon: { name: 'StarIcon', render: () => null },
+  CogIcon: { name: 'CogIcon', render: () => null },
 }))
 
 // Mock stores
@@ -52,9 +57,9 @@ const mockContextStore = {
   loading: false,
   fetchContext: vi.fn().mockImplementation(async (id: string) => {
     // Simulate setting currentContext when fetchContext is called
-    if (id === '1') {
+    if (id === '123e4567-e89b-12d3-a456-426614174000') {
       mockContextStore.currentContext = {
-        id: '1',
+        id: '123e4567-e89b-12d3-a456-426614174000',
         internal_name: 'Production',
         backward_compatibility: 'prod',
         is_default: true,
@@ -169,7 +174,7 @@ describe('ContextDetail.vue', () => {
 
     it('should mount successfully in edit mode', async () => {
       const mockContext: ContextResource = {
-        id: '1',
+        id: '123e4567-e89b-12d3-a456-426614174000',
         internal_name: 'Production',
         backward_compatibility: 'prod',
         is_default: true,
@@ -178,7 +183,7 @@ describe('ContextDetail.vue', () => {
       }
 
       mockContextStore.currentContext = mockContext
-      await router.push('/contexts/1')
+      await router.push('/contexts/123e4567-e89b-12d3-a456-426614174000')
 
       const wrapper = mount(ContextDetail, {
         global: {
@@ -189,7 +194,9 @@ describe('ContextDetail.vue', () => {
       await flushPromises()
 
       expect(wrapper.exists()).toBe(true)
-      expect(mockContextStore.fetchContext).toHaveBeenCalledWith('1')
+      expect(mockContextStore.fetchContext).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000'
+      )
     })
   })
 
@@ -211,7 +218,7 @@ describe('ContextDetail.vue', () => {
     })
 
     it('should initialize form with context data for editing', async () => {
-      await router.push('/contexts/1')
+      await router.push('/contexts/123e4567-e89b-12d3-a456-426614174000')
 
       const wrapper = mount(ContextDetail, {
         global: {
@@ -225,7 +232,9 @@ describe('ContextDetail.vue', () => {
       expect(wrapper.exists()).toBe(true)
 
       // Verify that fetchContext was called with the correct ID
-      expect(mockContextStore.fetchContext).toHaveBeenCalledWith('1')
+      expect(mockContextStore.fetchContext).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000'
+      )
 
       // The component should be properly initialized
       const vm = wrapper.vm as unknown as ContextDetailComponentInstance
@@ -251,7 +260,7 @@ describe('ContextDetail.vue', () => {
 
     it('should detect edit mode', async () => {
       const mockContext: ContextResource = {
-        id: '2',
+        id: '123e4567-e89b-12d3-a456-426614174001',
         internal_name: 'Development',
         backward_compatibility: 'dev',
         is_default: false,
@@ -260,7 +269,7 @@ describe('ContextDetail.vue', () => {
       }
 
       mockContextStore.currentContext = mockContext
-      await router.push('/contexts/2')
+      await router.push('/contexts/123e4567-e89b-12d3-a456-426614174001')
 
       const wrapper = mount(ContextDetail, {
         global: {
@@ -278,7 +287,7 @@ describe('ContextDetail.vue', () => {
   describe('Information Description', () => {
     it('shows correct description for view mode', async () => {
       const mockContext: ContextResource = {
-        id: '1',
+        id: '123e4567-e89b-12d3-a456-426614174002',
         internal_name: 'Production',
         backward_compatibility: 'prod',
         is_default: true,
@@ -287,7 +296,7 @@ describe('ContextDetail.vue', () => {
       }
 
       mockContextStore.currentContext = mockContext
-      await router.push('/contexts/1')
+      await router.push('/contexts/123e4567-e89b-12d3-a456-426614174002')
 
       const wrapper = mount(ContextDetail, {
         global: {
@@ -320,7 +329,7 @@ describe('ContextDetail.vue', () => {
   describe('Status Toggle (Set Default)', () => {
     it('should toggle default status successfully', async () => {
       const mockContext = {
-        id: '1',
+        id: '123e4567-e89b-12d3-a456-426614174003',
         internal_name: 'Production',
         backward_compatibility: 'prod',
         is_default: false,
@@ -329,7 +338,7 @@ describe('ContextDetail.vue', () => {
       }
 
       mockContextStore.currentContext = mockContext
-      await router.push('/contexts/1')
+      await router.push('/contexts/123e4567-e89b-12d3-a456-426614174003')
 
       const wrapper = mount(ContextDetail, {
         global: {
@@ -344,11 +353,14 @@ describe('ContextDetail.vue', () => {
       // Trigger status toggle (index 0 for default status)
       await vm.handleStatusToggle(0)
 
-      expect(mockContextStore.updateContext).toHaveBeenCalledWith('1', {
-        internal_name: 'Production',
-        backward_compatibility: 'prod',
-        is_default: true,
-      })
+      expect(mockContextStore.updateContext).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174003',
+        {
+          internal_name: 'Production',
+          backward_compatibility: 'prod',
+          is_default: true,
+        }
+      )
       expect(mockErrorDisplayStore.addMessage).toHaveBeenCalledWith(
         'info',
         'Context set as default successfully.'
@@ -359,7 +371,7 @@ describe('ContextDetail.vue', () => {
       mockContextStore.updateContext = vi.fn().mockRejectedValue(new Error('Update failed'))
 
       const mockContext = {
-        id: '1',
+        id: '123e4567-e89b-12d3-a456-426614174004',
         internal_name: 'Production',
         backward_compatibility: 'prod',
         is_default: false,
@@ -368,7 +380,7 @@ describe('ContextDetail.vue', () => {
       }
 
       mockContextStore.currentContext = mockContext
-      await router.push('/contexts/1')
+      await router.push('/contexts/123e4567-e89b-12d3-a456-426614174004')
 
       const wrapper = mount(ContextDetail, {
         global: {
@@ -391,7 +403,7 @@ describe('ContextDetail.vue', () => {
 
     it('should remove default status successfully', async () => {
       const mockContext = {
-        id: '1',
+        id: '123e4567-e89b-12d3-a456-426614174005',
         internal_name: 'Production',
         backward_compatibility: 'prod',
         is_default: true,
@@ -401,7 +413,7 @@ describe('ContextDetail.vue', () => {
 
       mockContextStore.currentContext = mockContext
       mockContextStore.updateContext = vi.fn().mockResolvedValue(undefined)
-      await router.push('/contexts/1')
+      await router.push('/contexts/123e4567-e89b-12d3-a456-426614174005')
 
       const wrapper = mount(ContextDetail, {
         global: {
@@ -416,11 +428,14 @@ describe('ContextDetail.vue', () => {
       // Trigger status toggle to remove default
       await vm.handleStatusToggle(0)
 
-      expect(mockContextStore.updateContext).toHaveBeenCalledWith('1', {
-        internal_name: 'Production',
-        backward_compatibility: 'prod',
-        is_default: false,
-      })
+      expect(mockContextStore.updateContext).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174005',
+        {
+          internal_name: 'Production',
+          backward_compatibility: 'prod',
+          is_default: false,
+        }
+      )
       expect(mockErrorDisplayStore.addMessage).toHaveBeenCalledWith(
         'info',
         'Context removed as default successfully.'
@@ -429,7 +444,7 @@ describe('ContextDetail.vue', () => {
 
     it('should not trigger toggle for invalid index', async () => {
       const mockContext = {
-        id: '1',
+        id: '123e4567-e89b-12d3-a456-426614174006',
         internal_name: 'Production',
         backward_compatibility: 'prod',
         is_default: true,
@@ -438,7 +453,7 @@ describe('ContextDetail.vue', () => {
       }
 
       mockContextStore.currentContext = mockContext
-      await router.push('/contexts/1')
+      await router.push('/contexts/123e4567-e89b-12d3-a456-426614174006')
 
       const wrapper = mount(ContextDetail, {
         global: {

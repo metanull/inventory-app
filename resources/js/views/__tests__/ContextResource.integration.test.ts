@@ -40,19 +40,19 @@ vi.mock('@/stores/context')
 // Test data
 const mockContexts: ContextResource[] = [
   createMockContext({
-    id: '1',
+    id: '123e4567-e89b-12d3-a456-426614174000',
     internal_name: 'Production',
     backward_compatibility: 'prod',
     is_default: true,
   }),
   createMockContext({
-    id: '2',
+    id: '123e4567-e89b-12d3-a456-426614174001',
     internal_name: 'Development',
     backward_compatibility: 'dev',
     is_default: false,
   }),
   createMockContext({
-    id: '3',
+    id: '123e4567-e89b-12d3-a456-426614174002',
     internal_name: 'Testing',
     backward_compatibility: 'test',
     is_default: false,
@@ -163,18 +163,24 @@ describe('Context Resource Integration Tests', () => {
 
     it('should handle Context-specific status toggle workflows', async () => {
       // Load context
-      await contextStore.fetchContext('2') // Development Context (not default)
+      await contextStore.fetchContext('123e4567-e89b-12d3-a456-426614174001') // Development Context (not default)
 
       // Toggle default status (Context-specific operation)
-      await contextStore.setContextDefault('2', true)
-      expect(contextStore.setContextDefault).toHaveBeenCalledWith('2', true)
+      await contextStore.setContextDefault('123e4567-e89b-12d3-a456-426614174001', true)
+      expect(contextStore.setContextDefault).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174001',
+        true
+      )
 
       // Verify status change was processed
       expect(contextStore.setContextDefault).toHaveBeenCalledTimes(1)
 
       // Test removing default status
-      await contextStore.setContextDefault('1', false)
-      expect(contextStore.setContextDefault).toHaveBeenCalledWith('1', false)
+      await contextStore.setContextDefault('123e4567-e89b-12d3-a456-426614174000', false)
+      expect(contextStore.setContextDefault).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000',
+        false
+      )
       expect(contextStore.setContextDefault).toHaveBeenCalledTimes(2)
     })
   })
@@ -230,7 +236,7 @@ describe('Context Resource Integration Tests', () => {
     it('should handle multiple default contexts scenario', async () => {
       // Add another default context for testing
       const additionalDefaultContext = createMockContext({
-        id: '4',
+        id: '123e4567-e89b-12d3-a456-426614174003',
         internal_name: 'Staging',
         backward_compatibility: 'staging',
         is_default: true,
@@ -249,7 +255,7 @@ describe('Context Resource Integration Tests', () => {
     it('should handle null backward_compatibility gracefully', async () => {
       // Create context with null backward_compatibility
       const contextWithNullCompat = createMockContext({
-        id: '5',
+        id: '123e4567-e89b-12d3-a456-426614174004',
         internal_name: 'Testing Environment',
         backward_compatibility: null,
         is_default: false,
@@ -293,26 +299,36 @@ describe('Context Resource Integration Tests', () => {
         internal_name: 'Updated Name Only',
       }
 
-      await contextStore.updateContext('1', partialUpdate)
-      expect(contextStore.updateContext).toHaveBeenCalledWith('1', partialUpdate)
+      await contextStore.updateContext('123e4567-e89b-12d3-a456-426614174000', partialUpdate)
+      expect(contextStore.updateContext).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000',
+        partialUpdate
+      )
 
       // Test updating only backward_compatibility
       const compatUpdate = {
         backward_compatibility: 'new-compat',
       }
 
-      await contextStore.updateContext('2', compatUpdate)
-      expect(contextStore.updateContext).toHaveBeenCalledWith('2', compatUpdate)
+      await contextStore.updateContext('123e4567-e89b-12d3-a456-426614174001', compatUpdate)
+      expect(contextStore.updateContext).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174001',
+        compatUpdate
+      )
     })
 
     it('should handle context deletion with dependency checks', async () => {
       // Test deleting a non-default context (should be safe)
-      await contextStore.deleteContext('2')
-      expect(contextStore.deleteContext).toHaveBeenCalledWith('2')
+      await contextStore.deleteContext('123e4567-e89b-12d3-a456-426614174001')
+      expect(contextStore.deleteContext).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174001'
+      )
 
       // Test deleting a default context (business logic would handle restrictions)
-      await contextStore.deleteContext('1')
-      expect(contextStore.deleteContext).toHaveBeenCalledWith('1')
+      await contextStore.deleteContext('123e4567-e89b-12d3-a456-426614174000')
+      expect(contextStore.deleteContext).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000'
+      )
     })
   })
 
@@ -350,12 +366,18 @@ describe('Context Resource Integration Tests', () => {
     it('should handle concurrent operations', async () => {
       // Simulate concurrent fetch and update operations
       const fetchPromise = contextStore.fetchContexts()
-      const updatePromise = contextStore.setContextDefault('1', false)
+      const updatePromise = contextStore.setContextDefault(
+        '123e4567-e89b-12d3-a456-426614174000',
+        false
+      )
 
       await Promise.all([fetchPromise, updatePromise])
 
       expect(contextStore.fetchContexts).toHaveBeenCalled()
-      expect(contextStore.setContextDefault).toHaveBeenCalledWith('1', false)
+      expect(contextStore.setContextDefault).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000',
+        false
+      )
     })
   })
 })

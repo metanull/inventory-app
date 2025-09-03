@@ -56,7 +56,7 @@ vi.mock('@/stores/language')
 // Test data for comprehensive resource testing
 const mockProjects: ProjectResource[] = [
   createMockProject({
-    id: '1',
+    id: '123e4567-e89b-12d3-a456-426614174000',
     internal_name: 'Alpha Project',
     backward_compatibility: 'alpha',
     launch_date: '2023-01-15T00:00:00Z',
@@ -64,7 +64,7 @@ const mockProjects: ProjectResource[] = [
     is_launched: true,
   }),
   createMockProject({
-    id: '2',
+    id: '123e4567-e89b-12d3-a456-426614174001',
     internal_name: 'Beta Project',
     backward_compatibility: 'beta',
     launch_date: '2023-06-01T00:00:00Z',
@@ -72,7 +72,7 @@ const mockProjects: ProjectResource[] = [
     is_launched: false,
   }),
   createMockProject({
-    id: '3',
+    id: '123e4567-e89b-12d3-a456-426614174002',
     internal_name: 'Gamma Project',
     backward_compatibility: 'gamma',
     launch_date: null,
@@ -297,11 +297,17 @@ describe('ProjectDetail Resource Integration Tests', () => {
         language_id: 'lang-1',
       }
 
-      const result = await mockProjectStore.updateProject('1', updateData)
+      const result = await mockProjectStore.updateProject(
+        '123e4567-e89b-12d3-a456-426614174000',
+        updateData
+      )
 
       expect(result.internal_name).toBe('Updated Alpha Project')
       expect(result.backward_compatibility).toBe('updated-alpha')
-      expect(mockProjectStore.updateProject).toHaveBeenCalledWith('1', updateData)
+      expect(mockProjectStore.updateProject).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000',
+        updateData
+      )
     })
 
     it('should update project relationships (context and language)', async () => {
@@ -321,7 +327,10 @@ describe('ProjectDetail Resource Integration Tests', () => {
         language_id: 'lang-3',
       }
 
-      const result = await mockProjectStore.updateProject('1', updateData)
+      const result = await mockProjectStore.updateProject(
+        '123e4567-e89b-12d3-a456-426614174000',
+        updateData
+      )
 
       expect(result.context?.internal_name).toBe('Testing Context')
       expect(result.language?.internal_name).toBe('French')
@@ -363,7 +372,10 @@ describe('ProjectDetail Resource Integration Tests', () => {
         language_id: null,
       }
 
-      const result = await mockProjectStore.updateProject('2', updateData)
+      const result = await mockProjectStore.updateProject(
+        '123e4567-e89b-12d3-a456-426614174001',
+        updateData
+      )
 
       expect(result.backward_compatibility).toBeNull()
       expect(result.launch_date).toBeNull()
@@ -379,10 +391,16 @@ describe('ProjectDetail Resource Integration Tests', () => {
 
       mockProjectStore.setProjectEnabled = vi.fn().mockResolvedValue(enabledProject)
 
-      const result = await mockProjectStore.setProjectEnabled('3', true)
+      const result = await mockProjectStore.setProjectEnabled(
+        '123e4567-e89b-12d3-a456-426614174002',
+        true
+      )
 
       expect(result.is_enabled).toBe(true)
-      expect(mockProjectStore.setProjectEnabled).toHaveBeenCalledWith('3', true)
+      expect(mockProjectStore.setProjectEnabled).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174002',
+        true
+      )
     })
 
     it('should disable an enabled project', async () => {
@@ -391,10 +409,16 @@ describe('ProjectDetail Resource Integration Tests', () => {
 
       mockProjectStore.setProjectEnabled = vi.fn().mockResolvedValue(disabledProject)
 
-      const result = await mockProjectStore.setProjectEnabled('1', false)
+      const result = await mockProjectStore.setProjectEnabled(
+        '123e4567-e89b-12d3-a456-426614174000',
+        false
+      )
 
       expect(result.is_enabled).toBe(false)
-      expect(mockProjectStore.setProjectEnabled).toHaveBeenCalledWith('1', false)
+      expect(mockProjectStore.setProjectEnabled).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000',
+        false
+      )
     })
 
     it('should launch an unlaunched project', async () => {
@@ -403,10 +427,16 @@ describe('ProjectDetail Resource Integration Tests', () => {
 
       mockProjectStore.setProjectLaunched = vi.fn().mockResolvedValue(launchedProject)
 
-      const result = await mockProjectStore.setProjectLaunched('2', true)
+      const result = await mockProjectStore.setProjectLaunched(
+        '123e4567-e89b-12d3-a456-426614174001',
+        true
+      )
 
       expect(result.is_launched).toBe(true)
-      expect(mockProjectStore.setProjectLaunched).toHaveBeenCalledWith('2', true)
+      expect(mockProjectStore.setProjectLaunched).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174001',
+        true
+      )
     })
 
     it('should unlaunch a launched project', async () => {
@@ -415,17 +445,25 @@ describe('ProjectDetail Resource Integration Tests', () => {
 
       mockProjectStore.setProjectLaunched = vi.fn().mockResolvedValue(unlaunchedProject)
 
-      const result = await mockProjectStore.setProjectLaunched('1', false)
+      const result = await mockProjectStore.setProjectLaunched(
+        '123e4567-e89b-12d3-a456-426614174000',
+        false
+      )
 
       expect(result.is_launched).toBe(false)
-      expect(mockProjectStore.setProjectLaunched).toHaveBeenCalledWith('1', false)
+      expect(mockProjectStore.setProjectLaunched).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000',
+        false
+      )
     })
 
     it('should handle status toggle errors gracefully', async () => {
       const statusError = new Error('Failed to update project status')
       mockProjectStore.setProjectEnabled = vi.fn().mockRejectedValue(statusError)
 
-      await expect(mockProjectStore.setProjectEnabled('1', false)).rejects.toThrow(statusError)
+      await expect(
+        mockProjectStore.setProjectEnabled('123e4567-e89b-12d3-a456-426614174000', false)
+      ).rejects.toThrow(statusError)
     })
 
     it('should handle launch toggle with business logic validation', async () => {
@@ -433,7 +471,9 @@ describe('ProjectDetail Resource Integration Tests', () => {
       const validationError = new Error('Cannot launch a disabled project')
       mockProjectStore.setProjectLaunched = vi.fn().mockRejectedValue(validationError)
 
-      await expect(mockProjectStore.setProjectLaunched('3', true)).rejects.toThrow(validationError)
+      await expect(
+        mockProjectStore.setProjectLaunched('123e4567-e89b-12d3-a456-426614174002', true)
+      ).rejects.toThrow(validationError)
     })
   })
 
@@ -441,9 +481,11 @@ describe('ProjectDetail Resource Integration Tests', () => {
     it('should delete an existing project', async () => {
       mockProjectStore.deleteProject = vi.fn().mockResolvedValue(undefined)
 
-      await mockProjectStore.deleteProject('1')
+      await mockProjectStore.deleteProject('123e4567-e89b-12d3-a456-426614174000')
 
-      expect(mockProjectStore.deleteProject).toHaveBeenCalledWith('1')
+      expect(mockProjectStore.deleteProject).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000'
+      )
     })
 
     it('should handle deletion of non-existent project', async () => {
@@ -457,7 +499,9 @@ describe('ProjectDetail Resource Integration Tests', () => {
       const constraintError = new Error('Cannot delete project: has active dependencies')
       mockProjectStore.deleteProject = vi.fn().mockRejectedValue(constraintError)
 
-      await expect(mockProjectStore.deleteProject('1')).rejects.toThrow(constraintError)
+      await expect(
+        mockProjectStore.deleteProject('123e4567-e89b-12d3-a456-426614174000')
+      ).rejects.toThrow(constraintError)
     })
   })
 
@@ -496,7 +540,7 @@ describe('ProjectDetail Resource Integration Tests', () => {
 
     it('should handle missing context relationships gracefully', async () => {
       const projectWithoutContext = createMockProject({
-        id: '4',
+        id: '123e4567-e89b-12d3-a456-426614174003',
         internal_name: 'Orphaned Project',
         context: null,
         language: mockLanguages[0],
@@ -504,7 +548,7 @@ describe('ProjectDetail Resource Integration Tests', () => {
 
       mockProjectStore.fetchProject = vi.fn().mockResolvedValue(projectWithoutContext)
 
-      const result = await mockProjectStore.fetchProject('4')
+      const result = await mockProjectStore.fetchProject('123e4567-e89b-12d3-a456-426614174003')
 
       expect(result.context).toBeNull()
       expect(result.language).not.toBeNull()
@@ -512,7 +556,7 @@ describe('ProjectDetail Resource Integration Tests', () => {
 
     it('should handle missing language relationships gracefully', async () => {
       const projectWithoutLanguage = createMockProject({
-        id: '5',
+        id: '123e4567-e89b-12d3-a456-426614174004',
         internal_name: 'Language-less Project',
         context: mockContexts[0],
         language: null,
@@ -520,7 +564,7 @@ describe('ProjectDetail Resource Integration Tests', () => {
 
       mockProjectStore.fetchProject = vi.fn().mockResolvedValue(projectWithoutLanguage)
 
-      const result = await mockProjectStore.fetchProject('5')
+      const result = await mockProjectStore.fetchProject('123e4567-e89b-12d3-a456-426614174004')
 
       expect(result.context).not.toBeNull()
       expect(result.language).toBeNull()
@@ -619,7 +663,9 @@ describe('ProjectDetail Resource Integration Tests', () => {
       const networkError = new Error('Network timeout')
       mockProjectStore.fetchProject = vi.fn().mockRejectedValue(networkError)
 
-      await expect(mockProjectStore.fetchProject('1')).rejects.toThrow(networkError)
+      await expect(
+        mockProjectStore.fetchProject('123e4567-e89b-12d3-a456-426614174000')
+      ).rejects.toThrow(networkError)
     })
 
     it('should handle server errors during resource operations', async () => {
@@ -627,7 +673,7 @@ describe('ProjectDetail Resource Integration Tests', () => {
       mockProjectStore.updateProject = vi.fn().mockRejectedValue(serverError)
 
       await expect(
-        mockProjectStore.updateProject('1', {
+        mockProjectStore.updateProject('123e4567-e89b-12d3-a456-426614174000', {
           internal_name: 'Updated Project',
           backward_compatibility: 'updated',
           launch_date: null,
@@ -642,7 +688,7 @@ describe('ProjectDetail Resource Integration Tests', () => {
       mockProjectStore.updateProject = vi.fn().mockRejectedValue(conflictError)
 
       await expect(
-        mockProjectStore.updateProject('1', {
+        mockProjectStore.updateProject('123e4567-e89b-12d3-a456-426614174000', {
           internal_name: 'Conflicted Update',
           backward_compatibility: 'conflict',
           launch_date: null,

@@ -112,7 +112,7 @@ vi.mock('vue-router', async importOriginal => {
 
 const mockProjects: ProjectResource[] = [
   createMockProject({
-    id: '1',
+    id: '123e4567-e89b-12d3-a456-426614174000',
     internal_name: 'Active Project',
     backward_compatibility: 'active-project',
     is_enabled: true,
@@ -121,7 +121,7 @@ const mockProjects: ProjectResource[] = [
     created_at: '2023-01-01T00:00:00Z',
   }),
   createMockProject({
-    id: '2',
+    id: '123e4567-e89b-12d3-a456-426614174001',
     internal_name: 'Disabled Project',
     backward_compatibility: 'disabled-project',
     is_enabled: false,
@@ -375,11 +375,11 @@ describe('Project Management Integration Tests', () => {
   describe('Complete Workflow: View and Edit Existing Project', () => {
     it('should allow full view-edit-save workflow', async () => {
       // 1. Start at projects list and navigate to project detail
-      router.push('/projects/1')
+      router.push('/projects/123e4567-e89b-12d3-a456-426614174000')
       await router.isReady()
 
       const detailProject = createMockProject({
-        id: '1',
+        id: '123e4567-e89b-12d3-a456-426614174000',
         internal_name: 'Existing Project',
         backward_compatibility: 'existing-project',
         is_enabled: true,
@@ -402,7 +402,9 @@ describe('Project Management Integration Tests', () => {
       // Verify view mode
       const projectDetailVm = wrapper.vm as unknown as ProjectDetailComponentInstance
       expect(projectDetailVm.mode).toBe('view')
-      expect(mockProjectStore.fetchProject).toHaveBeenCalledWith('1')
+      expect(mockProjectStore.fetchProject).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000'
+      )
       expect(projectDetailVm.project?.internal_name).toBe('Existing Project')
 
       // 2. Enter edit mode
@@ -432,13 +434,16 @@ describe('Project Management Integration Tests', () => {
       await projectDetailVm.saveProject()
 
       // Verify update process
-      expect(mockProjectStore.updateProject).toHaveBeenCalledWith('1', {
-        internal_name: 'Modified Project Name',
-        backward_compatibility: 'existing-project',
-        launch_date: '2024-12-01',
-        context_id: 'ctx-1',
-        language_id: 'lang-1',
-      })
+      expect(mockProjectStore.updateProject).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000',
+        {
+          internal_name: 'Modified Project Name',
+          backward_compatibility: 'existing-project',
+          launch_date: '2024-12-01',
+          context_id: 'ctx-1',
+          language_id: 'lang-1',
+        }
+      )
       expect(mockErrorStore.addMessage).toHaveBeenCalledWith(
         'info',
         'Project updated successfully.'
@@ -482,7 +487,7 @@ describe('Project Management Integration Tests', () => {
   describe('Project Status Management Integration', () => {
     it('should handle status toggles in both list and detail views consistently', async () => {
       const testProject = createMockProject({
-        id: '1',
+        id: '123e4567-e89b-12d3-a456-426614174002',
         internal_name: 'Status Test Project',
         is_enabled: true,
         is_launched: false,
@@ -510,7 +515,10 @@ describe('Project Management Integration Tests', () => {
       const listVm = listWrapper.vm as unknown as ProjectsComponentInstance
       await listVm.updateProjectStatus(testProject, 'is_enabled', false)
 
-      expect(mockProjectStore.setProjectEnabled).toHaveBeenCalledWith('1', false)
+      expect(mockProjectStore.setProjectEnabled).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174002',
+        false
+      )
       expect(mockErrorStore.addMessage).toHaveBeenCalledWith(
         'info',
         'Project disabled successfully.'
@@ -538,7 +546,10 @@ describe('Project Management Integration Tests', () => {
       const detailVm = detailWrapper.vm as unknown as ProjectDetailComponentInstance
       await detailVm.handleStatusToggle(1) // Second status card (launched)
 
-      expect(mockProjectStore.setProjectLaunched).toHaveBeenCalledWith('1', true)
+      expect(mockProjectStore.setProjectLaunched).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174002',
+        true
+      )
       expect(mockErrorStore.addMessage).toHaveBeenCalledWith(
         'info',
         'Project launched successfully.'
@@ -550,26 +561,26 @@ describe('Project Management Integration Tests', () => {
     it('should filter projects correctly based on Project-specific criteria', async () => {
       const testProjects = [
         createMockProject({
-          id: '1',
+          id: '123e4567-e89b-12d3-a456-426614174003',
           internal_name: 'Enabled and Launched',
           is_enabled: true,
           is_launched: true,
           launch_date: '2023-01-01T00:00:00Z', // Past date
         }),
         createMockProject({
-          id: '2',
+          id: '123e4567-e89b-12d3-a456-426614174004',
           internal_name: 'Enabled Not Launched',
           is_enabled: true,
           is_launched: false,
         }),
         createMockProject({
-          id: '3',
+          id: '123e4567-e89b-12d3-a456-426614174005',
           internal_name: 'Disabled',
           is_enabled: false,
           is_launched: false,
         }),
         createMockProject({
-          id: '4',
+          id: '123e4567-e89b-12d3-a456-426614174006',
           internal_name: 'Launched but Disabled',
           is_enabled: false,
           is_launched: true,
@@ -616,7 +627,7 @@ describe('Project Management Integration Tests', () => {
       filterVm.filterMode = 'visible'
       await wrapper.vm.$nextTick()
       expect(filterVm.filteredProjects.length).toBe(1)
-      expect(filterVm.filteredProjects[0].id).toBe('1')
+      expect(filterVm.filteredProjects[0].id).toBe('123e4567-e89b-12d3-a456-426614174003')
     })
   })
 
@@ -794,12 +805,12 @@ describe('Project Management Integration Tests', () => {
     it('should maintain search and sort state during navigation', async () => {
       const searchableProjects = [
         createMockProject({
-          id: '1',
+          id: '123e4567-e89b-12d3-a456-426614174007',
           internal_name: 'Alpha Project',
           backward_compatibility: 'alpha-project',
         }),
         createMockProject({
-          id: '2',
+          id: '123e4567-e89b-12d3-a456-426614174008',
           internal_name: 'Beta Project',
           backward_compatibility: 'beta-project',
         }),

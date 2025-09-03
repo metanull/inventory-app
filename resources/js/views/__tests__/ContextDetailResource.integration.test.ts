@@ -52,7 +52,7 @@ vi.mock('@/stores/context')
 // Test data
 const mockContexts: ContextResource[] = [
   createMockContext({
-    id: 1,
+    id: '123e4567-e89b-12d3-a456-426614174000',
     internal_name: 'Production',
     backward_compatibility: 'prod',
     is_default: true,
@@ -60,7 +60,7 @@ const mockContexts: ContextResource[] = [
     updated_at: '2023-01-01T00:00:00Z',
   }),
   createMockContext({
-    id: 2,
+    id: '123e4567-e89b-12d3-a456-426614174001',
     internal_name: 'Development',
     backward_compatibility: 'dev',
     is_default: false,
@@ -398,7 +398,7 @@ describe('ContextDetail Resource Integration Tests', () => {
       store.defaultContexts = [
         mockContexts[0],
         createMockContext({
-          id: 3,
+          id: '123e4567-e89b-12d3-a456-426614174002',
           internal_name: 'Another Default',
           is_default: true,
         }),

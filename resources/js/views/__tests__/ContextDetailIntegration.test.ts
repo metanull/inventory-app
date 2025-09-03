@@ -52,6 +52,8 @@ vi.mock('@heroicons/vue/24/outline', () => ({
   ArrowLeftIcon: { template: '<div data-testid="arrow-left-icon"></div>' },
   PencilIcon: { template: '<div data-testid="pencil-icon"></div>' },
   TrashIcon: { template: '<div data-testid="trash-icon"></div>' },
+  CheckIcon: { template: '<div data-testid="check-icon"></div>' },
+  XMarkIcon: { template: '<div data-testid="x-mark-icon"></div>' },
 }))
 
 // Mock stores
@@ -198,7 +200,7 @@ describe('ContextDetail Integration Tests', () => {
   describe('Create Context Workflow', () => {
     it('should create new context successfully', async () => {
       const newContext = createMockContext({
-        id: 2,
+        id: '123e4567-e89b-12d3-a456-426614174001',
         internal_name: 'Development',
         backward_compatibility: 'dev',
         is_default: false,

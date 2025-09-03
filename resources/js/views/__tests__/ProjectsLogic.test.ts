@@ -54,7 +54,7 @@ vi.mock('@/stores/deleteConfirmation')
 // Test data - covering different project states for comprehensive testing
 const mockProjects: ProjectResource[] = [
   createMockProject({
-    id: '1',
+    id: '123e4567-e89b-12d3-a456-426614174000',
     internal_name: 'Active Project',
     backward_compatibility: 'active-project',
     is_enabled: true,
@@ -63,7 +63,7 @@ const mockProjects: ProjectResource[] = [
     created_at: '2023-01-01T00:00:00Z',
   }),
   createMockProject({
-    id: '2',
+    id: '123e4567-e89b-12d3-a456-426614174001',
     internal_name: 'Disabled Project',
     backward_compatibility: 'disabled-project',
     is_enabled: false,
@@ -72,7 +72,7 @@ const mockProjects: ProjectResource[] = [
     created_at: '2023-02-01T00:00:00Z',
   }),
   createMockProject({
-    id: '3',
+    id: '123e4567-e89b-12d3-a456-426614174002',
     internal_name: 'Enabled Not Launched',
     backward_compatibility: 'enabled-not-launched',
     is_enabled: true,
@@ -304,7 +304,10 @@ describe('Projects Component Business Logic', () => {
         const filteredProjects = projectsLogic.filteredProjects
         expect(filteredProjects.length).toBe(2)
         expect(filteredProjects.every(p => p.is_enabled)).toBe(true)
-        expect(filteredProjects.map(p => p.id)).toEqual(['1', '3'])
+        expect(filteredProjects.map(p => p.id)).toEqual([
+          '123e4567-e89b-12d3-a456-426614174000',
+          '123e4567-e89b-12d3-a456-426614174002',
+        ])
       })
 
       it('should include both launched and not-launched projects if they are enabled', () => {
@@ -326,13 +329,13 @@ describe('Projects Component Business Logic', () => {
         const filteredProjects = projectsLogic.filteredProjects
         expect(filteredProjects.length).toBe(1)
         expect(filteredProjects.every(p => p.is_launched)).toBe(true)
-        expect(filteredProjects[0].id).toBe('1')
+        expect(filteredProjects[0].id).toBe('123e4567-e89b-12d3-a456-426614174000')
       })
 
       it('should include launched projects regardless of enabled status', () => {
         // Add a launched but disabled project to test data
         const launchedDisabled = createMockProject({
-          id: '4',
+          id: '123e4567-e89b-12d3-a456-426614174003',
           internal_name: 'Launched Disabled',
           is_enabled: false,
           is_launched: true,
@@ -355,7 +358,7 @@ describe('Projects Component Business Logic', () => {
 
         const filteredProjects = projectsLogic.filteredProjects
         expect(filteredProjects.length).toBe(1)
-        expect(filteredProjects[0].id).toBe('1')
+        expect(filteredProjects[0].id).toBe('123e4567-e89b-12d3-a456-426614174000')
         expect(filteredProjects[0].is_enabled).toBe(true)
         expect(filteredProjects[0].is_launched).toBe(true)
       })
@@ -363,7 +366,7 @@ describe('Projects Component Business Logic', () => {
       it('should exclude enabled and launched projects with future launch dates', () => {
         // Add a project that is enabled and launched but has future launch date
         const futureVisible = createMockProject({
-          id: '5',
+          id: '123e4567-e89b-12d3-a456-426614174004',
           internal_name: 'Future Visible',
           is_enabled: true,
           is_launched: true,
@@ -474,7 +477,7 @@ describe('Projects Component Business Logic', () => {
     it('should handle null values correctly', () => {
       // Create a project with null internal_name by overriding after creation
       const nullProject = createMockProject({
-        id: '4',
+        id: '123e4567-e89b-12d3-a456-426614174005',
         internal_name: 'temp',
         is_enabled: true,
         is_launched: false,

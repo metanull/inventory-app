@@ -11,6 +11,7 @@
 **CRITICAL: Comply with the instructions in (.github/ps1.instructions.md), it describes PowerShell scripting guidelines.**
 **CRITICAL: Comply with the instructions in (.github/github_page.instructions.md), it describes GitHub Pages embedded static website.**
 **CRITICAL: Never create scripts to modify files in this repository. Always perform changes one by one, carefully.**
+**CRITICAL: Never use search/replace console commands to bulk modify files. Always perform changes one by one, carefully.**
 **CRITICAL: Never ignore lint errors and warnings.**
 **CRITICAL: Never ignore failing tests.**
 **CRITICAL: If possible run tests using VS Code's testing features.**
