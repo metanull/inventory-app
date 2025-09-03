@@ -97,6 +97,9 @@
   import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
   import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
 
+  // Types
+  type Mode = 'view' | 'edit' | 'create'
+
   // Store instances
   const route = useRoute()
   const router = useRouter()
@@ -107,7 +110,7 @@
   const deleteStore = useDeleteConfirmationStore()
 
   // Reactive state - Single source of truth for mode
-  const mode = ref<'view' | 'edit' | 'create'>('view')
+  const mode = ref<Mode>('view')
 
   // Current context
   const context = computed(() => contextStore.currentContext)
