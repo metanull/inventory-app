@@ -195,9 +195,12 @@ jobs:
                 Write-Error "Please manually remove or move this directory before deployment"
                 exit 1
               }
-              Remove-Item "$env:WEBSERVER_PATH" -Force
-              if ($LASTEXITCODE -ne 0) {
-                Write-Error "Failed to remove existing symlink"
+              try {
+                # Use [System.IO.Directory]::Delete instead of Remove-Item to avoid problem deleting symlink
+                [System.IO.Directory]::Delete($env:WEBSERVER_PATH, $true)
+                # Remove-Item "$env:WEBSERVER_PATH" -Force
+              } catch {
+                Write-Error "Failed to remove existing symlink: $_"
                 exit 1
               }
             }
@@ -206,6 +209,7 @@ jobs:
 
       - name: Create production symlink
         run: |
+          # The runner's user has received 'Create Symbloik Links' permission through `secpol.msc` (Local Security Policy) → Local Policies → User Rights Assignment → Create symbolic links
           Write-Host "Creating symlink: $env:WEBSERVER_PATH -> $env:STAGING_PATH"
           New-Item -ItemType SymbolicLink -Path "$env:WEBSERVER_PATH" -Target "$env:STAGING_PATH" -Force
           if ($LASTEXITCODE -ne 0) {
@@ -320,28 +324,28 @@ jobs:
           Write-Host "Production .env file created from template: $envPath"
         shell: powershell
 
-      - name: Set file permissions
-        run: |
-          # Set appropriate permissions for Laravel directories
-          $paths = @(
-            "storage",
-            "bootstrap/cache"
-          )
-          
-          $serviceUser = $env:APACHE_SERVICE_USER
-          Write-Host "Setting permissions for Apache service user: $serviceUser"
-          
-          foreach ($path in $paths) {
-            $fullPath = Join-Path $env:WEBSERVER_PATH $path
-            if (Test-Path $fullPath) {
-              # Grant full access to the Apache service account and Administrators
-              icacls $fullPath /grant "${serviceUser}:(OI)(CI)F" /T
-              icacls $fullPath /grant "Administrators:(OI)(CI)F" /T
-              # icacls $fullPath /grant "$($env:USERNAME):(OI)(CI)F" /T
-              Write-Host "Permissions set for: $fullPath"
-            }
-          }
-        shell: powershell
+      #- name: Set file permissions
+      #  run: |
+      #    # Set appropriate permissions for Laravel directories
+      #    $paths = @(
+      #      "storage",
+      #      "bootstrap/cache"
+      #    )
+      #    
+      #    $serviceUser = $env:APACHE_SERVICE_USER
+      #    Write-Host "Setting permissions for Apache service user: $serviceUser"
+      #    
+      #    foreach ($path in $paths) {
+      #      $fullPath = Join-Path $env:WEBSERVER_PATH $path
+      #      if (Test-Path $fullPath) {
+      #        # Grant full access to the Apache service account and Administrators
+      #        icacls $fullPath /grant "${serviceUser}:(OI)(CI)F" /T
+      #        icacls $fullPath /grant "Administrators:(OI)(CI)F" /T
+      #        # icacls $fullPath /grant "$($env:USERNAME):(OI)(CI)F" /T
+      #        Write-Host "Permissions set for: $fullPath"
+      #      }
+      #    }
+      #  shell: powershell
 
       - name: Run database migrations
         run: |
