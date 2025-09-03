@@ -211,11 +211,7 @@ jobs:
         run: |
           # The runner's user has received 'Create Symbloik Links' permission through `secpol.msc` (Local Security Policy) → Local Policies → User Rights Assignment → Create symbolic links
           Write-Host "Creating symlink: $env:WEBSERVER_PATH -> $env:STAGING_PATH"
-          New-Item -ItemType SymbolicLink -Path "$env:WEBSERVER_PATH" -Target "$env:STAGING_PATH" -Force
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "Failed to create symlink"
-            exit 1
-          }
+          New-Item -ItemType SymbolicLink -Path "$env:WEBSERVER_PATH" -Target "$env:STAGING_PATH" -Force -ErrorAction Stop
         shell: powershell
 
       - name: Cleanup old staging directories
