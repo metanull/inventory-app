@@ -112,7 +112,7 @@
         <TableCell class="hidden sm:table-cell">
           <div class="flex space-x-2" @click.stop>
             <ViewButton @click="router.push(`/contexts/${context.id}`)" />
-            <EditButton @click="router.push(`/contexts/${context.id}?mode=edit`)" />
+            <EditButton @click="router.push(`/contexts/${context.id}?edit=true`)" />
             <DeleteButton @click="handleDeleteContext(context)" />
           </div>
         </TableCell>
