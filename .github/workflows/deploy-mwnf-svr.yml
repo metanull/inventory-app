@@ -43,6 +43,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          clean: true
 
       - name: Check required environment variables
         run: |
