@@ -75,8 +75,6 @@
     type NavigationGuardNext,
     type RouteLocationNormalized,
   } from 'vue-router'
-
-  // Components
   import DetailView from '@/components/layout/detail/DetailView.vue'
   import DescriptionList from '@/components/format/description/DescriptionList.vue'
   import DescriptionRow from '@/components/format/description/DescriptionRow.vue'
@@ -85,12 +83,8 @@
   import FormInput from '@/components/format/FormInput.vue'
   import DisplayText from '@/components/format/DisplayText.vue'
   import DateDisplay from '@/components/format/Date.vue'
-
-  // Icons
   import { CogIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline'
   import { CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/solid'
-
-  // Stores
   import { useContextStore } from '@/stores/context'
   import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
   import { useErrorDisplayStore } from '@/stores/errorDisplay'
