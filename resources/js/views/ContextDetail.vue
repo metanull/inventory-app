@@ -223,7 +223,7 @@
       loadingStore.show()
       await contextStore.fetchContext(contextId)
     } catch {
-      errorStore.addMessage('error', 'Failed to load context. Please try again.')
+      errorStore.addMessage('error', 'Failed to load context. The context may not exist or you may not have permission to view it.')
       router.push({ name: 'contexts' })
     } finally {
       loadingStore.hide()
@@ -327,7 +327,7 @@
         errorStore.addMessage('info', 'Context deleted successfully.')
         router.push({ name: 'contexts' })
       } catch {
-        errorStore.addMessage('error', 'Failed to delete context. Please try again.')
+        errorStore.addMessage('error', 'Failed to delete context. The context may be in use or you may not have permission to delete it.')
       } finally {
         loadingStore.hide()
       }
@@ -354,7 +354,7 @@
         `Context ${newStatus ? 'set as default' : 'removed as default'} successfully.`
       )
     } catch {
-      errorStore.addMessage('error', 'Failed to update context status. Please try again.')
+      errorStore.addMessage('error', 'Failed to update context default status. You may not have permission to make this change.')
     } finally {
       loadingStore.hide()
     }

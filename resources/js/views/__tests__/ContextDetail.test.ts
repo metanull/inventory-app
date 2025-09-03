@@ -397,7 +397,7 @@ describe('ContextDetail.vue', () => {
 
       expect(mockErrorDisplayStore.addMessage).toHaveBeenCalledWith(
         'error',
-        'Failed to update context status. Please try again.'
+        'Failed to update context default status. You may not have permission to make this change.'
       )
     })
 
