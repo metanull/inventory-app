@@ -113,13 +113,13 @@
   const context = computed(() => contextStore.currentContext)
 
   // Edit form
-  interface ContextEditForm {
+  interface ContextFormData {
     id?: string
     internal_name: string
     backward_compatibility: string
   }
 
-  const editForm = ref<ContextEditForm>({
+  const editForm = ref<ContextFormData>({
     id: '',
     internal_name: '',
     backward_compatibility: '',
@@ -198,13 +198,13 @@
   })
 
   // Initialize edit form from context data
-  const getDefaultFormValues = (): ContextEditForm => ({
+  const getDefaultFormValues = (): ContextFormData => ({
     id: '',
     internal_name: '',
     backward_compatibility: '',
   })
 
-  const getFormValuesFromContext = (): ContextEditForm => {
+  const getFormValuesFromContext = (): ContextFormData => {
     if (!context.value) return getDefaultFormValues()
 
     return {
