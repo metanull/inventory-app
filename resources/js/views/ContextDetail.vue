@@ -49,6 +49,18 @@
             <DisplayText v-else>{{ context?.backward_compatibility }}</DisplayText>
           </DescriptionDetail>
         </DescriptionRow>
+        <DescriptionRow v-if="context?.created_at" variant="gray">
+          <DescriptionTerm>Created</DescriptionTerm>
+          <DescriptionDetail>
+            <DateDisplay :date="context.created_at" format="medium" variant="small-dark" />
+          </DescriptionDetail>
+        </DescriptionRow>
+        <DescriptionRow v-if="context?.updated_at" variant="white">
+          <DescriptionTerm>Last Updated</DescriptionTerm>
+          <DescriptionDetail>
+            <DateDisplay :date="context.updated_at" format="medium" variant="small-dark" />
+          </DescriptionDetail>
+        </DescriptionRow>
       </DescriptionList>
     </template>
   </DetailView>
@@ -72,6 +84,7 @@
   import DescriptionDetail from '@/components/format/description/DescriptionDetail.vue'
   import FormInput from '@/components/format/FormInput.vue'
   import DisplayText from '@/components/format/DisplayText.vue'
+  import DateDisplay from '@/components/format/Date.vue'
 
   // Icons
   import { CogIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline'
@@ -92,9 +105,6 @@
   const errorDisplayStore = useErrorDisplayStore()
   const cancelChangesConfirmationStore = useCancelChangesConfirmationStore()
   const deleteConfirmationStore = useDeleteConfirmationStore()
-
-  // Route parameters
-  const contextId = computed(() => route.params.id as string)
 
   // Reactive state - Single source of truth for mode
   const mode = ref<'view' | 'edit' | 'create'>('view')
@@ -256,13 +266,19 @@
         // Load the new context and enter view mode
         await contextStore.fetchContext(savedContext.id)
         enterViewMode()
-        
-        // Update the URL without navigation
-        router.replace(`/contexts/${savedContext.id}`)
-      } else {
-        await contextStore.updateContext(contextId.value, contextData)
-        enterViewMode()
+      } else if (mode.value === 'edit' && context.value) {
+        // Update existing context
+        await contextStore.updateContext(context.value.id, contextData)
         errorDisplayStore.addMessage('info', 'Context updated successfully.')
+
+        enterViewMode()
+
+        // Remove edit query parameter if present
+        if (route.query.mode === 'edit') {
+          const query = { ...route.query }
+          delete query.mode
+          await router.replace({ query })
+        }
       }
     } catch {
       errorDisplayStore.addMessage(
