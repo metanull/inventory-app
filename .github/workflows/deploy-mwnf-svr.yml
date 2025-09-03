@@ -209,7 +209,7 @@ jobs:
 
       - name: Create production symlink
         run: |
-          # The runner's user has received 'Create Symbloik Links' permission through `secpol.msc` (Local Security Policy) → Local Policies → User Rights Assignment → Create symbolic links
+          # The runner's user has received 'Create Symbolic Links' permission through `secpol.msc` (Local Security Policy) → Local Policies → User Rights Assignment → Create symbolic links
           Write-Host "Creating symlink: $env:WEBSERVER_PATH -> $env:STAGING_PATH"
           New-Item -ItemType SymbolicLink -Path "$env:WEBSERVER_PATH" -Target "$env:STAGING_PATH" -Force -ErrorAction Stop
         shell: powershell

@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref, onMounted } from 'vue'
+  import { computed, ref, onMounted, watch } from 'vue'
   import {
     useRoute,
     useRouter,
@@ -178,6 +178,15 @@
     )
   })
 
+  // Watch for unsaved changes and sync with cancel changes store
+  watch(hasUnsavedChanges, (hasChanges: boolean) => {
+    if (hasChanges) {
+      cancelChangesConfirmationStore.addChange()
+    } else {
+      cancelChangesConfirmationStore.resetChanges()
+    }
+  })
+
   // Initialize edit form from context data
   const getDefaultFormValues = (): ContextEditForm => ({
     id: '',
@@ -242,8 +251,14 @@
 
       if (mode.value === 'create') {
         const savedContext = await contextStore.createContext(contextData)
-        router.push(`/contexts/${savedContext.id}`)
         errorDisplayStore.addMessage('info', 'Context created successfully.')
+        
+        // Load the new context and enter view mode
+        await contextStore.fetchContext(savedContext.id)
+        enterViewMode()
+        
+        // Update the URL without navigation
+        router.replace(`/contexts/${savedContext.id}`)
       } else {
         await contextStore.updateContext(contextId.value, contextData)
         enterViewMode()
