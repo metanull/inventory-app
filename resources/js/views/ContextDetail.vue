@@ -100,27 +100,26 @@
   // Types
   type Mode = 'view' | 'edit' | 'create'
 
-  // Store instances
-  const route = useRoute()
-  const router = useRouter()
-  const contextStore = useContextStore()
-  const loadingStore = useLoadingOverlayStore()
-  const errorStore = useErrorDisplayStore()
-  const cancelChangesStore = useCancelChangesConfirmationStore()
-  const deleteStore = useDeleteConfirmationStore()
-
-  // Reactive state - Single source of truth for mode
-  const mode = ref<Mode>('view')
-
-  // Current context
-  const context = computed(() => contextStore.currentContext)
-
-  // Edit form
   interface ContextFormData {
     id?: string
     internal_name: string
     backward_compatibility: string
   }
+
+  // Composables
+  const route = useRoute()
+  const router = useRouter()
+  const contextStore = useContextStore()
+  const loadingStore = useLoadingOverlayStore()
+  const errorStore = useErrorDisplayStore()
+  const deleteStore = useDeleteConfirmationStore()
+  const cancelChangesStore = useCancelChangesConfirmationStore()
+
+  // Reactive state - Single source of truth for mode
+  const mode = ref<Mode>('view')
+
+  // Computed properties
+  const context = computed(() => contextStore.currentContext)
 
   const editForm = ref<ContextFormData>({
     id: '',
@@ -128,15 +127,7 @@
     backward_compatibility: '',
   })
 
-  // Back link
-  const backLink = computed(() => ({
-    title: 'Back to Contexts',
-    route: '/contexts',
-    icon: ArrowLeftIcon,
-    color: 'green',
-  }))
-
-  // Information description
+  // Information description based on mode
   const informationDescription = computed(() => {
     switch (mode.value) {
       case 'create':
@@ -147,6 +138,14 @@
         return 'Detailed information about this context.'
     }
   })
+
+  // Back link configuration
+  const backLink = computed(() => ({
+    title: 'Back to Contexts',
+    route: '/contexts',
+    icon: ArrowLeftIcon,
+    color: 'green',
+  }))
 
   // Status cards configuration
   const statusCardsConfig = computed(() => {
