@@ -220,7 +220,7 @@
     }
   }
 
-  // Fetch context data
+  // Fetch context function
   const fetchContext = async () => {
     const contextId = route.params.id as string
     if (!contextId || mode.value === 'create') return
@@ -254,7 +254,7 @@
     editForm.value = getDefaultFormValues()
   }
 
-  // Save context
+  // Action handlers
   const saveContext = async () => {
     try {
       loadingStore.show(mode.value === 'create' ? 'Creating...' : 'Saving...')
@@ -295,7 +295,6 @@
     }
   }
 
-  // Cancel action
   const cancelAction = async () => {
     if (hasUnsavedChanges.value) {
       const result = await cancelChangesStore.trigger(
@@ -319,7 +318,6 @@
     }
   }
 
-  // Delete context
   const deleteContext = async () => {
     if (!context.value || !context.value.id) return
 
@@ -342,7 +340,7 @@
     }
   }
 
-  // Handle status toggle for context (only Default Status since contexts don't have active/inactive status)
+  // Status toggle handlers
   const handleStatusToggle = async (index: number) => {
     if (!context.value || index !== 0) return // Only handle the first (and only) status card
 
