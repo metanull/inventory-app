@@ -147,6 +147,29 @@
     color: 'green',
   }))
 
+  // Unsaved changes detection
+  const hasUnsavedChanges = computed(() => {
+    if (mode.value === 'view') return false
+
+    // For create mode, compare with default values
+    if (mode.value === 'create') {
+      const defaultValues = getDefaultFormValues()
+      return (
+        editForm.value.internal_name !== defaultValues.internal_name ||
+        editForm.value.backward_compatibility !== defaultValues.backward_compatibility
+      )
+    }
+
+    // For edit mode, compare with original values
+    if (!context.value) return false
+
+    const originalValues = getFormValuesFromContext()
+    return (
+      editForm.value.internal_name !== originalValues.internal_name ||
+      editForm.value.backward_compatibility !== originalValues.backward_compatibility
+    )
+  })
+
   // Status cards configuration
   const statusCardsConfig = computed(() => {
     if (!context.value) return []
@@ -169,29 +192,6 @@
         inactiveIconComponent: XCircleIcon,
       },
     ]
-  })
-
-  // Unsaved changes detection
-  const hasUnsavedChanges = computed(() => {
-    if (mode.value === 'view') return false
-
-    // For create mode, compare with default values
-    if (mode.value === 'create') {
-      const defaultValues = getDefaultFormValues()
-      return (
-        editForm.value.internal_name !== defaultValues.internal_name ||
-        editForm.value.backward_compatibility !== defaultValues.backward_compatibility
-      )
-    }
-
-    // For edit mode, compare with original values
-    if (!context.value) return false
-
-    const originalValues = getFormValuesFromContext()
-    return (
-      editForm.value.internal_name !== originalValues.internal_name ||
-      editForm.value.backward_compatibility !== originalValues.backward_compatibility
-    )
   })
 
   // Watch for unsaved changes and sync with cancel changes store
