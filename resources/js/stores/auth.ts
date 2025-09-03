@@ -75,6 +75,9 @@ export const useAuthStore = defineStore('auth', () => {
           'info',
           `Authentication successful. Active tokens: ${tokenCount}`
         )
+        if (!extractedToken) {
+          throw new Error('Failed to extract authentication token')
+        }
         authToken = extractedToken
       } else {
         // Fallback for different response formats

@@ -3,6 +3,7 @@ layout: default
 title: Workshop
 parent: Database Models
 ---
+
 # Workshop
 
 **Namespace:** `App\Models\Workshop`

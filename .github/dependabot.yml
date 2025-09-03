@@ -12,16 +12,32 @@ updates:
     labels:
       - "php"
       - "dependencies"
-  - package-ecosystem: "npm" 
+    groups:
+      laravel-dev-dependencies:
+        dependency-type: "development"
+      laravel-prod-dependencies:
+        dependency-type: "production"
+
+  - package-ecosystem: "npm"
     directory: "/" # Look for `package.json` and `lock` files in the `root` directory
     schedule:
       interval: "weekly" # Check the npm registry for updates every week
     labels:
       - "npm"
       - "dependencies"
+    groups:
+      node-dev-dependencies:
+        dependency-type: "development"
+      node-prod-dependencies:
+        dependency-type: "production"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
     labels:
       - "dependencies"
+    groups:
+      github-actions-dependencies:
+        patterns:
+          - ".*"

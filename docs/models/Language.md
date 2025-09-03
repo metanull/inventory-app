@@ -3,6 +3,7 @@ layout: default
 title: Language
 parent: Database Models
 ---
+
 # Language
 
 **Namespace:** `App\Models\Language`

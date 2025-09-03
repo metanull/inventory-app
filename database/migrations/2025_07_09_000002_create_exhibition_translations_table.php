@@ -24,7 +24,7 @@ return new class extends Migration
             $table->foreign('language_id')->references('id')->on('languages')->onDelete('cascade');
             $table->foreign('context_id')->references('id')->on('contexts')->onDelete('cascade');
 
-            $table->unique(['exhibition_id', 'language_id', 'context_id']);
+            $table->unique(['exhibition_id', 'language_id', 'context_id'], 'exh_tr_exh_lang_ctx_unique');
             $table->index(['exhibition_id', 'language_id']);
             $table->index(['exhibition_id', 'context_id']);
             $table->index(['language_id', 'context_id']);

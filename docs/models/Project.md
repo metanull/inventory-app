@@ -3,6 +3,7 @@ layout: default
 title: Project
 parent: Database Models
 ---
+
 # Project
 
 **Namespace:** `App\Models\Project`

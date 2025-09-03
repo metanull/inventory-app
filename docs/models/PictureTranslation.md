@@ -3,6 +3,7 @@ layout: default
 title: PictureTranslation
 parent: Database Models
 ---
+
 # PictureTranslation
 
 **Namespace:** `App\Models\PictureTranslation`

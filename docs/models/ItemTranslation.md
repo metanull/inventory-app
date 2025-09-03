@@ -3,6 +3,7 @@ layout: default
 title: ItemTranslation
 parent: Database Models
 ---
+
 # ItemTranslation
 
 **Namespace:** `App\Models\ItemTranslation`

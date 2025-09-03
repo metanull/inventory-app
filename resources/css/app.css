@@ -1,9 +1,10 @@
-@import '../js/style.css';
+/**
+ * Laravel Blade application styles
+ */
+@import './shared.css';
+@import 'tailwindcss';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-[x-cloak] {
-  display: none;
+/* Blade-specific styles below */
+@layer components {
+  /* Add Blade-specific components here */
 }

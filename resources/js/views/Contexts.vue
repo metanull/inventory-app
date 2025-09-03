@@ -113,7 +113,7 @@
           <div class="flex space-x-2" @click.stop>
             <ViewButton @click="router.push(`/contexts/${context.id}`)" />
             <EditButton @click="router.push(`/contexts/${context.id}?mode=edit`)" />
-            <DeleteButton @click="handleDelete(context.id)" />
+            <DeleteButton @click="handleDeleteContext(context)" />
           </div>
         </TableCell>
       </TableRow>
@@ -141,6 +141,7 @@
   import InternalName from '@/components/format/InternalName.vue'
   import { CogIcon as ContextIcon } from '@heroicons/vue/24/solid'
   import SearchControl from '@/components/layout/list/SearchControl.vue'
+  import type { ContextResource } from '@metanull/inventory-app-api-client'
 
   const router = useRouter()
 
@@ -236,19 +237,16 @@
   }
 
   // Delete handler
-  const handleDelete = async (contextId: string) => {
-    const context = contexts.value.find(c => c.id === contextId)
-    if (!context) return
-
+  const handleDeleteContext = async (contextToDelete: ContextResource) => {
     const result = await deleteStore.trigger(
       'Delete Context',
-      `Are you sure you want to delete "${context.internal_name}"? This action cannot be undone.`
+      `Are you sure you want to delete "${contextToDelete.internal_name}"? This action cannot be undone.`
     )
 
     if (result === 'delete') {
       try {
         loadingStore.show('Deleting...')
-        await contextStore.deleteContext(contextId)
+        await contextStore.deleteContext(contextToDelete.id)
         errorStore.addMessage('info', 'Context deleted successfully.')
       } catch {
         errorStore.addMessage('error', 'Failed to delete context. Please try again.')
@@ -256,9 +254,7 @@
         loadingStore.hide()
       }
     }
-  }
-
-  // Fetch contexts function for retry
+  } // Fetch contexts function for retry
   const fetchContexts = async () => {
     try {
       loadingStore.show()

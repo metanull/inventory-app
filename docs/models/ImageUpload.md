@@ -3,6 +3,7 @@ layout: default
 title: ImageUpload
 parent: Database Models
 ---
+
 # ImageUpload
 
 **Namespace:** `App\Models\ImageUpload`

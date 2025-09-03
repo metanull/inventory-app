@@ -12,69 +12,34 @@ import type {
 } from '@metanull/inventory-app-api-client'
 import type { RouteRecordRaw } from 'vue-router'
 
-// Mock data factories
-export const createMockItem = (overrides: Partial<ItemResource> = {}): ItemResource => ({
-  id: '1',
-  internal_name: 'Test Item',
-  backward_compatibility: null,
-  type: 'object',
-  created_at: '2023-01-01T00:00:00Z',
-  updated_at: '2023-01-01T00:00:00Z',
-  ...overrides,
-})
+// Helper function to generate UUIDs for testing
+const generateUuid = (): string => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
 
-export const createMockPartner = (overrides: Partial<PartnerResource> = {}): PartnerResource => ({
-  id: '1',
-  internal_name: 'Test Partner',
-  backward_compatibility: null,
-  type: 'museum',
+// Mock data factories with proper ID formats
+export const createMockContext = (overrides: Partial<ContextResource> = {}): ContextResource => ({
+  id: '123e4567-e89b-12d3-a456-426614174000',
+  internal_name: 'Test Context',
+  backward_compatibility: 'test',
+  is_default: false,
   created_at: '2023-01-01T00:00:00Z',
   updated_at: '2023-01-01T00:00:00Z',
   ...overrides,
 })
 
 export const createMockProject = (overrides: Partial<ProjectResource> = {}): ProjectResource => ({
-  id: '1',
+  id: '123e4567-e89b-12d3-a456-426614174001',
   internal_name: 'Test Project',
+  display_name: 'Test Project Display',
   backward_compatibility: null,
-  launch_date: '2023-06-01',
-  is_launched: true,
   is_enabled: true,
-  created_at: '2023-01-01T00:00:00Z',
-  updated_at: '2023-01-01T00:00:00Z',
-  ...overrides,
-})
-
-export const createMockTag = (overrides: Partial<TagResource> = {}): TagResource => ({
-  id: '1',
-  internal_name: 'Test Tag',
-  backward_compatibility: null,
-  description: 'Test tag description',
-  created_at: '2023-01-01T00:00:00Z',
-  updated_at: '2023-01-01T00:00:00Z',
-  ...overrides,
-})
-
-export const createMockPicture = (overrides: Partial<PictureResource> = {}): PictureResource => ({
-  id: '1',
-  internal_name: 'Test Picture',
-  backward_compatibility: null,
-  path: '/images/test.jpg',
-  copyright_text: 'Test Copyright',
-  copyright_url: 'https://example.com',
-  upload_name: 'test.jpg',
-  upload_extension: 'jpg',
-  upload_mime_type: 'image/jpeg',
-  upload_size: 12345,
-  created_at: '2023-01-01T00:00:00Z',
-  updated_at: '2023-01-01T00:00:00Z',
-  ...overrides,
-})
-
-export const createMockCountry = (overrides: Partial<CountryResource> = {}): CountryResource => ({
-  id: '1',
-  internal_name: 'Test Country',
-  backward_compatibility: null,
+  is_launched: false,
+  launch_date: null,
   created_at: '2023-01-01T00:00:00Z',
   updated_at: '2023-01-01T00:00:00Z',
   ...overrides,
@@ -83,20 +48,64 @@ export const createMockCountry = (overrides: Partial<CountryResource> = {}): Cou
 export const createMockLanguage = (
   overrides: Partial<LanguageResource> = {}
 ): LanguageResource => ({
-  id: '1',
-  internal_name: 'Test Language',
-  backward_compatibility: null,
+  id: 'eng',
+  internal_name: 'English',
+  display_name: 'English',
+  backward_compatibility: 'en',
   is_default: false,
   created_at: '2023-01-01T00:00:00Z',
   updated_at: '2023-01-01T00:00:00Z',
   ...overrides,
 })
 
-export const createMockContext = (overrides: Partial<ContextResource> = {}): ContextResource => ({
-  id: '1',
-  internal_name: 'Test Context',
+export const createMockCountry = (overrides: Partial<CountryResource> = {}): CountryResource => ({
+  id: 'usa',
+  internal_name: 'United States',
+  display_name: 'United States of America',
+  backward_compatibility: 'us',
+  created_at: '2023-01-01T00:00:00Z',
+  updated_at: '2023-01-01T00:00:00Z',
+  ...overrides,
+})
+
+export const createMockItem = (overrides: Partial<ItemResource> = {}): ItemResource => ({
+  id: '123e4567-e89b-12d3-a456-426614174002',
+  internal_name: 'Test Item',
+  display_name: 'Test Item Display',
   backward_compatibility: null,
-  is_default: false,
+  partner_id: '123e4567-e89b-12d3-a456-426614174003',
+  created_at: '2023-01-01T00:00:00Z',
+  updated_at: '2023-01-01T00:00:00Z',
+  ...overrides,
+})
+
+export const createMockPartner = (overrides: Partial<PartnerResource> = {}): PartnerResource => ({
+  id: '123e4567-e89b-12d3-a456-426614174003',
+  internal_name: 'Test Partner',
+  display_name: 'Test Partner Display',
+  backward_compatibility: null,
+  country_id: 'usa',
+  created_at: '2023-01-01T00:00:00Z',
+  updated_at: '2023-01-01T00:00:00Z',
+  ...overrides,
+})
+
+export const createMockTag = (overrides: Partial<TagResource> = {}): TagResource => ({
+  id: '123e4567-e89b-12d3-a456-426614174004',
+  internal_name: 'Test Tag',
+  display_name: 'Test Tag Display',
+  backward_compatibility: null,
+  created_at: '2023-01-01T00:00:00Z',
+  updated_at: '2023-01-01T00:00:00Z',
+  ...overrides,
+})
+
+export const createMockPicture = (overrides: Partial<PictureResource> = {}): PictureResource => ({
+  id: '123e4567-e89b-12d3-a456-426614174005',
+  internal_name: 'Test Picture',
+  display_name: 'Test Picture Display',
+  backward_compatibility: null,
+  file_path: '/test/path/image.jpg',
   created_at: '2023-01-01T00:00:00Z',
   updated_at: '2023-01-01T00:00:00Z',
   ...overrides,
