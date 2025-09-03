@@ -15,3 +15,4 @@
 **CRITICAL: Never ignore lint errors and warnings.**
 **CRITICAL: Never ignore failing tests.**
 **CRITICAL: If possible run tests using VS Code's testing features.**
+**CRITICAL: never stage, commit, push temporary md files.**
