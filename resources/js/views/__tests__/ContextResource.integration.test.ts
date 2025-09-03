@@ -9,26 +9,6 @@ import { beforeEach, describe, expect, it, vi, beforeAll, afterAll } from 'vites
 import { createPinia, setActivePinia } from 'pinia'
 import { useContextStore } from '@/stores/context'
 import { createMockContext } from '@/__tests__/test-utils'
-import type { ContextResource } from '@metanull/inventory-app-api-client'
-
-// Mock store interface
-interface MockContextStore {
-  contexts: ContextResource[]
-  currentContext: ContextResource | null
-  loading: boolean
-  error: string | null
-  defaultContext: ContextResource | undefined
-  defaultContexts: ContextResource[]
-  fetchContexts: () => Promise<void>
-  fetchContext: (id: string) => Promise<void>
-  createContext: (data: unknown) => Promise<ContextResource>
-  updateContext: (id: string, data: unknown) => Promise<ContextResource>
-  deleteContext: (id: string) => Promise<void>
-  setDefaultContext: (id: string) => Promise<void>
-  getDefaultContext: () => ContextResource | null
-  clearError: () => void
-  clearCurrentContext: () => void
-}
 
 // Mock console.error to avoid noise in test output
 vi.mock('console', () => ({
@@ -52,275 +32,352 @@ afterAll(() => {
   Object.assign(console, originalConsole)
 })
 
+import type { ContextResource, ContextStoreRequest } from '@metanull/inventory-app-api-client'
+
 // Mock the stores instead of the API client
 vi.mock('@/stores/context')
 
 // Test data
 const mockContexts: ContextResource[] = [
   createMockContext({
-    id: 'main-context-id',
-    internal_name: 'Main Context',
-    backward_compatibility: 'main',
+    id: '123e4567-e89b-12d3-a456-426614174000',
+    internal_name: 'Production',
+    backward_compatibility: 'prod',
     is_default: true,
-    created_at: '2023-01-01T00:00:00Z',
-    updated_at: '2023-01-01T00:00:00Z',
   }),
   createMockContext({
-    id: 'dev-context-id',
-    internal_name: 'Development Context',
+    id: '123e4567-e89b-12d3-a456-426614174001',
+    internal_name: 'Development',
     backward_compatibility: 'dev',
     is_default: false,
-    created_at: '2023-01-02T00:00:00Z',
-    updated_at: '2023-01-02T00:00:00Z',
   }),
   createMockContext({
-    id: 'test-context-id',
-    internal_name: 'Test Context',
-    backward_compatibility: null,
+    id: '123e4567-e89b-12d3-a456-426614174002',
+    internal_name: 'Testing',
+    backward_compatibility: 'test',
     is_default: false,
-    created_at: '2023-01-03T00:00:00Z',
-    updated_at: '2023-01-03T00:00:00Z',
   }),
 ]
 
 describe('Context Resource Integration Tests', () => {
   let contextStore: ReturnType<typeof useContextStore>
 
-  beforeEach(() => {
+  beforeEach(async () => {
     setActivePinia(createPinia())
 
-    contextStore = {
-      contexts: [...mockContexts],
-      currentContext: null,
-      loading: false,
-      error: null,
-      fetchContexts: vi.fn(),
-      fetchContext: vi.fn(),
-      createContext: vi.fn(),
-      updateContext: vi.fn(),
-      deleteContext: vi.fn(),
-      setDefaultContext: vi.fn(),
-      getDefaultContext: vi.fn(),
-      defaultContext: mockContexts[0],
-      defaultContexts: [mockContexts[0]],
-      clearError: vi.fn(),
-      clearCurrentContext: vi.fn(),
-    } as MockContextStore
+    contextStore = useContextStore()
 
-    vi.mocked(useContextStore).mockReturnValue(contextStore)
+    // Setup comprehensive store mocks
+    const mockContextStoreImplementation = {
+      contexts: mockContexts,
+      currentContext: null as ContextResource | null,
+      loading: false,
+      defaultContexts: mockContexts.filter(c => c.is_default),
+      fetchContexts: vi.fn().mockResolvedValue(mockContexts),
+      fetchContext: vi.fn().mockImplementation((id: string) => {
+        let context = mockContexts.find(c => c.id === id)
+        // Handle the case where we're fetching a newly created context
+        if (id === 'new-context' && !context) {
+          context = {
+            ...createMockContext({ id: 'new-context', internal_name: 'New Integration Context' }),
+            internal_name: 'New Integration Context',
+          }
+        }
+        mockContextStoreImplementation.currentContext = context || null
+        return Promise.resolve(context)
+      }),
+      createContext: vi
+        .fn()
+        .mockImplementation((data: ContextStoreRequest) =>
+          Promise.resolve({ ...createMockContext(data), id: 'new-context' })
+        ),
+      updateContext: vi
+        .fn()
+        .mockImplementation((id: string, data: ContextStoreRequest) =>
+          Promise.resolve({ ...mockContexts.find(c => c.id === id), ...data })
+        ),
+      deleteContext: vi.fn().mockResolvedValue(undefined),
+      setContextDefault: vi
+        .fn()
+        .mockImplementation((id: string, isDefault: boolean) =>
+          Promise.resolve({ ...mockContexts.find(c => c.id === id), is_default: isDefault })
+        ),
+    }
+
+    // Mock store implementations
+    vi.mocked(useContextStore).mockReturnValue(
+      mockContextStoreImplementation as ReturnType<typeof useContextStore>
+    )
+
+    // Update store references
+    contextStore = mockContextStoreImplementation as ReturnType<typeof useContextStore>
+
     vi.clearAllMocks()
   })
 
-  describe('Context List Management', () => {
-    it('fetches and displays contexts successfully', async () => {
-      contextStore.fetchContexts.mockResolvedValue(undefined)
+  describe('Context List and Detail Integration (Context-specific workflows)', () => {
+    it('should complete full context lifecycle: list → create → view → edit → delete', async () => {
+      // 1. Load initial context list (simulating Contexts.vue)
+      await contextStore.fetchContexts()
+      expect(contextStore.contexts).toHaveLength(3)
 
+      // 2. Create new context (simulating ContextDetail.vue in create mode)
+      const newContextData = {
+        internal_name: 'New Integration Context',
+        backward_compatibility: 'new-integration',
+      }
+
+      const createdContext = await contextStore.createContext(newContextData)
+      expect(createdContext.id).toBe('new-context')
+      expect(createdContext.internal_name).toBe('New Integration Context')
+
+      // 3. Fetch the created context (simulating navigation to detail view)
+      await contextStore.fetchContext('new-context')
+      expect(contextStore.currentContext?.internal_name).toBe('New Integration Context')
+
+      // 4. Edit the context (simulating ContextDetail.vue in edit mode)
+      const updatedData = {
+        internal_name: 'Updated Integration Context',
+        backward_compatibility: 'updated-integration',
+      }
+      await contextStore.updateContext('new-context', updatedData)
+
+      // 5. Delete the context (completing the lifecycle)
+      await contextStore.deleteContext('new-context')
+
+      // Verify the full workflow completed successfully
+      expect(contextStore.createContext).toHaveBeenCalledWith(newContextData)
+      expect(contextStore.updateContext).toHaveBeenCalledWith('new-context', updatedData)
+      expect(contextStore.deleteContext).toHaveBeenCalledWith('new-context')
+    })
+
+    it('should handle Context-specific filtering workflows across components', async () => {
+      // Load contexts and verify filtering computations work together
       await contextStore.fetchContexts()
 
-      expect(contextStore.fetchContexts).toHaveBeenCalledTimes(1)
-      expect(contextStore.contexts).toHaveLength(3)
+      // Test default contexts filter (Context-specific)
+      const defaultContexts = contextStore.defaultContexts
+      expect(defaultContexts).toHaveLength(1) // Only Production is default
+      expect(defaultContexts.every(c => c.is_default)).toBe(true)
     })
 
-    it('filters contexts by default status correctly', () => {
-      const defaultContexts = contextStore.contexts.filter(context => context.is_default)
+    it('should handle Context-specific status toggle workflows', async () => {
+      // Load context
+      await contextStore.fetchContext('123e4567-e89b-12d3-a456-426614174001') // Development Context (not default)
 
-      expect(defaultContexts).toHaveLength(1)
-      expect(defaultContexts[0].internal_name).toBe('Main Context')
-    })
-
-    it('searches contexts across all relevant fields', () => {
-      const searchQuery = 'dev'
-      const filteredContexts = contextStore.contexts.filter(
-        context =>
-          context.internal_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (context.backward_compatibility &&
-            context.backward_compatibility.toLowerCase().includes(searchQuery.toLowerCase()))
+      // Toggle default status (Context-specific operation)
+      await contextStore.setContextDefault('123e4567-e89b-12d3-a456-426614174001', true)
+      expect(contextStore.setContextDefault).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174001',
+        true
       )
 
-      expect(filteredContexts).toHaveLength(1)
-      expect(filteredContexts[0].internal_name).toBe('Development Context')
+      // Verify status change was processed
+      expect(contextStore.setContextDefault).toHaveBeenCalledTimes(1)
+
+      // Test removing default status
+      await contextStore.setContextDefault('123e4567-e89b-12d3-a456-426614174000', false)
+      expect(contextStore.setContextDefault).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000',
+        false
+      )
+      expect(contextStore.setContextDefault).toHaveBeenCalledTimes(2)
     })
   })
 
-  describe('Context CRUD Operations', () => {
-    it('creates a new context with proper validation', async () => {
-      const newContextData = {
-        internal_name: 'New Test Context',
-        backward_compatibility: 'new-test',
-        is_default: false,
-      }
+  describe('Error Handling Integration', () => {
+    it('should handle API errors gracefully across the workflow', async () => {
+      // Mock API failure on the original store instance
+      const originalFetchContexts = contextStore.fetchContexts
+      contextStore.fetchContexts = vi.fn().mockRejectedValue(new Error('API Error'))
 
-      const newContext = createMockContext({
-        id: 'new-context-id',
-        ...newContextData,
-        created_at: '2023-01-04T00:00:00Z',
-        updated_at: '2023-01-04T00:00:00Z',
-      })
+      // Verify error is handled (thrown in this case)
+      await expect(contextStore.fetchContexts()).rejects.toThrow('API Error')
 
-      contextStore.createContext.mockResolvedValue(newContext)
+      // Restore original implementation and verify it works
+      contextStore.fetchContexts = originalFetchContexts
 
-      const result = await contextStore.createContext(newContextData)
-
-      expect(contextStore.createContext).toHaveBeenCalledWith(newContextData)
-      expect(result.internal_name).toBe('New Test Context')
-      expect(result.is_default).toBe(false)
-    })
-
-    it('updates an existing context', async () => {
-      const contextId = 'test-context-id'
-      const updateData = {
-        internal_name: 'Updated Test Context',
-        backward_compatibility: 'updated-test',
-      }
-
-      const updatedContext = createMockContext({
-        id: contextId,
-        ...updateData,
-        is_default: false,
-        created_at: '2023-01-03T00:00:00Z',
-        updated_at: new Date().toISOString(),
-      })
-
-      contextStore.updateContext.mockResolvedValue(updatedContext)
-
-      const result = await contextStore.updateContext(contextId, updateData)
-
-      expect(contextStore.updateContext).toHaveBeenCalledWith(contextId, updateData)
-      expect(result.internal_name).toBe('Updated Test Context')
-    })
-
-    it('deletes a context', async () => {
-      const contextId = 'test-context-id'
-
-      contextStore.deleteContext.mockResolvedValue(undefined)
-
-      await contextStore.deleteContext(contextId)
-
-      expect(contextStore.deleteContext).toHaveBeenCalledWith(contextId)
-    })
-
-    it('fetches a single context by ID', async () => {
-      const contextId = 'main-context-id'
-      const expectedContext = mockContexts[0]
-
-      contextStore.fetchContext.mockResolvedValue(expectedContext)
-
-      const result = await contextStore.fetchContext(contextId)
-
-      expect(contextStore.fetchContext).toHaveBeenCalledWith(contextId)
-      expect(result.id).toBe(contextId)
-      expect(result.internal_name).toBe('Main Context')
+      // Verify that after error, we can still use the store
+      expect(typeof contextStore.fetchContexts).toBe('function')
     })
   })
 
-  describe('Default Context Management', () => {
-    it('sets a context as default', async () => {
-      const contextId = 'dev-context-id'
-      const updatedContext = createMockContext({
-        ...mockContexts[1],
+  describe('Context-specific Business Rules', () => {
+    it('should enforce Context-specific default rules', async () => {
+      await contextStore.fetchContexts()
+
+      // Test that only default contexts are included in defaultContexts
+      const defaultContexts = contextStore.defaultContexts
+      const hasNonDefaultContexts = defaultContexts.some(c => !c.is_default)
+      expect(hasNonDefaultContexts).toBe(false)
+
+      // Test that only contexts with is_default true are in default collection
+      defaultContexts.forEach(context => {
+        expect(context.is_default).toBe(true)
+      })
+    })
+
+    it('should handle Context-specific search functionality', async () => {
+      await contextStore.fetchContexts()
+
+      // Simulate search functionality that would be used in Contexts.vue
+      const searchTerm = 'prod'
+      const searchResults = contextStore.contexts.filter(
+        context =>
+          context.internal_name.toLowerCase().includes(searchTerm) ||
+          (context.backward_compatibility &&
+            context.backward_compatibility.toLowerCase().includes(searchTerm))
+      )
+
+      expect(searchResults).toHaveLength(1)
+      expect(searchResults[0].internal_name).toBe('Production')
+    })
+
+    it('should handle multiple default contexts scenario', async () => {
+      // Add another default context for testing
+      const additionalDefaultContext = createMockContext({
+        id: '123e4567-e89b-12d3-a456-426614174003',
+        internal_name: 'Staging',
+        backward_compatibility: 'staging',
         is_default: true,
       })
 
-      contextStore.setDefaultContext.mockResolvedValue(updatedContext)
+      const contextsWithMultipleDefaults = [...mockContexts, additionalDefaultContext]
+      contextStore.contexts = contextsWithMultipleDefaults
+      contextStore.defaultContexts = contextsWithMultipleDefaults.filter(c => c.is_default)
 
-      await contextStore.setDefaultContext(contextId, true)
-
-      expect(contextStore.setDefaultContext).toHaveBeenCalledWith(contextId, true)
+      // Test that multiple default contexts are handled correctly
+      const defaultContexts = contextStore.defaultContexts
+      expect(defaultContexts).toHaveLength(2)
+      expect(defaultContexts.every(c => c.is_default)).toBe(true)
     })
 
-    it('unsets a context as default', async () => {
-      const contextId = 'main-context-id'
-      const updatedContext = createMockContext({
-        ...mockContexts[0],
+    it('should handle null backward_compatibility gracefully', async () => {
+      // Create context with null backward_compatibility
+      const contextWithNullCompat = createMockContext({
+        id: '123e4567-e89b-12d3-a456-426614174004',
+        internal_name: 'Testing Environment',
+        backward_compatibility: null,
         is_default: false,
       })
 
-      contextStore.setDefaultContext.mockResolvedValue(updatedContext)
+      const contextsWithNull = [...mockContexts, contextWithNullCompat]
+      contextStore.contexts = contextsWithNull
 
-      await contextStore.setDefaultContext(contextId, false)
+      // Simulate search that would encounter null backward_compatibility
+      const searchTerm = 'testing'
+      const searchResults = contextStore.contexts.filter(
+        context =>
+          context.internal_name.toLowerCase().includes(searchTerm) ||
+          (context.backward_compatibility &&
+            context.backward_compatibility.toLowerCase().includes(searchTerm))
+      )
 
-      expect(contextStore.setDefaultContext).toHaveBeenCalledWith(contextId, false)
-    })
-
-    it('gets the default context', async () => {
-      const defaultContext = mockContexts[0]
-
-      contextStore.getDefaultContext.mockResolvedValue(defaultContext)
-
-      const result = await contextStore.getDefaultContext()
-
-      expect(contextStore.getDefaultContext).toHaveBeenCalledTimes(1)
-      expect(result.is_default).toBe(true)
-      expect(result.internal_name).toBe('Main Context')
-    })
-
-    it('handles multiple default context scenarios', () => {
-      // Ensure only one context can be default
-      const defaultContexts = contextStore.contexts.filter(context => context.is_default)
-
-      expect(defaultContexts).toHaveLength(1)
-      expect(defaultContexts[0].id).toBe('main-context-id')
+      expect(searchResults).toHaveLength(2) // "Testing" and "Testing Environment"
+      expect(searchResults.some(c => c.backward_compatibility === null)).toBe(true)
     })
   })
 
-  describe('Error Handling', () => {
-    it('handles fetch contexts error', async () => {
-      const error = new Error('Failed to fetch contexts')
-      contextStore.fetchContexts.mockRejectedValue(error)
-
-      await expect(contextStore.fetchContexts()).rejects.toThrow('Failed to fetch contexts')
-    })
-
-    it('handles create context error', async () => {
-      const error = new Error('Failed to create context')
-      const newContextData = {
-        internal_name: 'Test Context',
-        backward_compatibility: null,
+  describe('Context Lifecycle Management', () => {
+    it('should handle context creation with validation', async () => {
+      const validContextData = {
+        internal_name: 'Valid Context',
+        backward_compatibility: 'valid-context',
+        is_default: false,
       }
 
-      contextStore.createContext.mockRejectedValue(error)
+      const createdContext = await contextStore.createContext(validContextData)
 
-      await expect(contextStore.createContext(newContextData)).rejects.toThrow(
-        'Failed to create context'
+      expect(contextStore.createContext).toHaveBeenCalledWith(validContextData)
+      expect(createdContext.internal_name).toBe('Valid Context')
+      expect(createdContext.backward_compatibility).toBe('valid-context')
+    })
+
+    it('should handle context updates with partial data', async () => {
+      // Test updating only internal_name
+      const partialUpdate = {
+        internal_name: 'Updated Name Only',
+      }
+
+      await contextStore.updateContext('123e4567-e89b-12d3-a456-426614174000', partialUpdate)
+      expect(contextStore.updateContext).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000',
+        partialUpdate
+      )
+
+      // Test updating only backward_compatibility
+      const compatUpdate = {
+        backward_compatibility: 'new-compat',
+      }
+
+      await contextStore.updateContext('123e4567-e89b-12d3-a456-426614174001', compatUpdate)
+      expect(contextStore.updateContext).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174001',
+        compatUpdate
       )
     })
 
-    it('handles set default context error', async () => {
-      const error = new Error('Failed to set default context')
-      const contextId = 'dev-context-id'
+    it('should handle context deletion with dependency checks', async () => {
+      // Test deleting a non-default context (should be safe)
+      await contextStore.deleteContext('123e4567-e89b-12d3-a456-426614174001')
+      expect(contextStore.deleteContext).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174001'
+      )
 
-      contextStore.setDefaultContext.mockRejectedValue(error)
-
-      await expect(contextStore.setDefaultContext(contextId, true)).rejects.toThrow(
-        'Failed to set default context'
+      // Test deleting a default context (business logic would handle restrictions)
+      await contextStore.deleteContext('123e4567-e89b-12d3-a456-426614174000')
+      expect(contextStore.deleteContext).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000'
       )
     })
   })
 
-  describe('Context Data Integrity', () => {
-    it('maintains proper context structure', () => {
-      const context = mockContexts[0]
+  describe('Context State Management', () => {
+    it('should maintain consistent state across operations', async () => {
+      // Initial state
+      await contextStore.fetchContexts()
+      const initialCount = contextStore.contexts.length
+      const initialDefaultCount = contextStore.defaultContexts.length
 
-      expect(context).toHaveProperty('id')
-      expect(context).toHaveProperty('internal_name')
-      expect(context).toHaveProperty('backward_compatibility')
-      expect(context).toHaveProperty('is_default')
-      expect(context).toHaveProperty('created_at')
-      expect(context).toHaveProperty('updated_at')
+      // Create new context
+      await contextStore.createContext({
+        internal_name: 'State Test Context',
+        backward_compatibility: 'state-test',
+        is_default: false,
+      })
+
+      // State should reflect creation (in real app, this would trigger re-fetch)
+      expect(contextStore.createContext).toHaveBeenCalled()
+
+      // Update context to be default
+      await contextStore.setContextDefault('new-context', true)
+      expect(contextStore.setContextDefault).toHaveBeenCalledWith('new-context', true)
+
+      // Delete context
+      await contextStore.deleteContext('new-context')
+      expect(contextStore.deleteContext).toHaveBeenCalledWith('new-context')
+
+      // Verify all operations were called
+      expect(contextStore.createContext).toHaveBeenCalledTimes(1)
+      expect(contextStore.setContextDefault).toHaveBeenCalledTimes(1)
+      expect(contextStore.deleteContext).toHaveBeenCalledTimes(1)
     })
 
-    it('validates context IDs are unique', () => {
-      const ids = mockContexts.map(context => context.id)
-      const uniqueIds = new Set(ids)
+    it('should handle concurrent operations', async () => {
+      // Simulate concurrent fetch and update operations
+      const fetchPromise = contextStore.fetchContexts()
+      const updatePromise = contextStore.setContextDefault(
+        '123e4567-e89b-12d3-a456-426614174000',
+        false
+      )
 
-      expect(uniqueIds.size).toBe(ids.length)
-    })
+      await Promise.all([fetchPromise, updatePromise])
 
-    it('ensures default context is properly flagged', () => {
-      const defaultContext = mockContexts.find(context => context.is_default)
-
-      expect(defaultContext).toBeDefined()
-      expect(defaultContext?.id).toBe('main-context-id')
+      expect(contextStore.fetchContexts).toHaveBeenCalled()
+      expect(contextStore.setContextDefault).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000',
+        false
+      )
     })
   })
 })

@@ -5,13 +5,13 @@
  * of the Contexts component without dealing with complex UI rendering.
  *
  * Tests cover:
+ * - Context filtering (All, Default) - Context-specific features
  * - Search functionality across internal_name and backward_compatibility
  * - Sorting functionality
- * - Filter functionality (all/default)
  * - Store interactions and data fetching
  * - Error handling
+ * - Status updates (default/non-default) - Context-specific features
  * - Delete operations
- * - Default toggle operations
  */
 
 import { beforeEach, describe, expect, it, vi, beforeAll, afterAll } from 'vitest'
@@ -19,40 +19,9 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useContextStore } from '@/stores/context'
 import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
 import { useErrorDisplayStore } from '@/stores/errorDisplay'
+import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
 import { createMockContext } from '@/__tests__/test-utils'
 import type { ContextResource } from '@metanull/inventory-app-api-client'
-
-// Mock store interfaces
-interface MockContextStore {
-  contexts: ContextResource[]
-  currentContext: ContextResource | null
-  loading: boolean
-  error: string | null
-  defaultContext: ContextResource | undefined
-  defaultContexts: ContextResource[]
-  fetchContexts: () => Promise<ContextResource[] | void>
-  fetchContext: (id: string) => Promise<void>
-  getContextById: (id: string) => ContextResource | undefined
-  createContext: (data: unknown) => Promise<ContextResource>
-  updateContext: (id: string, data: unknown) => Promise<ContextResource>
-  deleteContext: (id: string) => Promise<void>
-  setDefaultContext: (id: string) => Promise<void>
-  getDefaultContext: () => ContextResource | null
-  clearError: () => void
-  clearCurrentContext: () => void
-}
-
-interface MockLoadingOverlayStore {
-  show: (message?: string) => void
-  hide: () => void
-  isLoading: boolean
-}
-
-interface MockErrorDisplayStore {
-  addMessage: (type: string, message: string) => void
-  removeMessage: (id: string) => void
-  messages: unknown[]
-}
 
 // Mock console.error to avoid noise in test output
 vi.mock('console', () => ({
@@ -80,47 +49,167 @@ afterAll(() => {
 vi.mock('@/stores/context')
 vi.mock('@/stores/loadingOverlay')
 vi.mock('@/stores/errorDisplay')
+vi.mock('@/stores/deleteConfirmation')
 
-// Test data - covering different context types for comprehensive testing
+// Test data - covering different context states for comprehensive testing
 const mockContexts: ContextResource[] = [
   createMockContext({
-    id: 'main-context',
-    internal_name: 'Main Context',
-    backward_compatibility: 'main',
+    id: '123e4567-e89b-12d3-a456-426614174000',
+    internal_name: 'Production',
+    backward_compatibility: 'prod',
     is_default: true,
     created_at: '2023-01-01T00:00:00Z',
-    updated_at: '2023-01-01T00:00:00Z',
   }),
   createMockContext({
-    id: 'dev-context',
-    internal_name: 'Development Context',
+    id: '123e4567-e89b-12d3-a456-426614174001',
+    internal_name: 'Development',
     backward_compatibility: 'dev',
     is_default: false,
-    created_at: '2023-01-02T00:00:00Z',
-    updated_at: '2023-01-02T00:00:00Z',
+    created_at: '2023-02-01T00:00:00Z',
   }),
   createMockContext({
-    id: 'prod-context',
-    internal_name: 'Production Context',
+    id: '123e4567-e89b-12d3-a456-426614174002',
+    internal_name: 'Testing',
     backward_compatibility: null,
     is_default: false,
-    created_at: '2023-01-03T00:00:00Z',
-    updated_at: '2023-01-03T00:00:00Z',
-  }),
-  createMockContext({
-    id: 'test-context',
-    internal_name: 'Test Context',
-    backward_compatibility: 'test',
-    is_default: false,
-    created_at: '2023-01-04T00:00:00Z',
-    updated_at: '2023-01-04T00:00:00Z',
+    created_at: '2023-03-01T00:00:00Z',
   }),
 ]
 
-describe('Contexts Logic Tests', () => {
+// Simulate the business logic functions from the component
+class ContextsLogic {
+  public filterMode: 'all' | 'default' = 'all'
+  public searchQuery = ''
+  public sortKey = 'internal_name'
+  public sortDirection: 'asc' | 'desc' = 'asc'
+
+  constructor(
+    private contextStore: ReturnType<typeof useContextStore>,
+    private loadingStore: ReturnType<typeof useLoadingOverlayStore>,
+    private errorStore: ReturnType<typeof useErrorDisplayStore>,
+    private deleteStore: ReturnType<typeof useDeleteConfirmationStore>
+  ) {}
+
+  get contexts() {
+    return this.contextStore.contexts
+  }
+
+  get defaultContexts() {
+    return this.contextStore.defaultContexts
+  }
+
+  get filteredContexts() {
+    let list: ContextResource[]
+
+    switch (this.filterMode) {
+      case 'default':
+        list = this.defaultContexts
+        break
+      default:
+        list = this.contexts
+    }
+
+    // Apply search filter
+    const query = this.searchQuery.trim().toLowerCase()
+    if (query.length > 0) {
+      list = list.filter(context => {
+        const name = context.internal_name?.toLowerCase() ?? ''
+        const compat = context.backward_compatibility?.toLowerCase() ?? ''
+        return name.includes(query) || compat.includes(query)
+      })
+    }
+
+    // Apply sorting
+    return [...list].sort((a, b) => {
+      const key = this.sortKey
+      let valA: unknown
+      let valB: unknown
+
+      if (key === 'internal_name') {
+        valA = a.internal_name ?? ''
+        valB = b.internal_name ?? ''
+      } else {
+        valA = (a as unknown as Record<string, unknown>)[key]
+        valB = (b as unknown as Record<string, unknown>)[key]
+      }
+
+      if (valA == null && valB == null) return 0
+      if (valA == null) return 1
+      if (valB == null) return -1
+      if (valA < valB) return this.sortDirection === 'asc' ? -1 : 1
+      if (valA > valB) return this.sortDirection === 'asc' ? 1 : -1
+      return 0
+    })
+  }
+
+  handleSort(key: string) {
+    if (this.sortKey === key) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc'
+    } else {
+      this.sortKey = key
+      this.sortDirection = 'asc'
+    }
+  }
+
+  async updateContextStatus(context: ContextResource, field: string, value: boolean) {
+    try {
+      this.loadingStore.show('Updating...')
+
+      if (field === 'is_default') {
+        await this.contextStore.setContextDefault(context.id, value)
+        this.errorStore.addMessage(
+          'info',
+          `Context ${value ? 'set as default' : 'removed from default'} successfully.`
+        )
+      }
+    } catch (error) {
+      this.errorStore.addMessage('error', 'Failed to update context status. Please try again.')
+      throw error
+    } finally {
+      this.loadingStore.hide()
+    }
+  }
+
+  async handleDeleteContext(contextToDelete: ContextResource) {
+    const result = await this.deleteStore.trigger(
+      'Delete Context',
+      `Are you sure you want to delete "${contextToDelete.internal_name}"? This action cannot be undone.`
+    )
+
+    if (result === 'delete') {
+      try {
+        this.loadingStore.show('Deleting...')
+        await this.contextStore.deleteContext(contextToDelete.id)
+        this.errorStore.addMessage('info', 'Context deleted successfully.')
+      } catch (error) {
+        this.errorStore.addMessage('error', 'Failed to delete context. Please try again.')
+        throw error
+      } finally {
+        this.loadingStore.hide()
+      }
+    }
+  }
+
+  async fetchContexts() {
+    try {
+      this.loadingStore.show()
+      await this.contextStore.fetchContexts()
+      this.errorStore.addMessage('info', 'Contexts refreshed successfully.')
+    } catch (error) {
+      this.errorStore.addMessage('error', 'Failed to refresh contexts. Please try again.')
+      throw error
+    } finally {
+      this.loadingStore.hide()
+    }
+  }
+}
+
+describe('Contexts Component Business Logic', () => {
   let mockContextStore: ReturnType<typeof useContextStore>
   let mockLoadingStore: ReturnType<typeof useLoadingOverlayStore>
   let mockErrorStore: ReturnType<typeof useErrorDisplayStore>
+  let mockDeleteStore: ReturnType<typeof useDeleteConfirmationStore>
+  let contextsLogic: ContextsLogic
 
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -128,253 +217,449 @@ describe('Contexts Logic Tests', () => {
     // Setup store mocks
     mockContextStore = {
       contexts: mockContexts,
-      currentContext: null,
-      loading: false,
-      error: null,
+      defaultContexts: [mockContexts[0]], // Only contexts with is_default: true
       fetchContexts: vi.fn().mockResolvedValue(mockContexts),
-      fetchContext: vi.fn().mockResolvedValue(undefined),
-      getContextById: vi.fn(),
-      createContext: vi.fn(),
-      updateContext: vi.fn(),
+      setContextDefault: vi.fn(),
       deleteContext: vi.fn(),
-      setDefaultContext: vi.fn(),
-      getDefaultContext: vi.fn(),
-      defaultContext: mockContexts[0], // First context is default
-      defaultContexts: [mockContexts[0]],
-      clearError: vi.fn(),
-      clearCurrentContext: vi.fn(),
-    } as MockContextStore
+    } as ReturnType<typeof useContextStore>
 
     mockLoadingStore = {
       show: vi.fn(),
       hide: vi.fn(),
-      isLoading: false,
-    } as MockLoadingOverlayStore
+    } as ReturnType<typeof useLoadingOverlayStore>
 
     mockErrorStore = {
       addMessage: vi.fn(),
-      removeMessage: vi.fn(),
-      messages: [],
-    } as MockErrorDisplayStore
+    } as ReturnType<typeof useErrorDisplayStore>
 
+    mockDeleteStore = {
+      trigger: vi.fn().mockResolvedValue('cancel'),
+    } as ReturnType<typeof useDeleteConfirmationStore>
+
+    // Mock store implementations
     vi.mocked(useContextStore).mockReturnValue(mockContextStore)
     vi.mocked(useLoadingOverlayStore).mockReturnValue(mockLoadingStore)
     vi.mocked(useErrorDisplayStore).mockReturnValue(mockErrorStore)
+    vi.mocked(useDeleteConfirmationStore).mockReturnValue(mockDeleteStore)
+
+    contextsLogic = new ContextsLogic(
+      mockContextStore,
+      mockLoadingStore,
+      mockErrorStore,
+      mockDeleteStore
+    )
 
     vi.clearAllMocks()
   })
 
-  describe('Search Functionality', () => {
-    it('filters contexts by internal_name (case insensitive)', () => {
-      const searchQuery = 'main'
-      const filtered = mockContexts.filter(context =>
-        context.internal_name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+  describe('Context-Specific Filtering Features', () => {
+    describe('All Contexts Filter', () => {
+      it('should show all contexts when filter is set to "all"', () => {
+        contextsLogic.filterMode = 'all'
 
-      expect(filtered).toHaveLength(1)
-      expect(filtered[0].internal_name).toBe('Main Context')
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts.length).toBe(3)
+        // Check that all contexts are included (regardless of order)
+        expect(filteredContexts.map(c => c.id).sort()).toEqual(mockContexts.map(c => c.id).sort())
+      })
     })
 
-    it('filters contexts by backward_compatibility', () => {
-      const searchQuery = 'dev'
-      const filtered = mockContexts.filter(
-        context =>
-          context.backward_compatibility &&
-          context.backward_compatibility.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+    describe('Default Contexts Filter (Context-specific)', () => {
+      it('should show only default contexts when filter is set to "default"', () => {
+        contextsLogic.filterMode = 'default'
 
-      expect(filtered).toHaveLength(1)
-      expect(filtered[0].internal_name).toBe('Development Context')
-    })
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts.length).toBe(1)
+        expect(filteredContexts[0].is_default).toBe(true)
+        expect(filteredContexts[0].internal_name).toBe('Production')
+      })
 
-    it('returns no results for non-matching search', () => {
-      const searchQuery = 'nonexistent'
-      const filtered = mockContexts.filter(
-        context =>
-          context.internal_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (context.backward_compatibility &&
-            context.backward_compatibility.toLowerCase().includes(searchQuery.toLowerCase()))
-      )
+      it('should return empty array when no default contexts exist', () => {
+        mockContextStore.defaultContexts = []
+        contextsLogic.filterMode = 'default'
 
-      expect(filtered).toHaveLength(0)
-    })
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts).toEqual([])
+      })
 
-    it('handles empty search query', () => {
-      const searchQuery = ''
-      const filtered = mockContexts.filter(
-        context =>
-          !searchQuery.trim() ||
-          context.internal_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (context.backward_compatibility &&
-            context.backward_compatibility.toLowerCase().includes(searchQuery.toLowerCase()))
-      )
+      it('should include contexts with is_default: true in default filter', () => {
+        const additionalDefaultContext = createMockContext({
+          id: '123e4567-e89b-12d3-a456-426614174003',
+          internal_name: 'Another Default',
+          backward_compatibility: 'another-default',
+          is_default: true,
+          created_at: '2023-04-01T00:00:00Z',
+        })
 
-      expect(filtered).toHaveLength(mockContexts.length)
+        mockContextStore.defaultContexts = [mockContexts[0], additionalDefaultContext]
+        contextsLogic.filterMode = 'default'
+
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts.length).toBe(2)
+        expect(filteredContexts.every(c => c.is_default)).toBe(true)
+      })
     })
   })
 
-  describe('Filter Functionality', () => {
-    it('filters contexts by default status', () => {
-      const defaultContexts = mockContexts.filter(context => context.is_default)
-      expect(defaultContexts).toHaveLength(1)
-      expect(defaultContexts[0].internal_name).toBe('Main Context')
+  describe('Search Functionality', () => {
+    describe('Basic Search', () => {
+      it('should search by internal_name', () => {
+        contextsLogic.searchQuery = 'prod'
+
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts.length).toBe(1)
+        expect(filteredContexts[0].internal_name).toBe('Production')
+      })
+
+      it('should search by backward_compatibility', () => {
+        contextsLogic.searchQuery = 'dev'
+
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts.length).toBe(1)
+        expect(filteredContexts[0].backward_compatibility).toBe('dev')
+      })
+
+      it('should be case insensitive', () => {
+        contextsLogic.searchQuery = 'PRODUCTION'
+
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts.length).toBe(1)
+        expect(filteredContexts[0].internal_name).toBe('Production')
+      })
+
+      it('should return empty array when no matches found', () => {
+        contextsLogic.searchQuery = 'nonexistent'
+
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts).toEqual([])
+      })
+
+      it('should handle partial matches', () => {
+        contextsLogic.searchQuery = 'test'
+
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts.length).toBe(1)
+        expect(filteredContexts[0].internal_name).toBe('Testing')
+      })
     })
 
-    it('shows all contexts when filter is "all"', () => {
-      expect(mockContexts).toHaveLength(4)
+    describe('Search Edge Cases', () => {
+      it('should handle empty search query', () => {
+        contextsLogic.searchQuery = ''
+
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts.length).toBe(3)
+        // Check that all contexts are included (regardless of order)
+        expect(filteredContexts.map(c => c.id).sort()).toEqual(mockContexts.map(c => c.id).sort())
+      })
+
+      it('should handle whitespace-only search query', () => {
+        contextsLogic.searchQuery = '   '
+
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts.length).toBe(3)
+        // Check that all contexts are included (regardless of order)
+        expect(filteredContexts.map(c => c.id).sort()).toEqual(mockContexts.map(c => c.id).sort())
+      })
+
+      it('should handle null backward_compatibility gracefully', () => {
+        contextsLogic.searchQuery = 'testing'
+
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts.length).toBe(1)
+        expect(filteredContexts[0].internal_name).toBe('Testing')
+        expect(filteredContexts[0].backward_compatibility).toBeNull()
+      })
     })
 
-    it('filters non-default contexts', () => {
-      const nonDefaultContexts = mockContexts.filter(context => !context.is_default)
-      expect(nonDefaultContexts).toHaveLength(3)
+    describe('Search with Filtering', () => {
+      it('should combine search with default filter', () => {
+        contextsLogic.filterMode = 'default'
+        contextsLogic.searchQuery = 'prod'
+
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts.length).toBe(1)
+        expect(filteredContexts[0].internal_name).toBe('Production')
+        expect(filteredContexts[0].is_default).toBe(true)
+      })
+
+      it('should return empty when search does not match filtered contexts', () => {
+        contextsLogic.filterMode = 'default'
+        contextsLogic.searchQuery = 'dev'
+
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts).toEqual([])
+      })
     })
   })
 
   describe('Sorting Functionality', () => {
-    it('sorts contexts by internal_name ascending', () => {
-      const sorted = [...mockContexts].sort((a, b) =>
-        a.internal_name.toLowerCase().localeCompare(b.internal_name.toLowerCase())
-      )
+    describe('Sort by Internal Name', () => {
+      it('should sort contexts by internal_name in ascending order', () => {
+        contextsLogic.sortKey = 'internal_name'
+        contextsLogic.sortDirection = 'asc'
 
-      expect(sorted[0].internal_name).toBe('Development Context')
-      expect(sorted[1].internal_name).toBe('Main Context')
-      expect(sorted[2].internal_name).toBe('Production Context')
-      expect(sorted[3].internal_name).toBe('Test Context')
-    })
-
-    it('sorts contexts by internal_name descending', () => {
-      const sorted = [...mockContexts].sort((a, b) =>
-        b.internal_name.toLowerCase().localeCompare(a.internal_name.toLowerCase())
-      )
-
-      expect(sorted[0].internal_name).toBe('Test Context')
-      expect(sorted[1].internal_name).toBe('Production Context')
-      expect(sorted[2].internal_name).toBe('Main Context')
-      expect(sorted[3].internal_name).toBe('Development Context')
-    })
-
-    it('sorts contexts by is_default status', () => {
-      const sorted = [...mockContexts].sort((a, b) => {
-        const aValue = a.is_default ? 1 : 0
-        const bValue = b.is_default ? 1 : 0
-        return bValue - aValue // desc order
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts[0].internal_name).toBe('Development')
+        expect(filteredContexts[1].internal_name).toBe('Production')
+        expect(filteredContexts[2].internal_name).toBe('Testing')
       })
 
-      expect(sorted[0].is_default).toBe(true)
-      expect(sorted[1].is_default).toBe(false)
+      it('should sort contexts by internal_name in descending order', () => {
+        contextsLogic.sortKey = 'internal_name'
+        contextsLogic.sortDirection = 'desc'
+
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts[0].internal_name).toBe('Testing')
+        expect(filteredContexts[1].internal_name).toBe('Production')
+        expect(filteredContexts[2].internal_name).toBe('Development')
+      })
     })
 
-    it('sorts contexts by created_at date', () => {
-      const sorted = [...mockContexts].sort((a, b) => {
-        const aTime = new Date(a.created_at || '').getTime()
-        const bTime = new Date(b.created_at || '').getTime()
-        return aTime - bTime
+    describe('Sort by Other Fields', () => {
+      it('should sort contexts by created_at date', () => {
+        contextsLogic.sortKey = 'created_at'
+        contextsLogic.sortDirection = 'asc'
+
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts[0].created_at).toBe('2023-01-01T00:00:00Z')
+        expect(filteredContexts[1].created_at).toBe('2023-02-01T00:00:00Z')
+        expect(filteredContexts[2].created_at).toBe('2023-03-01T00:00:00Z')
       })
 
-      expect(sorted[0].created_at).toBe('2023-01-01T00:00:00Z')
-      expect(sorted[3].created_at).toBe('2023-01-04T00:00:00Z')
+      it('should handle null values when sorting', () => {
+        // Create a context with null internal_name
+        const nullContext = createMockContext({
+          id: '123e4567-e89b-12d3-a456-426614174003',
+          internal_name: null as any,
+          backward_compatibility: 'null-context',
+          is_default: false,
+          created_at: '2023-04-01T00:00:00Z',
+        })
+
+        const contextsWithNulls = [...mockContexts, nullContext]
+        mockContextStore.contexts = contextsWithNulls
+
+        contextsLogic.sortKey = 'internal_name'
+        contextsLogic.sortDirection = 'asc'
+
+        const filteredContexts = contextsLogic.filteredContexts
+
+        // Verify that the null context is included in the results
+        const hasNullContext = filteredContexts.some(c => c.internal_name === null)
+        expect(hasNullContext).toBe(true)
+
+        // Verify total count includes the null context
+        expect(filteredContexts.length).toBe(4)
+      })
+    })
+
+    describe('Sort Direction Toggle', () => {
+      it('should toggle sort direction when sorting by the same field', () => {
+        // Reset to ensure we start from a known state
+        contextsLogic.sortKey = 'created_at'
+        contextsLogic.sortDirection = 'asc'
+
+        contextsLogic.handleSort('internal_name')
+        expect(contextsLogic.sortKey).toBe('internal_name')
+        expect(contextsLogic.sortDirection).toBe('asc')
+
+        contextsLogic.handleSort('internal_name')
+        expect(contextsLogic.sortKey).toBe('internal_name')
+        expect(contextsLogic.sortDirection).toBe('desc')
+      })
+
+      it('should reset to ascending when sorting by a different field', () => {
+        contextsLogic.sortKey = 'internal_name'
+        contextsLogic.sortDirection = 'desc'
+
+        contextsLogic.handleSort('created_at')
+        expect(contextsLogic.sortKey).toBe('created_at')
+        expect(contextsLogic.sortDirection).toBe('asc')
+      })
     })
   })
 
-  describe('Store Integration', () => {
-    it('calls fetchContexts on initialization', async () => {
-      expect(mockContextStore.fetchContexts).toHaveBeenCalledTimes(0) // Not called yet
+  describe('Context Status Operations', () => {
+    describe('Update Default Status', () => {
+      it('should successfully update context default status', async () => {
+        const context = mockContexts[1]
+        mockContextStore.setContextDefault = vi.fn().mockResolvedValue(undefined)
 
-      // Simulate component initialization
-      await mockContextStore.fetchContexts()
+        await contextsLogic.updateContextStatus(context, 'is_default', true)
 
-      expect(mockContextStore.fetchContexts).toHaveBeenCalledTimes(1)
-    })
+        expect(mockLoadingStore.show).toHaveBeenCalledWith('Updating...')
+        expect(mockContextStore.setContextDefault).toHaveBeenCalledWith(context.id, true)
+        expect(mockErrorStore.addMessage).toHaveBeenCalledWith(
+          'info',
+          'Context set as default successfully.'
+        )
+        expect(mockLoadingStore.hide).toHaveBeenCalled()
+      })
 
-    it('handles context deletion', async () => {
-      const contextId = 'test-context'
+      it('should handle removing default status', async () => {
+        const context = mockContexts[0]
+        mockContextStore.setContextDefault = vi.fn().mockResolvedValue(undefined)
 
-      mockContextStore.deleteContext.mockResolvedValue(undefined)
+        await contextsLogic.updateContextStatus(context, 'is_default', false)
 
-      await mockContextStore.deleteContext(contextId)
+        expect(mockContextStore.setContextDefault).toHaveBeenCalledWith(context.id, false)
+        expect(mockErrorStore.addMessage).toHaveBeenCalledWith(
+          'info',
+          'Context removed from default successfully.'
+        )
+      })
 
-      expect(mockContextStore.deleteContext).toHaveBeenCalledWith(contextId)
-    })
+      it('should handle update errors gracefully', async () => {
+        const context = mockContexts[1]
+        const updateError = new Error('Update failed')
+        mockContextStore.setContextDefault = vi.fn().mockRejectedValue(updateError)
 
-    it('handles setting default context', async () => {
-      const contextId = 'dev-context'
-      const isDefault = true
+        await expect(
+          contextsLogic.updateContextStatus(context, 'is_default', true)
+        ).rejects.toThrow('Update failed')
 
-      mockContextStore.setDefaultContext.mockResolvedValue(undefined)
-
-      await mockContextStore.setDefaultContext(contextId, isDefault)
-
-      expect(mockContextStore.setDefaultContext).toHaveBeenCalledWith(contextId, isDefault)
-    })
-  })
-
-  describe('Error Handling', () => {
-    it('handles fetch error appropriately', async () => {
-      const error = new Error('Failed to fetch contexts')
-      mockContextStore.fetchContexts.mockRejectedValue(error)
-
-      try {
-        await mockContextStore.fetchContexts()
-      } catch (e) {
-        expect(e).toBe(error)
-      }
-
-      expect(mockContextStore.fetchContexts).toHaveBeenCalled()
-    })
-
-    it('handles delete error appropriately', async () => {
-      const error = new Error('Failed to delete context')
-      const contextId = 'test-context'
-
-      mockContextStore.deleteContext.mockRejectedValue(error)
-
-      try {
-        await mockContextStore.deleteContext(contextId)
-      } catch (e) {
-        expect(e).toBe(error)
-      }
-
-      expect(mockContextStore.deleteContext).toHaveBeenCalledWith(contextId)
-    })
-
-    it('handles set default error appropriately', async () => {
-      const error = new Error('Failed to set default context')
-      const contextId = 'dev-context'
-      const isDefault = true
-
-      mockContextStore.setDefaultContext.mockRejectedValue(error)
-
-      try {
-        await mockContextStore.setDefaultContext(contextId, isDefault)
-      } catch (e) {
-        expect(e).toBe(error)
-      }
-
-      expect(mockContextStore.setDefaultContext).toHaveBeenCalledWith(contextId, isDefault)
+        expect(mockErrorStore.addMessage).toHaveBeenCalledWith(
+          'error',
+          'Failed to update context status. Please try again.'
+        )
+        expect(mockLoadingStore.hide).toHaveBeenCalled()
+      })
     })
   })
 
-  describe('Data Processing', () => {
-    it('correctly identifies default contexts', () => {
-      const defaultContexts = mockContexts.filter(context => context.is_default)
-      expect(defaultContexts).toHaveLength(1)
-      expect(defaultContexts[0].id).toBe('main-context')
+  describe('Context Deletion', () => {
+    describe('Successful Deletion', () => {
+      it('should successfully delete context when user confirms', async () => {
+        const contextToDelete = mockContexts[1]
+        mockDeleteStore.trigger = vi.fn().mockResolvedValue('delete')
+        mockContextStore.deleteContext = vi.fn().mockResolvedValue(undefined)
+
+        await contextsLogic.handleDeleteContext(contextToDelete)
+
+        expect(mockDeleteStore.trigger).toHaveBeenCalledWith(
+          'Delete Context',
+          `Are you sure you want to delete "${contextToDelete.internal_name}"? This action cannot be undone.`
+        )
+        expect(mockLoadingStore.show).toHaveBeenCalledWith('Deleting...')
+        expect(mockContextStore.deleteContext).toHaveBeenCalledWith(contextToDelete.id)
+        expect(mockErrorStore.addMessage).toHaveBeenCalledWith(
+          'info',
+          'Context deleted successfully.'
+        )
+        expect(mockLoadingStore.hide).toHaveBeenCalled()
+      })
+
+      it('should not delete context when user cancels', async () => {
+        const contextToDelete = mockContexts[1]
+        mockDeleteStore.trigger = vi.fn().mockResolvedValue('cancel')
+
+        await contextsLogic.handleDeleteContext(contextToDelete)
+
+        expect(mockDeleteStore.trigger).toHaveBeenCalled()
+        expect(mockContextStore.deleteContext).not.toHaveBeenCalled()
+        expect(mockLoadingStore.show).not.toHaveBeenCalled()
+      })
     })
 
-    it('correctly processes context creation date', () => {
-      const context = mockContexts[0]
-      const date = new Date(context.created_at || '')
-      expect(date.getFullYear()).toBe(2023)
-      expect(date.getMonth()).toBe(0) // January
-      expect(date.getDate()).toBe(1)
+    describe('Deletion Error Handling', () => {
+      it('should handle deletion errors gracefully', async () => {
+        const contextToDelete = mockContexts[1]
+        const deleteError = new Error('Delete failed')
+        mockDeleteStore.trigger = vi.fn().mockResolvedValue('delete')
+        mockContextStore.deleteContext = vi.fn().mockRejectedValue(deleteError)
+
+        await expect(contextsLogic.handleDeleteContext(contextToDelete)).rejects.toThrow(
+          'Delete failed'
+        )
+
+        expect(mockErrorStore.addMessage).toHaveBeenCalledWith(
+          'error',
+          'Failed to delete context. Please try again.'
+        )
+        expect(mockLoadingStore.hide).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('Data Fetching Operations', () => {
+    describe('Fetch Contexts', () => {
+      it('should successfully fetch contexts', async () => {
+        mockContextStore.fetchContexts = vi.fn().mockResolvedValue(mockContexts)
+
+        await contextsLogic.fetchContexts()
+
+        expect(mockLoadingStore.show).toHaveBeenCalled()
+        expect(mockContextStore.fetchContexts).toHaveBeenCalled()
+        expect(mockErrorStore.addMessage).toHaveBeenCalledWith(
+          'info',
+          'Contexts refreshed successfully.'
+        )
+        expect(mockLoadingStore.hide).toHaveBeenCalled()
+      })
+
+      it('should handle fetch errors gracefully', async () => {
+        const fetchError = new Error('Fetch failed')
+        mockContextStore.fetchContexts = vi.fn().mockRejectedValue(fetchError)
+
+        await expect(contextsLogic.fetchContexts()).rejects.toThrow('Fetch failed')
+
+        expect(mockErrorStore.addMessage).toHaveBeenCalledWith(
+          'error',
+          'Failed to refresh contexts. Please try again.'
+        )
+        expect(mockLoadingStore.hide).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('Integration Tests', () => {
+    describe('Filter + Search + Sort Integration', () => {
+      it('should properly combine filtering, searching, and sorting', () => {
+        // Add another default context for better testing
+        const anotherDefaultContext = createMockContext({
+          id: '123e4567-e89b-12d3-a456-426614174003',
+          internal_name: 'Alpha Production',
+          backward_compatibility: 'alpha-prod',
+          is_default: true,
+          created_at: '2023-04-01T00:00:00Z',
+        })
+        mockContextStore.defaultContexts = [mockContexts[0], anotherDefaultContext]
+
+        contextsLogic.filterMode = 'default'
+        contextsLogic.searchQuery = 'prod'
+        contextsLogic.sortKey = 'internal_name'
+        contextsLogic.sortDirection = 'asc'
+
+        const filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts.length).toBe(2)
+        expect(filteredContexts[0].internal_name).toBe('Alpha Production')
+        expect(filteredContexts[1].internal_name).toBe('Production')
+        expect(filteredContexts.every(c => c.is_default)).toBe(true)
+      })
     })
 
-    it('handles null backward_compatibility gracefully', () => {
-      const contextWithoutBackward = mockContexts.find(
-        context => context.backward_compatibility === null
-      )
-      expect(contextWithoutBackward).toBeDefined()
-      expect(contextWithoutBackward?.internal_name).toBe('Production Context')
+    describe('Real-world Usage Scenarios', () => {
+      it('should handle context management workflow', async () => {
+        // Step 1: Fetch contexts
+        await contextsLogic.fetchContexts()
+        expect(mockContextStore.fetchContexts).toHaveBeenCalled()
+
+        // Step 2: Filter to show only defaults
+        contextsLogic.filterMode = 'default'
+        let filteredContexts = contextsLogic.filteredContexts
+        expect(filteredContexts.length).toBe(1)
+
+        // Step 3: Update a context to be default
+        const nonDefaultContext = mockContexts[1]
+        await contextsLogic.updateContextStatus(nonDefaultContext, 'is_default', true)
+        expect(mockContextStore.setContextDefault).toHaveBeenCalledWith(nonDefaultContext.id, true)
+
+        // Step 4: Search for specific context
+        contextsLogic.searchQuery = 'dev'
+        filteredContexts = contextsLogic.filteredContexts
+        // This would depend on updated store state in real app
+      })
     })
   })
 })

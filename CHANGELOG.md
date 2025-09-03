@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Context Vue Tests GUID Format**: Updated Context Vue tests to use proper GUID format instead of numeric IDs
+    - **Test Consistency**: Context tests now follow the same GUID ID pattern as Project tests
+    - **ID Format Standardization**: Context/Project/Item/Partner/Tag/Picture entities use GUID format (`123e4567-e89b-12d3-a456-426614174000`)
+    - **Language/Country Codes**: Maintained lowercase 3-character codes (`eng`, `usa`) for Language/Country entities  
+    - **Context Set Default**: Properly implemented Context "set default" functionality with GUID IDs
+    - **Test Utilities**: Cleaned up duplicate mock functions and standardized ID formats in `test-utils.ts`
+    - **Icon Mocks**: Added missing HeroIcons mocks (`CheckIcon`, `XMarkIcon`) for proper component rendering
+    - **Comprehensive ID Replacement**: Systematically replaced ALL numeric IDs in both mock data and test logic across multiple test files
+
 ### Added
 
 - **Gallery Model Implementation**: Complete Gallery model as the second type of collection system

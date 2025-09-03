@@ -961,7 +961,9 @@ describe('ProjectDetail Component Business Logic', () => {
     it('should handle project fetch error', async () => {
       mockProjectStore.fetchProject = vi.fn().mockRejectedValue(new Error('Fetch failed'))
 
-      await expect(projectDetailLogic.fetchProject('123')).rejects.toThrow('Fetch failed')
+      await expect(
+        projectDetailLogic.fetchProject('123e4567-e89b-12d3-a456-426614174000')
+      ).rejects.toThrow('Fetch failed')
 
       expect(mockErrorStore.addMessage).toHaveBeenCalledWith(
         'error',
