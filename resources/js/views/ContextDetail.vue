@@ -101,10 +101,10 @@
   const route = useRoute()
   const router = useRouter()
   const contextStore = useContextStore()
-  const loadingOverlayStore = useLoadingOverlayStore()
-  const errorDisplayStore = useErrorDisplayStore()
-  const cancelChangesConfirmationStore = useCancelChangesConfirmationStore()
-  const deleteConfirmationStore = useDeleteConfirmationStore()
+  const loadingStore = useLoadingOverlayStore()
+  const errorStore = useErrorDisplayStore()
+  const cancelChangesStore = useCancelChangesConfirmationStore()
+  const deleteStore = useDeleteConfirmationStore()
 
   // Reactive state - Single source of truth for mode
   const mode = ref<'view' | 'edit' | 'create'>('view')
@@ -191,9 +191,9 @@
   // Watch for unsaved changes and sync with cancel changes store
   watch(hasUnsavedChanges, (hasChanges: boolean) => {
     if (hasChanges) {
-      cancelChangesConfirmationStore.addChange()
+      cancelChangesStore.addChange()
     } else {
-      cancelChangesConfirmationStore.resetChanges()
+      cancelChangesStore.resetChanges()
     }
   })
 
@@ -220,13 +220,13 @@
     if (!contextId || mode.value === 'create') return
 
     try {
-      loadingOverlayStore.show()
+      loadingStore.show()
       await contextStore.fetchContext(contextId)
     } catch {
-      errorDisplayStore.addMessage('error', 'Failed to load context. Please try again.')
+      errorStore.addMessage('error', 'Failed to load context. Please try again.')
       router.push({ name: 'contexts' })
     } finally {
-      loadingOverlayStore.hide()
+      loadingStore.hide()
     }
   }
 
@@ -252,7 +252,7 @@
   // Save context
   const saveContext = async () => {
     try {
-      loadingOverlayStore.show(mode.value === 'create' ? 'Creating...' : 'Saving...')
+      loadingStore.show(mode.value === 'create' ? 'Creating...' : 'Saving...')
 
       const contextData = {
         internal_name: editForm.value.internal_name,
@@ -261,7 +261,7 @@
 
       if (mode.value === 'create') {
         const savedContext = await contextStore.createContext(contextData)
-        errorDisplayStore.addMessage('info', 'Context created successfully.')
+        errorStore.addMessage('info', 'Context created successfully.')
         
         // Load the new context and enter view mode
         await contextStore.fetchContext(savedContext.id)
@@ -269,7 +269,7 @@
       } else if (mode.value === 'edit' && context.value) {
         // Update existing context
         await contextStore.updateContext(context.value.id, contextData)
-        errorDisplayStore.addMessage('info', 'Context updated successfully.')
+        errorStore.addMessage('info', 'Context updated successfully.')
 
         enterViewMode()
 
@@ -281,19 +281,19 @@
         }
       }
     } catch {
-      errorDisplayStore.addMessage(
+      errorStore.addMessage(
         'error',
         `Failed to ${mode.value === 'create' ? 'create' : 'update'} context. Please try again.`
       )
     } finally {
-      loadingOverlayStore.hide()
+      loadingStore.hide()
     }
   }
 
   // Cancel action
   const cancelAction = async () => {
     if (hasUnsavedChanges.value) {
-      const result = await cancelChangesConfirmationStore.trigger(
+      const result = await cancelChangesStore.trigger(
         mode.value === 'create' ? 'New Context has unsaved changes' : 'Context has unsaved changes',
         mode.value === 'create'
           ? 'There are unsaved changes to this new context. If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.'
@@ -303,7 +303,7 @@
       if (result === 'stay') {
         return // Cancel navigation
       } else {
-        cancelChangesConfirmationStore.resetChanges() // Reset changes before leaving
+        cancelChangesStore.resetChanges() // Reset changes before leaving
       }
     }
 
@@ -318,21 +318,21 @@
   const deleteContext = async () => {
     if (!context.value || !context.value.id) return
 
-    const result = await deleteConfirmationStore.trigger(
+    const result = await deleteStore.trigger(
       'Delete Context',
       `Are you sure you want to delete "${context.value.internal_name}"? This action cannot be undone.`
     )
 
     if (result === 'delete') {
       try {
-        loadingOverlayStore.show('Deleting...')
+        loadingStore.show('Deleting...')
         await contextStore.deleteContext(context.value.id)
-        errorDisplayStore.addMessage('info', 'Context deleted successfully.')
+        errorStore.addMessage('info', 'Context deleted successfully.')
         router.push({ name: 'contexts' })
       } catch {
-        errorDisplayStore.addMessage('error', 'Failed to delete context. Please try again.')
+        errorStore.addMessage('error', 'Failed to delete context. Please try again.')
       } finally {
-        loadingOverlayStore.hide()
+        loadingStore.hide()
       }
     }
   }
@@ -342,7 +342,7 @@
     if (!context.value || index !== 0) return // Only handle the first (and only) status card
 
     try {
-      loadingOverlayStore.show('Updating...')
+      loadingStore.show('Updating...')
 
       const newStatus = !context.value.is_default
       const updateData = {
@@ -352,14 +352,14 @@
       }
 
       await contextStore.updateContext(context.value.id, updateData)
-      errorDisplayStore.addMessage(
+      errorStore.addMessage(
         'info',
         `Context ${newStatus ? 'set as default' : 'removed as default'} successfully.`
       )
     } catch {
-      errorDisplayStore.addMessage('error', 'Failed to update context status. Please try again.')
+      errorStore.addMessage('error', 'Failed to update context status. Please try again.')
     } finally {
-      loadingOverlayStore.hide()
+      loadingStore.hide()
     }
   }
 
@@ -401,7 +401,7 @@
     ) => {
       // Only check for unsaved changes if we're in edit or create mode
       if ((mode.value === 'edit' || mode.value === 'create') && hasUnsavedChanges.value) {
-        const result = await cancelChangesConfirmationStore.trigger(
+        const result = await cancelChangesStore.trigger(
           mode.value === 'create'
             ? 'New Context has unsaved changes'
             : 'Context has unsaved changes',
@@ -413,7 +413,7 @@
         if (result === 'stay') {
           next(false) // Cancel navigation
         } else {
-          cancelChangesConfirmationStore.resetChanges() // Reset changes before leaving
+          cancelChangesStore.resetChanges() // Reset changes before leaving
           next() // Allow navigation
         }
       } else {
