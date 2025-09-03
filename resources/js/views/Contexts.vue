@@ -150,13 +150,17 @@
   const errorStore = useErrorDisplayStore()
   const deleteStore = useDeleteConfirmationStore()
 
-  // Reactive state
+  // Filter state - default to 'all'
   const filterMode = ref<'all' | 'default'>('all')
-  const searchQuery = ref('')
+
+  // Sorting state
   const sortKey = ref<string>('internal_name')
   const sortDirection = ref<'asc' | 'desc'>('asc')
 
-  // Computed properties for sorting and filtering
+  // Search state
+  const searchQuery = ref('')
+
+  // Computed filtered and sorted contexts
   const contexts = computed(() => contextStore.contexts || [])
 
   const defaultContexts = computed(() => contexts.value.filter(context => context.is_default))
