@@ -251,8 +251,8 @@
 
   const enterViewMode = () => {
     mode.value = 'view'
+    // Clear form data when returning to view mode
     editForm.value = getDefaultFormValues()
-    router.replace({ query: {} })
   }
 
   // Save context
