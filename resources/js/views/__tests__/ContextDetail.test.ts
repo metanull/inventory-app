@@ -307,7 +307,7 @@ describe('ContextDetail.vue', () => {
       await flushPromises()
 
       const vm = wrapper.vm as unknown as ContextDetailComponentInstance
-      expect(vm.informationDescription).toBe('View and edit the basic properties of this context.')
+      expect(vm.informationDescription).toBe('Detailed information about this context.')
     })
 
     it('shows correct description for create mode', async () => {
@@ -322,7 +322,7 @@ describe('ContextDetail.vue', () => {
       await flushPromises()
 
       const vm = wrapper.vm as unknown as ContextDetailComponentInstance
-      expect(vm.informationDescription).toBe('Configure the basic properties for this new context.')
+      expect(vm.informationDescription).toBe('Create a new context in your inventory system.')
     })
   })
 
@@ -397,7 +397,7 @@ describe('ContextDetail.vue', () => {
 
       expect(mockErrorDisplayStore.addMessage).toHaveBeenCalledWith(
         'error',
-        'Failed to update context status. Please try again.'
+        'Failed to update context default status. You may not have permission to make this change.'
       )
     })
 

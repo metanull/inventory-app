@@ -49,13 +49,25 @@
             <DisplayText v-else>{{ context?.backward_compatibility }}</DisplayText>
           </DescriptionDetail>
         </DescriptionRow>
+        <DescriptionRow v-if="context?.created_at" variant="gray">
+          <DescriptionTerm>Created</DescriptionTerm>
+          <DescriptionDetail>
+            <DateDisplay :date="context.created_at" format="medium" variant="small-dark" />
+          </DescriptionDetail>
+        </DescriptionRow>
+        <DescriptionRow v-if="context?.updated_at" variant="white">
+          <DescriptionTerm>Last Updated</DescriptionTerm>
+          <DescriptionDetail>
+            <DateDisplay :date="context.updated_at" format="medium" variant="small-dark" />
+          </DescriptionDetail>
+        </DescriptionRow>
       </DescriptionList>
     </template>
   </DetailView>
 </template>
 
 <script setup lang="ts">
-  import { computed, ref, onMounted } from 'vue'
+  import { computed, ref, onMounted, watch } from 'vue'
   import {
     useRoute,
     useRouter,
@@ -63,8 +75,6 @@
     type NavigationGuardNext,
     type RouteLocationNormalized,
   } from 'vue-router'
-
-  // Components
   import DetailView from '@/components/layout/detail/DetailView.vue'
   import DescriptionList from '@/components/format/description/DescriptionList.vue'
   import DescriptionRow from '@/components/format/description/DescriptionRow.vue'
@@ -72,50 +82,58 @@
   import DescriptionDetail from '@/components/format/description/DescriptionDetail.vue'
   import FormInput from '@/components/format/FormInput.vue'
   import DisplayText from '@/components/format/DisplayText.vue'
-
-  // Icons
+  import DateDisplay from '@/components/format/Date.vue'
   import { CogIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline'
   import { CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/solid'
-
-  // Stores
   import { useContextStore } from '@/stores/context'
   import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
   import { useErrorDisplayStore } from '@/stores/errorDisplay'
   import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
   import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
 
-  // Store instances
-  const route = useRoute()
-  const router = useRouter()
-  const contextStore = useContextStore()
-  const loadingOverlayStore = useLoadingOverlayStore()
-  const errorDisplayStore = useErrorDisplayStore()
-  const cancelChangesConfirmationStore = useCancelChangesConfirmationStore()
-  const deleteConfirmationStore = useDeleteConfirmationStore()
+  // Types
+  type Mode = 'view' | 'edit' | 'create'
 
-  // Route parameters
-  const contextId = computed(() => route.params.id as string)
-
-  // Reactive state - Single source of truth for mode
-  const mode = ref<'view' | 'edit' | 'create'>('view')
-
-  // Current context
-  const context = computed(() => contextStore.currentContext)
-
-  // Edit form
-  interface ContextEditForm {
+  interface ContextFormData {
     id?: string
     internal_name: string
     backward_compatibility: string
   }
 
-  const editForm = ref<ContextEditForm>({
+  // Composables
+  const route = useRoute()
+  const router = useRouter()
+  const contextStore = useContextStore()
+  const loadingStore = useLoadingOverlayStore()
+  const errorStore = useErrorDisplayStore()
+  const deleteStore = useDeleteConfirmationStore()
+  const cancelChangesStore = useCancelChangesConfirmationStore()
+
+  // Reactive state - Single source of truth for mode
+  const mode = ref<Mode>('view')
+
+  // Computed properties
+  const context = computed(() => contextStore.currentContext)
+
+  const editForm = ref<ContextFormData>({
     id: '',
     internal_name: '',
     backward_compatibility: '',
   })
 
-  // Back link
+  // Information description based on mode
+  const informationDescription = computed(() => {
+    switch (mode.value) {
+      case 'create':
+        return 'Create a new context in your inventory system.'
+      case 'edit':
+        return 'Edit detailed information about this context.'
+      default:
+        return 'Detailed information about this context.'
+    }
+  })
+
+  // Back link configuration
   const backLink = computed(() => ({
     title: 'Back to Contexts',
     route: '/contexts',
@@ -123,12 +141,27 @@
     color: 'green',
   }))
 
-  // Information description
-  const informationDescription = computed(() => {
+  // Unsaved changes detection
+  const hasUnsavedChanges = computed(() => {
+    if (mode.value === 'view') return false
+
+    // For create mode, compare with default values
     if (mode.value === 'create') {
-      return 'Configure the basic properties for this new context.'
+      const defaultValues = getDefaultFormValues()
+      return (
+        editForm.value.internal_name !== defaultValues.internal_name ||
+        editForm.value.backward_compatibility !== defaultValues.backward_compatibility
+      )
     }
-    return 'View and edit the basic properties of this context.'
+
+    // For edit mode, compare with original values
+    if (!context.value) return false
+
+    const originalValues = getFormValuesFromContext()
+    return (
+      editForm.value.internal_name !== originalValues.internal_name ||
+      editForm.value.backward_compatibility !== originalValues.backward_compatibility
+    )
   })
 
   // Status cards configuration
@@ -155,37 +188,23 @@
     ]
   })
 
-  // Unsaved changes detection
-  const hasUnsavedChanges = computed(() => {
-    if (mode.value === 'view') return false
-
-    // For create mode, compare with default values
-    if (mode.value === 'create') {
-      const defaultValues = getDefaultFormValues()
-      return (
-        editForm.value.internal_name !== defaultValues.internal_name ||
-        editForm.value.backward_compatibility !== defaultValues.backward_compatibility
-      )
+  // Watch for unsaved changes and sync with cancel changes store
+  watch(hasUnsavedChanges, (hasChanges: boolean) => {
+    if (hasChanges) {
+      cancelChangesStore.addChange()
+    } else {
+      cancelChangesStore.resetChanges()
     }
-
-    // For edit mode, compare with original values
-    if (!context.value) return false
-
-    const originalValues = getFormValuesFromContext()
-    return (
-      editForm.value.internal_name !== originalValues.internal_name ||
-      editForm.value.backward_compatibility !== originalValues.backward_compatibility
-    )
   })
 
   // Initialize edit form from context data
-  const getDefaultFormValues = (): ContextEditForm => ({
+  const getDefaultFormValues = (): ContextFormData => ({
     id: '',
     internal_name: '',
     backward_compatibility: '',
   })
 
-  const getFormValuesFromContext = (): ContextEditForm => {
+  const getFormValuesFromContext = (): ContextFormData => {
     if (!context.value) return getDefaultFormValues()
 
     return {
@@ -195,19 +214,19 @@
     }
   }
 
-  // Fetch context data
+  // Fetch context function
   const fetchContext = async () => {
     const contextId = route.params.id as string
     if (!contextId || mode.value === 'create') return
 
     try {
-      loadingOverlayStore.show()
+      loadingStore.show()
       await contextStore.fetchContext(contextId)
     } catch {
-      errorDisplayStore.addMessage('error', 'Failed to load context. Please try again.')
+      errorStore.addMessage('error', 'Failed to load context. The context may not exist or you may not have permission to view it.')
       router.push({ name: 'contexts' })
     } finally {
-      loadingOverlayStore.hide()
+      loadingStore.hide()
     }
   }
 
@@ -221,19 +240,18 @@
     if (!context.value) return
     mode.value = 'edit'
     editForm.value = getFormValuesFromContext()
-    router.replace({ query: { mode: 'edit' } })
   }
 
   const enterViewMode = () => {
     mode.value = 'view'
+    // Clear form data when returning to view mode
     editForm.value = getDefaultFormValues()
-    router.replace({ query: {} })
   }
 
-  // Save context
+  // Action handlers
   const saveContext = async () => {
     try {
-      loadingOverlayStore.show(mode.value === 'create' ? 'Creating...' : 'Saving...')
+      loadingStore.show(mode.value === 'create' ? 'Creating...' : 'Saving...')
 
       const contextData = {
         internal_name: editForm.value.internal_name,
@@ -242,27 +260,38 @@
 
       if (mode.value === 'create') {
         const savedContext = await contextStore.createContext(contextData)
-        router.push(`/contexts/${savedContext.id}`)
-        errorDisplayStore.addMessage('info', 'Context created successfully.')
-      } else {
-        await contextStore.updateContext(contextId.value, contextData)
+        errorStore.addMessage('info', 'Context created successfully.')
+        
+        // Load the new context and enter view mode
+        await contextStore.fetchContext(savedContext.id)
         enterViewMode()
-        errorDisplayStore.addMessage('info', 'Context updated successfully.')
+      } else if (mode.value === 'edit' && context.value) {
+        // Update existing context
+        await contextStore.updateContext(context.value.id, contextData)
+        errorStore.addMessage('info', 'Context updated successfully.')
+
+        enterViewMode()
+
+        // Remove edit query parameter if present
+        if (route.query.edit) {
+          const query = { ...route.query }
+          delete query.edit
+          await router.replace({ query })
+        }
       }
     } catch {
-      errorDisplayStore.addMessage(
+      errorStore.addMessage(
         'error',
         `Failed to ${mode.value === 'create' ? 'create' : 'update'} context. Please try again.`
       )
     } finally {
-      loadingOverlayStore.hide()
+      loadingStore.hide()
     }
   }
 
-  // Cancel action
   const cancelAction = async () => {
     if (hasUnsavedChanges.value) {
-      const result = await cancelChangesConfirmationStore.trigger(
+      const result = await cancelChangesStore.trigger(
         mode.value === 'create' ? 'New Context has unsaved changes' : 'Context has unsaved changes',
         mode.value === 'create'
           ? 'There are unsaved changes to this new context. If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.'
@@ -272,7 +301,7 @@
       if (result === 'stay') {
         return // Cancel navigation
       } else {
-        cancelChangesConfirmationStore.resetChanges() // Reset changes before leaving
+        cancelChangesStore.resetChanges() // Reset changes before leaving
       }
     }
 
@@ -283,35 +312,34 @@
     }
   }
 
-  // Delete context
   const deleteContext = async () => {
     if (!context.value || !context.value.id) return
 
-    const result = await deleteConfirmationStore.trigger(
+    const result = await deleteStore.trigger(
       'Delete Context',
       `Are you sure you want to delete "${context.value.internal_name}"? This action cannot be undone.`
     )
 
     if (result === 'delete') {
       try {
-        loadingOverlayStore.show('Deleting...')
+        loadingStore.show('Deleting...')
         await contextStore.deleteContext(context.value.id)
-        errorDisplayStore.addMessage('info', 'Context deleted successfully.')
+        errorStore.addMessage('info', 'Context deleted successfully.')
         router.push({ name: 'contexts' })
       } catch {
-        errorDisplayStore.addMessage('error', 'Failed to delete context. Please try again.')
+        errorStore.addMessage('error', 'Failed to delete context. The context may be in use or you may not have permission to delete it.')
       } finally {
-        loadingOverlayStore.hide()
+        loadingStore.hide()
       }
     }
   }
 
-  // Handle status toggle for context (only Default Status since contexts don't have active/inactive status)
+  // Status toggle handlers
   const handleStatusToggle = async (index: number) => {
     if (!context.value || index !== 0) return // Only handle the first (and only) status card
 
     try {
-      loadingOverlayStore.show('Updating...')
+      loadingStore.show('Updating...')
 
       const newStatus = !context.value.is_default
       const updateData = {
@@ -321,14 +349,14 @@
       }
 
       await contextStore.updateContext(context.value.id, updateData)
-      errorDisplayStore.addMessage(
+      errorStore.addMessage(
         'info',
         `Context ${newStatus ? 'set as default' : 'removed as default'} successfully.`
       )
     } catch {
-      errorDisplayStore.addMessage('error', 'Failed to update context status. Please try again.')
+      errorStore.addMessage('error', 'Failed to update context default status. You may not have permission to make this change.')
     } finally {
-      loadingOverlayStore.hide()
+      loadingStore.hide()
     }
   }
 
@@ -347,7 +375,7 @@
         await fetchContext()
 
         // Check if we should start in edit mode from query parameter
-        if (route.query.mode === 'edit' && context.value) {
+        if (route.query.edit === 'true' && context.value) {
           enterEditMode()
         } else {
           enterViewMode()
@@ -370,7 +398,7 @@
     ) => {
       // Only check for unsaved changes if we're in edit or create mode
       if ((mode.value === 'edit' || mode.value === 'create') && hasUnsavedChanges.value) {
-        const result = await cancelChangesConfirmationStore.trigger(
+        const result = await cancelChangesStore.trigger(
           mode.value === 'create'
             ? 'New Context has unsaved changes'
             : 'Context has unsaved changes',
@@ -382,7 +410,7 @@
         if (result === 'stay') {
           next(false) // Cancel navigation
         } else {
-          cancelChangesConfirmationStore.resetChanges() // Reset changes before leaving
+          cancelChangesStore.resetChanges() // Reset changes before leaving
           next() // Allow navigation
         }
       } else {

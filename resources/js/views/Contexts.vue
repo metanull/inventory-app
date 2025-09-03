@@ -107,12 +107,12 @@
           </div>
         </TableCell>
         <TableCell class="hidden lg:table-cell">
-          <DateDisplay :date="context.created_at" />
+          <DateDisplay :date="context.created_at" format="short" variant="small-dark" />
         </TableCell>
         <TableCell class="hidden sm:table-cell">
           <div class="flex space-x-2" @click.stop>
             <ViewButton @click="router.push(`/contexts/${context.id}`)" />
-            <EditButton @click="router.push(`/contexts/${context.id}?mode=edit`)" />
+            <EditButton @click="router.push(`/contexts/${context.id}?edit=true`)" />
             <DeleteButton @click="handleDeleteContext(context)" />
           </div>
         </TableCell>
@@ -150,13 +150,17 @@
   const errorStore = useErrorDisplayStore()
   const deleteStore = useDeleteConfirmationStore()
 
-  // Reactive state
+  // Filter state - default to 'all'
   const filterMode = ref<'all' | 'default'>('all')
-  const searchQuery = ref('')
+
+  // Sorting state
   const sortKey = ref<string>('internal_name')
   const sortDirection = ref<'asc' | 'desc'>('asc')
 
-  // Computed properties for sorting and filtering
+  // Search state
+  const searchQuery = ref('')
+
+  // Computed filtered and sorted contexts
   const contexts = computed(() => contextStore.contexts || [])
 
   const defaultContexts = computed(() => contexts.value.filter(context => context.is_default))
