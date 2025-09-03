@@ -240,7 +240,6 @@
     if (!context.value) return
     mode.value = 'edit'
     editForm.value = getFormValuesFromContext()
-    router.replace({ query: { mode: 'edit' } })
   }
 
   const enterViewMode = () => {
