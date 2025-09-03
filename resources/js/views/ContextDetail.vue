@@ -19,7 +19,7 @@
     @status-toggle="handleStatusToggle"
   >
     <template #resource-icon>
-      <CogIcon class="h-6 w-6 text-orange-600" />
+      <CogIcon class="h-6 w-6 text-green-600" />
     </template>
     <template #information>
       <DescriptionList>
@@ -77,9 +77,6 @@
   import { CogIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline'
   import { CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/solid'
 
-  // Types
-  import type { ContextResource } from '@metanull/inventory-app-api-client'
-
   // Stores
   import { useContextStore } from '@/stores/context'
   import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
@@ -98,10 +95,9 @@
 
   // Route parameters
   const contextId = computed(() => route.params.id as string)
-  const isCreate = computed(() => contextId.value === 'new')
-  const mode = ref<'view' | 'edit' | 'create'>(
-    isCreate.value ? 'create' : route.query.mode === 'edit' ? 'edit' : 'view'
-  )
+
+  // Reactive state - Single source of truth for mode
+  const mode = ref<'view' | 'edit' | 'create'>('view')
 
   // Current context
   const context = computed(() => contextStore.currentContext)
@@ -124,7 +120,7 @@
     title: 'Back to Contexts',
     route: '/contexts',
     icon: ArrowLeftIcon,
-    color: 'orange',
+    color: 'green',
   }))
 
   // Information description
@@ -161,45 +157,52 @@
 
   // Unsaved changes detection
   const hasUnsavedChanges = computed(() => {
-    if (mode.value === 'create') {
-      return editForm.value.internal_name.trim() !== ''
-    }
+    if (mode.value === 'view') return false
 
-    if (mode.value === 'edit' && context.value) {
+    // For create mode, compare with default values
+    if (mode.value === 'create') {
+      const defaultValues = getDefaultFormValues()
       return (
-        editForm.value.internal_name !== context.value.internal_name ||
-        editForm.value.backward_compatibility !== (context.value.backward_compatibility || '')
+        editForm.value.internal_name !== defaultValues.internal_name ||
+        editForm.value.backward_compatibility !== defaultValues.backward_compatibility
       )
     }
 
-    return false
+    // For edit mode, compare with original values
+    if (!context.value) return false
+
+    const originalValues = getFormValuesFromContext()
+    return (
+      editForm.value.internal_name !== originalValues.internal_name ||
+      editForm.value.backward_compatibility !== originalValues.backward_compatibility
+    )
   })
 
   // Initialize edit form from context data
-  const initializeEditForm = () => {
-    if (mode.value === 'create') {
-      editForm.value = {
-        id: '',
-        internal_name: '',
-        backward_compatibility: '',
-      }
-    } else if (context.value) {
-      editForm.value = {
-        id: context.value.id,
-        internal_name: context.value.internal_name,
-        backward_compatibility: context.value.backward_compatibility || '',
-      }
+  const getDefaultFormValues = (): ContextEditForm => ({
+    id: '',
+    internal_name: '',
+    backward_compatibility: '',
+  })
+
+  const getFormValuesFromContext = (): ContextEditForm => {
+    if (!context.value) return getDefaultFormValues()
+
+    return {
+      id: context.value.id,
+      internal_name: context.value.internal_name,
+      backward_compatibility: context.value.backward_compatibility || '',
     }
   }
 
   // Fetch context data
   const fetchContext = async () => {
-    if (isCreate.value) return
+    const contextId = route.params.id as string
+    if (!contextId || mode.value === 'create') return
 
     try {
       loadingOverlayStore.show()
-      await contextStore.fetchContext(contextId.value)
-      initializeEditForm()
+      await contextStore.fetchContext(contextId)
     } catch {
       errorDisplayStore.addMessage('error', 'Failed to load context. Please try again.')
       router.push({ name: 'contexts' })
@@ -208,16 +211,22 @@
     }
   }
 
-  // Mode management
+  // Mode management functions
+  const enterCreateMode = () => {
+    mode.value = 'create'
+    editForm.value = getDefaultFormValues()
+  }
+
   const enterEditMode = () => {
+    if (!context.value) return
     mode.value = 'edit'
-    initializeEditForm()
+    editForm.value = getFormValuesFromContext()
     router.replace({ query: { mode: 'edit' } })
   }
 
-  const exitEditMode = () => {
+  const enterViewMode = () => {
     mode.value = 'view'
-    initializeEditForm()
+    editForm.value = getDefaultFormValues()
     router.replace({ query: {} })
   }
 
@@ -226,22 +235,18 @@
     try {
       loadingOverlayStore.show(mode.value === 'create' ? 'Creating...' : 'Saving...')
 
-      let savedContext: ContextResource
+      const contextData = {
+        internal_name: editForm.value.internal_name,
+        backward_compatibility: editForm.value.backward_compatibility || null,
+      }
+
       if (mode.value === 'create') {
-        const createData = {
-          internal_name: editForm.value.internal_name,
-          backward_compatibility: editForm.value.backward_compatibility || null,
-        }
-        savedContext = await contextStore.createContext(createData)
+        const savedContext = await contextStore.createContext(contextData)
         router.push(`/contexts/${savedContext.id}`)
         errorDisplayStore.addMessage('info', 'Context created successfully.')
       } else {
-        const updateData = {
-          internal_name: editForm.value.internal_name,
-          backward_compatibility: editForm.value.backward_compatibility || null,
-        }
-        savedContext = await contextStore.updateContext(contextId.value, updateData)
-        exitEditMode()
+        await contextStore.updateContext(contextId.value, contextData)
+        enterViewMode()
         errorDisplayStore.addMessage('info', 'Context updated successfully.')
       }
     } catch {
@@ -274,7 +279,7 @@
     if (mode.value === 'create') {
       router.push({ name: 'contexts' })
     } else {
-      exitEditMode()
+      enterViewMode()
     }
   }
 
@@ -329,15 +334,15 @@
 
   // Initialize component
   const initializeComponent = async () => {
+    const contextId = route.params.id as string
     const isCreateRoute = route.name === 'context-new' || route.path === '/contexts/new'
 
     try {
       if (isCreateRoute) {
-        // For create mode, clear current context and enter create mode
+        // Clear current context to avoid showing stale data from previously viewed contexts
         contextStore.clearCurrentContext()
-        mode.value = 'create'
-        initializeEditForm()
-      } else if (contextId.value) {
+        enterCreateMode()
+      } else if (contextId) {
         // For view/edit mode, fetch context data
         await fetchContext()
 
@@ -345,7 +350,7 @@
         if (route.query.mode === 'edit' && context.value) {
           enterEditMode()
         } else {
-          mode.value = 'view'
+          enterViewMode()
         }
       }
     } catch {

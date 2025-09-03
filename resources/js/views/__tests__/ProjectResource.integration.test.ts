@@ -49,21 +49,21 @@ vi.mock('@/stores/language')
 // Test data
 const mockProjects: ProjectResource[] = [
   createMockProject({
-    id: '1',
+    id: '123e4567-e89b-12d3-a456-426614174000',
     internal_name: 'Alpha Project',
     backward_compatibility: 'alpha',
     is_enabled: true,
     is_launched: true,
   }),
   createMockProject({
-    id: '2',
+    id: '123e4567-e89b-12d3-a456-426614174001',
     internal_name: 'Beta Project',
     backward_compatibility: 'beta',
     is_enabled: true,
     is_launched: false,
   }),
   createMockProject({
-    id: '3',
+    id: '123e4567-e89b-12d3-a456-426614174002',
     internal_name: 'Gamma Project',
     backward_compatibility: 'gamma',
     is_enabled: false,
@@ -241,15 +241,21 @@ describe('Project Resource Integration Tests', () => {
 
     it('should handle Project-specific status toggle workflows', async () => {
       // Load project
-      await projectStore.fetchProject('2') // Beta Project (enabled, not launched)
+      await projectStore.fetchProject('123e4567-e89b-12d3-a456-426614174001') // Beta Project (enabled, not launched)
 
       // Toggle enabled status (Project-specific operation)
-      await projectStore.setProjectEnabled('2', false)
-      expect(projectStore.setProjectEnabled).toHaveBeenCalledWith('2', false)
+      await projectStore.setProjectEnabled('123e4567-e89b-12d3-a456-426614174001', false)
+      expect(projectStore.setProjectEnabled).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174001',
+        false
+      )
 
       // Toggle launch status (Project-specific operation)
-      await projectStore.setProjectLaunched('2', true)
-      expect(projectStore.setProjectLaunched).toHaveBeenCalledWith('2', true)
+      await projectStore.setProjectLaunched('123e4567-e89b-12d3-a456-426614174001', true)
+      expect(projectStore.setProjectLaunched).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174001',
+        true
+      )
 
       // Verify both status changes were processed
       expect(projectStore.setProjectEnabled).toHaveBeenCalledTimes(1)
@@ -261,7 +267,7 @@ describe('Project Resource Integration Tests', () => {
     it('should coordinate between Project, Context, and Language stores for form operations', async () => {
       // Load all dependencies (simulating ProjectDetail.vue initialization)
       await Promise.all([
-        projectStore.fetchProject('1'),
+        projectStore.fetchProject('123e4567-e89b-12d3-a456-426614174000'),
         contextStore.fetchContexts(),
         languageStore.fetchLanguages(),
       ])

@@ -59,7 +59,7 @@ vi.mock('@/stores/deleteConfirmation')
 
 const mockProjects: ProjectResource[] = [
   createMockProject({
-    id: '1',
+    id: '123e4567-e89b-12d3-a456-426614174000',
     internal_name: 'Active Project',
     backward_compatibility: 'active-project',
     is_enabled: true,
@@ -68,7 +68,7 @@ const mockProjects: ProjectResource[] = [
     created_at: '2023-01-01T00:00:00Z',
   }),
   createMockProject({
-    id: '2',
+    id: '123e4567-e89b-12d3-a456-426614174001',
     internal_name: 'Disabled Project',
     backward_compatibility: 'disabled-project',
     is_enabled: false,
@@ -77,7 +77,7 @@ const mockProjects: ProjectResource[] = [
     created_at: '2023-02-01T00:00:00Z',
   }),
   createMockProject({
-    id: '3',
+    id: '123e4567-e89b-12d3-a456-426614174002',
     internal_name: 'Enabled Not Launched',
     backward_compatibility: 'enabled-not-launched',
     is_enabled: true,
@@ -221,7 +221,7 @@ describe('Projects.vue', () => {
 
       const filteredProjects = (wrapper.vm as unknown as ProjectsComponentInstance).filteredProjects
       expect(filteredProjects.length).toBe(1)
-      expect(filteredProjects[0].id).toBe('1')
+      expect(filteredProjects[0].id).toBe('123e4567-e89b-12d3-a456-426614174000')
     })
   })
 
@@ -348,7 +348,7 @@ describe('Projects.vue', () => {
       // Create a project with null internal_name by directly assigning it
       const projectWithNull = {
         ...createMockProject({
-          id: '4',
+          id: '123e4567-e89b-12d3-a456-426614174003',
           internal_name: 'temp',
           is_enabled: true,
           is_launched: false,
@@ -505,7 +505,9 @@ describe('Projects.vue', () => {
 
       await editButton.trigger('click')
 
-      expect(routerPushSpy).toHaveBeenCalledWith('/projects/1?edit=true')
+      expect(routerPushSpy).toHaveBeenCalledWith(
+        '/projects/123e4567-e89b-12d3-a456-426614174000?edit=true'
+      )
     })
   })
 
