@@ -11,6 +11,7 @@
 #   DEPLOY_PATH, WEBSERVER_PATH (symlink location)
 #   APP_NAME, APP_ENV, APP_DEBUG, APP_URL
 #   DB_CONNECTION, DB_HOST, DB_PORT
+#   API_DOCS_ENABLED (optional, defaults to false)
 #   APACHE_SERVICE_USER (optional, defaults to SYSTEM)
 #
 # Secrets:
@@ -249,6 +250,8 @@ jobs:
       APP_KEY: ${{ secrets.APP_KEY || 'base64:YOUR_DEFAULT_APP_KEY_HERE' }}  
       APP_DEBUG: ${{ vars.APP_DEBUG || 'false' }}
       APP_URL: ${{ vars.APP_URL || 'http://localhost' }}
+      # API Documentation
+      API_DOCS_ENABLED: ${{ vars.API_DOCS_ENABLED || 'false' }}
       # Database configuration
       DB_CONNECTION: ${{ vars.DB_CONNECTION || 'mysql'}}
       DB_HOST: ${{ vars.DB_HOST || '127.0.0.1' }}
@@ -306,6 +309,7 @@ jobs:
             'DB_DATABASE=laravel' = "DB_DATABASE=$env:DB_DATABASE"
             'DB_USERNAME=root' = "DB_USERNAME=$env:DB_USERNAME"
             'DB_PASSWORD=' = "DB_PASSWORD=$env:DB_PASSWORD"
+            'API_DOCS_ENABLED=false' = "API_DOCS_ENABLED=$env:API_DOCS_ENABLED"
             'APP_DEFAULT_USER_EMAIL=user@example.com' = "APP_DEFAULT_USER_EMAIL=$env:APP_DEFAULT_USER_EMAIL"
             'APP_DEFAULT_USER_USERNAME=user' = "APP_DEFAULT_USER_USERNAME=$env:APP_DEFAULT_USER_USERNAME"
             'APP_DEFAULT_USER_PASSWORD=password' = "APP_DEFAULT_USER_PASSWORD=$env:APP_DEFAULT_USER_PASSWORD"

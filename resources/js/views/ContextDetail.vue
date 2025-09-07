@@ -223,7 +223,10 @@
       loadingStore.show()
       await contextStore.fetchContext(contextId)
     } catch {
-      errorStore.addMessage('error', 'Failed to load context. The context may not exist or you may not have permission to view it.')
+      errorStore.addMessage(
+        'error',
+        'Failed to load context. The context may not exist or you may not have permission to view it.'
+      )
       router.push({ name: 'contexts' })
     } finally {
       loadingStore.hide()
@@ -261,7 +264,7 @@
       if (mode.value === 'create') {
         const savedContext = await contextStore.createContext(contextData)
         errorStore.addMessage('info', 'Context created successfully.')
-        
+
         // Load the new context and enter view mode
         await contextStore.fetchContext(savedContext.id)
         enterViewMode()
@@ -327,7 +330,10 @@
         errorStore.addMessage('info', 'Context deleted successfully.')
         router.push({ name: 'contexts' })
       } catch {
-        errorStore.addMessage('error', 'Failed to delete context. The context may be in use or you may not have permission to delete it.')
+        errorStore.addMessage(
+          'error',
+          'Failed to delete context. The context may be in use or you may not have permission to delete it.'
+        )
       } finally {
         loadingStore.hide()
       }
@@ -342,19 +348,16 @@
       loadingStore.show('Updating...')
 
       const newStatus = !context.value.is_default
-      const updateData = {
-        internal_name: context.value.internal_name,
-        backward_compatibility: context.value.backward_compatibility,
-        is_default: newStatus,
-      }
-
-      await contextStore.updateContext(context.value.id, updateData)
+      await contextStore.setDefaultContext(context.value.id, newStatus)
       errorStore.addMessage(
         'info',
         `Context ${newStatus ? 'set as default' : 'removed as default'} successfully.`
       )
     } catch {
-      errorStore.addMessage('error', 'Failed to update context default status. You may not have permission to make this change.')
+      errorStore.addMessage(
+        'error',
+        'Failed to update context default status. You may not have permission to make this change.'
+      )
     } finally {
       loadingStore.hide()
     }

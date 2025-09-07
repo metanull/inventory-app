@@ -13,6 +13,11 @@ class CustomRestrictedDocsAccess
             return $next($request);
         }
 
+        // Check if API documentation is explicitly enabled via environment variable
+        if (env('API_DOCS_ENABLED', false)) {
+            return $next($request);
+        }
+
         if (Gate::allows('viewApiDocs')) {
             return $next($request);
         }
