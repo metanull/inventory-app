@@ -16,6 +16,9 @@
 # Secrets:
 #   APP_KEY, MARIADB_DATABASE, MARIADB_USER, MARIADB_SECRET
 #
+# IMPORTANT: Make sure APP_URL is set correctly in the MWNF-SVR environment
+#            as it's used to configure the Vue.js API endpoint (VITE_API_BASE_URL)
+#
 # DEPLOYMENT STRATEGY:
 #   This workflow uses a symlink-based deployment strategy:
 #   1. Downloads the build artifact
@@ -266,6 +269,9 @@ jobs:
       MAIL_ENCRYPTION: ${{ vars.MAIL_ENCRYPTION || 'null' }}
       MAIL_FROM_ADDRESS: ${{ vars.MAIL_FROM_ADDRESS || 'user@example.com' }}
       MAIL_FROM_NAME: ${{ vars.MAIL_FROM_NAME || 'Inventory App' }}
+      # Vue.js environment
+      VITE_API_BASE_URL: ${{ vars.APP_URL || 'http://localhost' }}/api
+      VITE_APP_TITLE: ${{ vars.APP_NAME || 'Inventory App' }}
 
     steps:
       - name: Generate production .env file
@@ -291,6 +297,8 @@ jobs:
             'APP_KEY=' = "APP_KEY=$env:APP_KEY"
             'APP_DEBUG=false' = "APP_DEBUG=$env:APP_DEBUG"
             'APP_URL=http://localhost' = "APP_URL=$env:APP_URL"
+            'VITE_API_BASE_URL="${APP_URL}/api"' = "VITE_API_BASE_URL=""$env:APP_URL/api"""
+            'VITE_APP_TITLE="Inventory App"' = "VITE_APP_TITLE=""$env:VITE_APP_TITLE"""
             'LOG_LEVEL=debug' = "LOG_LEVEL=error"
             'DB_CONNECTION=mysql' = "DB_CONNECTION=$env:DB_CONNECTION"
             'DB_HOST=127.0.0.1' = "DB_HOST=$env:DB_HOST"
