@@ -70,7 +70,9 @@ describe('AppHeader', () => {
   })
 
   it('toggles dropdown on click', async () => {
-    const dropdownButton = wrapper.find('div.relative button')
+    // Find the Reference Data dropdown button (not the first div.relative which is Inventory)
+    const referenceDataDropdown = wrapper.findAll('div.relative')[1] // Second relative div is Reference Data
+    const dropdownButton = referenceDataDropdown.find('button')
 
     await dropdownButton.trigger('click')
     expect(wrapper.vm.isDropdownOpen).toBe(true)
@@ -143,21 +145,27 @@ describe('AppHeader', () => {
     wrapper.vm.isMobileMenuOpen = true
     await wrapper.vm.$nextTick()
 
-    // Find the mobile reference data button inside the mobile menu
-    const mobileReferenceButton = wrapper.find('.md\\:hidden .px-3 button')
-    expect(mobileReferenceButton.exists()).toBe(true)
-    expect(mobileReferenceButton.text()).toContain('Reference Data')
+    // Find the Reference Data button in the mobile navigation panel
+    const mobileNavPanel = wrapper.find('.md\\:hidden.border-t')
+    const referenceDataButton = mobileNavPanel
+      .findAll('button')
+      .find(button => button.text().includes('Reference Data'))
+
+    expect(referenceDataButton?.exists()).toBe(true)
+    expect(referenceDataButton?.text()).toContain('Reference Data')
 
     // Initially closed
     expect(wrapper.vm.isMobileDropdownOpen).toBe(false)
 
     // Click to open
-    await mobileReferenceButton.trigger('click')
-    expect(wrapper.vm.isMobileDropdownOpen).toBe(true)
+    if (referenceDataButton) {
+      await referenceDataButton.trigger('click')
+      expect(wrapper.vm.isMobileDropdownOpen).toBe(true)
 
-    // Click again to close
-    await mobileReferenceButton.trigger('click')
-    expect(wrapper.vm.isMobileDropdownOpen).toBe(false)
+      // Click again to close
+      await referenceDataButton.trigger('click')
+      expect(wrapper.vm.isMobileDropdownOpen).toBe(false)
+    }
   })
 
   it('closes mobile menu when menu link is clicked', async () => {
