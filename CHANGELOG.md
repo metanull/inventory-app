@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Inventory Menu**: New navigation dropdown for Items and Partners in main application header
+- **Items Feature**: Complete CRUD functionality for inventory items management
+  - **Items List**: Search, filtering (all/objects/monuments), sorting, and pagination
+  - **Item Detail**: Full create/edit/delete functionality with relationships to Partners, Projects, and Countries  
+  - **Type System**: Support for "Object" and "Monument" item types with visual badges
+  - **Relationship Management**: Optional associations with Partners, Projects, and Countries
+  - **Store Integration**: Reactive Pinia store for state management with API client integration
+  - **Routing**: Full route structure for list, detail, create, and edit views
+- **Partners Feature**: Complete CRUD functionality for partner management
+  - **Partners List**: Search, filtering (all/museums/institutions/individuals), sorting, and pagination
+  - **Partner Detail**: Full create/edit/delete functionality with country relationships
+  - **Type System**: Support for "Museum", "Institution", and "Individual" partner types
+  - **Store Integration**: Reactive Pinia store for state management with API client integration
+  - **Routing**: Full route structure for list, detail, create, and edit views
+- **Date Utilities**: Utility functions for consistent date formatting across the application
+- **UI Test Coverage**: Added comprehensive tests for Item relationship updates and dropdown unset operations
+
+### Enhanced
+
+- **Home Dashboard Layout**: Redesigned with organized sections for Inventory, Reference Data, and Tools
+  - **Responsive Grid**: Up to 4 tiles per row on extra-large screens (xl:grid-cols-4)
+  - **Section Organization**: Clear visual separation with section headers and borders
+  - **Color Theming**: Distinct color schemes - Items (teal), Partners (yellow), Reference Data (existing colors)
+- **Component Color Support**: Extended color mappings across all UI components
+  - **Navigation Cards**: Added teal and yellow color support for consistent theming
+  - **Add Buttons**: Extended color map to support teal theme for Items
+  - **List Views**: Added teal color support for Items list styling
+  - **Card Components**: Enhanced responsive icon sizing (32px→48px→64px across breakpoints)
+- **Heroicons Integration**: Replaced all hardcoded SVG elements with proper Heroicon components
+  - **Edit/Delete Buttons**: Using PencilIcon and TrashIcon from @heroicons/vue/24/outline
+  - **Navigation Cards**: ChevronRightIcon for consistent arrow styling
+  - **Accessibility**: Improved screen reader support and icon consistency
+
 ### Updated
 
 - **TypeScript API Client**: Updated to version `1.1.23-dev.0908.1218` with latest API changes and improvements

@@ -17,6 +17,45 @@
             Dashboard
           </RouterLink>
 
+          <!-- Inventory Dropdown -->
+          <div class="relative" @mouseleave="closeInventoryDropdown">
+            <button
+              class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1"
+              @mouseenter="openInventoryDropdown"
+              @click="toggleInventoryDropdown"
+            >
+              Inventory
+              <ChevronDownIcon
+                class="w-4 h-4 transition-transform"
+                :class="{ 'rotate-180': isInventoryDropdownOpen }"
+              />
+            </button>
+
+            <div
+              v-if="isInventoryDropdownOpen"
+              class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+              @mouseenter="keepInventoryDropdownOpen"
+              @mouseleave="closeInventoryDropdown"
+            >
+              <RouterLink
+                to="/items"
+                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                @click="closeInventoryDropdown"
+              >
+                <ArchiveBoxIcon class="w-4 h-4 text-teal-600" />
+                Items
+              </RouterLink>
+              <RouterLink
+                to="/partners"
+                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                @click="closeInventoryDropdown"
+              >
+                <UserGroupIcon class="w-4 h-4 text-yellow-600" />
+                Partners
+              </RouterLink>
+            </div>
+          </div>
+
           <!-- Reference Data Dropdown -->
           <div class="relative" @mouseleave="closeDropdown">
             <button
@@ -139,6 +178,42 @@
             Dashboard
           </RouterLink>
 
+          <!-- Mobile Inventory Section -->
+          <div class="px-3">
+            <button
+              class="text-gray-500 hover:text-gray-900 w-full text-left py-2 text-base font-medium flex items-center justify-between"
+              @click="toggleMobileInventoryDropdown"
+            >
+              Inventory
+              <ChevronDownIcon
+                class="w-4 h-4 transition-transform"
+                :class="{ 'rotate-180': isMobileInventoryDropdownOpen }"
+              />
+            </button>
+
+            <div
+              v-if="isMobileInventoryDropdownOpen"
+              class="mt-2 space-y-2 pl-4 border-l-2 border-gray-200"
+            >
+              <RouterLink
+                to="/items"
+                class="text-gray-500 hover:text-gray-900 py-2 text-sm flex items-center gap-2"
+                @click="closeMobileMenu"
+              >
+                <ArchiveBoxIcon class="w-4 h-4 text-teal-600" />
+                Items
+              </RouterLink>
+              <RouterLink
+                to="/partners"
+                class="text-gray-500 hover:text-gray-900 py-2 text-sm flex items-center gap-2"
+                @click="closeMobileMenu"
+              >
+                <UserGroupIcon class="w-4 h-4 text-yellow-600" />
+                Partners
+              </RouterLink>
+            </div>
+          </div>
+
           <!-- Mobile Reference Data Section -->
           <div class="px-3">
             <button
@@ -246,6 +321,8 @@
     FolderIcon,
     ArrowRightOnRectangleIcon,
     WrenchScrewdriverIcon,
+    ArchiveBoxIcon,
+    UserGroupIcon,
   } from '@heroicons/vue/24/outline'
 
   const router = useRouter()
@@ -254,13 +331,16 @@
 
   // Desktop dropdown state
   const isDropdownOpen = ref(false)
+  const isInventoryDropdownOpen = ref(false)
   const isToolsDropdownOpen = ref(false)
   let dropdownTimeout: ReturnType<typeof setTimeout> | null = null
+  let inventoryDropdownTimeout: ReturnType<typeof setTimeout> | null = null
   let toolsDropdownTimeout: ReturnType<typeof setTimeout> | null = null
 
   // Mobile menu state
   const isMobileMenuOpen = ref(false)
   const isMobileDropdownOpen = ref(false)
+  const isMobileInventoryDropdownOpen = ref(false)
   const isMobileToolsDropdownOpen = ref(false)
 
   // Desktop dropdown functions
@@ -289,11 +369,38 @@
     isDropdownOpen.value = !isDropdownOpen.value
   }
 
+  // Inventory dropdown functions
+  const openInventoryDropdown = () => {
+    if (inventoryDropdownTimeout) {
+      clearTimeout(inventoryDropdownTimeout)
+      inventoryDropdownTimeout = null
+    }
+    isInventoryDropdownOpen.value = true
+  }
+
+  const closeInventoryDropdown = () => {
+    inventoryDropdownTimeout = setTimeout(() => {
+      isInventoryDropdownOpen.value = false
+    }, 150) // Small delay to allow mouse movement between elements
+  }
+
+  const keepInventoryDropdownOpen = () => {
+    if (inventoryDropdownTimeout) {
+      clearTimeout(inventoryDropdownTimeout)
+      inventoryDropdownTimeout = null
+    }
+  }
+
+  const toggleInventoryDropdown = () => {
+    isInventoryDropdownOpen.value = !isInventoryDropdownOpen.value
+  }
+
   // Mobile menu functions
   const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value
     if (!isMobileMenuOpen.value) {
       isMobileDropdownOpen.value = false
+      isMobileInventoryDropdownOpen.value = false
       isMobileToolsDropdownOpen.value = false
     }
   }
@@ -301,11 +408,16 @@
   const closeMobileMenu = () => {
     isMobileMenuOpen.value = false
     isMobileDropdownOpen.value = false
+    isMobileInventoryDropdownOpen.value = false
     isMobileToolsDropdownOpen.value = false
   }
 
   const toggleMobileDropdown = () => {
     isMobileDropdownOpen.value = !isMobileDropdownOpen.value
+  }
+
+  const toggleMobileInventoryDropdown = () => {
+    isMobileInventoryDropdownOpen.value = !isMobileInventoryDropdownOpen.value
   }
 
   const toggleMobileToolsDropdown = () => {
