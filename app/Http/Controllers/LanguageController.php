@@ -70,7 +70,7 @@ class LanguageController extends Controller
     }
 
     /**
-     * Set a Language as the default one.
+     * Set or unset a Language as the default one.
      */
     public function setDefault(Request $request, Language $language)
     {
@@ -80,10 +80,22 @@ class LanguageController extends Controller
 
         if ($validated['is_default'] === true) {
             $language->setDefault();
+        } else {
+            $language->unsetDefault();
         }
         $language->refresh();
 
         return new LanguageResource($language);
+    }
+
+    /**
+     * Clear the default flag from any language.
+     */
+    public function clearDefault()
+    {
+        Language::clearDefault();
+
+        return response()->json(['message' => 'Default language cleared']);
     }
 
     /**

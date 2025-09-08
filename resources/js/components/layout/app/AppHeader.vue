@@ -39,7 +39,7 @@
             >
               <RouterLink
                 to="/languages"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                 @click="closeDropdown"
               >
                 <LanguageIcon class="w-4 h-4 text-purple-600" />
@@ -47,7 +47,7 @@
               </RouterLink>
               <RouterLink
                 to="/countries"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                 @click="closeDropdown"
               >
                 <GlobeAltIcon class="w-4 h-4 text-blue-600" />
@@ -55,7 +55,7 @@
               </RouterLink>
               <RouterLink
                 to="/contexts"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                 @click="closeDropdown"
               >
                 <CogIcon class="w-4 h-4 text-green-600" />
@@ -63,12 +63,42 @@
               </RouterLink>
               <RouterLink
                 to="/projects"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                 @click="closeDropdown"
               >
                 <FolderIcon class="w-4 h-4 text-orange-600" />
                 Projects
               </RouterLink>
+            </div>
+          </div>
+
+          <!-- Tools Dropdown -->
+          <div class="relative" @mouseleave="closeToolsDropdown">
+            <button
+              class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1"
+              @mouseenter="openToolsDropdown"
+              @click="toggleToolsDropdown"
+            >
+              Tools
+              <ChevronDownIcon
+                class="w-4 h-4 transition-transform"
+                :class="{ 'rotate-180': isToolsDropdownOpen }"
+              />
+            </button>
+
+            <div
+              v-if="isToolsDropdownOpen"
+              class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+              @mouseenter="keepToolsDropdownOpen"
+              @mouseleave="closeToolsDropdown"
+            >
+              <button
+                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                @click="handleClearCache"
+              >
+                <WrenchScrewdriverIcon class="w-4 h-4 text-red-600" />
+                Clear cache
+              </button>
             </div>
           </div>
         </nav>
@@ -102,7 +132,7 @@
         <div class="flex flex-col space-y-2">
           <RouterLink
             to="/"
-            class="text-gray-500 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium flex items-center gap-2"
+            class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium flex items-center gap-2"
             @click="closeMobileMenu"
           >
             <HomeIcon class="w-5 h-5" />
@@ -125,7 +155,7 @@
             <div v-if="isMobileDropdownOpen" class="mt-2 space-y-2 pl-4 border-l-2 border-gray-200">
               <RouterLink
                 to="/languages"
-                class="text-gray-500 hover:text-gray-900 block py-2 text-sm flex items-center gap-2"
+                class="text-gray-500 hover:text-gray-900 py-2 text-sm flex items-center gap-2"
                 @click="closeMobileMenu"
               >
                 <LanguageIcon class="w-4 h-4 text-purple-600" />
@@ -133,7 +163,7 @@
               </RouterLink>
               <RouterLink
                 to="/countries"
-                class="text-gray-500 hover:text-gray-900 block py-2 text-sm flex items-center gap-2"
+                class="text-gray-500 hover:text-gray-900 py-2 text-sm flex items-center gap-2"
                 @click="closeMobileMenu"
               >
                 <GlobeAltIcon class="w-4 h-4 text-blue-600" />
@@ -141,7 +171,7 @@
               </RouterLink>
               <RouterLink
                 to="/contexts"
-                class="text-gray-500 hover:text-gray-900 block py-2 text-sm flex items-center gap-2"
+                class="text-gray-500 hover:text-gray-900 py-2 text-sm flex items-center gap-2"
                 @click="closeMobileMenu"
               >
                 <CogIcon class="w-4 h-4 text-green-600" />
@@ -149,12 +179,36 @@
               </RouterLink>
               <RouterLink
                 to="/projects"
-                class="text-gray-500 hover:text-gray-900 block py-2 text-sm flex items-center gap-2"
+                class="text-gray-500 hover:text-gray-900 py-2 text-sm flex items-center gap-2"
                 @click="closeMobileMenu"
               >
                 <FolderIcon class="w-4 h-4 text-orange-600" />
                 Projects
               </RouterLink>
+            </div>
+          </div>
+
+          <!-- Mobile Tools Section -->
+          <div class="px-3">
+            <button
+              class="text-gray-500 hover:text-gray-900 w-full text-left py-2 text-base font-medium flex items-center justify-between"
+              @click="toggleMobileToolsDropdown"
+            >
+              Tools
+              <ChevronDownIcon
+                class="w-4 h-4 transition-transform"
+                :class="{ 'rotate-180': isMobileToolsDropdownOpen }"
+              />
+            </button>
+
+            <div v-if="isMobileToolsDropdownOpen" class="mt-2 space-y-2 pl-4 border-l-2 border-gray-200">
+              <button
+                class="text-gray-500 hover:text-gray-900 w-full text-left py-2 text-sm flex items-center gap-2"
+                @click="handleClearCache"
+              >
+                <WrenchScrewdriverIcon class="w-4 h-4 text-red-600" />
+                Clear cache
+              </button>
             </div>
           </div>
 
@@ -177,6 +231,7 @@
   import { ref } from 'vue'
   import { RouterLink, useRouter } from 'vue-router'
   import { useAuthStore } from '@/stores/auth'
+  import { clearCacheAndReload } from '@/utils/storeUtils'
   import {
     ChevronDownIcon,
     Bars3Icon,
@@ -187,6 +242,7 @@
     CogIcon,
     FolderIcon,
     ArrowRightOnRectangleIcon,
+    WrenchScrewdriverIcon,
   } from '@heroicons/vue/24/outline'
 
   const router = useRouter()
@@ -195,11 +251,14 @@
 
   // Desktop dropdown state
   const isDropdownOpen = ref(false)
+  const isToolsDropdownOpen = ref(false)
   let dropdownTimeout: ReturnType<typeof setTimeout> | null = null
+  let toolsDropdownTimeout: ReturnType<typeof setTimeout> | null = null
 
   // Mobile menu state
   const isMobileMenuOpen = ref(false)
   const isMobileDropdownOpen = ref(false)
+  const isMobileToolsDropdownOpen = ref(false)
 
   // Desktop dropdown functions
   const openDropdown = () => {
@@ -232,16 +291,55 @@
     isMobileMenuOpen.value = !isMobileMenuOpen.value
     if (!isMobileMenuOpen.value) {
       isMobileDropdownOpen.value = false
+      isMobileToolsDropdownOpen.value = false
     }
   }
 
   const closeMobileMenu = () => {
     isMobileMenuOpen.value = false
     isMobileDropdownOpen.value = false
+    isMobileToolsDropdownOpen.value = false
   }
 
   const toggleMobileDropdown = () => {
     isMobileDropdownOpen.value = !isMobileDropdownOpen.value
+  }
+
+  const toggleMobileToolsDropdown = () => {
+    isMobileToolsDropdownOpen.value = !isMobileToolsDropdownOpen.value
+  }
+
+  // Tools dropdown functions
+  const openToolsDropdown = () => {
+    if (toolsDropdownTimeout) {
+      clearTimeout(toolsDropdownTimeout)
+      toolsDropdownTimeout = null
+    }
+    isToolsDropdownOpen.value = true
+  }
+
+  const closeToolsDropdown = () => {
+    toolsDropdownTimeout = setTimeout(() => {
+      isToolsDropdownOpen.value = false
+    }, 150)
+  }
+
+  const keepToolsDropdownOpen = () => {
+    if (toolsDropdownTimeout) {
+      clearTimeout(toolsDropdownTimeout)
+      toolsDropdownTimeout = null
+    }
+  }
+
+  const toggleToolsDropdown = () => {
+    isToolsDropdownOpen.value = !isToolsDropdownOpen.value
+  }
+
+  // Clear cache handler
+  const handleClearCache = async () => {
+    closeToolsDropdown()
+    closeMobileMenu()
+    await clearCacheAndReload()
   }
 
   const handleLogout = async () => {

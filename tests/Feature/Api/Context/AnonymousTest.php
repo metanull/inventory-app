@@ -73,4 +73,35 @@ class AnonymousTest extends TestCase
         $response = $this->deleteJson(route('context.destroy', $context));
         $response->assertUnauthorized();
     }
+
+    /**
+     * Authentication: setDefault forbids anonymous access.
+     */
+    public function test_setdefault_forbids_anonymous_access(): void
+    {
+        $context = Context::factory()->create();
+        $response = $this->patchJson(route('context.setDefault', $context->id), [
+            'is_default' => true,
+        ]);
+        $response->assertUnauthorized();
+    }
+
+    /**
+     * Authentication: getDefault forbids anonymous access.
+     */
+    public function test_getdefault_forbids_anonymous_access(): void
+    {
+        $context = Context::factory()->withIsDefault()->create();
+        $response = $this->getJson(route('context.getDefault'));
+        $response->assertUnauthorized();
+    }
+
+    /**
+     * Authentication: clearDefault forbids anonymous access.
+     */
+    public function test_cleardefault_forbids_anonymous_access(): void
+    {
+        $response = $this->deleteJson(route('context.clearDefault'));
+        $response->assertUnauthorized();
+    }
 }

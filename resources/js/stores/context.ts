@@ -188,10 +188,20 @@ export const useContextStore = defineStore('context', () => {
       const updatedContext = response.data.data
 
       // Update the default status for all contexts
-      contexts.value = contexts.value.map(context => ({
-        ...context,
-        is_default: context.id === id ? isDefault : false,
-      }))
+      if (isDefault) {
+        // Setting as default: set target to true, all others to false
+        contexts.value = contexts.value.map(context => ({
+          ...context,
+          is_default: context.id === id ? true : false,
+        }))
+      } else {
+        // Unsetting as default: only update the target context
+        contexts.value = contexts.value.map(context =>
+          context.id === id
+            ? { ...context, is_default: false }
+            : context
+        )
+      }
 
       // Update current context if it matches
       if (currentContext.value?.id === id) {
