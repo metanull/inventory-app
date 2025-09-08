@@ -273,7 +273,8 @@ composer ci-lint
 # Run static analysis (if configured)
 composer ci-audit
 ```
-```
+
+````
 
 ### 2. Testing
 
@@ -285,7 +286,7 @@ composer ci-test
 php artisan test tests/Unit
 php artisan test tests/Feature
 
-```
+````
 
 ### Enhanced CI Scripts
 

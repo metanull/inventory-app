@@ -528,7 +528,6 @@ For local development without the API:
 2. **Proxy Configuration**: Configure Vite proxy to backend
 3. **Environment Variables**: Point to local API instance
 
-
 ## 📚 Related Documentation
 
 - [Backend API Documentation](https://metanull.github.io/inventory-app)
