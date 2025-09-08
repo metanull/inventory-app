@@ -25,6 +25,7 @@
 
     const colorMap: Record<string, string> = {
       blue: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
+      teal: 'bg-teal-600 hover:bg-teal-700 focus:ring-teal-500',
       green: 'bg-green-600 hover:bg-green-700 focus:ring-green-500',
       purple: 'bg-purple-600 hover:bg-purple-700 focus:ring-purple-500',
       orange: 'bg-orange-600 hover:bg-orange-700 focus:ring-orange-500',

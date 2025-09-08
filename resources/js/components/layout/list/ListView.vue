@@ -92,6 +92,7 @@
 
     const colorMap: Record<string, string> = {
       blue: 'text-blue-600',
+      teal: 'text-teal-600',
       green: 'text-green-600',
       purple: 'text-purple-600',
       orange: 'text-orange-600',

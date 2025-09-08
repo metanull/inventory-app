@@ -6,6 +6,8 @@ import {
 } from 'vue-router'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
+import Items from '@/views/Items.vue'
+import ItemDetail from '@/views/ItemDetail.vue'
 import Languages from '@/views/Languages.vue'
 import LanguageDetail from '@/views/LanguageDetail.vue'
 import Countries from '@/views/Countries.vue'
@@ -14,6 +16,8 @@ import Contexts from '@/views/Contexts.vue'
 import ContextDetail from '@/views/ContextDetail.vue'
 import Projects from '@/views/Projects.vue'
 import ProjectDetail from '@/views/ProjectDetail.vue'
+import Partners from '@/views/Partners.vue'
+import PartnerDetail from '@/views/PartnerDetail.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
@@ -23,6 +27,42 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: Home,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/items',
+      name: 'items',
+      component: Items,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/items/new',
+      name: 'item-new',
+      component: ItemDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/items/:id',
+      name: 'item-detail',
+      component: ItemDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/partners',
+      name: 'partners',
+      component: Partners,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/partners/new',
+      name: 'partner-new',
+      component: PartnerDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/partners/:id',
+      name: 'partner-detail',
+      component: PartnerDetail,
       meta: { requiresAuth: true },
     },
     {
