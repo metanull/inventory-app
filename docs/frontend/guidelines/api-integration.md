@@ -528,28 +528,6 @@ For local development without the API:
 2. **Proxy Configuration**: Configure Vite proxy to backend
 3. **Environment Variables**: Point to local API instance
 
-## API Specification Management
-
-### Fetching the API Specification
-
-To fetch the latest API specification from the Inventory API, run:
-
-```bash
-npm run inventory-app:fetch
-```
-
-This will download the specification and store it in `src/api/inventory-app.json`.
-
-### Comparing API Specification Changes
-
-To compare the local API specification with the latest version online, run:
-
-```bash
-npm run inventory-app:diff
-```
-
-This will display the differences between the local and remote versions.
-
 ## 📚 Related Documentation
 
 - [Backend API Documentation](https://metanull.github.io/inventory-app)

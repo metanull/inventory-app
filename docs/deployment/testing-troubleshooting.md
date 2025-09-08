@@ -28,7 +28,7 @@ Comprehensive guide for testing the application and troubleshooting common issue
 
 ```bash
 # Start development environment
-composer dev-start
+composer dev
 
 # Test API health endpoint
 curl http://localhost:8000/api/health
@@ -150,9 +150,6 @@ netstat -ano | findstr :8000
 
 # Kill the process (replace PID with actual process ID)
 taskkill /PID 1234 /F
-
-# Or use the development script which handles this automatically
-composer dev-start
 ```
 
 #### Database Connection Failed
@@ -487,45 +484,27 @@ pm.max_requests = 1000
 
 ### Development Script Issues
 
-#### Start-DevServer.ps1 Script Errors
-
-**Problem**: PowerShell execution policy or script errors with MetaNull.LaravelUtils module.
-
-**Solutions**:
-
-```powershell
-# Set execution policy
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-
-# Run with parameters
-.\scripts\Start-DevServer.ps1 -Reset
-
-# Run with custom ports
-.\scripts\Start-DevServer.ps1 -LaravelPort 8001 -VitePort 5174
-
-# Debug script issues
-.\scripts\Start-DevServer.ps1 -Verbose
-```
-
-#### Composer dev-start Issues
+#### Composer dev Issues
 
 **Problem**: Composer script fails to execute.
 
 **Solutions**:
 
 ```bash
-# Check if PowerShell is available
-pwsh --version
+# Check Node.js and npm availability
+node --version
+npm --version
 
-# Run script directly
-pwsh -File scripts/Start-DevServer.ps1
-
-# Check composer script syntax
-composer validate
+# Check if concurrently is installed
+npx concurrently --version
 
 # Use alternative start method
 php artisan serve &
+php artisan queue:listen --tries=1 &
 npm run dev
+
+# Debug composer script
+composer dev --verbose
 ```
 
 ## Diagnostic Commands
