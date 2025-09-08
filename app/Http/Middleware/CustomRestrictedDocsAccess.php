@@ -14,7 +14,9 @@ class CustomRestrictedDocsAccess
         }
 
         // Check if API documentation is explicitly enabled via environment variable
-        if (env('API_DOCS_ENABLED', false)) {
+        // Handle boolean-like values properly (true, "true", "1", 1)
+        $apiDocsEnabled = env('API_DOCS_ENABLED', false);
+        if (filter_var($apiDocsEnabled, FILTER_VALIDATE_BOOLEAN)) {
             return $next($request);
         }
 

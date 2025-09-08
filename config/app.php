@@ -151,4 +151,17 @@ return [
     */
 
     'faker_use_local_images' => env('FAKER_USE_LOCAL_IMAGES', env('APP_ENV') !== 'production'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | API Documentation Access
+    |--------------------------------------------------------------------------
+    |
+    | This option controls whether API documentation is accessible in production.
+    | By default, API docs are only available in local and testing environments.
+    | Set API_DOCS_ENABLED=true to enable API documentation in production.
+    |
+    */
+
+    'api_docs_enabled' => env('API_DOCS_ENABLED', false),
 ];
