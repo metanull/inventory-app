@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Updated
+
+- **TypeScript API Client**: Updated to version `1.1.23-dev.0908.1218` with latest API changes and improvements
+
 ### Enhanced
 
 - **Context and Language Default Management**: Improved default handling with unified API and comprehensive test coverage

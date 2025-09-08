@@ -1,6 +1,6 @@
 {
   "name": "@metanull/inventory-app-api-client",
-  "version": "1.1.22-dev+20250725.1706",
+  "version": "1.1.23-dev.0908.1218",
   "main": "index.js",
   "types": "index.d.ts",
   "description": "TypeScript-Axios client for inventory-app API",
@@ -11,3 +11,4 @@
   "author": "Pascal Havelange",
   "license": "MIT"
 }
+
