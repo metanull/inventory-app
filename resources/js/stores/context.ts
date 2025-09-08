@@ -197,9 +197,7 @@ export const useContextStore = defineStore('context', () => {
       } else {
         // Unsetting as default: only update the target context
         contexts.value = contexts.value.map(context =>
-          context.id === id
-            ? { ...context, is_default: false }
-            : context
+          context.id === id ? { ...context, is_default: false } : context
         )
       }
 

@@ -32,6 +32,7 @@ export default defineConfig({
                         : path;
                 };
                 
+                // eslint-disable-next-line no-undef
                 console.log('🔧 Normalizing manifest paths...');
                 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
                 let hasChanges = false;
@@ -54,8 +55,10 @@ export default defineConfig({
                 
                 if (hasChanges) {
                     writeFileSync(manifestPath, JSON.stringify(normalizedManifest, null, 2));
+                    // eslint-disable-next-line no-undef
                     console.log('✅ Manifest paths normalized successfully');
                 } else {
+                    // eslint-disable-next-line no-undef
                     console.log('ℹ️  Manifest paths were already normalized');
                 }
             }

@@ -601,7 +601,7 @@ describe('Contexts.vue', () => {
 
       await router.push('/contexts')
 
-      const wrapper = mount(Contexts, {
+      mount(Contexts, {
         global: {
           plugins: [router],
         },

@@ -192,9 +192,7 @@ export const useLanguageStore = defineStore('language', () => {
       } else {
         // Unsetting as default: only update the target language
         languages.value = languages.value.map(lang =>
-          lang.id === id
-            ? { ...lang, is_default: false }
-            : lang
+          lang.id === id ? { ...lang, is_default: false } : lang
         )
       }
 
