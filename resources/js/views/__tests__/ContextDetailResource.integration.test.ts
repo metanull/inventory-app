@@ -416,7 +416,6 @@ describe('ContextDetail Resource Integration Tests', () => {
   describe('Resource State Consistency', () => {
     it('should maintain consistent state after creation', async () => {
       const store = useContextStore()
-      const initialCount = store.contexts.length
 
       const newContextData: ContextStoreRequest = {
         internal_name: 'New Context',
@@ -446,7 +445,6 @@ describe('ContextDetail Resource Integration Tests', () => {
 
     it('should maintain consistent state after deletion', async () => {
       const store = useContextStore()
-      const initialCount = store.contexts.length
 
       await store.deleteContext(2)
 

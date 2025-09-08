@@ -83,5 +83,4 @@ class Context extends Model
             self::query()->update(['is_default' => false]);
         });
     }
-
 }

@@ -10,7 +10,7 @@
 import { beforeEach, describe, expect, it, vi, beforeAll, afterAll } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type Router } from 'vue-router'
 import Contexts from '../Contexts.vue'
 import ContextDetail from '../ContextDetail.vue'
 import { useContextStore } from '@/stores/context'
@@ -131,7 +131,7 @@ describe('Context Integration Tests', () => {
   let mockErrorStore: ReturnType<typeof useErrorDisplayStore>
   let mockDeleteStore: ReturnType<typeof useDeleteConfirmationStore>
   let mockCancelChangesStore: ReturnType<typeof useCancelChangesConfirmationStore>
-  let router: any
+  let router: Router
 
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -523,11 +523,6 @@ describe('Context Integration Tests', () => {
 
       // Start at contexts list
       await router.push('/contexts')
-      const listWrapper = mount(Contexts, {
-        global: {
-          plugins: [router],
-        },
-      })
 
       await flushPromises()
 

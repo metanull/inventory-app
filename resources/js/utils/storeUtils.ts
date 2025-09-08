@@ -54,7 +54,7 @@ export const clearCacheAndReload = async (): Promise<void> => {
 
     // Load contexts (includes default contexts)
     reloadPromises.push(contextStore.fetchContexts())
-    
+
     // Load languages (includes default language)
     reloadPromises.push(languageStore.fetchLanguages())
 
@@ -71,15 +71,14 @@ export const clearCacheAndReload = async (): Promise<void> => {
     setTimeout(() => {
       window.location.reload()
     }, 500)
-
   } catch (error) {
     // Hide loading overlay on error
     const loadingOverlayStore = useLoadingOverlayStore()
     const errorDisplayStore = useErrorDisplayStore()
-    
+
     loadingOverlayStore.hide()
     errorDisplayStore.addMessage('error', 'Failed to clear cache. Please try again.')
-    
+
     console.error('Failed to clear cache:', error)
   }
 }

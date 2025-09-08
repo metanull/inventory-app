@@ -61,7 +61,7 @@ class Language extends Model
         // Ensure the table has a 'default' column (boolean or integer)
         if (! $this->exists) {
             throw new \Exception('Model instance does not exist.');
-}
+        }
 
         // Start a transaction to ensure atomicity
         return DB::transaction(function () {
@@ -80,5 +80,4 @@ class Language extends Model
             self::query()->update(['is_default' => false]);
         });
     }
-
 }

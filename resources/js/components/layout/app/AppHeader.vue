@@ -201,7 +201,10 @@
               />
             </button>
 
-            <div v-if="isMobileToolsDropdownOpen" class="mt-2 space-y-2 pl-4 border-l-2 border-gray-200">
+            <div
+              v-if="isMobileToolsDropdownOpen"
+              class="mt-2 space-y-2 pl-4 border-l-2 border-gray-200"
+            >
               <button
                 class="text-gray-500 hover:text-gray-900 w-full text-left py-2 text-sm flex items-center gap-2"
                 @click="handleClearCache"

@@ -431,7 +431,7 @@ describe('Contexts Component Business Logic', () => {
         // Create a context with null internal_name
         const nullContext = createMockContext({
           id: '123e4567-e89b-12d3-a456-426614174003',
-          internal_name: null as any,
+          internal_name: null as unknown as string,
           backward_compatibility: 'null-context',
           is_default: false,
           created_at: '2023-04-01T00:00:00Z',

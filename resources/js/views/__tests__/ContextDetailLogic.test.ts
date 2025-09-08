@@ -188,11 +188,6 @@ describe('ContextDetail Logic Tests', () => {
   describe('Context Status Management', () => {
     it('should set context as default', async () => {
       const store = useContextStore()
-      const nonDefaultContext = createMockContext({
-        id: '123e4567-e89b-12d3-a456-426614174001',
-        internal_name: 'Development',
-        is_default: false,
-      })
 
       const result = await store.setContextDefault('123e4567-e89b-12d3-a456-426614174001', true)
 
@@ -248,7 +243,6 @@ describe('ContextDetail Logic Tests', () => {
   describe('Error Handling', () => {
     it('should handle create context errors', async () => {
       const store = useContextStore()
-      const errorStore = useErrorDisplayStore()
 
       store.createContext = vi.fn().mockRejectedValue(new Error('Create failed'))
 
@@ -265,7 +259,6 @@ describe('ContextDetail Logic Tests', () => {
 
     it('should handle update context errors', async () => {
       const store = useContextStore()
-      const errorStore = useErrorDisplayStore()
 
       store.updateContext = vi.fn().mockRejectedValue(new Error('Update failed'))
 
@@ -282,7 +275,6 @@ describe('ContextDetail Logic Tests', () => {
 
     it('should handle delete context errors', async () => {
       const store = useContextStore()
-      const errorStore = useErrorDisplayStore()
 
       store.deleteContext = vi.fn().mockRejectedValue(new Error('Delete failed'))
 
@@ -295,7 +287,6 @@ describe('ContextDetail Logic Tests', () => {
 
     it('should handle fetch context errors', async () => {
       const store = useContextStore()
-      const errorStore = useErrorDisplayStore()
 
       store.fetchContext = vi.fn().mockRejectedValue(new Error('Fetch failed'))
 
@@ -309,7 +300,6 @@ describe('ContextDetail Logic Tests', () => {
 
   describe('Loading States', () => {
     it('should handle loading overlay during operations', async () => {
-      const loadingStore = useLoadingOverlayStore()
       const contextStore = useContextStore()
 
       const result = await contextStore.fetchContext('123e4567-e89b-12d3-a456-426614174000')

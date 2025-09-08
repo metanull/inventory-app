@@ -74,7 +74,7 @@ const mockContextStore = {
   createContext: vi.fn(),
   updateContext: vi.fn(),
   deleteContext: vi.fn(),
-  setDefaultContext: vi.fn(),
+  setDefaultContext: vi.fn().mockResolvedValue(undefined),
 }
 
 // Component interface for proper typing
@@ -353,13 +353,9 @@ describe('ContextDetail.vue', () => {
       // Trigger status toggle (index 0 for default status)
       await vm.handleStatusToggle(0)
 
-      expect(mockContextStore.updateContext).toHaveBeenCalledWith(
+      expect(mockContextStore.setDefaultContext).toHaveBeenCalledWith(
         '123e4567-e89b-12d3-a456-426614174003',
-        {
-          internal_name: 'Production',
-          backward_compatibility: 'prod',
-          is_default: true,
-        }
+        true
       )
       expect(mockErrorDisplayStore.addMessage).toHaveBeenCalledWith(
         'info',
@@ -368,7 +364,7 @@ describe('ContextDetail.vue', () => {
     })
 
     it('should handle status toggle error', async () => {
-      mockContextStore.updateContext = vi.fn().mockRejectedValue(new Error('Update failed'))
+      mockContextStore.setDefaultContext = vi.fn().mockRejectedValue(new Error('Update failed'))
 
       const mockContext = {
         id: '123e4567-e89b-12d3-a456-426614174004',
@@ -412,7 +408,7 @@ describe('ContextDetail.vue', () => {
       }
 
       mockContextStore.currentContext = mockContext
-      mockContextStore.updateContext = vi.fn().mockResolvedValue(undefined)
+      mockContextStore.setDefaultContext = vi.fn().mockResolvedValue(undefined)
       await router.push('/contexts/123e4567-e89b-12d3-a456-426614174005')
 
       const wrapper = mount(ContextDetail, {
@@ -428,13 +424,9 @@ describe('ContextDetail.vue', () => {
       // Trigger status toggle to remove default
       await vm.handleStatusToggle(0)
 
-      expect(mockContextStore.updateContext).toHaveBeenCalledWith(
+      expect(mockContextStore.setDefaultContext).toHaveBeenCalledWith(
         '123e4567-e89b-12d3-a456-426614174005',
-        {
-          internal_name: 'Production',
-          backward_compatibility: 'prod',
-          is_default: false,
-        }
+        false
       )
       expect(mockErrorDisplayStore.addMessage).toHaveBeenCalledWith(
         'info',
@@ -468,7 +460,7 @@ describe('ContextDetail.vue', () => {
       // Trigger status toggle with invalid index
       await vm.handleStatusToggle(1)
 
-      expect(mockContextStore.updateContext).not.toHaveBeenCalled()
+      expect(mockContextStore.setDefaultContext).not.toHaveBeenCalled()
     })
   })
 })

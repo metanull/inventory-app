@@ -49,4 +49,5 @@ applyTo: "**/*.php"
 ## Code Quality
 
 - **CRITICAL: Strictly verify PHP code quality and formatting using Pint.**
-
+- Never ignore lint errors and warnings.
+- Never ignore failing tests.

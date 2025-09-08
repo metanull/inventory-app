@@ -336,8 +336,6 @@ describe('Context Resource Integration Tests', () => {
     it('should maintain consistent state across operations', async () => {
       // Initial state
       await contextStore.fetchContexts()
-      const initialCount = contextStore.contexts.length
-      const initialDefaultCount = contextStore.defaultContexts.length
 
       // Create new context
       await contextStore.createContext({
