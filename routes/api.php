@@ -47,12 +47,20 @@ Route::patch('context/{context}/default', [ContextController::class, 'setDefault
     ->name('context.setDefault')
     ->middleware('auth:sanctum');
 
+Route::delete('context/default', [ContextController::class, 'clearDefault'])
+    ->name('context.clearDefault')
+    ->middleware('auth:sanctum');
+
 Route::get('context/default', [ContextController::class, 'getDefault'])
     ->name('context.getDefault')
     ->middleware('auth:sanctum');
 
 Route::patch('language/{language}/default', [LanguageController::class, 'setDefault'])
     ->name('language.setDefault')
+    ->middleware('auth:sanctum');
+
+Route::delete('language/default', [LanguageController::class, 'clearDefault'])
+    ->name('language.clearDefault')
     ->middleware('auth:sanctum');
 
 Route::get('language/default', [LanguageController::class, 'getDefault'])

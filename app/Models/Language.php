@@ -35,7 +35,7 @@ class Language extends Model
         'is_default' => 'boolean',
     ];
 
-    // Add a method to mark a single row as the default
+    // Mark a single row as the default
     public function setDefault()
     {
         // Ensure the table has a 'default' column (boolean or integer)
@@ -54,4 +54,31 @@ class Language extends Model
             return $this;
         });
     }
+
+    // Unmark a single row as the default
+    public function unsetDefault()
+    {
+        // Ensure the table has a 'default' column (boolean or integer)
+        if (! $this->exists) {
+            throw new \Exception('Model instance does not exist.');
+}
+
+        // Start a transaction to ensure atomicity
+        return DB::transaction(function () {
+            // Set the current row's 'default' column to false (or 0)
+            $this->update(['is_default' => false]);
+
+            return $this;
+        });
+    }
+
+    // Clear all defaults
+    public static function clearDefault()
+    {
+        return DB::transaction(function () {
+            // Set all rows' 'default' column to false (or 0)
+            self::query()->update(['is_default' => false]);
+        });
+    }
+
 }

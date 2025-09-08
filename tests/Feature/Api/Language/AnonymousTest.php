@@ -71,4 +71,13 @@ class AnonymousTest extends TestCase
         ]);
         $response->assertUnauthorized();
     }
+
+    /**
+     * Authentication: clearDefault forbids anonymous access.
+     */
+    public function test_cleardefault_forbids_anonymous_access(): void
+    {
+        $response = $this->deleteJson(route('language.clearDefault'));
+        $response->assertUnauthorized();
+    }
 }

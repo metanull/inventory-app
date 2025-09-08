@@ -71,7 +71,7 @@ class ContextController extends Controller
     }
 
     /**
-     * Set a context as the default one.
+     * Set or unset a context as the default one.
      */
     public function setDefault(Request $request, Context $context)
     {
@@ -81,10 +81,22 @@ class ContextController extends Controller
 
         if ($validated['is_default'] === true) {
             $context->setDefault();
+        } else {
+            $context->unsetDefault();
         }
         $context->refresh();
 
         return new ContextResource($context);
+    }
+
+    /**
+     * Clear the default flag from any context.
+     */
+    public function clearDefault()
+    {
+        Context::clearDefault();
+
+        return response()->json(['message' => 'Default context cleared']);
     }
 
     /**

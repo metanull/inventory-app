@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Enhanced
+
+- **Context and Language Default Management**: Improved default handling with unified API and comprehensive test coverage
+    - **Unified API Endpoints**: Consolidated `setDefault`/`unsetDefault` into single `setDefault` method with boolean parameter
+        - `PATCH /context/{id}/default` with `{"is_default": true/false}` for set/unset operations
+        - `DELETE /context/default` to clear any default context
+        - `PATCH /language/{id}/default` with `{"is_default": true/false}` for set/unset operations  
+        - `DELETE /language/default` to clear any default language
+    - **Model Methods**: Added `setDefault()`, `unsetDefault()`, and `clearDefault()` methods to Context and Language models
+        - **Transaction Safety**: All default operations wrapped in database transactions for consistency
+        - **Atomic Updates**: Setting default automatically unsets other defaults, unsetting only affects target resource
+    - **Controller Updates**: Simplified controllers to handle toggle logic through single `setDefault` method
+    - **Vue.js Store Consistency**: Aligned Context and Language stores with identical toggle logic
+        - **Efficient Updates**: When setting default, all others set to false; when unsetting, only target updated
+        - **State Management**: Proper local state synchronization with server responses
+    - **Comprehensive Test Coverage**: Added dedicated test files for default functionality
+        - `tests/Feature/Api/Context/DefaultTest.php` - Set/unset/clear default context operations
+        - `tests/Feature/Api/Language/DefaultTest.php` - Set/unset/clear default language operations
+        - **Anonymous Access Tests**: Verify unauthorized users cannot modify defaults
+        - **Complete Scenarios**: Test setting, unsetting, clearing, and edge cases
+    - **Cache Management**: Added `clearCacheAndReload` utility with Tools menu integration
+        - **Store Clearing**: Resets all Pinia stores while preserving authentication
+        - **Data Reloading**: Automatically fetches fresh data for contexts and languages
+        - **UI Integration**: Accessible via Tools dropdown in application header
+
 ### Fixed
 
 - **Context Vue Tests GUID Format**: Updated Context Vue tests to use proper GUID format instead of numeric IDs
