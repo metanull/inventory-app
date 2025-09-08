@@ -47,7 +47,7 @@ cp .env.example .env
 php artisan key:generate
 
 # Start development servers
-composer dev-start
+composer dev
 ```
 
 ### Production Deployment

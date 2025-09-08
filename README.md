@@ -543,18 +543,6 @@ The application provides enhanced composer commands that accept additional param
 ```bash
 # Standard test execution
 composer ci-test
-
-# Pass additional arguments using environment variable
-$env:COMPOSER_ARGS="--filter Integration"; composer ci-test
-
-# Common test filtering examples
-$env:COMPOSER_ARGS="--filter Picture"; composer ci-test
-$env:COMPOSER_ARGS="--filter DetachFromItemTest"; composer ci-test
-$env:COMPOSER_ARGS="--group=integration"; composer ci-test
-$env:COMPOSER_ARGS="--testsuite=Feature"; composer ci-test
-
-# Helper command for filter-based testing
-composer ci-test:filter "YourTestClass"
 ```
 
 #### Linting Commands
@@ -562,14 +550,6 @@ composer ci-test:filter "YourTestClass"
 ```bash
 # Standard linting
 composer ci-lint
-
-# Pass additional arguments using environment variable
-$env:COMPOSER_ARGS="--test"; composer ci-lint
-$env:COMPOSER_ARGS="--config=custom-pint.json"; composer ci-lint
-$env:COMPOSER_ARGS="--verbose"; composer ci-lint
-
-# Helper command for lint with arguments
-composer ci-lint:with-args --test --verbose
 ```
 
 #### Environment Variable Usage
@@ -683,20 +663,11 @@ The project includes a comprehensive **GitHub Actions** workflow for:
 
 #### Enhanced CI Scripts
 
-The project includes enhanced PowerShell scripts in the `scripts/` directory for improved CI/CD operations:
+The project includes PowerShell scripts in the `scripts/` directory for improved CI/CD operations:
 
-- **`ci-test.ps1`** - Enhanced test execution with argument passing support
-- **`ci-test-with-filter.ps1`** - Specialized test filtering capabilities
-- **`ci-lint.ps1`** - Enhanced linting with configurable options
-- **`ci-lint-with-args.ps1`** - Flexible linting with argument support
-
-These scripts provide:
-
-- Better error handling and reporting
-- Flexible argument passing through environment variables
-- Improved developer experience with clearer output
-- Support for specialized testing workflows (filtering, grouping, etc.)
-- Enhanced code quality validation with configurable rules
+- **`generate-api-client.ps1`** - Generate TypeScript API client from OpenAPI specification
+- **`publish-api-client.ps1`** - Publish API client to GitHub Packages
+- **`download-seed-images.ps1`** - Download seed images for optimized development seeding
 
 ### Documentation & GitHub Pages 📚
 

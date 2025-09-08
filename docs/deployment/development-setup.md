@@ -223,18 +223,18 @@ Use the development script:
 
 ```powershell
 # Start development servers
-composer dev-start
+composer dev
 
 # Start with database reset
-composer dev-start -- --reset
+composer dev -- --reset
 ```
 
-The development script (`scripts/Start-DevServer.ps1`) will:
+The `composer dev` script will:
 
 - ✅ Start PHP artisan serve (Laravel API)
 - ✅ Start npm run dev (Vite frontend server)
-- ✅ Optionally reset database (delete + migrate + seed)
-- ✅ Run both servers concurrently
+- ✅ Start queue listener for background jobs
+- ✅ Run all servers concurrently with colored output
 - ✅ Handle graceful shutdown
 
 ## Step 4: IDE Configuration
@@ -302,7 +302,7 @@ Create `.vscode/launch.json`:
 
 ```bash
 # Start development environment
-composer dev-start
+composer dev
 
 # Access applications:
 # - API: http://localhost:8000/api
@@ -506,31 +506,16 @@ export NODE_OPTIONS="--max-old-space-size=4096"
 
 ## Step 9: Development Scripts
 
-### 9.1 Start-DevServer.ps1 Script
-
-The project includes a PowerShell script for easy development using the MetaNull.LaravelUtils module:
-
-```powershell
-# Basic start
-.\scripts\Start-DevServer.ps1
-
-# Start with database reset
-.\scripts\Start-DevServer.ps1 -Reset
-
-# Start with custom ports
-.\scripts\Start-DevServer.ps1 -LaravelPort 8001 -VitePort 5174
-```
-
-### 9.2 Composer Scripts
+### 9.1 Composer Scripts
 
 Available composer scripts for development:
 
 ```bash
 # Start development environment
-composer dev-start
+composer dev
 
 # Start with reset
-composer dev-start -- --reset
+composer dev -- --reset
 
 # Quality checks
 composer ci-lint

@@ -270,15 +270,9 @@ Before submitting code, ensure all quality controls pass:
 # Run PHP CS Fixer (Pint)
 composer ci-lint
 
-# Enhanced linting with arguments
-$env:COMPOSER_ARGS="--test"; composer ci-lint
-$env:COMPOSER_ARGS="--verbose"; composer ci-lint
-
-# Helper command for linting with arguments
-composer ci-lint:with-args --test --verbose
-
 # Run static analysis (if configured)
 composer ci-audit
+```
 ```
 
 ### 2. Testing
@@ -291,36 +285,27 @@ composer ci-test
 php artisan test tests/Unit
 php artisan test tests/Feature
 
-# Enhanced testing with argument passing
-$env:COMPOSER_ARGS="--filter Picture"; composer ci-test
-$env:COMPOSER_ARGS="--testsuite=Feature"; composer ci-test
-
-# Helper command for filter-based testing
-composer ci-test:filter "YourTestClass"
 ```
 
 ### Enhanced CI Scripts
 
-The project includes enhanced PowerShell scripts in the `scripts/` directory:
+The project includes PowerShell scripts in the `scripts/` directory:
 
 ```powershell
-# Enhanced test execution with flexible arguments
-.\scripts\ci-test.ps1
+# Generate API client from OpenAPI specification
+.\scripts\generate-api-client.ps1
 
-# Test filtering with specialized script
-.\scripts\ci-test-with-filter.ps1 "Picture"
+# Publish API client to GitHub Packages
+.\scripts\publish-api-client.ps1 -Credential (Get-Credential)
 
-# Enhanced linting with configurable options
-.\scripts\ci-lint.ps1
-
-# Linting with additional arguments
-.\scripts\ci-lint-with-args.ps1 --test --verbose
+# Download seed images for optimized development
+.\scripts\download-seed-images.ps1
 ```
 
 **Features:**
 
-- **Argument Passing**: Support for `COMPOSER_ARGS` environment variable
-- **Error Handling**: Improved error reporting and debugging
+- **API Client Generation**: Automated TypeScript client generation
+- **Package Publishing**: Streamlined GitHub Packages publishing
 - **Flexible Testing**: Filter tests by class, method, or test suite
 - **Configurable Linting**: Multiple validation levels and options
 
