@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Automated Version Numbering**: Implemented automated semantic versioning based on GitHub pull request labels
+  - **Label-based Version Bumps**: Uses PR labels (`bugfix`, `feature`, `breaking-change`) to determine version increment type
+  - **CI Integration**: Version bump happens automatically as part of Continuous Integration workflow after all tests pass
+  - **Smart Detection**: `breaking-change` → major bump, `feature` → minor bump, `bugfix` → patch bump (default)
+  - **Automatic Commit**: Version changes automatically committed to PR branch before merging
+  - **UI Integration**: Updated app footer to display "Version" instead of "UI Version" for consistency
+  - **Documentation**: Added comprehensive documentation in README.md and contributing guidelines
+  - **npm Scripts**: Added convenience scripts (`version:patch`, `version:minor`, `version:major`) for manual version bumping when needed
 - **Inventory Menu**: New navigation dropdown for Items and Partners in main application header
 - **Items Feature**: Complete CRUD functionality for inventory items management
   - **Items List**: Search, filtering (all/objects/monuments), sorting, and pagination
