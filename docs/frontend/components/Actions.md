@@ -1,3 +1,10 @@
+---
+layout: default
+title: Action Components
+parent: Components
+nav_order: 2
+---
+
 # Action Components
 
 Button and interactive components for user actions throughout the application.

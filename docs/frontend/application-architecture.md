@@ -2,7 +2,7 @@
 layout: default
 title: Application Architecture
 parent: Frontend Documentation
-nav_order: 1
+nav_order: 2
 ---
 
 # Application Architecture
@@ -99,16 +99,36 @@ src/
 
 ## Navigation System
 
-### Main Navigation
+### Main Navigation Structure
 
-- **Home/Dashboard**: Application overview and quick access
-- **Inventory**:
-  - 🛠️ _(under development)_
-- **Reference Data**:
-  - Projects: Museum and cultural institutions' projects
-  - Contexts: Project categorization contexts
-  - Countries: Geographic reference data
-  - Languages: Multi-language support
+The application uses a **two-tier navigation system** that must be kept in sync:
+
+#### 1. AppHeader.vue Navigation Menu
+Dropdown-based navigation with grouped sections:
+- **Inventory**: Items, Partners  
+- **Reference Data**: Languages, Countries, Contexts, Projects
+- **Tools**: Cache management and system utilities
+
+#### 2. Home.vue Dashboard Tiles  
+Landing page with navigation cards organized identically to the header menu:
+- **Inventory Section**: Items, Partners
+- **Reference Data Section**: Languages, Countries, Contexts, Projects  
+- **Tools Section**: System Status, Additional Features
+
+**CRITICAL**: These two navigation systems must mirror each other exactly. Each entity with a dashboard tile must have a corresponding menu item using the same icon and color.
+
+### Entity Standards
+
+Each entity has standardized presentation across all components:
+
+| Entity | Color | Icon | Route |
+|--------|-------|------|-------|
+| Items | teal | ArchiveBoxIcon | `/items` |
+| Partners | yellow | UserGroupIcon | `/partners` |
+| Languages | purple | LanguageIcon | `/languages` |
+| Countries | blue | GlobeAltIcon | `/countries` |
+| Contexts | green | CogIcon | `/contexts` |
+| Projects | orange | FolderIcon | `/projects` |
 
 ### Routing Configuration
 

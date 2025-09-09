@@ -1,3 +1,10 @@
+---
+layout: default
+title: Layout Components
+parent: Components
+nav_order: 5
+---
+
 # Layout Components
 
 High-level layout components for structuring pages, sections, and application-wide elements.
@@ -58,56 +65,117 @@ A comprehensive list view component that provides a standardized layout for disp
 
 - `retry` - Emitted when user clicks retry in error state
 
-**Usage Example (Projects.vue):**
+**Complete Usage Example (Contexts.vue):**
 
 ```vue
 <ListView
-  title="Projects"
-  description="Manage projects in your inventory system. Projects can be enabled/disabled and launched/not launched."
-  add-button-route="/projects/new"
-  add-button-label="Add Project"
-  color="orange"
-  :is-empty="filteredProjects.length === 0"
-  empty-title="No projects found"
-  :empty-message="
-    filterMode === 'all'
-      ? 'Get started by creating a new project.'
-      : filterMode === 'visible'
-        ? 'No visible projects found. Projects are visible when they are enabled, launched, and the launch date has passed.'
-        : `No ${filterMode} projects found.`
-  "
-  :show-empty-add-button="filterMode === 'all'"
-  empty-add-button-label="New Project"
-  @retry="fetchProjects"
+  title="Contexts"
+  description="Manage contexts in your inventory system. Contexts can be set as default for the entire database."
+  add-button-route="/contexts/new"
+  add-button-label="Add Context"
+  color="green"
+  :is-empty="filteredContexts.length === 0"
+  empty-title="No contexts found"
+  empty-message="Get started by creating a new context."
+  @retry="fetchContexts"
 >
   <template #icon>
-    <ProjectIcon />
+    <ContextIcon />
   </template>
   
   <template #filters>
     <FilterButton
-      label="All Projects"
+      label="All Contexts"
       :is-active="filterMode === 'all'"
-      :count="projects.length"
+      :count="contexts.length"
       variant="primary"
       @click="filterMode = 'all'"
     />
     <FilterButton
-      label="Enabled"
-      :is-active="filterMode === 'enabled'"
-      :count="enabledProjects.length"
-      variant="info"
-      @click="filterMode = 'enabled'"
+      label="Default"
+      :is-active="filterMode === 'default'"
+      :count="defaultContexts.length"
+      variant="success"
+      @click="filterMode = 'default'"
     />
-    <!-- More filter buttons... -->
+  </template>
+
+  <template #search>
+    <SearchControl v-model="searchQuery" placeholder="Search contexts..." />
   </template>
   
-  <!-- Table content goes in default slot -->
-  <DataTable>
-    <!-- Table headers and rows -->
-  </DataTable>
+  <template #headers>
+    <TableRow>
+      <TableHeader
+        sortable
+        :sort-direction="sortKey === 'internal_name' ? sortDirection : null"
+        @sort="handleSort('internal_name')"
+      >
+        Context
+      </TableHeader>
+      <TableHeader class="hidden md:table-cell">Default</TableHeader>
+      <TableHeader class="hidden lg:table-cell">Created</TableHeader>
+      <TableHeader class="hidden sm:table-cell" variant="actions">
+        <span class="sr-only">Actions</span>
+      </TableHeader>
+    </TableRow>
+  </template>
+
+  <template #rows>
+    <TableRow
+      v-for="context in filteredContexts"
+      :key="context.id"
+      class="cursor-pointer hover:bg-green-50 transition"
+      @click="openContextDetail(context.id)"
+    >
+      <TableCell>
+        <InternalName
+          small
+          :internal-name="context.internal_name"
+          :backward-compatibility="context.backward_compatibility"
+        >
+          <template #icon>
+            <ContextIcon class="h-5 w-5 text-green-600" />
+          </template>
+        </InternalName>
+      </TableCell>
+      <TableCell class="hidden md:table-cell">
+        <div @click.stop>
+          <Toggle
+            small
+            title="Default"
+            :status-text="context.is_default ? 'Default' : 'Not default'"
+            :is-active="context.is_default"
+            @toggle="updateContextStatus(context, 'is_default', !context.is_default)"
+          />
+        </div>
+      </TableCell>
+      <TableCell class="hidden lg:table-cell">
+        <DateDisplay :date="context.created_at" format="short" variant="small-dark" />
+      </TableCell>
+      <TableCell class="hidden sm:table-cell">
+        <div class="flex space-x-2" @click.stop>
+          <ViewButton @click="router.push(`/contexts/${context.id}`)" />
+          <EditButton @click="router.push(`/contexts/${context.id}?edit=true`)" />
+          <DeleteButton @click="handleDeleteContext(context)" />
+        </div>
+      </TableCell>
+    </TableRow>
+  </template>
 </ListView>
 ```
+
+**Required List Page Features:**
+
+All list pages must implement:
+
+1. **Filtering System**: Filter buttons with counts and active states
+2. **Sorting System**: Sortable table headers with direction indicators  
+3. **Search System**: SearchControl component for text-based filtering
+4. **Action Buttons**: ViewButton, EditButton, DeleteButton in every row
+5. **Status Toggles**: Toggle components for inline status changes (where applicable)
+6. **Row Click Navigation**: Clickable rows with hover effects and @click.stop for actions
+7. **Entity Colors**: Consistent color usage (e.g., green for contexts, teal for items)
 
 ### DetailView
 

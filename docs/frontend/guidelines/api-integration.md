@@ -1,8 +1,8 @@
 ---
 layout: default
 title: API Integration
-nav_order: 1
-parent: Guidelines
+nav_order: 4
+parent: Frontend Guidelines
 ---
 
 # API Integration

@@ -1,3 +1,10 @@
+---
+layout: default
+title: Format Components
+parent: Components
+nav_order: 3
+---
+
 # Format Components
 
 Components for displaying and formatting data, handling user input, and presenting information in structured ways.

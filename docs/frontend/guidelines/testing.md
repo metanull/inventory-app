@@ -1,8 +1,8 @@
 ---
 layout: default
 title: Testing
-nav_order: 3
-parent: Guidelines
+nav_order: 1
+parent: Frontend Guidelines
 has_children: true
 ---
 

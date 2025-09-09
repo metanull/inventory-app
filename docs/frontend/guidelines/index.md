@@ -1,7 +1,8 @@
 ---
 layout: default
-title: Guidelines
-nav_order: 3
+title: Frontend Guidelines
+parent: Frontend Documentation
+nav_order: 4
 has_children: true
 ---
 

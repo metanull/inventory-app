@@ -1,8 +1,8 @@
 ---
 layout: default
 title: Development Archive Documentation Generator
-nav_order: 4
-parent: Guidelines
+nav_order: 3
+parent: Frontend Guidelines
 ---
 
 # Development Archive Documentation Generator
