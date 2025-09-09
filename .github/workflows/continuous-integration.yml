@@ -9,6 +9,7 @@ on:
     types: [opened, synchronize, reopened]
     paths-ignore:
       - 'docs/**'
+      - '.github/instructions/**'
       - '.github/workflows/continuous-deployment.yml'
       - '.github/workflows/continuous-deployment_github-pages.yml'
       - '.github/workflows/publish-npm-github-package.yml'
