@@ -4,8 +4,12 @@ on:
   workflow_run:
     workflows: ["Continuous Integration"]
     branches: ["main"]
-    types:
-      - completed
+    types: [completed]
+  push:
+    branches: ["main"]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/continuous-deployment_github-pages.yml'
   schedule:
     # Run every day at 2 AM UTC
     - cron: "0 2 * * *"
@@ -18,11 +22,11 @@ permissions:
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# Allow only one concurrent deployment, canceling older runs to deploy the latest content.
+# Documentation deployments are idempotent, so canceling and rerunning is safe and efficient.
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: "pages-deploy"
+  cancel-in-progress: true
 
 jobs:
   build:

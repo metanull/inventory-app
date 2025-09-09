@@ -4,12 +4,20 @@ permissions:
   contents: read
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     branches: ["main"]
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - 'docs/**'
+      - '.github/workflows/continuous-deployment.yml'
+      - '.github/workflows/continuous-deployment_github-pages.yml'
+      - '.github/workflows/publish-npm-github-package.yml'
   workflow_dispatch:
     # Allow manual triggering
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   laravel-validate:
