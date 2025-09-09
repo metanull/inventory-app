@@ -197,36 +197,99 @@ jobs:
           echo "STAGING_PATH=$stagingPath" >> $env:GITHUB_ENV
         shell: powershell
 
-      - name: Remove production symlink
+      - name: Cleanup temporary symlinks if any
         run: |
-          if (Test-Path "$env:WEBSERVER_PATH") {
-            $item = Get-Item "$env:WEBSERVER_PATH" -Force -ErrorAction SilentlyContinue
-            if ($item) {
-              if ($item.LinkType -ne "SymbolicLink") {
-                Write-Error "Webserver path exists but is not a symlink: $env:WEBSERVER_PATH"
-                Write-Error "Please manually remove or move this directory before deployment"
-                exit 1
-              }
-              try {
-                # Use [System.IO.Directory]::Delete instead of Remove-Item to avoid problem deleting symlink
-                [System.IO.Directory]::Delete($env:WEBSERVER_PATH, $true)
-                # Remove-Item "$env:WEBSERVER_PATH" -Force
-              } catch {
-                Write-Error "Failed to remove existing symlink: $_"
-                exit 1
-              }
+          $SwapPath = "{0}_swap" -f "$env:WEBSERVER_PATH"
+          if ((Test-Path -Path $SwapPath)) {
+            try {
+              [System.IO.Directory]::Delete($SwapPath, $false)
+            } catch {
+              Write-Error "Swap path exists but can't be removed: $SwapPath"
+              exit 1
             }
+          }
+          $TempPath = "{0}_swap" -f "$env:STAGING_PATH"
+          if ((Test-Path -Path $TempPath)) {
+            try {
+              [System.IO.Directory]::Delete($TempPath, $false)
+            } catch {
+              Write-Error "Temp path exists but can't be removed: $TempPath"
+              exit 1
+            }
+          }
+          echo "SYMLINK_SWAP_PATH=$SwapPath" >> $env:GITHUB_ENV
+          echo "SYMLINK_TEMP_PATH=$TempPath" >> $env:GITHUB_ENV
+        shell: powershell
+
+      - name: Create symbolic link
+        run: |
+          try {
+            Write-Host "Creating a symbolic link '$env:SYMLINK_TEMP_PATH' to '$env:STAGING_PATH'"
+            New-Item -ItemType SymbolicLink -Path "$env:SYMLINK_TEMP_PATH" -Target "$env:STAGING_PATH" -ErrorAction Stop
+          } catch {
+            Write-Error "Error creating symbolic link: $_"
+            exit 1
           }
         shell: powershell
 
-      - name: Create production symlink
+      - name: Swap symbolic links
         run: |
-          # The runner's user has received 'Create Symbolic Links' permission through `secpol.msc` (Local Security Policy) → Local Policies → User Rights Assignment → Create symbolic links
-          Write-Host "Creating symlink: $env:WEBSERVER_PATH -> $env:STAGING_PATH"
-          New-Item -ItemType SymbolicLink -Path "$env:WEBSERVER_PATH" -Target "$env:STAGING_PATH" -Force -ErrorAction Stop
+          $CanRollback = $false
+          if ((Test-Path -Path "$env:WEBSERVER_PATH")) {
+            try {
+              Write-Host "Renaming the symbolic link '$env:WEBSERVER_PATH' to '$env:SYMLINK_SWAP_PATH'"
+              Rename-Item -Path "$env:WEBSERVER_PATH" -NewName "$env:SYMLINK_SWAP_PATH" -ErrorAction Stop
+              $CanRollback = $true
+            } catch {
+              Write-Error "Error swapping symbolic links: $_"
+              exit 1
+            }
+          }
+          try {
+            Write-Host "Renaming the symbolic link '$env:SYMLINK_TEMP_PATH' to '$env:WEBSERVER_PATH'"
+            Rename-Item -Path "$env:SYMLINK_TEMP_PATH" -NewName "$env:WEBSERVER_PATH" -ErrorAction Stop
+          } catch {
+            Write-Error "Error swapping symbolic links: $_"
+            
+            # Attempt to rollback if necessary
+            if ($CanRollback) {
+              try {
+                Write-Host "Rolling back symbolic links..."
+                Write-Host "Renaming the symbolic link '$env:SYMLINK_SWAP_PATH' to '$env:WEBSERVER_PATH'"
+                Rename-Item -Path "$env:SYMLINK_SWAP_PATH" -NewName "$env:WEBSERVER_PATH" -ErrorAction Stop
+                Write-Host "Rolled back symbolic links successfully."
+              } catch {
+                Write-Error "Error rolling back symbolic links: $_"
+                exit 1
+              }
+            }
+            exit 1
+          }
         shell: powershell
 
-      - name: Cleanup old staging directories
+      - name: Cleanup symbolic links
+        run: |
+          try {
+            if ((Test-Path -Path "$env:SYMLINK_SWAP_PATH")) {
+              Write-Host "Removing the symbolic link '$env:SYMLINK_SWAP_PATH'"
+              [System.IO.Directory]::Delete("$env:SYMLINK_SWAP_PATH", $false)
+            }
+          } catch {
+              Write-Warning "Couldn't delete symbolic link: $env:SYMLINK_SWAP_PATH"
+              exit 1
+          }
+          try {
+            Write-Host "Removing the symbolic link '$env:SYMLINK_TEMP_PATH'"
+            if ((Test-Path -Path "$env:SYMLINK_TEMP_PATH")) {
+              [System.IO.Directory]::Delete("$env:SYMLINK_TEMP_PATH", $false)
+            }
+          } catch {
+              Write-Warning "Couldn't delete symbolic link: $env:SYMLINK_TEMP_PATH"
+              exit 1
+          }
+        shell: powershell
+
+      - name: Cleanup staging directories
         run: |
           # Keep only the last 3 staging directories
           $toKeep = 3
@@ -238,8 +301,12 @@ jobs:
           $toRemove = $stagingDirs | Select-Object -Skip $toKeep
           
           foreach ($dir in $toRemove) {
-            Write-Host "  Removing: $($dir.FullName)"
-            Remove-Item $dir.FullName -Recurse -Force -ErrorAction Continue
+            Write-Host "Removing obsolete staging directory: $($dir.FullName)"
+            try {
+              [System.IO.Directory]::Delete($dir.FullName, $false)
+            } catch {
+              Write-Warning "Error deleting obsolete staging directory: $($dir.FullName): $_"
+            }
           }
         shell: powershell
 
