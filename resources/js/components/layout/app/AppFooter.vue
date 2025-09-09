@@ -6,7 +6,7 @@
       <div>
         <span class="font-semibold text-gray-700">{{ appTitle }}</span>
         <span class="mx-2">|</span>
-        <span>UI Version: {{ appVersion }}</span>
+        <span>Version: {{ appVersion }}</span>
       </div>
       <div>
         <span>API Client Version: {{ apiClientVersion }}</span>

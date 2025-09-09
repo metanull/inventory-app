@@ -22,10 +22,7 @@ The **Inventory Management API** (inventory-app) is a RESTful API designed to ma
 - [Data Model and Features](#data-model-and-features)
 - [Quick Start](#quick-start)
 - [Deployment](#deployment)
-- [Technology Stack](#technology-stack)
-- [Author](#author)
-- [Change Log](#change-log)
-- [References](#references)
+- [Automated Versioning](#automated-versioning)
 
 ## Project Overview
 
@@ -693,6 +690,45 @@ The documentation includes:
 - Searchable archive of all development activities
 
 > **Note**: GitHub Pages generation is fully automated - no local Ruby or Jekyll installation required!
+
+## Automated Versioning
+
+This project uses **automated semantic versioning** based on pull request labels. When a PR passes CI tests, the version is automatically bumped and committed to the PR branch before merging.
+
+### Version Bump Rules
+
+The version bump type is determined by PR labels:
+
+| Label | Version Bump | Example | Usage |
+|-------|--------------|---------|-------|
+| `bugfix` | **Patch** | 1.0.0 → 1.0.1 | Bug fixes, documentation updates, refactoring |
+| `feature` | **Minor** | 1.0.0 → 1.1.0 | New features, enhancements, non-breaking changes |
+| `breaking-change` | **Major** | 1.0.0 → 2.0.0 | Breaking changes, API modifications |
+
+### How It Works
+
+1. **Create PR** → Continuous Integration runs tests
+2. **CI passes** → Version bump job analyzes PR labels  
+3. **Version bumped** → New version committed to PR branch
+4. **PR merged** → Deployment runs with correct version
+5. **Version visible** → Updated version appears in app footer
+
+### Usage Guidelines
+
+**When creating a pull request:**
+
+- **Always add one of the version labels**: `bugfix`, `feature`, or `breaking-change`
+- **Default behavior**: If no label is present, defaults to `patch` version bump
+- **Multiple labels**: `breaking-change` takes priority, then `feature`, then `bugfix`
+
+**Examples:**
+```
+PR: "Fix login validation error" + bugfix label → 1.1.0 → 1.1.1
+PR: "Add user dashboard feature" + feature label → 1.1.0 → 1.2.0  
+PR: "Redesign API endpoints" + breaking-change label → 1.1.0 → 2.0.0
+```
+
+> **💡 Pro tip**: The version bump happens automatically in CI, so you'll see the version commit appear in your PR before merging!
 
 ### Performance Considerations
 

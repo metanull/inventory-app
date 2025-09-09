@@ -1,6 +1,6 @@
 {
     "name": "inventory-app",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "private": true,
     "type": "module",
     "scripts": {
@@ -23,7 +23,10 @@
         "type-check": "vue-tsc --noEmit",
         "quality-check": "npm run type-check && npm run lint:check && npm run format:check && npm run test",
         "quality-check:fix": "npm run lint && npm run format",
-        "quality-check:report": "powershell -ExecutionPolicy Bypass -File ./scripts/Check-Issues.ps1"
+        "quality-check:report": "powershell -ExecutionPolicy Bypass -File ./scripts/Check-Issues.ps1",
+        "version:patch": "npm version patch",
+        "version:minor": "npm version minor",
+        "version:major": "npm version major"
     },
     "dependencies": {
         "@headlessui/vue": "^1.7.23",

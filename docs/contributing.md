@@ -147,6 +147,79 @@ Before contributing, please review our development guidelines:
 - PHPUnit and Laravel testing best practices
 - Code review criteria and validation
 
+## 🏷️ Automated Versioning
+
+This project uses **automated semantic versioning** based on GitHub pull request labels. Understanding this system is crucial for contributors.
+
+### Version Bump Labels
+
+**Every pull request MUST include one of these labels:**
+
+| Label | Version Bump | Example | When to Use |
+|-------|--------------|---------|-------------|
+| `bugfix` | **Patch** | 1.0.0 → 1.0.1 | Bug fixes, documentation updates, code cleanup |
+| `feature` | **Minor** | 1.0.0 → 1.1.0 | New features, enhancements, non-breaking additions |
+| `breaking-change` | **Major** | 1.0.0 → 2.0.0 | Breaking API changes, removed functionality |
+
+### How the Automation Works
+
+1. **Create PR** → CI runs all tests and validations
+2. **Tests pass** → Version bump job analyzes PR labels
+3. **Version updated** → New version automatically committed to your PR branch
+4. **PR reviewed & merged** → Deployment uses the correct version
+5. **App updated** → New version visible in application footer
+
+### Label Guidelines
+
+**🟢 Use `bugfix` for:**
+- Bug fixes and error corrections
+- Documentation improvements
+- Code refactoring without functional changes
+- Performance optimizations (without API changes)
+- Test improvements
+
+**🟡 Use `feature` for:**
+- New API endpoints or features
+- Enhancements to existing functionality  
+- New database models or migrations
+- Non-breaking configuration changes
+- New frontend components or pages
+
+**🔴 Use `breaking-change` for:**
+- Removing or modifying existing API endpoints
+- Changing request/response formats
+- Database schema changes that require migration
+- Configuration changes that break existing setups
+- Removing deprecated functionality
+
+### Example Workflows
+
+```bash
+# Bug fix workflow
+git checkout -b fix/login-validation-error
+# Make your changes
+# Create PR with 'bugfix' label → Results in patch bump
+
+# New feature workflow  
+git checkout -b feature/user-dashboard
+# Make your changes
+# Create PR with 'feature' label → Results in minor bump
+
+# Breaking change workflow
+git checkout -b breaking/redesign-api-endpoints
+# Make your changes  
+# Create PR with 'breaking-change' label → Results in major bump
+```
+
+### Important Notes
+
+- **Default behavior**: If no label is applied, defaults to `patch` bump
+- **Label priority**: `breaking-change` > `feature` > `bugfix`
+- **Automatic commit**: The version bump commit appears in your PR automatically
+- **No manual versioning**: Never manually edit `package.json` version number
+
+> **💡 Pro Tip**: Add labels when creating the PR or immediately after. The version bump happens after CI passes, so you'll see the version commit appear in your PR before it's merged!
+
 ## 📝 Contribution Process
 
 ### 1. Create a Feature Branch
