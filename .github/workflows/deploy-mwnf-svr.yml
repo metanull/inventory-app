@@ -2,7 +2,9 @@
 
 # Deploy Laravel App
 #
-
+# TRIGGER: This workflow runs automatically when the "Continuous Integration" workflow
+# completes successfully on the main branch.
+#
 # NOTE: This workflow uses the GitHub environment "MWNF-SVR" for deployment.
 # Set the following environment variables and secrets in the MWNF-SVR environment:
 #
@@ -36,13 +38,16 @@ permissions:
   contents: read
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Continuous Integration"]
+    branches: ["main"]
+    types:
+      - completed
 
 jobs:
   build:
     runs-on: [self-hosted, windows]
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     environment:
       name: MWNF-SVR
     env:
