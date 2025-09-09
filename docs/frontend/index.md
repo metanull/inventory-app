@@ -59,7 +59,8 @@ The Vue.js application is integrated into Laravel as a Single Page Application (
 
 ## Documentation Sections
 
-- [Application Architecture](application-architecture.md)
-- [Component Guidelines](guidelines/coding-guidelines.md)
-- [Testing Guidelines](guidelines/testing.md)
-- [Component Reference](components/)
+- [Quick Reference](quick-reference.md) - Developer cheat sheet and quick start guide
+- [Application Architecture](application-architecture.md) - Overall structure and design patterns
+- [Page Patterns](page-patterns.md) - **START HERE** for standardized page implementations  
+- [Frontend Guidelines](guidelines/) - Coding standards, testing, and best practices
+- [Component Reference](components/) - Documentation for all Vue.js components

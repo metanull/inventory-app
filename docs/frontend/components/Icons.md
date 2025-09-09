@@ -1,34 +1,103 @@
-# Icon Components
+---
+layout: default
+title: Icon Standards
+parent: Components
+nav_order: 4
+---
 
-SVG icon components used throughout the application. All icons are implemented as Vue components with consistent sizing and styling.
+# Icon Standards
 
-## Application Icons
+## CRITICAL REQUIREMENTS
 
-### ProjectIcon
+**ONLY Heroicons are allowed** - No exceptions.
 
-Icon representing projects and project-related functionality.
+### FORBIDDEN ❌
+- Inline SVG code in components
+- Creating separate components just for SVG icons  
+- Custom SVG files or other icon libraries
+- Any custom icon components
 
-**Usage:**
+### REQUIRED ✅
+- **ONLY use Heroicons**: Import from `@heroicons/vue/24/solid` or `@heroicons/vue/24/outline`
+- Import icons directly in the component where they're used
+- Use semantic aliases for clarity: `import { CogIcon as ContextIcon }`
+
+## Entity Icon Standards
+
+Each entity has a standardized icon that must be used consistently:
+
+| Entity | Icon | Import Path | Usage Context |
+|--------|------|-------------|---------------|
+| Items | `ArchiveBoxIcon` | `@heroicons/vue/24/solid` | All Items-related components |
+| Partners | `UserGroupIcon` | `@heroicons/vue/24/solid` | All Partners-related components |
+| Languages | `LanguageIcon` | `@heroicons/vue/24/outline` | All Languages-related components |
+| Countries | `GlobeAltIcon` | `@heroicons/vue/24/outline` | All Countries-related components |
+| Contexts | `CogIcon` | `@heroicons/vue/24/outline` | All Contexts-related components |
+| Projects | `FolderIcon` | `@heroicons/vue/24/outline` | All Projects-related components |
+
+## Icon Size Standards
+
+| Context | Size Class | Example Usage |
+|---------|------------|---------------|
+| Navigation Menu | `w-4 h-4` | AppHeader.vue menu items |
+| List Pages | `h-5 w-5` | Table row icons, InternalName icons |
+| Detail Pages | `h-6 w-6` | Resource icons in DetailView |
+| Dashboard Cards | Auto-sized | NavigationCard component handles sizing |
+
+## Implementation Examples
+
+### ✅ CORRECT Usage
 
 ```vue
-<ProjectIcon />
+<script setup lang="ts">
+// Import Heroicons directly
+import { CogIcon as ContextIcon, CheckCircleIcon } from '@heroicons/vue/24/solid'
+import { ArrowLeftIcon, PencilIcon } from '@heroicons/vue/24/outline'
+</script>
+
+<template>
+  <!-- Use icons directly in template with proper classes -->
+  <ContextIcon class="h-6 w-6 text-green-600" />
+  <CheckCircleIcon class="h-4 w-4 text-green-600" />
+  
+  <!-- Navigation menu usage -->
+  <ContextIcon class="w-4 h-4 text-green-600" />
+  
+  <!-- List page usage -->  
+  <ContextIcon class="h-5 w-5 text-green-600" />
+</template>
 ```
 
-### ContextIcon
+### ❌ FORBIDDEN Usage
 
-Icon for context-related features.
+```vue
+<!-- NEVER do these -->
+<template>
+  <!-- Inline SVG - FORBIDDEN -->
+  <svg viewBox="0 0 24 24">
+    <path d="..."/>
+  </svg>
+  
+  <!-- Custom icon components - FORBIDDEN -->
+  <CustomContextIcon />
+  <ProjectIcon />  <!-- Custom component -->
+</template>
+```
 
-### CountryIcon
+## Color Consistency
 
-Icon representing countries and geographical features.
+Icons must use entity-specific colors:
 
-### LanguageIcon
+```vue
+<!-- Contexts always use green -->
+<CogIcon class="text-green-600" />
 
-Icon for language and localization features.
+<!-- Items always use teal -->  
+<ArchiveBoxIcon class="text-teal-600" />
 
-### FeaturesIcon
-
-Icon for feature toggles and feature-related functionality.
+<!-- Countries always use blue -->
+<GlobeAltIcon class="text-blue-600" />
+```
 
 ## Status Icons
 

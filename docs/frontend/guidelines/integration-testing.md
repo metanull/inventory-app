@@ -3,7 +3,7 @@ layout: default
 title: Integration Testing
 nav_order: 1
 parent: Testing
-grand_parent: Guidelines
+grand_parent: Frontend Guidelines
 ---
 
 # Integration Testing Guide

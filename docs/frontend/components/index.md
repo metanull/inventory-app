@@ -1,7 +1,8 @@
 ---
 layout: default
 title: Components
-nav_order: 4
+parent: Frontend Documentation
+nav_order: 5
 has_children: true
 ---
 

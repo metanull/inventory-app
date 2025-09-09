@@ -79,6 +79,10 @@ Overview of the database models in the application, their main properties, and r
 
 Comprehensive deployment instructions for production and development environments.
 
+### [Frontend Documentation](frontend/)
+
+Complete Vue.js frontend documentation covering components, patterns, and development standards.
+
 ### [Guidelines](guidelines/)
 
 Comprehensive development guidelines covering API integration, coding standards, and testing practices.
