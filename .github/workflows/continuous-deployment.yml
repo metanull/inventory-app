@@ -32,7 +32,7 @@
 #
 # Do NOT hardcode sensitive or server-specific paths in this file for production.
 
-name: Deploy on self-hosted MWNF-SVR environment
+name: Continuous Deployment
 
 permissions:
   contents: read
