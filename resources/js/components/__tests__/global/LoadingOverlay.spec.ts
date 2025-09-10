@@ -4,11 +4,11 @@ import { createTestingPinia } from '@pinia/testing'
 import LoadingOverlay from '../../global/LoadingOverlay.vue'
 import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
 
-// Mock the icons to avoid import issues
-vi.mock('@/components/icons/SpinnerIcon.vue', () => ({
-  default: {
-    name: 'SpinnerIcon',
-    template: '<div class="mock-spinner h-12 w-12 text-white">spinning</div>',
+// Mock the heroicons to avoid import issues
+vi.mock('@heroicons/vue/24/outline', () => ({
+  ArrowPathIcon: {
+    name: 'ArrowPathIcon',
+    template: '<div class="mock-arrow-path h-12 w-12 text-white animate-spin">spinning</div>',
   },
 }))
 
@@ -60,16 +60,17 @@ describe('LoadingOverlay', () => {
     )
   })
 
-  it('renders SpinnerIcon with correct styling', async () => {
+  it('renders ArrowPathIcon with correct styling', async () => {
     store.visible = true
     await wrapper.vm.$nextTick()
 
-    const spinner = wrapper.findComponent({ name: 'SpinnerIcon' })
+    const spinner = wrapper.findComponent({ name: 'ArrowPathIcon' })
     expect(spinner.exists()).toBe(true)
-    expect(spinner.classes()).toContain('mock-spinner')
+    expect(spinner.classes()).toContain('mock-arrow-path')
     expect(spinner.classes()).toContain('h-12')
     expect(spinner.classes()).toContain('w-12')
     expect(spinner.classes()).toContain('text-white')
+    expect(spinner.classes()).toContain('animate-spin')
   })
 
   it('displays loading text from store', async () => {
@@ -120,7 +121,7 @@ describe('LoadingOverlay', () => {
     store.text = 'Processing...'
     await wrapper.vm.$nextTick()
 
-    const spinner = wrapper.findComponent({ name: 'SpinnerIcon' })
+    const spinner = wrapper.findComponent({ name: 'ArrowPathIcon' })
     const text = wrapper.find('p')
 
     expect(spinner.exists()).toBe(true)
@@ -128,7 +129,8 @@ describe('LoadingOverlay', () => {
     expect(text.text()).toBe('Processing...')
 
     // Both elements should be present in the component
-    expect(spinner.classes()).toContain('mock-spinner')
+    expect(spinner.classes()).toContain('mock-arrow-path')
+    expect(spinner.classes()).toContain('animate-spin')
     expect(text.classes()).toContain('mt-4')
     expect(text.classes()).toContain('text-white')
   })

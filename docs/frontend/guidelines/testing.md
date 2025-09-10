@@ -153,7 +153,16 @@ src/
 ├── stores/__tests__/
 │   └── *.test.ts              # Pinia store tests
 ├── views/__tests__/
-│   └── *.test.ts              # Page component tests
+│   ├── consistency/            # Cross-entity consistency tests
+│   │   └── *.test.ts          # Entity consistency validation
+│   ├── feature/               # Main functionality tests
+│   │   └── *.test.ts          # Component behavior and UI tests
+│   ├── integration/           # Integration workflow tests
+│   │   └── *.test.ts          # Component integration tests
+│   ├── logic/                 # Business logic tests
+│   │   └── *.test.ts          # Computational and logic tests
+│   └── resource_integration/   # API resource integration tests
+│       └── *.tests.ts         # Resource endpoint tests
 └── utils/__tests__/
     └── *.test.ts              # Utility function tests
 ```

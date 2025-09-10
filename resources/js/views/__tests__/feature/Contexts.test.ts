@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi, beforeAll, afterAll } from 'vites
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
-import Contexts from '../Contexts.vue'
+import Contexts from '../../Contexts.vue'
 import { useContextStore } from '@/stores/context'
 import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
 import { useErrorDisplayStore } from '@/stores/errorDisplay'
@@ -96,10 +96,18 @@ describe('Contexts.vue', () => {
     router = createRouter({
       history: createWebHistory(),
       routes: [
-        { path: '/', component: { template: '<div>Home</div>' } },
-        { path: '/contexts', component: Contexts },
-        { path: '/contexts/new', component: { template: '<div>New Context</div>' } },
-        { path: '/contexts/:id', component: { template: '<div>Context Detail</div>' } },
+        { path: '/', name: 'home', component: { template: '<div>Home</div>' } },
+        { path: '/contexts', name: 'contexts', component: Contexts },
+        {
+          path: '/contexts/new',
+          name: 'context-new',
+          component: { template: '<div>New Context</div>' },
+        },
+        {
+          path: '/contexts/:id',
+          name: 'context-detail',
+          component: { template: '<div>Context Detail</div>' },
+        },
       ],
     })
 
@@ -408,7 +416,10 @@ describe('Contexts.vue', () => {
 
       vm.openContextDetail('123e4567-e89b-12d3-a456-426614174000')
 
-      expect(spy).toHaveBeenCalledWith('/contexts/123e4567-e89b-12d3-a456-426614174000')
+      expect(spy).toHaveBeenCalledWith({
+        name: 'context-detail',
+        params: { id: '123e4567-e89b-12d3-a456-426614174000' }
+      })
     })
 
     it('should navigate to new context', async () => {

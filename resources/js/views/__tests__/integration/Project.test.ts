@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, vi, beforeAll, afterAll } from 'vites
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
-import Projects from '../Projects.vue'
-import ProjectDetail from '../ProjectDetail.vue'
+import Projects from '../../Projects.vue'
+import ProjectDetail from '../../ProjectDetail.vue'
 import { useProjectStore } from '@/stores/project'
 import { useContextStore } from '@/stores/context'
 import { useLanguageStore } from '@/stores/language'
@@ -177,9 +177,9 @@ describe('Project Management Integration Tests', () => {
     router = createRouter({
       history: createWebHistory(),
       routes: [
-        { path: '/projects', component: Projects },
+        { path: '/projects', name: 'projects', component: Projects },
         { path: '/projects/new', name: 'project-new', component: ProjectDetail },
-        { path: '/projects/:id', component: ProjectDetail },
+        { path: '/projects/:id', name: 'project-detail', component: ProjectDetail },
       ],
     })
 
@@ -368,7 +368,7 @@ describe('Project Management Integration Tests', () => {
       await projectDetailVm.cancelAction()
 
       // Should navigate back to projects list
-      expect(routerPushSpy).toHaveBeenCalledWith('/projects')
+      expect(routerPushSpy).toHaveBeenCalledWith({ name: 'projects' })
     })
   })
 
@@ -650,7 +650,7 @@ describe('Project Management Integration Tests', () => {
       const navVm = listWrapper.vm as unknown as ProjectsComponentInstance
       await navVm.openProjectDetail('123')
 
-      expect(routerPushSpy).toHaveBeenCalledWith('/projects/123')
+      expect(routerPushSpy).toHaveBeenCalledWith({ name: 'project-detail', params: { id: '123' } })
 
       // Navigate to detail view
       router.push('/projects/123')
@@ -797,7 +797,7 @@ describe('Project Management Integration Tests', () => {
         'Delete Project',
         `Are you sure you want to delete "${projectToDelete.internal_name}"? This action cannot be undone.`
       )
-      expect(routerPushSpy).toHaveBeenCalledWith('/projects') // Should navigate back to list
+      expect(routerPushSpy).toHaveBeenCalledWith({ name: 'projects' }) // Should navigate back to list
     })
   })
 

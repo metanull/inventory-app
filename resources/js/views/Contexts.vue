@@ -111,8 +111,18 @@
         </TableCell>
         <TableCell class="hidden sm:table-cell">
           <div class="flex space-x-2" @click.stop>
-            <ViewButton @click="router.push(`/contexts/${context.id}`)" />
-            <EditButton @click="router.push(`/contexts/${context.id}?edit=true`)" />
+            <ViewButton
+              @click="router.push({ name: 'context-detail', params: { id: context.id } })"
+            />
+            <EditButton
+              @click="
+                router.push({
+                  name: 'context-detail',
+                  params: { id: context.id },
+                  query: { edit: 'true' },
+                })
+              "
+            />
             <DeleteButton @click="handleDeleteContext(context)" />
           </div>
         </TableCell>
@@ -219,7 +229,11 @@
 
   // Navigation handler
   const openContextDetail = (contextId: string) => {
-    router.push(`/contexts/${contextId}`)
+    if (contextId === 'new') {
+      router.push({ name: 'context-new' })
+    } else {
+      router.push({ name: 'context-detail', params: { id: contextId } })
+    }
   }
 
   // Toggle default status

@@ -80,7 +80,13 @@
 
 <script setup lang="ts">
   import { ref, computed, onMounted, watch } from 'vue'
-  import { useRoute, useRouter } from 'vue-router'
+  import {
+    useRoute,
+    useRouter,
+    onBeforeRouteLeave,
+    type NavigationGuardNext,
+    type RouteLocationNormalized,
+  } from 'vue-router'
   import type {
     CountryStoreRequest,
     CountryUpdateRequest,
@@ -172,13 +178,33 @@
   })
 
   // Methods
-  const fetchCountry = async (): Promise<void> => {
-    if (mode.value === 'create') return
-    if (!countryId.value || countryId.value === 'new') return
-    await countryStore.fetchCountry(countryId.value)
+  const fetchCountry = async () => {
+    const countryId = route.params.id as string
+
+    if (!countryId || countryId === 'new') return
+
+    try {
+      loadingStore.show()
+      await countryStore.fetchCountry(countryId)
+    } catch {
+      errorStore.addMessage('error', 'Failed to fetch country data. Please try again.')
+    } finally {
+      loadingStore.hide()
+    }
   }
 
-  const enterEditMode = (): void => {
+  // Mode management functions
+
+  const enterCreateMode = () => {
+    mode.value = 'create'
+    editForm.value = {
+      id: '',
+      internal_name: '',
+      backward_compatibility: '',
+    }
+  }
+
+  const enterEditMode = () => {
     if (!country.value) return
     editForm.value = {
       id: country.value.id,
@@ -188,7 +214,19 @@
     mode.value = 'edit'
   }
 
-  const saveCountry = async (): Promise<void> => {
+  const enterViewMode = () => {
+    mode.value = 'view'
+    // Clear form data when returning to view mode
+    if (country.value) {
+      editForm.value = {
+        id: country.value.id,
+        internal_name: country.value.internal_name,
+        backward_compatibility: country.value.backward_compatibility || '',
+      }
+    }
+  }
+
+  const saveCountry = async () => {
     try {
       loadingStore.show('Saving...')
       if (mode.value === 'create') {
@@ -200,7 +238,7 @@
         const newCountry = await countryStore.createCountry(createData)
         if (newCountry) {
           errorStore.addMessage('info', 'Country created successfully.')
-          await router.push(`/countries/${newCountry.id}`)
+          await router.push({ name: 'country-detail', params: { id: newCountry.id } })
           mode.value = 'view'
         }
       } else if (mode.value === 'edit' && country.value) {
@@ -212,6 +250,13 @@
         if (updatedCountry) {
           errorStore.addMessage('info', 'Country updated successfully.')
           mode.value = 'view'
+
+          // Remove edit query parameter if present
+          if (route.query.edit) {
+            const query = { ...route.query }
+            delete query.edit
+            await router.replace({ query })
+          }
         }
       }
     } catch {
@@ -221,27 +266,30 @@
     }
   }
 
-  const cancelAction = async (): Promise<void> => {
+  const cancelAction = async () => {
     if (hasUnsavedChanges.value) {
       const result = await cancelChangesStore.trigger(
-        'Unsaved Changes',
-        'You have unsaved changes. Are you sure you want to leave?'
+        mode.value === 'create' ? 'New Country has unsaved changes' : 'Country has unsaved changes',
+        mode.value === 'create'
+          ? 'There are unsaved changes to this new country. If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.'
+          : `There are unsaved changes to "${country.value?.internal_name}". If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.`
       )
-      if (result === 'leave') {
-        if (mode.value === 'create') {
-          router.push('/countries')
-        } else {
-          mode.value = 'view'
-        }
+
+      if (result === 'stay') {
+        return // Cancel navigation
+      } else {
+        cancelChangesStore.resetChanges() // Reset changes before leaving
       }
-    } else if (mode.value === 'create') {
-      router.push('/countries')
+    }
+
+    if (mode.value === 'create') {
+      router.push({ name: 'countries' })
     } else {
-      mode.value = 'view'
+      enterViewMode()
     }
   }
 
-  const deleteCountry = async (): Promise<void> => {
+  const deleteCountry = async () => {
     if (!country.value) return
     const result = await deleteConfirmationStore.trigger(
       'Delete Country',
@@ -252,7 +300,7 @@
         loadingStore.show('Deleting...')
         await countryStore.deleteCountry(country.value.id)
         errorStore.addMessage('info', 'Country deleted successfully.')
-        await router.push('/countries')
+        await router.push({ name: 'countries' })
       } catch {
         errorStore.addMessage('error', 'Failed to delete country. Please try again.')
       } finally {
@@ -261,33 +309,59 @@
     }
   }
 
-  // Initialize data on mount
-  onMounted(async () => {
-    if (mode.value === 'create') {
-      editForm.value = {
-        id: '',
-        internal_name: '',
-        backward_compatibility: '',
+  // Initialize component based on route
+  const initializeComponent = async () => {
+    loadingStore.show()
+
+    try {
+      // Determine mode and initialize
+      const isCreateMode = route.path.includes('/new') || route.params.id === 'new'
+      const isEditMode = route.query.edit === 'true'
+
+      if (isCreateMode) {
+        enterCreateMode()
+      } else {
+        const countryId = route.params.id as string
+        if (countryId) {
+          await fetchCountry()
+          if (isEditMode) {
+            enterEditMode()
+          } else {
+            enterViewMode()
+          }
+        }
       }
-    } else {
-      await fetchCountry()
+    } catch {
+      errorStore.addMessage('error', 'Failed to load country data. Please try again.')
+    } finally {
+      loadingStore.hide()
     }
-  })
+  }
+
+  // Initialize component on mount
+  onMounted(initializeComponent)
 
   // Watch for route changes
   watch(
     () => route.params.id,
     async newId => {
       if (newId === 'new') {
-        mode.value = 'create'
-        editForm.value = {
-          id: '',
-          internal_name: '',
-          backward_compatibility: '',
-        }
+        enterCreateMode()
       } else if (typeof newId === 'string') {
-        mode.value = 'view'
         await fetchCountry()
+        enterViewMode()
+      }
+    }
+  )
+
+  // Watch for route query changes
+  watch(
+    () => route.query.edit,
+    editQuery => {
+      if (editQuery === 'true' && mode.value === 'view') {
+        enterEditMode()
+      } else if (editQuery !== 'true' && mode.value === 'edit') {
+        enterViewMode()
       }
     }
   )
@@ -305,5 +379,35 @@
       }
     },
     { immediate: true }
+  )
+
+  // Navigation guard for unsaved changes
+  onBeforeRouteLeave(
+    async (
+      _to: RouteLocationNormalized,
+      _from: RouteLocationNormalized,
+      next: NavigationGuardNext
+    ) => {
+      // Only check for unsaved changes if we're in edit or create mode
+      if ((mode.value === 'edit' || mode.value === 'create') && hasUnsavedChanges.value) {
+        const result = await cancelChangesStore.trigger(
+          mode.value === 'create'
+            ? 'New Country has unsaved changes'
+            : 'Country has unsaved changes',
+          mode.value === 'create'
+            ? 'There are unsaved changes to this new country. If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.'
+            : `There are unsaved changes to "${country.value?.internal_name}". If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.`
+        )
+
+        if (result === 'stay') {
+          next(false) // Cancel navigation
+        } else {
+          cancelChangesStore.resetChanges() // Reset changes before leaving
+          next() // Allow navigation
+        }
+      } else {
+        next() // Allow navigation
+      }
+    }
   )
 </script>

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vites
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory, type Router } from 'vue-router'
-import Collections from '../Collections.vue'
+import Collections from '../../Collections.vue'
 import { useCollectionStore } from '@/stores/collection'
 import { useAuthStore } from '@/stores/auth'
 import { useLoadingOverlayStore } from '@/stores/loadingOverlay'

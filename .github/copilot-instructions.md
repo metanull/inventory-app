@@ -121,9 +121,17 @@ composer ci-test           # Full test suite
     - **CRITICAL:** Always preserve consistancy with existing code. Check how things are done in other source files and also check the actual pinia store implementation and vue implementation when necessary. 
     - **CRITICAL:** Check how things are done in other source files and also check the actual pinia store, and component implementation when necessary.
     - **CRITICAL:** Always preserve consistancy in the way code files are named, structured and organized.
+    - **CRITICAL:** Always preserve consistancy with existing code. Check how things are done in other source files and also check the actual pinia store implementation and vue implementation when necessary. 
+    - **CRITICAL:** Check how things are done in other source files and also check the actual pinia store, and component implementation when necessary.
+    - **CRITICAL:** Always preserve consistancy in the way code files are named, structured and organized.
 - **`resources/css/`** - Tailwind CSS styling
 - **`public/build/`** - Compiled frontend assets (generated)
-- **`resources/js/__tests__/`** - Frontend unit and integration tests
+- **`resources/js/__tests__/`** - Frontend tests organized by type and purpose
+    - **`consistency/`** - Cross-entity consistency validation tests (*.test.ts)
+    - **`feature/`** - Main component functionality and behavior tests (*.test.ts) 
+    - **`integration/`** - Component integration and workflow tests (*.test.ts)
+    - **`logic/`** - Business logic and computational tests (*.test.ts)
+    - **`resource_integration/`** - API resource integration tests (*.tests.ts)
     - **CRITICAL:** Always preserve consistancy with existing code. 
     - **CRITICAL:** Check how things are done in other source files and also check the actual pinia store implementation and vue implementation when necessary. 
     - **CRITICAL:** Always preserve consistancy in the way mocking and import is performed for tests.

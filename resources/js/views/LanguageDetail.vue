@@ -258,7 +258,7 @@
   const cancelAction = async () => {
     if (mode.value === 'create') {
       // Navigate back to languages list
-      router.push('/languages')
+      router.push({ name: 'languages' })
       return
     }
 
@@ -332,7 +332,7 @@
           loadingStore.show('Deleting...')
           await languageStore.deleteLanguage(language.value.id)
           errorStore.addMessage('info', 'Language deleted successfully.')
-          router.push('/languages')
+          router.push({ name: 'languages' })
         } catch {
           errorStore.addMessage('error', 'Failed to delete language. Please try again.')
         } finally {

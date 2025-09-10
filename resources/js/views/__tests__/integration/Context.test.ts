@@ -11,8 +11,8 @@ import { beforeEach, describe, expect, it, vi, beforeAll, afterAll } from 'vites
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory, type Router } from 'vue-router'
-import Contexts from '../Contexts.vue'
-import ContextDetail from '../ContextDetail.vue'
+import Contexts from '../../Contexts.vue'
+import ContextDetail from '../../ContextDetail.vue'
 import { useContextStore } from '@/stores/context'
 import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
 import { useErrorDisplayStore } from '@/stores/errorDisplay'
@@ -140,10 +140,10 @@ describe('Context Integration Tests', () => {
     router = createRouter({
       history: createWebHistory(),
       routes: [
-        { path: '/', component: { template: '<div>Home</div>' } },
-        { path: '/contexts', component: Contexts },
-        { path: '/contexts/new', component: ContextDetail },
-        { path: '/contexts/:id', component: ContextDetail },
+        { path: '/', name: 'home', component: { template: '<div>Home</div>' } },
+        { path: '/contexts', name: 'contexts', component: Contexts },
+        { path: '/contexts/new', name: 'context-new', component: ContextDetail },
+        { path: '/contexts/:id', name: 'context-detail', component: ContextDetail },
       ],
     })
 

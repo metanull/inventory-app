@@ -74,8 +74,18 @@
         </TableCell>
         <TableCell class="hidden sm:table-cell">
           <div class="flex space-x-2" @click.stop>
-            <ViewButton @click="router.push(`/countries/${country.id}`)" />
-            <EditButton @click="router.push(`/countries/${country.id}?edit=true`)" />
+            <ViewButton
+              @click="router.push({ name: 'country-detail', params: { id: country.id } })"
+            />
+            <EditButton
+              @click="
+                router.push({
+                  name: 'country-detail',
+                  params: { id: country.id },
+                  query: { edit: 'true' },
+                })
+              "
+            />
             <DeleteButton @click="handleDeleteCountry(country)" />
           </div>
         </TableCell>
@@ -163,8 +173,12 @@
     }
   }
 
-  const openCountryDetail = (id: string): void => {
-    router.push(`/countries/${id}`)
+  const openCountryDetail = (id: string) => {
+    if (id === 'new') {
+      router.push({ name: 'country-new' })
+    } else {
+      router.push({ name: 'country-detail', params: { id } })
+    }
   }
 
   const fetchCountries = async (): Promise<void> => {

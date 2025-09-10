@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory, type Router } from 'vue-router'
 import { flushPromises } from '@vue/test-utils'
-import CollectionDetail from '../CollectionDetail.vue'
+import CollectionDetail from '../../CollectionDetail.vue'
 import type { CollectionResource } from '@metanull/inventory-app-api-client'
 
 // Mock console.error to avoid noise in test output
