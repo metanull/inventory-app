@@ -38,16 +38,12 @@ permissions:
   contents: read
 
 on:
-  workflow_run:
-    workflows: ["Continuous Integration"]
+  push:
     branches: ["main"]
-    types:
-      - completed
 
 jobs:
   build:
     runs-on: [self-hosted, windows]
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     environment:
       name: MWNF-SVR
     env:

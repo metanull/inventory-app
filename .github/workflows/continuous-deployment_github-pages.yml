@@ -1,10 +1,8 @@
 name: Continuous Deployment to GitHub Pages
 
 on:
-  workflow_run:
-    workflows: ["Continuous Integration"]
+  push:
     branches: ["main"]
-    types: [completed]
   workflow_dispatch:
     # Allow manual triggering
 
@@ -23,9 +21,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    # Only check CI success when triggered by workflow_run, allow other triggers
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
 
     # Override workflow permissions for this job to include contents: write for committing
     permissions:

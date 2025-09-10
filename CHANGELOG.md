@@ -5,20 +5,20 @@ All notable changes to the Inventory Management API project will be documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-<!-- Void change to trigger workflows -->
-
 ## [Unreleased]
+
+### Fixed
+
+- **Deployment Workflow Triggers**: Fixed continuous deployment workflows not triggering after PR merges
+  - **Changed Trigger Method**: Replaced `workflow_run` triggers with direct `push` triggers on main branch
+  - **Eliminated Duplicate CI Runs**: Prevents CI from running twice (once on PR, once on main after merge)
+  - **Consistent Behavior**: Both production deployment and GitHub Pages deployment now use the same trigger pattern
+  - **Maintains Security**: Deployments still protected by GitHub rulesets requiring PR approval and CI success
+  - **Improved Efficiency**: Deployments now trigger immediately after PR merge without waiting for additional CI runs
 
 ### Added
 
 - **Automated Version Numbering**: Implemented automated semantic versioning based on GitHub pull request labels
-  - **Label-based Version Bumps**: Uses PR labels (`bugfix`, `feature`, `breaking-change`) to determine version increment type
-  - **CI Integration**: Version bump happens automatically as part of Continuous Integration workflow after all tests pass
-  - **Smart Detection**: `breaking-change` → major bump, `feature` → minor bump, `bugfix` → patch bump (default)
-  - **Automatic Commit**: Version changes automatically committed to PR branch before merging
-  - **UI Integration**: Updated app footer to display "Version" instead of "UI Version" for consistency
-  - **Documentation**: Added comprehensive documentation in README.md and contributing guidelines
-  - **npm Scripts**: Added convenience scripts (`version:patch`, `version:minor`, `version:major`) for manual version bumping when needed
 - **Inventory Menu**: New navigation dropdown for Items and Partners in main application header
 - **Items Feature**: Complete CRUD functionality for inventory items management
   - **Items List**: Search, filtering (all/objects/monuments), sorting, and pagination
