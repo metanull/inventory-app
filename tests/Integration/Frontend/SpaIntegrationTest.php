@@ -19,8 +19,8 @@ class SpaIntegrationTest extends TestCase
         // Skip test if Vite manifest doesn't exist or VITE_ENABLED is false
         $manifestPath = public_path('build/manifest.json');
         $viteEnabled = config('app.vite_enabled', env('VITE_ENABLED', true));
-        
-        if (!file_exists($manifestPath) || !$viteEnabled) {
+
+        if (! file_exists($manifestPath) || ! $viteEnabled) {
             $this->markTestSkipped(
                 'Frontend build not available. Run "npm run build" and ensure VITE_ENABLED=true before running integration tests.'
             );
