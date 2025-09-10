@@ -5,14 +5,6 @@ on:
     workflows: ["Continuous Integration"]
     branches: ["main"]
     types: [completed]
-  push:
-    branches: ["main"]
-    paths:
-      - 'docs/**'
-      - '.github/workflows/continuous-deployment_github-pages.yml'
-  schedule:
-    # Run every day at 2 AM UTC
-    - cron: "0 2 * * *"
   workflow_dispatch:
     # Allow manual triggering
 

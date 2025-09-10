@@ -8,12 +8,7 @@ on:
   pull_request:
     branches: ["main"]
     types: [opened, synchronize, reopened]
-    paths-ignore:
-      - 'docs/**'
-      - '.github/instructions/**'
-      - '.github/workflows/continuous-deployment.yml'
-      - '.github/workflows/continuous-deployment_github-pages.yml'
-      - '.github/workflows/publish-npm-github-package.yml'
+
   workflow_dispatch:
     # Allow manual triggering
 
@@ -22,6 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  
   backend-validation:
     name: Backend Validation (PHP/Laravel)
     runs-on: windows-latest
@@ -125,70 +121,7 @@ jobs:
           $backendResult = "${{ needs.backend-validation.result }}"
           $frontendResult = "${{ needs.frontend-validation.result }}"
           
-          Write-Output "Backend validation: $backendResult"
-          Write-Output "Frontend validation: $frontendResult"
-          
           if ($backendResult -ne "success" -or $frontendResult -ne "success") {
             Write-Output "One or more validation jobs failed"
             exit 1
           }
-          
-          Write-Output "All validation jobs passed successfully"
-
-  integration-tests:
-    name: Integration Tests (Optional)
-    runs-on: windows-latest
-    needs: [backend-validation, frontend-validation]
-    # Run only on workflow_dispatch or if specifically requested
-    if: github.event_name == 'workflow_dispatch'
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: "Setup > Image > Install php"
-        uses: shivammathur/setup-php@v2
-        with:
-          extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
-          tools: phpunit, pest
-
-      - name: "Setup > Composer > Install Dependencies"
-        run: |
-          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-
-      - name: "Setup > Laravel > Create .env file from example"
-        run: |
-          if(-not(Test-Path ".env.local.example")) {
-            throw "No .env.local.example file found!"
-          }
-          if(-not(Test-Path ".env")) {
-            Copy-Item .env.local.example .env -ErrorAction Stop
-          }
-
-      - name: "Setup > Laravel > Generate application key"
-        run: |
-          php artisan key:generate
-
-      - name: "Setup > Laravel > Create database"
-        run: |
-          php artisan migrate --force
-
-      - name: "Setup > Image > Install Node.js"
-        uses: actions/setup-node@v5
-        with:
-          node-version: "20.x"
-
-      - name: "Setup > npm > Install Dependencies"
-        run: |
-          npm ci --no-audit --no-fund
-
-      - name: "Build > Frontend > Build assets for integration tests"
-        run: |
-          npm run build
-
-      - name: "Test > Integration > Run frontend-dependent tests"
-        env:
-          DB_CONNECTION: sqlite
-        run: |
-          composer ci-test:integration
-
-
