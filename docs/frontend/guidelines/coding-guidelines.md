@@ -38,11 +38,13 @@ This document outlines the coding standards and best practices for the Inventory
 ### Icon Usage (STRICT REQUIREMENTS)
 
 **FORBIDDEN:**
+
 - ❌ Inline SVG code in components
 - ❌ Creating separate components just for SVG icons
 - ❌ Custom SVG files or other icon libraries
 
 **REQUIRED:**
+
 - ✅ **ONLY use Heroicons**: Import from `@heroicons/vue/24/solid` or `@heroicons/vue/24/outline`
 - ✅ Import icons directly in the component where they're used
 - ✅ Use semantic aliases: `import { CogIcon as ContextIcon } from '@heroicons/vue/24/solid'`
@@ -50,8 +52,11 @@ This document outlines the coding standards and best practices for the Inventory
 ```vue
 <!-- ✅ Good: Proper Heroicons usage -->
 <script setup lang="ts">
-import { CogIcon as ContextIcon, CheckCircleIcon } from '@heroicons/vue/24/solid'
-import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
+import {
+  CogIcon as ContextIcon,
+  CheckCircleIcon,
+} from "@heroicons/vue/24/solid";
+import { ArrowLeftIcon } from "@heroicons/vue/24/outline";
 </script>
 
 <template>
@@ -63,8 +68,10 @@ import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
 ```vue
 <!-- ❌ Bad: Inline SVG or custom components -->
 <template>
-  <svg>...</svg>  <!-- FORBIDDEN -->
-  <CustomIcon />  <!-- FORBIDDEN -->
+  <svg>...</svg>
+  <!-- FORBIDDEN -->
+  <CustomIcon />
+  <!-- FORBIDDEN -->
 </template>
 ```
 
@@ -72,14 +79,14 @@ import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
 
 Each entity must use its assigned color consistently across ALL components:
 
-| Entity | Color | Text Class | Background Classes |
-|--------|-------|------------|-------------------|
-| Items | teal | `text-teal-600` | `bg-teal-*`, `hover:bg-teal-50` |
-| Partners | yellow | `text-yellow-600` | `bg-yellow-*`, `hover:bg-yellow-50` |
+| Entity    | Color  | Text Class        | Background Classes                  |
+| --------- | ------ | ----------------- | ----------------------------------- |
+| Items     | teal   | `text-teal-600`   | `bg-teal-*`, `hover:bg-teal-50`     |
+| Partners  | yellow | `text-yellow-600` | `bg-yellow-*`, `hover:bg-yellow-50` |
 | Languages | purple | `text-purple-600` | `bg-purple-*`, `hover:bg-purple-50` |
-| Countries | blue | `text-blue-600` | `bg-blue-*`, `hover:bg-blue-50` |
-| Contexts | green | `text-green-600` | `bg-green-*`, `hover:bg-green-50` |
-| Projects | orange | `text-orange-600` | `bg-orange-*`, `hover:bg-orange-50` |
+| Countries | blue   | `text-blue-600`   | `bg-blue-*`, `hover:bg-blue-50`     |
+| Contexts  | green  | `text-green-600`  | `bg-green-*`, `hover:bg-green-50`   |
+| Projects  | orange | `text-orange-600` | `bg-orange-*`, `hover:bg-orange-50` |
 
 ```vue
 <!-- ✅ Good: Consistent entity colors -->
@@ -87,7 +94,7 @@ Each entity must use its assigned color consistently across ALL components:
   <!-- Contexts always use green -->
   <ContextIcon class="h-5 w-5 text-green-600" />
   <div class="hover:bg-green-50">...</div>
-  
+
   <!-- Items always use teal -->
   <ItemIcon class="h-5 w-5 text-teal-600" />
   <div class="hover:bg-teal-50">...</div>

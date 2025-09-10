@@ -12,6 +12,7 @@ This guide documents the standardized patterns for creating consistent pages acr
 ## Overview
 
 All pages in the application follow three main patterns:
+
 - **Dashboard/Home Page**: Navigation hub with entity tiles
 - **List Pages**: Resource management with filtering, sorting, and actions
 - **Detail Pages**: Individual resource viewing, editing, and creation
@@ -25,7 +26,7 @@ The `Home.vue` page serves as the main navigation hub and **must mirror the navi
 Organize content in themed sections that match `AppHeader.vue` navigation dropdowns:
 
 1. **Inventory Section**: Items, Partners
-2. **Reference Data Section**: Languages, Countries, Contexts, Projects  
+2. **Reference Data Section**: Languages, Countries, Contexts, Projects
 3. **Tools Section**: System Status, Additional Features
 
 ### Implementation
@@ -34,17 +35,24 @@ Organize content in themed sections that match `AppHeader.vue` navigation dropdo
 <template>
   <div>
     <div class="mb-8">
-      <Title variant="page" description="Welcome to the Inventory Management System">
+      <Title
+        variant="page"
+        description="Welcome to the Inventory Management System"
+      >
         Dashboard
       </Title>
     </div>
 
     <!-- Section Example -->
     <div class="mb-8">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
+      <h2
+        class="text-xl font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2"
+      >
         Reference Data
       </h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      >
         <NavigationCard
           title="Contexts"
           description="Manage system contexts and operational environments"
@@ -62,9 +70,9 @@ Organize content in themed sections that match `AppHeader.vue` navigation dropdo
 </template>
 
 <script setup lang="ts">
-  import { CogIcon as ContextIcon } from '@heroicons/vue/24/solid'
-  import NavigationCard from '@/components/format/card/NavigationCard.vue'
-  import Title from '@/components/format/title/Title.vue'
+import { CogIcon as ContextIcon } from "@heroicons/vue/24/solid";
+import NavigationCard from "@/components/format/card/NavigationCard.vue";
+import Title from "@/components/format/title/Title.vue";
 </script>
 ```
 
@@ -97,7 +105,7 @@ List pages display collections of resources with comprehensive management featur
     <template #icon>
       <ContextIcon />
     </template>
-    
+
     <template #filters>
       <FilterButton
         label="All Contexts"
@@ -161,17 +169,25 @@ List pages display collections of resources with comprehensive management featur
               title="Default"
               :status-text="context.is_default ? 'Default' : 'Not default'"
               :is-active="context.is_default"
-              @toggle="updateContextStatus(context, 'is_default', !context.is_default)"
+              @toggle="
+                updateContextStatus(context, 'is_default', !context.is_default)
+              "
             />
           </div>
         </TableCell>
         <TableCell class="hidden lg:table-cell">
-          <DateDisplay :date="context.created_at" format="short" variant="small-dark" />
+          <DateDisplay
+            :date="context.created_at"
+            format="short"
+            variant="small-dark"
+          />
         </TableCell>
         <TableCell class="hidden sm:table-cell">
           <div class="flex space-x-2" @click.stop>
             <ViewButton @click="router.push(`/contexts/${context.id}`)" />
-            <EditButton @click="router.push(`/contexts/${context.id}?edit=true`)" />
+            <EditButton
+              @click="router.push(`/contexts/${context.id}?edit=true`)"
+            />
             <DeleteButton @click="handleDeleteContext(context)" />
           </div>
         </TableCell>
@@ -184,54 +200,60 @@ List pages display collections of resources with comprehensive management featur
 ### Required Features
 
 #### 1. Filtering System
+
 ```typescript
-const filterMode = ref<'all' | 'default'>('all')
+const filterMode = ref<"all" | "default">("all");
 
 const filteredContexts = computed(() => {
-  let filtered = contexts.value
-  
+  let filtered = contexts.value;
+
   // Apply filter mode
-  if (filterMode.value === 'default') {
-    filtered = filtered.filter(context => context.is_default)
+  if (filterMode.value === "default") {
+    filtered = filtered.filter((context) => context.is_default);
   }
-  
+
   // Apply search and sorting
-  return filtered
-})
+  return filtered;
+});
 ```
 
 #### 2. Sorting System
+
 ```typescript
-const sortKey = ref<string>('internal_name')
-const sortDirection = ref<'asc' | 'desc'>('asc')
+const sortKey = ref<string>("internal_name");
+const sortDirection = ref<"asc" | "desc">("asc");
 
 const handleSort = (key: string) => {
   if (sortKey.value === key) {
-    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
+    sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
   } else {
-    sortKey.value = key
-    sortDirection.value = 'asc'
+    sortKey.value = key;
+    sortDirection.value = "asc";
   }
-}
+};
 ```
 
 #### 3. Search System
+
 ```typescript
-const searchQuery = ref('')
+const searchQuery = ref("");
 
 // In computed filteredContexts:
 if (searchQuery.value.trim()) {
-  const query = searchQuery.value.toLowerCase()
-  filtered = filtered.filter(context =>
-    context.internal_name.toLowerCase().includes(query) ||
-    (context.backward_compatibility && 
-     context.backward_compatibility.toLowerCase().includes(query))
-  )
+  const query = searchQuery.value.toLowerCase();
+  filtered = filtered.filter(
+    (context) =>
+      context.internal_name.toLowerCase().includes(query) ||
+      (context.backward_compatibility &&
+        context.backward_compatibility.toLowerCase().includes(query)),
+  );
 }
 ```
 
 #### 4. Action Buttons (MANDATORY)
+
 Every list page row must include:
+
 - `<ViewButton @click="router.push(\`/contexts/\${context.id}\`)" />`
 - `<EditButton @click="router.push(\`/contexts/\${context.id}?edit=true\`)" />`
 - `<DeleteButton @click="handleDeleteContext(context)" />`
@@ -239,7 +261,9 @@ Every list page row must include:
 Wrap in `<div class="flex space-x-2" @click.stop>` to prevent row click propagation.
 
 #### 5. Status Toggles (where applicable)
+
 Use `<Toggle small>` for inline status changes:
+
 ```vue
 <div @click.stop>
   <Toggle
@@ -253,6 +277,7 @@ Use `<Toggle small>` for inline status changes:
 ```
 
 #### 6. Row Click Navigation
+
 - Make rows clickable: `class="cursor-pointer hover:bg-green-50 transition"`
 - Use `@click="openContextDetail(context.id)"` for navigation
 - Prevent event bubbling on actions with `@click.stop`
@@ -286,7 +311,7 @@ Detail pages handle viewing, editing, and creating individual resources.
     <template #resource-icon>
       <CogIcon class="h-6 w-6 text-green-600" />
     </template>
-    
+
     <template #information>
       <DescriptionList>
         <DescriptionRow variant="gray">
@@ -312,161 +337,171 @@ Detail pages handle viewing, editing, and creating individual resources.
 All detail pages must implement exactly three modes:
 
 ```typescript
-type Mode = 'view' | 'edit' | 'create'
-const mode = ref<Mode>('view') // Single source of truth
+type Mode = "view" | "edit" | "create";
+const mode = ref<Mode>("view"); // Single source of truth
 
 // Required mode functions:
 const enterCreateMode = () => {
-  mode.value = 'create'
-  editForm.value = getDefaultFormValues()
-}
+  mode.value = "create";
+  editForm.value = getDefaultFormValues();
+};
 
 const enterEditMode = () => {
-  if (!context.value) return
-  mode.value = 'edit'  
-  editForm.value = getFormValuesFromContext()
-}
+  if (!context.value) return;
+  mode.value = "edit";
+  editForm.value = getFormValuesFromContext();
+};
 
 const enterViewMode = () => {
-  mode.value = 'view'
-  editForm.value = getDefaultFormValues() // Clear form data
-}
+  mode.value = "view";
+  editForm.value = getDefaultFormValues(); // Clear form data
+};
 ```
 
 ### Component Initialization Pattern
 
 ```typescript
 const initializeComponent = async () => {
-  const contextId = route.params.id as string
-  const isCreateRoute = route.name === 'context-new' || route.path === '/contexts/new'
+  const contextId = route.params.id as string;
+  const isCreateRoute =
+    route.name === "context-new" || route.path === "/contexts/new";
 
   if (isCreateRoute) {
-    contextStore.clearCurrentContext()
-    enterCreateMode()
+    contextStore.clearCurrentContext();
+    enterCreateMode();
   } else if (contextId) {
-    await fetchContext()
-    if (route.query.edit === 'true' && context.value) {
-      enterEditMode()
+    await fetchContext();
+    if (route.query.edit === "true" && context.value) {
+      enterEditMode();
     } else {
-      enterViewMode()
+      enterViewMode();
     }
   }
-}
+};
 
-onMounted(initializeComponent)
+onMounted(initializeComponent);
 ```
 
 ### Required Features
 
 #### 1. Form Data Management
+
 ```typescript
 interface ContextFormData {
-  id?: string
-  internal_name: string
-  backward_compatibility: string
+  id?: string;
+  internal_name: string;
+  backward_compatibility: string;
 }
 
 const editForm = ref<ContextFormData>({
-  id: '',
-  internal_name: '',
-  backward_compatibility: '',
-})
+  id: "",
+  internal_name: "",
+  backward_compatibility: "",
+});
 
 const getDefaultFormValues = (): ContextFormData => ({
-  id: '',
-  internal_name: '',
-  backward_compatibility: '',
-})
+  id: "",
+  internal_name: "",
+  backward_compatibility: "",
+});
 
 const getFormValuesFromContext = (): ContextFormData => {
-  if (!context.value) return getDefaultFormValues()
-  
+  if (!context.value) return getDefaultFormValues();
+
   return {
     id: context.value.id,
     internal_name: context.value.internal_name,
-    backward_compatibility: context.value.backward_compatibility || '',
-  }
-}
+    backward_compatibility: context.value.backward_compatibility || "",
+  };
+};
 ```
 
 #### 2. Unsaved Changes Detection
+
 ```typescript
 const hasUnsavedChanges = computed(() => {
-  if (mode.value === 'view') return false
+  if (mode.value === "view") return false;
 
-  if (mode.value === 'create') {
-    const defaultValues = getDefaultFormValues()
-    return editForm.value.internal_name !== defaultValues.internal_name
+  if (mode.value === "create") {
+    const defaultValues = getDefaultFormValues();
+    return editForm.value.internal_name !== defaultValues.internal_name;
     // ... compare all fields
   }
 
-  if (!context.value) return false
-  const originalValues = getFormValuesFromContext()
-  return editForm.value.internal_name !== originalValues.internal_name
+  if (!context.value) return false;
+  const originalValues = getFormValuesFromContext();
+  return editForm.value.internal_name !== originalValues.internal_name;
   // ... compare all fields
-})
+});
 
 // Watch for changes and sync with stores
 watch(hasUnsavedChanges, (hasChanges: boolean) => {
   if (hasChanges) {
-    cancelChangesStore.addChange()
+    cancelChangesStore.addChange();
   } else {
-    cancelChangesStore.resetChanges()
+    cancelChangesStore.resetChanges();
   }
-})
+});
 ```
 
 #### 3. Status Cards Configuration (where applicable)
+
 ```typescript
 const statusCardsConfig = computed(() => {
-  if (!context.value) return []
+  if (!context.value) return [];
 
   return [
     {
-      title: 'Default Context',
-      description: 'This context is set as the default for the entire database',
-      mainColor: 'green',
-      statusText: context.value.is_default ? 'Default' : 'Not Default',
-      toggleTitle: 'Default Context',
+      title: "Default Context",
+      description: "This context is set as the default for the entire database",
+      mainColor: "green",
+      statusText: context.value.is_default ? "Default" : "Not Default",
+      toggleTitle: "Default Context",
       isActive: context.value.is_default,
       loading: false,
       disabled: false,
-      activeIconBackgroundClass: 'bg-green-100',
-      inactiveIconBackgroundClass: 'bg-gray-100',
-      activeIconClass: 'text-green-600',
-      inactiveIconClass: 'text-gray-600',
+      activeIconBackgroundClass: "bg-green-100",
+      inactiveIconBackgroundClass: "bg-gray-100",
+      activeIconClass: "text-green-600",
+      inactiveIconClass: "text-gray-600",
       activeIconComponent: CheckCircleIcon,
       inactiveIconComponent: XCircleIcon,
     },
-  ]
-})
+  ];
+});
 ```
 
 #### 4. Navigation Guards
+
 ```typescript
 onBeforeRouteLeave(
   async (
     _to: RouteLocationNormalized,
     _from: RouteLocationNormalized,
-    next: NavigationGuardNext
+    next: NavigationGuardNext,
   ) => {
-    if ((mode.value === 'edit' || mode.value === 'create') && hasUnsavedChanges.value) {
+    if (
+      (mode.value === "edit" || mode.value === "create") &&
+      hasUnsavedChanges.value
+    ) {
       const result = await cancelChangesStore.trigger(
-        mode.value === 'create' ? 'New Context has unsaved changes' : 'Context has unsaved changes',
+        mode.value === "create"
+          ? "New Context has unsaved changes"
+          : "Context has unsaved changes",
         // ... confirmation message
-      )
+      );
 
-      if (result === 'stay') {
-        next(false) // Cancel navigation
+      if (result === "stay") {
+        next(false); // Cancel navigation
       } else {
-        cancelChangesStore.resetChanges()
-        next() // Allow navigation
+        cancelChangesStore.resetChanges();
+        next(); // Allow navigation
       }
     } else {
-      next()
+      next();
     }
-  }
-)
+  },
+);
 ```
 
 ## Entity Standards
@@ -475,29 +510,30 @@ onBeforeRouteLeave(
 
 Each entity has a unique color used across ALL components:
 
-| Entity | Color | Text Class | Background Classes |
-|--------|-------|------------|-------------------|
-| Items | teal | `text-teal-600` | `bg-teal-*`, `hover:bg-teal-50` |
-| Partners | yellow | `text-yellow-600` | `bg-yellow-*`, `hover:bg-yellow-50` |
+| Entity    | Color  | Text Class        | Background Classes                  |
+| --------- | ------ | ----------------- | ----------------------------------- |
+| Items     | teal   | `text-teal-600`   | `bg-teal-*`, `hover:bg-teal-50`     |
+| Partners  | yellow | `text-yellow-600` | `bg-yellow-*`, `hover:bg-yellow-50` |
 | Languages | purple | `text-purple-600` | `bg-purple-*`, `hover:bg-purple-50` |
-| Countries | blue | `text-blue-600` | `bg-blue-*`, `hover:bg-blue-50` |
-| Contexts | green | `text-green-600` | `bg-green-*`, `hover:bg-green-50` |
-| Projects | orange | `text-orange-600` | `bg-orange-*`, `hover:bg-orange-50` |
+| Countries | blue   | `text-blue-600`   | `bg-blue-*`, `hover:bg-blue-50`     |
+| Contexts  | green  | `text-green-600`  | `bg-green-*`, `hover:bg-green-50`   |
+| Projects  | orange | `text-orange-600` | `bg-orange-*`, `hover:bg-orange-50` |
 
 ### Icon Standards (STRICT)
 
 **ONLY Heroicons allowed** - No inline SVG or custom icon components.
 
-| Entity | Icon | Import |
-|--------|------|--------|
-| Items | ArchiveBoxIcon | `from '@heroicons/vue/24/solid'` |
-| Partners | UserGroupIcon | `from '@heroicons/vue/24/solid'` |
-| Languages | LanguageIcon | `from '@heroicons/vue/24/outline'` |
-| Countries | GlobeAltIcon | `from '@heroicons/vue/24/outline'` |
-| Contexts | CogIcon | `from '@heroicons/vue/24/outline'` |
-| Projects | FolderIcon | `from '@heroicons/vue/24/outline'` |
+| Entity    | Icon           | Import                             |
+| --------- | -------------- | ---------------------------------- |
+| Items     | ArchiveBoxIcon | `from '@heroicons/vue/24/solid'`   |
+| Partners  | UserGroupIcon  | `from '@heroicons/vue/24/solid'`   |
+| Languages | LanguageIcon   | `from '@heroicons/vue/24/outline'` |
+| Countries | GlobeAltIcon   | `from '@heroicons/vue/24/outline'` |
+| Contexts  | CogIcon        | `from '@heroicons/vue/24/outline'` |
+| Projects  | FolderIcon     | `from '@heroicons/vue/24/outline'` |
 
 **Icon Size Standards:**
+
 - Navigation menu: `w-4 h-4`
 - List page icons: `h-5 w-5`
 - Detail page resource icons: `h-6 w-6`
@@ -507,39 +543,44 @@ Each entity has a unique color used across ALL components:
 All pages must integrate with Pinia stores following these patterns:
 
 ### Required Store Imports
+
 ```typescript
-import { useContextStore } from '@/stores/context'
-import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
-import { useErrorDisplayStore } from '@/stores/errorDisplay'
-import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
-import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
+import { useContextStore } from "@/stores/context";
+import { useLoadingOverlayStore } from "@/stores/loadingOverlay";
+import { useErrorDisplayStore } from "@/stores/errorDisplay";
+import { useDeleteConfirmationStore } from "@/stores/deleteConfirmation";
+import { useCancelChangesConfirmationStore } from "@/stores/cancelChangesConfirmation";
 ```
 
 ### Data Fetching Pattern
+
 ```typescript
 onMounted(async () => {
-  let usedCache = false
-  
+  let usedCache = false;
+
   // If cache exists, display immediately and refresh in background
   if (contexts.value && contexts.value.length > 0) {
-    usedCache = true
+    usedCache = true;
   } else {
-    loadingStore.show()
+    loadingStore.show();
   }
-  
+
   try {
-    await contextStore.fetchContexts()
+    await contextStore.fetchContexts();
     if (usedCache) {
-      errorStore.addMessage('info', 'List refreshed')
+      errorStore.addMessage("info", "List refreshed");
     }
   } catch {
-    errorStore.addMessage('error', 'Failed to fetch contexts. Please try again.')
+    errorStore.addMessage(
+      "error",
+      "Failed to fetch contexts. Please try again.",
+    );
   } finally {
     if (!usedCache) {
-      loadingStore.hide()
+      loadingStore.hide();
     }
   }
-})
+});
 ```
 
 ## Adding New Entities
@@ -547,7 +588,9 @@ onMounted(async () => {
 When adding a new entity, you **MUST** update both:
 
 ### 1. Home.vue Dashboard Tile
+
 Add to the appropriate section (Inventory/Reference Data):
+
 ```vue
 <NavigationCard
   title="NewEntity"
@@ -563,7 +606,9 @@ Add to the appropriate section (Inventory/Reference Data):
 ```
 
 ### 2. AppHeader.vue Navigation Menu
+
 Add to the corresponding dropdown section:
+
 ```vue
 <RouterLink
   to="/new-entities"

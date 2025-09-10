@@ -170,7 +170,7 @@ A comprehensive list view component that provides a standardized layout for disp
 All list pages must implement:
 
 1. **Filtering System**: Filter buttons with counts and active states
-2. **Sorting System**: Sortable table headers with direction indicators  
+2. **Sorting System**: Sortable table headers with direction indicators
 3. **Search System**: SearchControl component for text-based filtering
 4. **Action Buttons**: ViewButton, EditButton, DeleteButton in every row
 5. **Status Toggles**: Toggle components for inline status changes (where applicable)
