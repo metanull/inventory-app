@@ -1,0 +1,151 @@
+name: Post-Merge Version Bump
+
+permissions:
+  contents: write
+  pull-requests: read
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '.github/instructions/**'
+    # Only trigger if there are meaningful code changes, not just package.json updates
+  workflow_dispatch:
+    # Allow manual triggering
+
+concurrency:
+  group: version-bump-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  version-bump:
+    name: Automatic Version Bump
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: "Setup > Image > Install Node.js"
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20.x"
+
+      - name: Check if version bump needed
+        id: check-bump
+        run: |
+          $commitMessage = "${{ github.event.head_commit.message }}"
+          Write-Output "Commit message: $commitMessage"
+          
+          if ($commitMessage -like "chore: bump version*") {
+            Write-Output "This is already a version bump commit, skipping..."
+            Write-Output "skip-bump=true" >> $env:GITHUB_OUTPUT
+          } else {
+            Write-Output "This is a regular commit, version bump needed"
+            Write-Output "skip-bump=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Configure Git for version bump
+        if: steps.check-bump.outputs.skip-bump == 'false'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Get merged PR information
+        if: steps.check-bump.outputs.skip-bump == 'false'
+        id: pr-info
+        run: |
+          # Get the commit that was just merged
+          $commitSha = "${{ github.event.head_commit.id }}"
+          Write-Output "Looking for PR associated with commit: $commitSha"
+          
+          # Search for PRs that were merged with this commit
+          $prsUrl = "https://api.github.com/repos/${{ github.repository }}/pulls?state=closed&sort=updated&direction=desc"
+          $prsData = Invoke-RestMethod -Uri $prsUrl -Headers @{
+            "Authorization" = "Bearer ${{ secrets.GITHUB_TOKEN }}"
+            "Accept" = "application/vnd.github.v3+json"
+          }
+          
+          # Find the PR that was merged with this commit
+          $mergedPR = $null
+          foreach ($pr in $prsData) {
+            if ($pr.merged_at -and $pr.merge_commit_sha -eq $commitSha) {
+              $mergedPR = $pr
+              break
+            }
+          }
+          
+          if ($mergedPR) {
+            $labels = $mergedPR.labels | ForEach-Object { $_.name }
+            Write-Output "Found merged PR #$($mergedPR.number): $($mergedPR.title)"
+            Write-Output "PR Labels: $($labels -join ', ')"
+            
+            # Default to patch version bump (safest)
+            $bumpType = "patch"
+            
+            # Check labels in priority order
+            if ($labels -contains "breaking-change") {
+              $bumpType = "major"
+            }
+            elseif ($labels -contains "feature") {
+              $bumpType = "minor"
+            }
+            elseif ($labels -contains "bugfix") {
+              $bumpType = "patch"
+            }
+            
+            Write-Output "bump-type=$bumpType" >> $env:GITHUB_OUTPUT
+            Write-Output "pr-number=$($mergedPR.number)" >> $env:GITHUB_OUTPUT
+            Write-Output "pr-title=$($mergedPR.title)" >> $env:GITHUB_OUTPUT
+            Write-Output "Detected version bump type: $bumpType (based on labels: $($labels -join ', '))"
+          } else {
+            Write-Output "No merged PR found for this commit, defaulting to patch version bump"
+            Write-Output "bump-type=patch" >> $env:GITHUB_OUTPUT
+            Write-Output "pr-number=" >> $env:GITHUB_OUTPUT
+            Write-Output "pr-title=Direct commit to main" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Bump version
+        if: steps.check-bump.outputs.skip-bump == 'false'
+        id: bump-version
+        run: |
+          $bumpType = "${{ steps.pr-info.outputs.bump-type }}"
+          Write-Output "Bumping version with type: $bumpType"
+          
+          npm version $bumpType --no-git-tag-version
+          
+          # Get new version
+          $newVersion = (Get-Content package.json | ConvertFrom-Json).version
+          Write-Output "New version: $newVersion"
+          
+          # Set output for next step
+          Write-Output "new-version=$newVersion" >> $env:GITHUB_OUTPUT
+
+      - name: Commit and push version bump
+        if: steps.check-bump.outputs.skip-bump == 'false'
+        run: |
+          $newVersion = "${{ steps.bump-version.outputs.new-version }}"
+          $prNumber = "${{ steps.pr-info.outputs.pr-number }}"
+          $prTitle = "${{ steps.pr-info.outputs.pr-title }}"
+          
+          # Check if there are changes to commit
+          $changes = git diff --name-only
+          if ($changes) {
+            git add package.json package-lock.json
+            
+            # Create commit message
+            if ($prNumber) {
+              $commitMessage = "chore: bump version to $newVersion`n`nRelated to PR #$prNumber`: $prTitle"
+            } else {
+              $commitMessage = "chore: bump version to $newVersion"
+            }
+            
+            git commit -m $commitMessage
+            git push origin main
+            Write-Output "Version bumped to $newVersion and pushed to main branch"
+          } else {
+            Write-Output "No version changes needed"
+          }

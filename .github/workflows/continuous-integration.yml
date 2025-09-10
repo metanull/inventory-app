@@ -22,8 +22,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  laravel-validate:
-    name: Validate Laravel Application
+  backend-validation:
+    name: Backend Validation (PHP/Laravel)
     runs-on: windows-latest
 
     steps:
@@ -70,6 +70,24 @@ jobs:
         run: |
           php artisan migrate --force
 
+      - name: "Check > Laravel > Linting"
+        run: |
+          ./vendor/bin/pint --bail
+
+      - name: "Check > Laravel > Run Tests"
+        env:
+          DB_CONNECTION: sqlite
+          # DB_DATABASE: database/database.sqlite
+        run: |
+          php artisan test --coverage --parallel --no-ansi --stop-on-failure
+
+  frontend-validation:
+    name: Frontend Validation (Node.js/Vue)
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
       - name: "Setup > Image > Install Node.js"
         uses: actions/setup-node@v5
         with:
@@ -87,91 +105,34 @@ jobs:
         run: |
           npm run build --if-present
 
-      - name: "Check > Laravel > Linting"
+      - name: "Check > npm > Linting"
         run: |
-          ./vendor/bin/pint --bail
+          npm run lint
 
-      - name: "Check > Laravel > Run Tests"
-        env:
-          DB_CONNECTION: sqlite
-          # DB_DATABASE: database/database.sqlite
+      - name: "Check > npm > Run Tests"
         run: |
-          php artisan test --coverage --parallel --no-ansi --stop-on-failure
+          npm run test:all
 
-      #- name: 'Check > npm > Linting'
-      #  run: |
-      #    npm run lint
+  ci-success:
+    name: CI Success
+    runs-on: windows-latest
+    needs: [backend-validation, frontend-validation]
+    if: always()
 
-  # - name: 'Check > npm > Run Tests'
-  #   run: |
-  #     npm test
-
-      # Version bump section - runs at the end of validation job
-      - name: Configure Git for version bump
-        if: github.event_name == 'pull_request'
+    steps:
+      - name: Check all jobs succeeded
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Determine version bump type from PR labels
-        if: github.event_name == 'pull_request'
-        id: version-bump-type
-        run: |
-          # Get PR labels using GitHub API
-          $prNumber = "${{ github.event.pull_request.number }}"
-          $prUrl = "https://api.github.com/repos/${{ github.repository }}/pulls/$prNumber"
+          $backendResult = "${{ needs.backend-validation.result }}"
+          $frontendResult = "${{ needs.frontend-validation.result }}"
           
-          $prData = Invoke-RestMethod -Uri $prUrl -Headers @{
-            "Authorization" = "Bearer ${{ secrets.GITHUB_TOKEN }}"
-            "Accept" = "application/vnd.github.v3+json"
+          Write-Output "Backend validation: $backendResult"
+          Write-Output "Frontend validation: $frontendResult"
+          
+          if ($backendResult -ne "success" -or $frontendResult -ne "success") {
+            Write-Output "One or more validation jobs failed"
+            exit 1
           }
           
-          $labels = $prData.labels | ForEach-Object { $_.name }
-          Write-Output "PR Labels: $($labels -join ', ')"
-          
-          # Default to patch version bump (safest)
-          $bumpType = "patch"
-          
-          # Check labels in priority order
-          if ($labels -contains "breaking-change") {
-            $bumpType = "major"
-          }
-          elseif ($labels -contains "feature") {
-            $bumpType = "minor"
-          }
-          elseif ($labels -contains "bugfix") {
-            $bumpType = "patch"
-          }
-          
-          Write-Output "bump-type=$bumpType" >> $env:GITHUB_OUTPUT
-          Write-Output "Detected version bump type: $bumpType (based on labels: $($labels -join ', '))"
-
-      - name: Bump version
-        if: github.event_name == 'pull_request'
-        run: |
-          $bumpType = "${{ steps.version-bump-type.outputs.bump-type }}"
-          npm version $bumpType --no-git-tag-version
-          
-          # Get new version
-          $newVersion = (Get-Content package.json | ConvertFrom-Json).version
-          Write-Output "New version: $newVersion"
-
-      - name: Commit and push version bump to PR
-        if: github.event_name == 'pull_request'
-        run: |
-          $newVersion = (Get-Content package.json | ConvertFrom-Json).version
-          
-          # Check if there are changes to commit
-          $changes = git diff --name-only
-          if ($changes) {
-            # Ensure we're on the correct branch
-            git checkout ${{ github.head_ref }}
-            git add package.json package-lock.json
-            git commit -m "chore: bump version to $newVersion"
-            git push origin HEAD:${{ github.head_ref }}
-            Write-Output "Version bumped to $newVersion and pushed to PR branch"
-          } else {
-            Write-Output "No version changes needed"
-          }
+          Write-Output "All validation jobs passed successfully"
 
 
