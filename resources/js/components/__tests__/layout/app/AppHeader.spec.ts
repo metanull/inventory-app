@@ -73,9 +73,9 @@ describe('AppHeader', () => {
     // Find the Reference Data dropdown button by its text content
     const buttons = wrapper.findAll('button')
     const referenceDataButton = buttons.find(btn => btn.text().includes('Reference Data'))
-    
+
     expect(referenceDataButton?.exists()).toBe(true)
-    
+
     if (referenceDataButton) {
       await referenceDataButton.trigger('click')
       expect(wrapper.vm.isDropdownOpen).toBe(true)

@@ -7,6 +7,10 @@ import { useCollectionStore } from '@/stores/collection'
 import { useLanguageStore } from '@/stores/language'
 import { useContextStore } from '@/stores/context'
 import { useAuthStore } from '@/stores/auth'
+import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
+import { useErrorDisplayStore } from '@/stores/errorDisplay'
+import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
+import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
 
 import { createMockCollection, createMockLanguage, createMockContext } from '@/__tests__/test-utils'
 
@@ -32,6 +36,8 @@ vi.mock('@/stores/auth')
 vi.mock('@/stores/loadingOverlay')
 vi.mock('@/stores/errorDisplay')
 vi.mock('@/stores/successDisplay')
+vi.mock('@/stores/cancelChangesConfirmation')
+vi.mock('@/stores/deleteConfirmation')
 
 // Mock icons
 vi.mock('@heroicons/vue/24/solid', () => ({
@@ -42,6 +48,19 @@ vi.mock('@heroicons/vue/24/solid', () => ({
   PencilIcon: { name: 'PencilIcon', render: () => null },
   EyeIcon: { name: 'EyeIcon', render: () => null },
   RectangleStackIcon: { name: 'RectangleStackIcon', render: () => null },
+  PlusIcon: { name: 'PlusIcon', render: () => null },
+}))
+
+vi.mock('@heroicons/vue/24/outline', () => ({
+  CheckIcon: { name: 'CheckIcon', render: () => null },
+  XCircleIcon: { name: 'XCircleIcon', render: () => null },
+  XMarkIcon: { name: 'XMarkIcon', render: () => null },
+  ArrowLeftIcon: { name: 'ArrowLeftIcon', render: () => null },
+  TrashIcon: { name: 'TrashIcon', render: () => null },
+  PencilIcon: { name: 'PencilIcon', render: () => null },
+  EyeIcon: { name: 'EyeIcon', render: () => null },
+  RectangleStackIcon: { name: 'RectangleStackIcon', render: () => null },
+  PlusIcon: { name: 'PlusIcon', render: () => null },
 }))
 
 // Mock components
@@ -60,6 +79,10 @@ describe('CollectionDetail Integration Tests', () => {
   let mockLanguageStore: ReturnType<typeof vi.mocked<typeof useLanguageStore>>
   let mockContextStore: ReturnType<typeof vi.mocked<typeof useContextStore>>
   let mockAuthStore: ReturnType<typeof vi.mocked<typeof useAuthStore>>
+  let mockLoadingStore: ReturnType<typeof vi.mocked<typeof useLoadingOverlayStore>>
+  let mockErrorStore: ReturnType<typeof vi.mocked<typeof useErrorDisplayStore>>
+  let mockCancelChangesStore: ReturnType<typeof vi.mocked<typeof useCancelChangesConfirmationStore>>
+  let mockDeleteStore: ReturnType<typeof vi.mocked<typeof useDeleteConfirmationStore>>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -83,6 +106,10 @@ describe('CollectionDetail Integration Tests', () => {
     mockLanguageStore = vi.mocked(useLanguageStore)
     mockContextStore = vi.mocked(useContextStore)
     mockAuthStore = vi.mocked(useAuthStore)
+    mockLoadingStore = vi.mocked(useLoadingOverlayStore)
+    mockErrorStore = vi.mocked(useErrorDisplayStore)
+    mockCancelChangesStore = vi.mocked(useCancelChangesConfirmationStore)
+    mockDeleteStore = vi.mocked(useDeleteConfirmationStore)
 
     // Setup default store implementations
     mockCollectionStore.mockReturnValue({
@@ -119,6 +146,34 @@ describe('CollectionDetail Integration Tests', () => {
       login: vi.fn(),
       logout: vi.fn(),
       checkAuth: vi.fn(),
+    })
+
+    mockLoadingStore.mockReturnValue({
+      visible: false,
+      disabled: false,
+      text: 'Loading...',
+      show: vi.fn(),
+      hide: vi.fn(),
+      disable: vi.fn(),
+      enable: vi.fn(),
+    })
+
+    mockErrorStore.mockReturnValue({
+      messages: [],
+      addMessage: vi.fn(),
+      removeMessage: vi.fn(),
+      clearMessages: vi.fn(),
+    })
+
+    mockCancelChangesStore.mockReturnValue({
+      hasChanges: false,
+      addChange: vi.fn(),
+      resetChanges: vi.fn(),
+      trigger: vi.fn().mockResolvedValue(true),
+    })
+
+    mockDeleteStore.mockReturnValue({
+      trigger: vi.fn().mockResolvedValue('delete'),
     })
   })
 

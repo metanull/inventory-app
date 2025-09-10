@@ -5,6 +5,8 @@ import { createRouter, createWebHistory, type Router } from 'vue-router'
 import Collections from '../Collections.vue'
 import { useCollectionStore } from '@/stores/collection'
 import { useAuthStore } from '@/stores/auth'
+import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
+import { useErrorDisplayStore } from '@/stores/errorDisplay'
 import { createMockCollection } from '@/__tests__/test-utils'
 
 // Mock console methods
@@ -43,6 +45,8 @@ describe('Collections Integration Tests', () => {
   let pinia: ReturnType<typeof createPinia>
   let mockCollectionStore: ReturnType<typeof vi.mocked<typeof useCollectionStore>>
   let mockAuthStore: ReturnType<typeof vi.mocked<typeof useAuthStore>>
+  let mockLoadingStore: ReturnType<typeof vi.mocked<typeof useLoadingOverlayStore>>
+  let mockErrorStore: ReturnType<typeof vi.mocked<typeof useErrorDisplayStore>>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -64,6 +68,8 @@ describe('Collections Integration Tests', () => {
     // Mock stores
     mockCollectionStore = vi.mocked(useCollectionStore)
     mockAuthStore = vi.mocked(useAuthStore)
+    mockLoadingStore = vi.mocked(useLoadingOverlayStore)
+    mockErrorStore = vi.mocked(useErrorDisplayStore)
 
     // Setup default store implementations
     mockCollectionStore.mockReturnValue({
@@ -84,6 +90,23 @@ describe('Collections Integration Tests', () => {
       login: vi.fn(),
       logout: vi.fn(),
       checkAuth: vi.fn(),
+    })
+
+    mockLoadingStore.mockReturnValue({
+      visible: false,
+      disabled: false,
+      text: 'Loading...',
+      show: vi.fn(),
+      hide: vi.fn(),
+      disable: vi.fn(),
+      enable: vi.fn(),
+    })
+
+    mockErrorStore.mockReturnValue({
+      messages: [],
+      addMessage: vi.fn(),
+      removeMessage: vi.fn(),
+      clearMessages: vi.fn(),
     })
   })
 

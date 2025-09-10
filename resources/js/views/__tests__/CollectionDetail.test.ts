@@ -41,9 +41,31 @@ vi.mock('@heroicons/vue/24/solid', () => ({
   RectangleStackIcon: { name: 'RectangleStackIcon', render: () => null },
 }))
 
+vi.mock('@heroicons/vue/24/outline', () => ({
+  CheckIcon: { name: 'CheckIcon', render: () => null },
+  CheckCircleIcon: { name: 'CheckCircleIcon', render: () => null },
+  XCircleIcon: { name: 'XCircleIcon', render: () => null },
+  XMarkIcon: { name: 'XMarkIcon', render: () => null },
+  PlusIcon: { name: 'PlusIcon', render: () => null },
+  ArrowLeftIcon: { name: 'ArrowLeftIcon', render: () => null },
+  TrashIcon: { name: 'TrashIcon', render: () => null },
+  PencilIcon: { name: 'PencilIcon', render: () => null },
+  EyeIcon: { name: 'EyeIcon', render: () => null },
+  RectangleStackIcon: { name: 'RectangleStackIcon', render: () => null },
+}))
+
 // Mock stores
+vi.mock('@/stores/collection')
+vi.mock('@/stores/language')
+vi.mock('@/stores/context')
+vi.mock('@/stores/loadingOverlay')
+vi.mock('@/stores/errorDisplay')
+vi.mock('@/stores/cancelChangesConfirmation')
+vi.mock('@/stores/deleteConfirmation')
+
 const mockCollectionStore = {
   currentCollection: null as CollectionResource | null,
+  collections: [],
   loading: false,
   fetchCollection: vi.fn().mockImplementation(async (id: string) => {
     // Simulate setting currentCollection when fetchCollection is called
@@ -52,6 +74,8 @@ const mockCollectionStore = {
         id: 'test-collection-id',
         internal_name: 'test-collection',
         backward_compatibility: null,
+        language_id: 'eng',
+        context_id: 'test-context-id',
         translations: [],
         created_at: '2024-01-01T00:00:00.000000Z',
         updated_at: '2024-01-01T00:00:00.000000Z',
@@ -68,13 +92,21 @@ const mockLanguageStore = {
   languages: [
     {
       id: 'eng',
-      iso_639_3: 'eng',
-      name: 'English',
+      internal_name: 'English',
       backward_compatibility: null,
+      is_default: true,
       created_at: '2024-01-01T00:00:00.000000Z',
       updated_at: '2024-01-01T00:00:00.000000Z',
     },
   ],
+  defaultLanguage: {
+    id: 'eng',
+    internal_name: 'English',
+    backward_compatibility: null,
+    is_default: true,
+    created_at: '2024-01-01T00:00:00.000000Z',
+    updated_at: '2024-01-01T00:00:00.000000Z',
+  },
   fetchLanguages: vi.fn(),
 }
 
@@ -84,28 +116,39 @@ const mockContextStore = {
       id: 'test-context-id',
       internal_name: 'test-context',
       backward_compatibility: null,
+      is_default: true,
       translations: [],
       created_at: '2024-01-01T00:00:00.000000Z',
       updated_at: '2024-01-01T00:00:00.000000Z',
     },
   ],
+  defaultContext: {
+    id: 'test-context-id',
+    internal_name: 'test-context',
+    backward_compatibility: null,
+    is_default: true,
+    translations: [],
+    created_at: '2024-01-01T00:00:00.000000Z',
+    updated_at: '2024-01-01T00:00:00.000000Z',
+  },
   fetchContexts: vi.fn(),
 }
 
 const mockLoadingStore = {
-  isLoading: false,
-  setLoading: vi.fn(),
-  clearLoading: vi.fn(),
+  visible: false,
+  disabled: false,
+  text: 'Loading...',
+  show: vi.fn(),
+  hide: vi.fn(),
+  disable: vi.fn(),
+  enable: vi.fn(),
 }
 
 const mockErrorStore = {
-  showError: vi.fn(),
-  clearErrors: vi.fn(),
+  messages: [],
   addMessage: vi.fn(),
-}
-
-const mockSuccessStore = {
-  showMessage: vi.fn(),
+  removeMessage: vi.fn(),
+  clearMessages: vi.fn(),
 }
 
 vi.mock('@/stores/collection', () => ({
@@ -129,7 +172,9 @@ vi.mock('@/stores/errorDisplay', () => ({
 }))
 
 vi.mock('@/stores/successDisplay', () => ({
-  useSuccessDisplayStore: () => mockSuccessStore,
+  useSuccessDisplayStore: () => ({
+    showMessage: vi.fn(),
+  }),
 }))
 
 // Mock components
@@ -166,13 +211,13 @@ describe('CollectionDetail', () => {
     // Setup Pinia
     setActivePinia(createPinia())
 
-    // Reset all mocks
-    vi.clearAllMocks()
-
     // Reset store states
     mockCollectionStore.currentCollection = null
     mockCollectionStore.loading = false
-    mockLoadingStore.isLoading = false
+    mockLoadingStore.visible = false
+
+    // Reset all mocks
+    vi.clearAllMocks()
 
     // Create router
     router = createRouter({
