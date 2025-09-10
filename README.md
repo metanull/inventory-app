@@ -1,5 +1,7 @@
 # Inventory Management API
 
+<!-- Test workflow dummy change - can be removed -->
+
 [![Continuous Integration](https://github.com/metanull/inventory-app/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/continuous-integration.yml)
 [![Continuous Deployment](https://github.com/metanull/inventory-app/actions/workflows/continuous-deployment.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/continuous-deployment.yml)
 [![Continuous Deployment to GitHub Pages](https://github.com/metanull/inventory-app/actions/workflows/continuous-deployment_github-pages.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/continuous-deployment_github-pages.yml)
