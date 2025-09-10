@@ -154,6 +154,8 @@ describe('Projects.vue', () => {
         },
       })
 
+      // Wait for the component to fully mount and all async operations to complete
+      await flushPromises()
       await wrapper.vm.$nextTick()
 
       expect((wrapper.vm as unknown as ProjectsComponentInstance).filterMode).toBe('all')

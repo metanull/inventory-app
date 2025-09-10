@@ -40,6 +40,51 @@
       </div>
     </div>
 
+    <!-- Collections Section -->
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
+        Collections
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- Collections Management Card -->
+        <NavigationCard
+          title="Collections"
+          description="Manage collections of museum items with context and translation support"
+          main-color="indigo"
+          button-text="Manage Collections"
+          button-route="/collections"
+        >
+          <template #icon>
+            <CollectionIcon />
+          </template>
+        </NavigationCard>
+
+        <!-- Galleries Coming Soon Card -->
+        <InformationCard
+          title="Galleries"
+          description="Mixed content galleries containing Items and Details will be available in future updates."
+          main-color="gray"
+          pill-text="Coming Soon"
+        >
+          <template #icon>
+            <GalleryIcon />
+          </template>
+        </InformationCard>
+
+        <!-- Exhibitions Coming Soon Card -->
+        <InformationCard
+          title="Exhibitions"
+          description="Theme-based exhibition collections with hierarchical organization will be available in future updates."
+          main-color="gray"
+          pill-text="Coming Soon"
+        >
+          <template #icon>
+            <ExhibitionIcon />
+          </template>
+        </InformationCard>
+      </div>
+    </div>
+
     <!-- Reference Data Section -->
     <div class="mb-8">
       <h2 class="text-xl font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
@@ -88,13 +133,26 @@
         <!-- Projects Management Card -->
         <NavigationCard
           title="Projects"
-          description="Manage projects, collections with launch dates and status"
-          main-color="orange"
+          description="Organize items and documentation by project or exhibition"
+          main-color="purple"
           button-text="Manage Projects"
           button-route="/projects"
         >
           <template #icon>
             <ProjectIcon />
+          </template>
+        </NavigationCard>
+
+        <!-- Collections Management Card -->
+        <NavigationCard
+          title="Collections"
+          description="Organize and manage collections of artifacts and cultural items"
+          main-color="green"
+          button-text="Manage Collections"
+          button-route="/collections"
+        >
+          <template #icon>
+            <CollectionIcon />
           </template>
         </NavigationCard>
       </div>
@@ -160,6 +218,9 @@
     AdjustmentsHorizontalIcon as FeaturesIcon,
     ArchiveBoxIcon as ItemIcon,
     UserGroupIcon as PartnerIcon,
+    RectangleStackIcon as CollectionIcon,
+    PhotoIcon as GalleryIcon,
+    PresentationChartLineIcon as ExhibitionIcon,
   } from '@heroicons/vue/24/solid'
   import { useApiStatus } from '@/composables/useApiStatus'
 

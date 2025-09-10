@@ -70,12 +70,16 @@ describe('AppHeader', () => {
   })
 
   it('toggles dropdown on click', async () => {
-    // Find the Reference Data dropdown button (not the first div.relative which is Inventory)
-    const referenceDataDropdown = wrapper.findAll('div.relative')[1] // Second relative div is Reference Data
-    const dropdownButton = referenceDataDropdown.find('button')
+    // Find the Reference Data dropdown button by its text content
+    const buttons = wrapper.findAll('button')
+    const referenceDataButton = buttons.find(btn => btn.text().includes('Reference Data'))
 
-    await dropdownButton.trigger('click')
-    expect(wrapper.vm.isDropdownOpen).toBe(true)
+    expect(referenceDataButton?.exists()).toBe(true)
+
+    if (referenceDataButton) {
+      await referenceDataButton.trigger('click')
+      expect(wrapper.vm.isDropdownOpen).toBe(true)
+    }
   })
 
   it('renders dropdown menu items when open', async () => {

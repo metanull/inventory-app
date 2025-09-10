@@ -300,20 +300,20 @@ describe('ContextDetail Resource Integration Tests', () => {
     it('should fetch context by ID successfully', async () => {
       const store = useContextStore()
 
-      const result = await store.fetchContext(1)
+      const result = await store.fetchContext('123e4567-e89b-12d3-a456-426614174000')
 
-      expect(store.fetchContext).toHaveBeenCalledWith(1)
+      expect(store.fetchContext).toHaveBeenCalledWith('123e4567-e89b-12d3-a456-426614174000')
       expect(result).toBeDefined()
-      expect(result?.id).toBe(1)
+      expect(result?.id).toBe('123e4567-e89b-12d3-a456-426614174000')
       expect(result?.internal_name).toBe('Production')
     })
 
     it('should return null for non-existent context', async () => {
       const store = useContextStore()
 
-      const result = await store.fetchContext(999)
+      const result = await store.fetchContext('non-existent-uuid')
 
-      expect(store.fetchContext).toHaveBeenCalledWith(999)
+      expect(store.fetchContext).toHaveBeenCalledWith('non-existent-uuid')
       expect(result).toBeNull()
     })
 
@@ -321,7 +321,9 @@ describe('ContextDetail Resource Integration Tests', () => {
       const store = useContextStore()
       store.fetchContext = vi.fn().mockRejectedValue(new Error('Fetch failed'))
 
-      await expect(store.fetchContext(1)).rejects.toThrow('Fetch failed')
+      await expect(store.fetchContext('123e4567-e89b-12d3-a456-426614174000')).rejects.toThrow(
+        'Fetch failed'
+      )
     })
 
     it('should fetch all contexts successfully', async () => {

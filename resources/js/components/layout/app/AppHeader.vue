@@ -56,6 +56,51 @@
             </div>
           </div>
 
+          <!-- Collections Dropdown -->
+          <div class="relative" @mouseleave="closeCollectionsDropdown">
+            <button
+              class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1"
+              @mouseenter="openCollectionsDropdown"
+              @click="toggleCollectionsDropdown"
+            >
+              Collections
+              <ChevronDownIcon
+                class="w-4 h-4 transition-transform"
+                :class="{ 'rotate-180': isCollectionsDropdownOpen }"
+              />
+            </button>
+
+            <div
+              v-if="isCollectionsDropdownOpen"
+              class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+              @mouseenter="keepCollectionsDropdownOpen"
+              @mouseleave="closeCollectionsDropdown"
+            >
+              <RouterLink
+                to="/collections"
+                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                @click="closeCollectionsDropdown"
+              >
+                <RectangleStackIcon class="w-4 h-4 text-indigo-600" />
+                Collections
+              </RouterLink>
+              <div class="px-4 py-2 text-sm text-gray-500 flex items-center gap-2">
+                <PhotoIcon class="w-4 h-4 text-gray-400" />
+                <div class="flex flex-col">
+                  <span>Galleries</span>
+                  <span class="text-xs text-gray-400">Coming Soon</span>
+                </div>
+              </div>
+              <div class="px-4 py-2 text-sm text-gray-500 flex items-center gap-2">
+                <PresentationChartLineIcon class="w-4 h-4 text-gray-400" />
+                <div class="flex flex-col">
+                  <span>Exhibitions</span>
+                  <span class="text-xs text-gray-400">Coming Soon</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Reference Data Dropdown -->
           <div class="relative" @mouseleave="closeDropdown">
             <button
@@ -214,6 +259,48 @@
             </div>
           </div>
 
+          <!-- Mobile Collections Section -->
+          <div class="px-3">
+            <button
+              class="text-gray-500 hover:text-gray-900 w-full text-left py-2 text-base font-medium flex items-center justify-between"
+              @click="toggleMobileCollectionsDropdown"
+            >
+              Collections
+              <ChevronDownIcon
+                class="w-4 h-4 transition-transform"
+                :class="{ 'rotate-180': isMobileCollectionsDropdownOpen }"
+              />
+            </button>
+
+            <div
+              v-if="isMobileCollectionsDropdownOpen"
+              class="mt-2 space-y-2 pl-4 border-l-2 border-gray-200"
+            >
+              <RouterLink
+                to="/collections"
+                class="text-gray-500 hover:text-gray-900 py-2 text-sm flex items-center gap-2"
+                @click="closeMobileMenu"
+              >
+                <RectangleStackIcon class="w-4 h-4 text-indigo-600" />
+                Collections
+              </RouterLink>
+              <div class="text-gray-400 py-2 text-sm flex items-center gap-2">
+                <PhotoIcon class="w-4 h-4" />
+                <div class="flex flex-col">
+                  <span>Galleries</span>
+                  <span class="text-xs">Coming Soon</span>
+                </div>
+              </div>
+              <div class="text-gray-400 py-2 text-sm flex items-center gap-2">
+                <PresentationChartLineIcon class="w-4 h-4" />
+                <div class="flex flex-col">
+                  <span>Exhibitions</span>
+                  <span class="text-xs">Coming Soon</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Mobile Reference Data Section -->
           <div class="px-3">
             <button
@@ -323,6 +410,9 @@
     WrenchScrewdriverIcon,
     ArchiveBoxIcon,
     UserGroupIcon,
+    RectangleStackIcon,
+    PhotoIcon,
+    PresentationChartLineIcon,
   } from '@heroicons/vue/24/outline'
 
   const router = useRouter()
@@ -332,6 +422,7 @@
   // Desktop dropdown state
   const isDropdownOpen = ref(false)
   const isInventoryDropdownOpen = ref(false)
+  const isCollectionsDropdownOpen = ref(false)
   const isToolsDropdownOpen = ref(false)
   let dropdownTimeout: ReturnType<typeof setTimeout> | null = null
   let inventoryDropdownTimeout: ReturnType<typeof setTimeout> | null = null
@@ -341,6 +432,7 @@
   const isMobileMenuOpen = ref(false)
   const isMobileDropdownOpen = ref(false)
   const isMobileInventoryDropdownOpen = ref(false)
+  const isMobileCollectionsDropdownOpen = ref(false)
   const isMobileToolsDropdownOpen = ref(false)
 
   // Desktop dropdown functions
@@ -395,12 +487,41 @@
     isInventoryDropdownOpen.value = !isInventoryDropdownOpen.value
   }
 
+  // Collections dropdown functions
+  let collectionsDropdownTimeout: ReturnType<typeof setTimeout> | null = null
+
+  const openCollectionsDropdown = () => {
+    if (collectionsDropdownTimeout) {
+      clearTimeout(collectionsDropdownTimeout)
+      collectionsDropdownTimeout = null
+    }
+    isCollectionsDropdownOpen.value = true
+  }
+
+  const closeCollectionsDropdown = () => {
+    collectionsDropdownTimeout = setTimeout(() => {
+      isCollectionsDropdownOpen.value = false
+    }, 150)
+  }
+
+  const keepCollectionsDropdownOpen = () => {
+    if (collectionsDropdownTimeout) {
+      clearTimeout(collectionsDropdownTimeout)
+      collectionsDropdownTimeout = null
+    }
+  }
+
+  const toggleCollectionsDropdown = () => {
+    isCollectionsDropdownOpen.value = !isCollectionsDropdownOpen.value
+  }
+
   // Mobile menu functions
   const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value
     if (!isMobileMenuOpen.value) {
       isMobileDropdownOpen.value = false
       isMobileInventoryDropdownOpen.value = false
+      isMobileCollectionsDropdownOpen.value = false
       isMobileToolsDropdownOpen.value = false
     }
   }
@@ -409,6 +530,7 @@
     isMobileMenuOpen.value = false
     isMobileDropdownOpen.value = false
     isMobileInventoryDropdownOpen.value = false
+    isMobileCollectionsDropdownOpen.value = false
     isMobileToolsDropdownOpen.value = false
   }
 
@@ -418,6 +540,10 @@
 
   const toggleMobileInventoryDropdown = () => {
     isMobileInventoryDropdownOpen.value = !isMobileInventoryDropdownOpen.value
+  }
+
+  const toggleMobileCollectionsDropdown = () => {
+    isMobileCollectionsDropdownOpen.value = !isMobileCollectionsDropdownOpen.value
   }
 
   const toggleMobileToolsDropdown = () => {

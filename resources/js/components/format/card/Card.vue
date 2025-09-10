@@ -2,7 +2,7 @@
   <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
     <div class="flex items-center">
       <div :class="iconClasses" class="h-8 w-8 md:h-12 md:w-12 lg:h-16 lg:w-16 mr-3">
-        <div class="h-full w-full">
+        <div class="h-full w-full [&>svg]:h-full [&>svg]:w-full">
           <slot name="icon" />
         </div>
       </div>
