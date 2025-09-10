@@ -103,8 +103,18 @@
         </TableCell>
         <TableCell class="hidden sm:table-cell">
           <div class="flex space-x-2" @click.stop>
-            <ViewButton @click="router.push(`/collections/${collection.id}`)" />
-            <EditButton @click="router.push(`/collections/${collection.id}?edit=true`)" />
+            <ViewButton
+              @click="router.push({ name: 'collection-detail', params: { id: collection.id } })"
+            />
+            <EditButton
+              @click="
+                router.push({
+                  name: 'collection-detail',
+                  params: { id: collection.id },
+                  query: { edit: 'true' },
+                })
+              "
+            />
             <DeleteButton @click="handleDeleteCollection(collection)" />
           </div>
         </TableCell>
@@ -201,7 +211,11 @@
 
   // Navigation handler
   const openCollectionDetail = (collectionId: string) => {
-    router.push(`/collections/${collectionId}`)
+    if (collectionId === 'new') {
+      router.push({ name: 'collection-new' })
+    } else {
+      router.push({ name: 'collection-detail', params: { id: collectionId } })
+    }
   }
 
   // Delete handler

@@ -162,8 +162,18 @@
         </TableCell>
         <TableCell class="hidden sm:table-cell">
           <div class="flex space-x-2" @click.stop>
-            <ViewButton @click="router.push(`/projects/${project.id}`)" />
-            <EditButton @click="router.push(`/projects/${project.id}?edit=true`)" />
+            <ViewButton
+              @click="router.push({ name: 'project-detail', params: { id: project.id } })"
+            />
+            <EditButton
+              @click="
+                router.push({
+                  name: 'project-detail',
+                  params: { id: project.id },
+                  query: { edit: 'true' },
+                })
+              "
+            />
             <DeleteButton @click="handleDeleteProject(project)" />
           </div>
         </TableCell>
@@ -300,7 +310,11 @@
 
   // Open ProjectDetail for clicked project
   function openProjectDetail(projectId: string | number) {
-    router.push(`/projects/${projectId}`)
+    if (projectId === 'new') {
+      router.push({ name: 'project-new' })
+    } else {
+      router.push({ name: 'project-detail', params: { id: projectId } })
+    }
   }
 
   // Update project status

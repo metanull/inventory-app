@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi, beforeAll, afterAll } from 'vites
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
-import Collections from '../Collections.vue'
+import Collections from '../../Collections.vue'
 import { useCollectionStore } from '@/stores/collection'
 import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
 import { useErrorDisplayStore } from '@/stores/errorDisplay'
@@ -79,10 +79,18 @@ describe('Collections', () => {
     router = createRouter({
       history: createWebHistory(),
       routes: [
-        { path: '/', component: { template: '<div>Home</div>' } },
-        { path: '/collections', component: Collections },
-        { path: '/collections/new', component: { template: '<div>New Collection</div>' } },
-        { path: '/collections/:id', component: { template: '<div>Collection Detail</div>' } },
+        { path: '/', name: 'home', component: { template: '<div>Home</div>' } },
+        { path: '/collections', name: 'collections', component: Collections },
+        {
+          path: '/collections/new',
+          name: 'collection-new',
+          component: { template: '<div>New Collection</div>' },
+        },
+        {
+          path: '/collections/:id',
+          name: 'collection-detail',
+          component: { template: '<div>Collection Detail</div>' },
+        },
       ],
     })
 

@@ -111,8 +111,18 @@
         </TableCell>
         <TableCell class="hidden sm:table-cell">
           <div class="flex space-x-2" @click.stop>
-            <ViewButton @click="router.push(`/languages/${language.id}`)" />
-            <EditButton @click="router.push(`/languages/${language.id}?edit=true`)" />
+            <ViewButton
+              @click="router.push({ name: 'language-detail', params: { id: language.id } })"
+            />
+            <EditButton
+              @click="
+                router.push({
+                  name: 'language-detail',
+                  params: { id: language.id },
+                  query: { edit: 'true' },
+                })
+              "
+            />
             <DeleteButton @click="handleDeleteLanguage(language)" />
           </div>
         </TableCell>
@@ -239,7 +249,11 @@
 
   // Open LanguageDetail for clicked language
   function openLanguageDetail(languageId: string | number) {
-    router.push(`/languages/${languageId}`)
+    if (languageId === 'new') {
+      router.push({ name: 'language-new' })
+    } else {
+      router.push({ name: 'language-detail', params: { id: languageId } })
+    }
   }
 
   // Update language status

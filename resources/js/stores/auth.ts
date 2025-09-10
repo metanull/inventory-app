@@ -5,7 +5,6 @@ import {
   Configuration,
   type TokenAcquireRequest,
 } from '@metanull/inventory-app-api-client'
-import { useErrorDisplayStore } from './errorDisplay'
 
 // Declare process for Node.js environments
 declare const process: {
@@ -70,11 +69,14 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (typeof responseData === 'string' && responseData.includes(';')) {
         const [tokenCount, extractedToken] = responseData.split(';')
-        const errorDisplayStore = useErrorDisplayStore()
-        errorDisplayStore.addMessage(
-          'info',
-          `Authentication successful. Active tokens: ${tokenCount}`
-        )
+        //const errorDisplayStore = useErrorDisplayStore()
+        //errorDisplayStore.addMessage(
+        //  'info',
+        //  `Authentication successful. Active tokens: ${tokenCount}`
+        //)
+        if (!tokenCount || isNaN(Number(tokenCount))) {
+          throw new Error('Invalid token count received from server')
+        }
         if (!extractedToken) {
           throw new Error('Failed to extract authentication token')
         }

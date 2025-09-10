@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi, beforeAll, afterAll } from 'vites
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
-import LanguageDetail from '../LanguageDetail.vue'
+import LanguageDetail from '../../LanguageDetail.vue'
 import { useLanguageStore } from '@/stores/language'
 import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
 import { useErrorDisplayStore } from '@/stores/errorDisplay'

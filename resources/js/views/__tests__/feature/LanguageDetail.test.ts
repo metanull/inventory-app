@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vites
 import { mount } from '@vue/test-utils'
 import { createRouter, createWebHistory, type Router } from 'vue-router'
 import { flushPromises } from '@vue/test-utils'
-import LanguageDetail from '../LanguageDetail.vue'
+import LanguageDetail from '../../LanguageDetail.vue'
 import type { LanguageResource } from '@metanull/inventory-app-api-client'
 
 // Mock console.error to avoid noise in test output

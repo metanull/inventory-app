@@ -9,7 +9,7 @@ import { beforeEach, describe, expect, it, vi, beforeAll, afterAll } from 'vites
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
-import Languages from '../Languages.vue'
+import Languages from '../../Languages.vue'
 import { useLanguageStore } from '@/stores/language'
 import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
 import { useErrorDisplayStore } from '@/stores/errorDisplay'
@@ -100,10 +100,18 @@ describe('Language Integration Tests', () => {
     router = createRouter({
       history: createWebHistory(),
       routes: [
-        { path: '/', component: { template: '<div>Home</div>' } },
-        { path: '/languages', component: Languages },
-        { path: '/languages/new', component: { template: '<div>New Language</div>' } },
-        { path: '/languages/:id', component: { template: '<div>Language Detail</div>' } },
+        { path: '/', name: 'home', component: { template: '<div>Home</div>' } },
+        { path: '/languages', name: 'languages', component: Languages },
+        {
+          path: '/languages/new',
+          name: 'language-new',
+          component: { template: '<div>New Language</div>' },
+        },
+        {
+          path: '/languages/:id',
+          name: 'language-detail',
+          component: { template: '<div>Language Detail</div>' },
+        },
       ],
     })
 
@@ -329,7 +337,7 @@ describe('Language Integration Tests', () => {
 
       vm.openLanguageDetail('eng')
 
-      expect(pushSpy).toHaveBeenCalledWith('/languages/eng')
+      expect(pushSpy).toHaveBeenCalledWith({ name: 'language-detail', params: { id: 'eng' } })
     })
 
     it('should navigate to new language page', async () => {
@@ -349,7 +357,7 @@ describe('Language Integration Tests', () => {
         vm.openLanguageDetail('new')
       }
 
-      expect(pushSpy).toHaveBeenCalledWith('/languages/new')
+      expect(pushSpy).toHaveBeenCalledWith({ name: 'language-new' })
     })
   })
 

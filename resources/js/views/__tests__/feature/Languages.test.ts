@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, vi, beforeAll, afterAll } from 'vites
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
-import Countries from '../Countries.vue'
-import { useCountryStore } from '@/stores/country'
+import Languages from '../../Languages.vue'
+import { useLanguageStore } from '@/stores/language'
 import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
 import { useErrorDisplayStore } from '@/stores/errorDisplay'
-import { createMockCountry } from '@/__tests__/test-utils'
-import type { CountryResource } from '@metanull/inventory-app-api-client'
+import { createMockLanguage } from '@/__tests__/test-utils'
+import type { LanguageResource } from '@metanull/inventory-app-api-client'
 import type { Router } from 'vue-router'
 
 // Mock console.error to avoid noise in test output
@@ -33,48 +33,51 @@ afterAll(() => {
 })
 
 // Component interface for proper typing
-interface CountriesComponentInstance {
-  countries: CountryResource[]
-  filteredCountries: CountryResource[]
+interface LanguagesComponentInstance {
+  languages: LanguageResource[]
+  filteredLanguages: LanguageResource[]
   searchQuery: string
   sortDirection: string
   sortKey: string
-  openCountryDetail: (id: string) => void
+  openLanguageDetail: (id: string) => void
   handleSort: (field: string) => void
-  fetchCountries: () => Promise<void>
+  fetchLanguages: () => Promise<void>
 }
 
 // Mock the stores
-vi.mock('@/stores/country')
+vi.mock('@/stores/language')
 vi.mock('@/stores/loadingOverlay')
 vi.mock('@/stores/errorDisplay')
 
-const mockCountries: CountryResource[] = [
-  createMockCountry({
-    id: 'GBR',
-    internal_name: 'United Kingdom',
-    backward_compatibility: 'GB',
+const mockLanguages: LanguageResource[] = [
+  createMockLanguage({
+    id: 'eng',
+    internal_name: 'English',
+    backward_compatibility: 'en',
+    is_default: true,
     created_at: '2023-01-01T00:00:00Z',
     updated_at: '2023-01-01T00:00:00Z',
   }),
-  createMockCountry({
-    id: 'USA',
-    internal_name: 'United States',
-    backward_compatibility: 'US',
+  createMockLanguage({
+    id: 'fra',
+    internal_name: 'French',
+    backward_compatibility: 'fr',
+    is_default: false,
     created_at: '2023-01-02T00:00:00Z',
     updated_at: '2023-01-02T00:00:00Z',
   }),
-  createMockCountry({
-    id: 'FRA',
-    internal_name: 'France',
+  createMockLanguage({
+    id: 'deu',
+    internal_name: 'German',
     backward_compatibility: null,
+    is_default: false,
     created_at: '2023-01-03T00:00:00Z',
     updated_at: '2023-01-03T00:00:00Z',
   }),
 ]
 
-describe('Countries.vue', () => {
-  let mockCountryStore: ReturnType<typeof useCountryStore>
+describe('Languages.vue', () => {
+  let mockLanguageStore: ReturnType<typeof useLanguageStore>
   let mockLoadingStore: ReturnType<typeof useLoadingOverlayStore>
   let mockErrorStore: ReturnType<typeof useErrorDisplayStore>
   let router: Router
@@ -87,24 +90,25 @@ describe('Countries.vue', () => {
       history: createWebHistory(),
       routes: [
         { path: '/', component: { template: '<div>Home</div>' } },
-        { path: '/countries', component: Countries },
-        { path: '/countries/new', component: { template: '<div>New Country</div>' } },
-        { path: '/countries/:id', component: { template: '<div>Country Detail</div>' } },
+        { path: '/languages', component: Languages },
+        { path: '/languages/new', component: { template: '<div>New Language</div>' } },
+        { path: '/languages/:id', component: { template: '<div>Language Detail</div>' } },
       ],
     })
 
     // Setup store mocks
-    mockCountryStore = {
-      countries: mockCountries,
-      currentCountry: null,
+    mockLanguageStore = {
+      languages: mockLanguages,
+      currentLanguage: null,
       loading: false,
       error: null,
-      fetchCountries: vi.fn().mockResolvedValue(mockCountries),
-      getCountryById: vi.fn(),
-      createCountry: vi.fn(),
-      updateCountry: vi.fn(),
-      deleteCountry: vi.fn(),
-    } as ReturnType<typeof useCountryStore>
+      fetchLanguages: vi.fn().mockResolvedValue(mockLanguages),
+      getLanguageById: vi.fn(),
+      createLanguage: vi.fn(),
+      updateLanguage: vi.fn(),
+      deleteLanguage: vi.fn(),
+      defaultLanguages: mockLanguages.filter(lang => lang.is_default),
+    } as ReturnType<typeof useLanguageStore>
 
     mockLoadingStore = {
       show: vi.fn(),
@@ -116,7 +120,7 @@ describe('Countries.vue', () => {
     } as ReturnType<typeof useErrorDisplayStore>
 
     // Mock store implementations
-    vi.mocked(useCountryStore).mockReturnValue(mockCountryStore)
+    vi.mocked(useLanguageStore).mockReturnValue(mockLanguageStore)
     vi.mocked(useLoadingOverlayStore).mockReturnValue(mockLoadingStore)
     vi.mocked(useErrorDisplayStore).mockReturnValue(mockErrorStore)
 
@@ -125,7 +129,7 @@ describe('Countries.vue', () => {
 
   describe('Component Logic', () => {
     it('should initialize with default values', async () => {
-      const wrapper = mount(Countries, {
+      const wrapper = mount(Languages, {
         global: {
           plugins: [createPinia(), router],
         },
@@ -133,13 +137,13 @@ describe('Countries.vue', () => {
 
       await wrapper.vm.$nextTick()
 
-      expect((wrapper.vm as unknown as CountriesComponentInstance).sortKey).toBe('internal_name')
-      expect((wrapper.vm as unknown as CountriesComponentInstance).sortDirection).toBe('asc')
-      expect((wrapper.vm as unknown as CountriesComponentInstance).searchQuery).toBe('')
+      expect((wrapper.vm as unknown as LanguagesComponentInstance).sortKey).toBe('internal_name')
+      expect((wrapper.vm as unknown as LanguagesComponentInstance).sortDirection).toBe('asc')
+      expect((wrapper.vm as unknown as LanguagesComponentInstance).searchQuery).toBe('')
     })
 
     it('should have access to store data', async () => {
-      const wrapper = mount(Countries, {
+      const wrapper = mount(Languages, {
         global: {
           plugins: [createPinia(), router],
         },
@@ -147,50 +151,49 @@ describe('Countries.vue', () => {
 
       await wrapper.vm.$nextTick()
 
-      expect((wrapper.vm as unknown as CountriesComponentInstance).countries.length).toBe(3)
+      expect((wrapper.vm as unknown as LanguagesComponentInstance).languages.length).toBe(3)
     })
   })
 
   describe('Search Functionality', () => {
-    it('should search countries by internal name', async () => {
-      const wrapper = mount(Countries, {
+    it('should search languages by internal name', async () => {
+      const wrapper = mount(Languages, {
         global: {
           plugins: [createPinia(), router],
         },
       })
 
       await wrapper.vm.$nextTick()
-      ;(wrapper.vm as unknown as CountriesComponentInstance).searchQuery = 'United'
+      ;(wrapper.vm as unknown as LanguagesComponentInstance).searchQuery = 'English'
       await wrapper.vm.$nextTick()
 
-      const filteredCountries = (wrapper.vm as unknown as CountriesComponentInstance)
-        .filteredCountries
-      expect(filteredCountries.length).toBe(2)
-      expect(filteredCountries[0].internal_name).toContain('United')
-      expect(filteredCountries[1].internal_name).toContain('United')
+      const filteredLanguages = (wrapper.vm as unknown as LanguagesComponentInstance)
+        .filteredLanguages
+      expect(filteredLanguages.length).toBe(1)
+      expect(filteredLanguages[0].internal_name).toContain('English')
     })
 
-    it('should filter countries by backward_compatibility', async () => {
-      const wrapper = mount(Countries, {
+    it('should filter languages by backward_compatibility', async () => {
+      const wrapper = mount(Languages, {
         global: {
           plugins: [createPinia(), router],
         },
       })
 
       await wrapper.vm.$nextTick()
-      ;(wrapper.vm as unknown as CountriesComponentInstance).searchQuery = 'GB'
+      ;(wrapper.vm as unknown as LanguagesComponentInstance).searchQuery = 'fr'
       await wrapper.vm.$nextTick()
 
-      const filteredCountries = (wrapper.vm as unknown as CountriesComponentInstance)
-        .filteredCountries
-      expect(filteredCountries.length).toBe(1)
-      expect(filteredCountries[0].backward_compatibility).toBe('GB')
+      const filteredLanguages = (wrapper.vm as unknown as LanguagesComponentInstance)
+        .filteredLanguages
+      expect(filteredLanguages.length).toBe(1)
+      expect(filteredLanguages[0].backward_compatibility).toBe('fr')
     })
   })
 
   describe('Store Integration', () => {
-    it('should call fetchCountries on mount', async () => {
-      mount(Countries, {
+    it('should call fetchLanguages on mount', async () => {
+      mount(Languages, {
         global: {
           plugins: [createPinia(), router],
         },
@@ -198,7 +201,7 @@ describe('Countries.vue', () => {
 
       await flushPromises()
 
-      expect(mockCountryStore.fetchCountries).toHaveBeenCalledOnce()
+      expect(mockLanguageStore.fetchLanguages).toHaveBeenCalledOnce()
     })
   })
 })

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi, beforeAll, afterAll } from 'vites
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory, type Router } from 'vue-router'
-import ProjectDetail from '../ProjectDetail.vue'
+import ProjectDetail from '../../ProjectDetail.vue'
 import { useProjectStore } from '@/stores/project'
 import { useContextStore } from '@/stores/context'
 import { useLanguageStore } from '@/stores/language'

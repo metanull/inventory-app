@@ -136,8 +136,18 @@
         </TableCell>
         <TableCell class="hidden sm:table-cell">
           <div class="flex space-x-2" @click.stop>
-            <ViewButton @click="router.push(`/partners/${partner.id}`)" />
-            <EditButton @click="router.push(`/partners/${partner.id}?edit=true`)" />
+            <ViewButton
+              @click="router.push({ name: 'partner-detail', params: { id: partner.id } })"
+            />
+            <EditButton
+              @click="
+                router.push({
+                  name: 'partner-detail',
+                  params: { id: partner.id },
+                  query: { edit: 'true' },
+                })
+              "
+            />
             <DeleteButton @click="handleDeletePartner(partner)" />
           </div>
         </TableCell>
@@ -242,7 +252,11 @@
 
   // Actions
   const openPartnerDetail = (partnerId: string) => {
-    router.push(`/partners/${partnerId}`)
+    if (partnerId === 'new') {
+      router.push({ name: 'partner-new' })
+    } else {
+      router.push({ name: 'partner-detail', params: { id: partnerId } })
+    }
   }
 
   const handleSort = (key: typeof sortKey.value) => {

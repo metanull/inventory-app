@@ -24,9 +24,11 @@ export default defineConfig({
         singleFork: true, // Run tests sequentially to avoid overwhelming the API
       },
     },
-    // Only include integration tests
+    // Only include integration tests and resource integration tests
     include: [
       '**/*.integration.test.ts',
+      '**/integration/**/*.test.ts',
+      '**/resource_integration/**/*.tests.ts',
     ],
     exclude: [
       '**/node_modules/**',
@@ -34,6 +36,9 @@ export default defineConfig({
       '**/vendor/**',
       '**/storage/**',
       '**/bootstrap/cache/**',
+      '**/feature/**/*.test.ts',
+      '**/logic/**/*.test.ts', 
+      '**/consistency/**/*.test.ts',
     ],
     setupFiles: ['./resources/js/api/__tests__/integration.setup.ts'],
     coverage: {
@@ -50,7 +55,9 @@ export default defineConfig({
         '.github/**',
         '**/*.config.{js,ts}',
         '**/*.d.ts',
-        'resources/js/__tests__/**',
+        'resources/js/__tests__/feature/**',
+        'resources/js/__tests__/logic/**', 
+        'resources/js/__tests__/consistency/**',
         '**/__tests__/**',
         '**/test-utils.ts',
       ],

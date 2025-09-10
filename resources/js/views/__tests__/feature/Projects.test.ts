@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi, beforeAll, afterAll } from 'vites
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
-import Projects from '../Projects.vue'
+import Projects from '../../Projects.vue'
 import { useProjectStore } from '@/stores/project'
 import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
 import { useErrorDisplayStore } from '@/stores/errorDisplay'
@@ -104,10 +104,18 @@ describe('Projects.vue', () => {
     router = createRouter({
       history: createWebHistory(),
       routes: [
-        { path: '/', component: { template: '<div>Home</div>' } },
-        { path: '/projects', component: Projects },
-        { path: '/projects/new', component: { template: '<div>New Project</div>' } },
-        { path: '/projects/:id', component: { template: '<div>Project Detail</div>' } },
+        { path: '/', name: 'home', component: { template: '<div>Home</div>' } },
+        { path: '/projects', name: 'projects', component: Projects },
+        {
+          path: '/projects/new',
+          name: 'project-new',
+          component: { template: '<div>New Project</div>' },
+        },
+        {
+          path: '/projects/:id',
+          name: 'project-detail',
+          component: { template: '<div>Project Detail</div>' },
+        },
       ],
     })
 
@@ -486,7 +494,10 @@ describe('Projects.vue', () => {
       const spy = vi.spyOn(router, 'push')
       await wrapper.vm.openProjectDetail('123')
 
-      expect(spy).toHaveBeenCalledWith('/projects/123')
+      expect(spy).toHaveBeenCalledWith({
+        name: 'project-detail',
+        params: { id: '123' }
+      })
     })
 
     it('should navigate to edit mode via edit button', async () => {
@@ -507,9 +518,11 @@ describe('Projects.vue', () => {
 
       await editButton.trigger('click')
 
-      expect(routerPushSpy).toHaveBeenCalledWith(
-        '/projects/123e4567-e89b-12d3-a456-426614174000?edit=true'
-      )
+      expect(routerPushSpy).toHaveBeenCalledWith({
+        name: 'project-detail',
+        params: { id: '123e4567-e89b-12d3-a456-426614174000' },
+        query: { edit: 'true' },
+      })
     })
   })
 

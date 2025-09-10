@@ -335,7 +335,7 @@
   const cancelAction = async () => {
     if (mode.value === 'create') {
       // Navigate back to projects list
-      router.push('/projects')
+      router.push({ name: 'projects' })
       return
     }
 
@@ -407,7 +407,7 @@
           loadingStore.show('Deleting...')
           await projectStore.deleteProject(project.value.id)
           errorStore.addMessage('info', 'Project deleted successfully.')
-          router.push('/projects')
+          router.push({ name: 'projects' })
         } catch {
           errorStore.addMessage('error', 'Failed to delete project. Please try again.')
         } finally {

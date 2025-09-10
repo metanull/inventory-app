@@ -17,20 +17,20 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     watch: false,
-    // Explicitly exclude integration tests
+    // Only exclude tests that require a real backend (those with .integration.test.ts suffix)
+    // Tests in integration/ and resource_integration/ folders use mocks and can run in CI
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
       '**/vendor/**',
       '**/storage/**',
       '**/bootstrap/cache/**',
-      '**/*.integration.test.ts',
-      '**/integration.test.ts',
+      '**/*.integration.test.ts', // Only exclude real API integration tests
     ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      // Exclude integration tests from coverage as well
+      // Exclude only real API integration tests from coverage
       exclude: [
         'node_modules/**',
         'dist/**',
@@ -42,8 +42,7 @@ export default defineConfig({
         '.github/**',
         '**/*.config.{js,ts}',
         '**/*.d.ts',
-        '**/*.integration.test.ts',
-        '**/integration.test.ts',
+        '**/*.integration.test.ts', // Only exclude real API integration tests
         'resources/js/__tests__/**',
         '**/__tests__/**',
         '**/test-utils.ts',

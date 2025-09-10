@@ -279,24 +279,27 @@
     backward_compatibility: '',
   })
 
-  // Initialize form with collection data or defaults
-  const initializeForm = () => {
-    if (mode.value === 'create') {
-      editForm.value = getDefaultFormValues()
-    } else if (collection.value) {
-      editForm.value = getFormValuesFromCollection()
-    }
+  // Mode management functions
+  const enterCreateMode = () => {
+    mode.value = 'create'
+    editForm.value = getDefaultFormValues()
   }
 
-  // Mode management functions
   const enterEditMode = () => {
+    if (!collection.value) return
     mode.value = 'edit'
-    initializeForm()
+    editForm.value = getFormValuesFromCollection()
+  }
+
+  const enterViewMode = () => {
+    mode.value = 'view'
+    // Clear form data when returning to view mode
+    editForm.value = getDefaultFormValues()
   }
 
   const saveCollection = async () => {
     try {
-      loadingStore.show('Saving...')
+      loadingStore.show(mode.value === 'create' ? 'Creating...' : 'Saving...')
 
       const collectionData: CollectionStoreRequest = {
         internal_name: editForm.value.internal_name,
@@ -306,18 +309,31 @@
       }
 
       if (mode.value === 'create') {
-        const newCollection = await collectionStore.createCollection(collectionData)
-        // Navigate to the new collection's detail page
-        await router.push(`/collections/${newCollection.id}`)
-        mode.value = 'view'
+        const savedCollection = await collectionStore.createCollection(collectionData)
         errorStore.addMessage('info', 'Collection created successfully.')
-      } else if (collection.value) {
+
+        // Load the new collection and enter view mode
+        await collectionStore.fetchCollection(savedCollection.id)
+        enterViewMode()
+      } else if (mode.value === 'edit' && collection.value) {
+        // Update existing collection
         await collectionStore.updateCollection(collection.value.id, collectionData)
-        mode.value = 'view'
         errorStore.addMessage('info', 'Collection updated successfully.')
+
+        enterViewMode()
+
+        // Remove edit query parameter if present
+        if (route.query.edit) {
+          const query = { ...route.query }
+          delete query.edit
+          await router.replace({ query })
+        }
       }
     } catch {
-      errorStore.addMessage('error', 'Failed to save collection. Please try again.')
+      errorStore.addMessage(
+        'error',
+        `Failed to ${mode.value === 'create' ? 'create' : 'update'} collection. Please try again.`
+      )
     } finally {
       loadingStore.hide()
     }
@@ -325,17 +341,26 @@
 
   const cancelAction = async () => {
     if (hasUnsavedChanges.value) {
-      const shouldCancel = await cancelChangesStore.trigger(
-        'Discard Changes',
-        'Are you sure you want to discard your changes?'
+      const result = await cancelChangesStore.trigger(
+        mode.value === 'create'
+          ? 'New Collection has unsaved changes'
+          : 'Collection has unsaved changes',
+        mode.value === 'create'
+          ? 'There are unsaved changes to this new collection. If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.'
+          : `There are unsaved changes to "${collection.value?.internal_name}". If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.`
       )
-      if (!shouldCancel) return
+
+      if (result === 'stay') {
+        return // Cancel navigation
+      } else {
+        cancelChangesStore.resetChanges() // Reset changes before leaving
+      }
     }
 
     if (mode.value === 'create') {
-      await router.push('/collections')
+      router.push({ name: 'collections' })
     } else {
-      mode.value = 'view'
+      enterViewMode()
     }
   }
 
@@ -351,7 +376,7 @@
       try {
         loadingStore.show('Deleting...')
         await collectionStore.deleteCollection(collection.value.id)
-        await router.push('/collections')
+        await router.push({ name: 'collections' })
         errorStore.addMessage('info', 'Collection deleted successfully.')
       } catch {
         errorStore.addMessage('error', 'Failed to delete collection. Please try again.')
@@ -377,7 +402,7 @@
   }
 
   // Initialize component based on route
-  onMounted(async () => {
+  const initializeComponent = async () => {
     loadingStore.show()
 
     try {
@@ -389,15 +414,15 @@
       const isEditMode = route.query.edit === 'true'
 
       if (isCreateMode) {
-        mode.value = 'create'
-        initializeForm()
+        enterCreateMode()
       } else {
         const collectionId = route.params.id as string
         if (collectionId) {
           await fetchCollection(collectionId)
-          mode.value = isEditMode ? 'edit' : 'view'
-          if (mode.value === 'edit') {
-            initializeForm()
+          if (isEditMode) {
+            enterEditMode()
+          } else {
+            enterViewMode()
           }
         }
       }
@@ -406,7 +431,10 @@
     } finally {
       loadingStore.hide()
     }
-  })
+  }
+
+  // Initialize component on mount
+  onMounted(initializeComponent)
 
   // Watch for route changes
   watch(
@@ -422,23 +450,31 @@
 
   // Navigation guard for unsaved changes
   onBeforeRouteLeave(
-    (_to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
-      if (!hasUnsavedChanges.value) {
-        next()
-        return
+    async (
+      _to: RouteLocationNormalized,
+      _from: RouteLocationNormalized,
+      next: NavigationGuardNext
+    ) => {
+      // Only check for unsaved changes if we're in edit or create mode
+      if ((mode.value === 'edit' || mode.value === 'create') && hasUnsavedChanges.value) {
+        const result = await cancelChangesStore.trigger(
+          mode.value === 'create'
+            ? 'New Collection has unsaved changes'
+            : 'Collection has unsaved changes',
+          mode.value === 'create'
+            ? 'There are unsaved changes to this new collection. If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.'
+            : `There are unsaved changes to "${collection.value?.internal_name}". If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.`
+        )
+
+        if (result === 'stay') {
+          next(false) // Cancel navigation
+        } else {
+          cancelChangesStore.resetChanges() // Reset changes before leaving
+          next() // Allow navigation
+        }
+      } else {
+        next() // Allow navigation
       }
-
-      // Block navigation if there are unsaved changes
-      next(false)
-
-      // Show confirmation modal
-      cancelChangesStore
-        .trigger('Discard Changes', 'Are you sure you want to discard your changes?')
-        .then(shouldLeave => {
-          if (shouldLeave) {
-            next()
-          }
-        })
     }
   )
 </script>

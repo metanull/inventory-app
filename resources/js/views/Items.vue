@@ -127,8 +127,16 @@
         </TableCell>
         <TableCell class="hidden sm:table-cell">
           <div class="flex space-x-2" @click.stop>
-            <ViewButton @click="router.push(`/items/${item.id}`)" />
-            <EditButton @click="router.push(`/items/${item.id}?edit=true`)" />
+            <ViewButton @click="router.push({ name: 'item-detail', params: { id: item.id } })" />
+            <EditButton
+              @click="
+                router.push({
+                  name: 'item-detail',
+                  params: { id: item.id },
+                  query: { edit: 'true' },
+                })
+              "
+            />
             <DeleteButton @click="handleDeleteItem(item)" />
           </div>
         </TableCell>
@@ -238,7 +246,11 @@
 
   // Navigation handler
   const openItemDetail = (itemId: string) => {
-    router.push(`/items/${itemId}`)
+    if (itemId === 'new') {
+      router.push({ name: 'item-new' })
+    } else {
+      router.push({ name: 'item-detail', params: { id: itemId } })
+    }
   }
 
   // Delete handler
