@@ -451,7 +451,7 @@ For detailed setup instructions, production deployment, and troubleshooting:
 - 💻 **[Development Environment](https://metanull.github.io/inventory-app/development-setup/)** - Local development guide  
 - 🔧 **[Configuration Guide](https://metanull.github.io/inventory-app/configuration/)** - Environment and application settings
 - 🌐 **[Server Configuration](https://metanull.github.io/inventory-app/server-configuration/)** - Apache/Nginx setup
-- 🛠️ **[Testing & Troubleshooting](https://metanull.github.io/inventory-app/testing-troubleshooting/)** - Common issues and solutions
+- 🛠️ **[Testing](https://metanull.github.io/inventory-app/testing)** - Testing
 
 ### API Documentation
 
