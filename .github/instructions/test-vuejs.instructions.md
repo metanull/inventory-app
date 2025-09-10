@@ -1,10 +1,14 @@
 ---
 applyTo: "resources/js/views/__tests__/**/*.test.ts"
 ---
-- Organize tests in a logical and consistent directory structure.
-- Keep tests simple and focused on a single behavior.
-- Keep tests isolated and independent from each other.
-- Use meaningful test names that describe the behavior being tested.
+- **CRITICAL:** Organize tests in a logical and consistent directory structure.
+- **CRITICAL:** Keep tests simple and focused on a single behavior.
+- **CRITICAL:** Keep tests isolated and independent from each other.
+- **CRITICAL:** Use meaningful test names that describe the behavior being tested.
+- **CRITICAL:** Always preserve consistancy with existing code. 
+- **CRITICAL:** Check how things are done in other source files and also check the actual pinia store implementation and vue implementation when necessary. 
+- **CRITICAL:** Always preserve consistancy in the way mocking and import is performed for tests.
+- **CRITICAL:** Always preserve consistancy in the way tests files are named, structured and organized.
 - Use existing tests as a reference for creating new tests maintaining consistency: 
     - [resources/js/views/__tests__/ProjectDetail.test.ts](/resources/js/views/__tests__/ProjectDetail.test.ts), 
     - [resources/js/views/__tests__/ProjectDetailIntegration.test.ts](resources/js/views/__tests__/ProjectDetailIntegration.test.ts), 

@@ -8,6 +8,7 @@ import type {
   CountryResource,
   LanguageResource,
   ContextResource,
+  CollectionResource,
   ApiResponse,
 } from '@metanull/inventory-app-api-client'
 import type { RouteRecordRaw } from 'vue-router'
@@ -97,6 +98,18 @@ export const createMockPicture = (overrides: Partial<PictureResource> = {}): Pic
   display_name: 'Test Picture Display',
   backward_compatibility: null,
   file_path: '/test/path/image.jpg',
+  created_at: '2023-01-01T00:00:00Z',
+  updated_at: '2023-01-01T00:00:00Z',
+  ...overrides,
+})
+
+export const createMockCollection = (
+  overrides: Partial<CollectionResource> = {}
+): CollectionResource => ({
+  id: '123e4567-e89b-12d3-a456-426614174006',
+  internal_name: 'Test Collection',
+  backward_compatibility: null,
+  translations: [],
   created_at: '2023-01-01T00:00:00Z',
   updated_at: '2023-01-01T00:00:00Z',
   ...overrides,

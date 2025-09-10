@@ -18,6 +18,8 @@ import Projects from '@/views/Projects.vue'
 import ProjectDetail from '@/views/ProjectDetail.vue'
 import Partners from '@/views/Partners.vue'
 import PartnerDetail from '@/views/PartnerDetail.vue'
+import Collections from '@/views/Collections.vue'
+import CollectionDetail from '@/views/CollectionDetail.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
@@ -63,6 +65,24 @@ const router = createRouter({
       path: '/partners/:id',
       name: 'partner-detail',
       component: PartnerDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/collections',
+      name: 'collections',
+      component: Collections,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/collections/new',
+      name: 'collection-new',
+      component: CollectionDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/collections/:id',
+      name: 'collection-detail',
+      component: CollectionDetail,
       meta: { requiresAuth: true },
     },
     {

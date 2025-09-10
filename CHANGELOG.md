@@ -7,7 +7,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Frontend Collections Management**: Complete implementation of Collections and CollectionDetail frontend features
+  - **Collections Store**: New Pinia store (`resources/js/stores/collection.ts`) with full CRUD operations
+    - `fetchCollections()` - Retrieve all collections with caching support
+    - `fetchCollection(id)` - Get single collection with detailed information
+    - `createCollection(data)` - Create new collection with validation
+    - `updateCollection(id, data)` - Update existing collection
+    - `deleteCollection(id)` - Remove collection with confirmation
+    - `clearCurrentCollection()` - Reset current collection state
+  - **Collections List View**: New Vue component (`resources/js/views/Collections.vue`)
+    - **ListView Integration**: Uses shared ListView component with consistent styling
+    - **Search & Filter**: Real-time search across collection names and metadata
+    - **Sorting**: Sortable columns (internal_name, created_at) with ascending/descending
+    - **Responsive Design**: Mobile-friendly table with progressive disclosure
+    - **Action Buttons**: View, Edit, Delete actions with proper confirmation flows
+    - **Empty States**: Contextual messages for empty lists and search results
+    - **Loading States**: Proper loading indicators during data operations
+  - **Collection Detail View**: New Vue component (`resources/js/views/CollectionDetail.vue`)
+    - **DetailView Integration**: Uses shared DetailView component for consistent UX
+    - **Multi-Mode Support**: View, Edit, and Create modes with proper state management
+    - **Form Validation**: Real-time validation with user-friendly error messages
+    - **Dropdown Integration**: Language and Context selection with proper data loading
+    - **Relationship Display**: Shows related items, partners, and translation counts
+    - **Status Management**: Proper handling of creation, update, and deletion workflows
+    - **Navigation**: Breadcrumb navigation and proper back-link handling
+  - **Router Integration**: Updated routes in `resources/js/router/index.ts`
+    - `/collections` - Collections list view
+    - `/collections/new` - Create new collection
+    - `/collections/:id` - View collection details
+    - `/collections/:id?edit=true` - Edit collection
+  - **Navigation Updates**: Added Collections to main navigation in AppHeader and Home page
+  - **Comprehensive Test Coverage**: 87 passing tests across all components and workflows
+    - **Unit Tests**: Component logic, validation, and state management
+    - **Integration Tests**: Store integration, router navigation, and API client interaction
+    - **Resource Tests**: CRUD operations, error handling, and data consistency
+    - **Consistent Testing**: All tests follow established patterns with proper mocking and isolation
+  - **Type Safety**: Full TypeScript integration with API client types
+  - **Performance**: Optimized rendering with computed properties and proper reactivity
+  - **Accessibility**: Proper ARIA labels, keyboard navigation, and screen reader support
+
 ### Fixed
+
+- **Frontend Test Isolation**: Fixed Collection test suite isolation issues
+  - **Resolved Spy Expectations**: Fixed failing spy assertions in integration tests
+  - **Corrected Mock Setup**: Ensured consistent store mocking across all test files
+  - **Improved Error Handling**: Updated error store mocks to match actual implementation patterns
+  - **State Management**: Fixed state mutation issues in resource integration tests
+  - **Test Consistency**: Aligned all Collection tests with established testing patterns
 
 - **Deployment Workflow Triggers**: Fixed continuous deployment workflows not triggering after PR merges
   - **Changed Trigger Method**: Replaced `workflow_run` triggers with direct `push` triggers on main branch
@@ -16,9 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Maintains Security**: Deployments still protected by GitHub rulesets requiring PR approval and CI success
   - **Improved Efficiency**: Deployments now trigger immediately after PR merge without waiting for additional CI runs
 
-### Added
-
-- **Automated Version Numbering**: Implemented automated semantic versioning based on GitHub pull request labels
+- **Automated Version Numbering**: Implemented semantic versioning based on `npm version patch|minor|major`
 - **Inventory Menu**: New navigation dropdown for Items and Partners in main application header
 - **Items Feature**: Complete CRUD functionality for inventory items management
   - **Items List**: Search, filtering (all/objects/monuments), sorting, and pagination

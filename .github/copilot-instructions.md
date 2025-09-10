@@ -118,8 +118,18 @@ composer ci-test           # Full test suite
 
 ### Frontend Structure (Vue.js 3)
 - **`resources/js/`** - Vue.js application source code
+    - **CRITICAL:** Always preserve consistancy with existing code. Check how things are done in other source files and also check the actual pinia store implementation and vue implementation when necessary. 
+    - **CRITICAL:** Check how things are done in other source files and also check the actual pinia store, and component implementation when necessary.
+    - **CRITICAL:** Always preserve consistancy in the way code files are named, structured and organized.
 - **`resources/css/`** - Tailwind CSS styling
 - **`public/build/`** - Compiled frontend assets (generated)
+- **`resources/js/__tests__/`** - Frontend unit and integration tests
+    - **CRITICAL:** Always preserve consistancy with existing code. 
+    - **CRITICAL:** Check how things are done in other source files and also check the actual pinia store implementation and vue implementation when necessary. 
+    - **CRITICAL:** Always preserve consistancy in the way mocking and import is performed for tests.
+    - **CRITICAL:** Always preserve consistancy in the way tests files are named, structured and organized.
+    - **CRITICAL:** Keep tests simple and focused on a single behavior.
+    - **CRITICAL:** Keep tests isolated and independent from each other.
 
 ### Configuration Files (CRITICAL)
 - **`composer.json`** - Enhanced scripts with argument passing via `$env:COMPOSER_ARGS`
