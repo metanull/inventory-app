@@ -320,6 +320,10 @@ The project uses the following tools and technologies:
   - **CRITICAL:** With `gh pr merge` always make the pr auto-merge in squash mode with `--squash --auto`.
 - **CRITICAL:** On commit always store the commit message in a temporary markdown file (temp\_\*.md); and let git use that file as an input to avoid escaping issues.
 - **CRITICAL:** On pr creation always store the pr description in a temporary markdown file (temp\_\*.md); and let git use that file as an input to avoid escaping issues.
+- **CRITICAL:** Before creating pull requests with changes to `resources/js/**/*.*`, ALWAYS run semantic versioning:
+  - `npm version patch` - for bug fixes and small improvements
+  - `npm version minor` - for new features and enhancements  
+  - `npm version major` - for breaking changes
 - Before pull requests, update the `CHANGELOG.md` file to reflect the changes made.
 
 ## Code quality
