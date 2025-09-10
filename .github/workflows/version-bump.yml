@@ -1,16 +1,15 @@
-name: Post-Merge Version Bump
+name: Version Bump
 
 permissions:
   contents: write
   pull-requests: read
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Continuous Integration"]
+    types:
+      - completed
     branches: [main]
-    paths-ignore:
-      - 'docs/**'
-      - '.github/instructions/**'
-    # Only trigger if there are meaningful code changes, not just package.json updates
   workflow_dispatch:
     # Allow manual triggering
 
@@ -22,6 +21,8 @@ jobs:
   version-bump:
     name: Automatic Version Bump
     runs-on: windows-latest
+    # Only run if the triggering workflow was successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - uses: actions/checkout@v5
@@ -37,7 +38,7 @@ jobs:
       - name: Check if version bump needed
         id: check-bump
         run: |
-          $commitMessage = "${{ github.event.head_commit.message }}"
+          $commitMessage = "${{ github.event.workflow_run.head_commit.message }}"
           Write-Output "Commit message: $commitMessage"
           
           if ($commitMessage -like "chore: bump version*") {
@@ -59,7 +60,7 @@ jobs:
         id: pr-info
         run: |
           # Get the commit that was just merged
-          $commitSha = "${{ github.event.head_commit.id }}"
+          $commitSha = "${{ github.event.workflow_run.head_sha }}"
           Write-Output "Looking for PR associated with commit: $commitSha"
           
           # Search for PRs that were merged with this commit
