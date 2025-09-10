@@ -98,9 +98,13 @@ jobs:
         run: |
           php artisan test --coverage --parallel --no-ansi --stop-on-failure
 
-    #- name: 'Check > npm > Run Tests'
-    #  run: |
-    #    npm test
+      #- name: 'Check > npm > Linting'
+      #  run: |
+      #    npm run lint
+
+  # - name: 'Check > npm > Run Tests'
+  #   run: |
+  #     npm test
 
       # Version bump section - runs at the end of validation job
       - name: Configure Git for version bump
@@ -160,9 +164,11 @@ jobs:
           # Check if there are changes to commit
           $changes = git diff --name-only
           if ($changes) {
+            # Ensure we're on the correct branch
+            git checkout ${{ github.head_ref }}
             git add package.json package-lock.json
             git commit -m "chore: bump version to $newVersion"
-            git push origin ${{ github.head_ref }}
+            git push origin HEAD:${{ github.head_ref }}
             Write-Output "Version bumped to $newVersion and pushed to PR branch"
           } else {
             Write-Output "No version changes needed"
