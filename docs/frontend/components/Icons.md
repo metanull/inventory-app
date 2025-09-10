@@ -12,12 +12,14 @@ nav_order: 4
 **ONLY Heroicons are allowed** - No exceptions.
 
 ### FORBIDDEN ❌
+
 - Inline SVG code in components
-- Creating separate components just for SVG icons  
+- Creating separate components just for SVG icons
 - Custom SVG files or other icon libraries
 - Any custom icon components
 
 ### REQUIRED ✅
+
 - **ONLY use Heroicons**: Import from `@heroicons/vue/24/solid` or `@heroicons/vue/24/outline`
 - Import icons directly in the component where they're used
 - Use semantic aliases for clarity: `import { CogIcon as ContextIcon }`
@@ -26,22 +28,22 @@ nav_order: 4
 
 Each entity has a standardized icon that must be used consistently:
 
-| Entity | Icon | Import Path | Usage Context |
-|--------|------|-------------|---------------|
-| Items | `ArchiveBoxIcon` | `@heroicons/vue/24/solid` | All Items-related components |
-| Partners | `UserGroupIcon` | `@heroicons/vue/24/solid` | All Partners-related components |
-| Languages | `LanguageIcon` | `@heroicons/vue/24/outline` | All Languages-related components |
-| Countries | `GlobeAltIcon` | `@heroicons/vue/24/outline` | All Countries-related components |
-| Contexts | `CogIcon` | `@heroicons/vue/24/outline` | All Contexts-related components |
-| Projects | `FolderIcon` | `@heroicons/vue/24/outline` | All Projects-related components |
+| Entity    | Icon             | Import Path                 | Usage Context                    |
+| --------- | ---------------- | --------------------------- | -------------------------------- |
+| Items     | `ArchiveBoxIcon` | `@heroicons/vue/24/solid`   | All Items-related components     |
+| Partners  | `UserGroupIcon`  | `@heroicons/vue/24/solid`   | All Partners-related components  |
+| Languages | `LanguageIcon`   | `@heroicons/vue/24/outline` | All Languages-related components |
+| Countries | `GlobeAltIcon`   | `@heroicons/vue/24/outline` | All Countries-related components |
+| Contexts  | `CogIcon`        | `@heroicons/vue/24/outline` | All Contexts-related components  |
+| Projects  | `FolderIcon`     | `@heroicons/vue/24/outline` | All Projects-related components  |
 
 ## Icon Size Standards
 
-| Context | Size Class | Example Usage |
-|---------|------------|---------------|
-| Navigation Menu | `w-4 h-4` | AppHeader.vue menu items |
-| List Pages | `h-5 w-5` | Table row icons, InternalName icons |
-| Detail Pages | `h-6 w-6` | Resource icons in DetailView |
+| Context         | Size Class | Example Usage                           |
+| --------------- | ---------- | --------------------------------------- |
+| Navigation Menu | `w-4 h-4`  | AppHeader.vue menu items                |
+| List Pages      | `h-5 w-5`  | Table row icons, InternalName icons     |
+| Detail Pages    | `h-6 w-6`  | Resource icons in DetailView            |
 | Dashboard Cards | Auto-sized | NavigationCard component handles sizing |
 
 ## Implementation Examples
@@ -51,19 +53,22 @@ Each entity has a standardized icon that must be used consistently:
 ```vue
 <script setup lang="ts">
 // Import Heroicons directly
-import { CogIcon as ContextIcon, CheckCircleIcon } from '@heroicons/vue/24/solid'
-import { ArrowLeftIcon, PencilIcon } from '@heroicons/vue/24/outline'
+import {
+  CogIcon as ContextIcon,
+  CheckCircleIcon,
+} from "@heroicons/vue/24/solid";
+import { ArrowLeftIcon, PencilIcon } from "@heroicons/vue/24/outline";
 </script>
 
 <template>
   <!-- Use icons directly in template with proper classes -->
   <ContextIcon class="h-6 w-6 text-green-600" />
   <CheckCircleIcon class="h-4 w-4 text-green-600" />
-  
+
   <!-- Navigation menu usage -->
   <ContextIcon class="w-4 h-4 text-green-600" />
-  
-  <!-- List page usage -->  
+
+  <!-- List page usage -->
   <ContextIcon class="h-5 w-5 text-green-600" />
 </template>
 ```
@@ -75,12 +80,13 @@ import { ArrowLeftIcon, PencilIcon } from '@heroicons/vue/24/outline'
 <template>
   <!-- Inline SVG - FORBIDDEN -->
   <svg viewBox="0 0 24 24">
-    <path d="..."/>
+    <path d="..." />
   </svg>
-  
+
   <!-- Custom icon components - FORBIDDEN -->
   <CustomContextIcon />
-  <ProjectIcon />  <!-- Custom component -->
+  <ProjectIcon />
+  <!-- Custom component -->
 </template>
 ```
 
@@ -92,7 +98,7 @@ Icons must use entity-specific colors:
 <!-- Contexts always use green -->
 <CogIcon class="text-green-600" />
 
-<!-- Items always use teal -->  
+<!-- Items always use teal -->
 <ArchiveBoxIcon class="text-teal-600" />
 
 <!-- Countries always use blue -->

@@ -155,11 +155,11 @@ This project uses **automated semantic versioning** based on GitHub pull request
 
 **Every pull request MUST include one of these labels:**
 
-| Label | Version Bump | Example | When to Use |
-|-------|--------------|---------|-------------|
-| `bugfix` | **Patch** | 1.0.0 → 1.0.1 | Bug fixes, documentation updates, code cleanup |
-| `feature` | **Minor** | 1.0.0 → 1.1.0 | New features, enhancements, non-breaking additions |
-| `breaking-change` | **Major** | 1.0.0 → 2.0.0 | Breaking API changes, removed functionality |
+| Label             | Version Bump | Example       | When to Use                                        |
+| ----------------- | ------------ | ------------- | -------------------------------------------------- |
+| `bugfix`          | **Patch**    | 1.0.0 → 1.0.1 | Bug fixes, documentation updates, code cleanup     |
+| `feature`         | **Minor**    | 1.0.0 → 1.1.0 | New features, enhancements, non-breaking additions |
+| `breaking-change` | **Major**    | 1.0.0 → 2.0.0 | Breaking API changes, removed functionality        |
 
 ### How the Automation Works
 
@@ -172,6 +172,7 @@ This project uses **automated semantic versioning** based on GitHub pull request
 ### Label Guidelines
 
 **🟢 Use `bugfix` for:**
+
 - Bug fixes and error corrections
 - Documentation improvements
 - Code refactoring without functional changes
@@ -179,13 +180,15 @@ This project uses **automated semantic versioning** based on GitHub pull request
 - Test improvements
 
 **🟡 Use `feature` for:**
+
 - New API endpoints or features
-- Enhancements to existing functionality  
+- Enhancements to existing functionality
 - New database models or migrations
 - Non-breaking configuration changes
 - New frontend components or pages
 
 **🔴 Use `breaking-change` for:**
+
 - Removing or modifying existing API endpoints
 - Changing request/response formats
 - Database schema changes that require migration
@@ -200,14 +203,14 @@ git checkout -b fix/login-validation-error
 # Make your changes
 # Create PR with 'bugfix' label → Results in patch bump
 
-# New feature workflow  
+# New feature workflow
 git checkout -b feature/user-dashboard
 # Make your changes
 # Create PR with 'feature' label → Results in minor bump
 
 # Breaking change workflow
 git checkout -b breaking/redesign-api-endpoints
-# Make your changes  
+# Make your changes
 # Create PR with 'breaking-change' label → Results in major bump
 ```
 
