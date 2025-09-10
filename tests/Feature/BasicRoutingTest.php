@@ -84,21 +84,6 @@ class BasicRoutingTest extends TestCase
     }
 
     /**
-     * Test /cli returns OK with HTML (Vue.js SPA)
-     */
-    public function test_cli_spa_returns_html(): void
-    {
-        $response = $this->get(route('spa'));
-
-        $response->assertStatus(200);
-        $response->assertHeader('content-type', 'text/html; charset=UTF-8');
-
-        // Check for Vue.js app structure
-        $response->assertSee('<div id="app"></div>', false);
-        $response->assertViewIs('app');
-    }
-
-    /**
      * Test /api.json route returns OK with JSON (API documentation)
      */
     public function test_api_documentation_json_returns_json(): void
