@@ -16,23 +16,15 @@
 <script setup lang="ts">
   import { computed } from 'vue'
   import Card from './Card.vue'
+  import { useColors, type ColorName } from '@/composables/useColors'
 
   const props = defineProps<{
     title: string
     description: string
-    mainColor: string
+    mainColor: ColorName
     pillText: string
   }>()
 
-  const pillClasses = computed(() => {
-    const colorMap: Record<string, string> = {
-      blue: 'bg-blue-200 text-blue-600',
-      green: 'bg-green-200 text-green-600',
-      purple: 'bg-purple-200 text-purple-600',
-      orange: 'bg-orange-200 text-orange-600',
-      red: 'bg-red-200 text-red-600',
-      gray: 'bg-gray-200 text-gray-600',
-    }
-    return colorMap[props.mainColor] || 'bg-blue-200 text-blue-600'
-  })
+  const colorClasses = useColors(computed(() => props.mainColor))
+  const pillClasses = computed(() => `${colorClasses.value.badgeBackground} ${colorClasses.value.badgeText}`)
 </script>

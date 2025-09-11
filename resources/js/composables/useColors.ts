@@ -14,6 +14,32 @@ export const ENTITY_COLORS = {
 export type EntityType = keyof typeof ENTITY_COLORS
 export type ColorName = typeof ENTITY_COLORS[EntityType] | 'red' | 'pink' | 'gray'
 
+// Semantic UI colors for consistent theming
+export const UI_COLORS = {
+  // Primary actions (edit, save, primary buttons)
+  primary: 'blue',
+  
+  // Secondary actions (view, info, neutral buttons)
+  secondary: 'gray',
+  
+  // Success states and positive actions
+  success: 'green',
+  
+  // Warning states
+  warning: 'yellow',
+  
+  // Error/danger states and destructive actions
+  danger: 'red',
+  
+  // Info states and informational content
+  info: 'blue',
+  
+  // Filter buttons and active states
+  filter: 'purple',
+} as const
+
+export type UIColorType = keyof typeof UI_COLORS
+
 // Comprehensive color class definitions
 export interface ColorClasses {
   // Icon colors
@@ -246,6 +272,24 @@ export function useEntityColors(entityType: EntityType): ComputedRef<ColorClasse
  */
 export function getEntityColor(entityType: EntityType): ColorName {
   return ENTITY_COLORS[entityType]
+}
+
+/**
+ * Get color classes for a specific UI element type
+ * @param uiType - The UI element type to get colors for
+ * @returns Computed color classes object
+ */
+export function useUIColors(uiType: UIColorType): ComputedRef<ColorClasses> {
+  return useColors(UI_COLORS[uiType])
+}
+
+/**
+ * Get the color name for a specific UI element type
+ * @param uiType - The UI element type to get color name for
+ * @returns Color name
+ */
+export function getUIColor(uiType: UIColorType): ColorName {
+  return UI_COLORS[uiType]
 }
 
 /**

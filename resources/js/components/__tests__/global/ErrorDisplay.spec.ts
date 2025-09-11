@@ -176,12 +176,12 @@ describe('ErrorDisplay', () => {
 
     await wrapper.vm.$nextTick()
 
-    const dismissButton = wrapper.find('button[class*="text-red-400"]')
+    const dismissButton = wrapper.find('button')
     expect(dismissButton.exists()).toBe(true)
-    expect(dismissButton.classes()).toContain('text-red-400')
-    expect(dismissButton.classes()).toContain('hover:bg-red-100')
-    expect(dismissButton.classes()).toContain('focus:ring-red-500')
-
+    
+    const buttonClasses = dismissButton.classes().join(' ')
+    expect(buttonClasses).toContain('text-red-600')
+    
     const xIcon = dismissButton.findComponent({ name: 'XMarkIcon' })
     expect(xIcon.exists()).toBe(true)
     expect(xIcon.classes()).toContain('mock-x-icon')

@@ -13,8 +13,8 @@ describe('ViewButton', () => {
   it('applies correct styling classes', () => {
     const wrapper = mount(ViewButton)
 
-    expect(wrapper.classes()).toContain('text-blue-600')
-    expect(wrapper.classes()).toContain('hover:text-blue-800')
+    expect(wrapper.classes()).toContain('text-gray-600')
+    expect(wrapper.classes()).toContain('hover:bg-gray-50')
   })
 
   it('has default tooltip', () => {
@@ -67,7 +67,7 @@ describe('ViewButton', () => {
       },
     })
 
-    expect(wrapper.classes()).toContain('hover:text-blue-800')
+    expect(wrapper.classes()).toContain('hover:bg-gray-50')
   })
 
   it('emits click event when clicked and not disabled', async () => {

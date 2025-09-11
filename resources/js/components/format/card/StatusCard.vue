@@ -46,11 +46,12 @@
 <script setup lang="ts">
   import Card from './Card.vue'
   import Toggle from '@/components/format/Toggle.vue'
+  import type { ColorName } from '@/composables/useColors'
 
   defineProps<{
     title: string
     description: string
-    mainColor: string
+    mainColor: ColorName
     statusText: string
     toggleTitle: string
     isActive: boolean

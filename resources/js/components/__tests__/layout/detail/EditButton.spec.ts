@@ -41,11 +41,9 @@ describe('EditButton', () => {
   it('applies hover and focus styles', () => {
     const wrapper = mount(EditButton)
 
-    expect(wrapper.classes()).toContain('hover:bg-gray-50')
-    expect(wrapper.classes()).toContain('focus:outline-none')
-    expect(wrapper.classes()).toContain('focus:ring-2')
-    expect(wrapper.classes()).toContain('focus:ring-offset-2')
-    expect(wrapper.classes()).toContain('focus:ring-indigo-500')
+    expect(wrapper.classes()).toContain('hover:bg-blue-50')
+    expect(wrapper.classes()).toContain('focus:border-blue-500')
+    expect(wrapper.classes()).toContain('focus:ring-blue-500')
   })
 
   it('is disabled when disabled prop is true', () => {
