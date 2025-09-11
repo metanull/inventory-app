@@ -84,6 +84,25 @@ describe('Project Consistency Tests', () => {
         "import DeleteButton from '@/components/layout/list/DeleteButton.vue'"
       )
     })
+
+    it('should use centralized color system consistently', () => {
+      const content = fs.readFileSync(projectListPath, 'utf-8')
+      
+      // Should import centralized color system
+      expect(content).toContain("import { useColors, type ColorName } from '@/composables/useColors'")
+      
+      // Should use ColorName type for props
+      expect(content).toContain('color?: ColorName')
+      
+      // Should use centralized useColors composable
+      expect(content).toContain('useColors(computed(() => props.color))')
+      
+      // Should default to 'orange' for projects
+      expect(content).toContain("color: 'orange'")
+      
+      // Should NOT have local colorMap definitions
+      expect(content).not.toContain('const colorMap: Record<string,')
+    })
   })
 
   describe('ProjectDetail.vue - Detail View Compliance', () => {
@@ -245,6 +264,28 @@ describe('Project Consistency Tests', () => {
 
       // Should not use router.push for query parameter updates
       expect(content).not.toContain('router.push({ query })')
+    })
+
+    it('should use centralized color system consistently', () => {
+      const content = fs.readFileSync(projectDetailPath, 'utf-8')
+      
+      // Should import centralized color system
+      expect(content).toContain("import { useColors, type ColorName } from '@/composables/useColors'")
+      
+      // Should use ColorName type for props
+      expect(content).toContain('color?: ColorName')
+      
+      // Should use centralized useColors composable
+      expect(content).toContain('useColors(computed(() => props.color))')
+      
+      // Should default to 'orange' for projects
+      expect(content).toContain("color: 'orange'")
+      
+      // Should use colorClasses.icon instead of hardcoded colors
+      expect(content).toContain('colorClasses.icon')
+      
+      // Should NOT have local colorMap definitions
+      expect(content).not.toContain('const colorMap: Record<string,')
     })
   })
 })

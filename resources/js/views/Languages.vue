@@ -29,6 +29,7 @@
         :is-active="filterMode === 'all'"
         :count="languages.length"
         variant="primary"
+        :color="color"
         @click="filterMode = 'all'"
       />
       <FilterButton
@@ -36,13 +37,14 @@
         :is-active="filterMode === 'default'"
         :count="defaultLanguages.length"
         variant="success"
+        :color="color"
         @click="filterMode = 'default'"
       />
     </template>
 
     <!-- Search Slot -->
     <template #search>
-      <SearchControl v-model="searchQuery" placeholder="Search languages..." />
+      <SearchControl v-model="searchQuery" placeholder="Search languages..." :color="color" />
     </template>
 
     <!-- Languages Table -->
@@ -81,7 +83,7 @@
       <TableRow
         v-for="language in filteredLanguages"
         :key="language.id"
-        class="cursor-pointer hover:bg-purple-50 transition"
+        :class="['cursor-pointer transition', colorClasses.hover]"
         @click="openLanguageDetail(language.id)"
       >
         <TableCell>
@@ -91,7 +93,7 @@
             :backward-compatibility="language.backward_compatibility"
           >
             <template #icon>
-              <LanguageIcon class="h-5 w-5 text-purple-600" />
+              <LanguageIcon :class="['h-5 w-5', colorClasses.icon]" />
             </template>
           </InternalName>
         </TableCell>
@@ -152,6 +154,15 @@
   import InternalName from '@/components/format/InternalName.vue'
   import { LanguageIcon } from '@heroicons/vue/24/solid'
   import SearchControl from '@/components/layout/list/SearchControl.vue'
+  import { useColors, type ColorName } from '@/composables/useColors'
+
+  interface Props {
+    color?: ColorName
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    color: 'purple',
+  })
 
   const router = useRouter()
 
@@ -159,6 +170,9 @@
   const loadingStore = useLoadingOverlayStore()
   const errorStore = useErrorDisplayStore()
   const deleteStore = useDeleteConfirmationStore()
+
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color))
 
   const languages = computed(() => languageStore.languages)
   const defaultLanguages = computed(() => languageStore.defaultLanguages)

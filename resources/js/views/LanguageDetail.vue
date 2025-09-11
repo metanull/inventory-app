@@ -20,7 +20,7 @@
     @status-toggle="handleStatusToggle"
   >
     <template #resource-icon>
-      <LanguageIcon class="h-6 w-6 text-purple-600" />
+      <LanguageIcon :class="['h-6 w-6', colorClasses.icon]" />
     </template>
     <template #information>
       <DescriptionList>
@@ -108,6 +108,7 @@
     LanguageIcon,
     ArrowLeftIcon,
   } from '@heroicons/vue/24/solid'
+  import { useColors, type ColorName } from '@/composables/useColors'
 
   // Types
   type Mode = 'view' | 'edit' | 'create'
@@ -117,6 +118,17 @@
     internal_name: string
     backward_compatibility: string
   }
+
+  interface Props {
+    color?: ColorName
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    color: 'purple',
+  })
+
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color))
 
   // Composables
   const route = useRoute()
@@ -150,7 +162,7 @@
     title: 'Back to Languages',
     route: '/languages',
     icon: ArrowLeftIcon,
-    color: 'purple',
+    color: props.color,
   }))
 
   // Edit form data

@@ -29,6 +29,7 @@
         :is-active="filterMode === 'all'"
         :count="items.length"
         variant="primary"
+        :color="color"
         @click="filterMode = 'all'"
       />
       <FilterButton
@@ -36,6 +37,7 @@
         :is-active="filterMode === 'objects'"
         :count="objectItems.length"
         variant="info"
+        :color="color"
         @click="filterMode = 'objects'"
       />
       <FilterButton
@@ -43,13 +45,14 @@
         :is-active="filterMode === 'monuments'"
         :count="monumentItems.length"
         variant="success"
+        :color="color"
         @click="filterMode = 'monuments'"
       />
     </template>
 
     <!-- Search Slot -->
     <template #search>
-      <SearchControl v-model="searchQuery" placeholder="Search items..." />
+      <SearchControl v-model="searchQuery" placeholder="Search items..." :color="color" />
     </template>
 
     <!-- Items Table -->
@@ -90,7 +93,7 @@
       <TableRow
         v-for="item in filteredItems"
         :key="item.id"
-        class="cursor-pointer hover:bg-teal-50 transition"
+        :class="['cursor-pointer transition', colorClasses.hover]"
         @click="openItemDetail(item.id)"
       >
         <TableCell>
@@ -100,7 +103,7 @@
             :backward-compatibility="item.backward_compatibility"
           >
             <template #icon>
-              <ItemIcon class="h-5 w-5 text-teal-600" />
+              <ItemIcon :class="['h-5 w-5', colorClasses.icon]" />
             </template>
           </InternalName>
         </TableCell>
@@ -109,7 +112,8 @@
             <span
               :class="[
                 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                item.type === 'object' ? 'bg-teal-100 text-teal-800' : 'bg-teal-100 text-teal-800',
+                colorClasses.badgeBackground,
+                colorClasses.badge,
               ]"
             >
               {{ item.type === 'object' ? 'Object' : 'Monument' }}
@@ -166,6 +170,15 @@
   import { ArchiveBoxIcon as ItemIcon } from '@heroicons/vue/24/solid'
   import SearchControl from '@/components/layout/list/SearchControl.vue'
   import type { ItemResource } from '@metanull/inventory-app-api-client'
+  import { useColors, type ColorName } from '@/composables/useColors'
+
+  interface Props {
+    color?: ColorName
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    color: 'teal',
+  })
 
   const router = useRouter()
 
@@ -173,6 +186,9 @@
   const loadingStore = useLoadingOverlayStore()
   const errorStore = useErrorDisplayStore()
   const deleteStore = useDeleteConfirmationStore()
+
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color))
 
   // Filter state - default to 'all'
   const filterMode = ref<'all' | 'objects' | 'monuments'>('all')

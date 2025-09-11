@@ -22,8 +22,8 @@
     </template>
 
     <!-- Search Slot -->
-    <template #search>
-      <SearchControl v-model="searchQuery" placeholder="Search countries..." />
+    <template #search="slotProps">
+      <SearchControl v-model="searchQuery" placeholder="Search countries..." :color="slotProps.color" />
     </template>
 
     <!-- Countries Table Headers -->
@@ -55,7 +55,7 @@
       <TableRow
         v-for="country in filteredCountries"
         :key="country.id"
-        class="cursor-pointer hover:bg-blue-50 transition"
+        :class="['cursor-pointer transition', colorClasses.hover]"
         @click="openCountryDetail(country.id)"
       >
         <TableCell>
@@ -65,7 +65,7 @@
             :backward-compatibility="country.backward_compatibility"
           >
             <template #icon>
-              <CountryIcon class="h-5 w-5 text-blue-600" />
+              <CountryIcon :class="['h-5 w-5', colorClasses.icon]" />
             </template>
           </InternalName>
         </TableCell>
@@ -113,12 +113,24 @@
   import EditButton from '@/components/layout/list/EditButton.vue'
   import DeleteButton from '@/components/layout/list/DeleteButton.vue'
   import { GlobeAltIcon as CountryIcon } from '@heroicons/vue/24/solid'
+  import { useColors, type ColorName } from '@/composables/useColors'
+
+  interface Props {
+    color?: ColorName
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    color: 'blue',
+  })
 
   const router = useRouter()
   const countryStore = useCountryStore()
   const loadingStore = useLoadingOverlayStore()
   const errorStore = useErrorDisplayStore()
   const deleteStore = useDeleteConfirmationStore()
+
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color))
 
   // State
   const searchQuery = ref('')

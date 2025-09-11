@@ -22,7 +22,7 @@
   >
     <!-- Icon -->
     <template #icon>
-      <UserGroupIcon class="h-8 w-8 text-yellow-600" />
+      <UserGroupIcon :class="['h-8 w-8', colorClasses.icon]" />
     </template>
     <!-- Filter Buttons -->
     <template #filters>
@@ -31,6 +31,7 @@
         :is-active="filterMode === 'all'"
         :count="partners.length"
         variant="primary"
+        :color="color"
         @click="filterMode = 'all'"
       />
       <FilterButton
@@ -38,6 +39,7 @@
         :is-active="filterMode === 'museums'"
         :count="museumPartners.length"
         variant="info"
+        :color="color"
         @click="filterMode = 'museums'"
       />
       <FilterButton
@@ -45,6 +47,7 @@
         :is-active="filterMode === 'institutions'"
         :count="institutionPartners.length"
         variant="success"
+        :color="color"
         @click="filterMode = 'institutions'"
       />
       <FilterButton
@@ -52,13 +55,14 @@
         :is-active="filterMode === 'individuals'"
         :count="individualPartners.length"
         variant="info"
+        :color="color"
         @click="filterMode = 'individuals'"
       />
     </template>
 
     <!-- Search Slot -->
     <template #search>
-      <SearchControl v-model="searchQuery" placeholder="Search partners..." />
+      <SearchControl v-model="searchQuery" placeholder="Search partners..." :color="color" />
     </template>
 
     <!-- Partners Table -->
@@ -98,7 +102,7 @@
       <TableRow
         v-for="partner in filteredPartners"
         :key="partner.id"
-        class="cursor-pointer hover:bg-yellow-50 transition"
+        :class="['cursor-pointer transition', colorClasses.hover]"
         @click="openPartnerDetail(partner.id)"
       >
         <TableCell>
@@ -108,7 +112,7 @@
             :backward-compatibility="partner.backward_compatibility"
           >
             <template #icon>
-              <UserGroupIcon class="h-5 w-5 text-yellow-600" />
+              <UserGroupIcon :class="['h-5 w-5', colorClasses.icon]" />
             </template>
           </InternalName>
         </TableCell>
@@ -117,11 +121,8 @@
             <span
               :class="[
                 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                partner.type === 'museum'
-                  ? 'bg-yellow-100 text-yellow-800'
-                  : partner.type === 'institution'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-yellow-100 text-yellow-800',
+                colorClasses.badgeBackground,
+                colorClasses.badge,
               ]"
             >
               {{ partner.type.charAt(0).toUpperCase() + partner.type.slice(1) }}
@@ -177,6 +178,15 @@
   import { UserGroupIcon } from '@heroicons/vue/24/solid'
   import SearchControl from '@/components/layout/list/SearchControl.vue'
   import type { PartnerResource } from '@metanull/inventory-app-api-client'
+  import { useColors, type ColorName } from '@/composables/useColors'
+
+  interface Props {
+    color?: ColorName
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    color: 'yellow',
+  })
 
   const router = useRouter()
 
@@ -184,6 +194,9 @@
   const loadingStore = useLoadingOverlayStore()
   const errorStore = useErrorDisplayStore()
   const deleteStore = useDeleteConfirmationStore()
+
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color))
 
   // State
   const filterMode = ref<'all' | 'museums' | 'institutions' | 'individuals'>('all')

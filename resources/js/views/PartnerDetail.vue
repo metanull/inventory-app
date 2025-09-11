@@ -17,7 +17,7 @@
     @delete="deletePartner"
   >
     <template #resource-icon>
-      <UserGroupIcon class="h-6 w-6 text-yellow-600" />
+      <UserGroupIcon :class="['h-6 w-6', colorClasses.icon]" />
     </template>
     <template #information>
       <DescriptionList>
@@ -48,11 +48,7 @@
               v-else
               :class="[
                 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                partner?.type === 'museum'
-                  ? 'bg-yellow-100 text-yellow-800'
-                  : partner?.type === 'institution'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-yellow-100 text-yellow-800',
+                colorClasses!.badge,
               ]"
             >
               {{
@@ -133,6 +129,7 @@
   import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
   import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
   import type { PartnerStoreRequestTypeEnum } from '@metanull/inventory-app-api-client'
+  import { useColors, type ColorName } from '@/composables/useColors'
 
   // Types
   type Mode = 'view' | 'edit' | 'create'
@@ -144,6 +141,17 @@
     country_id: string
     backward_compatibility: string
   }
+
+  interface Props {
+    color?: ColorName
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    color: 'yellow',
+  })
+
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color))
 
   // Composables
   const route = useRoute()
@@ -196,7 +204,7 @@
     title: 'Back to Partners',
     route: '/partners',
     icon: ArrowLeftIcon,
-    color: 'yellow',
+    color: props.color,
   }))
 
   // Unsaved changes detection

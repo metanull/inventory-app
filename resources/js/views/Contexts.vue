@@ -29,6 +29,7 @@
         :is-active="filterMode === 'all'"
         :count="contexts.length"
         variant="primary"
+        :color="color"
         @click="filterMode = 'all'"
       />
       <FilterButton
@@ -36,13 +37,14 @@
         :is-active="filterMode === 'default'"
         :count="defaultContexts.length"
         variant="success"
+        :color="color"
         @click="filterMode = 'default'"
       />
     </template>
 
     <!-- Search Slot -->
     <template #search>
-      <SearchControl v-model="searchQuery" placeholder="Search contexts..." />
+      <SearchControl v-model="searchQuery" placeholder="Search contexts..." :color="color" />
     </template>
 
     <!-- Contexts Table -->
@@ -81,7 +83,7 @@
       <TableRow
         v-for="context in filteredContexts"
         :key="context.id"
-        class="cursor-pointer hover:bg-green-50 transition"
+        :class="['cursor-pointer transition', colorClasses.hover]"
         @click="openContextDetail(context.id)"
       >
         <TableCell>
@@ -91,7 +93,7 @@
             :backward-compatibility="context.backward_compatibility"
           >
             <template #icon>
-              <ContextIcon class="h-5 w-5 text-green-600" />
+              <ContextIcon :class="['h-5 w-5', colorClasses.icon]" />
             </template>
           </InternalName>
         </TableCell>
@@ -152,6 +154,16 @@
   import { CogIcon as ContextIcon } from '@heroicons/vue/24/solid'
   import SearchControl from '@/components/layout/list/SearchControl.vue'
   import type { ContextResource } from '@metanull/inventory-app-api-client'
+  import { useColors, type ColorName } from '@/composables/useColors'
+
+  // Props
+  interface Props {
+    color?: ColorName
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    color: 'green',
+  })
 
   const router = useRouter()
 
@@ -169,6 +181,9 @@
 
   // Search state
   const searchQuery = ref('')
+
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color))
 
   // Computed filtered and sorted contexts
   const contexts = computed(() => contextStore.contexts || [])

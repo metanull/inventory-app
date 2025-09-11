@@ -40,14 +40,22 @@
                 <!-- Mode Indicator Pills -->
                 <div
                   v-if="mode === 'edit'"
-                  class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium"
+                  :class="[
+                    'inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium',
+                    colors.blue.badgeBackground,
+                    colors.blue.badgeText
+                  ]"
                 >
                   <PencilIcon class="h-4 w-4" />
                   Editing
                 </div>
                 <div
                   v-else-if="mode === 'create'"
-                  class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium"
+                  :class="[
+                    'inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium',
+                    colors.green.badgeBackground,
+                    colors.green.badgeText
+                  ]"
                 >
                   <PlusIcon class="h-4 w-4" />
                   Creating
@@ -130,6 +138,10 @@
   import Title from '@/components/format/title/Title.vue'
   import InternalName from '@/components/format/InternalName.vue'
   import { PencilIcon, PlusIcon } from '@heroicons/vue/24/solid'
+  import { useColors, type ColorName, COLOR_MAP } from '@/composables/useColors'
+
+  // Expose colors for template use
+  const colors = COLOR_MAP
 
   // Types
   type Mode = 'view' | 'edit' | 'create'
@@ -177,7 +189,7 @@
       title: string
       route: string
       icon: any
-      color?: string
+      color?: ColorName
     }
 
     // Configuration
@@ -204,19 +216,12 @@
   // Disable save button if no unsaved changes
   const isSaveDisabled = computed(() => !props.hasUnsavedChanges)
 
-  // Back link classes for dynamic coloring
+  // Back link classes for dynamic coloring using centralized color system
   const backLinkClasses = computed(() => {
     if (!props.backLink?.color) return 'text-gray-600 hover:text-gray-800'
-
-    const colorMap: Record<string, string> = {
-      blue: 'text-blue-600 hover:text-blue-800',
-      green: 'text-green-600 hover:text-green-800',
-      purple: 'text-purple-600 hover:text-purple-800',
-      orange: 'text-orange-600 hover:text-orange-800',
-      red: 'text-red-600 hover:text-red-800',
-      gray: 'text-gray-600 hover:text-gray-800',
-    }
-    return colorMap[props.backLink.color] || 'text-gray-600 hover:text-gray-800'
+    
+    const colorClasses = useColors(computed(() => props.backLink!.color!))
+    return `${colorClasses.value.icon} hover:${colorClasses.value.icon.replace('text-', 'text-').replace('-600', '-800')}`
   })
 
   // Handle field changes from child components

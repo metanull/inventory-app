@@ -19,7 +19,7 @@
     @status-toggle="handleStatusToggle"
   >
     <template #resource-icon>
-      <CogIcon class="h-6 w-6 text-green-600" />
+      <CogIcon :class="['h-6 w-6', colorClasses.icon]" />
     </template>
     <template #information>
       <DescriptionList>
@@ -90,6 +90,16 @@
   import { useErrorDisplayStore } from '@/stores/errorDisplay'
   import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
   import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
+  import { useColors, type ColorName } from '@/composables/useColors'
+
+  // Props
+  interface Props {
+    color?: ColorName
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    color: 'green',
+  })
 
   // Types
   type Mode = 'view' | 'edit' | 'create'
@@ -115,6 +125,9 @@
   // Computed properties
   const context = computed(() => contextStore.currentContext)
 
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color))
+
   const editForm = ref<ContextFormData>({
     id: '',
     internal_name: '',
@@ -138,7 +151,7 @@
     title: 'Back to Contexts',
     route: '/contexts',
     icon: ArrowLeftIcon,
-    color: 'green',
+    color: props.color,
   }))
 
   // Unsaved changes detection
@@ -172,16 +185,16 @@
       {
         title: 'Default Context',
         description: 'This context is set as the default for the entire database',
-        mainColor: 'green',
+        mainColor: props.color,
         statusText: context.value.is_default ? 'Default' : 'Not Default',
         toggleTitle: 'Default Context',
         isActive: context.value.is_default,
         loading: false,
         disabled: false,
-        activeIconBackgroundClass: 'bg-green-100',
-        inactiveIconBackgroundClass: 'bg-gray-100',
-        activeIconClass: 'text-green-600',
-        inactiveIconClass: 'text-gray-600',
+        activeIconBackgroundClass: colorClasses.value.activeBackground,
+        inactiveIconBackgroundClass: colorClasses.value.inactiveBackground,
+        activeIconClass: colorClasses.value.activeBadge,
+        inactiveIconClass: colorClasses.value.inactiveIcon,
         activeIconComponent: CheckCircleIcon,
         inactiveIconComponent: XCircleIcon,
       },

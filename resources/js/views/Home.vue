@@ -142,19 +142,6 @@
             <ProjectIcon />
           </template>
         </NavigationCard>
-
-        <!-- Collections Management Card -->
-        <NavigationCard
-          title="Collections"
-          description="Organize and manage collections of artifacts and cultural items"
-          main-color="green"
-          button-text="Manage Collections"
-          button-route="/collections"
-        >
-          <template #icon>
-            <CollectionIcon />
-          </template>
-        </NavigationCard>
       </div>
     </div>
 

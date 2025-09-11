@@ -18,9 +18,12 @@
         count !== undefined
           ? 'md:inline-flex md:items-center md:justify-center md:px-2 md:py-0.5 md:text-xs md:font-semibold md:rounded-full'
           : '',
-        // Color for pill
-        count === 0 ? 'md:bg-orange-100 md:text-orange-700' : '',
-        count > 0 ? 'md:bg-blue-100 md:text-blue-700' : '',
+        // Color for pill - use centralized colors when color prop is provided
+        count === 0 && props.color ? `md:${colorClasses.badgeBackground} md:${colorClasses.badgeText}` : '',
+        count > 0 && props.color ? `md:${colorClasses.badgeBackground} md:${colorClasses.badgeText}` : '',
+        // Fall back to blue/orange when no color prop (default behavior)
+        count === 0 && !props.color ? 'md:bg-orange-100 md:text-orange-700' : '',
+        count > 0 && !props.color ? 'md:bg-blue-100 md:text-blue-700' : '',
       ]"
     >
       <!-- Pill on md+, text on sm+ -->
@@ -32,19 +35,30 @@
 
 <script setup lang="ts">
   import { computed } from 'vue'
+  import { useColors, type ColorName } from '@/composables/useColors'
 
   const props = defineProps<{
     label: string
     isActive: boolean
     count?: number
     variant?: 'primary' | 'success' | 'info'
+    color?: ColorName
   }>()
 
   defineEmits<{
     click: []
   }>()
 
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color || 'indigo'))
+
   const activeClasses = computed(() => {
+    // If color prop is provided, use centralized color system
+    if (props.color) {
+      return `${colorClasses.value.badgeBackground} ${colorClasses.value.badgeText}`
+    }
+
+    // Fall back to variant-based semantic logic when no color is provided
     switch (props.variant) {
       case 'success':
         return 'bg-green-100 text-green-700'
