@@ -40,7 +40,8 @@ const processQueue = (error: AxiosError | null, token: string | null = null) => 
  */
 export const createSessionAwareAxios = (): AxiosInstance => {
   const instance = axios.create({
-    baseURL: window.location.origin,
+    // Don't set baseURL here - let the API client configuration handle it
+    // This prevents conflicts with the generated client's basePath logic
     timeout: 30000,
     headers: {
       'Content-Type': 'application/json',
