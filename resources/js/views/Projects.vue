@@ -29,6 +29,7 @@
         :is-active="filterMode === 'all'"
         :count="projects.length"
         variant="primary"
+        :color="color"
         @click="filterMode = 'all'"
       />
       <FilterButton
@@ -36,6 +37,7 @@
         :is-active="filterMode === 'enabled'"
         :count="enabledProjects.length"
         variant="info"
+        :color="color"
         @click="filterMode = 'enabled'"
       />
       <FilterButton
@@ -43,6 +45,7 @@
         :is-active="filterMode === 'launched'"
         :count="launchedProjects.length"
         variant="info"
+        :color="color"
         @click="filterMode = 'launched'"
       />
       <FilterButton
@@ -50,13 +53,14 @@
         :is-active="filterMode === 'visible'"
         :count="visibleProjects.length"
         variant="success"
+        :color="color"
         @click="filterMode = 'visible'"
       />
     </template>
 
     <!-- Search Slot -->
     <template #search>
-      <SearchControl v-model="searchQuery" placeholder="Search projects..." />
+      <SearchControl v-model="searchQuery" placeholder="Search projects..." :color="color" />
     </template>
 
     <!-- Projects Table -->
@@ -112,7 +116,7 @@
       <TableRow
         v-for="project in filteredProjects"
         :key="project.id"
-        class="cursor-pointer hover:bg-orange-50 transition"
+        :class="['cursor-pointer transition', colorClasses.hover]"
         @click="openProjectDetail(project.id)"
       >
         <TableCell>
@@ -122,7 +126,7 @@
             :backward-compatibility="project.backward_compatibility"
           >
             <template #icon>
-              <ProjectIcon class="h-5 w-5 text-orange-600" />
+              <ProjectIcon :class="['h-5 w-5', colorClasses.icon]" />
             </template>
           </InternalName>
         </TableCell>
@@ -204,6 +208,16 @@
   import InternalName from '@/components/format/InternalName.vue'
   import { FolderIcon as ProjectIcon } from '@heroicons/vue/24/solid'
   import SearchControl from '@/components/layout/list/SearchControl.vue'
+  import { useColors, type ColorName } from '@/composables/useColors'
+
+  // Props
+  interface Props {
+    color?: ColorName
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    color: 'orange',
+  })
 
   const router = useRouter()
 
@@ -211,6 +225,9 @@
   const loadingStore = useLoadingOverlayStore()
   const errorStore = useErrorDisplayStore()
   const deleteStore = useDeleteConfirmationStore()
+
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color))
 
   const projects = computed(() => projectStore.projects)
   const visibleProjects = computed(() => projectStore.visibleProjects)

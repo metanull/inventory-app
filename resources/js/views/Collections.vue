@@ -22,8 +22,9 @@
     </template>
 
     <!-- Search Slot -->
-    <template #search>
-      <SearchControl v-model="searchQuery" placeholder="Search collections..." />
+        <!-- Search Slot -->
+    <template #search="slotProps">
+      <SearchControl v-model="searchQuery" placeholder="Search collections..." :color="slotProps.color" />
     </template>
 
     <!-- Collections Table -->
@@ -58,7 +59,7 @@
       <TableRow
         v-for="collection in filteredCollections"
         :key="collection.id"
-        class="cursor-pointer hover:bg-indigo-50 transition"
+        :class="['cursor-pointer transition', colorClasses!.hover]"
         @click="openCollectionDetail(collection.id)"
       >
         <TableCell>
@@ -68,7 +69,7 @@
             :backward-compatibility="collection.backward_compatibility"
           >
             <template #icon>
-              <CollectionIcon class="h-5 w-5 text-indigo-600" />
+              <CollectionIcon :class="['h-5 w-5', colorClasses!.icon]" />
             </template>
           </InternalName>
         </TableCell>
@@ -83,7 +84,7 @@
         <TableCell class="hidden lg:table-cell">
           <div class="flex items-center">
             <span
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
+              :class="['inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', colorClasses!.badge]"
             >
               {{ collection.items_count || '0' }}
             </span>
@@ -92,7 +93,7 @@
         <TableCell class="hidden lg:table-cell">
           <div class="flex items-center">
             <span
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
+              :class="['inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', colorClasses!.badge]"
             >
               {{ collection.partners_count || '0' }}
             </span>
@@ -143,6 +144,18 @@
   import { RectangleStackIcon as CollectionIcon } from '@heroicons/vue/24/solid'
   import SearchControl from '@/components/layout/list/SearchControl.vue'
   import type { CollectionResource } from '@metanull/inventory-app-api-client'
+  import { useColors, type ColorName } from '@/composables/useColors'
+
+  interface Props {
+    color?: ColorName
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    color: 'indigo',
+  })
+
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color))
 
   const router = useRouter()
 

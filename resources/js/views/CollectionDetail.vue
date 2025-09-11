@@ -17,7 +17,7 @@
     @delete="deleteCollection"
   >
     <template #resource-icon>
-      <CollectionIcon class="h-6 w-6 text-indigo-600" />
+      <CollectionIcon :class="['h-6 w-6', colorClasses.icon]" />
     </template>
     <template #information>
       <DescriptionList>
@@ -77,7 +77,11 @@
           <DescriptionDetail>
             <div class="flex items-center">
               <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
+                :class="[
+                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  colorClasses.badgeBackground,
+                  colorClasses.badge
+                ]"
               >
                 {{ collection.items_count }} items
               </span>
@@ -89,7 +93,11 @@
           <DescriptionDetail>
             <div class="flex items-center">
               <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
+                :class="[
+                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  colorClasses.badgeBackground,
+                  colorClasses.badge
+                ]"
               >
                 {{ collection.partners_count }} partners
               </span>
@@ -101,7 +109,11 @@
           <DescriptionDetail>
             <div class="flex items-center">
               <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
+                :class="[
+                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  colorClasses.badgeBackground,
+                  colorClasses.badge
+                ]"
               >
                 {{ collection.translations_count }} translations
               </span>
@@ -152,6 +164,7 @@
   import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
   import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
   import type { CollectionStoreRequest } from '@metanull/inventory-app-api-client'
+  import { useColors, type ColorName } from '@/composables/useColors'
 
   // Types
   type Mode = 'view' | 'edit' | 'create'
@@ -163,6 +176,17 @@
     context_id: string
     backward_compatibility: string
   }
+
+  interface Props {
+    color?: ColorName
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    color: 'indigo',
+  })
+
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color))
 
   // Composables
   const route = useRoute()
@@ -206,7 +230,7 @@
     title: 'Back to Collections',
     route: '/collections',
     icon: ArrowLeftIcon,
-    color: 'indigo',
+    color: props.color,
   }))
 
   // Dropdown options

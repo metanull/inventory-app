@@ -23,10 +23,10 @@
       class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center"
     >
       <div class="flex flex-wrap gap-1">
-        <slot name="filters" />
+        <slot name="filters" :color="color" />
       </div>
       <div v-if="$slots.search" class="flex-shrink-0 w-full sm:w-auto">
-        <slot name="search" />
+        <slot name="search" :color="color" />
       </div>
     </div>
 
@@ -72,6 +72,7 @@
   import Title from '@/components/format/title/Title.vue'
   import TableElement from '@/components/format/table/TableElement.vue'
   import { FolderIcon } from '@heroicons/vue/24/outline'
+  import { useColors, type ColorName } from '@/composables/useColors'
 
   const props = defineProps<{
     title: string
@@ -82,27 +83,10 @@
     emptyTitle: string
     emptyMessage: string
     filters?: Array<{ label: string; count?: number; isActive: boolean; variant?: string }>
-    color?: string
+    color?: ColorName
   }>()
 
-  const iconClasses = computed(() => {
-    if (!props.color) {
-      return 'text-gray-600'
-    }
-
-    const colorMap: Record<string, string> = {
-      blue: 'text-blue-600',
-      teal: 'text-teal-600',
-      green: 'text-green-600',
-      purple: 'text-purple-600',
-      orange: 'text-orange-600',
-      red: 'text-red-600',
-      yellow: 'text-yellow-600',
-      indigo: 'text-indigo-600',
-      pink: 'text-pink-600',
-      gray: 'text-gray-600',
-    }
-
-    return colorMap[props.color] || 'text-gray-600'
-  })
+  // Use centralized color system
+  const colorClasses = useColors(computed(() => props.color || 'gray'))
+  const iconClasses = computed(() => colorClasses.value.icon)
 </script>

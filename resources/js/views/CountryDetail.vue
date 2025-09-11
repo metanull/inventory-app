@@ -18,7 +18,7 @@
     @delete="deleteCountry"
   >
     <template #resource-icon>
-      <CountryIcon class="h-6 w-6 text-blue-600" />
+      <CountryIcon :class="`h-6 w-6 ${colorClasses.icon}`" />
     </template>
     <template #information>
       <DescriptionList>
@@ -106,6 +106,7 @@
   import DateDisplay from '@/components/format/Date.vue'
   import { GlobeAltIcon as CountryIcon } from '@heroicons/vue/24/solid'
   import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
+  import { useColors, type ColorName } from '@/composables/useColors'
 
   // Types
   type Mode = 'view' | 'edit' | 'create'
@@ -115,6 +116,17 @@
     internal_name: string
     backward_compatibility: string
   }
+
+  interface Props {
+    color?: ColorName
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    color: 'blue',
+  })
+
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color))
 
   const route = useRoute()
   const router = useRouter()
@@ -153,7 +165,7 @@
     title: 'Back to Countries',
     route: '/countries',
     icon: ArrowLeftIcon,
-    color: 'blue',
+    color: props.color,
   }))
 
   // Information description

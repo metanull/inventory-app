@@ -20,7 +20,7 @@
     @status-toggle="handleStatusToggle"
   >
     <template #resource-icon>
-      <ProjectIcon class="h-6 w-6 text-orange-600" />
+      <ProjectIcon :class="['h-6 w-6', colorClasses.icon]" />
     </template>
     <template #information>
       <DescriptionList>
@@ -143,6 +143,7 @@
     FolderIcon as ProjectIcon,
     ArrowLeftIcon,
   } from '@heroicons/vue/24/solid'
+  import { useColors, type ColorName } from '@/composables/useColors'
 
   // Types
   type Mode = 'view' | 'edit' | 'create'
@@ -154,6 +155,17 @@
     context_id: string
     language_id: string
   }
+
+  interface Props {
+    color?: ColorName
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    color: 'orange',
+  })
+
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color))
 
   // Composables
   const route = useRoute()
@@ -195,7 +207,7 @@
     title: 'Back to Projects',
     route: '/projects',
     icon: ArrowLeftIcon,
-    color: 'orange',
+    color: props.color,
   }))
 
   // Edit form data
@@ -272,15 +284,15 @@
       {
         title: 'Status',
         description: 'Project status and availability',
-        mainColor: 'green',
+        mainColor: props.color,
         statusText: project.value.is_enabled ? 'Enabled' : 'Disabled',
         toggleTitle: 'Project Status',
         isActive: project.value.is_enabled,
         loading: false,
         disabled: false,
-        activeIconBackgroundClass: 'bg-green-100',
+        activeIconBackgroundClass: colorClasses.value!.activeBackground,
         inactiveIconBackgroundClass: 'bg-red-100',
-        activeIconClass: 'text-green-600',
+        activeIconClass: colorClasses.value!.activeBadge,
         inactiveIconClass: 'text-red-600',
         activeIconComponent: CheckCircleIcon,
         inactiveIconComponent: XCircleIcon,
@@ -288,16 +300,16 @@
       {
         title: 'Launch Status',
         description: 'Project launch status',
-        mainColor: 'blue',
+        mainColor: props.color,
         statusText: project.value.is_launched ? 'Launched' : 'Not Launched',
         toggleTitle: 'Launch Status',
         isActive: project.value.is_launched,
         loading: false,
         disabled: !project.value.is_enabled,
-        activeIconBackgroundClass: 'bg-blue-100',
-        inactiveIconBackgroundClass: 'bg-gray-100',
-        activeIconClass: 'text-blue-600',
-        inactiveIconClass: 'text-gray-600',
+        activeIconBackgroundClass: colorClasses.value!.activeBackground,
+        inactiveIconBackgroundClass: colorClasses.value!.inactiveBackground,
+        activeIconClass: colorClasses.value!.activeBadge,
+        inactiveIconClass: colorClasses.value!.inactiveIcon,
         activeIconComponent: RocketIcon,
         inactiveIconComponent: PackageIcon,
       },

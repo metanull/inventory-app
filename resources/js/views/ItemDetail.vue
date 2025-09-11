@@ -17,7 +17,7 @@
     @delete="deleteItem"
   >
     <template #resource-icon>
-      <ItemIcon class="h-6 w-6 text-teal-600" />
+      <ItemIcon :class="`h-6 w-6 ${colorClasses.icon}`" />
     </template>
     <template #information>
       <DescriptionList>
@@ -48,9 +48,8 @@
               <span
                 :class="[
                   'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                  item?.type === 'object'
-                    ? 'bg-blue-100 text-blue-800'
-                    : 'bg-green-100 text-green-800',
+                  colorClasses.badgeBackground,
+                  colorClasses.badge,
                 ]"
               >
                 {{ item?.type === 'object' ? 'Object' : 'Monument' }}
@@ -159,6 +158,7 @@
   import { useErrorDisplayStore } from '@/stores/errorDisplay'
   import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
   import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
+  import { useColors, type ColorName } from '@/composables/useColors'
   import type {
     ItemStoreRequest,
     ItemStoreRequestTypeEnum,
@@ -176,6 +176,17 @@
     project_id: string
     country_id: string
   }
+
+  interface Props {
+    color?: ColorName
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    color: 'teal',
+  })
+
+  // Color classes from centralized system
+  const colorClasses = useColors(computed(() => props.color))
 
   // Composables
   const route = useRoute()
@@ -222,7 +233,7 @@
     title: 'Back to Items',
     route: '/items',
     icon: ArrowLeftIcon,
-    color: 'teal',
+    color: props.color,
   }))
 
   // Dropdown options

@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Frontend Color System Streamlining**: Comprehensive centralized color management system
+  - **New useColors Composable**: Created `resources/js/composables/useColors.ts` for centralized color management
+    - `ENTITY_COLORS` mapping for consistent entity-specific color themes
+    - `COLOR_MAP` with complete Tailwind color class definitions for all components
+    - `useColors()` composable function for reactive color class generation
+    - `ColorName` and `ColorClasses` TypeScript types for type safety
+    - Support for buttons, badges, icons, focus states, hover effects, and borders
+  - **Component Color Standardization**: Updated all layout and view components to use centralized system
+    - `ListView.vue`, `DetailView.vue`, `AddButton.vue`, `FilterButton.vue`, `SearchControl.vue`
+    - All entity views: Collections (indigo), Contexts (green), Countries (blue), Items (teal), Languages (purple), Partners (yellow), Projects (orange)
+    - Eliminated 7+ local `colorMap` definitions and hardcoded Tailwind classes
+    - Added consistent color prop patterns across all components
+  - **Test Coverage**: Updated consistency tests to validate centralized color usage
+    - Added checks for `useColors` import and proper ColorName type usage
+    - Verified removal of local colorMap definitions
+    - Ensured proper default color assignments per entity type
+
+### Added
+
 - **Frontend Collections Management**: Complete implementation of Collections and CollectionDetail frontend features
   - **Collections Store**: New Pinia store (`resources/js/stores/collection.ts`) with full CRUD operations
     - `fetchCollections()` - Retrieve all collections with caching support
