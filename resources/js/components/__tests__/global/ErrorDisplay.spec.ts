@@ -178,10 +178,10 @@ describe('ErrorDisplay', () => {
 
     const dismissButton = wrapper.find('button')
     expect(dismissButton.exists()).toBe(true)
-    
+
     const buttonClasses = dismissButton.classes().join(' ')
     expect(buttonClasses).toContain('text-red-600')
-    
+
     const xIcon = dismissButton.findComponent({ name: 'XMarkIcon' })
     expect(xIcon.exists()).toBe(true)
     expect(xIcon.classes()).toContain('mock-x-icon')

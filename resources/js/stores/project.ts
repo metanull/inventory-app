@@ -1,20 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import {
-  ProjectApi,
-  Configuration,
   type ProjectResource,
   type ProjectStoreRequest,
   type ProjectSetEnabledRequest,
   type ProjectSetLaunchedRequest,
 } from '@metanull/inventory-app-api-client'
-import { useAuthStore } from './auth'
 import { ErrorHandler } from '@/utils/errorHandler'
-
-// Declare process for Node.js environments
-declare const process: {
-  env: Record<string, string | undefined>
-}
+import { useApiClient } from '@/composables/useApiClient'
 
 export const useProjectStore = defineStore('project', () => {
   const projects = ref<ProjectResource[]>([])
@@ -23,36 +16,9 @@ export const useProjectStore = defineStore('project', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const authStore = useAuthStore()
-
-  // Create API client instance with configuration
+  // Create API client instance with session-aware configuration
   const createApiClient = () => {
-    // Support both Vite (import.meta.env) and Node (process.env) for baseURL
-    let baseURL: string
-    if (
-      typeof import.meta !== 'undefined' &&
-      import.meta.env &&
-      import.meta.env.VITE_API_BASE_URL
-    ) {
-      baseURL = import.meta.env.VITE_API_BASE_URL
-    } else if (typeof process !== 'undefined' && process.env && process.env.VITE_API_BASE_URL) {
-      baseURL = process.env.VITE_API_BASE_URL
-    } else {
-      baseURL = 'http://127.0.0.1:8000/api'
-    }
-
-    const configParams: { basePath: string; accessToken?: string } = {
-      basePath: baseURL,
-    }
-
-    if (authStore.token) {
-      configParams.accessToken = authStore.token
-    }
-
-    // Create configuration for the API client
-    const configuration = new Configuration(configParams)
-
-    return new ProjectApi(configuration)
+    return useApiClient().createProjectApi()
   }
 
   const enabledProjects = computed(() => projects.value.filter(project => project.is_enabled))

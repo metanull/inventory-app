@@ -1,19 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import {
-  CountryApi,
-  Configuration,
   type CountryResource,
   type CountryStoreRequest,
   type CountryUpdateRequest,
 } from '@metanull/inventory-app-api-client'
-import { useAuthStore } from './auth'
+import { useApiClient } from '@/composables/useApiClient'
 import { ErrorHandler } from '@/utils/errorHandler'
-
-// Declare process for Node.js environments
-declare const process: {
-  env: Record<string, string | undefined>
-}
 
 export const useCountryStore = defineStore('country', () => {
   const countries = ref<CountryResource[]>([])
@@ -21,36 +14,9 @@ export const useCountryStore = defineStore('country', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const authStore = useAuthStore()
-
-  // Create API client instance with configuration
+  // Create API client instance with session-aware configuration
   const createApiClient = () => {
-    // Support both Vite (import.meta.env) and Node (process.env) for baseURL
-    let baseURL: string
-    if (
-      typeof import.meta !== 'undefined' &&
-      import.meta.env &&
-      import.meta.env.VITE_API_BASE_URL
-    ) {
-      baseURL = import.meta.env.VITE_API_BASE_URL
-    } else if (typeof process !== 'undefined' && process.env && process.env.VITE_API_BASE_URL) {
-      baseURL = process.env.VITE_API_BASE_URL
-    } else {
-      baseURL = 'http://127.0.0.1:8000/api'
-    }
-
-    const configParams: { basePath: string; accessToken?: string } = {
-      basePath: baseURL,
-    }
-
-    if (authStore.token) {
-      configParams.accessToken = authStore.token
-    }
-
-    // Create configuration for the API client
-    const configuration = new Configuration(configParams)
-
-    return new CountryApi(configuration)
+    return useApiClient().createCountryApi()
   }
 
   // Computed properties

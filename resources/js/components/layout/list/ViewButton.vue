@@ -4,7 +4,7 @@
       'inline-flex items-center justify-center w-8 h-8 rounded-full transition-colors',
       colorClasses.badge,
       colorClasses.buttonHover,
-      { 'opacity-50 cursor-not-allowed': disabled }
+      { 'opacity-50 cursor-not-allowed': disabled },
     ]"
     :disabled="disabled"
     :title="tooltip || 'View'"

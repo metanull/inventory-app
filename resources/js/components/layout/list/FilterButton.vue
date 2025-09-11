@@ -19,8 +19,12 @@
           ? 'md:inline-flex md:items-center md:justify-center md:px-2 md:py-0.5 md:text-xs md:font-semibold md:rounded-full'
           : '',
         // Color for pill - use centralized colors when color prop is provided
-        count === 0 && props.color ? `md:${colorClasses.badgeBackground} md:${colorClasses.badgeText}` : '',
-        count > 0 && props.color ? `md:${colorClasses.badgeBackground} md:${colorClasses.badgeText}` : '',
+        count === 0 && props.color
+          ? `md:${colorClasses.badgeBackground} md:${colorClasses.badgeText}`
+          : '',
+        count > 0 && props.color
+          ? `md:${colorClasses.badgeBackground} md:${colorClasses.badgeText}`
+          : '',
         // Fall back to blue/orange when no color prop (default behavior)
         count === 0 && !props.color ? 'md:bg-orange-100 md:text-orange-700' : '',
         count > 0 && !props.color ? 'md:bg-blue-100 md:text-blue-700' : '',

@@ -29,7 +29,11 @@
               :class="['h-5 w-5', getMessageClasses('warning').icon]"
               aria-hidden="true"
             />
-            <InformationCircleIcon v-else :class="['h-5 w-5', getMessageClasses('info').icon]" aria-hidden="true" />
+            <InformationCircleIcon
+              v-else
+              :class="['h-5 w-5', getMessageClasses('info').icon]"
+              aria-hidden="true"
+            />
           </div>
           <div class="ml-3">
             <p class="text-sm font-medium">{{ message.text }}</p>
@@ -68,7 +72,7 @@
 
   // Centralized color management for different message types
   const errorColors = useUIColors('danger')
-  const warningColors = useUIColors('warning')  
+  const warningColors = useUIColors('warning')
   const infoColors = useUIColors('info')
 
   function getMessageClasses(type: 'error' | 'warning' | 'info') {

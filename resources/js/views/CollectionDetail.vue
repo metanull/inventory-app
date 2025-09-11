@@ -80,7 +80,7 @@
                 :class="[
                   'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                   colorClasses.badgeBackground,
-                  colorClasses.badge
+                  colorClasses.badge,
                 ]"
               >
                 {{ collection.items_count }} items
@@ -96,7 +96,7 @@
                 :class="[
                   'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                   colorClasses.badgeBackground,
-                  colorClasses.badge
+                  colorClasses.badge,
                 ]"
               >
                 {{ collection.partners_count }} partners
@@ -112,7 +112,7 @@
                 :class="[
                   'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                   colorClasses.badgeBackground,
-                  colorClasses.badge
+                  colorClasses.badge,
                 ]"
               >
                 {{ collection.translations_count }} translations

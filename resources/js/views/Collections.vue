@@ -22,9 +22,13 @@
     </template>
 
     <!-- Search Slot -->
-        <!-- Search Slot -->
+    <!-- Search Slot -->
     <template #search="slotProps">
-      <SearchControl v-model="searchQuery" placeholder="Search collections..." :color="slotProps.color" />
+      <SearchControl
+        v-model="searchQuery"
+        placeholder="Search collections..."
+        :color="slotProps.color"
+      />
     </template>
 
     <!-- Collections Table -->
@@ -84,7 +88,10 @@
         <TableCell class="hidden lg:table-cell">
           <div class="flex items-center">
             <span
-              :class="['inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', colorClasses!.badge]"
+              :class="[
+                'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                colorClasses!.badge,
+              ]"
             >
               {{ collection.items_count || '0' }}
             </span>
@@ -93,7 +100,10 @@
         <TableCell class="hidden lg:table-cell">
           <div class="flex items-center">
             <span
-              :class="['inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', colorClasses!.badge]"
+              :class="[
+                'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                colorClasses!.badge,
+              ]"
             >
               {{ collection.partners_count || '0' }}
             </span>

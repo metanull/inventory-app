@@ -26,5 +26,7 @@
   }>()
 
   const colorClasses = useColors(computed(() => props.mainColor))
-  const pillClasses = computed(() => `${colorClasses.value.badgeBackground} ${colorClasses.value.badgeText}`)
+  const pillClasses = computed(
+    () => `${colorClasses.value.badgeBackground} ${colorClasses.value.badgeText}`
+  )
 </script>
