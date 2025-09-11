@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Mobile Authentication API Client**: Fixed base URL configuration issue causing 404 errors
+  - **Root Cause**: Session-aware axios was setting `baseURL: window.location.origin` which interfered with API client's `basePath` configuration
+  - **Impact**: Mobile authentication endpoint was resolving to `/mobile/acquire-token` instead of `/api/mobile/acquire-token`
+  - **Solution**: Removed conflicting `baseURL` from session-aware axios to allow API client's `basePath` to work correctly
+  - **Files Changed**: `resources/js/utils/sessionAwareAxios.ts`
+
 ### Added
 
 - **Frontend Color System Streamlining**: Comprehensive centralized color management system

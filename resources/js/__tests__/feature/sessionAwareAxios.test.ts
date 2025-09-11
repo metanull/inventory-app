@@ -43,7 +43,7 @@ describe('sessionAwareAxios', () => {
     const instance = createSessionAwareAxios()
 
     expect(axios.create).toHaveBeenCalledWith({
-      baseURL: window.location.origin,
+      // No baseURL set - let API client configuration handle it
       timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
