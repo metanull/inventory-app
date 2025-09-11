@@ -221,7 +221,7 @@
     if (!props.backLink?.color) return 'text-gray-600 hover:text-gray-800'
     
     const colorClasses = useColors(computed(() => props.backLink!.color!))
-    return `${colorClasses.value.icon} hover:${colorClasses.value.icon.replace('text-', 'text-').replace('-600', '-800')}`
+    return `${colorClasses.value.icon} hover:${colorClasses.value.icon.replace('-600', '-800')}`
   })
 
   // Handle field changes from child components
