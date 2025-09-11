@@ -1,16 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import {
-  ItemApi,
-  Configuration,
-  type ItemResource,
-  type ItemStoreRequest,
-} from '@metanull/inventory-app-api-client'
-import { useAuthStore } from './auth'
-
-declare const process: {
-  env: Record<string, string | undefined>
-}
+import { type ItemResource, type ItemStoreRequest } from '@metanull/inventory-app-api-client'
+import { useApiClient } from '@/composables/useApiClient'
 
 export const useItemStore = defineStore('item', () => {
   // State
@@ -18,36 +9,9 @@ export const useItemStore = defineStore('item', () => {
   const currentItem = ref<ItemResource | null>(null)
   const loading = ref(false)
 
-  const authStore = useAuthStore()
-
-  // Create API client instance with configuration
+  // Create API client instance with session-aware configuration
   const createApiClient = () => {
-    // Support both Vite (import.meta.env) and Node (process.env) for baseURL
-    let baseURL: string
-    if (
-      typeof import.meta !== 'undefined' &&
-      import.meta.env &&
-      import.meta.env.VITE_API_BASE_URL
-    ) {
-      baseURL = import.meta.env.VITE_API_BASE_URL
-    } else if (typeof process !== 'undefined' && process.env && process.env.VITE_API_BASE_URL) {
-      baseURL = process.env.VITE_API_BASE_URL
-    } else {
-      baseURL = 'http://127.0.0.1:8000/api'
-    }
-
-    const configParams: { basePath: string; accessToken?: string } = {
-      basePath: baseURL,
-    }
-
-    if (authStore.token) {
-      configParams.accessToken = authStore.token
-    }
-
-    // Create configuration for the API client
-    const configuration = new Configuration(configParams)
-
-    return new ItemApi(configuration)
+    return useApiClient().createItemApi()
   }
 
   // Clear current item

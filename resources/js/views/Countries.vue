@@ -23,7 +23,11 @@
 
     <!-- Search Slot -->
     <template #search="slotProps">
-      <SearchControl v-model="searchQuery" placeholder="Search countries..." :color="slotProps.color" />
+      <SearchControl
+        v-model="searchQuery"
+        placeholder="Search countries..."
+        :color="slotProps.color"
+      />
     </template>
 
     <!-- Countries Table Headers -->

@@ -87,19 +87,21 @@ describe('Partner Consistency Tests', () => {
 
     it('should use centralized color system consistently', () => {
       const content = fs.readFileSync(partnerListPath, 'utf-8')
-      
+
       // Should import centralized color system
-      expect(content).toContain("import { useColors, type ColorName } from '@/composables/useColors'")
-      
+      expect(content).toContain(
+        "import { useColors, type ColorName } from '@/composables/useColors'"
+      )
+
       // Should use ColorName type for props
       expect(content).toContain('color?: ColorName')
-      
+
       // Should use centralized useColors composable
       expect(content).toContain('useColors(computed(() => props.color))')
-      
+
       // Should default to 'yellow' for partners
       expect(content).toContain("color: 'yellow'")
-      
+
       // Should NOT have local colorMap definitions
       expect(content).not.toContain('const colorMap: Record<string,')
     })
@@ -268,22 +270,24 @@ describe('Partner Consistency Tests', () => {
 
     it('should use centralized color system consistently', () => {
       const content = fs.readFileSync(partnerDetailPath, 'utf-8')
-      
+
       // Should import centralized color system
-      expect(content).toContain("import { useColors, type ColorName } from '@/composables/useColors'")
-      
+      expect(content).toContain(
+        "import { useColors, type ColorName } from '@/composables/useColors'"
+      )
+
       // Should use ColorName type for props
       expect(content).toContain('color?: ColorName')
-      
+
       // Should use centralized useColors composable
       expect(content).toContain('useColors(computed(() => props.color))')
-      
+
       // Should default to 'yellow' for partners
       expect(content).toContain("color: 'yellow'")
-      
+
       // Should use colorClasses.icon instead of hardcoded colors
       expect(content).toContain('colorClasses.icon')
-      
+
       // Should NOT have local colorMap definitions
       expect(content).not.toContain('const colorMap: Record<string,')
     })

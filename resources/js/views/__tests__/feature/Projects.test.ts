@@ -496,7 +496,7 @@ describe('Projects.vue', () => {
 
       expect(spy).toHaveBeenCalledWith({
         name: 'project-detail',
-        params: { id: '123' }
+        params: { id: '123' },
       })
     })
 

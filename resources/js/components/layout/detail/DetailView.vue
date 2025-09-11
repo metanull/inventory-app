@@ -43,7 +43,7 @@
                   :class="[
                     'inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium',
                     colors.blue.badgeBackground,
-                    colors.blue.badgeText
+                    colors.blue.badgeText,
                   ]"
                 >
                   <PencilIcon class="h-4 w-4" />
@@ -54,7 +54,7 @@
                   :class="[
                     'inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium',
                     colors.green.badgeBackground,
-                    colors.green.badgeText
+                    colors.green.badgeText,
                   ]"
                 >
                   <PlusIcon class="h-4 w-4" />
@@ -219,7 +219,7 @@
   // Back link classes for dynamic coloring using centralized color system
   const backLinkClasses = computed(() => {
     if (!props.backLink?.color) return 'text-gray-600 hover:text-gray-800'
-    
+
     const colorClasses = useColors(computed(() => props.backLink!.color!))
     return `${colorClasses.value.icon} hover:${colorClasses.value.icon.replace('-600', '-800')}`
   })

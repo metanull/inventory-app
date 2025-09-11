@@ -1,15 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import {
-  MobileAppAuthenticationApi,
-  Configuration,
-  type TokenAcquireRequest,
-} from '@metanull/inventory-app-api-client'
-
-// Declare process for Node.js environments
-declare const process: {
-  env: Record<string, string | undefined>
-}
+import { type TokenAcquireRequest } from '@metanull/inventory-app-api-client'
+import { useApiClient } from '@/composables/useApiClient'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem('auth_token'))
@@ -18,34 +10,9 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => !!token.value)
 
-  // Create API client instance with configuration
+  // Create API client instance with session-aware configuration
   const createApiClient = () => {
-    // Support both Vite (import.meta.env) and Node (process.env) for baseURL
-    let baseURL: string
-    if (
-      typeof import.meta !== 'undefined' &&
-      import.meta.env &&
-      import.meta.env.VITE_API_BASE_URL
-    ) {
-      baseURL = import.meta.env.VITE_API_BASE_URL
-    } else if (typeof process !== 'undefined' && process.env && process.env.VITE_API_BASE_URL) {
-      baseURL = process.env.VITE_API_BASE_URL
-    } else {
-      baseURL = 'http://127.0.0.1:8000/api'
-    }
-
-    const configParams: { basePath: string; accessToken?: string } = {
-      basePath: baseURL,
-    }
-
-    if (token.value) {
-      configParams.accessToken = token.value
-    }
-
-    // Create configuration for the API client
-    const configuration = new Configuration(configParams)
-
-    return new MobileAppAuthenticationApi(configuration)
+    return useApiClient().createMobileAppAuthenticationApi()
   }
 
   const login = async (email: string, password: string) => {

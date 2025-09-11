@@ -3,7 +3,7 @@ import { computed, type ComputedRef } from 'vue'
 // Entity color configuration
 export const ENTITY_COLORS = {
   contexts: 'green',
-  projects: 'orange', 
+  projects: 'orange',
   partners: 'yellow',
   languages: 'purple',
   items: 'teal',
@@ -12,28 +12,28 @@ export const ENTITY_COLORS = {
 } as const
 
 export type EntityType = keyof typeof ENTITY_COLORS
-export type ColorName = typeof ENTITY_COLORS[EntityType] | 'red' | 'pink' | 'gray'
+export type ColorName = (typeof ENTITY_COLORS)[EntityType] | 'red' | 'pink' | 'gray'
 
 // Semantic UI colors for consistent theming
 export const UI_COLORS = {
   // Primary actions (edit, save, primary buttons)
   primary: 'blue',
-  
+
   // Secondary actions (view, info, neutral buttons)
   secondary: 'gray',
-  
+
   // Success states and positive actions
   success: 'green',
-  
+
   // Warning states
   warning: 'yellow',
-  
+
   // Error/danger states and destructive actions
   danger: 'red',
-  
+
   // Info states and informational content
   info: 'blue',
-  
+
   // Filter buttons and active states
   filter: 'purple',
 } as const
@@ -44,27 +44,27 @@ export type UIColorType = keyof typeof UI_COLORS
 export interface ColorClasses {
   // Icon colors
   icon: string
-  
+
   // Button and interactive states
   button: string
   buttonHover: string
   focus: string
   ring: string
-  
+
   // Badge colors
-  badge: string          // -600 variant for filter buttons and icons
-  badgeText: string      // -800 variant for badge text
+  badge: string // -600 variant for filter buttons and icons
+  badgeText: string // -800 variant for badge text
   badgeBackground: string // -100 variant for badge backgrounds
-  
+
   // Background colors for active/inactive states
   activeBackground: string
   activeBadge: string
   inactiveBackground: string
   inactiveIcon: string
-  
+
   // Hover effects
   hover: string
-  
+
   // Border colors
   border: string
   borderHover: string

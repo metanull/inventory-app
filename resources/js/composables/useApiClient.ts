@@ -1,0 +1,225 @@
+import { computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { Configuration } from '@metanull/inventory-app-api-client'
+import { getSessionAwareAxios } from '@/utils/sessionAwareAxios'
+
+// Import all API classes from the generated client
+import {
+  AddressApi,
+  AddressTranslationApi,
+  AvailableImageApi,
+  CollectionApi,
+  ContactApi,
+  ContactTranslationApi,
+  ContextApi,
+  CountryApi,
+  DetailApi,
+  DetailTranslationApi,
+  ExhibitionApi,
+  ExhibitionTranslationApi,
+  GalleryApi,
+  ImageUploadApi,
+  InfoApi,
+  ItemApi,
+  ItemTranslationApi,
+  LanguageApi,
+  LocationApi,
+  LocationTranslationApi,
+  MarkdownApi,
+  MobileAppAuthenticationApi,
+  PartnerApi,
+  PictureApi,
+  PictureTranslationApi,
+  ProjectApi,
+  ProvinceApi,
+  ProvinceTranslationApi,
+  TagApi,
+  ThemeApi,
+  ThemeTranslationApi,
+} from '@metanull/inventory-app-api-client'
+
+/**
+ * Composable for creating session-aware API clients
+ *
+ * Features:
+ * - Centralized API client creation with consistent configuration
+ * - Automatic session-aware axios injection for all API clients
+ * - Dynamic token management from auth store
+ * - Full TypeScript support for all generated API classes
+ * - Zero maintenance overhead for future client regeneration
+ */
+export const useApiClient = () => {
+  const authStore = useAuthStore()
+
+  // Get the session-aware axios instance
+  const sessionAxios = getSessionAwareAxios()
+
+  // Reactive configuration that updates when auth state changes
+  const configuration = computed(() => {
+    // Support both Vite (import.meta.env) and Node (process.env) for baseURL
+    let baseURL: string
+    if (
+      typeof import.meta !== 'undefined' &&
+      import.meta.env &&
+      import.meta.env.VITE_API_BASE_URL
+    ) {
+      baseURL = import.meta.env.VITE_API_BASE_URL
+    } else if (typeof process !== 'undefined' && process.env && process.env.VITE_API_BASE_URL) {
+      baseURL = process.env.VITE_API_BASE_URL
+    } else {
+      baseURL = 'http://127.0.0.1:8000/api'
+    }
+
+    const configParams: { basePath: string; accessToken?: string } = {
+      basePath: baseURL,
+    }
+
+    // Include token if available (though axios interceptor will handle this too)
+    if (authStore.token) {
+      configParams.accessToken = authStore.token
+    }
+
+    return new Configuration(configParams)
+  })
+
+  // Factory methods for all API clients
+  // Each method creates a new instance with session-aware axios injected
+
+  const createAddressApi = () =>
+    new AddressApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createAddressTranslationApi = () =>
+    new AddressTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createAvailableImageApi = () =>
+    new AvailableImageApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createCollectionApi = () =>
+    new CollectionApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createContactApi = () =>
+    new ContactApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createContactTranslationApi = () =>
+    new ContactTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createContextApi = () =>
+    new ContextApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createCountryApi = () =>
+    new CountryApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createDetailApi = () =>
+    new DetailApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createDetailTranslationApi = () =>
+    new DetailTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createExhibitionApi = () =>
+    new ExhibitionApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createExhibitionTranslationApi = () =>
+    new ExhibitionTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createGalleryApi = () =>
+    new GalleryApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createImageUploadApi = () =>
+    new ImageUploadApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createInfoApi = () =>
+    new InfoApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createItemApi = () =>
+    new ItemApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createItemTranslationApi = () =>
+    new ItemTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createLanguageApi = () =>
+    new LanguageApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createLocationApi = () =>
+    new LocationApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createLocationTranslationApi = () =>
+    new LocationTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createMarkdownApi = () =>
+    new MarkdownApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createMobileAppAuthenticationApi = () =>
+    new MobileAppAuthenticationApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createPartnerApi = () =>
+    new PartnerApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createPictureApi = () =>
+    new PictureApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createPictureTranslationApi = () =>
+    new PictureTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createProjectApi = () =>
+    new ProjectApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createProvinceApi = () =>
+    new ProvinceApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createProvinceTranslationApi = () =>
+    new ProvinceTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createTagApi = () =>
+    new TagApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createThemeApi = () =>
+    new ThemeApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createThemeTranslationApi = () =>
+    new ThemeTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  // Return all factory methods
+  return {
+    // Core configuration (for advanced use cases)
+    configuration: configuration.value,
+    sessionAxios,
+
+    // API factory methods
+    createAddressApi,
+    createAddressTranslationApi,
+    createAvailableImageApi,
+    createCollectionApi,
+    createContactApi,
+    createContactTranslationApi,
+    createContextApi,
+    createCountryApi,
+    createDetailApi,
+    createDetailTranslationApi,
+    createExhibitionApi,
+    createExhibitionTranslationApi,
+    createGalleryApi,
+    createImageUploadApi,
+    createInfoApi,
+    createItemApi,
+    createItemTranslationApi,
+    createLanguageApi,
+    createLocationApi,
+    createLocationTranslationApi,
+    createMarkdownApi,
+    createMobileAppAuthenticationApi,
+    createPartnerApi,
+    createPictureApi,
+    createPictureTranslationApi,
+    createProjectApi,
+    createProvinceApi,
+    createProvinceTranslationApi,
+    createTagApi,
+    createThemeApi,
+    createThemeTranslationApi,
+  }
+}
+
+// Declare process for Node.js environments
+declare const process: {
+  env: Record<string, string | undefined>
+}
