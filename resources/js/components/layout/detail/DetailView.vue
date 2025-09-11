@@ -149,7 +149,7 @@
   interface StatusCardConfig {
     title: string
     description: string
-    mainColor: string
+    mainColor: ColorName
     statusText: string
     toggleTitle: string
     isActive: boolean
