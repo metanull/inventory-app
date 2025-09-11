@@ -10,13 +10,13 @@
       <span v-if="sortable" class="ml-2">
         <ChevronUpIcon
           v-if="sortDirection && sortDirection === 'asc'"
-          class="h-4 w-4 text-blue-500"
+          :class="['h-4 w-4', colorClasses.badge]"
         />
         <ChevronDownIcon
           v-else-if="sortDirection && sortDirection === 'desc'"
-          class="h-4 w-4 text-blue-500"
+          :class="['h-4 w-4', colorClasses.badge]"
         />
-        <ChevronUpDownIcon v-else class="h-4 w-4 text-blue-500" />
+        <ChevronUpDownIcon v-else :class="['h-4 w-4', colorClasses.badge]" />
       </span>
     </div>
   </th>
@@ -25,6 +25,7 @@
 <script setup lang="ts">
   import { computed } from 'vue'
   import { ChevronUpIcon, ChevronDownIcon, ChevronUpDownIcon } from '@heroicons/vue/24/outline'
+  import { useUIColors } from '@/composables/useColors'
 
   defineEmits(['sort'])
 
@@ -41,6 +42,8 @@
     sortable: false,
     sortDirection: null,
   })
+
+  const colorClasses = useUIColors('primary')
 
   const computedClasses = computed(() => {
     const baseClasses = 'px-6 py-3'

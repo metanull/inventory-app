@@ -223,7 +223,7 @@
       {
         title: 'Default Status',
         description: 'Language default status',
-        mainColor: 'green',
+        mainColor: 'green' as ColorName,
         statusText: language.value.is_default ? 'Default' : 'Not Default',
         toggleTitle: 'Default Status',
         isActive: language.value.is_default,

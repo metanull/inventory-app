@@ -4,6 +4,7 @@ import { nextTick } from 'vue'
 import { createTestingPinia } from '@pinia/testing'
 import DetailView from '../../../layout/detail/DetailView.vue'
 import type { Component } from 'vue'
+import type { ColorName } from '../../../../composables/useColors'
 
 // Mock router functionality
 const mockRouter = {
@@ -118,7 +119,7 @@ interface MockResource {
 interface MockStatusCard {
   title: string
   description: string
-  mainColor: string
+  mainColor: ColorName
   statusText: string
   toggleTitle: string
   isActive: boolean
@@ -149,7 +150,7 @@ describe('DetailView', () => {
   const mockStatusCard: MockStatusCard = {
     title: 'Status Card',
     description: 'Test status card',
-    mainColor: 'green',
+    mainColor: 'green' as ColorName,
     statusText: 'Active',
     toggleTitle: 'Toggle Status',
     isActive: true,
