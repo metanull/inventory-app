@@ -1,6 +1,6 @@
 {
     "name": "inventory-app",
-    "version": "4.1.1",
+    "version": "4.1.2",
     "private": true,
     "type": "module",
     "scripts": {
@@ -24,7 +24,8 @@
         "quality-check": "npm run type-check && npm run lint:check && npm run format:check && npm run test",
         "quality-check:fix": "npm run lint && npm run format",
         "quality-check:report": "powershell -ExecutionPolicy Bypass -File ./scripts/Check-Issues.ps1",
-        "scan:tailwind-colors": "node ./scripts/scan-tailwind-colors.js"
+        "scan:tailwind-colors": "node ./scripts/scan-tailwind-colors.js",
+        "test:yml": "node ./scripts/validate-workflows.cjs"
     },
     "dependencies": {
         "@headlessui/vue": "^1.7.23",

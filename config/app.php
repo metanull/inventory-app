@@ -164,4 +164,17 @@ return [
     */
 
     'api_docs_enabled' => env('API_DOCS_ENABLED', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | This value may be set by the deployment pipeline (APP_VERSION) or
+    | derived from a VERSION file included in the build artifacts. It is
+    | optionally displayed in the web UI and returned by the /api/version
+    | endpoint.
+    |
+    */
+    'version' => env('APP_VERSION', null),
 ];
