@@ -48,6 +48,7 @@ docs/ContactTranslationUpdateRequest.md
 docs/ContactUpdateRequest.md
 docs/ContactUpdateRequestTranslationsInner.md
 docs/ContextApi.md
+docs/ContextClearDefault200Response.md
 docs/ContextGetDefault404Response.md
 docs/ContextIndex200Response.md
 docs/ContextResource.md
@@ -120,6 +121,7 @@ docs/ItemTranslationsApi.md
 docs/ItemUpdateTagsRequest.md
 docs/ItemWithAllTagsRequest.md
 docs/LanguageApi.md
+docs/LanguageClearDefault200Response.md
 docs/LanguageGetDefault404Response.md
 docs/LanguageGetEnglish404Response.md
 docs/LanguageIndex200Response.md

@@ -17,10 +17,7 @@ class User extends Model implements AuthenticatableContract
 {
     use Authenticatable;
     use HasApiTokens;
-
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
-
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;

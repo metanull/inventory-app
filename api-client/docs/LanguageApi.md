@@ -1,17 +1,62 @@
 # LanguageApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**languageClearDefault**](#languagecleardefault) | **DELETE** /language/default | Clear the default flag from any language|
 |[**languageDestroy**](#languagedestroy) | **DELETE** /language/{language} | Remove the specified resource from storage|
 |[**languageGetDefault**](#languagegetdefault) | **GET** /language/default | Get the default Language|
 |[**languageGetEnglish**](#languagegetenglish) | **GET** /language/english | Get the english Language|
 |[**languageIndex**](#languageindex) | **GET** /language | Display a listing of the resource|
-|[**languageSetDefault**](#languagesetdefault) | **PATCH** /language/{language}/default | Set a Language as the default one|
+|[**languageSetDefault**](#languagesetdefault) | **PATCH** /language/{language}/default | Set or unset a Language as the default one|
 |[**languageShow**](#languageshow) | **GET** /language/{language} | Display the specified resource|
 |[**languageStore**](#languagestore) | **POST** /language | Store a newly created resource in storage|
 |[**languageUpdate**](#languageupdate) | **PUT** /language/{language} | Update the specified resource in storage|
+
+# **languageClearDefault**
+> LanguageClearDefault200Response languageClearDefault()
+
+
+### Example
+
+```typescript
+import {
+    LanguageApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new LanguageApi(configuration);
+
+const { status, data } = await apiInstance.languageClearDefault();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**LanguageClearDefault200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+|**401** | Unauthenticated |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **languageDestroy**
 > languageDestroy()

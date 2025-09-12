@@ -1,6 +1,6 @@
 # PictureApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -394,7 +394,7 @@ const { status, data } = await apiInstance.pictureDetachFromPartner(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **pictureDownload**
-> string pictureDownload()
+> File pictureDownload()
 
 
 ### Example
@@ -424,7 +424,7 @@ const { status, data } = await apiInstance.pictureDownload(
 
 ### Return type
 
-**string**
+**File**
 
 ### Authorization
 
@@ -433,13 +433,13 @@ const { status, data } = await apiInstance.pictureDownload(
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
+ - **Accept**: application/octet-stream, application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**200** |  |  * Content-Disposition -  <br>  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
 

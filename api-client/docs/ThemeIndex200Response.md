@@ -6,8 +6,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **data** | [**Array&lt;ThemeResource&gt;**](ThemeResource.md) |  | [default to undefined]
-**meta** | [**ExhibitionIndex200ResponseMeta**](ExhibitionIndex200ResponseMeta.md) |  | [default to undefined]
 **links** | [**ExhibitionIndex200ResponseLinks**](ExhibitionIndex200ResponseLinks.md) |  | [default to undefined]
+**meta** | [**ExhibitionIndex200ResponseMeta**](ExhibitionIndex200ResponseMeta.md) |  | [default to undefined]
 
 ## Example
 
@@ -16,8 +16,8 @@ import { ThemeIndex200Response } from './api';
 
 const instance: ThemeIndex200Response = {
     data,
-    meta,
     links,
+    meta,
 };
 ```
 

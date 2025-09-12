@@ -8,9 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ImageUpload extends Model
 {
-    /** @use HasFactory<\Database\Factories\ImageUploadFactory> */
     use HasFactory;
-
     use HasUuids;
 
     protected $fillable = [

@@ -8,9 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AvailableImage extends Model
 {
-    /** @use HasFactory<\Database\Factories\AvailableImageFactory> */
     use HasFactory;
-
     use HasUuids;
 
     protected $fillable = [

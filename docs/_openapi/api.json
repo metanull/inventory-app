@@ -6,7 +6,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost/api"
+            "url": "http://127.0.0.1:8000/api"
         }
     ],
     "security": [
@@ -610,10 +610,20 @@
                     "200": {
                         "description": "",
                         "content": {
-                            "application/json": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Content-Disposition": {
+                                "required": true,
                                 "schema": {
                                     "type": "string"
-                                }
+                                },
+                                "example": "attachment; filename=localstorage.available.images.disk"
                             }
                         }
                     },
@@ -649,9 +659,10 @@
                     "200": {
                         "description": "",
                         "content": {
-                            "application/json": {
+                            "application/octet-stream": {
                                 "schema": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "format": "binary"
                                 }
                             }
                         }
@@ -1679,7 +1690,7 @@
         "/context/{context}/default": {
             "patch": {
                 "operationId": "context.setDefault",
-                "summary": "Set a context as the default one",
+                "summary": "Set or unset a context as the default one",
                 "tags": [
                     "Context"
                 ],
@@ -1745,6 +1756,39 @@
             }
         },
         "/context/default": {
+            "delete": {
+                "operationId": "context.clearDefault",
+                "summary": "Clear the default flag from any context",
+                "tags": [
+                    "Context"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Default context cleared"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
             "get": {
                 "operationId": "context.getDefault",
                 "summary": "Get the default context",
@@ -2925,6 +2969,41 @@
                                                 "$ref": "#/components/schemas/ExhibitionResource"
                                             }
                                         },
+                                        "links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "first": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "last": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "prev": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "next": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "first",
+                                                "last",
+                                                "prev",
+                                                "next"
+                                            ]
+                                        },
                                         "meta": {
                                             "type": "object",
                                             "properties": {
@@ -2999,47 +3078,12 @@
                                                 "to",
                                                 "total"
                                             ]
-                                        },
-                                        "links": {
-                                            "type": "object",
-                                            "properties": {
-                                                "first": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "last": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "prev": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "next": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                }
-                                            },
-                                            "required": [
-                                                "first",
-                                                "last",
-                                                "prev",
-                                                "next"
-                                            ]
                                         }
                                     },
                                     "required": [
                                         "data",
-                                        "links",
-                                        "meta"
+                                        "meta",
+                                        "links"
                                     ]
                                 }
                             }
@@ -5215,7 +5259,7 @@
         "/language/{language}/default": {
             "patch": {
                 "operationId": "language.setDefault",
-                "summary": "Set a Language as the default one",
+                "summary": "Set or unset a Language as the default one",
                 "tags": [
                     "Language"
                 ],
@@ -5280,6 +5324,39 @@
             }
         },
         "/language/default": {
+            "delete": {
+                "operationId": "language.clearDefault",
+                "summary": "Clear the default flag from any language",
+                "tags": [
+                    "Language"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Default language cleared"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
             "get": {
                 "operationId": "language.getDefault",
                 "summary": "Get the default Language",
@@ -7204,10 +7281,20 @@
                     "200": {
                         "description": "",
                         "content": {
-                            "application/json": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Content-Disposition": {
+                                "required": true,
                                 "schema": {
                                     "type": "string"
-                                }
+                                },
+                                "example": "attachment; filename=localstorage.pictures.disk"
                             }
                         }
                     },
@@ -7481,6 +7568,41 @@
                                                 "$ref": "#/components/schemas/PictureTranslationResource"
                                             }
                                         },
+                                        "links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "first": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "last": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "prev": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "next": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "first",
+                                                "last",
+                                                "prev",
+                                                "next"
+                                            ]
+                                        },
                                         "meta": {
                                             "type": "object",
                                             "properties": {
@@ -7555,47 +7677,12 @@
                                                 "to",
                                                 "total"
                                             ]
-                                        },
-                                        "links": {
-                                            "type": "object",
-                                            "properties": {
-                                                "first": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "last": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "prev": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "next": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                }
-                                            },
-                                            "required": [
-                                                "first",
-                                                "last",
-                                                "prev",
-                                                "next"
-                                            ]
                                         }
                                     },
                                     "required": [
                                         "data",
-                                        "links",
-                                        "meta"
+                                        "meta",
+                                        "links"
                                     ]
                                 }
                             }
@@ -9256,6 +9343,41 @@
                                                 "$ref": "#/components/schemas/ThemeResource"
                                             }
                                         },
+                                        "links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "first": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "last": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "prev": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "next": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "first",
+                                                "last",
+                                                "prev",
+                                                "next"
+                                            ]
+                                        },
                                         "meta": {
                                             "type": "object",
                                             "properties": {
@@ -9330,47 +9452,12 @@
                                                 "to",
                                                 "total"
                                             ]
-                                        },
-                                        "links": {
-                                            "type": "object",
-                                            "properties": {
-                                                "first": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "last": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "prev": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "next": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                }
-                                            },
-                                            "required": [
-                                                "first",
-                                                "last",
-                                                "prev",
-                                                "next"
-                                            ]
                                         }
                                     },
                                     "required": [
                                         "data",
-                                        "links",
-                                        "meta"
+                                        "meta",
+                                        "links"
                                     ]
                                 }
                             }
