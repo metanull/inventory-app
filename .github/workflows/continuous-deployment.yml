@@ -126,9 +126,13 @@ jobs:
         shell: powershell
 
       - name: Prepare deployment package
+        env:
+          BUILD_OUTPUT_DIR: ${{ runner.temp }}/deployment-package
+          DEFAULT_VERSION: '1.0.0'
         run: |
           # Create deployment directory
-          $deployDir = "deployment-package"
+          $deployDir = $env:BUILD_OUTPUT_DIR
+
           if (Test-Path $deployDir) { Remove-Item $deployDir -Recurse -Force }
           New-Item -ItemType Directory -Path $deployDir
 
@@ -151,13 +155,37 @@ jobs:
           @('storage/logs', 'storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views', 'bootstrap/cache') | ForEach-Object {
             New-Item -ItemType Directory -Path "$deployDir/$_" -Force
           }
+
+          # Create a VERSION file in the deployment package
+          # Attempt to read versions from package.json files, fallback to DEFAULT_VERSION
+          try{ 
+            $AppVersion = Get-Content 'package.json' -ErrorAction stop | ConvertFrom-Json -ErrorAction stop | Select-Object -ExpandProperty Version -ErrorAction Stop
+          } catch {
+            $AppVersion = $env:DEFAULT_VERSION
+          }
+          try{ 
+            $ApiClientPackage = Get-Content 'api-client/package.json' -ErrorAction stop | ConvertFrom-Json -ErrorAction stop | Select-Object -ExpandProperty Version -ErrorAction Stop
+          } catch {
+            $ApiClientPackage = $env:DEFAULT_VERSION
+          }
+          $VersionObject = @{
+            "app_version" = $AppVersion
+            "api_client_version" = $ApiClientVersion
+            "commit_sha" = "${{ github.sha }}"
+            "build_timestamp" = (Get-Date)
+            "repository" = "${{ github.repository }}"
+            "repository_url" = "${{ github.server_url }}/${{ github.repository }}"
+          }
+          Set-Content -Path "$deployDir/VERSION" -Value ($VersionObject | ConvertTo-Json -Depth 1 -Compress) -Encoding UTF8 -NoNewline
         shell: powershell
 
       - name: Create deployment artifact
+        env:
+          BUILD_OUTPUT_DIR: ${{ runner.temp }}/deployment-package
         uses: actions/upload-artifact@v4
         with:
           name: laravel-app-${{ github.sha }}
-          path: deployment-package/
+          path: ${{ env.BUILD_OUTPUT_DIR }}
           retention-days: 7
           compression-level: 9
 

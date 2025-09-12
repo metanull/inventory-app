@@ -198,6 +198,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Image Upload Status Polling**: Real-time status polling for image processing workflow
     - **Status Endpoint**: `GET /api/image-upload/{id}/status` to check processing progress
     - **Processing States**: Returns `processing`, `processed`, or `not_found` status
+
+### Added
+
+- **CI / Dev tooling**: Add YAML workflow validation script and expose deployment VERSION
+    - Added `scripts/validate-workflows.cjs` and npm script `npm run test:yml` which validates all `.github/workflows/*.yml` files using `action-validator`.
+    - CI can now write a `VERSION` JSON file into the build artifact (pipeline-side). The backend will return that JSON via `GET /api/version` when present and the web UI footer shows app version, api client version and build timestamp.
+    - Config key `app.version` (env: `APP_VERSION`) is introduced and the main Blade layout displays the version information in a small footer.
     - **AvailableImage Integration**: Returns AvailableImage details when processing complete
     - **Automatic Cleanup**: ImageUpload records deleted after successful processing
     - **Comprehensive Testing**: Integration and feature tests for status polling workflow

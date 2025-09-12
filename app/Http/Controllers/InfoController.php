@@ -80,6 +80,21 @@ class InfoController extends Controller
      */
     public function version(): JsonResponse
     {
+        // If a deployment has produced a VERSION file at repo root, return its content as-is.
+        $versionPath = base_path('VERSION');
+        if (file_exists($versionPath)) {
+            try {
+                $raw = @file_get_contents($versionPath);
+                $decoded = @json_decode($raw, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    return response()->json($decoded);
+                }
+            } catch (\Exception $e) {
+                // fallthrough to default behaviour below
+            }
+        }
+
+        // Fallback to existing lightweight version response
         return response()->json([
             'version' => $this->getApplicationVersion(),
             'name' => config('app.name'),
