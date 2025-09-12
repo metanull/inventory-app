@@ -12,9 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Detail extends Model
 {
-    /** @use HasFactory<\Database\Factories\DetailFactory> */
     use HasFactory;
-
     use HasUuids;
 
     protected $with = [

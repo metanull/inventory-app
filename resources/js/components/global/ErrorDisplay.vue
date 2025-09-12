@@ -8,32 +8,34 @@
       <div
         v-for="message in errorStore.messages"
         :key="message.id"
+        data-testid="error-message"
+        :data-theme-classes="
+          message.type === 'error'
+            ? getThemeClass('messageError')
+            : message.type === 'warning'
+              ? getThemeClass('messageWarning')
+              : getThemeClass('messageInfo')
+        "
         :class="[
           'flex items-center justify-between rounded-lg border px-4 py-3 shadow-lg',
-          {
-            [getMessageClasses('error').background]: message.type === 'error',
-            [getMessageClasses('warning').background]: message.type === 'warning',
-            [getMessageClasses('info').background]: message.type === 'info',
-          },
+          message.type === 'error' ? getThemeClass('messageError') : '',
+          message.type === 'warning' ? getThemeClass('messageWarning') : '',
+          message.type === 'info' ? getThemeClass('messageInfo') : '',
         ]"
       >
         <div class="flex items-center">
           <div class="flex-shrink-0">
             <ExclamationTriangleIcon
               v-if="message.type === 'error'"
-              :class="['h-5 w-5', getMessageClasses('error').icon]"
+              :class="['h-5 w-5', errorBadge]"
               aria-hidden="true"
             />
             <ExclamationTriangleIcon
               v-else-if="message.type === 'warning'"
-              :class="['h-5 w-5', getMessageClasses('warning').icon]"
+              :class="['h-5 w-5', warningBadge]"
               aria-hidden="true"
             />
-            <InformationCircleIcon
-              v-else
-              :class="['h-5 w-5', getMessageClasses('info').icon]"
-              aria-hidden="true"
-            />
+            <InformationCircleIcon v-else :class="['h-5 w-5', infoBadge]" aria-hidden="true" />
           </div>
           <div class="ml-3">
             <p class="text-sm font-medium">{{ message.text }}</p>
@@ -43,11 +45,11 @@
           type="button"
           :class="[
             'ml-4 inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2',
-            {
-              [getMessageClasses('error').button]: message.type === 'error',
-              [getMessageClasses('warning').button]: message.type === 'warning',
-              [getMessageClasses('info').button]: message.type === 'info',
-            },
+            message.type === 'error' ? `${errorBadge} ${errorButtonHover} ${errorRing}` : '',
+            message.type === 'warning'
+              ? `${warningBadge} ${warningButtonHover} ${warningRing}`
+              : '',
+            message.type === 'info' ? `${infoBadge} ${infoButtonHover} ${infoRing}` : '',
           ]"
           @click="errorStore.removeMessage(message.id)"
         >
@@ -66,7 +68,7 @@
     InformationCircleIcon,
     XMarkIcon,
   } from '@heroicons/vue/24/solid'
-  import { useUIColors } from '@/composables/useColors'
+  import { useUIColors, getThemeClass } from '@/composables/useColors'
 
   const errorStore = useErrorDisplayStore()
 
@@ -75,28 +77,18 @@
   const warningColors = useUIColors('warning')
   const infoColors = useUIColors('info')
 
-  function getMessageClasses(type: 'error' | 'warning' | 'info') {
-    switch (type) {
-      case 'error':
-        return {
-          background: `bg-red-50 border-red-200 ${errorColors.value.badgeText}`,
-          icon: errorColors.value.badge,
-          button: `${errorColors.value.badge} ${errorColors.value.buttonHover} ${errorColors.value.ring}`,
-        }
-      case 'warning':
-        return {
-          background: `bg-yellow-50 border-yellow-200 ${warningColors.value.badgeText}`,
-          icon: warningColors.value.badge,
-          button: `${warningColors.value.badge} ${warningColors.value.buttonHover} ${warningColors.value.ring}`,
-        }
-      case 'info':
-        return {
-          background: `bg-blue-50 border-blue-200 ${infoColors.value.badgeText}`,
-          icon: infoColors.value.badge,
-          button: `${infoColors.value.badge} ${infoColors.value.buttonHover} ${infoColors.value.ring}`,
-        }
-    }
-  }
+  // Aliases to color fragments (read once from computed refs; no test-only fallbacks)
+  const errorBadge = errorColors.value.badge
+  const errorButtonHover = errorColors.value.buttonHover
+  const errorRing = errorColors.value.ring
+
+  const warningBadge = warningColors.value.badge
+  const warningButtonHover = warningColors.value.buttonHover
+  const warningRing = warningColors.value.ring
+
+  const infoBadge = infoColors.value.badge
+  const infoButtonHover = infoColors.value.buttonHover
+  const infoRing = infoColors.value.ring
 </script>
 
 <style scoped>

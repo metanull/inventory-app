@@ -1,7 +1,9 @@
 <template>
   <button
     :class="[
-      'inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white disabled:opacity-50 disabled:cursor-not-allowed',
+      'inline-flex items-center px-4 py-2 border shadow-sm text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed',
+      getThemeClass('formBorder'),
+      getThemeClass('secondaryButton'),
       colorClasses.buttonHover,
       colorClasses.focus,
     ]"
@@ -15,7 +17,7 @@
 
 <script setup lang="ts">
   import { PencilIcon } from '@heroicons/vue/24/outline'
-  import { useUIColors } from '@/composables/useColors'
+  import { useUIColors, getThemeClass } from '@/composables/useColors'
 
   defineProps<{
     disabled?: boolean

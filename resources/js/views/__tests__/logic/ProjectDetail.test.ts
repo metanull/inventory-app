@@ -188,7 +188,7 @@ class ProjectDetailLogic {
     )
   }
 
-  get statusCardsConfig() {
+  get statusControlsConfig() {
     if (!this.project) return []
 
     return [
@@ -748,50 +748,50 @@ describe('ProjectDetail Component Business Logic', () => {
 
   describe('Status Cards Configuration (Project-specific)', () => {
     it('should configure status cards for enabled project', () => {
-      const statusCards = projectDetailLogic.statusCardsConfig
+      const statusControls = projectDetailLogic.statusControlsConfig
 
-      expect(statusCards).toHaveLength(2)
+      expect(statusControls).toHaveLength(2)
 
       // Enabled status card
-      expect(statusCards[0].title).toBe('Status')
-      expect(statusCards[0].statusText).toBe('Enabled')
-      expect(statusCards[0].isActive).toBe(true)
-      expect(statusCards[0].disabled).toBe(false)
+      expect(statusControls[0].title).toBe('Status')
+      expect(statusControls[0].statusText).toBe('Enabled')
+      expect(statusControls[0].isActive).toBe(true)
+      expect(statusControls[0].disabled).toBe(false)
 
       // Launch status card
-      expect(statusCards[1].title).toBe('Launch Status')
-      expect(statusCards[1].statusText).toBe('Not Launched')
-      expect(statusCards[1].isActive).toBe(false)
-      expect(statusCards[1].disabled).toBe(false) // Not disabled because project is enabled
+      expect(statusControls[1].title).toBe('Launch Status')
+      expect(statusControls[1].statusText).toBe('Not Launched')
+      expect(statusControls[1].isActive).toBe(false)
+      expect(statusControls[1].disabled).toBe(false) // Not disabled because project is enabled
     })
 
     it('should disable launch status when project is disabled', () => {
       const disabledProject = { ...mockProject, is_enabled: false }
       mockProjectStore.currentProject = disabledProject
 
-      const statusCards = projectDetailLogic.statusCardsConfig
+      const statusControls = projectDetailLogic.statusControlsConfig
 
-      expect(statusCards[0].statusText).toBe('Disabled')
-      expect(statusCards[0].isActive).toBe(false)
-      expect(statusCards[1].disabled).toBe(true) // Launch should be disabled
+      expect(statusControls[0].statusText).toBe('Disabled')
+      expect(statusControls[0].isActive).toBe(false)
+      expect(statusControls[1].disabled).toBe(true) // Launch should be disabled
     })
 
     it('should show correct status text for launched project', () => {
       const launchedProject = { ...mockProject, is_launched: true }
       mockProjectStore.currentProject = launchedProject
 
-      const statusCards = projectDetailLogic.statusCardsConfig
+      const statusControls = projectDetailLogic.statusControlsConfig
 
-      expect(statusCards[1].statusText).toBe('Launched')
-      expect(statusCards[1].isActive).toBe(true)
+      expect(statusControls[1].statusText).toBe('Launched')
+      expect(statusControls[1].isActive).toBe(true)
     })
 
     it('should return empty array when no project', () => {
       mockProjectStore.currentProject = null
 
-      const statusCards = projectDetailLogic.statusCardsConfig
+      const statusControls = projectDetailLogic.statusControlsConfig
 
-      expect(statusCards).toEqual([])
+      expect(statusControls).toEqual([])
     })
   })
 

@@ -12,7 +12,7 @@ import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
  * 2. Reloads default data for resource stores
  * 3. Reloads the current page
  */
-export const clearCacheAndReload = async (): Promise<void> => {
+export const clearCacheAndReload = async (reload = true): Promise<void> => {
   try {
     // Get store instances
     const contextStore = useContextStore()
@@ -61,16 +61,21 @@ export const clearCacheAndReload = async (): Promise<void> => {
     // Wait for all default data to load
     await Promise.all(reloadPromises)
 
-    // Hide loading overlay
-    loadingOverlayStore.hide()
+    // Show success message and handle overlay/reload behaviour
+    if (reload) {
+      // Keep the loading overlay visible so the user sees a continuous action
+      // until the page actually reloads. The reload will reset the UI.
+      errorDisplayStore.addMessage('info', 'Cache cleared successfully!')
 
-    // Show success message
-    errorDisplayStore.addMessage('info', 'Cache cleared successfully!')
-
-    // Reload the current page after a short delay
-    setTimeout(() => {
-      window.location.reload()
-    }, 500)
+      // Reload the current page after a short delay
+      setTimeout(() => {
+        window.location.reload()
+      }, 50)
+    } else {
+      // If no reload is requested, hide the overlay and show a success message
+      loadingOverlayStore.hide()
+      errorDisplayStore.addMessage('info', 'Cache cleared successfully!')
+    }
   } catch (error) {
     // Hide loading overlay on error
     const loadingOverlayStore = useLoadingOverlayStore()

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import CancelButton from '../../../layout/detail/CancelButton.vue'
+import { getThemeClass } from '../../../../composables/useColors'
 
 describe('CancelButton', () => {
   it('renders correctly with default props', () => {
@@ -29,23 +30,24 @@ describe('CancelButton', () => {
     expect(wrapper.classes()).toContain('px-4')
     expect(wrapper.classes()).toContain('py-2')
     expect(wrapper.classes()).toContain('border')
-    expect(wrapper.classes()).toContain('border-gray-300')
+    // formBorder token contains one or more classes; assert each token class is present
+    const formBorderClasses = getThemeClass('formBorder').split(' ')
+    formBorderClasses.forEach(cls => expect(wrapper.classes()).toContain(cls))
     expect(wrapper.classes()).toContain('shadow-sm')
     expect(wrapper.classes()).toContain('text-sm')
     expect(wrapper.classes()).toContain('font-medium')
     expect(wrapper.classes()).toContain('rounded-md')
-    expect(wrapper.classes()).toContain('text-gray-700')
-    expect(wrapper.classes()).toContain('bg-white')
+    // secondaryButton token provides background/text semantics; assert all fragment classes are present
+    const secondaryClasses = getThemeClass('secondaryButton').split(' ')
+    secondaryClasses.forEach(cls => expect(wrapper.classes()).toContain(cls))
   })
 
   it('applies hover and focus styles', () => {
     const wrapper = mount(CancelButton)
 
-    expect(wrapper.classes()).toContain('hover:bg-gray-50')
-    expect(wrapper.classes()).toContain('focus:outline-none')
-    expect(wrapper.classes()).toContain('focus:ring-2')
-    expect(wrapper.classes()).toContain('focus:ring-offset-2')
-    expect(wrapper.classes()).toContain('focus:ring-indigo-500')
+    // focus and input-focus token should be present; assert each fragment
+    const inputFocusClasses = getThemeClass('inputFocus').split(' ')
+    inputFocusClasses.forEach(cls => expect(wrapper.classes()).toContain(cls))
   })
 
   it('is disabled when disabled prop is true', () => {

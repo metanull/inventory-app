@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
 import CancelChangesConfirmation from '../../global/CancelChangesConfirmation.vue'
+import '../test-utils/useColorsMock'
 import { useCancelChangesConfirmationStore } from '../../../stores/cancelChangesConfirmation'
 
 // Mock the HeroIcons to avoid import issues

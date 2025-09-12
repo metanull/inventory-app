@@ -6,7 +6,7 @@
     :save-disabled="!hasUnsavedChanges"
     :has-unsaved-changes="hasUnsavedChanges"
     :back-link="backLink"
-    :status-cards="statusCardsConfig"
+    :status-controls="statusControlsConfig"
     :create-title="'New Context'"
     :create-subtitle="'(Creating)'"
     information-title="Context Information"
@@ -177,8 +177,8 @@
     )
   })
 
-  // Status cards configuration
-  const statusCardsConfig = computed(() => {
+  // Status controls configuration
+  const statusControlsConfig = computed(() => {
     if (!context.value) return []
 
     return [

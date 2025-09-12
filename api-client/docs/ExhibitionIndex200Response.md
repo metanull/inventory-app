@@ -6,8 +6,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **data** | [**Array&lt;ExhibitionResource&gt;**](ExhibitionResource.md) |  | [default to undefined]
-**meta** | [**ExhibitionIndex200ResponseMeta**](ExhibitionIndex200ResponseMeta.md) |  | [default to undefined]
 **links** | [**ExhibitionIndex200ResponseLinks**](ExhibitionIndex200ResponseLinks.md) |  | [default to undefined]
+**meta** | [**ExhibitionIndex200ResponseMeta**](ExhibitionIndex200ResponseMeta.md) |  | [default to undefined]
 
 ## Example
 
@@ -16,8 +16,8 @@ import { ExhibitionIndex200Response } from './api';
 
 const instance: ExhibitionIndex200Response = {
     data,
-    meta,
     links,
+    meta,
 };
 ```
 

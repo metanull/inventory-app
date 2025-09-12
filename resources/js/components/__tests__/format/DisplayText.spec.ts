@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import DisplayText from '../../format/DisplayText.vue'
+import '../test-utils/useColorsMock'
 
 describe('DisplayText', () => {
   it('renders correctly', () => {

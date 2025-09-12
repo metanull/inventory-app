@@ -5,7 +5,7 @@
         System Properties
       </Title>
     </div>
-    <div class="border-t border-gray-200">
+    <div :class="['border-t', getThemeClass('dropdownBorder')]">
       <DescriptionList>
         <DescriptionRow variant="gray" size="small">
           <DescriptionTerm variant="small-gray">ID</DescriptionTerm>
@@ -38,6 +38,7 @@
   import DescriptionTerm from '@/components/format/description/DescriptionTerm.vue'
   import DescriptionDetail from '@/components/format/description/DescriptionDetail.vue'
   import Title from '@/components/format/title/Title.vue'
+  import { getThemeClass } from '@/composables/useColors'
 
   defineProps<{
     id: string

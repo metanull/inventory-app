@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
   import { computed } from 'vue'
+  import { getThemeClass } from '@/composables/useColors'
 
   const props = defineProps<{
     variant?: 'gray' | 'white'
@@ -17,7 +18,7 @@
       props.size === 'small'
         ? 'px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'
         : 'px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'
-    const variantClass = props.variant === 'gray' ? 'bg-gray-50' : 'bg-white'
+    const variantClass = props.variant === 'gray' ? getThemeClass('modalActionsBg') : ''
     return `${baseClasses} ${variantClass}`
   })
 </script>

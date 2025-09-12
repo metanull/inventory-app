@@ -8,7 +8,13 @@
 
     <!-- Inventory Section -->
     <div class="mb-8">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
+      <h2
+        :class="[
+          'text-xl font-semibold mb-4 pb-2 border-b',
+          getThemeClass('modalTitle'),
+          getThemeClass('dropdownBorder'),
+        ]"
+      >
         Inventory
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -42,7 +48,13 @@
 
     <!-- Collections Section -->
     <div class="mb-8">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
+      <h2
+        :class="[
+          'text-xl font-semibold mb-4 pb-2 border-b',
+          getThemeClass('modalTitle'),
+          getThemeClass('dropdownBorder'),
+        ]"
+      >
         Collections
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -87,7 +99,13 @@
 
     <!-- Reference Data Section -->
     <div class="mb-8">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
+      <h2
+        :class="[
+          'text-xl font-semibold mb-4 pb-2 border-b',
+          getThemeClass('modalTitle'),
+          getThemeClass('dropdownBorder'),
+        ]"
+      >
         Reference Data
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -147,7 +165,15 @@
 
     <!-- Tools Section -->
     <div class="mb-8">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">Tools</h2>
+      <h2
+        :class="[
+          'text-xl font-semibold mb-4 pb-2 border-b',
+          getThemeClass('modalTitle'),
+          getThemeClass('dropdownBorder'),
+        ]"
+      >
+        Tools
+      </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <!-- System Status Card -->
         <StatusCard
@@ -159,10 +185,10 @@
           :is-active="isApiUp"
           :loading="apiLoading"
           :disabled="true"
-          active-icon-background-class="bg-green-100"
-          inactive-icon-background-class="bg-red-100"
-          active-icon-class="text-green-600"
-          inactive-icon-class="text-red-600"
+          :active-icon-background-class="statusColors.badgeBackground"
+          :inactive-icon-background-class="statusColors.inactiveBackground"
+          :active-icon-class="statusColors.icon"
+          :inactive-icon-class="statusColors.inactiveIcon"
           :active-icon-component="CheckCircleIcon"
           :inactive-icon-component="XCircleIcon"
           @toggle="checkApiStatus"
@@ -172,17 +198,21 @@
           </template>
         </StatusCard>
 
-        <!-- More Features Coming Soon Card -->
-        <InformationCard
-          title="Additional Features"
-          description="More inventory management features like items, addresses, and details will be implemented in future iterations."
+        <!-- Clear Cache debug card (reuses the AppHeader clear cache action) -->
+        <NavigationCard
+          title="Clear Cache"
+          description="Wipe local application data (stores) and reload. Debug-only action."
           main-color="gray"
-          pill-text="Coming Soon"
+          button-text="Clear Cache"
+          :button-action="handleClearCache"
         >
           <template #icon>
             <FeaturesIcon />
           </template>
-        </InformationCard>
+          <template #button-icon>
+            <WrenchScrewdriverIcon class="h-4 w-4 mr-2 text-current" />
+          </template>
+        </NavigationCard>
       </div>
     </div>
   </div>
@@ -190,6 +220,7 @@
 
 <script setup lang="ts">
   import { computed } from 'vue'
+  import { useColors, getThemeClass } from '@/composables/useColors'
   import NavigationCard from '@/components/format/card/NavigationCard.vue'
   import StatusCard from '@/components/format/card/StatusCard.vue'
   import InformationCard from '@/components/format/card/InformationCard.vue'
@@ -209,7 +240,9 @@
     PhotoIcon as GalleryIcon,
     PresentationChartLineIcon as ExhibitionIcon,
   } from '@heroicons/vue/24/solid'
+  import { WrenchScrewdriverIcon } from '@heroicons/vue/24/solid'
   import { useApiStatus } from '@/composables/useApiStatus'
+  import { clearCacheAndReload } from '@/utils/storeUtils'
 
   const { isApiUp, loading: apiLoading, checkApiStatus } = useApiStatus()
 
@@ -231,4 +264,12 @@
   const apiStatusColor = computed(() => {
     return isApiUp.value ? 'green' : 'red'
   })
+
+  // Color classes for status card icons (derived from apiStatusColor)
+  const statusColors = useColors(apiStatusColor)
+
+  // Clear cache handler (reuses helper)
+  const handleClearCache = async () => {
+    await clearCacheAndReload()
+  }
 </script>

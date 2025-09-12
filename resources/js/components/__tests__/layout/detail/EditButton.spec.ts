@@ -1,6 +1,15 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import EditButton from '../../../layout/detail/EditButton.vue'
+import '../../test-utils/useColorsMock'
+// Access mocked getThemeClass at runtime to avoid TypeScript module resolution issues in tests
+let getThemeClass: (name: string) => string = () => ''
+;(async () => {
+  // dynamic import keeps TypeScript happy and avoids top-level require
+
+  const mod = await import('@/composables/useColors')
+  getThemeClass = mod.getThemeClass
+})()
 
 describe('EditButton', () => {
   it('renders correctly with default props', () => {
@@ -29,13 +38,14 @@ describe('EditButton', () => {
     expect(wrapper.classes()).toContain('px-4')
     expect(wrapper.classes()).toContain('py-2')
     expect(wrapper.classes()).toContain('border')
-    expect(wrapper.classes()).toContain('border-gray-300')
+    const formBorderClasses = getThemeClass('formBorder').split(' ')
+    formBorderClasses.forEach((cls: string) => expect(wrapper.classes()).toContain(cls))
     expect(wrapper.classes()).toContain('shadow-sm')
     expect(wrapper.classes()).toContain('text-sm')
     expect(wrapper.classes()).toContain('font-medium')
     expect(wrapper.classes()).toContain('rounded-md')
-    expect(wrapper.classes()).toContain('text-gray-700')
-    expect(wrapper.classes()).toContain('bg-white')
+    const secondaryClasses = getThemeClass('secondaryButton').split(' ')
+    secondaryClasses.forEach((cls: string) => expect(wrapper.classes()).toContain(cls))
   })
 
   it('applies hover and focus styles', () => {

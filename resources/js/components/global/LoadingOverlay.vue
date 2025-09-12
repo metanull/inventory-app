@@ -2,7 +2,7 @@
   <ModalOverlay
     :visible="loadingStore.visible"
     variant="content"
-    overlay-class="bg-black bg-opacity-50"
+    :overlay-class="getThemeClass('loadingOverlay')"
     content-class="!bg-transparent !shadow-none !border-none !rounded-none !transform-none !overflow-visible"
   >
     <ArrowPathIcon class="h-12 w-12 text-white animate-spin" />
@@ -14,6 +14,7 @@
   import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
   import ModalOverlay from '@/components/global/ModalOverlay.vue'
   import { ArrowPathIcon } from '@heroicons/vue/24/outline'
+  import { getThemeClass } from '@/composables/useColors'
 
   const loadingStore = useLoadingOverlayStore()
 </script>

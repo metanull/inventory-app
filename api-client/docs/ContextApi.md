@@ -1,16 +1,61 @@
 # ContextApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**contextClearDefault**](#contextcleardefault) | **DELETE** /context/default | Clear the default flag from any context|
 |[**contextDestroy**](#contextdestroy) | **DELETE** /context/{context} | Remove the specified resource from storage|
 |[**contextGetDefault**](#contextgetdefault) | **GET** /context/default | Get the default context|
 |[**contextIndex**](#contextindex) | **GET** /context | Display a listing of the resource|
-|[**contextSetDefault**](#contextsetdefault) | **PATCH** /context/{context}/default | Set a context as the default one|
+|[**contextSetDefault**](#contextsetdefault) | **PATCH** /context/{context}/default | Set or unset a context as the default one|
 |[**contextShow**](#contextshow) | **GET** /context/{context} | Display the specified resource|
 |[**contextStore**](#contextstore) | **POST** /context | Store a newly created resource in storage|
 |[**contextUpdate**](#contextupdate) | **PUT** /context/{context} | Update the specified resource in storage|
+
+# **contextClearDefault**
+> ContextClearDefault200Response contextClearDefault()
+
+
+### Example
+
+```typescript
+import {
+    ContextApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ContextApi(configuration);
+
+const { status, data } = await apiInstance.contextClearDefault();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**ContextClearDefault200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+|**401** | Unauthenticated |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **contextDestroy**
 > contextDestroy()

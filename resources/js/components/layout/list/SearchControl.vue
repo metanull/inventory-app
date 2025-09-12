@@ -6,7 +6,10 @@
         type="text"
         :placeholder="placeholder"
         :class="[
-          'block w-full rounded-md border-gray-300 shadow-sm sm:text-sm pl-3 pr-10 py-2',
+          [
+            'block w-full rounded-md shadow-sm sm:text-sm pl-3 pr-10 py-2',
+            getThemeClass('formBorder'),
+          ].join(' '),
           colorClasses.focus,
         ]"
         @input="handleInput"
@@ -30,7 +33,7 @@
 <script setup lang="ts">
   import { ref, computed } from 'vue'
   import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
-  import { useColors, type ColorName } from '@/composables/useColors'
+  import { useColors, getThemeClass, type ColorName } from '@/composables/useColors'
 
   interface Props {
     placeholder?: string

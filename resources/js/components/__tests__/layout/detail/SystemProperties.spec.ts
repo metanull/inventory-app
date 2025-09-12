@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import SystemProperties from '../../../layout/detail/SystemProperties.vue'
+import '../../test-utils/useColorsMock'
 
 // Mock the imported components
 vi.mock('@/components/format/Date.vue', () => ({

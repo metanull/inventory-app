@@ -1155,6 +1155,26 @@ export interface ContactUpdateRequestTranslationsInner {
 /**
  * 
  * @export
+ * @interface ContextClearDefault200Response
+ */
+export interface ContextClearDefault200Response {
+    /**
+     * 
+     * @type {string}
+     * @memberof ContextClearDefault200Response
+     */
+    'message': ContextClearDefault200ResponseMessageEnum;
+}
+
+export const ContextClearDefault200ResponseMessageEnum = {
+    DefaultContextCleared: 'Default context cleared'
+} as const;
+
+export type ContextClearDefault200ResponseMessageEnum = typeof ContextClearDefault200ResponseMessageEnum[keyof typeof ContextClearDefault200ResponseMessageEnum];
+
+/**
+ * 
+ * @export
  * @interface ContextGetDefault404Response
  */
 export interface ContextGetDefault404Response {
@@ -1810,16 +1830,16 @@ export interface ExhibitionIndex200Response {
     'data': Array<ExhibitionResource>;
     /**
      * 
-     * @type {ExhibitionIndex200ResponseMeta}
-     * @memberof ExhibitionIndex200Response
-     */
-    'meta': ExhibitionIndex200ResponseMeta;
-    /**
-     * 
      * @type {ExhibitionIndex200ResponseLinks}
      * @memberof ExhibitionIndex200Response
      */
     'links': ExhibitionIndex200ResponseLinks;
+    /**
+     * 
+     * @type {ExhibitionIndex200ResponseMeta}
+     * @memberof ExhibitionIndex200Response
+     */
+    'meta': ExhibitionIndex200ResponseMeta;
 }
 /**
  * 
@@ -3458,6 +3478,26 @@ export interface ItemWithAllTagsRequest {
 /**
  * 
  * @export
+ * @interface LanguageClearDefault200Response
+ */
+export interface LanguageClearDefault200Response {
+    /**
+     * 
+     * @type {string}
+     * @memberof LanguageClearDefault200Response
+     */
+    'message': LanguageClearDefault200ResponseMessageEnum;
+}
+
+export const LanguageClearDefault200ResponseMessageEnum = {
+    DefaultLanguageCleared: 'Default language cleared'
+} as const;
+
+export type LanguageClearDefault200ResponseMessageEnum = typeof LanguageClearDefault200ResponseMessageEnum[keyof typeof LanguageClearDefault200ResponseMessageEnum];
+
+/**
+ * 
+ * @export
  * @interface LanguageGetDefault404Response
  */
 export interface LanguageGetDefault404Response {
@@ -4315,16 +4355,16 @@ export interface PictureTranslationIndex200Response {
     'data': Array<PictureTranslationResource>;
     /**
      * 
-     * @type {ExhibitionIndex200ResponseMeta}
-     * @memberof PictureTranslationIndex200Response
-     */
-    'meta': ExhibitionIndex200ResponseMeta;
-    /**
-     * 
      * @type {ExhibitionIndex200ResponseLinks}
      * @memberof PictureTranslationIndex200Response
      */
     'links': ExhibitionIndex200ResponseLinks;
+    /**
+     * 
+     * @type {ExhibitionIndex200ResponseMeta}
+     * @memberof PictureTranslationIndex200Response
+     */
+    'meta': ExhibitionIndex200ResponseMeta;
 }
 /**
  * 
@@ -5089,16 +5129,16 @@ export interface ThemeIndex200Response {
     'data': Array<ThemeResource>;
     /**
      * 
-     * @type {ExhibitionIndex200ResponseMeta}
-     * @memberof ThemeIndex200Response
-     */
-    'meta': ExhibitionIndex200ResponseMeta;
-    /**
-     * 
      * @type {ExhibitionIndex200ResponseLinks}
      * @memberof ThemeIndex200Response
      */
     'links': ExhibitionIndex200ResponseLinks;
+    /**
+     * 
+     * @type {ExhibitionIndex200ResponseMeta}
+     * @memberof ThemeIndex200Response
+     */
+    'meta': ExhibitionIndex200ResponseMeta;
 }
 /**
  * 
@@ -6560,7 +6600,7 @@ export const AvailableImageApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async availableImageDownload(availableImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+        async availableImageDownload(availableImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<File>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.availableImageDownload(availableImage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AvailableImageApi.availableImageDownload']?.[localVarOperationServerIndex]?.url;
@@ -6612,7 +6652,7 @@ export const AvailableImageApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async availableImageView(availableImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+        async availableImageView(availableImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<File>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.availableImageView(availableImage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AvailableImageApi.availableImageView']?.[localVarOperationServerIndex]?.url;
@@ -6645,7 +6685,7 @@ export const AvailableImageApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        availableImageDownload(availableImage: string, options?: RawAxiosRequestConfig): AxiosPromise<string> {
+        availableImageDownload(availableImage: string, options?: RawAxiosRequestConfig): AxiosPromise<File> {
             return localVarFp.availableImageDownload(availableImage, options).then((request) => request(axios, basePath));
         },
         /**
@@ -6685,7 +6725,7 @@ export const AvailableImageApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        availableImageView(availableImage: string, options?: RawAxiosRequestConfig): AxiosPromise<string> {
+        availableImageView(availableImage: string, options?: RawAxiosRequestConfig): AxiosPromise<File> {
             return localVarFp.availableImageView(availableImage, options).then((request) => request(axios, basePath));
         },
     };
@@ -8001,6 +8041,40 @@ export const ContextApiAxiosParamCreator = function (configuration?: Configurati
     return {
         /**
          * 
+         * @summary Clear the default flag from any context
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        contextClearDefault: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/context/default`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Remove the specified resource from storage
          * @param {string} context The context ID
          * @param {*} [options] Override http request option.
@@ -8107,7 +8181,7 @@ export const ContextApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @summary Set a context as the default one
+         * @summary Set or unset a context as the default one
          * @param {string} context The context ID
          * @param {ContextSetDefaultRequest} contextSetDefaultRequest 
          * @param {*} [options] Override http request option.
@@ -8283,6 +8357,18 @@ export const ContextApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Clear the default flag from any context
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async contextClearDefault(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ContextClearDefault200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.contextClearDefault(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ContextApi.contextClearDefault']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Remove the specified resource from storage
          * @param {string} context The context ID
          * @param {*} [options] Override http request option.
@@ -8320,7 +8406,7 @@ export const ContextApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Set a context as the default one
+         * @summary Set or unset a context as the default one
          * @param {string} context The context ID
          * @param {ContextSetDefaultRequest} contextSetDefaultRequest 
          * @param {*} [options] Override http request option.
@@ -8384,6 +8470,15 @@ export const ContextApiFactory = function (configuration?: Configuration, basePa
     return {
         /**
          * 
+         * @summary Clear the default flag from any context
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        contextClearDefault(options?: RawAxiosRequestConfig): AxiosPromise<ContextClearDefault200Response> {
+            return localVarFp.contextClearDefault(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Remove the specified resource from storage
          * @param {string} context The context ID
          * @param {*} [options] Override http request option.
@@ -8412,7 +8507,7 @@ export const ContextApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
-         * @summary Set a context as the default one
+         * @summary Set or unset a context as the default one
          * @param {string} context The context ID
          * @param {ContextSetDefaultRequest} contextSetDefaultRequest 
          * @param {*} [options] Override http request option.
@@ -8464,6 +8559,17 @@ export const ContextApiFactory = function (configuration?: Configuration, basePa
 export class ContextApi extends BaseAPI {
     /**
      * 
+     * @summary Clear the default flag from any context
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ContextApi
+     */
+    public contextClearDefault(options?: RawAxiosRequestConfig) {
+        return ContextApiFp(this.configuration).contextClearDefault(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Remove the specified resource from storage
      * @param {string} context The context ID
      * @param {*} [options] Override http request option.
@@ -8498,7 +8604,7 @@ export class ContextApi extends BaseAPI {
 
     /**
      * 
-     * @summary Set a context as the default one
+     * @summary Set or unset a context as the default one
      * @param {string} context The context ID
      * @param {ContextSetDefaultRequest} contextSetDefaultRequest 
      * @param {*} [options] Override http request option.
@@ -13973,6 +14079,40 @@ export const LanguageApiAxiosParamCreator = function (configuration?: Configurat
     return {
         /**
          * 
+         * @summary Clear the default flag from any language
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        languageClearDefault: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/language/default`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Remove the specified resource from storage
          * @param {string} language The language ID
          * @param {*} [options] Override http request option.
@@ -14113,7 +14253,7 @@ export const LanguageApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
-         * @summary Set a Language as the default one
+         * @summary Set or unset a Language as the default one
          * @param {string} language The language ID
          * @param {ContextSetDefaultRequest} contextSetDefaultRequest 
          * @param {*} [options] Override http request option.
@@ -14289,6 +14429,18 @@ export const LanguageApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Clear the default flag from any language
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async languageClearDefault(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageClearDefault200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.languageClearDefault(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['LanguageApi.languageClearDefault']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Remove the specified resource from storage
          * @param {string} language The language ID
          * @param {*} [options] Override http request option.
@@ -14338,7 +14490,7 @@ export const LanguageApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Set a Language as the default one
+         * @summary Set or unset a Language as the default one
          * @param {string} language The language ID
          * @param {ContextSetDefaultRequest} contextSetDefaultRequest 
          * @param {*} [options] Override http request option.
@@ -14402,6 +14554,15 @@ export const LanguageApiFactory = function (configuration?: Configuration, baseP
     return {
         /**
          * 
+         * @summary Clear the default flag from any language
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        languageClearDefault(options?: RawAxiosRequestConfig): AxiosPromise<LanguageClearDefault200Response> {
+            return localVarFp.languageClearDefault(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Remove the specified resource from storage
          * @param {string} language The language ID
          * @param {*} [options] Override http request option.
@@ -14439,7 +14600,7 @@ export const LanguageApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
-         * @summary Set a Language as the default one
+         * @summary Set or unset a Language as the default one
          * @param {string} language The language ID
          * @param {ContextSetDefaultRequest} contextSetDefaultRequest 
          * @param {*} [options] Override http request option.
@@ -14491,6 +14652,17 @@ export const LanguageApiFactory = function (configuration?: Configuration, baseP
 export class LanguageApi extends BaseAPI {
     /**
      * 
+     * @summary Clear the default flag from any language
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LanguageApi
+     */
+    public languageClearDefault(options?: RawAxiosRequestConfig) {
+        return LanguageApiFp(this.configuration).languageClearDefault(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Remove the specified resource from storage
      * @param {string} language The language ID
      * @param {*} [options] Override http request option.
@@ -14536,7 +14708,7 @@ export class LanguageApi extends BaseAPI {
 
     /**
      * 
-     * @summary Set a Language as the default one
+     * @summary Set or unset a Language as the default one
      * @param {string} language The language ID
      * @param {ContextSetDefaultRequest} contextSetDefaultRequest 
      * @param {*} [options] Override http request option.
@@ -17514,7 +17686,7 @@ export const PictureApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async pictureDownload(picture: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+        async pictureDownload(picture: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<File>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.pictureDownload(picture, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PictureApi.pictureDownload']?.[localVarOperationServerIndex]?.url;
@@ -17662,7 +17834,7 @@ export const PictureApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        pictureDownload(picture: string, options?: RawAxiosRequestConfig): AxiosPromise<string> {
+        pictureDownload(picture: string, options?: RawAxiosRequestConfig): AxiosPromise<File> {
             return localVarFp.pictureDownload(picture, options).then((request) => request(axios, basePath));
         },
         /**

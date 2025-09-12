@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import GenericDropdown from '../../format/GenericDropdown.vue'
+import '../test-utils/useColorsMock'
 
 // Mock the dropdown styles utility
 vi.mock('@/utils/dropdownStyles', () => ({

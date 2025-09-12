@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="min-h-screen bg-gray-50">
+  <div id="app" :class="['min-h-screen', getThemeClass('modalActionsBg')]">
     <!-- Application Header -->
     <AppHeader />
     <!-- Global Component: Error Display -->
@@ -28,4 +28,5 @@
   import ErrorDisplay from '@/components/global/ErrorDisplay.vue'
   import DeleteConfirmation from '@/components/global/DeleteConfirmation.vue'
   import CancelChangesConfirmation from '@/components/global/CancelChangesConfirmation.vue'
+  import { getThemeClass } from '@/composables/useColors'
 </script>

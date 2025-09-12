@@ -165,7 +165,7 @@ if (searchQuery.value.trim()) {
 ### Detail Page Pattern (`ItemDetail.vue`, `CountryDetail.vue`, `ContextDetail.vue`)
 - Use `<DetailView>` component as the main wrapper
 - Required props: `storeLoading`, `resource`, `mode`, `backLink`, `informationTitle`
-- Optional props: `saveDisabled`, `hasUnsavedChanges`, `statusCards`, `createTitle`, `informationDescription`
+- Optional props: `saveDisabled`, `hasUnsavedChanges`, `statusControls`, `createTitle`, `informationDescription`
 - Use slots for: `resource-icon`, `information`
 - Information section uses `<DescriptionList>`, `<DescriptionRow>`, `<DescriptionTerm>`, `<DescriptionDetail>`
 - Alternate row variants: `variant="gray"` and `variant="white"`

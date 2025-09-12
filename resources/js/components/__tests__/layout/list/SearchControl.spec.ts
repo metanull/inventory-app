@@ -7,6 +7,7 @@ vi.mock('@heroicons/vue/24/outline', () => ({
     template: '<div class="mock-search-icon h-5 w-5">🔍</div>',
   },
 }))
+import '../../test-utils/useColorsMock'
 
 import SearchControl from '../../../layout/list/SearchControl.vue'
 

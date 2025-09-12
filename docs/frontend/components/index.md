@@ -28,6 +28,10 @@ High-level layout components for structuring pages and sections, including detai
 
 SVG icon components used throughout the application.
 
+### Theme and Colors
+
+Guidelines and helpers for consistent color usage across the frontend: [Theme and Colors](./theme-and-colors)
+
 ### [Action Components](./Actions)
 
 Button components for various user actions like editing, saving, deleting, etc.

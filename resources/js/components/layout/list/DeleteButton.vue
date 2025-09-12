@@ -1,8 +1,8 @@
 <template>
   <button
     :class="[
-      'text-red-600 hover:text-red-900',
-      disabled ? 'text-gray-400 cursor-not-allowed' : 'hover:text-red-900',
+      dangerClasses.icon,
+      disabled ? getThemeClass('mobileMuted') + ' cursor-not-allowed' : dangerClasses.buttonHover,
     ]"
     :title="tooltip || 'Delete'"
     :disabled="disabled"
@@ -14,6 +14,7 @@
 
 <script setup lang="ts">
   import { TrashIcon } from '@heroicons/vue/24/outline'
+  import { useColors, getThemeClass } from '@/composables/useColors'
   defineProps<{
     disabled?: boolean
     tooltip?: string
@@ -22,4 +23,6 @@
   defineEmits<{
     click: []
   }>()
+
+  const dangerClasses = useColors('red')
 </script>

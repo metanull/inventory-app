@@ -5,15 +5,21 @@
 /**
  * Dropdown option style classes for consistent appearance
  */
+import { getSimpleColorClasses } from '@/composables/useColors'
+
+const INDIGO = getSimpleColorClasses('indigo')
+const BLUE = getSimpleColorClasses('blue')
+const RED = getSimpleColorClasses('red')
+
 export const DROPDOWN_OPTION_STYLES = {
   // Current/selected option
-  current: 'font-semibold text-indigo-700',
+  current: `font-semibold ${INDIGO.indigo}`,
 
   // System default option
-  systemDefault: 'font-medium text-blue-600',
+  systemDefault: `font-medium ${BLUE.blue}`,
 
   // No default/empty option (when not selected)
-  noDefault: 'text-red-600',
+  noDefault: `${RED.red}`,
 
   // Normal option (default styling)
   normal: '',

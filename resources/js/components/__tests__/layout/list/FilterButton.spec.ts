@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import '@/components/__tests__/test-utils/useColorsMock'
 import FilterButton from '../../../layout/list/FilterButton.vue'
 
 describe('FilterButton', () => {
@@ -51,7 +52,7 @@ describe('FilterButton', () => {
     })
 
     expect(wrapper.classes()).toContain('text-gray-500')
-    expect(wrapper.classes()).toContain('hover:text-gray-700')
+    expect(wrapper.classes()).toContain('hover:text-gray-900')
   })
 
   it('applies active primary classes by default', () => {

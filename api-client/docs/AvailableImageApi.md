@@ -1,6 +1,6 @@
 # AvailableImageApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -64,7 +64,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **availableImageDownload**
-> string availableImageDownload()
+> File availableImageDownload()
 
 
 ### Example
@@ -94,7 +94,7 @@ const { status, data } = await apiInstance.availableImageDownload(
 
 ### Return type
 
-**string**
+**File**
 
 ### Authorization
 
@@ -103,13 +103,13 @@ const { status, data } = await apiInstance.availableImageDownload(
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
+ - **Accept**: application/octet-stream, application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**200** |  |  * Content-Disposition -  <br>  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
 
@@ -269,7 +269,7 @@ const { status, data } = await apiInstance.availableImageUpdate(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **availableImageView**
-> string availableImageView()
+> File availableImageView()
 
 
 ### Example
@@ -299,7 +299,7 @@ const { status, data } = await apiInstance.availableImageView(
 
 ### Return type
 
-**string**
+**File**
 
 ### Authorization
 
@@ -308,7 +308,7 @@ const { status, data } = await apiInstance.availableImageView(
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
+ - **Accept**: application/octet-stream, application/json
 
 
 ### HTTP response details

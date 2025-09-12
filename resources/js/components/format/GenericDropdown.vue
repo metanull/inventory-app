@@ -2,8 +2,10 @@
   <select
     :value="modelValue"
     :class="[
-      'block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm',
-      disabled ? 'bg-gray-100 cursor-not-allowed' : '',
+      'block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm',
+      colorClasses?.border,
+      colorClasses?.focus,
+      disabledClasses,
     ]"
     :disabled="disabled"
     @change="handleChange"
@@ -44,6 +46,7 @@
 
 <script setup lang="ts">
   import { computed } from 'vue'
+  import { useColors, type ColorName } from '@/composables/useColors'
   import {
     getDropdownOptionClasses,
     getDropdownOptionLabel,
@@ -66,6 +69,7 @@
     showNoDefaultOption?: boolean
     noDefaultValue?: string
     noDefaultLabel?: string
+    color?: ColorName
     sortFunction?: (options: GenericDropdownOption[]) => GenericDropdownOption[] // eslint-disable-line no-unused-vars
     highlightFunction?: (
       option: GenericDropdownOption, // eslint-disable-line no-unused-vars
@@ -81,6 +85,7 @@
     noDefaultLabel: 'No default',
     sortFunction: undefined,
     highlightFunction: undefined,
+    color: 'gray',
   })
 
   // Emits
@@ -165,4 +170,10 @@
     const isCurrent = props.modelValue === props.noDefaultValue
     return props.noDefaultLabel + (isCurrent ? DROPDOWN_OPTION_LABELS.current : '')
   }
+
+  const colorClasses = useColors(computed(() => props.color || 'gray'))
+  const gray = useColors('gray')
+  const disabledClasses = computed(() =>
+    props.disabled ? `${gray.value.badgeBackground} cursor-not-allowed` : ''
+  )
 </script>

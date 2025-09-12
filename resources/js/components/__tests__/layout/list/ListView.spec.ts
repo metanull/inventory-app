@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import '@/components/__tests__/test-utils/useColorsMock'
 import ListView from '../../../layout/list/ListView.vue'
 
 // Mock the imported components

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import '../../test-utils/useColorsMock'
 import DeleteButton from '../../../layout/detail/DeleteButton.vue'
 
 describe('DeleteButton', () => {
