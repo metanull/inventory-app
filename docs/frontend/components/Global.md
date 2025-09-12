@@ -73,6 +73,8 @@ const fetchData = async () => {
 - Consistent with application color scheme
 - Accessible with proper ARIA attributes
 
+> Note: The application uses a centralized color system (`useColors`, `COLOR_MAP`, `THEME_CLASS_MAP`) for consistent Tailwind fragments across the UI. See the Theme and Colors guide: [Theme and Colors](./theme-and-colors).
+
 ---
 
 ## ErrorDisplay

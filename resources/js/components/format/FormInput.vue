@@ -5,12 +5,18 @@
     :required="required"
     :disabled="disabled"
     :value="modelValue"
-    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+    :class="[
+      'block w-full px-3 py-2 rounded-md shadow-sm sm:text-sm border',
+      getThemeClass('formBorder'),
+      getThemeClass('inputFocus'),
+    ]"
     @input="handleInput"
   />
 </template>
 
 <script setup lang="ts">
+  import { getThemeClass } from '@/composables/useColors'
+
   defineProps<{
     type?: string
     placeholder?: string

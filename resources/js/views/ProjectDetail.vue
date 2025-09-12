@@ -7,7 +7,7 @@
     :save-disabled="!hasUnsavedChanges"
     :has-unsaved-changes="hasUnsavedChanges"
     :back-link="backLink"
-    :status-cards="statusCardsConfig"
+    :status-controls="statusControlsConfig"
     :create-title="'New Project'"
     :create-subtitle="'(Creating)'"
     information-title="Project Information"
@@ -276,8 +276,8 @@
     )
   })
 
-  // Status cards configuration
-  const statusCardsConfig = computed(() => {
+  // Status controls configuration
+  const statusControlsConfig = computed(() => {
     if (!project.value) return []
 
     return [
@@ -291,9 +291,9 @@
         loading: false,
         disabled: false,
         activeIconBackgroundClass: colorClasses.value!.activeBackground,
-        inactiveIconBackgroundClass: 'bg-red-100',
+        inactiveIconBackgroundClass: useColors('red').value.badgeBackground,
         activeIconClass: colorClasses.value!.activeBadge,
-        inactiveIconClass: 'text-red-600',
+        inactiveIconClass: useColors('red').value.icon,
         activeIconComponent: CheckCircleIcon,
         inactiveIconComponent: XCircleIcon,
       },

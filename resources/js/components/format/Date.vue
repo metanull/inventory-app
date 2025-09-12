@@ -15,10 +15,12 @@
     variant?: 'default' | 'small-dark'
   }>()
 
+  import { getThemeClass } from '@/composables/useColors'
+
   const baseClasses = computed(() => {
     switch (props.variant) {
       case 'small-dark':
-        return 'text-sm text-gray-900'
+        return `text-sm ${getThemeClass('modalTitle')}`
       case 'default':
       default:
         return ''

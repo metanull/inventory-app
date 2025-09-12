@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import FormInput from '../../format/FormInput.vue'
+import '../test-utils/useColorsMock'
 
 describe('FormInput', () => {
   it('renders correctly', () => {

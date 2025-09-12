@@ -3,6 +3,7 @@ import { mount, type VueWrapper } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
 import LoadingOverlay from '../../global/LoadingOverlay.vue'
 import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
+import '../test-utils/useColorsMock'
 
 // Mock the heroicons to avoid import issues
 vi.mock('@heroicons/vue/24/outline', () => ({

@@ -7,7 +7,7 @@
     :save-disabled="!hasUnsavedChanges"
     :has-unsaved-changes="hasUnsavedChanges"
     :back-link="backLink"
-    :status-cards="statusCardsConfig"
+    :status-controls="statusControlsConfig"
     :create-title="'New Language'"
     :create-subtitle="'(Creating)'"
     information-title="Language Information"
@@ -215,8 +215,8 @@
     )
   })
 
-  // Status cards configuration
-  const statusCardsConfig = computed(() => {
+  // Status controls configuration
+  const statusControlsConfig = computed(() => {
     if (!language.value) return []
 
     return [
@@ -229,10 +229,10 @@
         isActive: language.value.is_default,
         loading: false,
         disabled: false,
-        activeIconBackgroundClass: 'bg-green-100',
-        inactiveIconBackgroundClass: 'bg-gray-100',
-        activeIconClass: 'text-green-600',
-        inactiveIconClass: 'text-gray-600',
+        activeIconBackgroundClass: colorClasses.value.badgeBackground,
+        inactiveIconBackgroundClass: colorClasses.value.inactiveBackground,
+        activeIconClass: colorClasses.value.icon,
+        inactiveIconClass: colorClasses.value.inactiveIcon,
         activeIconComponent: CheckCircleIcon,
         inactiveIconComponent: XCircleIcon,
       },

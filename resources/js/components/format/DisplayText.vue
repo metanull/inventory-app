@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
   import { computed } from 'vue'
+  import { getThemeClass } from '@/composables/useColors'
 
   const props = defineProps<{
     variant?: 'default' | 'gray' | 'muted'
@@ -17,7 +18,7 @@
     switch (props.variant) {
       case 'gray':
       case 'muted':
-        return 'text-gray-500'
+        return getThemeClass('neutralText')
       case 'default':
       default:
         return baseClasses

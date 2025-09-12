@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { createTestingPinia } from '@pinia/testing'
+import '@/components/__tests__/test-utils/useColorsMock'
 import DetailView from '../../../layout/detail/DetailView.vue'
 import type { Component } from 'vue'
 import type { ColorName } from '../../../../composables/useColors'
@@ -100,13 +101,43 @@ vi.mock('@/components/format/title/Title.vue', () => ({
   },
 }))
 
+import { markRaw } from 'vue'
+
 // Mock icons
 const createMockIcon = (name: string) => ({
   name,
   template: `<div class="mock-icon-${name.toLowerCase()}">Icon</div>`,
 })
 
-const MockIcon = createMockIcon('MockIcon')
+// Wrap the mock component as markRaw to avoid Vue making it reactive in tests
+const MockIcon = markRaw(createMockIcon('MockIcon'))
+
+// Provide a mock for the compact control component as we changed DetailView to render StatusControl
+vi.mock('@/components/format/StatusControl.vue', () => ({
+  default: {
+    name: 'StatusControl',
+    template: `
+      <div class="mock-status-control" @click="$emit('toggle')">
+        <div class="title">{{ title }}</div>
+        <div class="status">{{ isActive ? 'Active' : 'Inactive' }}</div>
+      </div>
+    `,
+    props: [
+      'title',
+      'toggleTitle',
+      'statusText',
+      'isActive',
+      'loading',
+      'disabled',
+      'activeIconBackgroundClass',
+      'inactiveIconBackgroundClass',
+      'activeIconClass',
+      'inactiveIconClass',
+      'activeIconComponent',
+      'inactiveIconComponent',
+    ],
+  },
+}))
 
 interface MockResource {
   id: string
@@ -259,7 +290,10 @@ describe('DetailView', () => {
     it('renders correctly in edit mode', () => {
       const wrapper = createWrapper({ mode: 'edit' })
 
-      expect(wrapper.find('.border-l-4.border-blue-500').exists()).toBe(true)
+      // Header should have the left border indicator; the exact color fragment
+      // is provided by the theme token. Check structural class and border color separately.
+      expect(wrapper.find('.border-l-4').exists()).toBe(true)
+      expect(wrapper.find('.border-blue-500').exists()).toBe(true)
     })
 
     it('displays edit mode indicator in header', () => {
@@ -318,7 +352,7 @@ describe('DetailView', () => {
     it('hides status cards in edit mode', () => {
       const wrapper = createWrapper({
         mode: 'edit',
-        statusCards: [mockStatusCard],
+        statusControls: [mockStatusCard],
       })
 
       // Status cards should be hidden in edit mode
@@ -334,7 +368,8 @@ describe('DetailView', () => {
         resource: null,
       })
 
-      expect(wrapper.find('.border-l-4.border-blue-500').exists()).toBe(true)
+      expect(wrapper.find('.border-l-4').exists()).toBe(true)
+      expect(wrapper.find('.border-blue-500').exists()).toBe(true)
     })
 
     it('uses default create title when createTitle is not provided', () => {
@@ -376,10 +411,10 @@ describe('DetailView', () => {
       const wrapper = createWrapper({
         mode: 'create',
         resource: null,
-        statusCards: [mockStatusCard],
+        statusControls: [mockStatusCard],
       })
 
-      expect(wrapper.findComponent({ name: 'StatusCard' }).exists()).toBe(false)
+      expect(wrapper.findComponent({ name: 'StatusControl' }).exists()).toBe(false)
     })
 
     it('hides system properties in create mode', () => {
@@ -408,10 +443,10 @@ describe('DetailView', () => {
     it('renders status cards when provided', () => {
       const wrapper = createWrapper({
         mode: 'view',
-        statusCards: [mockStatusCard],
+        statusControls: [mockStatusCard],
       })
 
-      const statusCard = wrapper.findComponent({ name: 'StatusCard' })
+      const statusCard = wrapper.findComponent({ name: 'StatusControl' })
       expect(statusCard.exists()).toBe(true)
       expect(statusCard.props('title')).toBe('Status Card')
       expect(statusCard.props('isActive')).toBe(true)
@@ -424,10 +459,10 @@ describe('DetailView', () => {
       ]
       const wrapper = createWrapper({
         mode: 'view',
-        statusCards: cards,
+        statusControls: cards,
       })
 
-      const statusCards = wrapper.findAllComponents({ name: 'StatusCard' })
+      const statusCards = wrapper.findAllComponents({ name: 'StatusControl' })
       expect(statusCards).toHaveLength(2)
       expect(statusCards[0].props('title')).toBe('Card 1')
       expect(statusCards[1].props('title')).toBe('Card 2')
@@ -436,10 +471,10 @@ describe('DetailView', () => {
     it('emits statusToggle event when status card is toggled', async () => {
       const wrapper = createWrapper({
         mode: 'view',
-        statusCards: [mockStatusCard],
+        statusControls: [mockStatusCard],
       })
 
-      await wrapper.findComponent({ name: 'StatusCard' }).vm.$emit('toggle')
+      await wrapper.findComponent({ name: 'StatusControl' }).vm.$emit('toggle')
       expect(wrapper.emitted('statusToggle')).toHaveLength(1)
       expect(wrapper.emitted('statusToggle')?.[0]).toEqual([0])
     })
@@ -617,10 +652,10 @@ describe('DetailView', () => {
       ]
       const wrapper = createWrapper({
         mode: 'view',
-        statusCards: cards,
+        statusControls: cards,
       })
 
-      const statusCards = wrapper.findAllComponents({ name: 'StatusCard' })
+      const statusCards = wrapper.findAllComponents({ name: 'StatusControl' })
 
       // Toggle second card
       await statusCards[1].vm.$emit('toggle')
@@ -667,17 +702,17 @@ describe('DetailView', () => {
         informationTitle: 'Test',
         informationDescription: 'Test desc',
         fetchData: vi.fn(),
-        // Missing optional props like statusCards, backLink, etc.
+        // Missing optional props like statusControls, backLink, etc.
       })
 
       expect(wrapper.exists()).toBe(true)
-      expect(wrapper.findComponent({ name: 'StatusCard' }).exists()).toBe(false)
+      expect(wrapper.findComponent({ name: 'StatusControl' }).exists()).toBe(false)
     })
 
-    it('handles empty statusCards array', () => {
+    it('handles empty statusControls array', () => {
       const wrapper = createWrapper({
         mode: 'view',
-        statusCards: [],
+        statusControls: [],
       })
 
       expect(wrapper.find('.grid.grid-cols-1.gap-4.sm\\:grid-cols-2').exists()).toBe(false)

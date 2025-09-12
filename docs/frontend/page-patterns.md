@@ -73,6 +73,10 @@ Organize content in themed sections that match `AppHeader.vue` navigation dropdo
 import { CogIcon as ContextIcon } from "@heroicons/vue/24/solid";
 import NavigationCard from "@/components/format/card/NavigationCard.vue";
 import Title from "@/components/format/title/Title.vue";
+
+// Example showing useColors composable usage
+// import { useColors } from '@/composables/useColors'
+// const colorClasses = useColors('green')
 </script>
 ```
 
@@ -158,7 +162,13 @@ List pages display collections of resources with comprehensive management featur
             :backward-compatibility="context.backward_compatibility"
           >
             <template #icon>
-              <ContextIcon class="h-5 w-5 text-green-600" />
+              <!-- Prefer using the centralized color helper -->
+              <!-- Script example: -->
+              <!-- import { useColors } from '@/composables/useColors' -->
+              <!-- const colorClasses = useColors('green') -->
+              <!-- Template example: -->
+              <!-- <ContextIcon :class="['h-5 w-5', colorClasses.icon]" /> -->
+              <ContextIcon :class="['h-5 w-5', colorClasses.icon]" />
             </template>
           </InternalName>
         </TableCell>
@@ -297,7 +307,7 @@ Detail pages handle viewing, editing, and creating individual resources.
     :save-disabled="!hasUnsavedChanges"
     :has-unsaved-changes="hasUnsavedChanges"
     :back-link="backLink"
-    :status-cards="statusCardsConfig"
+    :status-controls="statusControlsConfig"
     :create-title="'New Context'"
     information-title="Context Information"
     :information-description="informationDescription"
@@ -447,7 +457,7 @@ watch(hasUnsavedChanges, (hasChanges: boolean) => {
 #### 3. Status Cards Configuration (where applicable)
 
 ```typescript
-const statusCardsConfig = computed(() => {
+const statusControlsConfig = computed(() => {
   if (!context.value) return [];
 
   return [

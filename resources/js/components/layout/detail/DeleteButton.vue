@@ -1,6 +1,6 @@
 <template>
   <button
-    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+    :class="[getThemeClass('dangerButton'), 'disabled:opacity-50 disabled:cursor-not-allowed']"
     :disabled="disabled"
     @click="!disabled && $emit('click')"
   >
@@ -11,6 +11,7 @@
 
 <script setup lang="ts">
   import { TrashIcon } from '@heroicons/vue/24/outline'
+  import { getThemeClass } from '@/composables/useColors'
   defineProps<{
     disabled?: boolean
     label?: string

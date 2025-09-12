@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import '../test-utils/useColorsMock'
 import Date from '../../format/Date.vue'
 
 describe('Date', () => {

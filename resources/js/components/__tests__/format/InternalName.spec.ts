@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import '../test-utils/useColorsMock'
 import InternalName from '../../format/InternalName.vue'
 
 // Create a mock Title component for testing
@@ -176,6 +177,7 @@ describe('InternalName', () => {
     })
 
     // Should contain the default RectangleGroupIcon
-    expect(wrapper.find('.h-5.w-5.text-gray-600').exists()).toBe(true)
+    // The icon color is provided by the theme token (neutralText)
+    expect(wrapper.find('.h-5.w-5').exists()).toBe(true)
   })
 })

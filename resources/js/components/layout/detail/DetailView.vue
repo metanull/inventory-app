@@ -5,7 +5,10 @@
       <!-- Header -->
       <div
         class="bg-white shadow"
-        :class="{ 'border-l-4 border-blue-500': mode === 'edit' || mode === 'create' }"
+        :class="{
+          'border-l-4': mode === 'edit' || mode === 'create',
+          [getThemeClass('headerAccentBorder')]: mode === 'edit' || mode === 'create',
+        }"
       >
         <div class="px-4 py-5 sm:px-6">
           <div class="flex items-center justify-between">
@@ -44,6 +47,7 @@
                     'inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium',
                     colors.blue.badgeBackground,
                     colors.blue.badgeText,
+                    getThemeClass('modeEditText'),
                   ]"
                 >
                   <PencilIcon class="h-4 w-4" />
@@ -55,6 +59,7 @@
                     'inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium',
                     colors.green.badgeBackground,
                     colors.green.badgeText,
+                    getThemeClass('modeCreateText'),
                   ]"
                 >
                   <PlusIcon class="h-4 w-4" />
@@ -76,31 +81,28 @@
         </div>
       </div>
 
-      <!-- Status Cards (hidden during creation and editing) -->
+      <!-- Status controls (hidden during creation and editing) -->
       <div
-        v-if="statusCards && statusCards.length > 0 && mode === 'view'"
+        v-if="statusControls && statusControls.length > 0 && mode === 'view'"
         class="grid grid-cols-1 gap-4 sm:grid-cols-2"
       >
-        <StatusCard
-          v-for="(card, index) in statusCards"
-          :key="index"
-          :title="card.title"
-          :description="card.description"
-          :main-color="card.mainColor"
-          :status-text="card.statusText"
-          :toggle-title="card.toggleTitle"
-          :is-active="card.isActive"
-          :loading="card.loading"
-          :disabled="card.disabled"
-          :compact="true"
-          :active-icon-background-class="card.activeIconBackgroundClass"
-          :inactive-icon-background-class="card.inactiveIconBackgroundClass"
-          :active-icon-class="card.activeIconClass"
-          :inactive-icon-class="card.inactiveIconClass"
-          :active-icon-component="card.activeIconComponent"
-          :inactive-icon-component="card.inactiveIconComponent"
-          @toggle="$emit('statusToggle', index)"
-        />
+        <template v-for="(card, index) in statusControls" :key="index">
+          <StatusControl
+            :title="card.title"
+            :status-text="card.statusText"
+            :toggle-title="card.toggleTitle"
+            :is-active="card.isActive"
+            :loading="card.loading"
+            :disabled="card.disabled"
+            :active-icon-background-class="card.activeIconBackgroundClass"
+            :inactive-icon-background-class="card.inactiveIconBackgroundClass"
+            :active-icon-class="card.activeIconClass"
+            :inactive-icon-class="card.inactiveIconClass"
+            :active-icon-component="card.activeIconComponent"
+            :inactive-icon-component="card.inactiveIconComponent"
+            @toggle="$emit('statusToggle', index)"
+          />
+        </template>
       </div>
 
       <!-- Information Section (Slot) -->
@@ -110,7 +112,7 @@
             {{ informationTitle }}
           </Title>
         </div>
-        <div class="border-t border-gray-200">
+        <div :class="['border-t', getThemeClass('dropdownBorder')]">
           <slot name="information" :mode="mode" :on-field-change="handleFieldChange" />
         </div>
       </div>
@@ -133,12 +135,12 @@
   import DeleteButton from '@/components/layout/detail/DeleteButton.vue'
   import SaveButton from '@/components/layout/detail/SaveButton.vue'
   import CancelButton from '@/components/layout/detail/CancelButton.vue'
-  import StatusCard from '@/components/format/card/StatusCard.vue'
+  import StatusControl from '@/components/format/StatusControl.vue'
   import SystemProperties from '@/components/layout/detail/SystemProperties.vue'
   import Title from '@/components/format/title/Title.vue'
   import InternalName from '@/components/format/InternalName.vue'
   import { PencilIcon, PlusIcon } from '@heroicons/vue/24/solid'
-  import { useColors, type ColorName, COLOR_MAP } from '@/composables/useColors'
+  import { useColors, type ColorName, COLOR_MAP, getThemeClass } from '@/composables/useColors'
 
   // Expose colors for template use
   const colors = COLOR_MAP
@@ -146,21 +148,22 @@
   // Types
   type Mode = 'view' | 'edit' | 'create'
 
-  interface StatusCardConfig {
+  interface StatusControlConfig {
     title: string
-    description: string
-    mainColor: ColorName
+    description?: string
+    // Some callers pass literal strings (e.g. 'green') so allow string too
+    mainColor?: ColorName | string
     statusText: string
-    toggleTitle: string
+    toggleTitle?: string
     isActive: boolean
-    loading: boolean
+    loading?: boolean
     disabled?: boolean
-    activeIconBackgroundClass: string
-    inactiveIconBackgroundClass: string
-    activeIconClass: string
-    inactiveIconClass: string
-    activeIconComponent: Component
-    inactiveIconComponent: Component
+    activeIconBackgroundClass?: string
+    inactiveIconBackgroundClass?: string
+    activeIconClass?: string
+    inactiveIconClass?: string
+    activeIconComponent?: Component
+    inactiveIconComponent?: Component
   }
 
   interface Resource {
@@ -193,7 +196,7 @@
     }
 
     // Configuration
-    statusCards?: StatusCardConfig[]
+    statusControls?: StatusControlConfig[]
     informationTitle: string
     informationDescription: string
 
@@ -218,10 +221,13 @@
 
   // Back link classes for dynamic coloring using centralized color system
   const backLinkClasses = computed(() => {
-    if (!props.backLink?.color) return 'text-gray-600 hover:text-gray-800'
+    if (!props.backLink?.color)
+      return `${getThemeClass('neutralText')} ${getThemeClass('navLinkHover')}`
 
     const colorClasses = useColors(computed(() => props.backLink!.color!))
-    return `${colorClasses.value.icon} hover:${colorClasses.value.icon.replace('-600', '-800')}`
+    // Use the canonical hover fragment provided by the color map to keep
+    // Tailwind utility classes literal and JIT-friendly.
+    return `${colorClasses.value.icon} ${colorClasses.value.iconHover}`
   })
 
   // Handle field changes from child components

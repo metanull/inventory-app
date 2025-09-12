@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import '../../test-utils/useColorsMock'
 import AppFooter from '../../../layout/app/AppFooter.vue'
 
 // Mock the package.json imports
@@ -31,9 +32,10 @@ describe('AppFooter', () => {
     const wrapper = mount(AppFooter)
 
     // Check if it displays either the env var or package name
-    const titleElement = wrapper.find('.font-semibold.text-gray-700')
+    const titleElement = wrapper.find('.font-semibold')
     expect(titleElement.exists()).toBe(true)
     // Should display either VITE_APP_TITLE from env or 'test-app' from package.json
+    expect(titleElement.text().length).toBeGreaterThan(0)
   })
 
   /*it('displays version from package.json', () => {

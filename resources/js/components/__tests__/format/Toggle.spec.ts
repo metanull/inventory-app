@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import '@/components/__tests__/test-utils/useColorsMock'
 import Toggle from '../../format/Toggle.vue'
 import { markRaw } from 'vue'
 

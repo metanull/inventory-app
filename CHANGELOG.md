@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Frontend color & layout refactor**: Centralized color management and card-related refactors
+    - Centralized Tailwind color fragments into `resources/js/composables/useColors.ts` and migrated components to use the `useColors` composable and theme helpers (`getThemeClass`, `useEntityColors`). This replaces multiple local color maps and scattered hard-coded Tailwind color fragments.
+    - Refactored base `Card` components to expose a pinned `footer` slot for consistent action placement and updated `NavigationCard` to support both router-link and action-based primary controls (`button-route` or `button-action`).
+    - Split `StatusCard` into a compact `StatusControl` (used in detail views and compact lists) and a non-compact `StatusCard` variant. Tests and usages were migrated to the new naming (`status-controls`).
+    - Added a Clear Cache debug action to the Home/Tools area that reuses `clearCacheAndReload()` (now supports optional non-reload mode and keeps the loading overlay visible during hard reloads).
+    - Updated frontend documentation: added `docs/frontend/theme-and-colors.md`, and updated component docs/examples to reference the centralized color system.
+
 ### Fixed
 
 - **Mobile Authentication API Client**: Fixed base URL configuration issue causing 404 errors

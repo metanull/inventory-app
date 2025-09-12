@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center py-6">
         <div class="flex items-center">
-          <RouterLink to="/" class="text-2xl font-bold text-gray-900">
+          <RouterLink to="/" :class="['text-2xl font-bold', getThemeClass('appTitleColor')]">
             {{ appTitle }}
           </RouterLink>
         </div>
@@ -11,7 +11,10 @@
         <nav class="hidden md:flex space-x-8 items-center">
           <RouterLink
             to="/"
-            class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+            :class="[
+              getThemeClass('navLinkColor'),
+              'px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2',
+            ]"
           >
             <HomeIcon class="w-4 h-4" />
             Dashboard
@@ -20,7 +23,10 @@
           <!-- Inventory Dropdown -->
           <div class="relative" @mouseleave="closeInventoryDropdown">
             <button
-              class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1"
+              :class="[
+                getThemeClass('navLinkColor'),
+                'px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1',
+              ]"
               @mouseenter="openInventoryDropdown"
               @click="toggleInventoryDropdown"
             >
@@ -33,24 +39,33 @@
 
             <div
               v-if="isInventoryDropdownOpen"
-              class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+              :class="[
+                'absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border',
+                getThemeClass('dropdownBorder'),
+              ]"
               @mouseenter="keepInventoryDropdownOpen"
               @mouseleave="closeInventoryDropdown"
             >
               <RouterLink
                 to="/items"
-                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                :class="[
+                  getThemeClass('dropdownItemColor'),
+                  'px-4 py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="closeInventoryDropdown"
               >
-                <ArchiveBoxIcon class="w-4 h-4 text-teal-600" />
+                <ArchiveBoxIcon class="w-4 h-4" :class="itemsColors.icon" />
                 Items
               </RouterLink>
               <RouterLink
                 to="/partners"
-                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                :class="[
+                  getThemeClass('dropdownItemColor'),
+                  'px-4 py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="closeInventoryDropdown"
               >
-                <UserGroupIcon class="w-4 h-4 text-yellow-600" />
+                <UserGroupIcon class="w-4 h-4" :class="partnersColors.icon" />
                 Partners
               </RouterLink>
             </div>
@@ -59,7 +74,10 @@
           <!-- Collections Dropdown -->
           <div class="relative" @mouseleave="closeCollectionsDropdown">
             <button
-              class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1"
+              :class="[
+                getThemeClass('navLinkColor'),
+                'px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1',
+              ]"
               @mouseenter="openCollectionsDropdown"
               @click="toggleCollectionsDropdown"
             >
@@ -72,30 +90,41 @@
 
             <div
               v-if="isCollectionsDropdownOpen"
-              class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+              :class="[
+                'absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 z-50 border',
+                getThemeClass('dropdownBorder'),
+                'bg-white',
+              ]"
               @mouseenter="keepCollectionsDropdownOpen"
               @mouseleave="closeCollectionsDropdown"
             >
               <RouterLink
                 to="/collections"
-                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                :class="[
+                  getThemeClass('dropdownItemColor'),
+                  'px-4 py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="closeCollectionsDropdown"
               >
-                <RectangleStackIcon class="w-4 h-4 text-indigo-600" />
+                <RectangleStackIcon class="w-4 h-4" :class="collectionsColors.icon" />
                 Collections
               </RouterLink>
-              <div class="px-4 py-2 text-sm text-gray-500 flex items-center gap-2">
-                <PhotoIcon class="w-4 h-4 text-gray-400" />
+              <div
+                :class="['px-4 py-2 text-sm flex items-center gap-2', getThemeClass('neutralText')]"
+              >
+                <PhotoIcon class="w-4 h-4" :class="getThemeClass('mobileMuted')" />
                 <div class="flex flex-col">
                   <span>Galleries</span>
-                  <span class="text-xs text-gray-400">Coming Soon</span>
+                  <span :class="getThemeClass('comingSoonText')">Coming Soon</span>
                 </div>
               </div>
-              <div class="px-4 py-2 text-sm text-gray-500 flex items-center gap-2">
-                <PresentationChartLineIcon class="w-4 h-4 text-gray-400" />
+              <div
+                :class="['px-4 py-2 text-sm flex items-center gap-2', getThemeClass('neutralText')]"
+              >
+                <PresentationChartLineIcon class="w-4 h-4" :class="getThemeClass('mobileMuted')" />
                 <div class="flex flex-col">
                   <span>Exhibitions</span>
-                  <span class="text-xs text-gray-400">Coming Soon</span>
+                  <span :class="getThemeClass('comingSoonText')">Coming Soon</span>
                 </div>
               </div>
             </div>
@@ -104,7 +133,10 @@
           <!-- Reference Data Dropdown -->
           <div class="relative" @mouseleave="closeDropdown">
             <button
-              class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1"
+              :class="[
+                getThemeClass('navLinkColor'),
+                'px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1',
+              ]"
               @mouseenter="openDropdown"
               @click="toggleDropdown"
             >
@@ -117,40 +149,55 @@
 
             <div
               v-if="isDropdownOpen"
-              class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+              :class="[
+                'absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border',
+                getThemeClass('dropdownBorder'),
+              ]"
               @mouseenter="keepDropdownOpen"
               @mouseleave="closeDropdown"
             >
               <RouterLink
                 to="/languages"
-                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                :class="[
+                  getThemeClass('dropdownItemColor'),
+                  'px-4 py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="closeDropdown"
               >
-                <LanguageIcon class="w-4 h-4 text-purple-600" />
+                <LanguageIcon class="w-4 h-4" :class="languagesColors.icon" />
                 Languages
               </RouterLink>
               <RouterLink
                 to="/countries"
-                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                :class="[
+                  getThemeClass('dropdownItemColor'),
+                  'px-4 py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="closeDropdown"
               >
-                <GlobeAltIcon class="w-4 h-4 text-blue-600" />
+                <GlobeAltIcon class="w-4 h-4" :class="countriesColors.icon" />
                 Countries
               </RouterLink>
               <RouterLink
                 to="/contexts"
-                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                :class="[
+                  getThemeClass('dropdownItemColor'),
+                  'px-4 py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="closeDropdown"
               >
-                <CogIcon class="w-4 h-4 text-green-600" />
+                <CogIcon class="w-4 h-4" :class="contextsColors.icon" />
                 Contexts
               </RouterLink>
               <RouterLink
                 to="/projects"
-                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                :class="[
+                  getThemeClass('dropdownItemColor'),
+                  'px-4 py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="closeDropdown"
               >
-                <FolderIcon class="w-4 h-4 text-orange-600" />
+                <FolderIcon class="w-4 h-4" :class="projectsColors.icon" />
                 Projects
               </RouterLink>
             </div>
@@ -159,7 +206,10 @@
           <!-- Tools Dropdown -->
           <div class="relative" @mouseleave="closeToolsDropdown">
             <button
-              class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1"
+              :class="[
+                getThemeClass('navLinkColor'),
+                'px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1',
+              ]"
               @mouseenter="openToolsDropdown"
               @click="toggleToolsDropdown"
             >
@@ -172,15 +222,21 @@
 
             <div
               v-if="isToolsDropdownOpen"
-              class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+              :class="[
+                'absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border',
+                getThemeClass('dropdownBorder'),
+              ]"
               @mouseenter="keepToolsDropdownOpen"
               @mouseleave="closeToolsDropdown"
             >
               <button
-                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                :class="[
+                  getThemeClass('dropdownItemColor'),
+                  'w-full text-left px-4 py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="handleClearCache"
               >
-                <WrenchScrewdriverIcon class="w-4 h-4 text-red-600" />
+                <WrenchScrewdriverIcon class="w-4 h-4" :class="toolsColors.icon" />
                 Clear cache
               </button>
             </div>
@@ -191,7 +247,10 @@
         <div class="hidden md:flex items-center space-x-4">
           <button
             v-if="authStore.isAuthenticated"
-            class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+            :class="[
+              getThemeClass('navLinkColor'),
+              'px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2',
+            ]"
             @click="handleLogout"
           >
             <ArrowRightOnRectangleIcon class="w-4 h-4" />
@@ -202,7 +261,7 @@
         <!-- Mobile menu button -->
         <div class="md:hidden">
           <button
-            class="text-gray-500 hover:text-gray-900 focus:outline-none focus:text-gray-900 p-2"
+            :class="[getThemeClass('navLinkColor'), 'focus:outline-none p-2']"
             @click="toggleMobileMenu"
           >
             <Bars3Icon v-if="!isMobileMenuOpen" class="w-6 h-6" />
@@ -212,11 +271,17 @@
       </div>
 
       <!-- Mobile Navigation -->
-      <div v-if="isMobileMenuOpen" class="md:hidden border-t border-gray-200 py-4">
+      <div
+        v-if="isMobileMenuOpen"
+        :class="['md:hidden border-t py-4', getThemeClass('mobileBorder')]"
+      >
         <div class="flex flex-col space-y-2">
           <RouterLink
             to="/"
-            class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium flex items-center gap-2"
+            :class="[
+              getThemeClass('mobileNavLinkColor'),
+              'px-3 py-2 rounded-md text-base font-medium flex items-center gap-2',
+            ]"
             @click="closeMobileMenu"
           >
             <HomeIcon class="w-5 h-5" />
@@ -226,7 +291,10 @@
           <!-- Mobile Inventory Section -->
           <div class="px-3">
             <button
-              class="text-gray-500 hover:text-gray-900 w-full text-left py-2 text-base font-medium flex items-center justify-between"
+              :class="[
+                getThemeClass('mobileNavLinkColor'),
+                'w-full text-left py-2 text-base font-medium flex items-center justify-between',
+              ]"
               @click="toggleMobileInventoryDropdown"
             >
               Inventory
@@ -238,22 +306,28 @@
 
             <div
               v-if="isMobileInventoryDropdownOpen"
-              class="mt-2 space-y-2 pl-4 border-l-2 border-gray-200"
+              :class="['mt-2 space-y-2 pl-4 border-l-2', getThemeClass('mobileBorder')]"
             >
               <RouterLink
                 to="/items"
-                class="text-gray-500 hover:text-gray-900 py-2 text-sm flex items-center gap-2"
+                :class="[
+                  getThemeClass('mobileNavLinkColor'),
+                  'py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="closeMobileMenu"
               >
-                <ArchiveBoxIcon class="w-4 h-4 text-teal-600" />
+                <ArchiveBoxIcon class="w-4 h-4" :class="itemsColors.icon" />
                 Items
               </RouterLink>
               <RouterLink
                 to="/partners"
-                class="text-gray-500 hover:text-gray-900 py-2 text-sm flex items-center gap-2"
+                :class="[
+                  getThemeClass('mobileNavLinkColor'),
+                  'py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="closeMobileMenu"
               >
-                <UserGroupIcon class="w-4 h-4 text-yellow-600" />
+                <UserGroupIcon class="w-4 h-4" :class="partnersColors.icon" />
                 Partners
               </RouterLink>
             </div>
@@ -262,7 +336,10 @@
           <!-- Mobile Collections Section -->
           <div class="px-3">
             <button
-              class="text-gray-500 hover:text-gray-900 w-full text-left py-2 text-base font-medium flex items-center justify-between"
+              :class="[
+                getThemeClass('mobileNavLinkColor'),
+                'w-full text-left py-2 text-base font-medium flex items-center justify-between',
+              ]"
               @click="toggleMobileCollectionsDropdown"
             >
               Collections
@@ -274,28 +351,31 @@
 
             <div
               v-if="isMobileCollectionsDropdownOpen"
-              class="mt-2 space-y-2 pl-4 border-l-2 border-gray-200"
+              :class="['mt-2 space-y-2 pl-4 border-l-2', getThemeClass('mobileBorder')]"
             >
               <RouterLink
                 to="/collections"
-                class="text-gray-500 hover:text-gray-900 py-2 text-sm flex items-center gap-2"
+                :class="[
+                  getThemeClass('mobileNavLinkColor'),
+                  'py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="closeMobileMenu"
               >
-                <RectangleStackIcon class="w-4 h-4 text-indigo-600" />
+                <RectangleStackIcon class="w-4 h-4" :class="collectionsColors.icon" />
                 Collections
               </RouterLink>
-              <div class="text-gray-400 py-2 text-sm flex items-center gap-2">
-                <PhotoIcon class="w-4 h-4" />
+              <div :class="['py-2 text-sm flex items-center gap-2', getThemeClass('mobileMuted')]">
+                <PhotoIcon class="w-4 h-4" :class="getThemeClass('mobileMuted')" />
                 <div class="flex flex-col">
                   <span>Galleries</span>
-                  <span class="text-xs">Coming Soon</span>
+                  <span :class="getThemeClass('comingSoonText')">Coming Soon</span>
                 </div>
               </div>
-              <div class="text-gray-400 py-2 text-sm flex items-center gap-2">
-                <PresentationChartLineIcon class="w-4 h-4" />
+              <div :class="['py-2 text-sm flex items-center gap-2', getThemeClass('mobileMuted')]">
+                <PresentationChartLineIcon class="w-4 h-4" :class="getThemeClass('mobileMuted')" />
                 <div class="flex flex-col">
                   <span>Exhibitions</span>
-                  <span class="text-xs">Coming Soon</span>
+                  <span :class="getThemeClass('comingSoonText')">Coming Soon</span>
                 </div>
               </div>
             </div>
@@ -304,7 +384,10 @@
           <!-- Mobile Reference Data Section -->
           <div class="px-3">
             <button
-              class="text-gray-500 hover:text-gray-900 w-full text-left py-2 text-base font-medium flex items-center justify-between"
+              :class="[
+                getThemeClass('mobileNavLinkColor'),
+                'w-full text-left py-2 text-base font-medium flex items-center justify-between',
+              ]"
               @click="toggleMobileDropdown"
             >
               Reference Data
@@ -314,37 +397,52 @@
               />
             </button>
 
-            <div v-if="isMobileDropdownOpen" class="mt-2 space-y-2 pl-4 border-l-2 border-gray-200">
+            <div
+              v-if="isMobileDropdownOpen"
+              :class="['mt-2 space-y-2 pl-4 border-l-2', getThemeClass('mobileBorder')]"
+            >
               <RouterLink
                 to="/languages"
-                class="text-gray-500 hover:text-gray-900 py-2 text-sm flex items-center gap-2"
+                :class="[
+                  getThemeClass('mobileNavLinkColor'),
+                  'py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="closeMobileMenu"
               >
-                <LanguageIcon class="w-4 h-4 text-purple-600" />
+                <LanguageIcon class="w-4 h-4" :class="languagesColors.icon" />
                 Languages
               </RouterLink>
               <RouterLink
                 to="/countries"
-                class="text-gray-500 hover:text-gray-900 py-2 text-sm flex items-center gap-2"
+                :class="[
+                  getThemeClass('mobileNavLinkColor'),
+                  'py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="closeMobileMenu"
               >
-                <GlobeAltIcon class="w-4 h-4 text-blue-600" />
+                <GlobeAltIcon class="w-4 h-4" :class="countriesColors.icon" />
                 Countries
               </RouterLink>
               <RouterLink
                 to="/contexts"
-                class="text-gray-500 hover:text-gray-900 py-2 text-sm flex items-center gap-2"
+                :class="[
+                  getThemeClass('mobileNavLinkColor'),
+                  'py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="closeMobileMenu"
               >
-                <CogIcon class="w-4 h-4 text-green-600" />
+                <CogIcon class="w-4 h-4" :class="contextsColors.icon" />
                 Contexts
               </RouterLink>
               <RouterLink
                 to="/projects"
-                class="text-gray-500 hover:text-gray-900 py-2 text-sm flex items-center gap-2"
+                :class="[
+                  getThemeClass('mobileNavLinkColor'),
+                  'py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="closeMobileMenu"
               >
-                <FolderIcon class="w-4 h-4 text-orange-600" />
+                <FolderIcon class="w-4 h-4" :class="projectsColors.icon" />
                 Projects
               </RouterLink>
             </div>
@@ -353,7 +451,10 @@
           <!-- Mobile Tools Section -->
           <div class="px-3">
             <button
-              class="text-gray-500 hover:text-gray-900 w-full text-left py-2 text-base font-medium flex items-center justify-between"
+              :class="[
+                getThemeClass('mobileNavLinkColor'),
+                'w-full text-left py-2 text-base font-medium flex items-center justify-between',
+              ]"
               @click="toggleMobileToolsDropdown"
             >
               Tools
@@ -365,13 +466,16 @@
 
             <div
               v-if="isMobileToolsDropdownOpen"
-              class="mt-2 space-y-2 pl-4 border-l-2 border-gray-200"
+              :class="['mt-2 space-y-2 pl-4 border-l-2', getThemeClass('mobileBorder')]"
             >
               <button
-                class="text-gray-500 hover:text-gray-900 w-full text-left py-2 text-sm flex items-center gap-2"
+                :class="[
+                  getThemeClass('mobileNavLinkColor'),
+                  'w-full text-left py-2 text-sm flex items-center gap-2',
+                ]"
                 @click="handleClearCache"
               >
-                <WrenchScrewdriverIcon class="w-4 h-4 text-red-600" />
+                <WrenchScrewdriverIcon class="w-4 h-4" :class="toolsColors.icon" />
                 Clear cache
               </button>
             </div>
@@ -380,7 +484,10 @@
           <!-- Mobile Logout -->
           <button
             v-if="authStore.isAuthenticated"
-            class="text-gray-500 hover:text-gray-900 text-left px-3 py-2 rounded-md text-base font-medium flex items-center gap-2"
+            :class="[
+              getThemeClass('mobileNavLinkColor'),
+              'text-left px-3 py-2 rounded-md text-base font-medium flex items-center gap-2',
+            ]"
             @click="handleLogout"
           >
             <ArrowRightOnRectangleIcon class="w-5 h-5" />
@@ -397,6 +504,7 @@
   import { RouterLink, useRouter } from 'vue-router'
   import { useAuthStore } from '@/stores/auth'
   import { clearCacheAndReload } from '@/utils/storeUtils'
+  import { useThemeColors, getThemeClass } from '@/composables/useColors'
   import {
     ChevronDownIcon,
     Bars3Icon,
@@ -418,6 +526,16 @@
   const router = useRouter()
   const authStore = useAuthStore()
   const appTitle = import.meta.env.VITE_APP_TITLE
+
+  // Theme colors for header icons (proof-of-concept)
+  const itemsColors = useThemeColors('items')
+  const partnersColors = useThemeColors('partners')
+  const collectionsColors = useThemeColors('collections')
+  const languagesColors = useThemeColors('languages')
+  const countriesColors = useThemeColors('countries')
+  const contextsColors = useThemeColors('contexts')
+  const projectsColors = useThemeColors('projects')
+  const toolsColors = useThemeColors('tools')
 
   // Desktop dropdown state
   const isDropdownOpen = ref(false)
@@ -588,10 +706,3 @@
     router.push('/login')
   }
 </script>
-
-<style scoped>
-  .router-link-active {
-    color: rgb(37 99 235);
-    font-weight: 600;
-  }
-</style>

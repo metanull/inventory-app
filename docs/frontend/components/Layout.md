@@ -191,7 +191,7 @@ A comprehensive detail view component for viewing, editing, and creating resourc
 - `saveDisabled?: boolean` - Whether save button is disabled
 - `hasUnsavedChanges?: boolean` - Whether there are unsaved changes
 - `backLink: string` - Back navigation link
-- `statusCards?: StatusCard[]` - Status toggle cards configuration
+- `statusControls?: StatusControl[]` - Status toggle controls configuration
 - `createTitle?: string` - Title for create mode
 - `createSubtitle?: string` - Subtitle for create mode
 - `informationTitle: string` - Title for information section
@@ -283,7 +283,7 @@ A comprehensive detail view component for displaying and editing individual reso
 - `createTitle?: string` - Custom title for creation mode
 - `createSubtitle?: string` - Custom subtitle for creation mode
 - `backLink?: BackLinkConfig` - Back navigation configuration
-- `statusCards?: StatusCardConfig[]` - Status card configurations
+- `statusControls?: StatusControlConfig[]` - Status control configurations
 - `informationTitle: string` - Title for the information section
 - `informationDescription: string` - Description for the information section
 - `fetchData: () => Promise<void>` - Function to fetch resource data
@@ -307,7 +307,7 @@ A comprehensive detail view component for displaying and editing individual reso
   :is-creating="isNewProject"
   :has-unsaved-changes="hasChanges"
   :back-link="backLink"
-  :status-cards="statusCards"
+  :status-controls="statusControls"
   information-title="Project Information"
   information-description="Detailed project information"
   :fetch-data="fetchProject"

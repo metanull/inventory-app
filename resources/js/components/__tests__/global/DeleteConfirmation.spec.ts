@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
+import '../test-utils/useColorsMock'
 import DeleteConfirmation from '../../global/DeleteConfirmation.vue'
 import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
 

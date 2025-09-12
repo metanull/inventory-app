@@ -1,5 +1,7 @@
 <template>
-  <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
+  <div
+    class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 flex flex-col h-full"
+  >
     <div class="flex items-center">
       <div :class="iconClasses" class="h-8 w-8 lg:h-16 lg:w-16 mr-3 flex-shrink-0">
         <div class="h-full w-full [&>svg]:h-full [&>svg]:w-full">
@@ -11,6 +13,11 @@
       </Title>
     </div>
     <slot />
+
+    <!-- Footer slot: pinned to bottom by mt-auto when present -->
+    <div v-if="$slots.footer" class="mt-auto flex justify-center">
+      <slot name="footer" />
+    </div>
   </div>
 </template>
 

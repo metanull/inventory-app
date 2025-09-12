@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
   import { computed } from 'vue'
+  import { getThemeClass } from '@/composables/useColors'
 
   interface Props {
     variant?: 'default' | 'hover'
@@ -18,7 +19,7 @@
   const computedClasses = computed(() => {
     switch (props.variant) {
       case 'hover':
-        return 'hover:bg-gray-50'
+        return `hover:${getThemeClass('modalActionsBg')}`
       case 'default':
       default:
         return ''

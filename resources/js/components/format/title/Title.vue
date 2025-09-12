@@ -11,6 +11,7 @@
 
 <script setup lang="ts">
   import { computed } from 'vue'
+  import { getThemeClass } from '@/composables/useColors'
 
   const props = defineProps<{
     variant?: 'page' | 'section' | 'card' | 'system' | 'empty'
@@ -52,34 +53,34 @@
   const headingClasses = computed(() => {
     switch (props.variant) {
       case 'page':
-        return 'text-2xl font-semibold text-gray-900'
+        return `text-2xl font-semibold ${getThemeClass('modalTitle')}`
       case 'section':
-        return 'text-lg leading-6 font-medium text-gray-900'
+        return `text-lg leading-6 font-medium ${getThemeClass('modalTitle')}`
       case 'card':
-        return 'text-xl font-semibold text-gray-900'
+        return `text-xl font-semibold ${getThemeClass('modalTitle')}`
       case 'system':
-        return 'text-base leading-6 font-medium text-gray-700'
+        return `text-base leading-6 font-medium ${getThemeClass('appTitleColor')}`
       case 'empty':
-        return 'text-sm font-medium text-gray-900'
+        return `text-sm font-medium ${getThemeClass('modalTitle')}`
       default:
-        return 'text-lg leading-6 font-medium text-gray-900'
+        return `text-lg leading-6 font-medium ${getThemeClass('modalTitle')}`
     }
   })
 
   const descriptionClasses = computed(() => {
     switch (props.variant) {
       case 'page':
-        return 'mt-2 text-sm text-gray-700'
+        return `mt-2 text-sm ${getThemeClass('appTitleColor')}`
       case 'section':
-        return 'mt-1 max-w-2xl text-sm text-gray-500'
+        return `mt-1 max-w-2xl text-sm ${getThemeClass('neutralText')}`
       case 'card':
-        return 'text-gray-600 mb-4'
+        return `${getThemeClass('neutralText')} mb-4`
       case 'system':
-        return 'mt-1 max-w-2xl text-xs text-gray-400'
+        return `mt-1 max-w-2xl text-xs ${getThemeClass('mobileMutedText')}`
       case 'empty':
-        return 'mt-1 text-sm text-gray-500'
+        return `mt-1 text-sm ${getThemeClass('neutralText')}`
       default:
-        return 'mt-1 max-w-2xl text-sm text-gray-500'
+        return `mt-1 max-w-2xl text-sm ${getThemeClass('neutralText')}`
     }
   })
 </script>

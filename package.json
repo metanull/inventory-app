@@ -24,6 +24,8 @@
         "quality-check": "npm run type-check && npm run lint:check && npm run format:check && npm run test",
         "quality-check:fix": "npm run lint && npm run format",
         "quality-check:report": "powershell -ExecutionPolicy Bypass -File ./scripts/Check-Issues.ps1"
+            ,
+            "scan:tailwind-colors": "node ./scripts/scan-tailwind-colors.js"
     },
     "dependencies": {
         "@headlessui/vue": "^1.7.23",

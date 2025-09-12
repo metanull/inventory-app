@@ -4,12 +4,11 @@
       <slot name="icon" />
     </template>
 
-    <div
-      :class="pillClasses"
-      class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full"
-    >
-      {{ pillText }}
-    </div>
+    <template #footer>
+      <div :class="pillClasses">
+        {{ pillText }}
+      </div>
+    </template>
   </Card>
 </template>
 
@@ -27,6 +26,7 @@
 
   const colorClasses = useColors(computed(() => props.mainColor))
   const pillClasses = computed(
-    () => `${colorClasses.value.badgeBackground} ${colorClasses.value.badgeText}`
+    () =>
+      `${colorClasses.value.badgeBackground} ${colorClasses.value.badgeText} inline-flex items-center px-3 py-1 text-sm font-medium rounded-full`
   )
 </script>

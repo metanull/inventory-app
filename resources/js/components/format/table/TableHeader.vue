@@ -25,7 +25,7 @@
 <script setup lang="ts">
   import { computed } from 'vue'
   import { ChevronUpIcon, ChevronDownIcon, ChevronUpDownIcon } from '@heroicons/vue/24/outline'
-  import { useUIColors } from '@/composables/useColors'
+  import { useUIColors, getThemeClass } from '@/composables/useColors'
 
   defineEmits(['sort'])
 
@@ -53,7 +53,7 @@
         return `${baseClasses} relative`
       case 'default':
       default:
-        return `${baseClasses} text-left text-xs font-medium text-gray-500 uppercase tracking-wide`
+        return `${baseClasses} text-left text-xs font-medium ${getThemeClass('neutralText')} uppercase tracking-wide`
     }
   })
 </script>

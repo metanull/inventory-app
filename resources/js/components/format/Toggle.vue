@@ -12,10 +12,10 @@
     >
       <span :class="toggleSwitchClasses">
         <span :class="inactiveIconClasses" aria-hidden="true">
-          <XMarkIcon class="h-3 w-3 text-gray-400" />
+          <XMarkIcon :class="['h-3 w-3', getThemeClass('toggleInactiveIcon')]" />
         </span>
         <span :class="activeIconClasses" aria-hidden="true">
-          <CheckIcon class="h-3 w-3 text-indigo-600" />
+          <CheckIcon :class="['h-3 w-3', getThemeClass('toggleActiveIcon')]" />
         </span>
       </span>
     </button>
@@ -34,15 +34,19 @@
         </div>
         <div class="ml-5 w-0 flex-1">
           <dl>
-            <dt class="text-sm font-medium text-gray-500 truncate">{{ title }}</dt>
-            <dd class="text-lg font-medium text-gray-900">
+            <dt :class="['text-sm font-medium truncate', getThemeClass('neutralText')]">
+              {{ title }}
+            </dt>
+            <dd :class="['text-lg font-medium', getThemeClass('modalTitle')]">
               {{ statusText }}
             </dd>
           </dl>
         </div>
         <div v-if="!hideSwitch" class="ml-5 flex-shrink-0">
           <div class="flex items-center space-x-3">
-            <span v-if="loading" class="text-sm text-gray-500">Updating...</span>
+            <span v-if="loading" :class="['text-sm', getThemeClass('neutralText')]"
+              >Updating...</span
+            >
             <button
               type="button"
               :disabled="disabled || loading"
@@ -53,10 +57,10 @@
             >
               <span :class="toggleSwitchClasses">
                 <span :class="inactiveIconClasses" aria-hidden="true">
-                  <XMarkIcon class="h-3 w-3 text-gray-400" />
+                  <XMarkIcon :class="['h-3 w-3', getThemeClass('toggleInactiveIcon')]" />
                 </span>
                 <span :class="activeIconClasses" aria-hidden="true">
-                  <CheckIcon class="h-3 w-3 text-indigo-600" />
+                  <CheckIcon :class="['h-3 w-3', getThemeClass('toggleActiveIcon')]" />
                 </span>
               </span>
             </button>
@@ -69,6 +73,7 @@
 
 <script setup lang="ts">
   import { computed, type Component } from 'vue'
+  import { getThemeClass } from '@/composables/useColors'
   import { XMarkIcon, CheckIcon } from '@heroicons/vue/24/solid'
 
   const props = defineProps<{
@@ -93,8 +98,8 @@
 
   // Common computed properties for toggle switch
   const toggleButtonClasses = computed(() => [
-    'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed',
-    props.isActive ? 'bg-indigo-600' : 'bg-gray-200',
+    `relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${getThemeClass('toggleFocusRing')} focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`,
+    props.isActive ? getThemeClass('toggleActiveBg') : getThemeClass('toggleInactiveBg'),
   ])
 
   const toggleSwitchClasses = computed(() => [

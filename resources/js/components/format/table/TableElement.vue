@@ -1,14 +1,16 @@
 <template>
-  <table class="min-w-full divide-y divide-gray-300">
-    <thead class="bg-gray-50">
+  <table :class="['min-w-full', getThemeClass('dropdownBorder')]">
+    <thead :class="[getThemeClass('modalActionsBg')]">
       <slot name="headers" />
     </thead>
-    <tbody class="divide-y divide-gray-200 bg-white">
+    <tbody :class="['bg-white', getThemeClass('dropdownBorder')]">
       <slot name="rows" />
     </tbody>
   </table>
 </template>
 
 <script setup lang="ts">
-  // Table element with thead and tbody sections
+  import { getThemeClass } from '@/composables/useColors'
+
+  // Table element with thead and tbody sections; uses theme tokens for borders/backgrounds
 </script>
