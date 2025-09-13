@@ -61,22 +61,20 @@ jobs:
 
       - name: Check required environment variables
         run: |
-          Write-Host "Environment variables are configured in GitHub environment MWNF-SVR"
-
           $missing = @()
-          if (-not (Test-Path $env:PHP_PATH)) { Write-Error "PHP not found at $env:PHP_PATH"; $missing += "PHP" }
-          if (-not (Test-Path $env:COMPOSER_PATH)) { Write-Error "Composer not found at $env:COMPOSER_PATH"; $missing += "Composer" }
-          if (-not (Test-Path $env:NODE_PATH)) { Write-Error "Node.js not found at $env:NODE_PATH"; $missing += "Node.js" }
-          if (-not (Test-Path $env:NPM_PATH)) { Write-Error "NPM not found at $env:NPM_PATH"; $missing += "NPM" }
-          if (-not (Test-Path $env:MARIADB_PATH)) { Write-Error "MariaDB not found at $env:MARIADB_PATH"; $missing += "MariaDB" }
+          if (-not (Test-Path $env:PHP_PATH)) { Write-Error "::error::PHP_PATH ($env:PHP_PATH) is invalid. PHP not found."; $missing += "PHP" }
+          if (-not (Test-Path $env:COMPOSER_PATH)) { Write-Error "::error::COMPOSER_PATH ($env:COMPOSER_PATH) is invalid. Composer not found."; $missing += "Composer" }
+          if (-not (Test-Path $env:NODE_PATH)) { Write-Error "::error::NODE_PATH ($env:NODE_PATH) is invalid. Node.js not found."; $missing += "Node.js" }
+          if (-not (Test-Path $env:NPM_PATH)) { Write-Error "::error::NPM_PATH ($env:NPM_PATH) is invalid. NPM not found."; $missing += "NPM" }
+          if (-not (Test-Path $env:MARIADB_PATH)) { Write-Error "::error::MARIADB_PATH ($env:MARIADB_PATH) is invalid. MariaDB not found."; $missing += "MariaDB" }
           if (-not $env:APP_KEY -or $env:APP_KEY -eq "") {
-            Write-Warning "APP_KEY environment variable is not defined. You must generate an application key using:"
-            Write-Warning '  php artisan key:generate --show'
-            Write-Warning "Then set the APP_KEY secret in the MWNF-SVR environment in GitHub."
+            Write-Warning "::warning::APP_KEY is missing or empty."
+            Write-Host "::notice::You must generate an application key using: 'php artisan key:generate --show'"
+            Write-Host "::notice::You must add APP_KEY as a secret in your GitHub environment."
           }
 
           if ($missing.Count -gt 0) {
-            Write-Error ":skull_and_crossbones: Missing required executables: $($missing -join ', ')"
+            Write-Error "::error::Missing required executables: $($missing -join ', ')"
             exit 1
           }
         shell: powershell
@@ -85,7 +83,7 @@ jobs:
         run: |
           & "$env:PHP_PATH" -v
           if ((& "$env:PHP_PATH" -r "echo version_compare(PHP_VERSION, '8.2', '>=');") -ne 1) {
-            Write-Error ":skull_and_crossbones: PHP 8.2 or higher is required."
+            Write-Error "::error::PHP 8.2 or higher is required."
             exit 1
           }
         shell: powershell
@@ -150,40 +148,50 @@ jobs:
           } | Copy-Item -Destination $deployDir -Recurse -Force
 
           # Copy specific required files
+          Write-Host "::group::Copying required files to $deployDir"
           $RequiredFiles = @("composer.lock", "package-lock.json", ".env.example")
           foreach ($file in $RequiredFiles) {
             if( -not (Test-Path $file)) {
-              Write-Error ":skull_and_crossbones: Error: A required file (:floppy_disk: $file) is missing from the build."
+              Write-Error "::error::'$file' is missing from the build."
               exit 1
             }
             try {
               Copy-Item $file "$deployDir/$file" -Force -ErrorAction Stop
-              Write-Host ":ok_hand: $file copied to $deployDir"
+              Write-Host "$file copied successfully."
             } catch {
-              Write-Error ":skull_and_crossbones: Could not copy $file to $deployDir. $_"
+              Write-Error "::error::Failed to copy $file. $_"
               exit 1
             }
           }
+          Write-Host "::endgroup::"
 
           # Create required directories in package
+          Write-Host "::group::Creating required directories in $deployDir"
           @('storage/logs', 'storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views', 'bootstrap/cache') | ForEach-Object {
-            New-Item -ItemType Directory -Path "$deployDir/$_" -Force | Out-Null
+            try {
+              New-Item -ItemType Directory -Path "$deployDir/$_" -Force | Out-Null
+              Write-Host "$_ directory created."
+            } catch {
+              Write-Warning "::warning::Failed to create directory $_. $_"
+            }
           }
+          Write-Host "::endgroup::"
 
           # Create a VERSION file in the deployment package
+          Write-Host "::group::Creating VERSION file in $deployDir"
           # Attempt to read versions from package.json files, fallback to DEFAULT_VERSION
           try{ 
             $AppVersion = Get-Content 'package.json' -ErrorAction stop | ConvertFrom-Json -ErrorAction stop | Select-Object -ExpandProperty Version -ErrorAction Stop
-            Write-Host ":ok_hand: App version read from package.json: $AppVersion"
+            Write-Host "App version read from package.json: $AppVersion"
           } catch {
-            Write-Error ":poop: Could not read app version from package.json. $_"
+            Write-Warning "::warning::Could not read app version from package.json. $_"
             $AppVersion = $env:DEFAULT_VERSION
           }
           try{ 
             $ApiClientPackage = Get-Content 'api-client/package.json' -ErrorAction stop | ConvertFrom-Json -ErrorAction stop | Select-Object -ExpandProperty Version -ErrorAction Stop
-            Write-Host ":ok_hand: API client version read from api-client/package.json: $ApiClientPackage"
+            Write-Host "API client version read from api-client/package.json: $ApiClientPackage"
           } catch {
-            Write-Error ":poop: Could not read api-client version from api-client/package.json. $_"
+            Write-Warning "::warning::Could not read api-client version from api-client/package.json. $_"
             $ApiClientPackage = $env:DEFAULT_VERSION
           }
           $VersionObject = @{
@@ -196,10 +204,11 @@ jobs:
           }
           try {
             Set-Content -Path "$deployDir/VERSION" -Value ($VersionObject | ConvertTo-Json -Depth 1 -Compress) -Encoding UTF8 -NoNewline -ErrorAction Stop
-            Write-Host ":ok_hand: VERSION created (app: $AppVersion, api-client: $ApiClientVersion)."
+            Write-Host "VERSION created (app: $AppVersion, api-client: $ApiClientVersion)."
           } catch {
-            Write-Warning ":warning: Could not create VERSION file in $deployDir. $_"
+            Write-Warning "::warning::Could not create VERSION file in $deployDir. $_"
           }
+          Write-Host "::endgroup::"
         shell: powershell
 
       - name: Create deployment artifact
@@ -238,9 +247,13 @@ jobs:
           $stagingDir = "staging-$timestamp"
           $stagingPath = Join-Path (Split-Path $env:WEBSERVER_PATH -Parent) $stagingDir
           
-          Write-Host "Creating staging directory: $stagingPath"
-          Copy-Item "deployment-package" -Destination $stagingPath -Recurse -Force
-          Write-Host "Application deployed to staging: $stagingPath"
+          try {
+            Copy-Item "deployment-package" -Destination $stagingPath -Recurse -Force -ErrorAction Stop
+            Write-Host "Successfully deployed to staging directory ($stagingPath)."
+          } catch {
+            Write-Error "::error::Error deploying to staging directory ($stagingPath): $_"
+            exit 1
+          }
           
           # Store staging path for next step
           echo "STAGING_PATH=$stagingPath" >> $env:GITHUB_ENV
@@ -252,8 +265,9 @@ jobs:
           if ((Test-Path -Path $SwapPath)) {
             try {
               [System.IO.Directory]::Delete($SwapPath, $false)
+              Write-Host "Removed symlink ($SwapPath) successfully."
             } catch {
-              Write-Error ":skull_and_crossbones: Swap path exists but can't be removed: $SwapPath"
+              Write-Error "::error::Symlink ($SwapPath) exists but can't be removed: $_"
               exit 1
             }
           }
@@ -261,8 +275,9 @@ jobs:
           if ((Test-Path -Path $TempPath)) {
             try {
               [System.IO.Directory]::Delete($TempPath, $false)
+              Write-Host "Removed symlink ($TempPath) successfully."
             } catch {
-              Write-Error ":skull_and_crossbones: Temp path exists but can't be removed: $TempPath"
+              Write-Error "::error::Symlink ($TempPath) exists but can't be removed: $_"
               exit 1
             }
           }
@@ -273,10 +288,10 @@ jobs:
       - name: Create symbolic link
         run: |
           try {
-            Write-Host "Creating a symbolic link '$env:SYMLINK_TEMP_PATH' to '$env:STAGING_PATH'"
             New-Item -ItemType SymbolicLink -Path "$env:SYMLINK_TEMP_PATH" -Target "$env:STAGING_PATH" -ErrorAction Stop | Out-Null
+            Write-Host "Created symbolic link '$env:SYMLINK_TEMP_PATH' -> '$env:STAGING_PATH'"
           } catch {
-            Write-Error ":skull_and_crossbones: Error creating symbolic link: $_"
+            Write-Error "::error::Error creating symbolic link: $_"
             exit 1
           }
         shell: powershell
@@ -286,31 +301,32 @@ jobs:
           $CanRollback = $false
           if ((Test-Path -Path "$env:WEBSERVER_PATH")) {
             try {
-              Write-Host "Renaming the symbolic link '$env:WEBSERVER_PATH' to '$env:SYMLINK_SWAP_PATH'"
               Rename-Item -Path "$env:WEBSERVER_PATH" -NewName "$env:SYMLINK_SWAP_PATH" -ErrorAction Stop
+              Write-Host "Symbolic link '$env:WEBSERVER_PATH' successfully renamed into '$env:SYMLINK_SWAP_PATH'"
               $CanRollback = $true
             } catch {
-              Write-Error ":skull_and_crossbones: Error swapping symbolic links: $_"
+              Write-Error "::error::Error renaming symbolic link '$env:WEBSERVER_PATH': $_"
               exit 1
             }
           }
           try {
-            Write-Host "Renaming the symbolic link '$env:SYMLINK_TEMP_PATH' to '$env:WEBSERVER_PATH'"
             Rename-Item -Path "$env:SYMLINK_TEMP_PATH" -NewName "$env:WEBSERVER_PATH" -ErrorAction Stop
+            Write-Host "Symbolic link '$env:WEBSERVER_PATH' now points to the new deployment."
           } catch {
-            Write-Error "Error swapping symbolic links: $_"
+            Write-Error "::error::Error renaming symbolic link '$env:SYMLINK_TEMP_PATH' to '$env:WEBSERVER_PATH': $_"
             
             # Attempt to rollback if necessary
             if ($CanRollback) {
+              Write-Host "::group::Rolling back symbolic links"
               try {
-                Write-Host "Rolling back symbolic links..."
-                Write-Host "Renaming the symbolic link '$env:SYMLINK_SWAP_PATH' to '$env:WEBSERVER_PATH'"
                 Rename-Item -Path "$env:SYMLINK_SWAP_PATH" -NewName "$env:WEBSERVER_PATH" -ErrorAction Stop
-                Write-Host "Rolled back symbolic links successfully."
+                Write-Host "Symbolic links successfully rolled back."
+                Write-Host "$env:WEBSERVER_PATH now points back to the previous deployment."
               } catch {
-                Write-Error ":warning: :skull_and_crossbones: Error rolling back symbolic links: $_"
+                Write-Error "::error::Error renaming symbolic links '$env:SYMLINK_SWAP_PATH' to '$env:WEBSERVER_PATH': $_"
                 exit 1
               }
+              Write-Host "::endgroup::"
             }
             exit 1
           }
@@ -320,19 +336,19 @@ jobs:
         run: |
           try {
             if ((Test-Path -Path "$env:SYMLINK_SWAP_PATH")) {
-              Write-Host "Removing the symbolic link '$env:SYMLINK_SWAP_PATH'"
               [System.IO.Directory]::Delete("$env:SYMLINK_SWAP_PATH", $false)
+              Write-Host "Symbolic link '$env:SYMLINK_SWAP_PATH' removed successfully."
             }
           } catch {
-              Write-Warning ":poop: Couldn't delete symbolic link: $env:SYMLINK_SWAP_PATH"
+              Write-Warning "::warning::Couldn't delete symbolic link: $env:SYMLINK_SWAP_PATH"
           }
           try {
-            Write-Host "Removing the symbolic link '$env:SYMLINK_TEMP_PATH'"
             if ((Test-Path -Path "$env:SYMLINK_TEMP_PATH")) {
               [System.IO.Directory]::Delete("$env:SYMLINK_TEMP_PATH", $false)
+              Write-Host "Symbolic link '$env:SYMLINK_TEMP_PATH' removed successfully."
             }
           } catch {
-              Write-Warning ":poop: Couldn't delete symbolic link: $env:SYMLINK_TEMP_PATH"
+              Write-Warning "::warning::Couldn't delete symbolic link: $env:SYMLINK_TEMP_PATH"
           }
         shell: powershell
 
@@ -346,15 +362,17 @@ jobs:
             $_.Name -match '^staging-\d{8}-\d{6}$' 
           } | Sort-Object CreationTime -Descending
           $toRemove = $stagingDirs | Select-Object -Skip $toKeep
-          
+
+          Write-Host "::group::Cleaning up obsolete staging directories"
           foreach ($dir in $toRemove) {
-            Write-Host "Removing obsolete staging directory: $($dir.FullName)"
             try {
-              [System.IO.Directory]::Delete($dir.FullName, $false)
+              [System.IO.Directory]::Delete($dir.FullName, $true)
+              Write-Host "$($dir.FullName) deleted successfully."
             } catch {
-              Write-Warning "Error deleting obsolete staging directory: $($dir.FullName): $_"
+              Write-Warning "::warning::Error deleting $($dir.FullName): $_"
             }
           }
+          Write-Host "::endgroup::"
         shell: powershell
 
   configure:
@@ -407,10 +425,16 @@ jobs:
           
           # Copy .env.example as base
           if (-not (Test-Path $envExamplePath)) {
-            Write-Error ":skull_and_crossbones: .env.example not found in deployment package"
+            Write-Error "::error::.env.example not found in deployment package"
             exit 1
           }
-          Copy-Item $envExamplePath $envPath -Force
+          try {
+            Copy-Item $envExamplePath $envPath -Force -ErrorAction Stop
+            Write-Host ".env.example copied to .env successfully."
+          } catch {
+            Write-Error "::error::Failed to copy .env.example to .env. $_"
+            exit 1
+          }
           
           # Read the .env content
           $envContent = Get-Content $envPath -Raw
@@ -444,14 +468,27 @@ jobs:
             'MAIL_FROM_ADDRESS="user@example.com"' = "MAIL_FROM_ADDRESS=`"$env:MAIL_FROM_ADDRESS`""
           }
           
-          # Apply replacements
+          Write-Host "::add-mask::$env:APP_KEY"
+          Write-Host "::add-mask::$env:DB_USERNAME"
+          Write-Host "::add-mask::$env:DB_PASSWORD"
+          Write-Host "::add-mask::$env:APP_DEFAULT_USER_USERNAME"
+          Write-Host "::add-mask::$env:APP_DEFAULT_USER_PASSWORD"
+          Write-Host "::add-mask::$env:MAIL_PASSWORD"
+          Write-Host "::group::Environment variable replacements"
           foreach ($key in $replacements.Keys) {
+            Write-Host "Replacing $key with $($replacements[$key])"
             $envContent = $envContent -replace [regex]::Escape($key), $replacements[$key]
           }
+          Write-Host "::endgroup::"
           
           # Write updated content back to .env
-          Set-Content -Path $envPath -Value $envContent -Encoding UTF8 -NoNewline
-          Write-Host "Production .env file created from template: $envPath"
+          try {
+            Set-Content -Path $envPath -Value $envContent -Encoding UTF8 -NoNewline
+            Write-Host "Production .env file created from template: $envPath"
+          } catch {
+            Write-Error "::error::Failed to write to .env file. $_"
+            exit 1
+          }
         shell: powershell
 
       #- name: Set file permissions
