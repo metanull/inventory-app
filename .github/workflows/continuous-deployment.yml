@@ -42,19 +42,7 @@ on:
     branches: ["main"]
 
 jobs:
-  init:
-    runs-on: [self-hosted, windows]
-    environment:
-      name: MWNF-SVR
-    steps:
-      - name: Initializes Summary
-        run: |
-          echo "# Continuous Deployment" > $GITHUB_STEP_SUMMARY
-          echo "" > $GITHUB_SETUP_SUMMARY
-        shell: powershell
-
   build:
-    needs: init
     runs-on: [self-hosted, windows]
     environment:
       name: MWNF-SVR
@@ -133,21 +121,6 @@ jobs:
           # Check MariaDB client version
 
           & "$env:MARIADB_PATH" --version
-        shell: powershell
-
-      - name: Summary of the checks
-        run: |
-          Write-Host "#" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "## Environment Summary" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| Tool        | Installed         |" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "|-------------|-------------------|" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| PHP         | Yes (>= 8.2)      |" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| Composer    | Yes               |" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| Node.js     | Yes               |" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| npm         | Yes               |" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| MariaDB     | Yes               |" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "" >> $GITHUB_SETUP_SUMMARY
         shell: powershell
 
       - name: Install PHP dependencies
@@ -326,21 +299,6 @@ jobs:
           overwrite: true
           include-hidden-files: true
 
-      - name: Summary of the package creation
-        run: |
-          Write-Host "" >> $GITHUB_STEP_SUMMARY
-          Write-Host "## Build Summary" >> $GITHUB_STEP_SUMMARY
-          Write-Host "" >> $GITHUB_STEP_SUMMARY
-          Write-Host "| Item               | Value                     |" >> $GITHUB_STEP_SUMMARY
-          Write-Host "|--------------------|---------------------------|" >> $GITHUB_STEP_SUMMARY
-          Write-Host "| App Version        | $env:app_version          |" >> $GITHUB_STEP_SUMMARY
-          Write-Host "| API Client Version | $env:api_client_version   |" >> $GITHUB_STEP_SUMMARY
-          Write-Host "| Commit SHA         | ${{ github.sha }}         |" >> $GITHUB_STEP_SUMMARY
-          Write-Host "| Artifact Name      | laravel-app-${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
-          Write-Host "| Artifact Path      | $env:BUILD_OUTPUT_DIR     |" >> $GITHUB_STEP_SUMMARY
-          Write-Host "" >> $GITHUB_STEP_SUMMARY
-        shell: powershell
-
   deploy:
     needs: build
     runs-on: [self-hosted, windows]
@@ -375,6 +333,22 @@ jobs:
           
           # Store staging path for next step
           echo "STAGING_PATH=$stagingPath" >> $env:GITHUB_ENV
+        shell: powershell
+
+      - name: Shutdown the old application
+        run: |
+          # Gracefully shutdown the old application if running
+          if ((Test-Path -Path "$env:WEBSERVER_PATH")) {
+            try {
+              Push-Location $env:WEBSERVER_PATH
+              & "$env:PHP_PATH" artisan down --retry=120
+              Write-Host "Old application at '$env:WEBSERVER_PATH' put into maintenance mode."
+            } catch {
+              Write-Host "::warning::Failed to put old application into maintenance mode: $_"
+            } finally {
+              Pop-Location
+            }
+          }
         shell: powershell
 
       - name: Cleanup temporary symlinks if any
@@ -416,19 +390,6 @@ jobs:
           }
         shell: powershell
 
-      - name: Shutdown the old application
-        run: |
-          # Gracefully shutdown the old application if running
-          if ((Test-Path -Path "$env:WEBSERVER_PATH")) {
-            try {
-              & "$env:PHP_PATH" artisan down --retry=120
-              Write-Host "Old application at '$env:WEBSERVER_PATH' put into maintenance mode."
-            } catch {
-              Write-Host "::warning::Failed to put old application into maintenance mode: $_"
-            }
-          }
-        shell: powershell
-
       - name: Swap symbolic links
         run: |
           # Atomically swap the symlink to point to the new deployment
@@ -461,6 +422,17 @@ jobs:
                 exit 1
               }
               Write-Host "::endgroup::"
+
+              # Attempt to put the old application back into operation
+              try {
+                Push-Location $env:WEBSERVER_PATH
+                & "$env:PHP_PATH" artisan up
+                Write-Host "Old application restored and put into operation."
+              } catch {
+                Write-Host "::warning::Failed to put old application into operation: $_"
+              } finally {
+                Pop-Location
+              }
             }
             exit 1
           }
@@ -508,19 +480,6 @@ jobs:
             }
           }
           Write-Host "::endgroup::"
-        shell: powershell
-
-      - name: Summary of the deployment
-        run: |
-          Write-Host "" >> $GITHUB_STEP_SUMMARY
-          Write-Host "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          Write-Host "" >> $GITHUB_STEP_SUMMARY
-          Write-Host "| Item               | Value                     |" >> $GITHUB_STEP_SUMMARY
-          Write-Host "|--------------------|---------------------------|" >> $GITHUB_STEP_SUMMARY
-          Write-Host "| Deployment Path    | $env:WEBSERVER_PATH       |" >> $GITHUB_STEP_SUMMARY
-          Write-Host "| Staging Path       | $env:STAGING_PATH         |" >> $GITHUB_STEP_SUMMARY
-          Write-Host "| Deployed At        | $(Get-Date)               |" >> $GITHUB_STEP_SUMMARY
-          Write-Host "" >> $GITHUB_STEP_SUMMARY
         shell: powershell
 
   configure:
@@ -704,14 +663,4 @@ jobs:
           } finally {
             Pop-Location
           }
-        shell: powershell
-
-      - name: Summary of the configuration
-        run: |
-          Write-Host "" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "## Configuration Summary" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| App Url           | $env:APP_URL/api       |" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| App Name          | $env:APP_NAME          |" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| App Environment   | $env:APP_ENV_PATH      |" >> $GITHUB_SETUP_SUMMARY
         shell: powershell

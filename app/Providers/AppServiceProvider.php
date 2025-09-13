@@ -27,27 +27,34 @@ class AppServiceProvider extends ServiceProvider
         // Share version information to all views. This will be resolved from
         // config('app.version') or the VERSION file included by the CI pipeline.
         View::share('app_version_info', function () {
+            // Initialize with null values
             $info = [
-                'version' => config('app.version'),
+                'app_version' => null,
                 'api_client_version' => null,
                 'build_timestamp' => null,
                 'commit_sha' => null,
+                'repository' => null,
+                'repository_url' => null,
             ];
 
+            // If VERSION file exists, load it
             $versionPath = base_path('VERSION');
             if (file_exists($versionPath)) {
                 try {
-                    $raw = @file_get_contents($versionPath);
-                    $decoded = @json_decode($raw, true);
-                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                        $info['version'] = $decoded['app_version'] ?? $info['version'];
-                        $info['api_client_version'] = $decoded['api_client_version'] ?? null;
-                        $info['build_timestamp'] = $decoded['build_timestamp'] ?? null;
-                        $info['commit_sha'] = $decoded['commit_sha'] ?? null;
+                    $content = file_get_contents($versionPath);
+                    $versionData = json_decode($content, true);
+
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($versionData)) {
+                        $info = array_merge($info, $versionData);
                     }
                 } catch (\Exception $e) {
-                    // swallow errors and continue with whatever info we have
+                    // Continue with null values if file reading fails
                 }
+            }
+
+            // Fallback to config for app_version if not available from VERSION file
+            if (is_null($info['app_version'])) {
+                $info['app_version'] = config('app.version', env('APP_VERSION', 'dev'));
             }
 
             return $info;

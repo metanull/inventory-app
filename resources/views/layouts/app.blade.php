@@ -65,30 +65,7 @@
 
         @livewireScripts
         
-        <!-- Simple footer with version info -->
-        @php
-            $ver = is_callable($app_version_info) ? $app_version_info() : (array)($app_version_info ?? []);
-            $appVer = $ver['version'] ?? config('app.version', env('APP_VERSION', 'dev'));
-            $apiClientVer = $ver['api_client_version'] ?? null;
-            $builtAt = $ver['build_timestamp'] ?? null;
-        @endphp
-
-        <footer class="w-full bg-white border-t border-gray-200 text-sm text-gray-600 py-2">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-                <div>
-                    <span class="font-medium">{{ config('app.name') }}</span>
-                    <span class="ml-2">v{{ $appVer }}</span>
-                    @if($apiClientVer)
-                        <span class="mx-2">•</span>
-                        <span>api: v{{ $apiClientVer }}</span>
-                    @endif
-                </div>
-                <div class="text-right text-xs">
-                    @if($builtAt)
-                        <span>Built: {{ $builtAt }}</span>
-                    @endif
-                </div>
-            </div>
-        </footer>
+        <!-- App Footer Component -->
+        <x-app-footer />
     </body>
 </html>

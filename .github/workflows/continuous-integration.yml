@@ -70,12 +70,26 @@ jobs:
         run: |
           ./vendor/bin/pint --bail
 
-      - name: "Check > Laravel > Run Tests"
+      - name: "Check > Laravel > Run CI/CD Tests"
         env:
           DB_CONNECTION: sqlite
           # DB_DATABASE: database/database.sqlite
         run: |
-          php artisan test --testsuite=CI --coverage --parallel --no-ansi  --stop-on-failure
+          php artisan test --testsuite=CiCd --coverage --parallel --no-ansi --stop-on-failure
+      
+      - name: "Check > Laravel > Run Unit Tests"
+        env:
+          DB_CONNECTION: sqlite
+          # DB_DATABASE: database/database.sqlite
+        run: |
+          php artisan test --testsuite=Unit --coverage --parallel --no-ansi --stop-on-failure
+      
+      - name: "Check > Laravel > Run Feature Tests"
+        env:
+          DB_CONNECTION: sqlite
+          # DB_DATABASE: database/database.sqlite
+        run: |
+          php artisan test --testsuite=Feature --coverage --parallel --no-ansi --stop-on-failure
 
   frontend-validation:
     name: Frontend Validation (Node.js/Vue)
