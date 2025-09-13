@@ -42,7 +42,19 @@ on:
     branches: ["main"]
 
 jobs:
+  init:
+    runs-on: [self-hosted, windows]
+    environment:
+      name: MWNF-SVR
+    steps:
+      - name: Initializes Summary
+        run: |
+          echo "# Continuous Deployment" > $GITHUB_STEP_SUMMARY
+          echo "" > $GITHUB_SETUP_SUMMARY
+        shell: powershell
+
   build:
+    needs: init
     runs-on: [self-hosted, windows]
     environment:
       name: MWNF-SVR
@@ -52,7 +64,7 @@ jobs:
       NODE_PATH: ${{ vars.NODE_PATH || 'C:\\Program Files\\nodejs\\node.exe' }}
       NPM_PATH: ${{ vars.NPM_PATH || 'C:\\Program Files\\nodejs\\npm.ps1' }}
       MARIADB_PATH: ${{ vars.MARIADB_PATH || 'C:\\Program Files\\MariaDB 10.5\\bin\\mysql.exe' }}
-
+      APP_KEY: ${{ secrets.APP_KEY || 'base64:random_generated_key' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -62,16 +74,18 @@ jobs:
       - name: Check required environment variables
         run: |
           # Validate required paths
+
+          Write-Host "::add-mask::$env:APP_KEY"
+
           $missing = @()
           if (-not (Test-Path $env:PHP_PATH)) { Write-Host "::error::PHP_PATH ($env:PHP_PATH) is invalid. PHP not found."; $missing += "PHP" }
           if (-not (Test-Path $env:COMPOSER_PATH)) { Write-Host "::error::COMPOSER_PATH ($env:COMPOSER_PATH) is invalid. Composer not found."; $missing += "Composer" }
           if (-not (Test-Path $env:NODE_PATH)) { Write-Host "::error::NODE_PATH ($env:NODE_PATH) is invalid. Node.js not found."; $missing += "Node.js" }
           if (-not (Test-Path $env:NPM_PATH)) { Write-Host "::error::NPM_PATH ($env:NPM_PATH) is invalid. NPM not found."; $missing += "NPM" }
           if (-not (Test-Path $env:MARIADB_PATH)) { Write-Host "::error::MARIADB_PATH ($env:MARIADB_PATH) is invalid. MariaDB not found."; $missing += "MariaDB" }
-          if (-not $env:APP_KEY -or $env:APP_KEY -eq "") {
-            Write-Host "::warning::APP_KEY is missing or empty."
-            Write-Host "::notice::You must generate an application key using: 'php artisan key:generate --show'"
-            Write-Host "::notice::You must add APP_KEY as a secret in your GitHub environment."
+          if (-not $env:APP_KEY -or $env:APP_KEY -eq "" -or $env:APP_KEY -eq "base64:random_generated_key") {
+            Write-Host "::warning::APP_KEY secret is missing or empty."
+            Write-Host "::notice::You must generate an application key ('php artisan key:generate --show' and store it in the APP_KEY secret) before deploying to production."
           }
 
           if ($missing.Count -gt 0) {
@@ -83,47 +97,96 @@ jobs:
       - name: Check PHP version
         run: |
           # Ensure PHP 8.2 or higher is used
-          & "$env:PHP_PATH" -v
+          $PhpVersion = (& "$env:PHP_PATH" -v)
+          Write-Host "PHP Version: $PhpVersion"
+
           if ((& "$env:PHP_PATH" -r "echo version_compare(PHP_VERSION, '8.2', '>=');") -ne 1) {
             Write-Host "::error::PHP 8.2 or higher is required."
             exit 1
+          } else {
+            Write-Host "PHP version: $([char]27)[34mv$PhpVersion."
           }
         shell: powershell
 
       - name: Check Composer
         run: |
           # Check Composer version
-          & "$env:COMPOSER_PATH" --version
+          $ComposerVersion = & "$env:COMPOSER_PATH" --version 2>$null
+          Write-Host "COMPOSER_VERSION=$ComposerVersion" >> "$GITHUB_ENV"
+
+          Write-Host "Composer Version: $([char]27)[34m$ComposerVersion"
         shell: powershell
 
       - name: Check Node.js
         run: |
           # Check Node.js version
-          & "$env:NODE_PATH" --version
+          $NodeVersion = & "$env:NODE_PATH" --version
+          Write-Host "NODE_VERSION=$NodeVersion" >> "$GITHUB_ENV"
+
+          Write-Host "Node.js Version: $([char]27)[34m$NodeVersion"
         shell: powershell
 
       - name: Check NPM
         run: |
           # Check NPM version
-          & "$env:NPM_PATH" --version
+          $NpmVersion = & "$env:NPM_PATH" --version
+          Write-Host "NPM_VERSION=$NpmVersion" >> "$GITHUB_ENV"
+
+          Write-Host "NPM Version: $([char]27)[34m$NpmVersion"
         shell: powershell
 
       - name: Check MariaDB
         run: |
           # Check MariaDB client version
-          & "$env:MARIADB_PATH" --version
+          $MariaDBVersion = & "$env:MARIADB_PATH" --version
+          Write-Host "MARIADB_VERSION=$MariaDBVersion" >> "$GITHUB_ENV"
+
+          Write-Host "MariaDB Version: $([char]27)[34m$MariaDBVersion"
+        shell: powershell
+
+      - name: Summary of the checks
+        run: |
+          Write-Host "#" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "## Environment Summary" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| Tool        | Version           |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "|-------------|-------------------|" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| PHP         | $env:PHP_VERSION  |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| Composer    | $env:COMPOSER_VERSION |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| Node.js     | $env:NODE_VERSION |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| NPM         | $env:NPM_VERSION  |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| MariaDB     | $env:MARIADB_VERSION |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "" >> $GITHUB_SETUP_SUMMARY
         shell: powershell
 
       - name: Install PHP dependencies
         run: |
           # Install Composer dependencies
+
+          Write-Host "::group::Running composer install"
+          $global:LASTEXITCODE = 0
           & "$env:COMPOSER_PATH" install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+          if ($global:LASTEXITCODE -ne 0) {
+            Write-Host "::error::Composer install failed with exit code $global:LASTEXITCODE"
+            exit $global:LASTEXITCODE
+          }
+          Write-Host "::endgroup::"
+          Write-Host "Composer dependencies installed successfully."
         shell: powershell
 
       - name: Install Node.js dependencies
         run: |
           # Install NPM dependencies
+
+          Write-Host "::group::Running npm install"
+          $global:LASTEXITCODE = 0
           & "$env:NPM_PATH" install --no-audit --no-fund
+          if ($global:LASTEXITCODE -ne 0) {
+            Write-Host "::error::NPM install failed with exit code $global:LASTEXITCODE"
+            exit $global:LASTEXITCODE
+          }
+          Write-Host "::endgroup::"
+          Write-Host "NPM dependencies installed successfully."
         shell: powershell
 
       - name: Build frontend assets
@@ -132,7 +195,15 @@ jobs:
           VITE_APP_TITLE: ${{ vars.APP_NAME || 'Inventory App' }}
         run: |
           # Build frontend assets using Vite
+          Write-Host "::group::Running npm run build"
+          $global:LASTEXITCODE = 0
           & "$env:NPM_PATH" run build
+          if ($global:LASTEXITCODE -ne 0) {
+            Write-Host "::error::NPM build failed with exit code $global:LASTEXITCODE"
+            exit $global:LASTEXITCODE
+          }
+          Write-Host "::endgroup::"
+          Write-Host "Frontend assets built successfully."
         shell: powershell
 
       - name: Prepare deployment package
@@ -144,19 +215,45 @@ jobs:
           
           # Create deployment directory
           $deployDir = "$env:BUILD_OUTPUT_DIR"
-
-          if (Test-Path $deployDir) { Remove-Item $deployDir -Recurse -Force }
-          New-Item -ItemType Directory -Path $deployDir | Out-Null
+          Write-Host "package_dir=$deployDir" >> "$GITHUB_ENV"
+          
+          if (Test-Path $deployDir) {
+            try {
+              Remove-Item $deployDir -Recurse -Force -ErrorAction Stop
+              Write-Host "Existing deployment directory $deployDir removed."
+            } catch {
+              Write-Host "::error::Failed to remove existing deployment directory $deployDir. $_"
+              exit 1
+            }
+          }
+          try {
+            New-Item -ItemType Directory -Path $deployDir -ErrorAction Stop | Out-Null
+            Write-Host "Deployment directory created at $deployDir."
+          } catch {
+            Write-Host "::error::Failed to create deployment directory $deployDir. $_"
+            exit 1
+          }
 
           # Copy application files (excluding dev dependencies and build artifacts)
           $excludeDirs = @('.git', 'node_modules', 'tests', '.github', 'docs', 'storage/logs', 'storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views')
           $excludeFiles = @('*.log', '.env*', 'composer.lock', 'package-lock.json', 'webpack.mix.js', 'vite.config.js')
 
+          Write-Host "::group::Copying application files to $deployDir"
           Get-ChildItem -Path . | Where-Object { 
             $_.Name -notin $excludeDirs -and 
             $_.Name -notlike ".*" -and
             $_.Name -ne $deployDir
-          } | Copy-Item -Destination $deployDir -Recurse -Force
+          } | Foreach-Object { 
+            try {
+              $_ | Copy-Item -Destination $deployDir -Recurse -Force -ErrorAction Stop
+              Write-Host "$_.FullName copied successfully."
+            } catch {
+              Write-Host "::error::Failed to copy $_. FullName. $_"
+              exit 1
+            }
+          }
+          Write-Host "::endgroup::"
+          Write-Host "Application files copied successfully."
 
           # Copy specific required files
           Write-Host "::group::Copying required files to $deployDir"
@@ -193,15 +290,19 @@ jobs:
           # Attempt to read versions from package.json files, fallback to DEFAULT_VERSION
           try{ 
             $AppVersion = Get-Content 'package.json' -ErrorAction stop | ConvertFrom-Json -ErrorAction stop | Select-Object -ExpandProperty Version -ErrorAction Stop
+            Write-Host "app_version=$AppVersion" >> "$GITHUB_ENV"
             Write-Host "App version read from package.json: $AppVersion"
           } catch {
+            Write-Host "app_version=$env:DEFAULT_VERSION" >> "$GITHUB_ENV"
             Write-Host "::warning::Could not read app version from package.json. $_"
             $AppVersion = $env:DEFAULT_VERSION
           }
           try{ 
             $ApiClientVersion = Get-Content 'api-client/package.json' -ErrorAction stop | ConvertFrom-Json -ErrorAction stop | Select-Object -ExpandProperty Version -ErrorAction Stop
+            Write-Host "api_client_version=$ApiClientVersion" >> "$GITHUB_ENV"
             Write-Host "API client version read from api-client/package.json: $ApiClientVersion"
           } catch {
+            Write-Host "api_client_version=$env:DEFAULT_VERSION" >> "$GITHUB_ENV"
             Write-Host "::warning::Could not read api-client version from api-client/package.json. $_"
             $ApiClientVersion = $env:DEFAULT_VERSION
           }
@@ -233,6 +334,21 @@ jobs:
           compression-level: 9
           overwrite: true
           include-hidden-files: true
+
+      - name: Summary of the package creation
+        run: |
+          Write-Host "" >> $GITHUB_STEP_SUMMARY
+          Write-Host "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          Write-Host "" >> $GITHUB_STEP_SUMMARY
+          Write-Host "| Item               | Value                     |" >> $GITHUB_STEP_SUMMARY
+          Write-Host "|--------------------|---------------------------|" >> $GITHUB_STEP_SUMMARY
+          Write-Host "| App Version        | $env:app_version          |" >> $GITHUB_STEP_SUMMARY
+          Write-Host "| API Client Version | $env:api_client_version   |" >> $GITHUB_STEP_SUMMARY
+          Write-Host "| Commit SHA         | ${{ github.sha }}         |" >> $GITHUB_STEP_SUMMARY
+          Write-Host "| Artifact Name      | laravel-app-${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          Write-Host "| Artifact Path      | $env:BUILD_OUTPUT_DIR     |" >> $GITHUB_STEP_SUMMARY
+          Write-Host "" >> $GITHUB_STEP_SUMMARY
+        shell: powershell
 
   deploy:
     needs: build
@@ -306,6 +422,19 @@ jobs:
           } catch {
             Write-Host "::error::Failed to create symbolic link: $_"
             exit 1
+          }
+        shell: powershell
+
+      - name: Shutdown the old application
+        run: |
+          # Gracefully shutdown the old application if running
+          if ((Test-Path -Path "$env:WEBSERVER_PATH")) {
+            try {
+              & "$env:PHP_PATH" artisan down --retry=120
+              Write-Host "Old application at '$env:WEBSERVER_PATH' put into maintenance mode."
+            } catch {
+              Write-Host "::warning::Failed to put old application into maintenance mode: $_"
+            }
           }
         shell: powershell
 
@@ -390,6 +519,19 @@ jobs:
           Write-Host "::endgroup::"
         shell: powershell
 
+      - name: Summary of the deployment
+        run: |
+          Write-Host "" >> $GITHUB_STEP_SUMMARY
+          Write-Host "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          Write-Host "" >> $GITHUB_STEP_SUMMARY
+          Write-Host "| Item               | Value                     |" >> $GITHUB_STEP_SUMMARY
+          Write-Host "|--------------------|---------------------------|" >> $GITHUB_STEP_SUMMARY
+          Write-Host "| Deployment Path    | $env:WEBSERVER_PATH       |" >> $GITHUB_STEP_SUMMARY
+          Write-Host "| Staging Path       | $env:STAGING_PATH         |" >> $GITHUB_STEP_SUMMARY
+          Write-Host "| Deployed At        | $(Get-Date)               |" >> $GITHUB_STEP_SUMMARY
+          Write-Host "" >> $GITHUB_STEP_SUMMARY
+        shell: powershell
+
   configure:
     needs: deploy
     runs-on: [self-hosted, windows]
@@ -432,6 +574,18 @@ jobs:
       VITE_APP_TITLE: ${{ vars.APP_NAME || 'Inventory App' }}
 
     steps:
+      - name: Masking secrets
+        run: |
+          # Mask sensitive environment variables in logs
+
+          Write-Host "::add-mask::$env:APP_KEY"
+          Write-Host "::add-mask::$env:DB_USERNAME"
+          Write-Host "::add-mask::$env:DB_PASSWORD"
+          Write-Host "::add-mask::$env:APP_DEFAULT_USER_USERNAME"
+          Write-Host "::add-mask::$env:APP_DEFAULT_USER_PASSWORD"
+          Write-Host "::add-mask::$env:MAIL_PASSWORD"
+        shell: powershell
+
       - name: Generate production .env file
         run: |
           # Generate the production .env file from .env.example using environment variables
@@ -439,6 +593,7 @@ jobs:
           # Work with the symlink path - PowerShell will follow it automatically
           $envExamplePath = Join-Path $env:WEBSERVER_PATH ".env.example"
           $envPath = Join-Path $env:WEBSERVER_PATH ".env"
+          Write-Host "APP_ENV_PATH=$envPath" >> $env:GITHUB_ENV
           
           # Copy .env.example as base
           if (-not (Test-Path $envExamplePath)) {
@@ -485,12 +640,6 @@ jobs:
             'MAIL_FROM_ADDRESS="user@example.com"' = "MAIL_FROM_ADDRESS=`"$env:MAIL_FROM_ADDRESS`""
           }
           
-          Write-Host "::add-mask::$env:APP_KEY"
-          Write-Host "::add-mask::$env:DB_USERNAME"
-          Write-Host "::add-mask::$env:DB_PASSWORD"
-          Write-Host "::add-mask::$env:APP_DEFAULT_USER_USERNAME"
-          Write-Host "::add-mask::$env:APP_DEFAULT_USER_PASSWORD"
-          Write-Host "::add-mask::$env:MAIL_PASSWORD"
           Write-Host "::group::Environment variable replacements"
           foreach ($key in $replacements.Keys) {
             Write-Host "Replacing $key with $($replacements[$key])"
@@ -535,9 +684,18 @@ jobs:
         run: |
           # Run Laravel database migrations
 
+          Write-Host "::group::Running database migrations"
           Push-Location $env:WEBSERVER_PATH
-          & "$env:PHP_PATH" artisan migrate --force
-          Pop-Location
+          try {
+            & "$env:PHP_PATH" artisan migrate --force
+          } catch {
+            Write-Host "::error::Database migrations failed: $_"
+            exit 1
+          } finally {
+            Pop-Location
+          }
+          Write-Host "::endgroup::"
+          Write-Host "Database migrations completed successfully."
         shell: powershell
 
       - name: Cache Laravel configuration
@@ -545,8 +703,24 @@ jobs:
           # Cache Laravel configuration, routes, and views for performance
           
           Push-Location $env:WEBSERVER_PATH
-          & "$env:PHP_PATH" artisan config:cache
-          & "$env:PHP_PATH" artisan route:cache
-          & "$env:PHP_PATH" artisan view:cache
-          Pop-Location
+          try {
+            & "$env:PHP_PATH" artisan config:cache
+            & "$env:PHP_PATH" artisan route:cache
+            & "$env:PHP_PATH" artisan view:cache
+          } catch {
+            Write-Host "::error::Failed to cache Laravel configuration: $_"
+            exit 1
+          } finally {
+            Pop-Location
+          }
+        shell: powershell
+
+      - name: Summary of the configuration
+        run: |
+          Write-Host "" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "## Configuration Summary" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| App Url           | $env:APP_URL/api       |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| App Name          | $env:APP_NAME          |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| App Environment   | $env:APP_ENV_PATH      |" >> $GITHUB_SETUP_SUMMARY
         shell: powershell
