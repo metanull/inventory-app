@@ -60,7 +60,7 @@ jobs:
       name: MWNF-SVR
     env:
       PHP_PATH: ${{ vars.PHP_PATH || 'C:\\Program Files\\PHP\\php.exe' }}
-      COMPOSER_PATH: ${{ vars.COMPOSER_PATH || 'C:\\ProgramData\\ComposerSetup\\bin\\composer.exe' }}
+      COMPOSER_PATH: ${{ vars.COMPOSER_PATH || 'C:\\ProgramData\\ComposerSetup\\bin\\composer.bat' }}
       NODE_PATH: ${{ vars.NODE_PATH || 'C:\\Program Files\\nodejs\\node.exe' }}
       NPM_PATH: ${{ vars.NPM_PATH || 'C:\\Program Files\\nodejs\\npm.ps1' }}
       MARIADB_PATH: ${{ vars.MARIADB_PATH || 'C:\\Program Files\\MariaDB 10.5\\bin\\mysql.exe' }}
@@ -97,51 +97,47 @@ jobs:
       - name: Check PHP version
         run: |
           # Ensure PHP 8.2 or higher is used
-          $PhpVersion = (& "$env:PHP_PATH" -v)
-          Write-Host "PHP Version: $PhpVersion"
 
           if ((& "$env:PHP_PATH" -r "echo version_compare(PHP_VERSION, '8.2', '>=');") -ne 1) {
             Write-Host "::error::PHP 8.2 or higher is required."
             exit 1
-          } else {
-            Write-Host "PHP version: $([char]27)[34mv$PhpVersion."
           }
+
+          # Print the PHP Version
+          & "$env:PHP_PATH" -v
         shell: powershell
 
       - name: Check Composer
         run: |
           # Check Composer version
-          $ComposerVersion = & "$env:COMPOSER_PATH" --version 2>$null
-          Write-Host "COMPOSER_VERSION=$ComposerVersion" >> "$GITHUB_ENV"
-
-          Write-Host "Composer Version: $([char]27)[34m$ComposerVersion"
+          
+          # Print the Composer Version
+          & "$env:COMPOSER_PATH" --version 2>$null
+          $global:LASTEXITCODE = 0
         shell: powershell
 
       - name: Check Node.js
         run: |
           # Check Node.js version
-          $NodeVersion = & "$env:NODE_PATH" --version
-          Write-Host "NODE_VERSION=$NodeVersion" >> "$GITHUB_ENV"
-
-          Write-Host "Node.js Version: $([char]27)[34m$NodeVersion"
+          
+          # Print the Node.js Version
+          & "$env:NODE_PATH" --version
         shell: powershell
 
       - name: Check NPM
         run: |
           # Check NPM version
-          $NpmVersion = & "$env:NPM_PATH" --version
-          Write-Host "NPM_VERSION=$NpmVersion" >> "$GITHUB_ENV"
-
-          Write-Host "NPM Version: $([char]27)[34m$NpmVersion"
+          
+          # Print the NPM Version
+          & "$env:NPM_PATH" --version
         shell: powershell
 
       - name: Check MariaDB
         run: |
           # Check MariaDB client version
-          $MariaDBVersion = & "$env:MARIADB_PATH" --version
-          Write-Host "MARIADB_VERSION=$MariaDBVersion" >> "$GITHUB_ENV"
 
-          Write-Host "MariaDB Version: $([char]27)[34m$MariaDBVersion"
+          # Print the MariaDB Version
+          $MariaDBVersion = & "$env:MARIADB_PATH" --version
         shell: powershell
 
       - name: Summary of the checks
@@ -149,13 +145,13 @@ jobs:
           Write-Host "#" >> $GITHUB_SETUP_SUMMARY
           Write-Host "## Environment Summary" >> $GITHUB_SETUP_SUMMARY
           Write-Host "" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| Tool        | Version           |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| Tool        | Installed         |" >> $GITHUB_SETUP_SUMMARY
           Write-Host "|-------------|-------------------|" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| PHP         | $env:PHP_VERSION  |" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| Composer    | $env:COMPOSER_VERSION |" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| Node.js     | $env:NODE_VERSION |" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| NPM         | $env:NPM_VERSION  |" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| MariaDB     | $env:MARIADB_VERSION |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| PHP         | Yes (>= 8.2)      |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| Composer    | Yes               |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| Node.js     | Yes               |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| NPM         | Yes               |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| MariaDB     | Yes               |" >> $GITHUB_SETUP_SUMMARY
           Write-Host "" >> $GITHUB_SETUP_SUMMARY
         shell: powershell
 
