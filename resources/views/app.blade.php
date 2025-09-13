@@ -16,8 +16,5 @@
     </head>
     <body class="font-sans antialiased">
         <div id="app"></div>
-        
-        <!-- App Footer Component -->
-        <x-app-footer />
     </body>
 </html>

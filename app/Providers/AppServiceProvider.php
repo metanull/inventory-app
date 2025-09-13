@@ -54,7 +54,24 @@ class AppServiceProvider extends ServiceProvider
 
             // Fallback to config for app_version if not available from VERSION file
             if (is_null($info['app_version'])) {
-                $info['app_version'] = config('app.version', env('APP_VERSION', 'dev'));
+                // Try to read version from package.json
+                $packagePath = base_path('package.json');
+                if (file_exists($packagePath)) {
+                    try {
+                        $packageContent = file_get_contents($packagePath);
+                        $packageData = json_decode($packageContent, true);
+                        if (json_last_error() === JSON_ERROR_NONE && is_array($packageData) && isset($packageData['version'])) {
+                            $info['app_version'] = $packageData['version'];
+                        }
+                    } catch (\Exception $e) {
+                        // Continue to next fallback if package.json reading fails
+                    }
+                }
+
+                // If still null, use config fallback
+                if (is_null($info['app_version'])) {
+                    $info['app_version'] = config('app.version', env('APP_VERSION', 'dev'));
+                }
             }
 
             return $info;
