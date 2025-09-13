@@ -76,7 +76,7 @@ jobs:
           }
 
           if ($missing.Count -gt 0) {
-            Write-Error "Missing required executables: $($missing -join ', ')"
+            Write-Error ":skull_and_crossbones: Missing required executables: $($missing -join ', ')"
             exit 1
           }
         shell: powershell
@@ -84,7 +84,10 @@ jobs:
       - name: Check PHP version
         run: |
           & "$env:PHP_PATH" -v
-          if ((& "$env:PHP_PATH" -r "echo version_compare(PHP_VERSION, '8.2', '>=');") -ne 1) { exit 1 }
+          if ((& "$env:PHP_PATH" -r "echo version_compare(PHP_VERSION, '8.2', '>=');") -ne 1) {
+            Write-Error ":skull_and_crossbones: PHP 8.2 or higher is required."
+            exit 1
+          }
         shell: powershell
 
       - name: Check Composer
@@ -150,14 +153,14 @@ jobs:
           $RequiredFiles = @("composer.lock", "package-lock.json", ".env.example")
           foreach ($file in $RequiredFiles) {
             if( -not (Test-Path $file)) {
-              Write-Error "❌ Error: A required file (💾 $file) is missing from the build."
+              Write-Error ":skull_and_crossbones: Error: A required file (:floppy_disk: $file) is missing from the build."
               exit 1
             }
             try {
               Copy-Item $file "$deployDir/$file" -Force -ErrorAction Stop
-              Write-Host -ForegroundColor Green "✅ $file copied to $deployDir"
+              Write-Host ":ok_hand: $file copied to $deployDir"
             } catch {
-              Write-Error "❌ Could not copy $file to $deployDir. $_"
+              Write-Error ":skull_and_crossbones: Could not copy $file to $deployDir. $_"
               exit 1
             }
           }
@@ -171,12 +174,16 @@ jobs:
           # Attempt to read versions from package.json files, fallback to DEFAULT_VERSION
           try{ 
             $AppVersion = Get-Content 'package.json' -ErrorAction stop | ConvertFrom-Json -ErrorAction stop | Select-Object -ExpandProperty Version -ErrorAction Stop
+            Write-Host ":ok_hand: App version read from package.json: $AppVersion"
           } catch {
+            Write-Error ":poop: Could not read app version from package.json. $_"
             $AppVersion = $env:DEFAULT_VERSION
           }
           try{ 
             $ApiClientPackage = Get-Content 'api-client/package.json' -ErrorAction stop | ConvertFrom-Json -ErrorAction stop | Select-Object -ExpandProperty Version -ErrorAction Stop
+            Write-Host ":ok_hand: API client version read from api-client/package.json: $ApiClientPackage"
           } catch {
+            Write-Error ":poop: Could not read api-client version from api-client/package.json. $_"
             $ApiClientPackage = $env:DEFAULT_VERSION
           }
           $VersionObject = @{
@@ -187,7 +194,12 @@ jobs:
             "repository" = "${{ github.repository }}"
             "repository_url" = "${{ github.server_url }}/${{ github.repository }}"
           }
-          Set-Content -Path "$deployDir/VERSION" -Value ($VersionObject | ConvertTo-Json -Depth 1 -Compress) -Encoding UTF8 -NoNewline
+          try {
+            Set-Content -Path "$deployDir/VERSION" -Value ($VersionObject | ConvertTo-Json -Depth 1 -Compress) -Encoding UTF8 -NoNewline -ErrorAction Stop
+            Write-Host ":ok_hand: VERSION created (app: $AppVersion, api-client: $ApiClientVersion)."
+          } catch {
+            Write-Warning ":warning: Could not create VERSION file in $deployDir. $_"
+          }
         shell: powershell
 
       - name: Create deployment artifact
@@ -241,7 +253,7 @@ jobs:
             try {
               [System.IO.Directory]::Delete($SwapPath, $false)
             } catch {
-              Write-Error "Swap path exists but can't be removed: $SwapPath"
+              Write-Error ":skull_and_crossbones: Swap path exists but can't be removed: $SwapPath"
               exit 1
             }
           }
@@ -250,7 +262,7 @@ jobs:
             try {
               [System.IO.Directory]::Delete($TempPath, $false)
             } catch {
-              Write-Error "Temp path exists but can't be removed: $TempPath"
+              Write-Error ":skull_and_crossbones: Temp path exists but can't be removed: $TempPath"
               exit 1
             }
           }
@@ -264,7 +276,7 @@ jobs:
             Write-Host "Creating a symbolic link '$env:SYMLINK_TEMP_PATH' to '$env:STAGING_PATH'"
             New-Item -ItemType SymbolicLink -Path "$env:SYMLINK_TEMP_PATH" -Target "$env:STAGING_PATH" -ErrorAction Stop | Out-Null
           } catch {
-            Write-Error "Error creating symbolic link: $_"
+            Write-Error ":skull_and_crossbones: Error creating symbolic link: $_"
             exit 1
           }
         shell: powershell
@@ -278,7 +290,7 @@ jobs:
               Rename-Item -Path "$env:WEBSERVER_PATH" -NewName "$env:SYMLINK_SWAP_PATH" -ErrorAction Stop
               $CanRollback = $true
             } catch {
-              Write-Error "Error swapping symbolic links: $_"
+              Write-Error ":skull_and_crossbones: Error swapping symbolic links: $_"
               exit 1
             }
           }
@@ -296,7 +308,7 @@ jobs:
                 Rename-Item -Path "$env:SYMLINK_SWAP_PATH" -NewName "$env:WEBSERVER_PATH" -ErrorAction Stop
                 Write-Host "Rolled back symbolic links successfully."
               } catch {
-                Write-Error "Error rolling back symbolic links: $_"
+                Write-Error ":warning: :skull_and_crossbones: Error rolling back symbolic links: $_"
                 exit 1
               }
             }
@@ -312,8 +324,7 @@ jobs:
               [System.IO.Directory]::Delete("$env:SYMLINK_SWAP_PATH", $false)
             }
           } catch {
-              Write-Warning "Couldn't delete symbolic link: $env:SYMLINK_SWAP_PATH"
-              exit 1
+              Write-Warning ":poop: Couldn't delete symbolic link: $env:SYMLINK_SWAP_PATH"
           }
           try {
             Write-Host "Removing the symbolic link '$env:SYMLINK_TEMP_PATH'"
@@ -321,8 +332,7 @@ jobs:
               [System.IO.Directory]::Delete("$env:SYMLINK_TEMP_PATH", $false)
             }
           } catch {
-              Write-Warning "Couldn't delete symbolic link: $env:SYMLINK_TEMP_PATH"
-              exit 1
+              Write-Warning ":poop: Couldn't delete symbolic link: $env:SYMLINK_TEMP_PATH"
           }
         shell: powershell
 
@@ -397,7 +407,7 @@ jobs:
           
           # Copy .env.example as base
           if (-not (Test-Path $envExamplePath)) {
-            Write-Error ".env.example not found in deployment package"
+            Write-Error ":skull_and_crossbones: .env.example not found in deployment package"
             exit 1
           }
           Copy-Item $envExamplePath $envPath -Force
