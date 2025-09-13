@@ -140,9 +140,6 @@ jobs:
           $excludeDirs = @('.git', 'node_modules', 'tests', '.github', 'docs', 'storage/logs', 'storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views')
           $excludeFiles = @('*.log', '.env*', 'composer.lock', 'package-lock.json', 'webpack.mix.js', 'vite.config.js')
 
-          # Debug output: List all files and directories
-          Get-ChildItem -Force
-          
           Get-ChildItem -Path . | Where-Object { 
             $_.Name -notin $excludeDirs -and 
             $_.Name -notlike ".*" -and
@@ -153,14 +150,14 @@ jobs:
           $RequiredFiles = @("composer.lock", "package-lock.json", ".env.example")
           foreach ($file in $RequiredFiles) {
             if( -not (Test-Path $file)) {
-              Write-Error "Required file $file is missing in the repository root."
+              Write-Error "❌ Error: A required file (💾 $file) is missing from the build."
               exit 1
             }
             try {
-              Write-Host "Copying $file to deployment package $deployDir/$file"
               Copy-Item $file "$deployDir/$file" -Force -ErrorAction Stop
+              Write-Host -ForegroundColor Green "✅ $file copied to $deployDir"
             } catch {
-              Write-Error "Could not copy $file to $deployDir/$file. $_"
+              Write-Error "❌ Could not copy $file to $deployDir. $_"
               exit 1
             }
           }
@@ -202,6 +199,8 @@ jobs:
           path: ${{ env.BUILD_OUTPUT_DIR }}
           retention-days: 7
           compression-level: 9
+          overwrite: true
+          include-hidden-files: true
 
   deploy:
     needs: build
