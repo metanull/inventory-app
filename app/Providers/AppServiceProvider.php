@@ -42,6 +42,12 @@ class AppServiceProvider extends ServiceProvider
             if (file_exists($versionPath)) {
                 try {
                     $content = file_get_contents($versionPath);
+
+                    // Remove UTF-8 BOM if present
+                    if (substr($content, 0, 3) === "\xEF\xBB\xBF") {
+                        $content = substr($content, 3);
+                    }
+
                     $versionData = json_decode($content, true);
 
                     if (json_last_error() === JSON_ERROR_NONE && is_array($versionData)) {
@@ -70,7 +76,7 @@ class AppServiceProvider extends ServiceProvider
 
                 // If still null, use config fallback
                 if (is_null($info['app_version'])) {
-                    $info['app_version'] = config('app.version', env('APP_VERSION', 'dev'));
+                    $info['app_version'] = config('app.version', 'dev');
                 }
             }
 

@@ -209,10 +209,10 @@ jobs:
             $_.Name -ne $deployDir
           } | Foreach-Object { 
             try {
+              Write-Host "* $_"
               $_ | Copy-Item -Destination $deployDir -Recurse -Force -ErrorAction Stop
-              Write-Host "$_.FullName copied successfully."
             } catch {
-              Write-Host "::error::Failed to copy $_. FullName. $_"
+              Write-Host "::error::Failed to copy $($_.FullName). $_"
               exit 1
             }
           }
