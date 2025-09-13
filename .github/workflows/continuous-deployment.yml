@@ -131,14 +131,17 @@ jobs:
           DEFAULT_VERSION: '1.0.0'
         run: |
           # Create deployment directory
-          $deployDir = $env:BUILD_OUTPUT_DIR
+          $deployDir = "$env:BUILD_OUTPUT_DIR"
 
           if (Test-Path $deployDir) { Remove-Item $deployDir -Recurse -Force }
-          New-Item -ItemType Directory -Path $deployDir
+          New-Item -ItemType Directory -Path $deployDir | Out-Null
 
           # Copy application files (excluding dev dependencies and build artifacts)
           $excludeDirs = @('.git', 'node_modules', 'tests', '.github', 'docs', 'storage/logs', 'storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views')
           $excludeFiles = @('*.log', '.env*', 'composer.lock', 'package-lock.json', 'webpack.mix.js', 'vite.config.js')
+
+          # Debug output: List all files and directories
+          Get-ChildItem -Force
           
           Get-ChildItem -Path . | Where-Object { 
             $_.Name -notin $excludeDirs -and 
@@ -147,13 +150,24 @@ jobs:
           } | Copy-Item -Destination $deployDir -Recurse -Force
 
           # Copy specific required files
-          Copy-Item "composer.lock" "$deployDir/" -Force
-          Copy-Item "package-lock.json" "$deployDir/" -Force
-          Copy-Item ".env.example" "$deployDir/" -Force
-          
+          $RequiredFiles = @("composer.lock", "package-lock.json", ".env.example")
+          foreach ($file in $RequiredFiles) {
+            if( -not (Test-Path $file)) {
+              Write-Error "Required file $file is missing in the repository root."
+              exit 1
+            }
+            try {
+              Write-Host "Copying $file to deployment package $deployDir/$file"
+              Copy-Item $file "$deployDir/$file" -Force -ErrorAction Stop
+            } catch {
+              Write-Error "Could not copy $file to $deployDir/$file. $_"
+              exit 1
+            }
+          }
+
           # Create required directories in package
           @('storage/logs', 'storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views', 'bootstrap/cache') | ForEach-Object {
-            New-Item -ItemType Directory -Path "$deployDir/$_" -Force
+            New-Item -ItemType Directory -Path "$deployDir/$_" -Force | Out-Null
           }
 
           # Create a VERSION file in the deployment package
@@ -249,7 +263,7 @@ jobs:
         run: |
           try {
             Write-Host "Creating a symbolic link '$env:SYMLINK_TEMP_PATH' to '$env:STAGING_PATH'"
-            New-Item -ItemType SymbolicLink -Path "$env:SYMLINK_TEMP_PATH" -Target "$env:STAGING_PATH" -ErrorAction Stop
+            New-Item -ItemType SymbolicLink -Path "$env:SYMLINK_TEMP_PATH" -Target "$env:STAGING_PATH" -ErrorAction Stop | Out-Null
           } catch {
             Write-Error "Error creating symbolic link: $_"
             exit 1
