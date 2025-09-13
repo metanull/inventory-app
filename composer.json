@@ -91,7 +91,9 @@
             ".\\vendor\\bin\\pint --no-interaction --ansi --dirty"
         ],
         "ci-test": [
-            "@php artisan test --testsuite=CI --compact --parallel --ansi"
+            "@php artisan test --testsuite=Unit --compact --parallel --ansi",
+            "@php artisan test --testsuite=Feature --compact --parallel --ansi",
+            "@php artisan test --testsuite=CiCd --compact --parallel --ansi"
         ],
         "ci-test:integration": [
             "@php artisan test --testsuite=Integration --compact --ansi"

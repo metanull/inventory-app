@@ -20,13 +20,6 @@
         <testsuite name="Integration">
             <directory>tests/Integration</directory>
         </testsuite>
-        
-        <!-- Default suite for CI (excludes Integration) -->
-        <testsuite name="CI">
-            <directory>tests/Unit</directory>
-            <directory>tests/Feature</directory>
-            <directory>tests/CiCd</directory>
-        </testsuite>
     </testsuites>
     <source>
         <include>

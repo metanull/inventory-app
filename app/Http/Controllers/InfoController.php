@@ -32,7 +32,7 @@ class InfoController extends Controller
         $info = [
             'application' => [
                 'name' => config('app.name'),
-                'version' => $this->getApplicationVersion(),
+                'version' => $this->version()->getData()->app_version ?? '1.0.0-dev',
                 'environment' => config('app.env'),
             ],
             'health' => [
@@ -94,11 +94,18 @@ class InfoController extends Controller
             }
         }
 
-        // Fallback to existing lightweight version response
+        // Fallback to CI/CD structure with default/null values
         return response()->json([
-            'version' => $this->getApplicationVersion(),
-            'name' => config('app.name'),
-            'timestamp' => now()->toISOString(),
+            'repository' => null,
+            'build_timestamp' => [
+                'value' => '/Date('.(now()->timestamp * 1000).')/',
+                'DisplayHint' => 2,
+                'DateTime' => now()->format('l j F Y H:i:s'),
+            ],
+            'repository_url' => null,
+            'api_client_version' => null,
+            'app_version' => '1.0.0-dev',
+            'commit_sha' => null,
         ]);
     }
 
@@ -164,47 +171,5 @@ class InfoController extends Controller
             'overall_status' => $allHealthy ? 'healthy' : 'unhealthy',
             'checks' => $checks,
         ];
-    }
-
-    /**
-     * Get the application version string.
-     *
-     * Determines the application version from various sources:
-     * 1. APP_VERSION environment variable (preferred)
-     * 2. Git commit hash if available
-     * 3. Default fallback version
-     *
-     * @return string Application version
-     */
-    private function getApplicationVersion(): string
-    {
-        // Check for explicit version in environment
-        $envVersion = config('app.version');
-        if ($envVersion) {
-            return $envVersion;
-        }
-
-        // Try to get git commit hash
-        try {
-            if (file_exists(base_path('.git/HEAD'))) {
-                $head = trim(file_get_contents(base_path('.git/HEAD')));
-
-                if (str_starts_with($head, 'ref: ')) {
-                    $refPath = base_path('.git/'.substr($head, 5));
-                    if (file_exists($refPath)) {
-                        $commit = trim(file_get_contents($refPath));
-
-                        return substr($commit, 0, 8); // Short commit hash
-                    }
-                } else {
-                    return substr($head, 0, 8); // Direct commit hash
-                }
-            }
-        } catch (\Exception $e) {
-            // Fall through to default
-        }
-
-        // Default fallback
-        return '1.0.0-dev';
     }
 }
