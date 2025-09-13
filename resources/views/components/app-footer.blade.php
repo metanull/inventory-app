@@ -17,12 +17,12 @@
                     $timestamp = intval($matches[1]) / 1000; // Convert milliseconds to seconds
                     $date = new DateTime();
                     $date->setTimestamp($timestamp);
-                    $formattedBuildDate = $date->format('M j, Y');
+                    $formattedBuildDate = $date->format('d/m/Y H:i');
                 }
             } elseif (is_string($buildTimestamp)) {
                 // Simple string format fallback
                 $date = new DateTime($buildTimestamp);
-                $formattedBuildDate = $date->format('M j, Y');
+                $formattedBuildDate = $date->format('d/m/Y H:i');
             }
         } catch (Exception $e) {
             // If date parsing fails, leave as null

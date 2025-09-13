@@ -27,13 +27,46 @@ class DebugVersionInfo extends Command
                 $this->info('   ✓ app_version_info is callable');
                 $result = $versionInfo();
                 $this->info('   ✓ Callback executed successfully');
+
+                // Process the result to include formatted datetime like app-footer.blade.php
+                $processedResult = $result;
+                if (isset($result['build_timestamp'])) {
+                    $buildTimestamp = $result['build_timestamp'];
+                    $formattedBuildDate = null;
+
+                    try {
+                        // Handle CI/CD format using the "value" field to avoid locale issues
+                        if (is_array($buildTimestamp) && isset($buildTimestamp['value'])) {
+                            // Parse .NET DateTime format: "/Date(1757794373908)/"
+                            $value = $buildTimestamp['value'];
+                            if (preg_match('/\/Date\((\d+)\)\//', $value, $matches)) {
+                                $timestamp = intval($matches[1]) / 1000; // Convert milliseconds to seconds
+                                $date = new \DateTime;
+                                $date->setTimestamp($timestamp);
+                                $formattedBuildDate = $date->format('d/m/Y H:i');
+                            }
+                        } elseif (is_string($buildTimestamp)) {
+                            // Simple string format fallback
+                            $date = new \DateTime($buildTimestamp);
+                            $formattedBuildDate = $date->format('d/m/Y H:i');
+                        }
+                    } catch (\Exception $e) {
+                        // If date parsing fails, leave as null
+                        $formattedBuildDate = null;
+                    }
+
+                    if ($formattedBuildDate) {
+                        $processedResult['build_timestamp_formatted'] = $formattedBuildDate;
+                    }
+                }
+
                 $this->table(['Key', 'Value'], array_map(function ($key, $value) {
                     if (is_array($value)) {
                         $value = json_encode($value);
                     }
 
                     return [$key, $value ?? 'NULL'];
-                }, array_keys($result), array_values($result)));
+                }, array_keys($processedResult), array_values($processedResult)));
             } else {
                 $this->error('   ✗ app_version_info is not callable');
                 $this->line('   Value: '.print_r($versionInfo, true));
