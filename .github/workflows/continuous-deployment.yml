@@ -110,17 +110,14 @@ jobs:
       - name: Check Composer
         run: |
           # Check Composer version
-          
-          # Print the Composer Version
-          & "$env:COMPOSER_PATH" --version 2>$null
-          $global:LASTEXITCODE = 0
+
+          & "$env:COMPOSER_PATH" --version
         shell: powershell
 
       - name: Check Node.js
         run: |
           # Check Node.js version
           
-          # Print the Node.js Version
           & "$env:NODE_PATH" --version
         shell: powershell
 
@@ -128,7 +125,6 @@ jobs:
         run: |
           # Check NPM version
           
-          # Print the NPM Version
           & "$env:NPM_PATH" --version
         shell: powershell
 
@@ -136,8 +132,7 @@ jobs:
         run: |
           # Check MariaDB client version
 
-          # Print the MariaDB Version
-          $MariaDBVersion = & "$env:MARIADB_PATH" --version
+          & "$env:MARIADB_PATH" --version
         shell: powershell
 
       - name: Summary of the checks
@@ -150,7 +145,7 @@ jobs:
           Write-Host "| PHP         | Yes (>= 8.2)      |" >> $GITHUB_SETUP_SUMMARY
           Write-Host "| Composer    | Yes               |" >> $GITHUB_SETUP_SUMMARY
           Write-Host "| Node.js     | Yes               |" >> $GITHUB_SETUP_SUMMARY
-          Write-Host "| NPM         | Yes               |" >> $GITHUB_SETUP_SUMMARY
+          Write-Host "| npm         | Yes               |" >> $GITHUB_SETUP_SUMMARY
           Write-Host "| MariaDB     | Yes               |" >> $GITHUB_SETUP_SUMMARY
           Write-Host "" >> $GITHUB_SETUP_SUMMARY
         shell: powershell
