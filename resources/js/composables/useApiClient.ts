@@ -1,5 +1,4 @@
 import { computed } from 'vue'
-import { useAuthStore } from '@/stores/auth'
 import { Configuration } from '@metanull/inventory-app-api-client'
 import { getSessionAwareAxios } from '@/utils/sessionAwareAxios'
 
@@ -49,8 +48,6 @@ import {
  * - Zero maintenance overhead for future client regeneration
  */
 export const useApiClient = () => {
-  const authStore = useAuthStore()
-
   // Get the session-aware axios instance
   const sessionAxios = getSessionAwareAxios()
 
@@ -70,16 +67,9 @@ export const useApiClient = () => {
       baseURL = 'http://127.0.0.1:8000/api'
     }
 
-    const configParams: { basePath: string; accessToken?: string } = {
-      basePath: baseURL,
-    }
-
-    // Include token if available (though axios interceptor will handle this too)
-    if (authStore.token) {
-      configParams.accessToken = authStore.token
-    }
-
-    return new Configuration(configParams)
+    // Do not set accessToken here – session-aware axios will inject the
+    // Authorization header dynamically from the auth store for every request.
+    return new Configuration({ basePath: baseURL })
   })
 
   // Factory methods for all API clients
@@ -181,7 +171,9 @@ export const useApiClient = () => {
   // Return all factory methods
   return {
     // Core configuration (for advanced use cases)
-    configuration: configuration.value,
+    get configuration() {
+      return configuration.value
+    },
     sessionAxios,
 
     // API factory methods

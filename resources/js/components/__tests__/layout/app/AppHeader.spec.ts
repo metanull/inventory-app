@@ -120,7 +120,7 @@ describe('AppHeader', () => {
       await wrapper.vm.$nextTick()
 
       expect(mockAuthStore.logout).toHaveBeenCalled()
-      expect(mockPush).toHaveBeenCalledWith('/login')
+      expect(mockPush).toHaveBeenCalledWith({ name: 'login' })
     }
   })
 

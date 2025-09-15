@@ -86,6 +86,8 @@
   import { useAuthStore } from '@/stores/auth'
   import { ArrowRightOnRectangleIcon } from '@heroicons/vue/24/outline'
   import { getThemeClass } from '@/composables/useColors'
+  // safeRedirect no longer needed here as we only accept named redirects
+  import type { RouteParamsRaw } from 'vue-router'
 
   const router = useRouter()
   const authStore = useAuthStore()
@@ -99,7 +101,25 @@
     authStore.clearError()
     try {
       await authStore.login(form.email, form.password)
-      router.push('/')
+      const q = router.currentRoute.value.query
+      const redirectName = q.redirectName as string | undefined
+      const redirectParamsRaw = q.redirectParams as string | undefined
+      let redirectParams: RouteParamsRaw | undefined
+      if (redirectParamsRaw) {
+        try {
+          const parsed = JSON.parse(decodeURIComponent(redirectParamsRaw)) as unknown
+          if (parsed && typeof parsed === 'object') {
+            redirectParams = parsed as RouteParamsRaw
+          }
+        } catch {
+          redirectParams = undefined
+        }
+      }
+      if (redirectName) {
+        await router.push({ name: redirectName, params: redirectParams })
+      } else {
+        await router.push('/')
+      }
     } catch {
       // Error is handled by the store
     }

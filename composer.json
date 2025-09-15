@@ -84,8 +84,8 @@
         ],
         "ci-lint:test": [
             ".\\vendor\\bin\\pint --no-interaction --ansi --test",
-            "npx prettier --write \"./docs/**/*.md\" --log-level warn --ignore-unknown --no-config --check",
-            "npx prettier --write \"./resources/**\" --log-level warn --ignore-unknown --check"
+            "npx prettier \"./docs/**/*.md\" --log-level warn --ignore-unknown --no-config --check",
+            "npx prettier \"./resources/**\" --log-level warn --ignore-unknown --check"
         ],
         "ci-lint:dirty": [
             ".\\vendor\\bin\\pint --no-interaction --ansi --dirty"

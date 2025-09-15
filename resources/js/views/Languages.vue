@@ -155,6 +155,7 @@
   import { LanguageIcon } from '@heroicons/vue/24/solid'
   import SearchControl from '@/components/layout/list/SearchControl.vue'
   import { useColors, type ColorName } from '@/composables/useColors'
+  import { isAuthRedirect } from '@/utils/errorHandler'
 
   interface Props {
     color?: ColorName
@@ -252,8 +253,11 @@
       if (usedCache) {
         errorStore.addMessage('info', 'List refreshed')
       }
-    } catch {
-      errorStore.addMessage('error', 'Failed to fetch languages. Please try again.')
+    } catch (err) {
+      // If we're redirecting due to 401, suppress noisy toast here
+      if (!isAuthRedirect(err)) {
+        errorStore.addMessage('error', 'Failed to fetch languages. Please try again.')
+      }
     } finally {
       if (!usedCache) {
         loadingStore.hide()

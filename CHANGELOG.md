@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Authentication and redirect flow hardening across the frontend
+    - Centralized 401 handling with dependency-injected router/auth in `resources/js/utils/errorHandler.ts`; prevents circular imports and build warnings
+    - Idempotent 401 redirect to named `login` route with preserved intended route via `redirectName` and encoded `redirectParams`; suppresses error toasts during auth redirects
+    - Router guard updated to use named-route redirects and to allow reaching login when `redirectName` is present; otherwise authenticated users are redirected home
+    - App shell now gates protected routes by `isAuthenticated` and shows a minimal “Redirecting to login…” placeholder while navigation occurs (`resources/js/App.vue`)
+    - Languages view: static import of error utils and suppression of noisy toasts on auth redirects; eliminates dynamic import warnings
+    - Modal overlay no longer intercepts clicks; content is layered above backdrop (`resources/views/components/modal.blade.php`)
+
+### Changed
+
+- CI/frontend and linting hardening
+    - Node in CI pinned to 22.17.0 for consistency on Windows runner
+    - ESLint: `@typescript-eslint/no-explicit-any` elevated to error; Prettier check-only used in CI composer scripts
+
+### Removed
+
+- Safe redirect helper and tests pruned (`resources/js/utils/safeRedirect.ts` and its tests) in favor of strict named-route redirects
+
 ### Changed
 
 - **Frontend color & layout refactor**: Centralized color management and card-related refactors
