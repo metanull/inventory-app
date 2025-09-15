@@ -5,7 +5,7 @@ import {
   type LanguageStoreRequest,
   type LanguageUpdateRequest,
 } from '@metanull/inventory-app-api-client'
-import { ErrorHandler } from '@/utils/errorHandler'
+import { ErrorHandler, isAuthRedirect } from '@/utils/errorHandler'
 import { useApiClient } from '@/composables/useApiClient'
 
 export const useLanguageStore = defineStore('language', () => {
@@ -33,7 +33,10 @@ export const useLanguageStore = defineStore('language', () => {
       languages.value = response.data.data || []
     } catch (err: unknown) {
       ErrorHandler.handleError(err, 'Failed to fetch languages')
-      error.value = 'Failed to fetch languages'
+      // Suppress user-facing error if we are redirecting to login due to 401
+      if (!isAuthRedirect(err)) {
+        error.value = 'Failed to fetch languages'
+      }
       throw err
     } finally {
       loading.value = false
@@ -52,7 +55,9 @@ export const useLanguageStore = defineStore('language', () => {
       return response.data.data
     } catch (err: unknown) {
       ErrorHandler.handleError(err, `Failed to fetch language ${id}`)
-      error.value = 'Failed to fetch language'
+      if (!isAuthRedirect(err)) {
+        error.value = 'Failed to fetch language'
+      }
       throw err
     } finally {
       loading.value = false

@@ -8,6 +8,7 @@ vi.mock('@/utils/errorHandler', () => ({
   ErrorHandler: {
     handleError: vi.fn(),
   },
+  isAuthRedirect: () => false,
 }))
 
 // Mock the auth store

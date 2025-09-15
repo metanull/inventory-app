@@ -6,7 +6,13 @@
     <ErrorDisplay />
     <!-- Application Body -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <RouterView />
+      <template v-if="!requiresAuth || isAuthenticated">
+        <RouterView />
+      </template>
+      <template v-else>
+        <!-- Keep it lean: small placeholder while redirecting to login -->
+        <div class="text-sm text-gray-500">Redirecting to login…</div>
+      </template>
     </main>
     <!-- Application Footer -->
     <AppFooter />
@@ -22,6 +28,7 @@
 
 <script setup lang="ts">
   import { RouterView } from 'vue-router'
+  import { computed } from 'vue'
   import AppHeader from '@/components/layout/app/AppHeader.vue'
   import AppFooter from '@/components/layout/app/AppFooter.vue'
   import LoadingOverlay from '@/components/global/LoadingOverlay.vue'
@@ -29,4 +36,12 @@
   import DeleteConfirmation from '@/components/global/DeleteConfirmation.vue'
   import CancelChangesConfirmation from '@/components/global/CancelChangesConfirmation.vue'
   import { getThemeClass } from '@/composables/useColors'
+  import { storeToRefs } from 'pinia'
+  import { useAuthStore } from '@/stores/auth'
+  import { useRoute } from 'vue-router'
+
+  const auth = useAuthStore()
+  const { isAuthenticated } = storeToRefs(auth)
+  const route = useRoute()
+  const requiresAuth = computed(() => route.meta?.requiresAuth === true)
 </script>

@@ -163,9 +163,28 @@ router.beforeEach(
     const authStore = useAuthStore()
 
     if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-      next('/login')
+      const query: Record<string, string> = {}
+      if (to.name && typeof to.name === 'string') {
+        query.redirectName = to.name
+        const params = to.params && typeof to.params === 'object' ? to.params : undefined
+        if (params && Object.keys(params).length > 0) {
+          try {
+            query.redirectParams = encodeURIComponent(JSON.stringify(params))
+          } catch {
+            // swallow non-serializable params
+          }
+        }
+      }
+      next({ name: 'login', query })
     } else if (to.name === 'login' && authStore.isAuthenticated) {
-      next('/')
+      // If arriving to login with a redirectName in query, allow it so the user can re-auth
+      // Otherwise, send authenticated users away from login to home
+      const hasIntended = typeof to.query?.redirectName === 'string'
+      if (hasIntended) {
+        next()
+      } else {
+        next('/')
+      }
     } else {
       next()
     }

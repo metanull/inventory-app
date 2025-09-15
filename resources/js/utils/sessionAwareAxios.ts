@@ -150,27 +150,9 @@ export const createSessionAwareAxios = (): AxiosInstance => {
  * refresh token implementation or validates current token status.
  */
 const attemptTokenRefresh = async (): Promise<boolean> => {
-  try {
-    const authStore = useAuthStore()
-
-    // For Sanctum tokens, we can't refresh them
-    // Instead, we check if we still have a token
-    // In a real scenario, you might want to make a lightweight API call
-    // to verify the token is still valid
-
-    if (!authStore.token) {
-      return false
-    }
-
-    // TODO: Implement actual token refresh when using refresh tokens
-    // For now, we assume the token is still valid if it exists
-    // This will be caught by the 401 handling if it's actually expired
-
-    return true
-  } catch (error) {
-    console.error('Token refresh failed:', error)
-    return false
-  }
+  // Sanctum Personal Access Tokens do not support refresh; immediately signal failure
+  // This ensures a clean 401 flow to the ErrorHandler without retry loops
+  return false
 }
 
 // Singleton instance for consistent use across the application

@@ -1,5 +1,7 @@
 import { reactive } from 'vue'
+// Intentionally avoid static imports of router/store here to prevent circular dependencies
 import type { AxiosError } from 'axios'
+import type { Router, RouteLocationRaw } from 'vue-router'
 
 // Error types that can occur in the application
 export interface ApiError {
@@ -31,15 +33,55 @@ const errorState = reactive<ErrorState>({
 // Auto-hide timer
 let hideTimer: ReturnType<typeof setTimeout> | null = null
 
+// Prevent multiple concurrent authentication redirects
+const authHandlingState = {
+  inProgress: false,
+}
+
+// Dependency injection targets to avoid static imports and circular deps
+let injectedRouter: Router | null = null
+let injectedAuthAccessor: (() => { token: { value: string | null } | null } | null) | null = null
+
+export function setRouter(router: Router): void {
+  injectedRouter = router
+}
+
+export function setAuthStoreAccessor(
+  accessor: () => { token: { value: string | null } | null } | null
+): void {
+  injectedAuthAccessor = accessor
+}
+
+// Marker key used on errors to indicate an authentication redirect was triggered
+const AUTH_REDIRECT_KEY = '__authRedirect'
+
+export function isAuthRedirect(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && AUTH_REDIRECT_KEY in error
+}
+
 export class ErrorHandler {
   static handleError(error: unknown, context?: string): void {
     console.error('Error occurred:', error, 'Context:', context)
 
     const apiError = this.parseError(error, context)
+    // For authentication errors, do not surface a toast; immediately handle redirect
+    if (apiError.status === 401) {
+      // Tag the original error so upstream catch blocks can decide to suppress user-facing noise
+      try {
+        if (this.isAxiosError(error)) {
+          ;(error as unknown as Record<string, unknown>)[AUTH_REDIRECT_KEY] = true
+        }
+      } catch {
+        // non-fatal
+      }
+      this.handleAuthenticationError()
+      return
+    }
+
     this.addError(apiError)
 
     // Auto-hide after 10 seconds for non-critical errors
-    if (apiError.status !== 401 && apiError.status !== 403) {
+    if (apiError.status !== 403) {
       this.scheduleAutoHide()
     }
   }
@@ -234,11 +276,60 @@ export class ErrorHandler {
   }
 
   static handleAuthenticationError(): void {
-    // Clear any stored authentication data
-    localStorage.removeItem('auth_token')
+    if (authHandlingState.inProgress) return
+    authHandlingState.inProgress = true
+    ;(async () => {
+      try {
+        // Clear any stored authentication data
+        localStorage.removeItem('auth_token')
 
-    // Redirect to login page
-    window.location.href = '/login'
+        // Also clear in-memory auth state so router guards don't bounce back
+        try {
+          const authStore = injectedAuthAccessor ? injectedAuthAccessor() : null
+          const tokenRef = authStore?.token ?? null
+          if (tokenRef && typeof tokenRef === 'object' && 'value' in tokenRef) {
+            tokenRef.value = null
+          }
+        } catch (e) {
+          // ignore if store is not available (e.g., during some tests)
+          console.debug('Auth store not available while handling 401:', e)
+        }
+
+        // Redirect to named route to respect router base (e.g., '/cli/')
+        const router = injectedRouter
+        if (!router) {
+          // Fallback if router not ready
+          window.location.href = '/login'
+          return
+        }
+        const current = router.currentRoute?.value
+        // If we're already on the login route, skip
+        if (current?.name === 'login') return
+
+        const intendedName = (current?.name as string | undefined) ?? undefined
+        const intendedParams =
+          current?.params && typeof current.params === 'object' ? current.params : undefined
+        const query: Record<string, string> = {}
+        if (intendedName) {
+          query.redirectName = intendedName
+          if (intendedParams && Object.keys(intendedParams).length > 0) {
+            try {
+              query.redirectParams = encodeURIComponent(JSON.stringify(intendedParams))
+            } catch {
+              // ignore params if not serializable
+            }
+          }
+        }
+        const target: RouteLocationRaw =
+          Object.keys(query).length > 0 ? { name: 'login', query } : { name: 'login' }
+        await router.push(target)
+      } catch {
+        // Fallback if router not ready
+        window.location.href = '/login'
+      } finally {
+        authHandlingState.inProgress = false
+      }
+    })()
   }
 
   static clearErrors(): void {
