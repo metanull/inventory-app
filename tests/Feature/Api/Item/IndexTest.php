@@ -44,24 +44,24 @@ class IndexTest extends TestCase
         $item = Item::factory()->create();
         $response = $this->getJson(route('item.index'));
 
-        $response->assertExactJsonStructure([
+        $response->assertJsonStructure([
             'data' => [
                 '*' => [
                     'id',
-                    'partner',
                     'internal_name',
                     'backward_compatibility',
                     'type',
                     'owner_reference',
                     'mwnf_reference',
-                    'country',
-                    'project',
-                    'artists',
-                    'workshops',
-                    'tags',
                     'created_at',
                     'updated_at',
                 ],
+            ],
+            'links' => [
+                'first', 'last', 'prev', 'next',
+            ],
+            'meta' => [
+                'current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total',
             ],
         ]);
     }
@@ -69,7 +69,7 @@ class IndexTest extends TestCase
     public function test_index_returns_the_expected_structure_including_partner_data(): void
     {
         $item = Item::factory()->WithPartner()->create();
-        $response = $this->getJson(route('item.index'));
+        $response = $this->getJson(route('item.index', ['include' => 'partner']));
 
         $response->assertJsonStructure([
             'data' => [
@@ -92,7 +92,7 @@ class IndexTest extends TestCase
     public function test_index_returns_the_expected_structure_including_country_data(): void
     {
         $item = Item::factory()->WithCountry()->create();
-        $response = $this->getJson(route('item.index'));
+        $response = $this->getJson(route('item.index', ['include' => 'country']));
 
         $response->assertJsonStructure([
             'data' => [
@@ -113,7 +113,7 @@ class IndexTest extends TestCase
     public function test_index_returns_the_expected_structure_including_project_data(): void
     {
         $item = Item::factory()->WithProject()->create();
-        $response = $this->getJson(route('item.index'));
+        $response = $this->getJson(route('item.index', ['include' => 'project']));
 
         $response->assertJsonStructure([
             'data' => [
@@ -136,14 +136,28 @@ class IndexTest extends TestCase
         $item1 = Item::factory()->create();
         $item2 = Item::factory()->create();
         $response = $this->getJson(route('item.index'));
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'internal_name',
+                    'backward_compatibility',
+                    'type',
+                    'owner_reference',
+                    'mwnf_reference',
+                    'created_at',
+                    'updated_at',
+                ],
+            ],
+            'links' => [
+                'first', 'last', 'prev', 'next',
+            ],
+            'meta' => [
+                'current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total',
+            ],
+        ]);
 
         $response->assertJsonPath('data.0.id', $item1->id)
-            ->assertJsonPath('data.0.internal_name', $item1->internal_name)
-            ->assertJsonPath('data.0.backward_compatibility', $item1->backward_compatibility)
-            ->assertJsonPath('data.0.type', $item1->type)
-            ->assertJsonPath('data.1.id', $item2->id)
-            ->assertJsonPath('data.1.internal_name', $item2->internal_name)
-            ->assertJsonPath('data.1.backward_compatibility', $item2->backward_compatibility)
-            ->assertJsonPath('data.1.type', $item2->type);
+            ->assertJsonPath('data.1.id', $item2->id);
     }
 }

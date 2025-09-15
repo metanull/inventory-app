@@ -25,7 +25,7 @@ class ShowTest extends TestCase
     }
 
     #[Test]
-    public function it_can_show_a_contact()
+    public function test_show_returns_the_default_structure_without_relations()
     {
         $contact = Contact::factory()->create();
 
@@ -41,7 +41,6 @@ class ShowTest extends TestCase
                 'fax_number',
                 'formatted_fax_number',
                 'email',
-                'translations',
                 'created_at',
                 'updated_at',
             ],
@@ -58,11 +57,11 @@ class ShowTest extends TestCase
     }
 
     #[Test]
-    public function it_includes_language_data_in_show_response()
+    public function test_show_returns_the_expected_structure_with_all_relations_loaded()
     {
         $contact = Contact::factory()->create();
 
-        $response = $this->getJson(route('contact.show', ['contact' => $contact->id]));
+        $response = $this->getJson(route('contact.show', ['contact' => $contact->id, 'include' => 'translations']));
 
         $response->assertOk();
         $response->assertJsonStructure([

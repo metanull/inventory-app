@@ -70,7 +70,7 @@ class Picture extends Model
      */
     public function translations(): HasMany
     {
-        return $this->hasMany(PictureTranslation::class);
+        return $this->hasMany(PictureTranslation::class)->chaperone('picture');
     }
 
     /**

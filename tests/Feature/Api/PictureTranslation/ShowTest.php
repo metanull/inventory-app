@@ -34,7 +34,7 @@ class ShowTest extends TestCase
         $response->assertJsonPath('data.caption', $pictureTranslation->caption);
     }
 
-    public function test_show_picture_translation_returns_correct_structure(): void
+    public function test_show_returns_the_default_structure_without_relations(): void
     {
         $pictureTranslation = \App\Models\PictureTranslation::factory()->create();
 

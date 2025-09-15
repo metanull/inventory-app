@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\AddressResource;
 use App\Models\Address;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -15,11 +18,23 @@ class AddressController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $addresses = Address::with(['translations'])->get();
+        $includes = IncludeParser::fromRequest($request, AllowList::for('address'));
+        $pagination = PaginationParams::fromRequest($request);
 
-        return AddressResource::collection($addresses);
+        $defaults = ['translations'];
+        $with = array_values(array_unique(array_merge($defaults, $includes)));
+        $query = Address::query()->with($with);
+
+        $paginator = $query->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
+
+        return AddressResource::collection($paginator);
     }
 
     /**
@@ -58,7 +73,11 @@ class AddressController extends Controller
             }
         }
 
-        return (new AddressResource($address->load('translations')))->response()->setStatusCode(201);
+        $requested = IncludeParser::fromRequest($request, AllowList::for('address'));
+        $defaults = ['translations'];
+        $address->load(array_values(array_unique(array_merge($defaults, $requested))));
+
+        return (new AddressResource($address))->response()->setStatusCode(201);
     }
 
     /**
@@ -66,9 +85,14 @@ class AddressController extends Controller
      *
      * @return \App\Http\Resources\AddressResource
      */
-    public function show(Address $address)
+    public function show(Request $request, Address $address)
     {
-        return new AddressResource($address->load('translations'));
+        $includes = IncludeParser::fromRequest($request, AllowList::for('address'));
+        if (! empty($includes)) {
+            $address->load($includes);
+        }
+
+        return new AddressResource($address);
     }
 
     /**
@@ -113,7 +137,11 @@ class AddressController extends Controller
             }
         }
 
-        return new AddressResource($address->load('translations'));
+        $requested = IncludeParser::fromRequest($request, AllowList::for('address'));
+        $defaults = ['translations'];
+        $address->load(array_values(array_unique(array_merge($defaults, $requested))));
+
+        return new AddressResource($address);
     }
 
     /**

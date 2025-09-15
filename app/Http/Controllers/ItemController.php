@@ -5,16 +5,47 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ItemResource;
 use App\Models\Item;
 use App\Models\Tag;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
 {
     /**
+     * Expand includes with necessary nested relationships for optimal resource rendering.
+     *
+     * @param  array<int,string>  $includes
+     * @return array<int,string>
+     */
+    private function expandIncludes(array $includes): array
+    {
+        $with = $includes;
+        if (in_array('partner', $includes, true)) {
+            $with[] = 'partner.country';
+        }
+
+        return array_values(array_unique($with));
+    }
+
+    /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return ItemResource::collection(Item::all());
+        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $with = $this->expandIncludes($includes);
+        $pagination = PaginationParams::fromRequest($request);
+
+        $query = Item::query()->with($with);
+        $paginator = $query->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
+
+        return ItemResource::collection($paginator);
     }
 
     /**
@@ -34,7 +65,20 @@ class ItemController extends Controller
         ]);
         $item = Item::create($validated);
         $item->refresh();
-        $item->load(['partner', 'country', 'project', 'tags']);
+
+        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        // Include related models by default when foreign keys are present, plus any requested includes
+        $defaults = [];
+        if (! empty($item->partner_id)) {
+            $defaults[] = 'partner';
+        }
+        if (! empty($item->country_id)) {
+            $defaults[] = 'country';
+        }
+        if (! empty($item->project_id)) {
+            $defaults[] = 'project';
+        }
+        $item->load($this->expandIncludes(array_values(array_unique(array_merge($defaults, $includes)))));
 
         return new ItemResource($item);
     }
@@ -42,8 +86,11 @@ class ItemController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Item $item)
+    public function show(Request $request, Item $item)
     {
+        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $item->load($this->expandIncludes($includes));
+
         return new ItemResource($item);
     }
 
@@ -64,7 +111,9 @@ class ItemController extends Controller
         ]);
         $item->update($validated);
         $item->refresh();
-        $item->load(['partner', 'country', 'project', 'tags']);
+
+        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $item->load($this->expandIncludes($includes));
 
         return new ItemResource($item);
     }
@@ -107,7 +156,8 @@ class ItemController extends Controller
 
         // Refresh and load relationships to return updated data
         $item->refresh();
-        $item->load(['partner', 'country', 'project', 'tags']);
+        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $item->load($includes);
 
         return new ItemResource($item);
     }
@@ -117,7 +167,9 @@ class ItemController extends Controller
      */
     public function forTag(Request $request, Tag $tag)
     {
-        $items = Item::forTag($tag)->with(['partner', 'country', 'project', 'tags'])->get();
+        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $with = $this->expandIncludes($includes);
+        $items = Item::forTag($tag)->with($with)->get();
 
         return ItemResource::collection($items);
     }
@@ -132,9 +184,9 @@ class ItemController extends Controller
             'tags.*' => 'required|uuid|exists:tags,id',
         ]);
 
-        $items = Item::withAllTags($validated['tags'])
-            ->with(['partner', 'country', 'project', 'tags'])
-            ->get();
+        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $with = $this->expandIncludes($includes);
+        $items = Item::withAllTags($validated['tags'])->with($with)->get();
 
         return ItemResource::collection($items);
     }
@@ -149,9 +201,9 @@ class ItemController extends Controller
             'tags.*' => 'required|uuid|exists:tags,id',
         ]);
 
-        $items = Item::withAnyTags($validated['tags'])
-            ->with(['partner', 'country', 'project', 'tags'])
-            ->get();
+        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $with = $this->expandIncludes($includes);
+        $items = Item::withAnyTags($validated['tags'])->with($with)->get();
 
         return ItemResource::collection($items);
     }

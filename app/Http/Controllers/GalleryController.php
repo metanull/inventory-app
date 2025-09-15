@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\GalleryResource;
 use App\Models\Gallery;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -19,11 +22,24 @@ class GalleryController extends Controller
     /**
      * Display a listing of the galleries.
      */
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $galleries = Gallery::with(['translations', 'partners', 'items', 'details'])->get();
+        $includes = IncludeParser::fromRequest($request, AllowList::for('gallery'));
+        $pagination = PaginationParams::fromRequest($request);
 
-        return GalleryResource::collection($galleries);
+        $defaults = ['translations', 'partners', 'items', 'details'];
+        $with = array_values(array_unique(array_merge($defaults, $includes)));
+
+        $query = Gallery::query()->with($with);
+
+        $paginator = $query->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
+
+        return GalleryResource::collection($paginator);
     }
 
     /**
@@ -41,7 +57,9 @@ class GalleryController extends Controller
             'backward_compatibility',
         ]));
 
-        $gallery->load(['translations', 'partners', 'items', 'details']);
+        $requested = IncludeParser::fromRequest($request, AllowList::for('gallery'));
+        $defaults = ['translations', 'partners', 'items', 'details'];
+        $gallery->load(array_values(array_unique(array_merge($defaults, $requested))));
 
         return new GalleryResource($gallery);
     }
@@ -49,9 +67,12 @@ class GalleryController extends Controller
     /**
      * Display the specified gallery.
      */
-    public function show(Gallery $gallery): GalleryResource
+    public function show(Request $request, Gallery $gallery): GalleryResource
     {
-        $gallery->load(['translations', 'partners', 'items', 'details']);
+        $includes = IncludeParser::fromRequest($request, AllowList::for('gallery'));
+        if (! empty($includes)) {
+            $gallery->load($includes);
+        }
 
         return new GalleryResource($gallery);
     }
@@ -71,7 +92,9 @@ class GalleryController extends Controller
             'backward_compatibility',
         ]));
 
-        $gallery->load(['translations', 'partners', 'items', 'details']);
+        $requested = IncludeParser::fromRequest($request, AllowList::for('gallery'));
+        $defaults = ['translations', 'partners', 'items', 'details'];
+        $gallery->load(array_values(array_unique(array_merge($defaults, $requested))));
 
         return new GalleryResource($gallery);
     }

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ProvinceResource;
 use App\Models\Province;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -15,11 +18,23 @@ class ProvinceController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $provinces = Province::with(['translations'])->get();
+        $includes = IncludeParser::fromRequest($request, AllowList::for('province'));
+        $pagination = PaginationParams::fromRequest($request);
 
-        return ProvinceResource::collection($provinces);
+        $defaults = ['translations'];
+        $with = array_values(array_unique(array_merge($defaults, $includes)));
+        $query = Province::query()->with($with);
+
+        $paginator = $query->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
+
+        return ProvinceResource::collection($paginator);
     }
 
     /**
@@ -53,7 +68,11 @@ class ProvinceController extends Controller
             ]);
         }
 
-        return (new ProvinceResource($province->load('translations')))->response()->setStatusCode(201);
+        $requested = IncludeParser::fromRequest($request, AllowList::for('province'));
+        $defaults = ['translations'];
+        $province->load(array_values(array_unique(array_merge($defaults, $requested))));
+
+        return (new ProvinceResource($province))->response()->setStatusCode(201);
     }
 
     /**
@@ -61,9 +80,14 @@ class ProvinceController extends Controller
      *
      * @return \App\Http\Resources\ProvinceResource
      */
-    public function show(Province $province)
+    public function show(Request $request, Province $province)
     {
-        return new ProvinceResource($province->load('translations'));
+        $includes = IncludeParser::fromRequest($request, AllowList::for('province'));
+        if (! empty($includes)) {
+            $province->load($includes);
+        }
+
+        return new ProvinceResource($province);
     }
 
     /**
@@ -105,7 +129,11 @@ class ProvinceController extends Controller
             }
         }
 
-        return new ProvinceResource($province->load('translations'));
+        $requested = IncludeParser::fromRequest($request, AllowList::for('province'));
+        $defaults = ['translations'];
+        $province->load(array_values(array_unique(array_merge($defaults, $requested))));
+
+        return new ProvinceResource($province);
     }
 
     /**

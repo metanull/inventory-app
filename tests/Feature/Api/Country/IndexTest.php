@@ -46,6 +46,8 @@ class IndexTest extends TestCase
             'data' => [
                 '*' => ['id', 'internal_name', 'backward_compatibility'],
             ],
+            'links' => ['first', 'last', 'prev', 'next'],
+            'meta' => ['current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total'],
         ]);
     }
 
@@ -68,6 +70,6 @@ class IndexTest extends TestCase
 
         $response = $this->getJson(route('country.index'));
 
-        $response->assertJsonCount(3, 'data');
+        $response->assertJsonPath('meta.total', 3);
     }
 }

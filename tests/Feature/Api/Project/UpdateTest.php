@@ -65,7 +65,7 @@ class UpdateTest extends TestCase
     {
         $project = Project::factory()->create();
         $data = Project::factory()->make()->except(['id']);
-        $response = $this->putJson(route('project.update', $project), $data);
+        $response = $this->putJson(route('project.update', [$project, 'include' => 'context,language']), $data);
         $response->assertJsonStructure([
             'data' => [
                 'id',
@@ -86,7 +86,7 @@ class UpdateTest extends TestCase
     {
         $project = Project::factory()->create();
         $data = Project::factory()->make()->except(['id']);
-        $response = $this->putJson(route('project.update', $project), $data);
+        $response = $this->putJson(route('project.update', [$project, 'include' => 'context,language']), $data);
         $response->assertOk();
         $response->assertJsonPath('data.id', $project->id);
         $response->assertJsonPath('data.internal_name', $data['internal_name']);

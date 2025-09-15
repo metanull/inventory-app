@@ -35,7 +35,7 @@ class ShowTest extends TestCase
     /**
      * Structure: show returns expected JSON structure.
      */
-    public function test_show_returns_expected_structure()
+    public function test_show_returns_the_default_structure_without_relations()
     {
         $tag = Tag::factory()->create();
 

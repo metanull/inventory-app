@@ -20,10 +20,37 @@ class ShowTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function it_shows_an_exhibition(): void
+    public function test_show_returns_the_default_structure_without_relations(): void
     {
         $exhibition = Exhibition::factory()->create();
         $response = $this->getJson(route('exhibition.show', $exhibition));
-        $response->assertOk()->assertJsonPath('data.id', $exhibition->id);
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'internal_name',
+                'backward_compatibility',
+                'created_at',
+                'updated_at',
+            ],
+        ]);
+    }
+
+    public function test_show_returns_the_expected_structure_with_all_relations_loaded(): void
+    {
+        $exhibition = Exhibition::factory()->create();
+        $response = $this->getJson(route('exhibition.show', [$exhibition, 'include' => 'translations,partners']));
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'internal_name',
+                'backward_compatibility',
+                'translations',
+                'partners',
+                'created_at',
+                'updated_at',
+            ],
+        ]);
     }
 }

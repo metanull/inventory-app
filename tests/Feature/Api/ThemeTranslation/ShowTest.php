@@ -22,7 +22,7 @@ class ShowTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_can_show_theme_translation(): void
+    public function test_show_returns_the_default_structure_without_relations(): void
     {
         $themeTranslation = ThemeTranslation::factory()->create();
 

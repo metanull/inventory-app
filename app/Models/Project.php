@@ -12,10 +12,7 @@ class Project extends Model
     use HasFactory;
     use HasUuids;
 
-    protected $with = [
-        'context',
-        'language',
-    ];
+    // No model-level eager loads. Use request-scoped includes in controllers.
 
     protected $fillable = [
         // 'id',

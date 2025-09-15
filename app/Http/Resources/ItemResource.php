@@ -33,14 +33,20 @@ class ItemResource extends JsonResource
             'project' => new ProjectResource($this->whenLoaded('project')),
             // The country this item is associated with, nullable (CountryResource)
             'country' => new CountryResource($this->whenLoaded('country')),
+            // The collection that contains this item (CollectionResource)
+            'collection' => new CollectionResource($this->whenLoaded('collection')),
             // Artists associated with this item (ArtistResource[])
-            'artists' => ArtistResource::collection($this->artists),
+            'artists' => ArtistResource::collection($this->whenLoaded('artists')),
             // Workshops associated with this item (WorkshopResource[])
-            'workshops' => WorkshopResource::collection($this->workshops),
+            'workshops' => WorkshopResource::collection($this->whenLoaded('workshops')),
             // Tags associated with this item (TagResource[])
             'tags' => TagResource::collection($this->whenLoaded('tags')),
             // Translations for this item (internationalization and contextualization) (ItemTranslationResource[])
             'translations' => ItemTranslationResource::collection($this->whenLoaded('translations')),
+            // Pictures attached to this item (PictureResource[])
+            'pictures' => PictureResource::collection($this->whenLoaded('pictures')),
+            // Galleries that include this item (GalleryResource[])
+            'galleries' => GalleryResource::collection($this->whenLoaded('galleries')),
             // The date of creation of the resource (managed by the system)
             'created_at' => $this->created_at,
             // The date of last modification of the resource (managed by the system)

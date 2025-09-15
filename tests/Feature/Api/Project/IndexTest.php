@@ -47,11 +47,15 @@ class IndexTest extends TestCase
                     'launch_date',
                     'is_launched',
                     'is_enabled',
-                    'context',
-                    'language',
                     'created_at',
                     'updated_at',
                 ],
+            ],
+            'links' => [
+                'first', 'last', 'prev', 'next',
+            ],
+            'meta' => [
+                'current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total',
             ],
         ]);
     }
@@ -63,5 +67,6 @@ class IndexTest extends TestCase
         $response->assertOk();
         $response->assertJsonPath('data.0.id', $project->id);
         $response->assertJsonPath('data.0.internal_name', $project->internal_name);
+        $response->assertJsonPath('meta.total', 1);
     }
 }

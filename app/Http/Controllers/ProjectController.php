@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -11,9 +14,19 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return ProjectResource::collection(Project::all());
+        $includes = IncludeParser::fromRequest($request, AllowList::for('project'));
+        $pagination = PaginationParams::fromRequest($request);
+
+        $query = Project::query();
+        if (! empty($includes)) {
+            $query->with($includes);
+        }
+
+        $paginator = $query->paginate($pagination['per_page'], ['*'], 'page', $pagination['page']);
+
+        return ProjectResource::collection($paginator);
     }
 
     /**
@@ -34,7 +47,9 @@ class ProjectController extends Controller
         ]);
         $project = Project::create($validated);
         $project->refresh();
-        $project->load(['context', 'language']);
+        // By default include context and language for store response; also honor requested includes
+        $requested = IncludeParser::fromRequest($request, AllowList::for('project'));
+        $project->load(array_values(array_unique(array_merge(['context', 'language'], $requested))));
 
         return new ProjectResource($project);
     }
@@ -42,8 +57,13 @@ class ProjectController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Project $project)
+    public function show(Request $request, Project $project)
     {
+        $includes = IncludeParser::fromRequest($request, AllowList::for('project'));
+        if (! empty($includes)) {
+            $project->load($includes);
+        }
+
         return new ProjectResource($project);
     }
 
@@ -65,7 +85,9 @@ class ProjectController extends Controller
         ]);
         $project->update($validated);
         $project->refresh();
-        $project->load(['context', 'language']);
+        // By default include context and language for update response; also honor requested includes
+        $requested = IncludeParser::fromRequest($request, AllowList::for('project'));
+        $project->load(array_values(array_unique(array_merge(['context', 'language'], $requested))));
 
         return new ProjectResource($project);
     }
@@ -119,8 +141,14 @@ class ProjectController extends Controller
      * - is_launched is true
      * - current date >= launch_date
      */
-    public function enabled()
+    public function enabled(Request $request)
     {
-        return ProjectResource::collection(Project::visible()->get());
+        $includes = IncludeParser::fromRequest($request, AllowList::for('project'));
+        $query = Project::visible();
+        if (! empty($includes)) {
+            $query->with($includes);
+        }
+
+        return ProjectResource::collection($query->get());
     }
 }

@@ -42,7 +42,7 @@ class ShowTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_show_returns_the_expected_structure(): void
+    public function test_show_returns_the_default_structure_without_relations(): void
     {
         $availableImage = AvailableImage::factory()->create();
 

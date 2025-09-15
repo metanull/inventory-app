@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CollectionResource;
 use App\Models\Collection;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -19,11 +22,24 @@ class CollectionController extends Controller
     /**
      * Display a listing of the collections.
      */
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $collections = Collection::with(['language', 'context', 'translations', 'partners', 'items'])->get();
+        $includes = IncludeParser::fromRequest($request, AllowList::for('collection'));
+        $pagination = PaginationParams::fromRequest($request);
 
-        return CollectionResource::collection($collections);
+        $defaults = ['language', 'context', 'translations', 'partners', 'items'];
+        $with = array_values(array_unique(array_merge($defaults, $includes)));
+
+        $query = Collection::query()->with($with);
+
+        $paginator = $query->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
+
+        return CollectionResource::collection($paginator);
     }
 
     /**
@@ -45,7 +61,9 @@ class CollectionController extends Controller
             'backward_compatibility',
         ]));
 
-        $collection->load(['language', 'context', 'translations', 'partners', 'items']);
+        $requested = IncludeParser::fromRequest($request, AllowList::for('collection'));
+        $defaults = ['language', 'context', 'translations', 'partners', 'items'];
+        $collection->load(array_values(array_unique(array_merge($defaults, $requested))));
 
         return new CollectionResource($collection);
     }
@@ -53,9 +71,12 @@ class CollectionController extends Controller
     /**
      * Display the specified collection.
      */
-    public function show(Collection $collection): CollectionResource
+    public function show(Request $request, Collection $collection): CollectionResource
     {
-        $collection->load(['language', 'context', 'translations', 'partners', 'items']);
+        $includes = IncludeParser::fromRequest($request, AllowList::for('collection'));
+        if (! empty($includes)) {
+            $collection->load($includes);
+        }
 
         return new CollectionResource($collection);
     }
@@ -79,7 +100,9 @@ class CollectionController extends Controller
             'backward_compatibility',
         ]));
 
-        $collection->load(['language', 'context', 'translations', 'partners', 'items']);
+        $requested = IncludeParser::fromRequest($request, AllowList::for('collection'));
+        $defaults = ['language', 'context', 'translations', 'partners', 'items'];
+        $collection->load(array_values(array_unique(array_merge($defaults, $requested))));
 
         return new CollectionResource($collection);
     }

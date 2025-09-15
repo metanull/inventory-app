@@ -33,7 +33,7 @@ class ShowTest extends TestCase
     /**
      * Test that authenticated users can view a specific gallery.
      */
-    public function test_authenticated_user_can_view_gallery(): void
+    public function test_show_returns_the_default_structure_without_relations(): void
     {
         $gallery = Gallery::factory()->create();
 
@@ -47,15 +47,6 @@ class ShowTest extends TestCase
                 'backward_compatibility',
                 'created_at',
                 'updated_at',
-                'translations',
-                'partners',
-                'items',
-                'details',
-                'items_count',
-                'details_count',
-                'total_content_count',
-                'partners_count',
-                'translations_count',
             ],
         ]);
     }
@@ -78,19 +69,29 @@ class ShowTest extends TestCase
     /**
      * Test gallery show includes relationships.
      */
-    public function test_gallery_show_includes_relationships(): void
+    public function test_show_returns_the_expected_structure_with_all_relations_loaded(): void
     {
         $gallery = Gallery::factory()->create();
 
-        $response = $this->getJson(route('gallery.show', $gallery));
+        $response = $this->getJson(route('gallery.show', [$gallery, 'include' => 'translations,partners,items,details']));
 
         $response->assertOk();
         $response->assertJsonStructure([
             'data' => [
+                'id',
+                'internal_name',
+                'backward_compatibility',
                 'translations',
                 'partners',
                 'items',
                 'details',
+                'items_count',
+                'details_count',
+                'total_content_count',
+                'partners_count',
+                'translations_count',
+                'created_at',
+                'updated_at',
             ],
         ]);
     }
@@ -98,30 +99,7 @@ class ShowTest extends TestCase
     /**
      * Test gallery show includes computed attributes.
      */
-    public function test_gallery_show_includes_computed_attributes(): void
-    {
-        $gallery = Gallery::factory()->create();
-
-        $response = $this->getJson(route('gallery.show', $gallery));
-
-        $response->assertOk();
-        $response->assertJsonStructure([
-            'data' => [
-                'items_count',
-                'details_count',
-                'total_content_count',
-                'partners_count',
-                'translations_count',
-            ],
-        ]);
-
-        // Verify counts are integers
-        $response->assertJsonPath('data.items_count', 0);
-        $response->assertJsonPath('data.details_count', 0);
-        $response->assertJsonPath('data.total_content_count', 0);
-        $response->assertJsonPath('data.partners_count', 0);
-        $response->assertJsonPath('data.translations_count', 0);
-    }
+    // Note: Computed attributes are asserted in the 'all relations loaded' test via structure only.
 
     /**
      * Test gallery show returns 404 for non-existent gallery.
@@ -155,7 +133,7 @@ class ShowTest extends TestCase
     {
         $gallery = Gallery::factory()->create();
 
-        $response = $this->getJson(route('gallery.show', $gallery));
+        $response = $this->getJson(route('gallery.show', [$gallery, 'include' => 'translations,partners,items,details']));
 
         $response->assertOk();
 

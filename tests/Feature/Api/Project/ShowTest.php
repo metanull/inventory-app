@@ -41,10 +41,11 @@ class ShowTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_show_returns_the_expected_structure(): void
+    public function test_show_returns_the_expected_structure_with_all_relations_loaded(): void
     {
         $project = Project::factory()->create();
-        $response = $this->getJson(route('project.show', $project));
+        // Request context and language explicitly via include
+        $response = $this->getJson(route('project.show', [$project, 'include' => 'context,language']));
         $response->assertJsonStructure([
             'data' => [
                 'id',
@@ -61,10 +62,28 @@ class ShowTest extends TestCase
         ]);
     }
 
-    public function test_show_returns_the_expected_data(): void
+    public function test_show_returns_the_default_structure_without_relations(): void
     {
         $project = Project::factory()->create();
         $response = $this->getJson(route('project.show', $project));
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'internal_name',
+                'backward_compatibility',
+                'launch_date',
+                'is_launched',
+                'is_enabled',
+                'created_at',
+                'updated_at',
+            ],
+        ]);
+    }
+
+    public function test_show_returns_the_expected_data(): void
+    {
+        $project = Project::factory()->create();
+        $response = $this->getJson(route('project.show', [$project, 'include' => 'context,language']));
         $response->assertOk();
         $response->assertJsonPath('data.id', $project->id);
         $response->assertJsonPath('data.internal_name', $project->internal_name);

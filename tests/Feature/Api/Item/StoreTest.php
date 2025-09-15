@@ -125,7 +125,7 @@ class StoreTest extends TestCase
     {
         $partner = Partner::factory()->create();
 
-        $response = $this->postJson(route('item.store'), [
+        $response = $this->postJson(route('item.store', ['include' => 'partner']), [
             'partner_id' => $partner->id,
             'internal_name' => 'Test Item',
             'backward_compatibility' => 'TI',
@@ -168,16 +168,13 @@ class StoreTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 'id',
-                'partner',
                 'internal_name',
                 'backward_compatibility',
                 'type',
                 'owner_reference',
                 'mwnf_reference',
-                'country',
-                'project',
-                'artists',
-                'workshops',
+                // relations are optional and returned only when included
+                'partner',
                 'created_at',
                 'updated_at',
             ],

@@ -37,7 +37,7 @@ class IndexTest extends TestCase
         $response = $this->getJson(route('partner.index'));
 
         $response->assertOk();
-        $response->assertJsonCount(3, 'data');
+        $response->assertJsonPath('meta.total', 3);
     }
 
     public function test_index_returns_ok_on_success(): void
@@ -65,8 +65,13 @@ class IndexTest extends TestCase
                     'updated_at',
                 ],
             ],
+            'links' => [
+                'first', 'last', 'prev', 'next',
+            ],
+            'meta' => [
+                'current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total',
+            ],
         ]);
-        $response->assertJsonCount(3, 'data');
     }
 
     public function test_index_returns_the_expected_data(): void
@@ -76,12 +81,12 @@ class IndexTest extends TestCase
         $response = $this->getJson(route('partner.index'));
 
         $response->assertOk();
-        $response->assertJsonCount(3, 'data');
+        $response->assertJsonPath('meta.total', 3);
 
         // Check that all partners are present in the response
         foreach ($partners as $partner) {
             $response->assertJsonPath("data.{$partners->search($partner)}.id", $partner->id);
-            $response->assertJsonPath("data.{$partners->search($partner)}.name", $partner->name);
+            $response->assertJsonPath("data.{$partners->search($partner)}.internal_name", $partner->internal_name);
         }
     }
 }
