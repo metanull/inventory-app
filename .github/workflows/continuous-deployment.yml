@@ -36,6 +36,7 @@ name: Continuous Deployment
 
 permissions:
   contents: read
+  packages: read   # Need read permissions for GitHub Packages
 
 on:
   push:
@@ -136,6 +137,18 @@ jobs:
           }
           Write-Host "::endgroup::"
           Write-Host "Composer dependencies installed successfully."
+        shell: powershell
+
+      - name: Setup npm authentication for GitHub Packages
+        run: |
+          # Configure npm authentication for GitHub Packages
+          Write-Host "::group::Setting up npm authentication"
+          & "$env:NPM_PATH" config set @metanull:registry https://npm.pkg.github.com/
+          & "$env:NPM_PATH" config set //npm.pkg.github.com/:_authToken $env:GITHUB_TOKEN
+          Write-Host "::endgroup::"
+          Write-Host "npm authentication configured for GitHub Packages."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: powershell
 
       - name: Install Node.js dependencies
