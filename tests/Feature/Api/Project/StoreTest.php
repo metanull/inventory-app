@@ -53,7 +53,7 @@ class StoreTest extends TestCase
     public function test_store_returns_the_expected_structure(): void
     {
         $data = Project::factory()->make()->except(['id']);
-        $response = $this->postJson(route('project.store'), $data);
+        $response = $this->postJson(route('project.store', ['include' => 'context,language']), $data);
         $response->assertJsonStructure([
             'data' => [
                 'id',
@@ -73,7 +73,7 @@ class StoreTest extends TestCase
     public function test_store_returns_the_expected_data(): void
     {
         $data = Project::factory()->make()->except(['id']);
-        $response = $this->postJson(route('project.store'), $data);
+        $response = $this->postJson(route('project.store', ['include' => 'context,language']), $data);
         $response->assertCreated();
         $response->assertJsonPath('data.internal_name', $data['internal_name']);
         $this->assertDatabaseHas('projects', ['internal_name' => $data['internal_name']]);

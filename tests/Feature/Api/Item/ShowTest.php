@@ -34,7 +34,7 @@ class ShowTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_show_returns_the_expected_structure(): void
+    public function test_show_returns_the_default_structure_without_relations(): void
     {
         $item = Item::factory()->create();
         $response = $this->getJson(route('item.show', $item->id));
@@ -42,16 +42,11 @@ class ShowTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 'id',
-                'partner',
                 'internal_name',
                 'backward_compatibility',
                 'type',
                 'owner_reference',
                 'mwnf_reference',
-                'country',
-                'project',
-                'artists',
-                'workshops',
                 'created_at',
                 'updated_at',
             ],
@@ -61,7 +56,7 @@ class ShowTest extends TestCase
     public function test_show_returns_the_expected_structure_including_partner_data(): void
     {
         $item = Item::factory()->withPartner()->create();
-        $response = $this->getJson(route('item.show', $item->id));
+        $response = $this->getJson(route('item.show', [$item->id, 'include' => 'partner']));
 
         $response->assertJsonStructure([
             'data' => [
@@ -69,7 +64,6 @@ class ShowTest extends TestCase
                     'id',
                     'internal_name',
                     'backward_compatibility',
-                    'country',
                     'type',
                     'created_at',
                     'updated_at',
@@ -81,7 +75,7 @@ class ShowTest extends TestCase
     public function test_show_returns_the_expected_structure_including_country_data(): void
     {
         $item = Item::factory()->withCountry()->create();
-        $response = $this->getJson(route('item.show', $item->id));
+        $response = $this->getJson(route('item.show', [$item->id, 'include' => 'country']));
 
         $response->assertJsonStructure([
             'data' => [
@@ -99,7 +93,7 @@ class ShowTest extends TestCase
     public function test_show_returns_the_expected_structure_including_project_data(): void
     {
         $item = Item::factory()->WithProject()->create();
-        $response = $this->getJson(route('item.show', $item->id));
+        $response = $this->getJson(route('item.show', [$item->id, 'include' => 'project']));
 
         $response->assertJsonStructure([
             'data' => [
@@ -128,7 +122,7 @@ class ShowTest extends TestCase
     public function test_show_returns_the_expected_data_including_partner_data(): void
     {
         $item = Item::factory()->withPartner()->create();
-        $response = $this->getJson(route('item.show', $item->id));
+        $response = $this->getJson(route('item.show', [$item->id, 'include' => 'partner']));
 
         $response->assertJsonPath('data.id', $item->id)
             ->assertJsonPath('data.partner.id', $item->partner->id)
@@ -139,7 +133,7 @@ class ShowTest extends TestCase
     public function test_show_returns_the_expected_data_including_country_data(): void
     {
         $item = Item::factory()->withCountry()->create();
-        $response = $this->getJson(route('item.show', $item->id));
+        $response = $this->getJson(route('item.show', [$item->id, 'include' => 'country']));
 
         $response->assertJsonPath('data.id', $item->id)
             ->assertJsonPath('data.country.id', $item->country->id)
@@ -150,11 +144,43 @@ class ShowTest extends TestCase
     public function test_show_returns_the_expected_data_including_project_data(): void
     {
         $item = Item::factory()->withProject()->create();
-        $response = $this->getJson(route('item.show', $item->id));
+        $response = $this->getJson(route('item.show', [$item->id, 'include' => 'project']));
 
         $response->assertJsonPath('data.id', $item->id)
             ->assertJsonPath('data.project.id', $item->project->id)
             ->assertJsonPath('data.project.internal_name', $item->project->internal_name)
             ->assertJsonPath('data.project.backward_compatibility', $item->project->backward_compatibility);
+    }
+
+    public function test_show_returns_the_expected_structure_with_all_relations_loaded(): void
+    {
+        $item = Item::factory()->create();
+        $response = $this->getJson(route('item.show', [
+            $item->id,
+            'include' => 'partner,country,project,collection,artists,workshops,tags,translations,pictures,galleries',
+        ]));
+
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'internal_name',
+                'backward_compatibility',
+                'type',
+                'owner_reference',
+                'mwnf_reference',
+                'partner',
+                'country',
+                'project',
+                'collection',
+                'artists',
+                'workshops',
+                'tags',
+                'translations',
+                'pictures',
+                'galleries',
+                'created_at',
+                'updated_at',
+            ],
+        ]);
     }
 }

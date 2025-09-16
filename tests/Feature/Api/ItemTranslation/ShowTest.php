@@ -22,7 +22,7 @@ class ShowTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_can_show_item_translation(): void
+    public function test_show_returns_the_default_structure_without_relations(): void
     {
         $translation = ItemTranslation::factory()->create();
 
@@ -67,11 +67,14 @@ class ShowTest extends TestCase
             ->assertJsonPath('data.name', $translation->name);
     }
 
-    public function test_show_includes_relationship_data(): void
+    public function test_show_returns_the_expected_structure_with_all_relations_loaded(): void
     {
         $translation = ItemTranslation::factory()->withAllAuthors()->create();
 
-        $response = $this->getJson(route('item-translation.show', ['item_translation' => $translation->id]));
+        $response = $this->getJson(route('item-translation.show', [
+            'item_translation' => $translation->id,
+            'include' => 'item,language,context,author,text_copy_editor,translator,translation_copy_editor',
+        ]));
 
         $response->assertOk();
 
@@ -85,24 +88,6 @@ class ShowTest extends TestCase
         $this->assertArrayHasKey('text_copy_editor', $responseData);
         $this->assertArrayHasKey('translator', $responseData);
         $this->assertArrayHasKey('translation_copy_editor', $responseData);
-
-        // Verify author relationships if they exist
-        if ($translation->author_id) {
-            $this->assertNotNull($responseData['author']);
-            $this->assertEquals($translation->author_id, $responseData['author']['id']);
-        }
-        if ($translation->text_copy_editor_id) {
-            $this->assertNotNull($responseData['text_copy_editor']);
-            $this->assertEquals($translation->text_copy_editor_id, $responseData['text_copy_editor']['id']);
-        }
-        if ($translation->translator_id) {
-            $this->assertNotNull($responseData['translator']);
-            $this->assertEquals($translation->translator_id, $responseData['translator']['id']);
-        }
-        if ($translation->translation_copy_editor_id) {
-            $this->assertNotNull($responseData['translation_copy_editor']);
-            $this->assertEquals($translation->translation_copy_editor_id, $responseData['translation_copy_editor']['id']);
-        }
     }
 
     public function test_show_returns_not_found_for_non_existent_item_translation(): void

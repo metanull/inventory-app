@@ -25,7 +25,7 @@ class Country extends Model
      */
     public function items(): HasMany
     {
-        return $this->hasMany(Item::class)->chaperone();
+        return $this->hasMany(Item::class)->chaperone('country');
     }
 
     /**
@@ -33,6 +33,6 @@ class Country extends Model
      */
     public function partners(): HasMany
     {
-        return $this->hasMany(Partner::class)->chaperone();
+        return $this->hasMany(Partner::class)->chaperone('country');
     }
 }

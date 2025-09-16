@@ -135,6 +135,56 @@ class ShowTest extends TestCase
         $response->assertJsonPath('data.upload_size', 1024000);
     }
 
+    public function test_show_returns_the_default_structure_without_relations(): void
+    {
+        $picture = Picture::factory()->forItem()->create();
+
+        $response = $this->getJson(route('picture.show', $picture));
+
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'internal_name',
+                'backward_compatibility',
+                'path',
+                'upload_name',
+                'upload_extension',
+                'upload_mime_type',
+                'upload_size',
+                'pictureable_type',
+                'pictureable_id',
+                'created_at',
+                'updated_at',
+            ],
+        ]);
+    }
+
+    public function test_show_returns_the_expected_structure_with_all_relations_loaded(): void
+    {
+        $picture = Picture::factory()->forItem()->create();
+
+        $response = $this->getJson(route('picture.show', [$picture, 'include' => 'pictureable,translations']));
+
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'internal_name',
+                'backward_compatibility',
+                'path',
+                'upload_name',
+                'upload_extension',
+                'upload_mime_type',
+                'upload_size',
+                'pictureable_type',
+                'pictureable_id',
+                'created_at',
+                'updated_at',
+            ],
+        ]);
+    }
+
     private function withoutAuthentication(): void
     {
         $this->user = null;

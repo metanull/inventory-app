@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\LocationResource;
 use App\Models\Location;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -15,11 +18,23 @@ class LocationController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $locations = Location::with(['translations'])->get();
+        $includes = IncludeParser::fromRequest($request, AllowList::for('location'));
+        $pagination = PaginationParams::fromRequest($request);
 
-        return LocationResource::collection($locations);
+        $defaults = ['translations'];
+        $with = array_values(array_unique(array_merge($defaults, $includes)));
+        $query = Location::query()->with($with);
+
+        $paginator = $query->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
+
+        return LocationResource::collection($paginator);
     }
 
     /**
@@ -53,7 +68,11 @@ class LocationController extends Controller
             ]);
         }
 
-        return (new LocationResource($location->load('translations')))->response()->setStatusCode(201);
+        $requested = IncludeParser::fromRequest($request, AllowList::for('location'));
+        $defaults = ['translations'];
+        $location->load(array_values(array_unique(array_merge($defaults, $requested))));
+
+        return (new LocationResource($location))->response()->setStatusCode(201);
     }
 
     /**
@@ -61,9 +80,14 @@ class LocationController extends Controller
      *
      * @return \App\Http\Resources\LocationResource
      */
-    public function show(Location $location)
+    public function show(Request $request, Location $location)
     {
-        return new LocationResource($location->load('translations'));
+        $includes = IncludeParser::fromRequest($request, AllowList::for('location'));
+        if (! empty($includes)) {
+            $location->load($includes);
+        }
+
+        return new LocationResource($location);
     }
 
     /**
@@ -105,7 +129,11 @@ class LocationController extends Controller
             }
         }
 
-        return new LocationResource($location->load('translations'));
+        $requested = IncludeParser::fromRequest($request, AllowList::for('location'));
+        $defaults = ['translations'];
+        $location->load(array_values(array_unique(array_merge($defaults, $requested))));
+
+        return new LocationResource($location);
     }
 
     /**

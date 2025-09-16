@@ -183,6 +183,18 @@
         </TableCell>
       </TableRow>
     </template>
+
+    <!-- Pagination controls -->
+    <template #pagination>
+      <PaginationControls
+        :page="projectStore.page"
+        :per-page="projectStore.perPage"
+        :total="projectStore.total"
+        :color="color"
+        @update:page="onPageChange"
+        @update:per-page="onPerPageChange"
+      />
+    </template>
   </ListView>
 </template>
 
@@ -209,6 +221,7 @@
   import { FolderIcon as ProjectIcon } from '@heroicons/vue/24/solid'
   import SearchControl from '@/components/layout/list/SearchControl.vue'
   import { useColors, type ColorName } from '@/composables/useColors'
+  import PaginationControls from '@/components/layout/list/PaginationControls.vue'
 
   // Props
   interface Props {
@@ -311,8 +324,11 @@
     }
     try {
       // Always refresh in background
-      await projectStore.fetchProjects()
-      await projectStore.fetchEnabledProjects()
+      await projectStore.fetchProjects({ page: projectStore.page, perPage: projectStore.perPage })
+      await projectStore.fetchEnabledProjects({
+        page: projectStore.page,
+        perPage: projectStore.perPage,
+      })
       if (usedCache) {
         errorStore.addMessage('info', 'List refreshed')
       }
@@ -357,15 +373,43 @@
     try {
       loadingStore.show()
       if (filterMode.value === 'visible') {
-        await projectStore.fetchEnabledProjects()
+        await projectStore.fetchEnabledProjects({
+          page: projectStore.page,
+          perPage: projectStore.perPage,
+        })
       } else {
-        await projectStore.fetchProjects()
+        await projectStore.fetchProjects({ page: projectStore.page, perPage: projectStore.perPage })
       }
       errorStore.addMessage('info', 'Projects refreshed successfully.')
     } catch {
       errorStore.addMessage('error', 'Failed to refresh projects. Please try again.')
     } finally {
       loadingStore.hide()
+    }
+  }
+
+  const onPageChange = async (p: number) => {
+    projectStore.page = p
+    if (filterMode.value === 'visible') {
+      await projectStore.fetchEnabledProjects({
+        page: projectStore.page,
+        perPage: projectStore.perPage,
+      })
+    } else {
+      await projectStore.fetchProjects({ page: projectStore.page, perPage: projectStore.perPage })
+    }
+  }
+
+  const onPerPageChange = async (pp: number) => {
+    projectStore.perPage = pp
+    projectStore.page = 1
+    if (filterMode.value === 'visible') {
+      await projectStore.fetchEnabledProjects({
+        page: projectStore.page,
+        perPage: projectStore.perPage,
+      })
+    } else {
+      await projectStore.fetchProjects({ page: projectStore.page, perPage: projectStore.perPage })
     }
   }
 
@@ -405,5 +449,7 @@
     handleDeleteProject,
     handleSort,
     fetchProjects,
+    onPageChange,
+    onPerPageChange,
   })
 </script>

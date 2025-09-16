@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ExhibitionResource;
 use App\Models\Exhibition;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\Rule;
@@ -15,9 +18,22 @@ class ExhibitionController extends Controller
      */
     public function index(Request $request)
     {
-        $exhibitions = Exhibition::with(['translations', 'partners'])->paginate(15);
+        $includes = IncludeParser::fromRequest($request, AllowList::for('exhibition'));
+        $pagination = PaginationParams::fromRequest($request);
 
-        return ExhibitionResource::collection($exhibitions);
+        $query = Exhibition::query();
+        if (! empty($includes)) {
+            $query->with($includes);
+        }
+
+        $paginator = $query->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
+
+        return ExhibitionResource::collection($paginator);
     }
 
     /**
@@ -30,16 +46,23 @@ class ExhibitionController extends Controller
             'backward_compatibility' => ['nullable', 'string'],
         ]);
         $exhibition = Exhibition::create($validated);
+        $requested = IncludeParser::fromRequest($request, AllowList::for('exhibition'));
+        if (! empty($requested)) {
+            $exhibition->load($requested);
+        }
 
-        return new ExhibitionResource($exhibition->load(['translations', 'partners']));
+        return new ExhibitionResource($exhibition);
     }
 
     /**
      * Display the specified exhibition.
      */
-    public function show(Exhibition $exhibition)
+    public function show(Request $request, Exhibition $exhibition)
     {
-        $exhibition->load(['translations', 'partners']);
+        $includes = IncludeParser::fromRequest($request, AllowList::for('exhibition'));
+        if (! empty($includes)) {
+            $exhibition->load($includes);
+        }
 
         return new ExhibitionResource($exhibition);
     }
@@ -54,8 +77,12 @@ class ExhibitionController extends Controller
             'backward_compatibility' => ['nullable', 'string'],
         ]);
         $exhibition->update($validated);
+        $requested = IncludeParser::fromRequest($request, AllowList::for('exhibition'));
+        if (! empty($requested)) {
+            $exhibition->load($requested);
+        }
 
-        return new ExhibitionResource($exhibition->load(['translations', 'partners']));
+        return new ExhibitionResource($exhibition);
     }
 
     /**

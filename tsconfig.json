@@ -22,7 +22,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./resources/js/*"],
-      "@metanull/inventory-app-api-client": ["./api-client/index.ts"]
+      "@metanull/inventory-app-api-client": ["node_modules/@metanull/inventory-app-api-client/index.d.ts"]
     },
     "types": [
       "vite/client",

@@ -20,10 +20,41 @@ class ShowTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function it_shows_a_theme(): void
+    public function test_show_returns_the_default_structure_without_relations(): void
     {
         $theme = Theme::factory()->create();
         $response = $this->getJson(route('theme.show', $theme));
-        $response->assertOk()->assertJsonPath('data.id', $theme->id);
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'exhibition_id',
+                'parent_id',
+                'internal_name',
+                'backward_compatibility',
+                'created_at',
+                'updated_at',
+            ],
+        ]);
+    }
+
+    public function test_show_returns_the_expected_structure_with_all_relations_loaded(): void
+    {
+        $theme = Theme::factory()->create();
+        $response = $this->getJson(route('theme.show', [$theme, 'include' => 'translations,subthemes,subthemes.translations']));
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'exhibition_id',
+                'parent_id',
+                'internal_name',
+                'backward_compatibility',
+                'translations',
+                'subthemes',
+                'created_at',
+                'updated_at',
+            ],
+        ]);
     }
 }

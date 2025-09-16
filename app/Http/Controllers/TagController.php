@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\TagResource;
 use App\Models\Item;
 use App\Models\Tag;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 
 class TagController extends Controller
@@ -12,9 +13,17 @@ class TagController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return TagResource::collection(Tag::all());
+        $pagination = PaginationParams::fromRequest($request);
+        $paginator = Tag::query()->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
+
+        return TagResource::collection($paginator);
     }
 
     /**
@@ -66,9 +75,15 @@ class TagController extends Controller
      */
     public function forItem(Request $request, Item $item)
     {
-        $tags = Tag::forItem($item)->get();
+        $pagination = PaginationParams::fromRequest($request);
+        $paginator = Tag::forItem($item)->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
 
-        return TagResource::collection($tags);
+        return TagResource::collection($paginator);
     }
 
     /**

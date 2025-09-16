@@ -7,12 +7,24 @@ import {
 } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
 import { ErrorHandler } from '@/utils/errorHandler'
+import {
+  type IndexQueryOptions,
+  type ShowQueryOptions,
+  buildIncludes,
+  buildPagination,
+  mergeParams,
+  type PaginationMeta,
+  extractPaginationMeta,
+} from '@/utils/apiQueryParams'
 
 export const useCountryStore = defineStore('country', () => {
   const countries = ref<CountryResource[]>([])
   const currentCountry = ref<CountryResource | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const page = ref(1)
+  const perPage = ref(20)
+  const total = ref<number | null>(null)
 
   // Create API client instance with session-aware configuration
   const createApiClient = () => {
@@ -27,18 +39,29 @@ export const useCountryStore = defineStore('country', () => {
   const countriesCount = computed(() => countries.value.length)
 
   // Actions
-  const fetchCountries = async (): Promise<void> => {
+  const fetchCountries = async ({
+    include = [],
+    page: p = 1,
+    perPage: pp = 20,
+  }: IndexQueryOptions = {}): Promise<void> => {
     loading.value = true
     error.value = null
 
     try {
       const api = createApiClient()
-      const response = await api.countryIndex()
+      const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
+      const response = await api.countryIndex({ params })
 
-      if (response.data && response.data.data) {
-        countries.value = response.data.data
+      const data = response.data?.data ?? []
+      const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
+      countries.value = data
+      if (meta) {
+        total.value = typeof meta.total === 'number' ? meta.total : total.value
+        page.value = typeof meta.current_page === 'number' ? meta.current_page : p
+        perPage.value = typeof meta.per_page === 'number' ? meta.per_page : pp
       } else {
-        countries.value = []
+        page.value = p
+        perPage.value = pp
       }
     } catch (err) {
       error.value = 'Failed to fetch countries'
@@ -49,14 +72,19 @@ export const useCountryStore = defineStore('country', () => {
     }
   }
 
-  const fetchCountry = async (id: string): Promise<void> => {
+  const fetchCountry = async (
+    id: string,
+    { include = [] }: ShowQueryOptions = {}
+  ): Promise<void> => {
     loading.value = true
     error.value = null
     currentCountry.value = null
 
     try {
       const api = createApiClient()
-      const response = await api.countryShow(id)
+      const params = mergeParams(buildIncludes(include))
+      const hasParams = Object.keys(params).length > 0
+      const response = hasParams ? await api.countryShow(id, { params }) : await api.countryShow(id)
 
       if (response.data && response.data.data) {
         currentCountry.value = response.data.data
@@ -113,7 +141,7 @@ export const useCountryStore = defineStore('country', () => {
         const updatedCountry = response.data.data
 
         // Update in countries list
-        const index = countries.value.findIndex(country => country.id === id)
+        const index = countries.value.findIndex((country: CountryResource) => country.id === id)
         if (index !== -1) {
           countries.value[index] = updatedCountry
         }
@@ -145,7 +173,7 @@ export const useCountryStore = defineStore('country', () => {
       await api.countryDestroy(id)
 
       // Remove from countries list
-      countries.value = countries.value.filter(country => country.id !== id)
+      countries.value = countries.value.filter((country: CountryResource) => country.id !== id)
 
       // Clear current country if it's the same
       if (currentCountry.value && currentCountry.value.id === id) {
@@ -163,7 +191,7 @@ export const useCountryStore = defineStore('country', () => {
   }
 
   const findCountryById = (id: string): CountryResource | undefined => {
-    return countries.value.find(country => country.id === id)
+    return countries.value.find((country: CountryResource) => country.id === id)
   }
 
   const clearCurrentCountry = (): void => {
@@ -180,6 +208,9 @@ export const useCountryStore = defineStore('country', () => {
     currentCountry,
     loading,
     error,
+    page,
+    perPage,
+    total,
 
     // Computed
     sortedCountries,

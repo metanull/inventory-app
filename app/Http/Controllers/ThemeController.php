@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ThemeResource;
 use App\Models\Theme;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -14,11 +17,22 @@ class ThemeController extends Controller
      */
     public function index(Request $request)
     {
-        $themes = Theme::with(['translations', 'subthemes.translations'])
-            ->whereNull('parent_id')
-            ->paginate(15);
+        $includes = IncludeParser::fromRequest($request, AllowList::for('theme'));
+        $pagination = PaginationParams::fromRequest($request);
 
-        return ThemeResource::collection($themes);
+        $query = Theme::query()->whereNull('parent_id');
+        if (! empty($includes)) {
+            $query->with($includes);
+        }
+
+        $paginator = $query->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
+
+        return ThemeResource::collection($paginator);
     }
 
     /**
@@ -33,16 +47,23 @@ class ThemeController extends Controller
             'backward_compatibility' => ['nullable', 'string'],
         ]);
         $theme = Theme::create($validated);
+        $requested = IncludeParser::fromRequest($request, AllowList::for('theme'));
+        if (! empty($requested)) {
+            $theme->load($requested);
+        }
 
-        return new ThemeResource($theme->load(['translations', 'subthemes.translations']));
+        return new ThemeResource($theme);
     }
 
     /**
      * Display the specified theme.
      */
-    public function show(Theme $theme)
+    public function show(Request $request, Theme $theme)
     {
-        $theme->load(['translations', 'subthemes.translations']);
+        $includes = IncludeParser::fromRequest($request, AllowList::for('theme'));
+        if (! empty($includes)) {
+            $theme->load($includes);
+        }
 
         return new ThemeResource($theme);
     }
@@ -57,8 +78,12 @@ class ThemeController extends Controller
             'backward_compatibility' => ['nullable', 'string'],
         ]);
         $theme->update($validated);
+        $requested = IncludeParser::fromRequest($request, AllowList::for('theme'));
+        if (! empty($requested)) {
+            $theme->load($requested);
+        }
 
-        return new ThemeResource($theme->load(['translations', 'subthemes.translations']));
+        return new ThemeResource($theme);
     }
 
     /**

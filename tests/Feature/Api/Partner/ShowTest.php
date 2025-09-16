@@ -56,7 +56,7 @@ class ShowTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_show_returns_the_expected_structure(): void
+    public function test_show_returns_the_default_structure_without_relations(): void
     {
         $partner = Partner::factory()->create();
 
@@ -67,6 +67,25 @@ class ShowTest extends TestCase
                 'id',
                 'internal_name',
                 'backward_compatibility',
+                'created_at',
+                'updated_at',
+            ],
+        ]);
+    }
+
+    public function test_show_returns_the_expected_structure_with_all_relations_loaded(): void
+    {
+        $partner = Partner::factory()->create();
+
+        $response = $this->getJson(route('partner.show', [$partner, 'include' => 'country']));
+
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'internal_name',
+                'backward_compatibility',
+                'type',
+                'country',
                 'created_at',
                 'updated_at',
             ],

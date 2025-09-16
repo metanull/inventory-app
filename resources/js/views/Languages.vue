@@ -130,6 +130,18 @@
         </TableCell>
       </TableRow>
     </template>
+
+    <!-- Pagination controls -->
+    <template #pagination>
+      <PaginationControls
+        :page="languageStore.page"
+        :per-page="languageStore.perPage"
+        :total="languageStore.total"
+        :color="color"
+        @update:page="onPageChange"
+        @update:per-page="onPerPageChange"
+      />
+    </template>
   </ListView>
 </template>
 
@@ -156,6 +168,7 @@
   import SearchControl from '@/components/layout/list/SearchControl.vue'
   import { useColors, type ColorName } from '@/composables/useColors'
   import { isAuthRedirect } from '@/utils/errorHandler'
+  import PaginationControls from '@/components/layout/list/PaginationControls.vue'
 
   interface Props {
     color?: ColorName
@@ -249,7 +262,10 @@
     }
     try {
       // Always refresh in background
-      await languageStore.fetchLanguages()
+      await languageStore.fetchLanguages({
+        page: languageStore.page,
+        perPage: languageStore.perPage,
+      })
       if (usedCache) {
         errorStore.addMessage('info', 'List refreshed')
       }
@@ -300,13 +316,27 @@
   const fetchLanguages = async () => {
     try {
       loadingStore.show()
-      await languageStore.fetchLanguages()
+      await languageStore.fetchLanguages({
+        page: languageStore.page,
+        perPage: languageStore.perPage,
+      })
       errorStore.addMessage('info', 'Languages refreshed successfully.')
     } catch {
       errorStore.addMessage('error', 'Failed to refresh languages. Please try again.')
     } finally {
       loadingStore.hide()
     }
+  }
+
+  const onPageChange = async (p: number) => {
+    languageStore.page = p
+    await languageStore.fetchLanguages({ page: languageStore.page, perPage: languageStore.perPage })
+  }
+
+  const onPerPageChange = async (pp: number) => {
+    languageStore.perPage = pp
+    languageStore.page = 1
+    await languageStore.fetchLanguages({ page: languageStore.page, perPage: languageStore.perPage })
   }
 
   // Delete language with confirmation
@@ -343,5 +373,7 @@
     handleDeleteLanguage,
     handleSort,
     fetchLanguages,
+    onPageChange,
+    onPerPageChange,
   })
 </script>

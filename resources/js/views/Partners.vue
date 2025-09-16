@@ -154,6 +154,18 @@
         </TableCell>
       </TableRow>
     </template>
+
+    <!-- Pagination controls -->
+    <template #pagination>
+      <PaginationControls
+        :page="partnerStore.page"
+        :per-page="partnerStore.perPage"
+        :total="partnerStore.total"
+        :color="color"
+        @update:page="onPageChange"
+        @update:per-page="onPerPageChange"
+      />
+    </template>
   </ListView>
 </template>
 
@@ -179,6 +191,7 @@
   import SearchControl from '@/components/layout/list/SearchControl.vue'
   import type { PartnerResource } from '@metanull/inventory-app-api-client'
   import { useColors, type ColorName } from '@/composables/useColors'
+  import PaginationControls from '@/components/layout/list/PaginationControls.vue'
 
   interface Props {
     color?: ColorName
@@ -284,12 +297,35 @@
   const fetchPartners = async () => {
     try {
       loadingStore.show('Loading partners...')
-      await partnerStore.fetchPartners()
+      await partnerStore.fetchPartners({
+        include: ['country'],
+        page: partnerStore.page,
+        perPage: partnerStore.perPage,
+      })
     } catch {
       errorStore.addMessage('error', 'Failed to load partners. Please try again.')
     } finally {
       loadingStore.hide()
     }
+  }
+
+  const onPageChange = async (p: number) => {
+    partnerStore.page = p
+    await partnerStore.fetchPartners({
+      include: ['country'],
+      page: partnerStore.page,
+      perPage: partnerStore.perPage,
+    })
+  }
+
+  const onPerPageChange = async (pp: number) => {
+    partnerStore.perPage = pp
+    partnerStore.page = 1
+    await partnerStore.fetchPartners({
+      include: ['country'],
+      page: partnerStore.page,
+      perPage: partnerStore.perPage,
+    })
   }
 
   const handleDeletePartner = async (partner: PartnerResource) => {

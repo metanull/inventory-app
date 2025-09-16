@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Frontend - Includes + Pagination rollout
+    - Centralized include and pagination handling across Items, Partners, Countries, Languages, Contexts, Collections, and Projects
+        - Stores now accept `{ page, perPage, include }` for index and `{ include }` for show methods and persist `page/perPage/total` from API meta
+        - List views wired to shared `PaginationControls` via `ListView` slot; re-fetch triggers on page/perPage changes
+        - Shared helpers in `resources/js/utils/apiQueryParams.ts` with exported `DEFAULT_PAGE` and `DEFAULT_PER_PAGE`
+    - Request interceptor
+        - Injects default `per_page` for GET list requests when missing; preserves explicit `per_page`
+        - Safely initializes headers and avoids undefined Authorization warnings
+    - Tests
+        - Store-level tests covering minimal includes + pagination state for all entities above
+        - Interceptor tests verifying default `per_page` injection behavior
+
 ### Fixed
 
 - Authentication and redirect flow hardening across the frontend
@@ -195,7 +209,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - **Comprehensive ID Replacement**: Systematically replaced ALL numeric IDs in both mock data and test logic across multiple test files
 
 ### Added
-
+ 
 - **Gallery Model Implementation**: Complete Gallery model as the second type of collection system
     - **Gallery Model**: UUID-based primary key with polymorphic many-to-many relationships
     - **Polymorphic Relationships**: Can contain both Items and Details via Galleryable model

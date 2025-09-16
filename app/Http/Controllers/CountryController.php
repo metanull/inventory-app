@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CountryResource;
 use App\Models\Country;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 
 class CountryController extends Controller
@@ -11,9 +14,20 @@ class CountryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return CountryResource::collection(Country::all());
+        $includes = IncludeParser::fromRequest($request, AllowList::for('country'));
+        $pagination = PaginationParams::fromRequest($request);
+
+        $query = Country::query()->with($includes);
+        $paginator = $query->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
+
+        return CountryResource::collection($paginator);
     }
 
     /**
@@ -28,6 +42,8 @@ class CountryController extends Controller
         ]);
         $country = Country::create($validated);
         $country->refresh();
+        $includes = IncludeParser::fromRequest($request, AllowList::for('country'));
+        $country->load($includes);
 
         return new CountryResource($country);
     }
@@ -35,8 +51,11 @@ class CountryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Country $country)
+    public function show(Request $request, Country $country)
     {
+        $includes = IncludeParser::fromRequest($request, AllowList::for('country'));
+        $country->load($includes);
+
         return new CountryResource($country);
     }
 
@@ -53,6 +72,8 @@ class CountryController extends Controller
         ]);
         $country->update($validated);
         $country->refresh();
+        $includes = IncludeParser::fromRequest($request, AllowList::for('country'));
+        $country->load($includes);
 
         return new CountryResource($country);
     }

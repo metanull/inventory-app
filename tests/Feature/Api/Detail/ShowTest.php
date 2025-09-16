@@ -36,7 +36,7 @@ class ShowTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_show_returns_the_expected_structure(): void
+    public function test_show_returns_the_default_structure_without_relations(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
         $response = $this->getJson(route('detail.show', $detail->id));
@@ -44,7 +44,6 @@ class ShowTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 'id',
-                'item',
                 'internal_name',
                 'backward_compatibility',
                 'created_at',
@@ -56,7 +55,7 @@ class ShowTest extends TestCase
     public function test_show_returns_the_expected_structure_including_item_data(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
-        $response = $this->getJson(route('detail.show', $detail->id));
+        $response = $this->getJson(route('detail.show', [$detail->id, 'include' => 'item']));
 
         $response->assertJsonStructure([
             'data' => [
@@ -84,11 +83,32 @@ class ShowTest extends TestCase
     public function test_show_returns_the_expected_data_including_item_data(): void
     {
         $detail = Detail::factory()->for(Item::factory())->create();
-        $response = $this->getJson(route('detail.show', $detail->id));
+        $response = $this->getJson(route('detail.show', [$detail->id, 'include' => 'item']));
 
         $response->assertJsonPath('data.id', $detail->id)
             ->assertJsonPath('data.item.id', $detail->item->id)
             ->assertJsonPath('data.item.internal_name', $detail->item->internal_name)
             ->assertJsonPath('data.item.backward_compatibility', $detail->item->backward_compatibility);
+    }
+
+    public function test_show_returns_the_expected_structure_with_all_relations_loaded(): void
+    {
+        $detail = Detail::factory()->for(Item::factory())->create();
+        $response = $this->getJson(route('detail.show', [
+            $detail->id,
+            'include' => 'item,translations,pictures,galleries',
+        ]));
+
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'internal_name',
+                'item',
+                'backward_compatibility',
+                'translations',
+                'created_at',
+                'updated_at',
+            ],
+        ]);
     }
 }

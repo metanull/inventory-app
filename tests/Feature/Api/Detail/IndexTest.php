@@ -38,33 +38,37 @@ class IndexTest extends TestCase
     public function test_index_returns_an_empty_array_when_no_data(): void
     {
         $response = $this->getJson(route('detail.index'));
-
-        $response->assertJsonCount(0, 'data');
+        $response->assertJsonPath('meta.total', 0);
     }
 
     public function test_index_returns_the_expected_structure(): void
     {
-        $detail = Detail::factory()->for(Item::factory())->create();
+        Detail::factory()->for(Item::factory())->create();
         $response = $this->getJson(route('detail.index'));
 
-        $response->assertExactJsonStructure([
+        $response->assertJsonStructure([
             'data' => [
                 '*' => [
                     'id',
-                    'item',
                     'internal_name',
                     'backward_compatibility',
                     'created_at',
                     'updated_at',
                 ],
             ],
+            'links' => [
+                'first', 'last', 'prev', 'next',
+            ],
+            'meta' => [
+                'current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total',
+            ],
         ]);
     }
 
     public function test_index_returns_the_expected_structure_including_item_data(): void
     {
-        $detail = Detail::factory()->for(Item::factory())->create();
-        $response = $this->getJson(route('detail.index'));
+        Detail::factory()->for(Item::factory())->create();
+        $response = $this->getJson(route('detail.index', ['include' => 'item']));
 
         $response->assertJsonStructure([
             'data' => [

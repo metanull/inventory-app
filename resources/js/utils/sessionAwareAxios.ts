@@ -1,6 +1,7 @@
 import axios, { type AxiosInstance, type AxiosResponse, type AxiosError } from 'axios'
 import { useAuthStore } from '@/stores/auth'
 import { ErrorHandler } from '@/utils/errorHandler'
+import { DEFAULT_PER_PAGE } from '@/utils/apiQueryParams'
 
 /**
  * Session-aware axios instance for handling authentication and session expiration
@@ -56,7 +57,30 @@ export const createSessionAwareAxios = (): AxiosInstance => {
       const token = authStore.token
 
       if (token) {
-        config.headers.Authorization = `Bearer ${token}`
+        if (!config.headers) {
+          // Initialize headers if missing (can be undefined in tests or custom calls)
+          ;(config as { headers: Record<string, unknown> }).headers = {}
+        }
+        ;(config.headers as Record<string, unknown>).Authorization = `Bearer ${token}`
+      }
+
+      // Ensure default per_page for list endpoints unless explicitly provided
+      // Supports both { params: { ... } } calls and direct URL queries
+      const params = (config.params ?? {}) as Record<string, unknown>
+      const hasPerPage = Object.prototype.hasOwnProperty.call(params, 'per_page')
+      if (!hasPerPage) {
+        // Only inject for GET requests targeting index-like endpoints
+        const method = (config.method || 'get').toLowerCase()
+        const url = (config.url || '').toLowerCase()
+        const isList =
+          (method === 'get' &&
+            /\/(index|list|items|partners|countries|languages|contexts|collections|projects)?$/i.test(
+              url
+            )) ||
+          method === 'get'
+        if (isList) {
+          ;(config.params as Record<string, unknown>) = { ...params, per_page: DEFAULT_PER_PAGE }
+        }
       }
 
       return config
@@ -84,8 +108,12 @@ export const createSessionAwareAxios = (): AxiosInstance => {
             .then(() => {
               // Retry the original request with updated token
               const authStore = useAuthStore()
-              if (originalRequest.headers && authStore.token) {
-                originalRequest.headers.Authorization = `Bearer ${authStore.token}`
+              if (authStore.token) {
+                if (!originalRequest.headers) {
+                  ;(originalRequest as { headers: Record<string, unknown> }).headers = {}
+                }
+                ;(originalRequest.headers as Record<string, unknown>).Authorization =
+                  `Bearer ${authStore.token}`
               }
               return instance(originalRequest)
             })
@@ -106,9 +134,11 @@ export const createSessionAwareAxios = (): AxiosInstance => {
 
           if (refreshed && authStore.token) {
             // Update the original request with new token
-            if (originalRequest.headers) {
-              originalRequest.headers.Authorization = `Bearer ${authStore.token}`
+            if (!originalRequest.headers) {
+              ;(originalRequest as { headers: Record<string, unknown> }).headers = {}
             }
+            ;(originalRequest.headers as Record<string, unknown>).Authorization =
+              `Bearer ${authStore.token}`
 
             // Process queued requests
             processQueue(null, authStore.token)

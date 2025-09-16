@@ -22,7 +22,7 @@ class ShowTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_can_show_province_translation(): void
+    public function test_show_returns_the_default_structure_without_relations(): void
     {
         $province = \App\Models\Province::factory()->withoutTranslations()->create();
         $language = \App\Models\Language::factory()->create();

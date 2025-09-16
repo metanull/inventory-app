@@ -24,7 +24,7 @@ class ShowTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_can_show_address(): void
+    public function test_show_returns_the_default_structure_without_relations(): void
     {
         Language::factory(3)->create();
         Country::factory(2)->create();
@@ -38,17 +38,6 @@ class ShowTest extends TestCase
                     'id',
                     'internal_name',
                     'country_id',
-                    'translations' => [
-                        '*' => [
-                            'id',
-                            'address_id',
-                            'language_id',
-                            'address',
-                            'description',
-                            'created_at',
-                            'updated_at',
-                        ],
-                    ],
                     'created_at',
                     'updated_at',
                 ],
@@ -65,13 +54,13 @@ class ShowTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_shows_address_with_language_data(): void
+    public function test_show_returns_the_expected_structure_with_all_relations_loaded(): void
     {
         Language::factory(3)->create();
         Country::factory(2)->create();
         $address = Address::factory()->create();
 
-        $response = $this->getJson(route('address.show', $address));
+        $response = $this->getJson(route('address.show', [$address, 'include' => 'translations']));
 
         $response->assertOk()
             ->assertJsonStructure([
@@ -97,7 +86,7 @@ class ShowTest extends TestCase
         Country::factory(2)->create();
         $address = Address::factory()->create();
 
-        $response = $this->getJson(route('address.show', $address));
+        $response = $this->getJson(route('address.show', [$address, 'include' => 'translations']));
 
         $response->assertOk();
 

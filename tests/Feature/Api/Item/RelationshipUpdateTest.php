@@ -31,7 +31,7 @@ class RelationshipUpdateTest extends TestCase
         $partner = Partner::factory()->create();
 
         // Set the partner
-        $response = $this->putJson(route('item.update', $item->id), [
+        $response = $this->putJson(route('item.update', [$item->id, 'include' => 'partner']), [
             'partner_id' => $partner->id,
             'internal_name' => $item->internal_name,
             'type' => $item->type,
@@ -52,7 +52,7 @@ class RelationshipUpdateTest extends TestCase
         $item = Item::factory()->create(['partner_id' => $partner->id]);
 
         // Unset the partner (set to null)
-        $response = $this->putJson(route('item.update', $item->id), [
+        $response = $this->putJson(route('item.update', [$item->id, 'include' => 'partner']), [
             'partner_id' => null,
             'internal_name' => $item->internal_name,
             'type' => $item->type,
@@ -73,7 +73,7 @@ class RelationshipUpdateTest extends TestCase
         $country = Country::factory()->create();
 
         // Set the country
-        $response = $this->putJson(route('item.update', $item->id), [
+        $response = $this->putJson(route('item.update', [$item->id, 'include' => 'country']), [
             'country_id' => $country->id,
             'internal_name' => $item->internal_name,
             'type' => $item->type,
@@ -94,7 +94,7 @@ class RelationshipUpdateTest extends TestCase
         $item = Item::factory()->create(['country_id' => $country->id]);
 
         // Unset the country (set to null)
-        $response = $this->putJson(route('item.update', $item->id), [
+        $response = $this->putJson(route('item.update', [$item->id, 'include' => 'country']), [
             'country_id' => null,
             'internal_name' => $item->internal_name,
             'type' => $item->type,
@@ -115,7 +115,7 @@ class RelationshipUpdateTest extends TestCase
         $project = Project::factory()->create();
 
         // Set the project
-        $response = $this->putJson(route('item.update', $item->id), [
+        $response = $this->putJson(route('item.update', [$item->id, 'include' => 'project']), [
             'project_id' => $project->id,
             'internal_name' => $item->internal_name,
             'type' => $item->type,
@@ -136,7 +136,7 @@ class RelationshipUpdateTest extends TestCase
         $item = Item::factory()->create(['project_id' => $project->id]);
 
         // Unset the project (set to null)
-        $response = $this->putJson(route('item.update', $item->id), [
+        $response = $this->putJson(route('item.update', [$item->id, 'include' => 'project']), [
             'project_id' => null,
             'internal_name' => $item->internal_name,
             'type' => $item->type,
@@ -158,7 +158,7 @@ class RelationshipUpdateTest extends TestCase
         $item = Item::factory()->create(['partner_id' => $firstPartner->id]);
 
         // Change to second partner
-        $response = $this->putJson(route('item.update', $item->id), [
+        $response = $this->putJson(route('item.update', [$item->id, 'include' => 'partner']), [
             'partner_id' => $secondPartner->id,
             'internal_name' => $item->internal_name,
             'type' => $item->type,

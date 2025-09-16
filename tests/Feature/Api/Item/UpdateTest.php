@@ -125,16 +125,11 @@ class UpdateTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 'id',
-                'partner',
                 'internal_name',
                 'backward_compatibility',
                 'type',
                 'owner_reference',
                 'mwnf_reference',
-                'country',
-                'project',
-                'artists',
-                'workshops',
                 'created_at',
                 'updated_at',
             ],

@@ -66,7 +66,7 @@ class ShowTest extends TestCase
     /**
      * Response: show returns the expected structure.
      */
-    public function test_show_returns_the_expected_structure()
+    public function test_show_returns_the_default_structure_without_relations()
     {
         $context = Context::factory()->create();
 

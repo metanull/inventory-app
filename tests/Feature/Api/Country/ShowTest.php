@@ -46,11 +46,22 @@ class ShowTest extends TestCase
     /**
      * Response: Assert show returns the expected structure.
      */
-    public function test_show_returns_the_expected_structure()
+    public function test_show_returns_the_default_structure_without_relations()
     {
         $country = Country::factory()->create();
 
         $response = $this->getJson(route('country.show', $country));
+
+        $response->assertJsonStructure([
+            'data' => ['id', 'internal_name', 'backward_compatibility'],
+        ]);
+    }
+
+    public function test_show_returns_the_expected_structure_with_all_relations_loaded(): void
+    {
+        $country = Country::factory()->create();
+
+        $response = $this->getJson(route('country.show', [$country, 'include' => 'items,partners']));
 
         $response->assertJsonStructure([
             'data' => ['id', 'internal_name', 'backward_compatibility'],

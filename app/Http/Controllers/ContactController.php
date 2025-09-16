@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ContactResource;
 use App\Models\Contact;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -15,11 +18,25 @@ class ContactController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $contacts = Contact::with(['translations'])->get();
+        $includes = IncludeParser::fromRequest($request, AllowList::for('contact'));
+        $pagination = PaginationParams::fromRequest($request);
 
-        return ContactResource::collection($contacts);
+        // Default includes expected by tests/clients
+        $defaults = ['translations'];
+        $with = array_values(array_unique(array_merge($defaults, $includes)));
+
+        $query = Contact::query()->with($with);
+
+        $paginator = $query->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
+
+        return ContactResource::collection($paginator);
     }
 
     /**
@@ -57,7 +74,12 @@ class ContactController extends Controller
             ]);
         }
 
-        return (new ContactResource($contact->load('translations')))->response()->setStatusCode(201);
+        // Load default includes (translations) plus any explicitly requested
+        $requested = IncludeParser::fromRequest($request, AllowList::for('contact'));
+        $defaults = ['translations'];
+        $contact->load(array_values(array_unique(array_merge($defaults, $requested))));
+
+        return (new ContactResource($contact))->response()->setStatusCode(201);
     }
 
     /**
@@ -65,9 +87,14 @@ class ContactController extends Controller
      *
      * @return \App\Http\Resources\ContactResource
      */
-    public function show(Contact $contact)
+    public function show(Request $request, Contact $contact)
     {
-        return new ContactResource($contact->load('translations'));
+        $includes = IncludeParser::fromRequest($request, AllowList::for('contact'));
+        if (! empty($includes)) {
+            $contact->load($includes);
+        }
+
+        return new ContactResource($contact);
     }
 
     /**
@@ -113,7 +140,12 @@ class ContactController extends Controller
             }
         }
 
-        return new ContactResource($contact->load('translations'));
+        // Load default includes (translations) plus any explicitly requested
+        $requested = IncludeParser::fromRequest($request, AllowList::for('contact'));
+        $defaults = ['translations'];
+        $contact->load(array_values(array_unique(array_merge($defaults, $requested))));
+
+        return new ContactResource($contact);
     }
 
     /**

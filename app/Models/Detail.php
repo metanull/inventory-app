@@ -15,9 +15,7 @@ class Detail extends Model
     use HasFactory;
     use HasUuids;
 
-    protected $with = [
-        'item',
-    ];
+    // No model-level eager loads. Use request-scoped includes in controllers.
 
     protected $fillable = [
         // 'id',
@@ -39,7 +37,7 @@ class Detail extends Model
      */
     public function translations(): HasMany
     {
-        return $this->hasMany(DetailTranslation::class);
+        return $this->hasMany(DetailTranslation::class)->chaperone('detail');
     }
 
     /**
@@ -47,7 +45,7 @@ class Detail extends Model
      */
     public function pictures(): MorphMany
     {
-        return $this->morphMany(Picture::class, 'pictureable');
+        return $this->morphMany(Picture::class, 'pictureable')->chaperone('pictureable');
     }
 
     /**

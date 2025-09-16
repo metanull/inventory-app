@@ -17,14 +17,7 @@ class Item extends Model
     use HasFactory;
     use HasUuids;
 
-    protected $with = [
-        'partner',
-        'country',
-        'project',
-        'artists',
-        'workshops',
-        'tags',
-    ];
+    // No model-level eager loads. Use request-scoped includes in controllers.
 
     protected $fillable = [
         // 'id',
@@ -100,7 +93,7 @@ class Item extends Model
      */
     public function translations(): HasMany
     {
-        return $this->hasMany(ItemTranslation::class);
+        return $this->hasMany(ItemTranslation::class)->chaperone('item');
     }
 
     /**
@@ -108,7 +101,7 @@ class Item extends Model
      */
     public function pictures(): MorphMany
     {
-        return $this->morphMany(Picture::class, 'pictureable');
+        return $this->morphMany(Picture::class, 'pictureable')->chaperone('pictureable');
     }
 
     /**

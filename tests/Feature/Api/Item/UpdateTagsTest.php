@@ -28,7 +28,7 @@ class UpdateTagsTest extends TestCase
         $item = Item::factory()->create();
         $tags = Tag::factory()->count(3)->create();
 
-        $response = $this->patchJson(route('item.updateTags', $item), [
+        $response = $this->patchJson(route('item.updateTags', [$item, 'include' => 'tags']), [
             'attach' => $tags->pluck('id')->toArray(),
         ]);
 
@@ -63,7 +63,7 @@ class UpdateTagsTest extends TestCase
 
         // Then detach some tags
         $tagsToDetach = $tags->take(2);
-        $response = $this->patchJson(route('item.updateTags', $item), [
+        $response = $this->patchJson(route('item.updateTags', [$item, 'include' => 'tags']), [
             'detach' => $tagsToDetach->pluck('id')->toArray(),
         ]);
 
@@ -83,7 +83,7 @@ class UpdateTagsTest extends TestCase
         // First attach some existing tags
         $item->tags()->attach($existingTags);
 
-        $response = $this->patchJson(route('item.updateTags', $item), [
+        $response = $this->patchJson(route('item.updateTags', [$item, 'include' => 'tags']), [
             'attach' => $newTags->pluck('id')->toArray(),
             'detach' => [$existingTags->first()->id],
         ]);
@@ -114,7 +114,7 @@ class UpdateTagsTest extends TestCase
         $item->tags()->attach($tag);
 
         // Try to attach the same tag again
-        $response = $this->patchJson(route('item.updateTags', $item), [
+        $response = $this->patchJson(route('item.updateTags', [$item, 'include' => 'tags']), [
             'attach' => [$tag->id],
         ]);
 
@@ -145,7 +145,7 @@ class UpdateTagsTest extends TestCase
     {
         $item = Item::factory()->create();
 
-        $response = $this->patchJson(route('item.updateTags', $item), [
+        $response = $this->patchJson(route('item.updateTags', [$item, 'include' => 'tags']), [
             'attach' => ['invalid-uuid', 'another-invalid'],
         ]);
 
@@ -158,7 +158,7 @@ class UpdateTagsTest extends TestCase
         $item = Item::factory()->create();
         $nonExistentUuid = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
 
-        $response = $this->patchJson(route('item.updateTags', $item), [
+        $response = $this->patchJson(route('item.updateTags', [$item, 'include' => 'tags']), [
             'attach' => [$nonExistentUuid],
         ]);
 
@@ -170,7 +170,7 @@ class UpdateTagsTest extends TestCase
     {
         $item = Item::factory()->create();
 
-        $response = $this->patchJson(route('item.updateTags', $item), [
+        $response = $this->patchJson(route('item.updateTags', [$item, 'include' => 'tags']), [
             'detach' => ['invalid-uuid'],
         ]);
 
@@ -183,7 +183,7 @@ class UpdateTagsTest extends TestCase
         $item = Item::factory()->create();
         $nonExistentUuid = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
 
-        $response = $this->patchJson(route('item.updateTags', $item), [
+        $response = $this->patchJson(route('item.updateTags', [$item, 'include' => 'tags']), [
             'detach' => [$nonExistentUuid],
         ]);
 
@@ -196,7 +196,7 @@ class UpdateTagsTest extends TestCase
         $item = Item::factory()->create();
         $tags = Tag::factory()->count(2)->create();
 
-        $response = $this->patchJson(route('item.updateTags', $item), [
+        $response = $this->patchJson(route('item.updateTags', [$item, 'include' => 'tags']), [
             'attach' => $tags->pluck('id')->toArray(),
         ]);
 
@@ -210,7 +210,7 @@ class UpdateTagsTest extends TestCase
         $tags = Tag::factory()->count(2)->create();
         $item->tags()->attach($tags);
 
-        $response = $this->patchJson(route('item.updateTags', $item), [
+        $response = $this->patchJson(route('item.updateTags', [$item, 'include' => 'tags']), [
             'detach' => [$tags->first()->id],
         ]);
 
@@ -222,7 +222,7 @@ class UpdateTagsTest extends TestCase
     {
         $item = Item::factory()->create();
 
-        $response = $this->patchJson(route('item.updateTags', $item), []);
+        $response = $this->patchJson(route('item.updateTags', [$item, 'include' => 'tags']), []);
 
         $response->assertOk(); // Method should handle empty request gracefully
     }
@@ -234,7 +234,7 @@ class UpdateTagsTest extends TestCase
 
         // Tag is not attached to item
 
-        $response = $this->patchJson(route('item.updateTags', $item), [
+        $response = $this->patchJson(route('item.updateTags', [$item, 'include' => 'tags']), [
             'detach' => [$tag->id],
         ]);
 
@@ -247,7 +247,7 @@ class UpdateTagsTest extends TestCase
         $item = Item::factory()->create();
         $tag = Tag::factory()->create();
 
-        $response = $this->patchJson(route('item.updateTags', $item), [
+        $response = $this->patchJson(route('item.updateTags', [$item, 'include' => 'partner,country,project,tags']), [
             'attach' => [$tag->id],
         ]);
 
