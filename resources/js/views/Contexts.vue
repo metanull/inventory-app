@@ -130,6 +130,18 @@
         </TableCell>
       </TableRow>
     </template>
+
+    <!-- Pagination controls -->
+    <template #pagination>
+      <PaginationControls
+        :page="contextStore.page"
+        :per-page="contextStore.perPage"
+        :total="contextStore.total"
+        :color="color"
+        @update:page="onPageChange"
+        @update:per-page="onPerPageChange"
+      />
+    </template>
   </ListView>
 </template>
 
@@ -155,6 +167,7 @@
   import SearchControl from '@/components/layout/list/SearchControl.vue'
   import type { ContextResource } from '@metanull/inventory-app-api-client'
   import { useColors, type ColorName } from '@/composables/useColors'
+  import PaginationControls from '@/components/layout/list/PaginationControls.vue'
 
   // Props
   interface Props {
@@ -291,7 +304,7 @@
   const fetchContexts = async () => {
     try {
       loadingStore.show()
-      await contextStore.fetchContexts()
+      await contextStore.fetchContexts({ page: contextStore.page, perPage: contextStore.perPage })
       errorStore.addMessage('info', 'Contexts refreshed successfully.')
     } catch {
       errorStore.addMessage('error', 'Failed to refresh contexts. Please try again.')
@@ -311,7 +324,7 @@
     }
     try {
       // Always refresh in background
-      await contextStore.fetchContexts()
+      await contextStore.fetchContexts({ page: contextStore.page, perPage: contextStore.perPage })
       if (usedCache) {
         errorStore.addMessage('info', 'List refreshed')
       }
@@ -323,4 +336,15 @@
       }
     }
   })
+
+  const onPageChange = async (p: number) => {
+    contextStore.page = p
+    await contextStore.fetchContexts({ page: contextStore.page, perPage: contextStore.perPage })
+  }
+
+  const onPerPageChange = async (pp: number) => {
+    contextStore.perPage = pp
+    contextStore.page = 1
+    await contextStore.fetchContexts({ page: contextStore.page, perPage: contextStore.perPage })
+  }
 </script>

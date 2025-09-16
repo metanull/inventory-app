@@ -3,6 +3,15 @@ import { ref, computed } from 'vue'
 import { type ContextResource } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
 import { ErrorHandler } from '@/utils/errorHandler'
+import {
+  type IndexQueryOptions,
+  type ShowQueryOptions,
+  buildIncludes,
+  buildPagination,
+  mergeParams,
+  type PaginationMeta,
+  extractPaginationMeta,
+} from '@/utils/apiQueryParams'
 
 // Type definitions for Context API requests based on OpenAPI spec
 interface ContextStoreRequest {
@@ -22,6 +31,9 @@ export const useContextStore = defineStore('context', () => {
   const currentContext = ref<ContextResource | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const page = ref(1)
+  const perPage = ref(20)
+  const total = ref<number | null>(null)
 
   // Create API client instance with session-aware configuration
   const createApiClient = () => {
@@ -31,15 +43,30 @@ export const useContextStore = defineStore('context', () => {
   const defaultContext = computed(() => contexts.value.find(context => context.is_default))
   const defaultContexts = computed(() => contexts.value.filter(context => context.is_default))
 
-  // Fetch all contexts
-  const fetchContexts = async () => {
+  // Fetch all contexts (supports includes + pagination)
+  const fetchContexts = async ({
+    include = [],
+    page: p = 1,
+    perPage: pp = 20,
+  }: IndexQueryOptions = {}) => {
     loading.value = true
     error.value = null
 
     try {
       const apiClient = createApiClient()
-      const response = await apiClient.contextIndex()
-      contexts.value = response.data.data || []
+      const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
+      const response = await apiClient.contextIndex({ params })
+      const data = response.data?.data || []
+      const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
+      contexts.value = data
+      if (meta) {
+        total.value = typeof meta.total === 'number' ? meta.total : total.value
+        page.value = typeof meta.current_page === 'number' ? meta.current_page : p
+        perPage.value = typeof meta.per_page === 'number' ? meta.per_page : pp
+      } else {
+        page.value = p
+        perPage.value = pp
+      }
     } catch (err: unknown) {
       ErrorHandler.handleError(err, 'Failed to fetch contexts')
       error.value = 'Failed to fetch contexts'
@@ -50,13 +77,17 @@ export const useContextStore = defineStore('context', () => {
   }
 
   // Fetch a single context by ID
-  const fetchContext = async (id: string) => {
+  const fetchContext = async (id: string, { include = [] }: ShowQueryOptions = {}) => {
     loading.value = true
     error.value = null
 
     try {
       const apiClient = createApiClient()
-      const response = await apiClient.contextShow(id)
+      const params = mergeParams(buildIncludes(include))
+      const hasParams = Object.keys(params).length > 0
+      const response = hasParams
+        ? await apiClient.contextShow(id, { params })
+        : await apiClient.contextShow(id)
       currentContext.value = response.data.data
       return response.data.data
     } catch (err: unknown) {
@@ -228,6 +259,9 @@ export const useContextStore = defineStore('context', () => {
     currentContext,
     loading,
     error,
+    page,
+    perPage,
+    total,
     defaultContext,
     defaultContexts,
     fetchContexts,

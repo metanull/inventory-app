@@ -131,6 +131,18 @@
         </TableCell>
       </TableRow>
     </template>
+
+    <!-- Pagination controls -->
+    <template #pagination>
+      <PaginationControls
+        :page="collectionStore.page"
+        :per-page="collectionStore.perPage"
+        :total="collectionStore.total"
+        :color="color"
+        @update:page="onPageChange"
+        @update:per-page="onPerPageChange"
+      />
+    </template>
   </ListView>
 </template>
 
@@ -155,6 +167,7 @@
   import SearchControl from '@/components/layout/list/SearchControl.vue'
   import type { CollectionResource } from '@metanull/inventory-app-api-client'
   import { useColors, type ColorName } from '@/composables/useColors'
+  import PaginationControls from '@/components/layout/list/PaginationControls.vue'
 
   interface Props {
     color?: ColorName
@@ -265,7 +278,10 @@
   const fetchCollections = async () => {
     try {
       loadingStore.show()
-      await collectionStore.fetchCollections()
+      await collectionStore.fetchCollections({
+        page: collectionStore.page,
+        perPage: collectionStore.perPage,
+      })
       errorStore.addMessage('info', 'Collections refreshed successfully.')
     } catch {
       errorStore.addMessage('error', 'Failed to refresh collections. Please try again.')
@@ -285,7 +301,10 @@
     }
     try {
       // Always refresh in background
-      await collectionStore.fetchCollections()
+      await collectionStore.fetchCollections({
+        page: collectionStore.page,
+        perPage: collectionStore.perPage,
+      })
       if (usedCache) {
         errorStore.addMessage('info', 'List refreshed')
       }
@@ -297,4 +316,21 @@
       }
     }
   })
+
+  const onPageChange = async (p: number) => {
+    collectionStore.page = p
+    await collectionStore.fetchCollections({
+      page: collectionStore.page,
+      perPage: collectionStore.perPage,
+    })
+  }
+
+  const onPerPageChange = async (pp: number) => {
+    collectionStore.perPage = pp
+    collectionStore.page = 1
+    await collectionStore.fetchCollections({
+      page: collectionStore.page,
+      perPage: collectionStore.perPage,
+    })
+  }
 </script>

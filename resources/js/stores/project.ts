@@ -8,6 +8,15 @@ import {
 } from '@metanull/inventory-app-api-client'
 import { ErrorHandler } from '@/utils/errorHandler'
 import { useApiClient } from '@/composables/useApiClient'
+import {
+  type IndexQueryOptions,
+  type ShowQueryOptions,
+  buildIncludes,
+  buildPagination,
+  mergeParams,
+  type PaginationMeta,
+  extractPaginationMeta,
+} from '@/utils/apiQueryParams'
 
 export const useProjectStore = defineStore('project', () => {
   const projects = ref<ProjectResource[]>([])
@@ -15,6 +24,9 @@ export const useProjectStore = defineStore('project', () => {
   const currentProject = ref<ProjectResource | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const page = ref(1)
+  const perPage = ref(20)
+  const total = ref<number | null>(null)
 
   // Create API client instance with session-aware configuration
   const createApiClient = () => {
@@ -27,15 +39,30 @@ export const useProjectStore = defineStore('project', () => {
     () => (id: string) => projects.value.find(project => project.id === id)
   )
 
-  // Fetch all projects
-  const fetchProjects = async () => {
+  // Fetch all projects (supports includes + pagination)
+  const fetchProjects = async ({
+    include = [],
+    page: p = 1,
+    perPage: pp = 20,
+  }: IndexQueryOptions = {}) => {
     loading.value = true
     error.value = null
 
     try {
       const apiClient = createApiClient()
-      const response = await apiClient.projectIndex()
-      projects.value = response.data.data || []
+      const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
+      const response = await apiClient.projectIndex({ params })
+      const data = response.data?.data || []
+      const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
+      projects.value = data
+      if (meta) {
+        total.value = typeof meta.total === 'number' ? meta.total : total.value
+        page.value = typeof meta.current_page === 'number' ? meta.current_page : p
+        perPage.value = typeof meta.per_page === 'number' ? meta.per_page : pp
+      } else {
+        page.value = p
+        perPage.value = pp
+      }
     } catch (err: unknown) {
       ErrorHandler.handleError(err, 'Failed to fetch projects')
       error.value = 'Failed to fetch projects'
@@ -45,15 +72,30 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
-  // Fetch enabled projects only (visible projects)
-  const fetchEnabledProjects = async () => {
+  // Fetch enabled projects only (visible projects) - supports pagination
+  const fetchEnabledProjects = async ({
+    include = [],
+    page: p = 1,
+    perPage: pp = 20,
+  }: IndexQueryOptions = {}) => {
     loading.value = true
     error.value = null
 
     try {
       const apiClient = createApiClient()
-      const response = await apiClient.projectEnabled()
-      visibleProjects.value = response.data.data || []
+      const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
+      const response = await apiClient.projectEnabled({ params })
+      const data = response.data?.data || []
+      const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
+      visibleProjects.value = data
+      if (meta) {
+        total.value = typeof meta.total === 'number' ? meta.total : total.value
+        page.value = typeof meta.current_page === 'number' ? meta.current_page : p
+        perPage.value = typeof meta.per_page === 'number' ? meta.per_page : pp
+      } else {
+        page.value = p
+        perPage.value = pp
+      }
     } catch (err: unknown) {
       ErrorHandler.handleError(err, 'Failed to fetch enabled projects')
       error.value = 'Failed to fetch enabled projects'
@@ -64,13 +106,17 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   // Fetch a single project by ID
-  const fetchProject = async (id: string) => {
+  const fetchProject = async (id: string, { include = [] }: ShowQueryOptions = {}) => {
     loading.value = true
     error.value = null
 
     try {
       const apiClient = createApiClient()
-      const response = await apiClient.projectShow(id)
+      const params = mergeParams(buildIncludes(include))
+      const hasParams = Object.keys(params).length > 0
+      const response = hasParams
+        ? await apiClient.projectShow(id, { params })
+        : await apiClient.projectShow(id)
       currentProject.value = response.data.data
       return response.data.data
     } catch (err: unknown) {
@@ -265,6 +311,9 @@ export const useProjectStore = defineStore('project', () => {
     currentProject,
     loading,
     error,
+    page,
+    perPage,
+    total,
 
     // Computed
     enabledProjects,

@@ -95,6 +95,18 @@
         </TableCell>
       </TableRow>
     </template>
+
+    <!-- Pagination controls -->
+    <template #pagination>
+      <PaginationControls
+        :page="countryStore.page"
+        :per-page="countryStore.perPage"
+        :total="countryStore.total"
+        :color="color"
+        @update:page="onPageChange"
+        @update:per-page="onPerPageChange"
+      />
+    </template>
   </ListView>
 </template>
 
@@ -118,6 +130,7 @@
   import DeleteButton from '@/components/layout/list/DeleteButton.vue'
   import { GlobeAltIcon as CountryIcon } from '@heroicons/vue/24/solid'
   import { useColors, type ColorName } from '@/composables/useColors'
+  import PaginationControls from '@/components/layout/list/PaginationControls.vue'
 
   interface Props {
     color?: ColorName
@@ -207,7 +220,11 @@
     }
     try {
       // Always refresh in background
-      await countryStore.fetchCountries()
+      await countryStore.fetchCountries({
+        include: [],
+        page: countryStore.page,
+        perPage: countryStore.perPage,
+      })
       if (usedCache) {
         errorStore.addMessage('info', 'List refreshed')
       }
@@ -218,6 +235,25 @@
         loadingStore.hide()
       }
     }
+  }
+
+  const onPageChange = async (p: number) => {
+    countryStore.page = p
+    await countryStore.fetchCountries({
+      include: [],
+      page: countryStore.page,
+      perPage: countryStore.perPage,
+    })
+  }
+
+  const onPerPageChange = async (pp: number) => {
+    countryStore.perPage = pp
+    countryStore.page = 1
+    await countryStore.fetchCountries({
+      include: [],
+      page: countryStore.page,
+      perPage: countryStore.perPage,
+    })
   }
 
   // Delete country with confirmation
@@ -251,7 +287,11 @@
     }
     try {
       // Always refresh in background
-      await countryStore.fetchCountries()
+      await countryStore.fetchCountries({
+        include: [],
+        page: countryStore.page,
+        perPage: countryStore.perPage,
+      })
       if (usedCache) {
         errorStore.addMessage('info', 'List refreshed')
       }

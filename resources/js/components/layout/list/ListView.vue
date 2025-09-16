@@ -60,6 +60,10 @@
                 </template>
               </TableElement>
             </div>
+            <!-- Optional pagination area -->
+            <div v-if="$slots.pagination" class="mt-4">
+              <slot name="pagination" />
+            </div>
           </div>
         </div>
       </div>

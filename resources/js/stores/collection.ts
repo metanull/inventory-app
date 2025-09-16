@@ -5,12 +5,24 @@ import {
   type CollectionStoreRequest,
 } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
+import {
+  type IndexQueryOptions,
+  type ShowQueryOptions,
+  buildIncludes,
+  buildPagination,
+  mergeParams,
+  type PaginationMeta,
+  extractPaginationMeta,
+} from '@/utils/apiQueryParams'
 
 export const useCollectionStore = defineStore('collection', () => {
   // State
   const collections = ref<CollectionResource[]>([])
   const currentCollection = ref<CollectionResource | null>(null)
   const loading = ref(false)
+  const page = ref(1)
+  const perPage = ref(20)
+  const total = ref<number | null>(null)
 
   // Create API client instance with session-aware configuration
   const createApiClient = () => {
@@ -23,23 +35,45 @@ export const useCollectionStore = defineStore('collection', () => {
   }
 
   // Fetch all collections
-  const fetchCollections = async (): Promise<void> => {
+  const fetchCollections = async ({
+    include = [],
+    page: p = 1,
+    perPage: pp = 20,
+  }: IndexQueryOptions = {}): Promise<void> => {
     try {
       loading.value = true
       const apiClient = createApiClient()
-      const response = await apiClient.collectionIndex()
-      collections.value = response.data.data || []
+      const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
+      const response = await apiClient.collectionIndex({ params })
+      const data = response.data?.data || []
+      const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
+      collections.value = data
+      if (meta) {
+        total.value = typeof meta.total === 'number' ? meta.total : total.value
+        page.value = typeof meta.current_page === 'number' ? meta.current_page : p
+        perPage.value = typeof meta.per_page === 'number' ? meta.per_page : pp
+      } else {
+        page.value = p
+        perPage.value = pp
+      }
     } finally {
       loading.value = false
     }
   }
 
   // Fetch single collection by ID
-  const fetchCollection = async (collectionId: string): Promise<void> => {
+  const fetchCollection = async (
+    collectionId: string,
+    { include = [] }: ShowQueryOptions = {}
+  ): Promise<void> => {
     try {
       loading.value = true
       const apiClient = createApiClient()
-      const response = await apiClient.collectionShow(collectionId)
+      const params = mergeParams(buildIncludes(include))
+      const hasParams = Object.keys(params).length > 0
+      const response = hasParams
+        ? await apiClient.collectionShow(collectionId, { params })
+        : await apiClient.collectionShow(collectionId)
       currentCollection.value = response.data.data || null
     } finally {
       loading.value = false
@@ -124,6 +158,9 @@ export const useCollectionStore = defineStore('collection', () => {
     collections,
     currentCollection,
     loading,
+    page,
+    perPage,
+    total,
 
     // Actions
     clearCurrentCollection,

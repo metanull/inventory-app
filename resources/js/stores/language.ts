@@ -7,12 +7,24 @@ import {
 } from '@metanull/inventory-app-api-client'
 import { ErrorHandler, isAuthRedirect } from '@/utils/errorHandler'
 import { useApiClient } from '@/composables/useApiClient'
+import {
+  type IndexQueryOptions,
+  type ShowQueryOptions,
+  buildIncludes,
+  buildPagination,
+  mergeParams,
+  type PaginationMeta,
+  extractPaginationMeta,
+} from '@/utils/apiQueryParams'
 
 export const useLanguageStore = defineStore('language', () => {
   const languages = ref<LanguageResource[]>([])
   const currentLanguage = ref<LanguageResource | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const page = ref(1)
+  const perPage = ref(20)
+  const total = ref<number | null>(null)
 
   // Create API client instance with session-aware configuration
   const createApiClient = () => {
@@ -22,15 +34,30 @@ export const useLanguageStore = defineStore('language', () => {
   const defaultLanguage = computed(() => languages.value.find(lang => lang.is_default))
   const defaultLanguages = computed(() => languages.value.filter(lang => lang.is_default))
 
-  // Fetch all languages
-  const fetchLanguages = async () => {
+  // Fetch all languages (supports includes + pagination)
+  const fetchLanguages = async ({
+    include = [],
+    page: p = 1,
+    perPage: pp = 20,
+  }: IndexQueryOptions = {}) => {
     loading.value = true
     error.value = null
 
     try {
       const apiClient = createApiClient()
-      const response = await apiClient.languageIndex()
-      languages.value = response.data.data || []
+      const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
+      const response = await apiClient.languageIndex({ params })
+      const data = response.data?.data || []
+      const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
+      languages.value = data
+      if (meta) {
+        total.value = typeof meta.total === 'number' ? meta.total : total.value
+        page.value = typeof meta.current_page === 'number' ? meta.current_page : p
+        perPage.value = typeof meta.per_page === 'number' ? meta.per_page : pp
+      } else {
+        page.value = p
+        perPage.value = pp
+      }
     } catch (err: unknown) {
       ErrorHandler.handleError(err, 'Failed to fetch languages')
       // Suppress user-facing error if we are redirecting to login due to 401
@@ -44,13 +71,17 @@ export const useLanguageStore = defineStore('language', () => {
   }
 
   // Fetch a single language by ID
-  const fetchLanguage = async (id: string) => {
+  const fetchLanguage = async (id: string, { include = [] }: ShowQueryOptions = {}) => {
     loading.value = true
     error.value = null
 
     try {
       const apiClient = createApiClient()
-      const response = await apiClient.languageShow(id)
+      const params = mergeParams(buildIncludes(include))
+      const hasParams = Object.keys(params).length > 0
+      const response = hasParams
+        ? await apiClient.languageShow(id, { params })
+        : await apiClient.languageShow(id)
       currentLanguage.value = response.data.data
       return response.data.data
     } catch (err: unknown) {
@@ -224,6 +255,9 @@ export const useLanguageStore = defineStore('language', () => {
     currentLanguage,
     loading,
     error,
+    page,
+    perPage,
+    total,
     defaultLanguage,
     defaultLanguages,
     fetchLanguages,

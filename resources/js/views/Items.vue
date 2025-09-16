@@ -146,6 +146,18 @@
         </TableCell>
       </TableRow>
     </template>
+
+    <!-- Pagination controls -->
+    <template #pagination>
+      <PaginationControls
+        :page="itemStore.page"
+        :per-page="itemStore.perPage"
+        :total="itemStore.total"
+        :color="color"
+        @update:page="onPageChange"
+        @update:per-page="onPerPageChange"
+      />
+    </template>
   </ListView>
 </template>
 
@@ -171,6 +183,7 @@
   import SearchControl from '@/components/layout/list/SearchControl.vue'
   import type { ItemResource } from '@metanull/inventory-app-api-client'
   import { useColors, type ColorName } from '@/composables/useColors'
+  import PaginationControls from '@/components/layout/list/PaginationControls.vue'
 
   interface Props {
     color?: ColorName
@@ -293,13 +306,37 @@
   const fetchItems = async () => {
     try {
       loadingStore.show()
-      await itemStore.fetchItems()
+      // Request minimal includes needed for this list view
+      await itemStore.fetchItems({
+        include: ['partner', 'project'],
+        page: itemStore.page,
+        perPage: itemStore.perPage,
+      })
       errorStore.addMessage('info', 'Items refreshed successfully.')
     } catch {
       errorStore.addMessage('error', 'Failed to refresh items. Please try again.')
     } finally {
       loadingStore.hide()
     }
+  }
+
+  const onPageChange = async (p: number) => {
+    itemStore.page = p
+    await itemStore.fetchItems({
+      include: ['partner', 'project'],
+      page: itemStore.page,
+      perPage: itemStore.perPage,
+    })
+  }
+
+  const onPerPageChange = async (pp: number) => {
+    itemStore.perPage = pp
+    itemStore.page = 1
+    await itemStore.fetchItems({
+      include: ['partner', 'project'],
+      page: itemStore.page,
+      perPage: itemStore.perPage,
+    })
   }
 
   // Fetch items on mount
@@ -313,7 +350,11 @@
     }
     try {
       // Always refresh in background
-      await itemStore.fetchItems()
+      await itemStore.fetchItems({
+        include: ['partner', 'project'],
+        page: itemStore.page,
+        perPage: itemStore.perPage,
+      })
       if (usedCache) {
         errorStore.addMessage('info', 'List refreshed')
       }

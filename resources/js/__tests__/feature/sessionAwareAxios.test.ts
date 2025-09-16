@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { createPinia, setActivePinia } from 'pinia'
 import axios from 'axios'
 import { createSessionAwareAxios, getSessionAwareAxios } from '@/utils/sessionAwareAxios'
+import { DEFAULT_PER_PAGE } from '@/utils/apiQueryParams'
 
 // Mock the auth store
 vi.mock('@/stores/auth', () => ({
@@ -115,5 +117,40 @@ describe('sessionAwareAxios', () => {
     expect(typeof requestError).toBe('function')
     expect(typeof responseSuccess).toBe('function')
     expect(typeof responseError).toBe('function')
+  })
+
+  it('injects default per_page when missing on GET list calls', async () => {
+    const requestHandlers: Array<(cfg: AxiosRequestConfig) => AxiosRequestConfig> = []
+    const mockAxiosInstance = {
+      interceptors: {
+        request: {
+          use: vi.fn((success: (cfg: AxiosRequestConfig) => AxiosRequestConfig) =>
+            requestHandlers.push(success)
+          ),
+        },
+        response: { use: vi.fn() },
+      },
+    }
+    vi.mocked(axios.create).mockReturnValue(mockAxiosInstance as unknown as AxiosInstance)
+
+    createSessionAwareAxios()
+
+    // Simulate a GET request config without per_page
+    const cfg: AxiosRequestConfig = {
+      method: 'get',
+      url: '/api/items',
+      params: { page: 3 },
+    }
+    const processed = requestHandlers[0](cfg)
+    expect(processed.params.per_page).toBe(DEFAULT_PER_PAGE)
+
+    // Should not override when per_page is explicitly set
+    const cfgExplicit: AxiosRequestConfig = {
+      method: 'get',
+      url: '/api/items',
+      params: { page: 1, per_page: 50 },
+    }
+    const processedExplicit = requestHandlers[0](cfgExplicit)
+    expect(processedExplicit.params.per_page).toBe(50)
   })
 })

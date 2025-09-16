@@ -1,6 +1,6 @@
 {
     "name": "inventory-app",
-    "version": "4.3.0",
+    "version": "4.3.2",
     "private": true,
     "type": "module",
     "scripts": {
@@ -28,6 +28,7 @@
         "test:yml": "node ./scripts/validate-workflows.cjs"
     },
     "dependencies": {
+        "@metanull/inventory-app-api-client": "1.1.26-dev.915.2336",
         "@headlessui/vue": "^1.7.23",
         "@heroicons/vue": "^2.2.0",
         "@types/uuid": "^10.0.0",
