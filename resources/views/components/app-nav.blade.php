@@ -28,17 +28,23 @@
                     </div>
                 </div>
 
-                <!-- Reference Dropdown (placeholder) -->
+                <!-- Reference Dropdown -->
                 <div class="relative" @mouseenter="openMenu='reference'" @mouseleave="openMenu=null">
-                    <button @click="openMenu = openMenu==='reference'? null : 'reference'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50">
+                    <button @click="openMenu = openMenu==='reference'? null : 'reference'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('countries.*') || request()->routeIs('languages.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
                         <x-heroicon-o-book-open class="w-4 h-4" /> Reference
                         <span class="w-4 h-4 transition" x-bind:class="openMenu==='reference' ? 'rotate-180' : ''">
                             <x-heroicon-o-chevron-down class="w-4 h-4" />
                         </span>
                     </button>
                     <div x-show="openMenu==='reference'" x-transition @click.outside="openMenu=null" class="absolute z-30 mt-2 w-56 rounded-md border border-gray-200 bg-white shadow-lg py-2">
-                        <div class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">Coming Soon</div>
-                        <div class="px-3 py-2 text-xs text-gray-500 italic">Taxonomies, Languages, Countries…</div>
+                        @php($cc = $entityColor('countries'))
+                        @php($lc = $entityColor('languages'))
+                        <a href="{{ route('countries.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('countries.*') ? $cc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <x-heroicon-o-globe-europe-africa class="w-4 h-4" /> Countries
+                        </a>
+                        <a href="{{ route('languages.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('languages.*') ? $lc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <x-heroicon-o-language class="w-4 h-4" /> Languages
+                        </a>
                     </div>
                 </div>
 
@@ -101,7 +107,10 @@
             </div>
             <div class="space-y-2">
                 <p class="text-[11px] font-semibold text-gray-400 uppercase">Reference</p>
-                <p class="text-gray-300 italic">(coming)</p>
+                @php($cc = $entityColor('countries'))
+                @php($lc = $entityColor('languages'))
+                <a href="{{ route('countries.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('countries.*') ? $cc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Countries</a>
+                <a href="{{ route('languages.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('languages.*') ? $lc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Languages</a>
             </div>
             <div class="space-y-2">
                 <p class="text-[11px] font-semibold text-gray-400 uppercase">Resources</p>

@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Web\CountryController as WebCountryController;
 use App\Http\Controllers\Web\ItemController as WebItemController;
+use App\Http\Controllers\Web\LanguageController as WebLanguageController;
 use App\Http\Controllers\Web\PartnerController as WebPartnerController;
 use Dedoc\Scramble\Generator;
 use Dedoc\Scramble\Scramble;
@@ -27,6 +29,8 @@ Route::prefix('web')->group(function () {
     Route::middleware(['auth'])->group(function () {
         Route::resource('items', WebItemController::class);
         Route::resource('partners', WebPartnerController::class);
+        Route::resource('countries', WebCountryController::class);
+        Route::resource('languages', WebLanguageController::class);
     });
 });
 

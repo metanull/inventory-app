@@ -50,7 +50,6 @@
             :paginator="$items" 
             entity="items"
             param-page="page"
-            param-per-page="perPage" 
         />
     </div>
 </div>

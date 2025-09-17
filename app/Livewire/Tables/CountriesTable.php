@@ -2,14 +2,11 @@
 
 namespace App\Livewire\Tables;
 
-use App\Models\Item;
+use App\Models\Country;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-/**
- * Livewire dynamic table for Items with debounced search and pagination.
- */
-class ItemsTable extends Component
+class CountriesTable extends Component
 {
     use WithPagination;
 
@@ -19,7 +16,6 @@ class ItemsTable extends Component
 
     protected $queryString = [
         'q' => ['except' => ''],
-        // Keep in sync with config('interface.pagination.default_per_page')
         'perPage' => ['except' => 20],
     ];
 
@@ -62,24 +58,21 @@ class ItemsTable extends Component
         }
     }
 
-    public function getItemsProperty()
+    public function getCountriesProperty()
     {
-        $query = Item::query();
+        $query = Country::query();
         $search = trim($this->q);
         if ($search !== '') {
             $query->where('internal_name', 'LIKE', "%{$search}%");
         }
 
-        return $query->orderByDesc('created_at')->paginate($this->perPage)->withQueryString();
+        return $query->orderBy('id')->paginate($this->perPage)->withQueryString();
     }
 
     public function render()
     {
-        $c = config('app_entities.items.colors', []);
-
-        return view('livewire.tables.items-table', [
-            'items' => $this->items,
-            'c' => $c,
+        return view('livewire.tables.countries-table', [
+            'countries' => $this->countries,
         ]);
     }
 }

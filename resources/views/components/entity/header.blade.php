@@ -7,16 +7,22 @@
     $iconMap = [
         'items' => 'archive-box',
         'partners' => 'user-group',
+        'countries' => 'globe-europe-africa',
+        'languages' => 'language',
     ];
     $resolvedIcon = $icon ?: ($iconMap[$entity] ?? 'square-3-stack-3d');
     $iconComponent = 'heroicon-o-'.$resolvedIcon;
     $colorIconBg = [
         'items' => 'bg-teal-600',
         'partners' => 'bg-yellow-500',
+        'countries' => 'bg-indigo-600',
+        'languages' => 'bg-fuchsia-600',
     ][$entity] ?? 'bg-gray-600';
     $accentText = [
         'items' => 'text-teal-700',
         'partners' => 'text-yellow-700',
+        'countries' => 'text-indigo-700',
+        'languages' => 'text-fuchsia-700',
     ][$entity] ?? 'text-gray-700';
 @endphp
 <div {{ $attributes->merge(['class' => 'flex items-center justify-between mb-6']) }}>

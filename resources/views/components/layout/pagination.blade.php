@@ -2,7 +2,7 @@
     'paginator',
     'perPageOptions' => config('interface.pagination.per_page_options'),
     'paramPage' => 'page',
-    'paramPerPage' => 'per_page',
+    'paramPerPage' => 'perPage',
     'entity' => null,
 ])
 @php
@@ -23,6 +23,29 @@
         'border' => 'border-gray-300',
         'hover' => 'hover:bg-gray-50',
     ];
+
+    // Defensive validation for perPage and page from query string
+    $perPageOpts = (array) config('interface.pagination.per_page_options');
+    $defaultPer = (int) config('interface.pagination.default_per_page');
+    $maxPer = (int) config('interface.pagination.max_per_page');
+
+    $currentPer = (int) request()->query($paramPerPage, $defaultPer);
+    $currentPage = (int) request()->query($paramPage, 1);
+
+    $isPerValid = in_array($currentPer, array_map('intval', $perPageOpts), true) && $currentPer >= 1 && $currentPer <= $maxPer;
+    $lastPage = method_exists($paginator, 'lastPage') ? max((int) $paginator->lastPage(), 1) : max((int) $paginator->currentPage(), 1);
+    $isPageValid = $currentPage >= 1 && $currentPage <= $lastPage;
+
+    if (!$isPerValid || !$isPageValid) {
+        // Reset BOTH to defaults by redirecting to a sanitized query string.
+        // Use a meta refresh to avoid server-side redirect from a Blade component.
+        $qs = array_merge(request()->except($paramPerPage, $paramPage), [
+            $paramPerPage => $defaultPer,
+            $paramPage => 1,
+        ]);
+        $url = url()->current().'?'.http_build_query($qs);
+        echo '<meta http-equiv="refresh" content="0;url='.e($url).'" />';
+    }
 @endphp
 
 @if ($paginator instanceof \Illuminate\Contracts\Pagination\Paginator || $paginator instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator)

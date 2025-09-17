@@ -36,6 +36,9 @@ class AppServiceProvider extends ServiceProvider
                 'accentText' => 'text-gray-700',
                 'accentLink' => 'text-gray-600 hover:text-gray-800',
                 'pill' => 'bg-gray-100 text-gray-600',
+                'base' => 'gray-500',
+                'bg' => 'bg-gray-50',
+                'text' => 'text-gray-600',
             ];
 
             return array_merge(['name' => $color], $fragment);

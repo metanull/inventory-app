@@ -42,7 +42,7 @@
             <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Primary Domains</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @php($ic = $entityColor('items'))
-                <a href="{{ route('items.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $ic['base'] ?? 'teal-500' }}/40">
+                <a href="{{ route('items.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $ic['base'] }}/40">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <span class="p-2 rounded-md {{ $ic['bg'] ?? 'bg-teal-50' }} {{ $ic['text'] ?? 'text-teal-600' }} group-hover:opacity-90">
@@ -57,7 +57,7 @@
                 </a>
 
                 @php($pc = $entityColor('partners'))
-                <a href="{{ route('partners.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $pc['base'] ?? 'yellow-500' }}/40">
+                <a href="{{ route('partners.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $pc['base'] }}/40">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <span class="p-2 rounded-md {{ $pc['bg'] ?? 'bg-yellow-50' }} {{ $pc['text'] ?? 'text-yellow-600' }} group-hover:opacity-90">
@@ -69,6 +69,36 @@
                     </div>
                     <p class="text-sm text-gray-600 flex-1">Manage institutions, collaborators and contributors.</p>
                     <span class="mt-4 inline-flex items-center text-sm font-medium {{ $pc['text'] ?? 'text-yellow-600' }} group-hover:underline">Open &rarr;</span>
+                </a>
+
+                @php($cc = $entityColor('countries'))
+                <a href="{{ route('countries.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $cc['base'] }}/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:opacity-90">
+                                <x-heroicon-o-globe-europe-africa class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Countries</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-600" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Manage ISO country codes and legacy mappings.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:underline">Open &rarr;</span>
+                </a>
+
+                @php($lc = $entityColor('languages'))
+                <a href="{{ route('languages.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $lc['base'] }}/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md bg-fuchsia-50 text-fuchsia-600 group-hover:opacity-90">
+                                <x-heroicon-o-language class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Languages</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-fuchsia-600" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Maintain supported languages and default flag.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium text-fuchsia-600 group-hover:underline">Open &rarr;</span>
                 </a>
             </div>
         </section>

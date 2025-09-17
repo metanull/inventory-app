@@ -58,7 +58,6 @@
             :paginator="$partners" 
             entity="partners"
             param-page="page"
-            param-per-page="perPage" 
         />
     </div>
 </div>

@@ -5,6 +5,8 @@ return [
     'colors' => [
         'items' => 'teal',
         'partners' => 'yellow',
+        'countries' => 'indigo',
+        'languages' => 'fuchsia',
     ],
     // Utility mapping for commonly used fragments in Blade (derived from COLOR_MAP in SPA)
     'fragments' => [
@@ -15,6 +17,9 @@ return [
             'accentText' => 'text-teal-700',
             'accentLink' => 'text-teal-600 hover:text-teal-800',
             'pill' => 'bg-teal-100 text-teal-600',
+            'base' => 'teal-500',
+            'bg' => 'bg-teal-50',
+            'text' => 'text-teal-600',
         ],
         'yellow' => [
             'button' => 'bg-yellow-600 hover:bg-yellow-700 text-white',
@@ -23,6 +28,31 @@ return [
             'accentText' => 'text-yellow-700',
             'accentLink' => 'text-yellow-600 hover:text-yellow-800',
             'pill' => 'bg-yellow-100 text-yellow-600',
+            'base' => 'yellow-500',
+            'bg' => 'bg-yellow-50',
+            'text' => 'text-yellow-600',
+        ],
+        'indigo' => [
+            'button' => 'bg-indigo-600 hover:bg-indigo-700 text-white',
+            'focus' => 'focus:border-indigo-500 focus:ring-indigo-500',
+            'badge' => 'bg-indigo-100 text-indigo-700',
+            'accentText' => 'text-indigo-700',
+            'accentLink' => 'text-indigo-600 hover:text-indigo-800',
+            'pill' => 'bg-indigo-100 text-indigo-600',
+            'base' => 'indigo-500',
+            'bg' => 'bg-indigo-50',
+            'text' => 'text-indigo-600',
+        ],
+        'fuchsia' => [
+            'button' => 'bg-fuchsia-600 hover:bg-fuchsia-700 text-white',
+            'focus' => 'focus:border-fuchsia-500 focus:ring-fuchsia-500',
+            'badge' => 'bg-fuchsia-100 text-fuchsia-700',
+            'accentText' => 'text-fuchsia-700',
+            'accentLink' => 'text-fuchsia-600 hover:text-fuchsia-800',
+            'pill' => 'bg-fuchsia-100 text-fuchsia-600',
+            'base' => 'fuchsia-500',
+            'bg' => 'bg-fuchsia-50',
+            'text' => 'text-fuchsia-600',
         ],
     ],
 ];
