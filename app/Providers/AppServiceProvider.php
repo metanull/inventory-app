@@ -24,6 +24,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Share entity color config helper across views
+        View::share('entityColor', function (string $entity): array {
+            $map = config('app_entities.colors', []);
+            $fragments = config('app_entities.fragments', []);
+            $color = $map[$entity] ?? 'gray';
+            $fragment = $fragments[$color] ?? [
+                'button' => 'bg-gray-600 hover:bg-gray-700 text-white',
+                'focus' => 'focus:border-gray-500 focus:ring-gray-500',
+                'badge' => 'bg-gray-100 text-gray-700',
+                'accentText' => 'text-gray-700',
+                'accentLink' => 'text-gray-600 hover:text-gray-800',
+                'pill' => 'bg-gray-100 text-gray-600',
+            ];
+
+            return array_merge(['name' => $color], $fragment);
+        });
+
         // Share version information to all views. This will be resolved from
         // config('app.version') or the VERSION file included by the CI pipeline.
         View::share('app_version_info', function () {

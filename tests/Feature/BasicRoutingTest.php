@@ -30,7 +30,7 @@ class BasicRoutingTest extends TestCase
         $response->assertStatus(200);
         $response->assertHeader('content-type', 'text/html; charset=UTF-8');
 
-        $response->assertViewIs('welcome');
+        $response->assertViewIs('home');
     }
 
     /**
