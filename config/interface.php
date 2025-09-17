@@ -23,6 +23,6 @@ return [
     'pagination' => [
         'default_per_page' => env('WEB_DEFAULT_PER_PAGE', 20),
         'max_per_page' => env('WEB_MAX_PER_PAGE', 100),
-        'per_page_options' => [10, 20, 50, 100],
+        'per_page_options' => [10, 20, 25, 50, 100],
     ],
 ];

@@ -7,6 +7,10 @@ return [
         'partners' => 'yellow',
         'countries' => 'indigo',
         'languages' => 'fuchsia',
+        // New entities mapped to existing fragments for consistency
+        'projects' => 'teal',
+        'contexts' => 'indigo',
+        'collections' => 'yellow',
     ],
     // Utility mapping for commonly used fragments in Blade (derived from COLOR_MAP in SPA)
     'fragments' => [

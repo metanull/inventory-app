@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Backend (Blade) - Projects, Contexts, Collections
+    - Full CRUD pages in Blade following Items/Partners patterns (controllers, FormRequests, Livewire tables, and views)
+    - Navigation and Home dashboard tiles integrated for Projects, Contexts, and Collections
+    - Centralized theming extended: added entity color mappings for `projects`, `contexts`, and `collections`
+    - Web routes registered under `/web/*` with auth middleware
+
 ### Changed
 
 - Frontend - Includes + Pagination rollout
@@ -24,6 +32,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Authentication and redirect flow hardening across the frontend
+### Fixed
+
+- Backend (Blade) - Pagination component robustness and consistency
+    - Fixed hidden input rendering for array query parameters in the shared pagination component
+    - Defensive validation of `perPage` and `page` query params with safe reset when invalid
+    - Ensured non-pagination query params are preserved across page/per-page changes
+
+### Changed
+
+- Backend (Blade) - Pagination options
+    - Added `25` to `config('interface.pagination.per_page_options')` to align with existing tests and Livewire table behaviors
+
+### Quality
+
+- Linting passes (Laravel Pint, ESLint/Prettier) and full backend test suite green after pagination fixes
+
     - Centralized 401 handling with dependency-injected router/auth in `resources/js/utils/errorHandler.ts`; prevents circular imports and build warnings
     - Idempotent 401 redirect to named `login` route with preserved intended route via `redirectName` and encoded `redirectParams`; suppresses error toasts during auth redirects
     - Router guard updated to use named-route redirects and to allow reaching login when `redirectName` is present; otherwise authenticated users are redirected home

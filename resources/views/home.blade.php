@@ -71,6 +71,51 @@
                     <span class="mt-4 inline-flex items-center text-sm font-medium {{ $pc['text'] ?? 'text-yellow-600' }} group-hover:underline">Open &rarr;</span>
                 </a>
 
+                @php($prc = $entityColor('projects'))
+                <a href="{{ route('projects.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $prc['base'] }}/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md {{ $prc['bg'] ?? 'bg-teal-50' }} {{ $prc['text'] ?? 'text-teal-600' }} group-hover:opacity-90">
+                                <x-heroicon-o-rocket-launch class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Projects</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $prc['text'] ?? 'text-teal-600' }}" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Feature flags and visibility of app domains.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $prc['text'] ?? 'text-teal-600' }} group-hover:underline">Open &rarr;</span>
+                </a>
+
+                @php($xc = $entityColor('contexts'))
+                <a href="{{ route('contexts.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $xc['base'] }}/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md {{ $xc['bg'] ?? 'bg-indigo-50' }} {{ $xc['text'] ?? 'text-indigo-600' }} group-hover:opacity-90">
+                                <x-heroicon-o-adjustments-horizontal class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Contexts</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $xc['text'] ?? 'text-indigo-600' }}" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Default and alternate content contexts.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $xc['text'] ?? 'text-indigo-600' }} group-hover:underline">Open &rarr;</span>
+                </a>
+
+                @php($cc2 = $entityColor('collections'))
+                <a href="{{ route('collections.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $cc2['base'] }}/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md {{ $cc2['bg'] ?? 'bg-yellow-50' }} {{ $cc2['text'] ?? 'text-yellow-600' }} group-hover:opacity-90">
+                                <x-heroicon-o-rectangle-stack class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Collections</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $cc2['text'] ?? 'text-yellow-600' }}" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Group and present curated item sets.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $cc2['text'] ?? 'text-yellow-600' }} group-hover:underline">Open &rarr;</span>
+                </a>
+
                 @php($cc = $entityColor('countries'))
                 <a href="{{ route('countries.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $cc['base'] }}/40">
                     <div class="flex items-center justify-between mb-4">

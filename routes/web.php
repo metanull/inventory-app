@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\Web\CollectionController as WebCollectionController;
+use App\Http\Controllers\Web\ContextController as WebContextController;
 use App\Http\Controllers\Web\CountryController as WebCountryController;
 use App\Http\Controllers\Web\ItemController as WebItemController;
 use App\Http\Controllers\Web\LanguageController as WebLanguageController;
 use App\Http\Controllers\Web\PartnerController as WebPartnerController;
+use App\Http\Controllers\Web\ProjectController as WebProjectController;
 use Dedoc\Scramble\Generator;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +34,9 @@ Route::prefix('web')->group(function () {
         Route::resource('partners', WebPartnerController::class);
         Route::resource('countries', WebCountryController::class);
         Route::resource('languages', WebLanguageController::class);
+        Route::resource('projects', WebProjectController::class);
+        Route::resource('contexts', WebContextController::class);
+        Route::resource('collections', WebCollectionController::class);
     });
 });
 

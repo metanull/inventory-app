@@ -52,9 +52,22 @@
     <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <!-- Page size selector -->
         <form method="GET" class="flex items-center gap-2">
-            @foreach(request()->except($paramPerPage, $paramPage) as $key => $value)
-                <input type="hidden" name="{{ $key }}" value="{{ $value }}" />
-            @endforeach
+            @php
+                // Safely re-inject existing query params (except page/perPage), including arrays
+                $existingParams = request()->except($paramPerPage, $paramPage);
+                $renderHidden = function ($name, $value) use (&$renderHidden) {
+                    if (is_array($value)) {
+                        foreach ($value as $k => $v) {
+                            $renderHidden($name.'['.$k.']', $v);
+                        }
+                    } elseif (! is_null($value)) {
+                        echo '<input type="hidden" name="'.e($name).'" value="'.e((string) $value).'" />';
+                    }
+                };
+                foreach ($existingParams as $k => $v) {
+                    $renderHidden($k, $v);
+                }
+            @endphp
             <label class="text-sm text-gray-600">Rows per page</label>
             <select name="{{ $paramPerPage }}" class="block rounded-md border-gray-300 py-1.5 pl-2 pr-8 text-sm {{ $theme['focus'] }}" onchange="this.form.submit()">
                 @foreach($perPageOptions as $opt)
