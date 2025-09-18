@@ -1,5 +1,12 @@
 <?php
 
+use App\Http\Controllers\Web\CollectionController as WebCollectionController;
+use App\Http\Controllers\Web\ContextController as WebContextController;
+use App\Http\Controllers\Web\CountryController as WebCountryController;
+use App\Http\Controllers\Web\ItemController as WebItemController;
+use App\Http\Controllers\Web\LanguageController as WebLanguageController;
+use App\Http\Controllers\Web\PartnerController as WebPartnerController;
+use App\Http\Controllers\Web\ProjectController as WebProjectController;
 use Dedoc\Scramble\Generator;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Support\Facades\Route;
@@ -11,26 +18,29 @@ Route::get('/', function () {
 
 // Jetstream/Blade web application routes - all under /web prefix
 Route::prefix('web')->group(function () {
-    // Welcome/homepage for the web application
+    // Unified root: guest sees marketing welcome, authenticated sees portal tiles
     Route::get('/', function () {
-        return view('welcome');
+        return view('home');
     })->name('web.welcome');
 
-    Route::middleware([
-        'auth:sanctum',
-        config('jetstream.auth_session'),
-        'verified',
-    ])->group(function () {
-        Route::get('/dashboard', function () {
-            return view('jetstream');
-        })->name('dashboard');
-    });
+    // Maintain legacy dashboard route name (Jetstream expectation) -> redirect to unified root
+    Route::get('/dashboard', function () {
+        return redirect()->route('web.welcome');
+    })->name('dashboard');
 
-    // Add other Jetstream routes here if needed
-    // These will automatically be prefixed with /web
+    // Authenticated resource management
+    Route::middleware(['auth'])->group(function () {
+        Route::resource('items', WebItemController::class);
+        Route::resource('partners', WebPartnerController::class);
+        Route::resource('countries', WebCountryController::class);
+        Route::resource('languages', WebLanguageController::class);
+        Route::resource('projects', WebProjectController::class);
+        Route::resource('contexts', WebContextController::class);
+        Route::resource('collections', WebCollectionController::class);
+    });
 });
 
-// Vue.js SPA Route - serves the client app at /cli
+// Vue.js SPA Route - serves the client app at /cli (demo client)
 Route::get('/cli/{any?}', function () {
     return view('app');
 })->where('any', '.*')->name('spa');

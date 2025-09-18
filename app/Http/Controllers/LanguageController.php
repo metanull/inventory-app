@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\LanguageResource;
 use App\Models\Language;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 
 class LanguageController extends Controller
@@ -11,9 +12,19 @@ class LanguageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return LanguageResource::collection(Language::all());
+        $pagination = PaginationParams::fromRequest($request);
+
+        $query = Language::query();
+        $paginator = $query->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
+
+        return LanguageResource::collection($paginator);
     }
 
     /**

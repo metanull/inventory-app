@@ -40,63 +40,117 @@
         </div>
     </div>
 
-    {{-- Features Section --}}
+    {{-- Primary Access Tiles (Guest emphasis) --}}
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                
-                {{-- Inventory Management --}}
-                <x-welcome-feature-card>
-                    <x-slot name="icon">
-                        <x-heroicon-o-archive-box class="size-6 stroke-blue-800" />
-                    </x-slot>
-                    <x-slot name="title">Inventory Management</x-slot>
-                    <x-slot name="description">
-                        Comprehensive digital cataloging system for museum collections. Track, organize, and manage your artifacts with detailed metadata and high-resolution imagery.
-                    </x-slot>
-                    <x-slot name="linkUrl">/cli</x-slot>
-                    <x-slot name="linkText">Inventory management client</x-slot>
-                </x-welcome-feature-card>
-                
+                @guest
+                    {{-- Login Tile (Prominent) --}}
+                    <a href="{{ route('login') }}" class="group rounded-xl border border-indigo-300 bg-white p-6 hover:shadow transition flex flex-col ring-1 ring-indigo-100 hover:ring-indigo-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
+                                    <x-heroicon-o-arrow-right-on-rectangle class="w-6 h-6" />
+                                </span>
+                                <h2 class="text-lg font-semibold text-gray-900">Sign In</h2>
+                            </div>
+                            <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
+                        </div>
+                        <p class="text-sm text-gray-600 flex-1">Access the authenticated inventory management portal.</p>
+                        <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">Login <span class="ml-1">&rarr;</span></span>
+                    </a>
+                    @if(Route::has('register'))
+                        {{-- Register Tile --}}
+                        <a href="{{ route('register') }}" class="group rounded-xl border border-gray-200 bg-white p-6 hover:border-indigo-300 hover:shadow transition flex flex-col">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
+                                        <x-heroicon-o-user-plus class="w-6 h-6" />
+                                    </span>
+                                    <h2 class="text-lg font-semibold text-gray-900">Create Account</h2>
+                                </div>
+                                <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
+                            </div>
+                            <p class="text-sm text-gray-600 flex-1">Register to start cataloging items and managing partners.</p>
+                            <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">Register <span class="ml-1">&rarr;</span></span>
+                        </a>
+                    @endif
+                @else
+                    {{-- Direct Inventory Access (Authenticated) --}}
+                    <a href="{{ route('items.index') }}" class="group rounded-xl border border-teal-300 bg-white p-6 hover:shadow transition flex flex-col ring-1 ring-teal-100 hover:ring-teal-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <span class="p-2 rounded-md bg-teal-50 text-teal-600 group-hover:bg-teal-100">
+                                    <x-heroicon-o-archive-box class="w-6 h-6" />
+                                </span>
+                                <h2 class="text-lg font-semibold text-gray-900">Items</h2>
+                            </div>
+                            <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
+                        </div>
+                        <p class="text-sm text-gray-600 flex-1">Browse and manage inventory item records.</p>
+                        <span class="mt-4 inline-flex items-center text-sm font-medium text-teal-600 group-hover:text-teal-700">Open <span class="ml-1">&rarr;</span></span>
+                    </a>
+                @endguest
+
+                {{-- SPA Client --}}
+                <a href="{{ url('/cli') }}" class="group rounded-xl border border-gray-200 bg-white p-6 hover:border-indigo-300 hover:shadow transition flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
+                                <x-heroicon-o-window class="w-6 h-6" />
+                            </span>
+                            <h2 class="text-lg font-semibold text-gray-900">SPA Client</h2>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Vue.js single-page application sharing the same API backend.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">Launch <span class="ml-1">&rarr;</span></span>
+                </a>
+
                 {{-- API Documentation --}}
-                <x-welcome-feature-card>
-                    <x-slot name="icon">
-                        <x-heroicon-o-cursor-arrow-rays class="size-6 stroke-blue-800" />
-                    </x-slot>
-                    <x-slot name="title">API Documentation</x-slot>
-                    <x-slot name="description">
-                        Powerful REST API for developers. Integrate museum data into your applications with comprehensive documentation and examples.
-                    </x-slot>
-                    <x-slot name="linkUrl">/docs/api</x-slot>
-                    <x-slot name="linkText">View API docs</x-slot>
-                </x-welcome-feature-card>
-                
-                {{-- Source Code on GitHub --}}
-                <x-welcome-feature-card>
-                    <x-slot name="icon">
-                        <x-heroicon-o-code-bracket class="size-6 stroke-blue-800" />
-                    </x-slot>
-                    <x-slot name="title">Source Code</x-slot>
-                    <x-slot name="description">
-                        Explore the full source code, contribute, or report issues directly on GitHub. Join the community and help improve the project.
-                    </x-slot>
-                    <x-slot name="linkUrl">https://github.com/metanull/inventory-app</x-slot>
-                    <x-slot name="linkText">View on GitHub</x-slot>
-                </x-welcome-feature-card>
-                
-                {{-- Documentation on GitHub page --}}
-                <x-welcome-feature-card>
-                    <x-slot name="icon">
-                        <x-heroicon-o-document-text class="size-6 stroke-blue-800" />
-                    </x-slot>
-                    <x-slot name="title">GitHub</x-slot>
-                    <x-slot name="description">
-                        Access the application's documentation and source code on GitHub. Contribute, report issues, or explore technical details about the project.
-                    </x-slot>
-                    <x-slot name="linkUrl">https://metanull.github.io/inventory-app</x-slot>
-                    <x-slot name="linkText">GitHub pages</x-slot>
-                </x-welcome-feature-card>
-                
+                <a href="{{ url('/docs/api') }}" class="group rounded-xl border border-gray-200 bg-white p-6 hover:border-indigo-300 hover:shadow transition flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
+                                <x-heroicon-o-book-open class="w-6 h-6" />
+                            </span>
+                            <h2 class="text-lg font-semibold text-gray-900">API Docs</h2>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Reference for the REST endpoints and data contracts.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">Browse <span class="ml-1">&rarr;</span></span>
+                </a>
+
+                {{-- Source Code --}}
+                <a href="https://github.com/metanull/inventory-app" target="_blank" class="group rounded-xl border border-gray-200 bg-white p-6 hover:border-indigo-300 hover:shadow transition flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
+                                <x-heroicon-o-code-bracket class="w-6 h-6" />
+                            </span>
+                            <h2 class="text-lg font-semibold text-gray-900">Source Code</h2>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Explore the repository and contribute improvements.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">Open <span class="ml-1">&rarr;</span></span>
+                </a>
+
+                {{-- Project Docs --}}
+                <a href="https://metanull.github.io/inventory-app" target="_blank" class="group rounded-xl border border-gray-200 bg-white p-6 hover:border-indigo-300 hover:shadow transition flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
+                                <x-heroicon-o-document-text class="w-6 h-6" />
+                            </span>
+                            <h2 class="text-lg font-semibold text-gray-900">Project Docs</h2>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Architecture notes, developer guides & operational procedures.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">Read <span class="ml-1">&rarr;</span></span>
+                </a>
             </div>
         </div>
     </div>

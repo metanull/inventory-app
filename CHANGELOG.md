@@ -7,6 +7,92 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Backend (Testing) - Complete web test standardization and consistency improvements
+    - Created comprehensive Languages web test suite with 7 CRUD tests (Create, Destroy, Edit, Index, Show, Store, Update)
+    - Added missing Countries web tests (CreateTest.php, EditTest.php) to complete entity coverage
+    - Implemented 5 missing Livewire table component tests (Collections, Contexts, Countries, Languages, Projects)
+    - Added 4 missing Parity tests (Items, Partners, Countries, Languages) for API-to-Web consistency validation
+    - Created 5 missing PaginationTest files (Collections, Contexts, Projects, Countries, Languages)
+    - Standardized test patterns across all 7 entities with consistent structure and validation approaches
+    - Removed duplicate test directories (Items/, Partners/) while preserving comprehensive test suites
+
+- Backend (API) - Language controller pagination improvements
+    - Fixed LanguageController.index() to use proper pagination with PaginationParams instead of Language::all()
+    - Resolved API response format inconsistencies for meta.total field in paginated responses
+
+- Backend (Blade) - Complete Laravel web UI standardization with reusable component architecture
+    - Created comprehensive Blade component library with 20+ specialized components
+    - Form components: field, input, select, actions, checkbox variants, date, context-select, language-select
+    - Display components: description-list, field, timestamp, badge, boolean, date, reference components
+    - Layout components: show-page, form-page with consistent spacing and styling
+    - Standardized all 7 entities (Items, Partners, Countries, Languages, Projects, Contexts, Collections)
+    - Advanced field type support: date inputs, boolean checkboxes, relationship selectors
+    - Entity-specific theming preservation while maintaining structural consistency
+
+- Backend (Blade) - Parity and tests for new entities
+    - Smoke tests for Projects, Contexts, and Collections web CRUD pages
+    - Parity tests comparing API index totals with Blade table counts (same seed and perPage)
+
+- Backend (Blade) - Enhanced interactivity and user experience (Phase 3)
+    - Modal confirmation system replacing browser confirm() dialogs with modern UI
+        - Backdrop click to close, Escape key support, smooth animations
+        - Entity-specific messaging and consistent styling across all delete operations
+    - Sortable table headers with dynamic sorting capabilities
+        - Visual chevron indicators showing sort direction and hover states
+        - Backend Livewire integration with query string persistence
+        - Consistent sorting fields (internal_name, created_at) across all table components
+    - Loading states and user feedback components
+        - Configurable loading spinners with size variants (sm/md/lg) and color options
+        - Form submission loading indicators with disabled states and "Saving..." text
+        - Loading overlay components for long operations
+    - Mobile optimization improvements
+        - Touch-friendly button sizing with 44px minimum touch targets
+        - Mobile-responsive modal dialogs with stacked button layouts
+        - Enhanced search inputs with larger touch areas and clear buttons
+        - Mobile-optimized pagination with simplified navigation controls
+
+### Changed
+
+- Backend (Blade) - UI consistency and component architecture
+    - Converted all entity forms to use standardized component patterns (70-80% code reduction)
+    - Unified show pages with consistent layout, spacing, and information display
+    - Standardized create/edit pages to use form-page layout component
+    - Replaced duplicate field HTML with reusable x-form.field components
+    - Implemented alternating gray/white field backgrounds across all entities
+    - Consistent error handling and validation display patterns
+    - Standardized edit page headers to "Edit {Entity}" for Projects, Contexts, and Collections
+    - Show pages now include a visible "Legacy: …" badge and an "Information" section header to match Items/Partners patterns
+
+- Backend (Blade) - Enhanced table functionality
+    - All 7 entity tables now support dynamic sorting with visual feedback
+    - Modal confirmations replace browser dialogs on all delete operations
+    - Improved user experience with loading indicators during form submissions
+
+### Fixed
+
+- Backend (Testing) - Web test consistency and validation fixes
+    - Fixed Languages StoreTest backward_compatibility field validation (shortened 'LANG-LEG' to 'TL' to match 2-character migration constraint)
+    - Corrected Languages and Countries CreateTest assertions to match actual blade form fields ('Code (3 letters)', 'Internal Name' instead of 'ISO Code', 'Name')
+    - Fixed Livewire pagination tests to use proper `gotoPage()` method calls instead of setting `page` property directly
+    - Resolved API pagination issues in LanguageController preventing proper meta.total responses
+
+- Backend (Blade) - Phase 3 component integration and consistency
+    - Fixed sortable-header component interface across all 7 table views (partners, collections, countries, languages, items, projects, contexts)
+    - Resolved Blade template section duplication errors in contexts/show.blade.php and partners/show.blade.php
+    - Standardized display component naming: `display.reference-context` → `display.context-reference`, `display.reference-language` → `display.language-reference`
+    - Added backward-compatibility props to collections and projects show pages for proper "Legacy: XXX" badge display
+    - These fixes resolved 36 failing tests and ensured all Phase 3 enhanced interactivity features work correctly
+- API - Contexts index now returns a paginated resource with `meta.total` to align with parity tests
+- Backend (Blade) - Eliminated code duplication across entity pages while maintaining functionality
+
+- Backend (Blade) - Projects, Contexts, Collections
+    - Full CRUD pages in Blade following Items/Partners patterns (controllers, FormRequests, Livewire tables, and views)
+    - Navigation and Home dashboard tiles integrated for Projects, Contexts, and Collections
+    - Centralized theming extended: added entity color mappings for `projects`, `contexts`, and `collections`
+    - Web routes registered under `/web/*` with auth middleware
+
 ### Changed
 
 - Frontend - Includes + Pagination rollout
@@ -24,6 +110,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Authentication and redirect flow hardening across the frontend
+### Fixed
+
+- Backend (Blade) - Pagination component robustness and consistency
+    - Fixed hidden input rendering for array query parameters in the shared pagination component
+    - Defensive validation of `perPage` and `page` query params with safe reset when invalid
+    - Ensured non-pagination query params are preserved across page/per-page changes
+
+### Changed
+
+- Backend (Blade) - Pagination options
+    - Added `25` to `config('interface.pagination.per_page_options')` to align with existing tests and Livewire table behaviors
+
+### Quality
+
+- Linting passes (Laravel Pint, ESLint/Prettier) and full backend test suite green after pagination fixes
+
     - Centralized 401 handling with dependency-injected router/auth in `resources/js/utils/errorHandler.ts`; prevents circular imports and build warnings
     - Idempotent 401 redirect to named `login` route with preserved intended route via `redirectName` and encoded `redirectParams`; suppresses error toasts during auth redirects
     - Router guard updated to use named-route redirects and to allow reaching login when `redirectName` is present; otherwise authenticated users are redirected home
