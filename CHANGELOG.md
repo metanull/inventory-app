@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Backend (Testing) - Complete web test standardization and consistency improvements
+    - Created comprehensive Languages web test suite with 7 CRUD tests (Create, Destroy, Edit, Index, Show, Store, Update)
+    - Added missing Countries web tests (CreateTest.php, EditTest.php) to complete entity coverage
+    - Implemented 5 missing Livewire table component tests (Collections, Contexts, Countries, Languages, Projects)
+    - Added 4 missing Parity tests (Items, Partners, Countries, Languages) for API-to-Web consistency validation
+    - Created 5 missing PaginationTest files (Collections, Contexts, Projects, Countries, Languages)
+    - Standardized test patterns across all 7 entities with consistent structure and validation approaches
+    - Removed duplicate test directories (Items/, Partners/) while preserving comprehensive test suites
+
+- Backend (API) - Language controller pagination improvements
+    - Fixed LanguageController.index() to use proper pagination with PaginationParams instead of Language::all()
+    - Resolved API response format inconsistencies for meta.total field in paginated responses
+
 - Backend (Blade) - Complete Laravel web UI standardization with reusable component architecture
     - Created comprehensive Blade component library with 20+ specialized components
     - Form components: field, input, select, actions, checkbox variants, date, context-select, language-select
@@ -58,6 +71,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Improved user experience with loading indicators during form submissions
 
 ### Fixed
+
+- Backend (Testing) - Web test consistency and validation fixes
+    - Fixed Languages StoreTest backward_compatibility field validation (shortened 'LANG-LEG' to 'TL' to match 2-character migration constraint)
+    - Corrected Languages and Countries CreateTest assertions to match actual blade form fields ('Code (3 letters)', 'Internal Name' instead of 'ISO Code', 'Name')
+    - Fixed Livewire pagination tests to use proper `gotoPage()` method calls instead of setting `page` property directly
+    - Resolved API pagination issues in LanguageController preventing proper meta.total responses
 
 - Backend (Blade) - Phase 3 component integration and consistency
     - Fixed sortable-header component interface across all 7 table views (partners, collections, countries, languages, items, projects, contexts)
