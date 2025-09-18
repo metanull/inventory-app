@@ -30,10 +30,3 @@
         </x-display.description-list>
     </x-layout.show-page>
 @endsection
-                    <dt class="text-sm font-medium text-gray-600">Updated At</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{ optional($partner->updated_at)->format('Y-m-d H:i') }}</dd>
-                </div>
-            </dl>
-        </div>
-    </div>
-@endsection

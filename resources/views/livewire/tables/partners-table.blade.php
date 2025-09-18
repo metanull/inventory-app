@@ -12,14 +12,10 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <x-table.sortable-header wire:click="sortBy('internal_name')" :active="$sortBy === 'internal_name'" :direction="$sortDirection">
-                        Internal Name
-                    </x-table.sortable-header>
+                    <x-table.sortable-header field="internal_name" label="Internal Name" :sort-by="$sortBy" :sort-direction="$sortDirection" />
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
-                    <x-table.sortable-header wire:click="sortBy('created_at')" :active="$sortBy === 'created_at'" :direction="$sortDirection">
-                        Created
-                    </x-table.sortable-header>
+                    <x-table.sortable-header field="created_at" label="Created" :sort-by="$sortBy" :sort-direction="$sortDirection" />
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated</th>
                     <th class="px-4 py-3"></th>
                 </tr>

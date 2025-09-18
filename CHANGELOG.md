@@ -59,6 +59,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Backend (Blade) - Phase 3 component integration and consistency
+    - Fixed sortable-header component interface across all 7 table views (partners, collections, countries, languages, items, projects, contexts)
+    - Resolved Blade template section duplication errors in contexts/show.blade.php and partners/show.blade.php
+    - Standardized display component naming: `display.reference-context` → `display.context-reference`, `display.reference-language` → `display.language-reference`
+    - Added backward-compatibility props to collections and projects show pages for proper "Legacy: XXX" badge display
+    - These fixes resolved 36 failing tests and ensured all Phase 3 enhanced interactivity features work correctly
 - API - Contexts index now returns a paginated resource with `meta.total` to align with parity tests
 - Backend (Blade) - Eliminated code duplication across entity pages while maintaining functionality
 

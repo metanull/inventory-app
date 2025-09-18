@@ -13,12 +13,8 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <x-table.sortable-header wire:click="sortBy('id')" :active="$sortBy === 'id'" :direction="$sortDirection">
-                        Code
-                    </x-table.sortable-header>
-                    <x-table.sortable-header wire:click="sortBy('internal_name')" :active="$sortBy === 'internal_name'" :direction="$sortDirection">
-                        Internal Name
-                    </x-table.sortable-header>
+                    <x-table.sortable-header field="id" label="Code" :sort-by="$sortBy" :sort-direction="$sortDirection" />
+                    <x-table.sortable-header field="internal_name" label="Internal Name" :sort-by="$sortBy" :sort-direction="$sortDirection" />
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Legacy</th>
                     <th class="px-4 py-3"></th>
                 </tr>
