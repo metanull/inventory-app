@@ -14,10 +14,16 @@
                     <x-heroicon-o-trash class="w-5 h-5 mr-1" /> Delete
                 </button>
             </form>
+            @if($project->backward_compatibility)
+                <span class="px-2 py-0.5 text-xs rounded {{ $c['badge'] }}">Legacy: {{ $project->backward_compatibility }}</span>
+            @endif
         </div>
     </x-entity.header>
 
     <div class="bg-white shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg divide-y divide-gray-200">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h2 class="text-lg font-medium text-gray-900">Information</h2>
+        </div>
         <dl>
             <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 bg-gray-50">
                 <dt class="text-sm font-medium text-gray-700">Internal Name</dt>

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ContextResource;
 use App\Models\Context;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 
 class ContextController extends Controller
@@ -11,9 +14,20 @@ class ContextController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return ContextResource::collection(Context::all());
+        $includes = IncludeParser::fromRequest($request, AllowList::for('context'));
+        $pagination = PaginationParams::fromRequest($request);
+
+        $query = Context::query()->with($includes);
+        $paginator = $query->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
+
+        return ContextResource::collection($paginator);
     }
 
     /**
