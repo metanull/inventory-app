@@ -14,9 +14,15 @@ class ContextsTable extends Component
 
     public int $perPage = 0;
 
+    public string $sortBy = 'created_at';
+
+    public string $sortDirection = 'desc';
+
     protected $queryString = [
         'q' => ['except' => ''],
         'perPage' => ['except' => 20],
+        'sortBy' => ['except' => 'created_at'],
+        'sortDirection' => ['except' => 'desc'],
     ];
 
     public function mount(): void
@@ -58,6 +64,18 @@ class ContextsTable extends Component
         }
     }
 
+    public function sortBy(string $field): void
+    {
+        if ($this->sortBy === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortBy = $field;
+            $this->sortDirection = 'asc';
+        }
+
+        $this->resetPage();
+    }
+
     public function getContextsProperty()
     {
         $query = Context::query();
@@ -66,7 +84,14 @@ class ContextsTable extends Component
             $query->where('internal_name', 'LIKE', "%{$search}%");
         }
 
-        return $query->orderByDesc('created_at')->paginate($this->perPage)->withQueryString();
+        // Apply sorting
+        $validSortFields = ['internal_name', 'is_default', 'created_at', 'updated_at'];
+        $sortField = in_array($this->sortBy, $validSortFields) ? $this->sortBy : 'created_at';
+        $sortDirection = in_array(strtolower($this->sortDirection), ['asc', 'desc']) ? $this->sortDirection : 'desc';
+
+        $query->orderBy($sortField, $sortDirection);
+
+        return $query->paginate($this->perPage)->withQueryString();
     }
 
     public function render()

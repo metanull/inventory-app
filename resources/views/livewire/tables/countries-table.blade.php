@@ -13,8 +13,12 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Internal Name</th>
+                    <x-table.sortable-header wire:click="sortBy('id')" :active="$sortBy === 'id'" :direction="$sortDirection">
+                        Code
+                    </x-table.sortable-header>
+                    <x-table.sortable-header wire:click="sortBy('internal_name')" :active="$sortBy === 'internal_name'" :direction="$sortDirection">
+                        Internal Name
+                    </x-table.sortable-header>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Legacy</th>
                     <th class="px-4 py-3"></th>
                 </tr>
@@ -32,6 +36,8 @@
                                 :delete="route('countries.destroy', $country)"
                                 delete-confirm="Delete this country?"
                                 entity="countries"
+                                :record-id="$country->id"
+                                :record-name="$country->internal_name"
                             />
                         </td>
                     </tr>
@@ -50,5 +56,8 @@
             param-page="page"
         />
     </div>
+    
+    <!-- Delete confirmation modal -->
+    <x-table.delete-modal />
 </div>
  

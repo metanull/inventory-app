@@ -14,9 +14,15 @@ class CountriesTable extends Component
 
     public int $perPage = 0;
 
+    public string $sortBy = 'id';
+
+    public string $sortDirection = 'asc';
+
     protected $queryString = [
         'q' => ['except' => ''],
         'perPage' => ['except' => 20],
+        'sortBy' => ['except' => 'id'],
+        'sortDirection' => ['except' => 'asc'],
     ];
 
     public function mount(): void
@@ -38,6 +44,24 @@ class CountriesTable extends Component
     public function updatedPerPage(): void
     {
         $this->normalizePerPage();
+    }
+
+    public function sortBy(string $field): void
+    {
+        $validFields = ['id', 'internal_name'];
+
+        if (! in_array($field, $validFields)) {
+            return;
+        }
+
+        if ($this->sortBy === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortBy = $field;
+            $this->sortDirection = 'asc';
+        }
+
+        $this->resetPage();
     }
 
     protected function normalizePerPage(): void
@@ -66,7 +90,7 @@ class CountriesTable extends Component
             $query->where('internal_name', 'LIKE', "%{$search}%");
         }
 
-        return $query->orderBy('id')->paginate($this->perPage)->withQueryString();
+        return $query->orderBy($this->sortBy, $this->sortDirection)->paginate($this->perPage)->withQueryString();
     }
 
     public function render()

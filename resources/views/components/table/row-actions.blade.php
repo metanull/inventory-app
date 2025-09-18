@@ -5,6 +5,8 @@
     'deleteConfirm' => 'Delete this record?',
     'deleteLabel' => 'Delete',
     'entity' => null,          // optional entity key for color variant
+    'recordId' => null,        // unique identifier for this record
+    'recordName' => null,      // display name for this record
 ])
 @php
     $editBase = 'inline-flex items-center px-2.5 py-1.5 rounded-md border text-xs font-medium bg-white';
@@ -31,12 +33,11 @@
     @endif
 
     @if($delete)
-        <form method="POST" action="{{ $delete }}" style="display: inline;" onsubmit="return confirm('{{ $deleteConfirm }}');">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="inline-flex items-center text-red-600 hover:text-red-900 text-sm font-medium p-1 rounded hover:bg-red-50 transition-colors" title="{{ $deleteLabel }}">
-                <x-heroicon-o-trash class="h-4 w-4" />
-            </button>
-        </form>
+        <x-table.delete-button 
+            :id="$entity . '-' . $recordId"
+            :entity="$entity ?: 'item'"
+            :name="$recordName ?: ''"
+            :action="$delete"
+            :label="$deleteLabel" />
     @endif
 </div>

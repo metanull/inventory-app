@@ -14,9 +14,15 @@ class CollectionsTable extends Component
 
     public int $perPage = 0;
 
+    public string $sortBy = 'created_at';
+
+    public string $sortDirection = 'desc';
+
     protected $queryString = [
         'q' => ['except' => ''],
         'perPage' => ['except' => 20],
+        'sortBy' => ['except' => 'created_at'],
+        'sortDirection' => ['except' => 'desc'],
     ];
 
     public function mount(): void
@@ -38,6 +44,24 @@ class CollectionsTable extends Component
     public function updatedPerPage(): void
     {
         $this->normalizePerPage();
+    }
+
+    public function sortBy(string $field): void
+    {
+        $validFields = ['internal_name', 'created_at'];
+
+        if (! in_array($field, $validFields)) {
+            return;
+        }
+
+        if ($this->sortBy === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortBy = $field;
+            $this->sortDirection = 'asc';
+        }
+
+        $this->resetPage();
     }
 
     protected function normalizePerPage(): void
@@ -66,7 +90,7 @@ class CollectionsTable extends Component
             $query->where('internal_name', 'LIKE', "%{$search}%");
         }
 
-        return $query->orderByDesc('created_at')->paginate($this->perPage)->withQueryString();
+        return $query->orderBy($this->sortBy, $this->sortDirection)->paginate($this->perPage)->withQueryString();
     }
 
     public function render()

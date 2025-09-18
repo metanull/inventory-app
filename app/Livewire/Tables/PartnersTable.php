@@ -17,9 +17,15 @@ class PartnersTable extends Component
 
     public int $perPage = 0; // resolved in mount
 
+    public string $sortBy = 'created_at';
+
+    public string $sortDirection = 'desc';
+
     protected $queryString = [
         'q' => ['except' => ''],
         'perPage' => ['except' => 20],
+        'sortBy' => ['except' => 'created_at'],
+        'sortDirection' => ['except' => 'desc'],
     ];
 
     protected $listeners = [
@@ -48,6 +54,24 @@ class PartnersTable extends Component
         $this->normalizePerPage();
     }
 
+    public function sortBy(string $field): void
+    {
+        $validFields = ['internal_name', 'created_at'];
+
+        if (! in_array($field, $validFields)) {
+            return;
+        }
+
+        if ($this->sortBy === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortBy = $field;
+            $this->sortDirection = 'asc';
+        }
+
+        $this->resetPage();
+    }
+
     protected function normalizePerPage(): void
     {
         $options = array_map('intval', (array) config('interface.pagination.per_page_options'));
@@ -74,7 +98,7 @@ class PartnersTable extends Component
             $query->where('internal_name', 'LIKE', "%{$search}%");
         }
 
-        return $query->orderByDesc('created_at')->paginate($this->perPage)->withQueryString();
+        return $query->orderBy($this->sortBy, $this->sortDirection)->paginate($this->perPage)->withQueryString();
     }
 
     public function render()

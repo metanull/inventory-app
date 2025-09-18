@@ -12,11 +12,11 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Internal Name</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Launch Date</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Launched</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enabled</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                    <x-table.sortable-header field="internal_name" label="Internal Name" :sort-by="$sortBy" :sort-direction="$sortDirection" />
+                    <x-table.sortable-header field="launch_date" label="Launch Date" :sort-by="$sortBy" :sort-direction="$sortDirection" />
+                    <x-table.sortable-header field="is_launched" label="Launched" :sort-by="$sortBy" :sort-direction="$sortDirection" />
+                    <x-table.sortable-header field="is_enabled" label="Enabled" :sort-by="$sortBy" :sort-direction="$sortDirection" />
+                    <x-table.sortable-header field="created_at" label="Created" :sort-by="$sortBy" :sort-direction="$sortDirection" />
                     <th class="px-4 py-3"></th>
                 </tr>
             </thead>
@@ -39,6 +39,8 @@
                                 :delete="route('projects.destroy', $project)"
                                 delete-confirm="Delete this project?"
                                 entity="projects"
+                                :record-id="$project->id"
+                                :record-name="$project->internal_name"
                             />
                         </td>
                     </tr>
@@ -58,4 +60,7 @@
             param-page="page"
         />
     </div>
+    
+    <!-- Delete confirmation modal -->
+    <x-table.delete-modal />
 </div>

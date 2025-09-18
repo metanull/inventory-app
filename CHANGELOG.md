@@ -22,6 +22,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Smoke tests for Projects, Contexts, and Collections web CRUD pages
     - Parity tests comparing API index totals with Blade table counts (same seed and perPage)
 
+- Backend (Blade) - Enhanced interactivity and user experience (Phase 3)
+    - Modal confirmation system replacing browser confirm() dialogs with modern UI
+        - Backdrop click to close, Escape key support, smooth animations
+        - Entity-specific messaging and consistent styling across all delete operations
+    - Sortable table headers with dynamic sorting capabilities
+        - Visual chevron indicators showing sort direction and hover states
+        - Backend Livewire integration with query string persistence
+        - Consistent sorting fields (internal_name, created_at) across all table components
+    - Loading states and user feedback components
+        - Configurable loading spinners with size variants (sm/md/lg) and color options
+        - Form submission loading indicators with disabled states and "Saving..." text
+        - Loading overlay components for long operations
+    - Mobile optimization improvements
+        - Touch-friendly button sizing with 44px minimum touch targets
+        - Mobile-responsive modal dialogs with stacked button layouts
+        - Enhanced search inputs with larger touch areas and clear buttons
+        - Mobile-optimized pagination with simplified navigation controls
+
 ### Changed
 
 - Backend (Blade) - UI consistency and component architecture
@@ -33,6 +51,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Consistent error handling and validation display patterns
     - Standardized edit page headers to "Edit {Entity}" for Projects, Contexts, and Collections
     - Show pages now include a visible "Legacy: …" badge and an "Information" section header to match Items/Partners patterns
+
+- Backend (Blade) - Enhanced table functionality
+    - All 7 entity tables now support dynamic sorting with visual feedback
+    - Modal confirmations replace browser dialogs on all delete operations
+    - Improved user experience with loading indicators during form submissions
 
 ### Fixed
 

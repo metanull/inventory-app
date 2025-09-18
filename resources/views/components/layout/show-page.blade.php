@@ -24,11 +24,11 @@
         @endif
         
         @if($deleteRoute)
-            <form method="POST" action="{{ $deleteRoute }}" style="display: inline;" onsubmit="return confirm('{{ $deleteConfirm }}');">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="inline-flex items-center px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium">Delete</button>
-            </form>
+            <button type="button" 
+                    onclick="openModal('delete-{{ $entity }}-modal')" 
+                    class="inline-flex items-center px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium">
+                Delete
+            </button>
         @endif
         
         @if($backwardCompatibility)
@@ -41,4 +41,12 @@
     </x-entity.header>
 
     {{ $slot }}
+    
+    @if($deleteRoute)
+        <x-ui.delete-modal 
+            :id="'delete-' . $entity . '-modal'"
+            :entity="$entity"
+            :name="$title"
+            :action="$deleteRoute" />
+    @endif
 </div>

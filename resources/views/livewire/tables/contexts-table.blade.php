@@ -12,9 +12,9 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Internal Name</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Default</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                    <x-table.sortable-header field="internal_name" label="Internal Name" :sort-by="$sortBy" :sort-direction="$sortDirection" />
+                    <x-table.sortable-header field="is_default" label="Default" :sort-by="$sortBy" :sort-direction="$sortDirection" />
+                    <x-table.sortable-header field="created_at" label="Created" :sort-by="$sortBy" :sort-direction="$sortDirection" />
                     <th class="px-4 py-3"></th>
                 </tr>
             </thead>
@@ -33,6 +33,8 @@
                                 :delete="route('contexts.destroy', $context)"
                                 delete-confirm="Delete this context?"
                                 entity="contexts"
+                                :record-id="$context->id"
+                                :record-name="$context->internal_name"
                             />
                         </td>
                     </tr>
@@ -52,4 +54,8 @@
             param-page="page"
         />
     </div>
+    
+    <!-- Delete confirmation modal -->
+    <x-table.delete-modal />
+</div>
 </div>
