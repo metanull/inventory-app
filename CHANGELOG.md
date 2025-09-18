@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Backend (Blade) - Parity and tests for new entities
+    - Smoke tests for Projects, Contexts, and Collections web CRUD pages
+    - Parity tests comparing API index totals with Blade table counts (same seed and perPage)
+
+### Changed
+
+- Backend (Blade) - UI consistency
+    - Standardized edit page headers to "Edit {Entity}" for Projects, Contexts, and Collections
+    - Show pages now include a visible "Legacy: …" badge and an "Information" section header to match Items/Partners patterns
+
+### Fixed
+
+- API - Contexts index now returns a paginated resource with `meta.total` to align with parity tests
+
+### Testing
+
+- Full backend test suite: 1 skipped, 1493 passed (5981 assertions)
+
+### Added
+
 - Backend (Blade) - Projects, Contexts, Collections
     - Full CRUD pages in Blade following Items/Partners patterns (controllers, FormRequests, Livewire tables, and views)
     - Navigation and Home dashboard tiles integrated for Projects, Contexts, and Collections
