@@ -1,51 +1,29 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
-    @php($c = $entityColor('languages'))
-    <div><a href="{{ route('languages.index') }}" class="text-sm {{ $c['accentLink'] }}">&larr; Back to list</a></div>
-    <x-entity.header entity="languages" :title="$language->internal_name">
-        <a href="{{ route('languages.edit', $language) }}" class="inline-flex items-center px-3 py-2 rounded-md {{ $c['button'] }} text-sm font-medium">Edit</a>
-        <form method="POST" action="{{ route('languages.destroy', $language) }}" style="display:inline" onsubmit="return confirm('Delete this language?');">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="inline-flex items-center px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium">Delete</button>
-        </form>
-        @if($language->is_default)
-            <span class="px-2 py-0.5 text-xs rounded {{ $c['badge'] }}">Default</span>
-        @endif
-    </x-entity.header>
-
-    <div class="bg-white shadow sm:rounded-lg overflow-hidden">
-        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">Information</h2>
-        </div>
-        <div class="px-4 py-6 sm:px-6 space-y-6">
-            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">ID (ISO 639-3)</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ $language->id }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Internal Name</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ $language->internal_name }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Backward Compatibility</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ $language->backward_compatibility ?? '—' }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Default</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ $language->is_default ? 'Yes' : 'No' }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Created / Updated</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ optional($language->created_at)->format('Y-m-d H:i') }} / {{ optional($language->updated_at)->format('Y-m-d H:i') }}</dd>
-                </div>
-            </dl>
-        </div>
-    </div>
-</div>
+    <x-layout.show-page 
+        entity="languages"
+        :title="$language->internal_name"
+        :back-route="route('languages.index')"
+        :edit-route="route('languages.edit', $language)"
+        :delete-route="route('languages.destroy', $language)"
+        delete-confirm="Delete this language?"
+        :backward-compatibility="$language->backward_compatibility"
+        :badges="$language->is_default ? ['Default'] : []"
+    >
+        <x-display.description-list>
+            <x-display.field label="ID (ISO 639-3)" :value="$language->id" />
+            <x-display.field label="Internal Name" :value="$language->internal_name" />
+            <x-display.field label="Backward Compatibility" :value="$language->backward_compatibility" />
+            <x-display.field label="Default" :value="$language->is_default ? 'Yes' : 'No'" />
+            <x-display.field label="Created At">
+                <x-display.timestamp :datetime="$language->created_at" />
+            </x-display.field>
+            <x-display.field label="Updated At">
+                <x-display.timestamp :datetime="$language->updated_at" />
+            </x-display.field>
+        </x-display.description-list>
+    </x-layout.show-page>
 @endsection
 @extends('layouts.app')
 

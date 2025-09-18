@@ -1,43 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-@php($c = $entityColor('contexts'))
-<div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
-    <x-entity.header entity="contexts" :title="$context->internal_name">
-        <div class="flex items-center gap-2">
-            <a href="{{ route('contexts.edit', $context) }}" class="inline-flex items-center px-3 py-1.5 rounded-md {{ $c['button'] }} text-sm font-medium">
-                <x-heroicon-o-pencil-square class="w-5 h-5 mr-1" /> Edit
-            </a>
-            <form action="{{ route('contexts.destroy', $context) }}" method="POST" onsubmit="return confirm('Delete this context?')">
-                @csrf @method('DELETE')
-                <button type="submit" class="inline-flex items-center px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium">
-                    <x-heroicon-o-trash class="w-5 h-5 mr-1" /> Delete
-                </button>
-            </form>
-            @if($context->backward_compatibility)
-                <span class="px-2 py-0.5 text-xs rounded {{ $c['badge'] }}">Legacy: {{ $context->backward_compatibility }}</span>
-            @endif
-        </div>
-    </x-entity.header>
-
-    <div class="bg-white shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg divide-y divide-gray-200">
-        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">Information</h2>
-        </div>
-        <dl>
-            <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 bg-gray-50">
-                <dt class="text-sm font-medium text-gray-700">Internal Name</dt>
-                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $context->internal_name }}</dd>
-            </div>
-            <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt class="text-sm font-medium text-gray-700">Default</dt>
-                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $context->is_default ? 'Yes' : 'No' }}</dd>
-            </div>
-            <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 bg-gray-50">
-                <dt class="text-sm font-medium text-gray-700">Legacy ID</dt>
-                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $context->backward_compatibility ?? '—' }}</dd>
-            </div>
-        </dl>
+<x-layout.show-page entity="contexts" :title="$context->internal_name" :model="$context">
+    <x-display.description-list title="Information">
+        <x-display.field label="Internal Name" :value="$context->internal_name" variant="gray" />
+        <x-display.boolean label="Default" :value="$context->is_default" />
+        <x-display.field label="Legacy ID" :value="$context->backward_compatibility" variant="gray" />
+    </x-display.description-list>
+</x-layout.show-page>
+@endsection
     </div>
 </div>
 @endsection

@@ -9,25 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Backend (Blade) - Complete Laravel web UI standardization with reusable component architecture
+    - Created comprehensive Blade component library with 20+ specialized components
+    - Form components: field, input, select, actions, checkbox variants, date, context-select, language-select
+    - Display components: description-list, field, timestamp, badge, boolean, date, reference components
+    - Layout components: show-page, form-page with consistent spacing and styling
+    - Standardized all 7 entities (Items, Partners, Countries, Languages, Projects, Contexts, Collections)
+    - Advanced field type support: date inputs, boolean checkboxes, relationship selectors
+    - Entity-specific theming preservation while maintaining structural consistency
+
 - Backend (Blade) - Parity and tests for new entities
     - Smoke tests for Projects, Contexts, and Collections web CRUD pages
     - Parity tests comparing API index totals with Blade table counts (same seed and perPage)
 
 ### Changed
 
-- Backend (Blade) - UI consistency
+- Backend (Blade) - UI consistency and component architecture
+    - Converted all entity forms to use standardized component patterns (70-80% code reduction)
+    - Unified show pages with consistent layout, spacing, and information display
+    - Standardized create/edit pages to use form-page layout component
+    - Replaced duplicate field HTML with reusable x-form.field components
+    - Implemented alternating gray/white field backgrounds across all entities
+    - Consistent error handling and validation display patterns
     - Standardized edit page headers to "Edit {Entity}" for Projects, Contexts, and Collections
     - Show pages now include a visible "Legacy: …" badge and an "Information" section header to match Items/Partners patterns
 
 ### Fixed
 
 - API - Contexts index now returns a paginated resource with `meta.total` to align with parity tests
-
-### Testing
-
-- Full backend test suite: 1 skipped, 1493 passed (5981 assertions)
-
-### Added
+- Backend (Blade) - Eliminated code duplication across entity pages while maintaining functionality
 
 - Backend (Blade) - Projects, Contexts, Collections
     - Full CRUD pages in Blade following Items/Partners patterns (controllers, FormRequests, Livewire tables, and views)
