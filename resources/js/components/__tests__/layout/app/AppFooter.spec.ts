@@ -47,7 +47,7 @@ describe('AppFooter', () => {
   it('displays API client version', () => {
     const wrapper = mount(AppFooter)
 
-    expect(wrapper.text()).toContain('API Client Version: 1.1.21-dev+20250724.1804')
+    expect(wrapper.text()).toContain('API Client|Version 1.1.21-dev+20250724.1804')
   })
 
   it('has correct structure and layout classes', () => {
@@ -58,18 +58,17 @@ describe('AppFooter', () => {
     expect(container.classes()).toContain('mx-auto')
     expect(container.classes()).toContain('px-4')
 
-    const flexContainer = wrapper.find('.flex.flex-col.md\\:flex-row')
-    expect(flexContainer.exists()).toBe(true)
-    expect(flexContainer.classes()).toContain('justify-between')
-    expect(flexContainer.classes()).toContain('items-center')
-    expect(flexContainer.classes()).toContain('text-gray-500')
-    expect(flexContainer.classes()).toContain('text-sm')
+    const gridContainer = wrapper.find('.grid.grid-cols-1.md\\:grid-cols-3')
+    expect(gridContainer.exists()).toBe(true)
+    expect(gridContainer.classes()).toContain('gap-4')
+    expect(gridContainer.classes()).toContain('items-center')
+    expect(gridContainer.classes()).toContain('text-sm')
   })
 
   it('has pipe separator between title and version', () => {
     const wrapper = mount(AppFooter)
 
-    const separator = wrapper.find('.mx-2')
+    const separator = wrapper.find('.mx-1')
     expect(separator.exists()).toBe(true)
     expect(separator.text()).toBe('|')
   })
@@ -77,9 +76,9 @@ describe('AppFooter', () => {
   it('applies responsive layout classes', () => {
     const wrapper = mount(AppFooter)
 
-    const flexContainer = wrapper.find('.flex')
-    expect(flexContainer.classes()).toContain('flex-col')
-    expect(flexContainer.classes()).toContain('md:flex-row')
+    const gridContainer = wrapper.find('.grid')
+    expect(gridContainer.classes()).toContain('grid-cols-1')
+    expect(gridContainer.classes()).toContain('md:grid-cols-3')
   })
 
   it('has accessibility-compliant structure', () => {

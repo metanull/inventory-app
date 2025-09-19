@@ -118,21 +118,12 @@
             <DisplayText v-else>{{ item?.backward_compatibility }}</DisplayText>
           </DescriptionDetail>
         </DescriptionRow>
-        <DescriptionRow v-if="item?.created_at" variant="gray">
-          <DescriptionTerm>Created</DescriptionTerm>
-          <DescriptionDetail>
-            <DateDisplay :date="item.created_at" format="medium" variant="small-dark" />
-          </DescriptionDetail>
-        </DescriptionRow>
-        <DescriptionRow v-if="item?.updated_at" variant="white">
-          <DescriptionTerm>Last Updated</DescriptionTerm>
-          <DescriptionDetail>
-            <DateDisplay :date="item.updated_at" format="medium" variant="small-dark" />
-          </DescriptionDetail>
-        </DescriptionRow>
       </DescriptionList>
     </template>
   </DetailView>
+
+  <!-- Details Section (only show when viewing an existing item) -->
+  <DetailList v-if="mode === 'view' && item" :item-id="item.id" :color="color" />
 </template>
 
 <script setup lang="ts">
@@ -151,7 +142,7 @@
   import DescriptionDetail from '@/components/format/description/DescriptionDetail.vue'
   import FormInput from '@/components/format/FormInput.vue'
   import DisplayText from '@/components/format/DisplayText.vue'
-  import DateDisplay from '@/components/format/Date.vue'
+  import DetailList from '@/components/details/DetailList.vue'
   import GenericDropdown from '@/components/format/GenericDropdown.vue'
   import { ArchiveBoxIcon as ItemIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline'
   import { useItemStore } from '@/stores/item'

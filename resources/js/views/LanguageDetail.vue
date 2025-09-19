@@ -63,18 +63,6 @@
             <DisplayText v-else>{{ language?.backward_compatibility }}</DisplayText>
           </DescriptionDetail>
         </DescriptionRow>
-        <DescriptionRow v-if="language?.created_at" variant="white">
-          <DescriptionTerm>Created</DescriptionTerm>
-          <DescriptionDetail>
-            <DateDisplay :date="language.created_at" format="medium" variant="small-dark" />
-          </DescriptionDetail>
-        </DescriptionRow>
-        <DescriptionRow v-if="language?.updated_at" variant="gray">
-          <DescriptionTerm>Last Updated</DescriptionTerm>
-          <DescriptionDetail>
-            <DateDisplay :date="language.updated_at" format="medium" variant="small-dark" />
-          </DescriptionDetail>
-        </DescriptionRow>
       </DescriptionList>
     </template>
   </DetailView>
@@ -94,7 +82,6 @@
   import { useErrorDisplayStore } from '@/stores/errorDisplay'
   import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
   import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
-  import DateDisplay from '@/components/format/Date.vue'
   import DisplayText from '@/components/format/DisplayText.vue'
   import DetailView from '@/components/layout/detail/DetailView.vue'
   import FormInput from '@/components/format/FormInput.vue'

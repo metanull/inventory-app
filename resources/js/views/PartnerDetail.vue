@@ -90,18 +90,6 @@
             <DisplayText v-else>{{ partner?.backward_compatibility }}</DisplayText>
           </DescriptionDetail>
         </DescriptionRow>
-        <DescriptionRow v-if="partner?.created_at" variant="gray">
-          <DescriptionTerm>Created</DescriptionTerm>
-          <DescriptionDetail>
-            <DateDisplay :date="partner.created_at" format="medium" variant="small-dark" />
-          </DescriptionDetail>
-        </DescriptionRow>
-        <DescriptionRow v-if="partner?.updated_at" variant="white">
-          <DescriptionTerm>Last Updated</DescriptionTerm>
-          <DescriptionDetail>
-            <DateDisplay :date="partner.updated_at" format="medium" variant="small-dark" />
-          </DescriptionDetail>
-        </DescriptionRow>
       </DescriptionList>
     </template>
   </DetailView>
@@ -123,7 +111,6 @@
   import DescriptionDetail from '@/components/format/description/DescriptionDetail.vue'
   import FormInput from '@/components/format/FormInput.vue'
   import DisplayText from '@/components/format/DisplayText.vue'
-  import DateDisplay from '@/components/format/Date.vue'
   import GenericDropdown from '@/components/format/GenericDropdown.vue'
   import { UserGroupIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline'
   import { usePartnerStore } from '@/stores/partner'

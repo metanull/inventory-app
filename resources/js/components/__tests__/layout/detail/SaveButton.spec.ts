@@ -27,7 +27,8 @@ describe('SaveButton', () => {
 
     expect(wrapper.classes()).toContain('inline-flex')
     expect(wrapper.classes()).toContain('items-center')
-    expect(wrapper.classes()).toContain('px-4')
+    expect(wrapper.classes()).toContain('px-2')
+    expect(wrapper.classes()).toContain('sm:px-4')
     expect(wrapper.classes()).toContain('py-2')
     expect(wrapper.classes()).toContain('border')
     expect(wrapper.classes()).toContain('border-transparent')
@@ -150,7 +151,7 @@ describe('SaveButton', () => {
     expect(icon.exists()).toBe(true)
     expect(icon.classes()).toContain('h-4')
     expect(icon.classes()).toContain('w-4')
-    expect(icon.classes()).toContain('mr-2')
+    expect(icon.classes()).toContain('sm:mr-2')
     expect(icon.attributes('fill')).toBe('none')
     expect(icon.attributes('stroke')).toBe('currentColor')
     expect(icon.attributes('viewBox')).toBe('0 0 24 24')

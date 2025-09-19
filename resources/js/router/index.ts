@@ -8,6 +8,7 @@ import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
 import Items from '@/views/Items.vue'
 import ItemDetail from '@/views/ItemDetail.vue'
+import DetailDetail from '@/views/DetailDetail.vue'
 import Languages from '@/views/Languages.vue'
 import LanguageDetail from '@/views/LanguageDetail.vue'
 import Countries from '@/views/Countries.vue'
@@ -20,6 +21,9 @@ import Partners from '@/views/Partners.vue'
 import PartnerDetail from '@/views/PartnerDetail.vue'
 import Collections from '@/views/Collections.vue'
 import CollectionDetail from '@/views/CollectionDetail.vue'
+import ImageUpload from '@/views/ImageUpload.vue'
+import AvailableImages from '@/views/AvailableImages.vue'
+import AvailableImageDetail from '@/views/AvailableImageDetail.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
@@ -47,6 +51,18 @@ const router = createRouter({
       path: '/items/:id',
       name: 'item-detail',
       component: ItemDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/items/:itemId/details/new',
+      name: 'detail-new',
+      component: DetailDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/items/:itemId/details/:id',
+      name: 'detail-detail',
+      component: DetailDetail,
       meta: { requiresAuth: true },
     },
     {
@@ -143,6 +159,24 @@ const router = createRouter({
       path: '/projects/:id',
       name: 'project-detail',
       component: ProjectDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/images/upload',
+      name: 'image-upload',
+      component: ImageUpload,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/images',
+      name: 'available-images',
+      component: AvailableImages,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/images/:id',
+      name: 'available-image-detail',
+      component: AvailableImageDetail,
       meta: { requiresAuth: true },
     },
     {
