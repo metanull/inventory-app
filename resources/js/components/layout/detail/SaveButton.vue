@@ -1,7 +1,7 @@
 <template>
   <button
     :class="[
-      'inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white disabled:opacity-50 disabled:cursor-not-allowed',
+      'inline-flex items-center px-2 sm:px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white disabled:opacity-50 disabled:cursor-not-allowed',
       successColors.button,
       successColors.buttonHover,
       'focus:outline-none focus:ring-2 focus:ring-offset-2',
@@ -10,8 +10,8 @@
     :disabled="disabled || loading"
     @click="!disabled && !loading && $emit('click')"
   >
-    <CheckIcon class="h-4 w-4 mr-2" />
-    {{ label || 'Save' }}
+    <CheckIcon class="h-4 w-4 sm:mr-2" />
+    <span class="hidden sm:inline">{{ label || 'Save' }}</span>
   </button>
 </template>
 

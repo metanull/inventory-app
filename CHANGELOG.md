@@ -84,6 +84,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Standardized display component naming: `display.reference-context` → `display.context-reference`, `display.reference-language` → `display.language-reference`
     - Added backward-compatibility props to collections and projects show pages for proper "Legacy: XXX" badge display
     - These fixes resolved 36 failing tests and ensured all Phase 3 enhanced interactivity features work correctly
+    
+- Frontend (DetailDetail) - Navigation guard false positive for unsaved changes
+    - Fixed DetailDetail component where unsaved changes guard incorrectly triggered after successful save/cancel operations
+    - Resolved timing issue between form state reset and navigation guard checking in create mode
+    - Added proper state synchronization with `nextTick()` to ensure reactive updates complete before navigation
+    - Both save and cancel actions now properly reset form state and prevent spurious unsaved changes dialogs
+    
 - API - Contexts index now returns a paginated resource with `meta.total` to align with parity tests
 - Backend (Blade) - Eliminated code duplication across entity pages while maintaining functionality
 

@@ -49,18 +49,6 @@
             <DisplayText v-else>{{ context?.backward_compatibility }}</DisplayText>
           </DescriptionDetail>
         </DescriptionRow>
-        <DescriptionRow v-if="context?.created_at" variant="gray">
-          <DescriptionTerm>Created</DescriptionTerm>
-          <DescriptionDetail>
-            <DateDisplay :date="context.created_at" format="medium" variant="small-dark" />
-          </DescriptionDetail>
-        </DescriptionRow>
-        <DescriptionRow v-if="context?.updated_at" variant="white">
-          <DescriptionTerm>Last Updated</DescriptionTerm>
-          <DescriptionDetail>
-            <DateDisplay :date="context.updated_at" format="medium" variant="small-dark" />
-          </DescriptionDetail>
-        </DescriptionRow>
       </DescriptionList>
     </template>
   </DetailView>
@@ -82,7 +70,6 @@
   import DescriptionDetail from '@/components/format/description/DescriptionDetail.vue'
   import FormInput from '@/components/format/FormInput.vue'
   import DisplayText from '@/components/format/DisplayText.vue'
-  import DateDisplay from '@/components/format/Date.vue'
   import { CogIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline'
   import { CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/solid'
   import { useContextStore } from '@/stores/context'

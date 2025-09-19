@@ -120,18 +120,6 @@
             </div>
           </DescriptionDetail>
         </DescriptionRow>
-        <DescriptionRow v-if="collection?.created_at" variant="white">
-          <DescriptionTerm>Created</DescriptionTerm>
-          <DescriptionDetail>
-            <DateDisplay :date="collection.created_at" format="medium" variant="small-dark" />
-          </DescriptionDetail>
-        </DescriptionRow>
-        <DescriptionRow v-if="collection?.updated_at" variant="gray">
-          <DescriptionTerm>Last Updated</DescriptionTerm>
-          <DescriptionDetail>
-            <DateDisplay :date="collection.updated_at" format="medium" variant="small-dark" />
-          </DescriptionDetail>
-        </DescriptionRow>
       </DescriptionList>
     </template>
   </DetailView>
@@ -153,7 +141,6 @@
   import DescriptionDetail from '@/components/format/description/DescriptionDetail.vue'
   import FormInput from '@/components/format/FormInput.vue'
   import DisplayText from '@/components/format/DisplayText.vue'
-  import DateDisplay from '@/components/format/Date.vue'
   import GenericDropdown from '@/components/format/GenericDropdown.vue'
   import { RectangleStackIcon as CollectionIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline'
   import { useCollectionStore } from '@/stores/collection'

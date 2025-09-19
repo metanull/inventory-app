@@ -200,9 +200,9 @@ describe('Context Consistency Tests', () => {
       expect(content).toContain('DisplayText')
       expect(content).toContain("import DisplayText from '@/components/format/DisplayText.vue'")
 
-      // Should use DateDisplay for dates
-      expect(content).toContain('DateDisplay')
-      expect(content).toContain("import DateDisplay from '@/components/format/Date.vue'")
+      // ContextDetail.vue no longer uses DateDisplay - timestamps are handled by system properties component
+      expect(content).not.toContain('DateDisplay')
+      expect(content).not.toContain("import DateDisplay from '@/components/format/Date.vue'")
 
       // Should use FormInput for edit mode
       expect(content).toContain('FormInput')

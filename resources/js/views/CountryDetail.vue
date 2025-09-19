@@ -61,18 +61,6 @@
             <DisplayText v-else>{{ country?.backward_compatibility }}</DisplayText>
           </DescriptionDetail>
         </DescriptionRow>
-        <DescriptionRow v-if="country?.created_at" variant="white">
-          <DescriptionTerm>Created</DescriptionTerm>
-          <DescriptionDetail>
-            <DateDisplay :date="country.created_at" />
-          </DescriptionDetail>
-        </DescriptionRow>
-        <DescriptionRow v-if="country?.updated_at" variant="gray">
-          <DescriptionTerm>Updated</DescriptionTerm>
-          <DescriptionDetail>
-            <DateDisplay :date="country.updated_at" />
-          </DescriptionDetail>
-        </DescriptionRow>
       </DescriptionList>
     </template>
   </DetailView>
@@ -103,7 +91,6 @@
   import DescriptionDetail from '@/components/format/description/DescriptionDetail.vue'
   import FormInput from '@/components/format/FormInput.vue'
   import DisplayText from '@/components/format/DisplayText.vue'
-  import DateDisplay from '@/components/format/Date.vue'
   import { GlobeAltIcon as CountryIcon } from '@heroicons/vue/24/solid'
   import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
   import { useColors, type ColorName } from '@/composables/useColors'

@@ -44,26 +44,26 @@
                 <div
                   v-if="mode === 'edit'"
                   :class="[
-                    'inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium',
+                    'inline-flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full text-sm font-medium',
                     colors.blue.badgeBackground,
                     colors.blue.badgeText,
                     getThemeClass('modeEditText'),
                   ]"
                 >
                   <PencilIcon class="h-4 w-4" />
-                  Editing
+                  <span class="hidden sm:inline">Editing</span>
                 </div>
                 <div
                   v-else-if="mode === 'create'"
                   :class="[
-                    'inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium',
+                    'inline-flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full text-sm font-medium',
                     colors.green.badgeBackground,
                     colors.green.badgeText,
                     getThemeClass('modeCreateText'),
                   ]"
                 >
                   <PlusIcon class="h-4 w-4" />
-                  Creating
+                  <span class="hidden sm:inline">Creating</span>
                 </div>
               </div>
             </div>

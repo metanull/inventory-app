@@ -130,6 +130,58 @@
             </div>
           </div>
 
+          <!-- Image Management Dropdown -->
+          <div class="relative" @mouseleave="closeImagesDropdown">
+            <button
+              :class="[
+                getThemeClass('navLinkColor'),
+                'px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1',
+              ]"
+              @mouseenter="openImagesDropdown"
+              @click="toggleImagesDropdown"
+            >
+              Image Management
+              <ChevronDownIcon
+                class="w-4 h-4 transition-transform"
+                :class="{ 'rotate-180': isImagesDropdownOpen }"
+              />
+            </button>
+
+            <div
+              v-if="isImagesDropdownOpen"
+              :class="[
+                'absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 z-50 border',
+                getThemeClass('dropdownBorder'),
+                'bg-white',
+              ]"
+              @mouseenter="keepImagesDropdownOpen"
+              @mouseleave="closeImagesDropdown"
+            >
+              <RouterLink
+                to="/images"
+                :class="[
+                  getThemeClass('dropdownItemColor'),
+                  'px-4 py-2 text-sm flex items-center gap-2',
+                ]"
+                @click="closeImagesDropdown"
+              >
+                <PhotoIcon class="w-4 h-4" :class="imagesColors.icon" />
+                Available Images
+              </RouterLink>
+              <RouterLink
+                to="/images/upload"
+                :class="[
+                  getThemeClass('dropdownItemColor'),
+                  'px-4 py-2 text-sm flex items-center gap-2',
+                ]"
+                @click="closeImagesDropdown"
+              >
+                <ArrowUpTrayIcon class="w-4 h-4" :class="imagesColors.icon" />
+                Upload Images
+              </RouterLink>
+            </div>
+          </div>
+
           <!-- Reference Data Dropdown -->
           <div class="relative" @mouseleave="closeDropdown">
             <button
@@ -381,6 +433,51 @@
             </div>
           </div>
 
+          <!-- Mobile Image Management Section -->
+          <div class="px-3">
+            <button
+              :class="[
+                getThemeClass('mobileNavLinkColor'),
+                'w-full text-left py-2 text-base font-medium flex items-center justify-between',
+              ]"
+              @click="toggleMobileImagesDropdown"
+            >
+              Image Management
+              <ChevronDownIcon
+                class="w-4 h-4 transition-transform"
+                :class="{ 'rotate-180': isMobileImagesDropdownOpen }"
+              />
+            </button>
+
+            <div
+              v-if="isMobileImagesDropdownOpen"
+              :class="['mt-2 space-y-2 pl-4 border-l-2', getThemeClass('mobileBorder')]"
+            >
+              <RouterLink
+                to="/images"
+                :class="[
+                  getThemeClass('mobileNavLinkColor'),
+                  'py-2 text-sm flex items-center gap-2',
+                ]"
+                @click="closeMobileMenu"
+              >
+                <PhotoIcon class="w-4 h-4" :class="imagesColors.icon" />
+                Available Images
+              </RouterLink>
+              <RouterLink
+                to="/images/upload"
+                :class="[
+                  getThemeClass('mobileNavLinkColor'),
+                  'py-2 text-sm flex items-center gap-2',
+                ]"
+                @click="closeMobileMenu"
+              >
+                <ArrowUpTrayIcon class="w-4 h-4" :class="imagesColors.icon" />
+                Upload Images
+              </RouterLink>
+            </div>
+          </div>
+
           <!-- Mobile Reference Data Section -->
           <div class="px-3">
             <button
@@ -521,6 +618,7 @@
     RectangleStackIcon,
     PhotoIcon,
     PresentationChartLineIcon,
+    ArrowUpTrayIcon,
   } from '@heroicons/vue/24/outline'
 
   const router = useRouter()
@@ -531,6 +629,7 @@
   const itemsColors = useThemeColors('items')
   const partnersColors = useThemeColors('partners')
   const collectionsColors = useThemeColors('collections')
+  const imagesColors = useThemeColors('tools') // Using red for images for now
   const languagesColors = useThemeColors('languages')
   const countriesColors = useThemeColors('countries')
   const contextsColors = useThemeColors('contexts')
@@ -541,9 +640,12 @@
   const isDropdownOpen = ref(false)
   const isInventoryDropdownOpen = ref(false)
   const isCollectionsDropdownOpen = ref(false)
+  const isImagesDropdownOpen = ref(false)
   const isToolsDropdownOpen = ref(false)
   let dropdownTimeout: ReturnType<typeof setTimeout> | null = null
   let inventoryDropdownTimeout: ReturnType<typeof setTimeout> | null = null
+  let collectionsDropdownTimeout: ReturnType<typeof setTimeout> | null = null
+  let imagesDropdownTimeout: ReturnType<typeof setTimeout> | null = null
   let toolsDropdownTimeout: ReturnType<typeof setTimeout> | null = null
 
   // Mobile menu state
@@ -551,6 +653,7 @@
   const isMobileDropdownOpen = ref(false)
   const isMobileInventoryDropdownOpen = ref(false)
   const isMobileCollectionsDropdownOpen = ref(false)
+  const isMobileImagesDropdownOpen = ref(false)
   const isMobileToolsDropdownOpen = ref(false)
 
   // Desktop dropdown functions
@@ -606,8 +709,6 @@
   }
 
   // Collections dropdown functions
-  let collectionsDropdownTimeout: ReturnType<typeof setTimeout> | null = null
-
   const openCollectionsDropdown = () => {
     if (collectionsDropdownTimeout) {
       clearTimeout(collectionsDropdownTimeout)
@@ -633,6 +734,32 @@
     isCollectionsDropdownOpen.value = !isCollectionsDropdownOpen.value
   }
 
+  // Images dropdown functions
+  const openImagesDropdown = () => {
+    if (imagesDropdownTimeout) {
+      clearTimeout(imagesDropdownTimeout)
+      imagesDropdownTimeout = null
+    }
+    isImagesDropdownOpen.value = true
+  }
+
+  const closeImagesDropdown = () => {
+    imagesDropdownTimeout = setTimeout(() => {
+      isImagesDropdownOpen.value = false
+    }, 150)
+  }
+
+  const keepImagesDropdownOpen = () => {
+    if (imagesDropdownTimeout) {
+      clearTimeout(imagesDropdownTimeout)
+      imagesDropdownTimeout = null
+    }
+  }
+
+  const toggleImagesDropdown = () => {
+    isImagesDropdownOpen.value = !isImagesDropdownOpen.value
+  }
+
   // Mobile menu functions
   const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value
@@ -640,6 +767,7 @@
       isMobileDropdownOpen.value = false
       isMobileInventoryDropdownOpen.value = false
       isMobileCollectionsDropdownOpen.value = false
+      isMobileImagesDropdownOpen.value = false
       isMobileToolsDropdownOpen.value = false
     }
   }
@@ -662,6 +790,10 @@
 
   const toggleMobileCollectionsDropdown = () => {
     isMobileCollectionsDropdownOpen.value = !isMobileCollectionsDropdownOpen.value
+  }
+
+  const toggleMobileImagesDropdown = () => {
+    isMobileImagesDropdownOpen.value = !isMobileImagesDropdownOpen.value
   }
 
   const toggleMobileToolsDropdown = () => {
