@@ -22,6 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Fixed LanguageController.index() to use proper pagination with PaginationParams instead of Language::all()
     - Resolved API response format inconsistencies for meta.total field in paginated responses
 
+- Backend (API) - AvailableImage controller pagination improvements
+    - Fixed AvailableImageController.index() to use proper pagination with PaginationParams instead of AvailableImage::all()
+    - Added 'available_image' entry to AllowList configuration to support IncludeParser functionality
+    - Resolved pagination issues preventing proper frontend listing of available images
+
 - Backend (Blade) - Complete Laravel web UI standardization with reusable component architecture
     - Created comprehensive Blade component library with 20+ specialized components
     - Form components: field, input, select, actions, checkbox variants, date, context-select, language-select
@@ -84,12 +89,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Standardized display component naming: `display.reference-context` → `display.context-reference`, `display.reference-language` → `display.language-reference`
     - Added backward-compatibility props to collections and projects show pages for proper "Legacy: XXX" badge display
     - These fixes resolved 36 failing tests and ensured all Phase 3 enhanced interactivity features work correctly
-    
-- Frontend (DetailDetail) - Navigation guard false positive for unsaved changes
-    - Fixed DetailDetail component where unsaved changes guard incorrectly triggered after successful save/cancel operations
-    - Resolved timing issue between form state reset and navigation guard checking in create mode
-    - Added proper state synchronization with `nextTick()` to ensure reactive updates complete before navigation
-    - Both save and cancel actions now properly reset form state and prevent spurious unsaved changes dialogs
+
+- Frontend (Image Upload) - Status monitoring for image processing workflow
+    - **Root Cause**: Vue.js image upload view stayed in "Processing" status forever due to flawed monitoring logic
+        - API calls failing silently returned `null`, causing monitor confusion
+        - Monitor auto-stopped when no processing uploads found, wouldn't restart for new uploads
+        - Incorrect status handling logic treated valid responses as errors
+    - **Solution**: Comprehensive monitoring system improvements
+        - Enhanced `checkUploadStatus()` with proper error handling returning `{ status: 'check_failed' }` instead of `null`
+        - Implemented `ensureProcessingMonitor()` that automatically starts/stops based on upload state
+        - Fixed status matching to properly detect `status === 'processed' && available_image` condition
+        - Added comprehensive debug logging throughout monitoring process
+    - **Result**: Upload status now correctly transitions from "Processing" → "Completed" when images are processed
+    - **Technical Details**: Monitor lifecycle now persistent, handles API failures gracefully, distinguishes between temporary failures and processing errors
     
 - API - Contexts index now returns a paginated resource with `meta.total` to align with parity tests
 - Backend (Blade) - Eliminated code duplication across entity pages while maintaining functionality

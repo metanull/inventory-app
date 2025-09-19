@@ -378,7 +378,7 @@
   const onPageChange = async (page: number) => {
     try {
       loadingStore.show()
-      await availableImageStore.fetchAvailableImages({ page })
+      await availableImageStore.fetchAvailableImages({ page, perPage: availableImageStore.perPage })
       errorStore.addMessage('info', 'Page loaded successfully.')
     } catch {
       errorStore.addMessage('error', 'Failed to load page. Please try again.')
