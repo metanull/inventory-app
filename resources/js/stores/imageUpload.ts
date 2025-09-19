@@ -41,6 +41,9 @@ export const useImageUploadStore = defineStore('imageUpload', () => {
   const uploadQueue = ref<File[]>([])
   const isUploading = ref(false)
 
+  // Monitor state
+  let processingMonitorInterval: ReturnType<typeof setInterval> | null = null
+
   // Create API client instance with session-aware configuration
   const createApiClient = () => {
     return useApiClient().createImageUploadApi()
@@ -115,10 +118,15 @@ export const useImageUploadStore = defineStore('imageUpload', () => {
     try {
       const apiClient = createApiClient()
       const response = await apiClient.imageUploadStatus(uploadId)
+      console.debug(`Upload status for ${uploadId}:`, response.data)
       return response.data
     } catch (error) {
-      console.error('Error checking upload status:', error)
-      return null
+      console.error(`Error checking upload status for ${uploadId}:`, error)
+      // Return a status indicating the check failed, not null
+      return {
+        status: 'check_failed',
+        error: error instanceof Error ? error.message : 'Status check failed',
+      }
     }
   }
 
@@ -163,6 +171,9 @@ export const useImageUploadStore = defineStore('imageUpload', () => {
 
       // Add to uploads list
       uploads.value.unshift(uploadedResource)
+
+      // Ensure processing monitor is running
+      ensureProcessingMonitor()
 
       return uploadedResource
     } catch (error) {
@@ -250,47 +261,96 @@ export const useImageUploadStore = defineStore('imageUpload', () => {
     }
   }
 
-  // Periodically check processing status
-  const startProcessingMonitor = () => {
-    const intervalId = setInterval(async () => {
-      const processingIds = processingUploads.value
-        .map(upload => upload.uploadedResource?.id)
-        .filter(Boolean)
+  // Ensure processing monitor is running when needed
+  const ensureProcessingMonitor = () => {
+    const hasProcessingUploads = processingUploads.value.length > 0
 
-      if (processingIds.length === 0) {
-        clearInterval(intervalId)
-        return
-      }
+    if (hasProcessingUploads && !processingMonitorInterval) {
+      console.debug('Starting processing monitor')
+      processingMonitorInterval = setInterval(async () => {
+        const processingIds = processingUploads.value
+          .map(upload => upload.uploadedResource?.id)
+          .filter(Boolean)
 
-      for (const id of processingIds) {
-        if (id) {
-          const status = await checkUploadStatus(id)
-          if (status) {
-            // Find the corresponding upload in our tracking
-            for (const [uploadId, upload] of activeUploads.value.entries()) {
-              if (upload.uploadedResource?.id === id) {
-                if (status.status === 'processing') {
-                  // Still processing, no change needed
-                } else if (status.available_image) {
-                  // Processing completed successfully
-                  upload.status = 'completed'
-                  activeUploads.value.set(uploadId, { ...upload })
-                } else {
-                  // Processing failed or unknown status
-                  upload.status = 'error'
-                  upload.error = 'Processing failed'
-                  activeUploads.value.set(uploadId, { ...upload })
+        console.debug('Processing monitor check:', {
+          processingCount: processingIds.length,
+          ids: processingIds,
+        })
+
+        if (processingIds.length === 0) {
+          console.debug('No processing uploads found, stopping monitor')
+          if (processingMonitorInterval) {
+            clearInterval(processingMonitorInterval)
+            processingMonitorInterval = null
+          }
+          return
+        }
+
+        for (const id of processingIds) {
+          if (id) {
+            const status = await checkUploadStatus(id)
+            if (status) {
+              // Find the corresponding upload in our tracking
+              for (const [uploadId, upload] of activeUploads.value.entries()) {
+                if (upload.uploadedResource?.id === id) {
+                  console.debug(`Updating status for upload ${uploadId}:`, {
+                    previousStatus: upload.status,
+                    newStatusResponse: status,
+                  })
+
+                  if (status.status === 'processing') {
+                    // Still processing, no change needed
+                    console.debug(`Upload ${uploadId} still processing`)
+                  } else if (status.status === 'processed' && status.available_image) {
+                    // Processing completed successfully
+                    console.debug(`Upload ${uploadId} completed successfully`)
+                    upload.status = 'completed'
+                    activeUploads.value.set(uploadId, { ...upload })
+                  } else if (status.status === 'check_failed') {
+                    // API call failed, but don't mark as error - might be temporary
+                    console.warn(`Status check failed for upload ${uploadId}, will retry`)
+                  } else if (status.status === 'not_found') {
+                    // Neither ImageUpload nor AvailableImage exists - this might be an error or timing issue
+                    console.warn(`Upload ${uploadId} not found in API, marking as error`)
+                    upload.status = 'error'
+                    upload.error = 'Upload not found in system'
+                    activeUploads.value.set(uploadId, { ...upload })
+                  } else {
+                    // Unknown status or processing failed
+                    console.warn(`Upload ${uploadId} has unknown status:`, status)
+                    upload.status = 'error'
+                    upload.error = status.error || 'Processing failed'
+                    activeUploads.value.set(uploadId, { ...upload })
+                  }
+                  break
                 }
-                break
               }
+            } else {
+              // This should not happen with improved error handling, but just in case
+              console.error(`No status response for upload ${id}`)
             }
           }
         }
-      }
-    }, 2000) // Check every 2 seconds
+      }, 2000) // Check every 2 seconds
+    } else if (!hasProcessingUploads && processingMonitorInterval) {
+      console.debug('No processing uploads, stopping monitor')
+      clearInterval(processingMonitorInterval)
+      processingMonitorInterval = null
+    }
+  }
+
+  // Periodically check processing status (legacy function for backward compatibility)
+  const startProcessingMonitor = () => {
+    ensureProcessingMonitor()
 
     // Return cleanup function
-    return () => clearInterval(intervalId)
+    return () => {
+      console.debug('Stopping processing monitor via cleanup')
+      if (processingMonitorInterval) {
+        clearInterval(processingMonitorInterval)
+        processingMonitorInterval = null
+      }
+    }
   }
 
   return {
@@ -322,5 +382,6 @@ export const useImageUploadStore = defineStore('imageUpload', () => {
     clearCompletedUploads,
     deleteUpload,
     startProcessingMonitor,
+    ensureProcessingMonitor,
   }
 })

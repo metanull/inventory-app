@@ -60,6 +60,9 @@ class AllowList
             'theme' => [
                 'translations', 'subthemes', 'subthemes.translations',
             ],
+            'available_image' => [
+                // AvailableImage model has no relationships
+            ],
             default => [],
         };
     }

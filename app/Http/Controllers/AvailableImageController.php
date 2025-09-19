@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\AvailableImageResource;
 use App\Models\AvailableImage;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
+use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,9 +15,19 @@ class AvailableImageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return AvailableImageResource::collection(AvailableImage::all());
+        $includes = IncludeParser::fromRequest($request, AllowList::for('available_image'));
+        $pagination = PaginationParams::fromRequest($request);
+
+        $query = AvailableImage::query();
+        if (! empty($includes)) {
+            $query->with($includes);
+        }
+
+        $paginator = $query->paginate($pagination['per_page'], ['*'], 'page', $pagination['page']);
+
+        return AvailableImageResource::collection($paginator);
     }
 
     /**

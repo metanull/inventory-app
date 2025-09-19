@@ -23,10 +23,7 @@
     <template #information>
       <!-- Parent Item Information (shown when viewing/editing existing detail) -->
       <div v-if="parentItem && mode !== 'create'" class="mb-6">
-        <ParentItemInfo 
-          :item-id="parentItem.id" 
-          :item-internal-name="parentItem.internal_name" 
-        />
+        <ParentItemInfo :item-id="parentItem.id" :item-internal-name="parentItem.internal_name" />
       </div>
 
       <DescriptionList>
@@ -276,10 +273,10 @@
       // Reset form state to prevent navigation guard triggering
       editForm.value = getDefaultFormValues()
       cancelChangesStore.resetChanges()
-      
+
       // Wait for reactive updates to process before navigation
       await nextTick()
-      
+
       // Navigate back to item detail page
       router.push(`/items/${itemId.value}`)
       return
@@ -373,9 +370,7 @@
       // Only check for unsaved changes if we're in edit or create mode
       if ((mode.value === 'edit' || mode.value === 'create') && hasUnsavedChanges.value) {
         const result = await cancelChangesStore.trigger(
-          mode.value === 'create'
-            ? 'New Detail has unsaved changes'
-            : 'Detail has unsaved changes',
+          mode.value === 'create' ? 'New Detail has unsaved changes' : 'Detail has unsaved changes',
           mode.value === 'create'
             ? 'There are unsaved changes to this new detail. If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.'
             : `There are unsaved changes to "${detail.value?.internal_name}". If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.`
