@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Location\DestroyLocationRequest;
+use App\Http\Requests\Location\IndexLocationRequest;
+use App\Http\Requests\Location\ShowLocationRequest;
+use App\Http\Requests\Location\StoreLocationRequest;
+use App\Http\Requests\Location\UpdateLocationRequest;
 use App\Http\Resources\LocationResource;
 use App\Models\Location;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class LocationController extends Controller
 {
@@ -18,8 +21,9 @@ class LocationController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(IndexLocationRequest $request)
     {
+        $validatedData = $request->validated();
         $includes = IncludeParser::fromRequest($request, AllowList::for('location'));
         $pagination = PaginationParams::fromRequest($request);
 
@@ -40,28 +44,18 @@ class LocationController extends Controller
     /**
      * Store a newly created location.
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreLocationRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'internal_name' => 'required|string|unique:locations,internal_name',
-            'country_id' => 'required|exists:countries,id',
-            'translations' => 'required|array|min:1',
-            'translations.*.language_id' => 'required|exists:languages,id',
-            'translations.*.name' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        $validatedData = $request->validated();
 
         $location = Location::create([
-            'internal_name' => $request->internal_name,
-            'country_id' => $request->country_id,
-            'backward_compatibility' => $request->backward_compatibility,
+            'internal_name' => $validatedData['internal_name'],
+            'country_id' => $validatedData['country_id'],
+            'backward_compatibility' => $validatedData['backward_compatibility'] ?? null,
         ]);
 
         // Create translations
-        foreach ($request->translations as $translationData) {
+        foreach ($validatedData['translations'] as $translationData) {
             $location->translations()->create([
                 'language_id' => $translationData['language_id'],
                 'name' => $translationData['name'],
@@ -80,8 +74,9 @@ class LocationController extends Controller
      *
      * @return \App\Http\Resources\LocationResource
      */
-    public function show(Request $request, Location $location)
+    public function show(ShowLocationRequest $request, Location $location)
     {
+        $validatedData = $request->validated();
         $includes = IncludeParser::fromRequest($request, AllowList::for('location'));
         if (! empty($includes)) {
             $location->load($includes);
@@ -95,33 +90,23 @@ class LocationController extends Controller
      *
      * @return \App\Http\Resources\LocationResource|\Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Location $location)
+    public function update(UpdateLocationRequest $request, Location $location)
     {
-        $validator = Validator::make($request->all(), [
-            'internal_name' => 'required|string|unique:locations,internal_name,'.$location->id,
-            'country_id' => 'required|exists:countries,id',
-            'translations' => 'array|min:1',
-            'translations.*.language_id' => 'required_with:translations|exists:languages,id',
-            'translations.*.name' => 'required_with:translations|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        $validatedData = $request->validated();
 
         $location->update([
-            'internal_name' => $request->internal_name,
-            'country_id' => $request->country_id,
-            'backward_compatibility' => $request->backward_compatibility,
+            'internal_name' => $validatedData['internal_name'] ?? $location->internal_name,
+            'country_id' => $validatedData['country_id'] ?? $location->country_id,
+            'backward_compatibility' => $validatedData['backward_compatibility'] ?? $location->backward_compatibility,
         ]);
 
         // Update translations if provided
-        if ($request->has('translations')) {
+        if (isset($validatedData['translations'])) {
             // Delete existing translations
             $location->translations()->delete();
 
             // Create new translations
-            foreach ($request->translations as $translationData) {
+            foreach ($validatedData['translations'] as $translationData) {
                 $location->translations()->create([
                     'language_id' => $translationData['language_id'],
                     'name' => $translationData['name'],
@@ -141,8 +126,9 @@ class LocationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Location $location)
+    public function destroy(DestroyLocationRequest $request, Location $location)
     {
+        $validatedData = $request->validated();
         $location->delete();
 
         return response()->noContent();

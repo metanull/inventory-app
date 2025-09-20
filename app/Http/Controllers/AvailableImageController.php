@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AvailableImage\IndexAvailableImageRequest;
+use App\Http\Requests\AvailableImage\ShowAvailableImageRequest;
+use App\Http\Requests\AvailableImage\UpdateAvailableImageRequest;
 use App\Http\Resources\AvailableImageResource;
 use App\Models\AvailableImage;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use App\Support\Pagination\PaginationParams;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class AvailableImageController extends Controller
@@ -15,7 +17,7 @@ class AvailableImageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexAvailableImageRequest $request)
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('available_image'));
         $pagination = PaginationParams::fromRequest($request);
@@ -33,15 +35,9 @@ class AvailableImageController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, AvailableImage $availableImage)
+    public function update(UpdateAvailableImageRequest $request, AvailableImage $availableImage)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            /** @ignoreParam */
-            'path' => 'prohibited',
-            'comment' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
         $availableImage->update($validated);
         $availableImage->refresh();
 
@@ -51,7 +47,7 @@ class AvailableImageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(AvailableImage $availableImage)
+    public function show(ShowAvailableImageRequest $request, AvailableImage $availableImage)
     {
         return new AvailableImageResource($availableImage);
     }

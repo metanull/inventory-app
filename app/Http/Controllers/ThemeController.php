@@ -2,21 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Theme\DestroyThemeRequest;
+use App\Http\Requests\Theme\IndexThemeRequest;
+use App\Http\Requests\Theme\ShowThemeRequest;
+use App\Http\Requests\Theme\StoreThemeRequest;
+use App\Http\Requests\Theme\UpdateThemeRequest;
 use App\Http\Resources\ThemeResource;
 use App\Models\Theme;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use App\Support\Pagination\PaginationParams;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class ThemeController extends Controller
 {
     /**
      * Display a listing of the themes for an exhibition.
      */
-    public function index(Request $request)
+    public function index(IndexThemeRequest $request)
     {
+        $validatedData = $request->validated();
         $includes = IncludeParser::fromRequest($request, AllowList::for('theme'));
         $pagination = PaginationParams::fromRequest($request);
 
@@ -38,14 +42,9 @@ class ThemeController extends Controller
     /**
      * Store a newly created theme in storage.
      */
-    public function store(Request $request)
+    public function store(StoreThemeRequest $request)
     {
-        $validated = $request->validate([
-            'exhibition_id' => ['required', 'uuid', 'exists:exhibitions,id'],
-            'parent_id' => ['nullable', 'uuid', 'exists:themes,id'],
-            'internal_name' => ['required', 'string'],
-            'backward_compatibility' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
         $theme = Theme::create($validated);
         $requested = IncludeParser::fromRequest($request, AllowList::for('theme'));
         if (! empty($requested)) {
@@ -58,8 +57,9 @@ class ThemeController extends Controller
     /**
      * Display the specified theme.
      */
-    public function show(Request $request, Theme $theme)
+    public function show(ShowThemeRequest $request, Theme $theme)
     {
+        $validatedData = $request->validated();
         $includes = IncludeParser::fromRequest($request, AllowList::for('theme'));
         if (! empty($includes)) {
             $theme->load($includes);
@@ -71,12 +71,9 @@ class ThemeController extends Controller
     /**
      * Update the specified theme in storage.
      */
-    public function update(Request $request, Theme $theme)
+    public function update(UpdateThemeRequest $request, Theme $theme)
     {
-        $validated = $request->validate([
-            'internal_name' => ['sometimes', 'string', Rule::unique('themes', 'internal_name')->ignore($theme->id, 'id')],
-            'backward_compatibility' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
         $theme->update($validated);
         $requested = IncludeParser::fromRequest($request, AllowList::for('theme'));
         if (! empty($requested)) {
@@ -89,8 +86,9 @@ class ThemeController extends Controller
     /**
      * Remove the specified theme from storage.
      */
-    public function destroy(Theme $theme)
+    public function destroy(DestroyThemeRequest $request, Theme $theme)
     {
+        $validatedData = $request->validated();
         $theme->delete();
 
         return response()->noContent();

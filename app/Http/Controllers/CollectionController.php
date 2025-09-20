@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Collection\IndexCollectionRequest;
+use App\Http\Requests\Collection\ShowCollectionRequest;
+use App\Http\Requests\Collection\StoreCollectionRequest;
+use App\Http\Requests\Collection\UpdateCollectionRequest;
 use App\Http\Resources\CollectionResource;
 use App\Models\Collection;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use App\Support\Pagination\PaginationParams;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
@@ -22,7 +25,7 @@ class CollectionController extends Controller
     /**
      * Display a listing of the collections.
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(IndexCollectionRequest $request): AnonymousResourceCollection
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('collection'));
         $pagination = PaginationParams::fromRequest($request);
@@ -45,21 +48,16 @@ class CollectionController extends Controller
     /**
      * Store a newly created collection in storage.
      */
-    public function store(Request $request): CollectionResource
+    public function store(StoreCollectionRequest $request): CollectionResource
     {
-        $request->validate([
-            'internal_name' => 'required|string|max:255|unique:collections,internal_name',
-            'language_id' => 'required|string|size:3|exists:languages,id',
-            'context_id' => 'required|string|exists:contexts,id',
-            'backward_compatibility' => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
-        $collection = Collection::create($request->only([
-            'internal_name',
-            'language_id',
-            'context_id',
-            'backward_compatibility',
-        ]));
+        $collection = Collection::create([
+            'internal_name' => $validated['internal_name'],
+            'language_id' => $validated['language_id'],
+            'context_id' => $validated['context_id'],
+            'backward_compatibility' => $validated['backward_compatibility'] ?? null,
+        ]);
 
         $requested = IncludeParser::fromRequest($request, AllowList::for('collection'));
         $defaults = ['language', 'context', 'translations', 'partners', 'items'];
@@ -71,7 +69,7 @@ class CollectionController extends Controller
     /**
      * Display the specified collection.
      */
-    public function show(Request $request, Collection $collection): CollectionResource
+    public function show(ShowCollectionRequest $request, Collection $collection): CollectionResource
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('collection'));
         if (! empty($includes)) {
@@ -84,21 +82,16 @@ class CollectionController extends Controller
     /**
      * Update the specified collection in storage.
      */
-    public function update(Request $request, Collection $collection): CollectionResource
+    public function update(UpdateCollectionRequest $request, Collection $collection): CollectionResource
     {
-        $request->validate([
-            'internal_name' => 'sometimes|required|string|max:255|unique:collections,internal_name,'.$collection->id,
-            'language_id' => 'sometimes|required|string|size:3|exists:languages,id',
-            'context_id' => 'sometimes|required|string|exists:contexts,id',
-            'backward_compatibility' => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
-        $collection->update($request->only([
-            'internal_name',
-            'language_id',
-            'context_id',
-            'backward_compatibility',
-        ]));
+        $collection->update([
+            'internal_name' => $validated['internal_name'] ?? $collection->internal_name,
+            'language_id' => $validated['language_id'] ?? $collection->language_id,
+            'context_id' => $validated['context_id'] ?? $collection->context_id,
+            'backward_compatibility' => $validated['backward_compatibility'] ?? $collection->backward_compatibility,
+        ]);
 
         $requested = IncludeParser::fromRequest($request, AllowList::for('collection'));
         $defaults = ['language', 'context', 'translations', 'partners', 'items'];

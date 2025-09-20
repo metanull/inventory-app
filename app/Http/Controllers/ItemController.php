@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Item\ForTagItemRequest;
+use App\Http\Requests\Item\IndexItemRequest;
+use App\Http\Requests\Item\ShowItemRequest;
+use App\Http\Requests\Item\StoreItemRequest;
+use App\Http\Requests\Item\UpdateItemRequest;
+use App\Http\Requests\Item\UpdateTagsItemRequest;
+use App\Http\Requests\Item\WithAllTagsItemRequest;
+use App\Http\Requests\Item\WithAnyTagsItemRequest;
 use App\Http\Resources\ItemResource;
 use App\Models\Item;
 use App\Models\Tag;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use App\Support\Pagination\PaginationParams;
-use Illuminate\Http\Request;
 
 class ItemController extends Controller
 {
@@ -31,7 +38,7 @@ class ItemController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexItemRequest $request)
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
         $with = $this->expandIncludes($includes);
@@ -51,18 +58,9 @@ class ItemController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreItemRequest $request)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'partner_id' => 'nullable|uuid',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
-            'type' => 'required|in:object,monument',
-            'country_id' => 'nullable|string|size:3',
-            'project_id' => 'nullable|uuid',
-        ]);
+        $validated = $request->validated();
         $item = Item::create($validated);
         $item->refresh();
 
@@ -86,7 +84,7 @@ class ItemController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Item $item)
+    public function show(ShowItemRequest $request, Item $item)
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
         $item->load($this->expandIncludes($includes));
@@ -97,18 +95,9 @@ class ItemController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Item $item)
+    public function update(UpdateItemRequest $request, Item $item)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'partner_id' => 'nullable|uuid',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
-            'type' => 'required|in:object,monument',
-            'country_id' => 'nullable|string|size:3',
-            'project_id' => 'nullable|uuid',
-        ]);
+        $validated = $request->validated();
         $item->update($validated);
         $item->refresh();
 
@@ -129,14 +118,9 @@ class ItemController extends Controller
      * @param  Item  $item  - The item to update tags for
      * @return ItemResource - Updated item with current tag associations
      */
-    public function updateTags(Request $request, Item $item)
+    public function updateTags(UpdateTagsItemRequest $request, Item $item)
     {
-        $validated = $request->validate([
-            'attach' => 'sometimes|array',
-            'attach.*' => 'required|uuid|exists:tags,id',
-            'detach' => 'sometimes|array',
-            'detach.*' => 'required|uuid|exists:tags,id',
-        ]);
+        $validated = $request->validated();
 
         // Attach new tags (if any)
         if (isset($validated['attach'])) {
@@ -165,7 +149,7 @@ class ItemController extends Controller
     /**
      * Get items for a specific tag.
      */
-    public function forTag(Request $request, Tag $tag)
+    public function forTag(ForTagItemRequest $request, Tag $tag)
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
         $with = $this->expandIncludes($includes);
@@ -177,12 +161,9 @@ class ItemController extends Controller
     /**
      * Get items that have ALL of the specified tags (AND condition).
      */
-    public function withAllTags(Request $request)
+    public function withAllTags(WithAllTagsItemRequest $request)
     {
-        $validated = $request->validate([
-            'tags' => 'required|array|min:1',
-            'tags.*' => 'required|uuid|exists:tags,id',
-        ]);
+        $validated = $request->validated();
 
         $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
         $with = $this->expandIncludes($includes);
@@ -194,12 +175,9 @@ class ItemController extends Controller
     /**
      * Get items that have ANY of the specified tags (OR condition).
      */
-    public function withAnyTags(Request $request)
+    public function withAnyTags(WithAnyTagsItemRequest $request)
     {
-        $validated = $request->validate([
-            'tags' => 'required|array|min:1',
-            'tags.*' => 'required|uuid|exists:tags,id',
-        ]);
+        $validated = $request->validated();
 
         $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
         $with = $this->expandIncludes($includes);

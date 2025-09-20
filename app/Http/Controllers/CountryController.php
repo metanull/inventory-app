@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Country\IndexCountryRequest;
+use App\Http\Requests\Country\ShowCountryRequest;
+use App\Http\Requests\Country\StoreCountryRequest;
+use App\Http\Requests\Country\UpdateCountryRequest;
 use App\Http\Resources\CountryResource;
 use App\Models\Country;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use App\Support\Pagination\PaginationParams;
-use Illuminate\Http\Request;
 
 class CountryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexCountryRequest $request)
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('country'));
         $pagination = PaginationParams::fromRequest($request);
@@ -33,13 +36,9 @@ class CountryController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCountryRequest $request)
     {
-        $validated = $request->validate([
-            'id' => 'required|string|size:3|unique:countries,id',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string|size:2',
-        ]);
+        $validated = $request->validated();
         $country = Country::create($validated);
         $country->refresh();
         $includes = IncludeParser::fromRequest($request, AllowList::for('country'));
@@ -51,7 +50,7 @@ class CountryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Country $country)
+    public function show(ShowCountryRequest $request, Country $country)
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('country'));
         $country->load($includes);
@@ -62,14 +61,9 @@ class CountryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Country $country)
+    public function update(UpdateCountryRequest $request, Country $country)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string|size:2',
-        ]);
+        $validated = $request->validated();
         $country->update($validated);
         $country->refresh();
         $includes = IncludeParser::fromRequest($request, AllowList::for('country'));

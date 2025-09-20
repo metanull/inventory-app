@@ -2,21 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Exhibition\DestroyExhibitionRequest;
+use App\Http\Requests\Exhibition\IndexExhibitionRequest;
+use App\Http\Requests\Exhibition\ShowExhibitionRequest;
+use App\Http\Requests\Exhibition\StoreExhibitionRequest;
+use App\Http\Requests\Exhibition\UpdateExhibitionRequest;
 use App\Http\Resources\ExhibitionResource;
 use App\Models\Exhibition;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use App\Support\Pagination\PaginationParams;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Validation\Rule;
 
 class ExhibitionController extends Controller
 {
     /**
      * Display a listing of the exhibitions.
      */
-    public function index(Request $request)
+    public function index(IndexExhibitionRequest $request)
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('exhibition'));
         $pagination = PaginationParams::fromRequest($request);
@@ -39,12 +42,9 @@ class ExhibitionController extends Controller
     /**
      * Store a newly created exhibition in storage.
      */
-    public function store(Request $request)
+    public function store(StoreExhibitionRequest $request)
     {
-        $validated = $request->validate([
-            'internal_name' => ['required', 'string', 'unique:exhibitions,internal_name'],
-            'backward_compatibility' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
         $exhibition = Exhibition::create($validated);
         $requested = IncludeParser::fromRequest($request, AllowList::for('exhibition'));
         if (! empty($requested)) {
@@ -57,7 +57,7 @@ class ExhibitionController extends Controller
     /**
      * Display the specified exhibition.
      */
-    public function show(Request $request, Exhibition $exhibition)
+    public function show(ShowExhibitionRequest $request, Exhibition $exhibition)
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('exhibition'));
         if (! empty($includes)) {
@@ -70,12 +70,9 @@ class ExhibitionController extends Controller
     /**
      * Update the specified exhibition in storage.
      */
-    public function update(Request $request, Exhibition $exhibition)
+    public function update(UpdateExhibitionRequest $request, Exhibition $exhibition)
     {
-        $validated = $request->validate([
-            'internal_name' => ['sometimes', 'string', Rule::unique('exhibitions', 'internal_name')->ignore($exhibition->id, 'id')],
-            'backward_compatibility' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
         $exhibition->update($validated);
         $requested = IncludeParser::fromRequest($request, AllowList::for('exhibition'));
         if (! empty($requested)) {
@@ -88,7 +85,7 @@ class ExhibitionController extends Controller
     /**
      * Remove the specified exhibition from storage.
      */
-    public function destroy(Exhibition $exhibition)
+    public function destroy(DestroyExhibitionRequest $request, Exhibition $exhibition)
     {
         $exhibition->delete();
 

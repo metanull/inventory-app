@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Tag\ForItemTagRequest;
+use App\Http\Requests\Tag\IndexTagRequest;
+use App\Http\Requests\Tag\ShowTagRequest;
+use App\Http\Requests\Tag\StoreTagRequest;
+use App\Http\Requests\Tag\UpdateTagRequest;
 use App\Http\Resources\TagResource;
 use App\Models\Item;
 use App\Models\Tag;
 use App\Support\Pagination\PaginationParams;
-use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexTagRequest $request)
     {
         $pagination = PaginationParams::fromRequest($request);
         $paginator = Tag::query()->paginate(
@@ -29,15 +33,9 @@ class TagController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTagRequest $request)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string|unique:tags,internal_name',
-            'backward_compatibility' => 'nullable|string',
-            'description' => 'required|string',
-        ]);
+        $validated = $request->validated();
         $tag = Tag::create($validated);
         $tag->refresh();
 
@@ -47,7 +45,7 @@ class TagController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Tag $tag)
+    public function show(ShowTagRequest $request, Tag $tag)
     {
         return new TagResource($tag);
     }
@@ -55,15 +53,9 @@ class TagController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Tag $tag)
+    public function update(UpdateTagRequest $request, Tag $tag)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string|unique:tags,internal_name,'.$tag->id,
-            'backward_compatibility' => 'nullable|string',
-            'description' => 'required|string',
-        ]);
+        $validated = $request->validated();
         $tag->update($validated);
         $tag->refresh();
 
@@ -73,7 +65,7 @@ class TagController extends Controller
     /**
      * Get tags for a specific item.
      */
-    public function forItem(Request $request, Item $item)
+    public function forItem(ForItemTagRequest $request, Item $item)
     {
         $pagination = PaginationParams::fromRequest($request);
         $paginator = Tag::forItem($item)->paginate(

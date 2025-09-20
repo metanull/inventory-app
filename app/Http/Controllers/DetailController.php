@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Detail\IndexDetailRequest;
+use App\Http\Requests\Detail\ShowDetailRequest;
+use App\Http\Requests\Detail\StoreDetailRequest;
+use App\Http\Requests\Detail\UpdateDetailRequest;
 use App\Http\Resources\DetailResource;
 use App\Models\Detail;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use App\Support\Pagination\PaginationParams;
-use Illuminate\Http\Request;
 
 class DetailController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexDetailRequest $request)
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('detail'));
         $pagination = PaginationParams::fromRequest($request);
@@ -32,15 +35,9 @@ class DetailController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreDetailRequest $request)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'item_id' => 'required|uuid',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
         $detail = Detail::create($validated);
         $detail->refresh();
         // Default include 'item' for store response; also honor requested includes
@@ -53,7 +50,7 @@ class DetailController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Detail $detail)
+    public function show(ShowDetailRequest $request, Detail $detail)
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('detail'));
         if (! empty($includes)) {
@@ -66,15 +63,9 @@ class DetailController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Detail $detail)
+    public function update(UpdateDetailRequest $request, Detail $detail)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'item_id' => 'required|uuid',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
         $detail->update($validated);
         $detail->refresh();
         // Default include 'item' for update response; also honor requested includes

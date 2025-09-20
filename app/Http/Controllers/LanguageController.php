@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Language\IndexLanguageRequest;
+use App\Http\Requests\Language\SetDefaultLanguageRequest;
+use App\Http\Requests\Language\ShowLanguageRequest;
+use App\Http\Requests\Language\StoreLanguageRequest;
+use App\Http\Requests\Language\UpdateLanguageRequest;
 use App\Http\Resources\LanguageResource;
 use App\Models\Language;
 use App\Support\Pagination\PaginationParams;
-use Illuminate\Http\Request;
 
 class LanguageController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexLanguageRequest $request)
     {
         $pagination = PaginationParams::fromRequest($request);
 
@@ -30,14 +34,9 @@ class LanguageController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreLanguageRequest $request)
     {
-        $validated = $request->validate([
-            'id' => 'required|string|size:3|unique:languages,id',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string|size:2',
-            'is_default' => 'prohibited|boolean',
-        ]);
+        $validated = $request->validated();
         $language = Language::create($validated);
         $language->refresh();
 
@@ -47,7 +46,7 @@ class LanguageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Language $language)
+    public function show(ShowLanguageRequest $request, Language $language)
     {
         return new LanguageResource($language);
     }
@@ -55,15 +54,9 @@ class LanguageController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Language $language)
+    public function update(UpdateLanguageRequest $request, Language $language)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string|size:2',
-            'is_default' => 'prohibited|boolean',
-        ]);
+        $validated = $request->validated();
         $language->update($validated);
         $language->refresh();
 
@@ -83,11 +76,9 @@ class LanguageController extends Controller
     /**
      * Set or unset a Language as the default one.
      */
-    public function setDefault(Request $request, Language $language)
+    public function setDefault(SetDefaultLanguageRequest $request, Language $language)
     {
-        $validated = $request->validate([
-            'is_default' => 'required|boolean',
-        ]);
+        $validated = $request->validated();
 
         if ($validated['is_default'] === true) {
             $language->setDefault();

@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Gallery\DestroyGalleryRequest;
+use App\Http\Requests\Gallery\IndexGalleryRequest;
+use App\Http\Requests\Gallery\ShowGalleryRequest;
+use App\Http\Requests\Gallery\StoreGalleryRequest;
+use App\Http\Requests\Gallery\UpdateGalleryRequest;
 use App\Http\Resources\GalleryResource;
 use App\Models\Gallery;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use App\Support\Pagination\PaginationParams;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
@@ -22,7 +26,7 @@ class GalleryController extends Controller
     /**
      * Display a listing of the galleries.
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(IndexGalleryRequest $request): AnonymousResourceCollection
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('gallery'));
         $pagination = PaginationParams::fromRequest($request);
@@ -45,17 +49,14 @@ class GalleryController extends Controller
     /**
      * Store a newly created gallery in storage.
      */
-    public function store(Request $request): GalleryResource
+    public function store(StoreGalleryRequest $request): GalleryResource
     {
-        $request->validate([
-            'internal_name' => 'required|string|max:255|unique:galleries,internal_name',
-            'backward_compatibility' => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
-        $gallery = Gallery::create($request->only([
-            'internal_name',
-            'backward_compatibility',
-        ]));
+        $gallery = Gallery::create([
+            'internal_name' => $validated['internal_name'],
+            'backward_compatibility' => $validated['backward_compatibility'] ?? null,
+        ]);
 
         $requested = IncludeParser::fromRequest($request, AllowList::for('gallery'));
         $defaults = ['translations', 'partners', 'items', 'details'];
@@ -67,7 +68,7 @@ class GalleryController extends Controller
     /**
      * Display the specified gallery.
      */
-    public function show(Request $request, Gallery $gallery): GalleryResource
+    public function show(ShowGalleryRequest $request, Gallery $gallery): GalleryResource
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('gallery'));
         if (! empty($includes)) {
@@ -80,17 +81,14 @@ class GalleryController extends Controller
     /**
      * Update the specified gallery in storage.
      */
-    public function update(Request $request, Gallery $gallery): GalleryResource
+    public function update(UpdateGalleryRequest $request, Gallery $gallery): GalleryResource
     {
-        $request->validate([
-            'internal_name' => 'sometimes|required|string|max:255|unique:galleries,internal_name,'.$gallery->id,
-            'backward_compatibility' => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
-        $gallery->update($request->only([
-            'internal_name',
-            'backward_compatibility',
-        ]));
+        $gallery->update([
+            'internal_name' => $validated['internal_name'] ?? $gallery->internal_name,
+            'backward_compatibility' => $validated['backward_compatibility'] ?? $gallery->backward_compatibility,
+        ]);
 
         $requested = IncludeParser::fromRequest($request, AllowList::for('gallery'));
         $defaults = ['translations', 'partners', 'items', 'details'];
@@ -102,7 +100,7 @@ class GalleryController extends Controller
     /**
      * Remove the specified gallery from storage.
      */
-    public function destroy(Gallery $gallery): Response
+    public function destroy(DestroyGalleryRequest $request, Gallery $gallery): Response
     {
         $gallery->delete();
 

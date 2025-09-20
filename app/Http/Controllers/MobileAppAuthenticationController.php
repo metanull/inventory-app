@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MobileAppAuthentication\AcquireTokenRequest;
+use App\Http\Requests\MobileAppAuthentication\WipeTokensRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -14,17 +15,12 @@ class MobileAppAuthenticationController extends Controller
      *
      * @unauthenticated
      */
-    public function acquire_token(Request $request)
+    public function acquire_token(AcquireTokenRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-            'device_name' => 'required|string|max:255',
-            'wipe_tokens' => 'sometimes|boolean',
-        ]);
+        $validated = $request->validated();
 
-        $user = User::where('email', $request->email)->first();
-        if (! $user || ! Hash::check($request->password, $user->password)) {
+        $user = User::where('email', $validated['email'])->first();
+        if (! $user || ! Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -33,13 +29,13 @@ class MobileAppAuthenticationController extends Controller
             $user->tokens()->delete();
         }
 
-        return response($user->createToken($request->device_name)->plainTextToken, 201);
+        return response($user->createToken($validated['device_name'])->plainTextToken, 201);
     }
 
     /**
      * Revoke all the token for the current user.
      */
-    public function wipe_tokens(Request $request)
+    public function wipe_tokens(WipeTokensRequest $request)
     {
         if (! $request->user()) {
             return response()->json(['message' => 'Unauthenticated.'], 401);

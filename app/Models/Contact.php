@@ -21,6 +21,7 @@ class Contact extends Model
         'phone_number',
         'fax_number',
         'email',
+        'backward_compatibility',
     ];
 
     /**

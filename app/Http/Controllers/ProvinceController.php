@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Province\DestroyProvinceRequest;
+use App\Http\Requests\Province\IndexProvinceRequest;
+use App\Http\Requests\Province\ShowProvinceRequest;
+use App\Http\Requests\Province\StoreProvinceRequest;
+use App\Http\Requests\Province\UpdateProvinceRequest;
 use App\Http\Resources\ProvinceResource;
 use App\Models\Province;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class ProvinceController extends Controller
 {
@@ -18,8 +21,9 @@ class ProvinceController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(IndexProvinceRequest $request)
     {
+        $validatedData = $request->validated();
         $includes = IncludeParser::fromRequest($request, AllowList::for('province'));
         $pagination = PaginationParams::fromRequest($request);
 
@@ -40,28 +44,18 @@ class ProvinceController extends Controller
     /**
      * Store a newly created province.
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreProvinceRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'internal_name' => 'required|string|unique:provinces,internal_name',
-            'country_id' => 'required|exists:countries,id',
-            'translations' => 'required|array|min:1',
-            'translations.*.language_id' => 'required|exists:languages,id',
-            'translations.*.name' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        $validatedData = $request->validated();
 
         $province = Province::create([
-            'internal_name' => $request->internal_name,
-            'country_id' => $request->country_id,
-            'backward_compatibility' => $request->backward_compatibility,
+            'internal_name' => $validatedData['internal_name'],
+            'country_id' => $validatedData['country_id'],
+            'backward_compatibility' => $validatedData['backward_compatibility'] ?? null,
         ]);
 
         // Create translations
-        foreach ($request->translations as $translationData) {
+        foreach ($validatedData['translations'] as $translationData) {
             $province->translations()->create([
                 'language_id' => $translationData['language_id'],
                 'name' => $translationData['name'],
@@ -80,8 +74,9 @@ class ProvinceController extends Controller
      *
      * @return \App\Http\Resources\ProvinceResource
      */
-    public function show(Request $request, Province $province)
+    public function show(ShowProvinceRequest $request, Province $province)
     {
+        $validatedData = $request->validated();
         $includes = IncludeParser::fromRequest($request, AllowList::for('province'));
         if (! empty($includes)) {
             $province->load($includes);
@@ -95,33 +90,23 @@ class ProvinceController extends Controller
      *
      * @return \App\Http\Resources\ProvinceResource|\Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Province $province)
+    public function update(UpdateProvinceRequest $request, Province $province)
     {
-        $validator = Validator::make($request->all(), [
-            'internal_name' => 'required|string|unique:provinces,internal_name,'.$province->id,
-            'country_id' => 'required|exists:countries,id',
-            'translations' => 'array|min:1',
-            'translations.*.language_id' => 'required_with:translations|exists:languages,id',
-            'translations.*.name' => 'required_with:translations|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        $validatedData = $request->validated();
 
         $province->update([
-            'internal_name' => $request->internal_name,
-            'country_id' => $request->country_id,
-            'backward_compatibility' => $request->backward_compatibility,
+            'internal_name' => $validatedData['internal_name'] ?? $province->internal_name,
+            'country_id' => $validatedData['country_id'] ?? $province->country_id,
+            'backward_compatibility' => $validatedData['backward_compatibility'] ?? $province->backward_compatibility,
         ]);
 
         // Update translations if provided
-        if ($request->has('translations')) {
+        if (isset($validatedData['translations'])) {
             // Delete existing translations
             $province->translations()->delete();
 
             // Create new translations
-            foreach ($request->translations as $translationData) {
+            foreach ($validatedData['translations'] as $translationData) {
                 $province->translations()->create([
                     'language_id' => $translationData['language_id'],
                     'name' => $translationData['name'],
@@ -141,8 +126,9 @@ class ProvinceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Province $province)
+    public function destroy(DestroyProvinceRequest $request, Province $province)
     {
+        $validatedData = $request->validated();
         $province->delete();
 
         return response()->noContent();

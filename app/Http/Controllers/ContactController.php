@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Contact\IndexContactRequest;
+use App\Http\Requests\Contact\ShowContactRequest;
+use App\Http\Requests\Contact\StoreContactRequest;
+use App\Http\Requests\Contact\UpdateContactRequest;
 use App\Http\Resources\ContactResource;
 use App\Models\Contact;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class ContactController extends Controller
 {
@@ -18,7 +20,7 @@ class ContactController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(IndexContactRequest $request)
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('contact'));
         $pagination = PaginationParams::fromRequest($request);
@@ -42,32 +44,20 @@ class ContactController extends Controller
     /**
      * Store a newly created contact.
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreContactRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'internal_name' => 'required|string|unique:contacts,internal_name',
-            'phone_number' => 'nullable|string|regex:/^\+?[0-9\s\-\(\)]+$/',
-            'fax_number' => 'nullable|string|regex:/^\+?[0-9\s\-\(\)]+$/',
-            'email' => 'nullable|email',
-            'translations' => 'required|array|min:1',
-            'translations.*.language_id' => 'required|exists:languages,id',
-            'translations.*.label' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        $validated = $request->validated();
 
         $contact = Contact::create([
-            'internal_name' => $request->internal_name,
-            'phone_number' => $request->phone_number,
-            'fax_number' => $request->fax_number,
-            'email' => $request->email,
-            'backward_compatibility' => $request->backward_compatibility,
+            'internal_name' => $validated['internal_name'],
+            'phone_number' => $validated['phone_number'] ?? null,
+            'fax_number' => $validated['fax_number'] ?? null,
+            'email' => $validated['email'] ?? null,
+            'backward_compatibility' => $validated['backward_compatibility'] ?? null,
         ]);
 
         // Create translations
-        foreach ($request->translations as $translationData) {
+        foreach ($validated['translations'] as $translationData) {
             $contact->translations()->create([
                 'language_id' => $translationData['language_id'],
                 'label' => $translationData['label'],
@@ -87,7 +77,7 @@ class ContactController extends Controller
      *
      * @return \App\Http\Resources\ContactResource
      */
-    public function show(Request $request, Contact $contact)
+    public function show(ShowContactRequest $request, Contact $contact)
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('contact'));
         if (! empty($includes)) {
@@ -102,37 +92,25 @@ class ContactController extends Controller
      *
      * @return \App\Http\Resources\ContactResource|\Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Contact $contact)
+    public function update(UpdateContactRequest $request, Contact $contact)
     {
-        $validator = Validator::make($request->all(), [
-            'internal_name' => 'required|string|unique:contacts,internal_name,'.$contact->id,
-            'phone_number' => 'nullable|string|regex:/^\+?[0-9\s\-\(\)]+$/',
-            'fax_number' => 'nullable|string|regex:/^\+?[0-9\s\-\(\)]+$/',
-            'email' => 'nullable|email',
-            'translations' => 'array|min:1',
-            'translations.*.language_id' => 'required_with:translations|exists:languages,id',
-            'translations.*.label' => 'required_with:translations|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        $validated = $request->validated();
 
         $contact->update([
-            'internal_name' => $request->internal_name,
-            'phone_number' => $request->phone_number,
-            'fax_number' => $request->fax_number,
-            'email' => $request->email,
-            'backward_compatibility' => $request->backward_compatibility,
+            'internal_name' => $validated['internal_name'],
+            'phone_number' => $validated['phone_number'] ?? null,
+            'fax_number' => $validated['fax_number'] ?? null,
+            'email' => $validated['email'] ?? null,
+            'backward_compatibility' => $validated['backward_compatibility'] ?? null,
         ]);
 
         // Update translations if provided
-        if ($request->has('translations')) {
+        if (isset($validated['translations'])) {
             // Delete existing translations
             $contact->translations()->delete();
 
             // Create new translations
-            foreach ($request->translations as $translationData) {
+            foreach ($validated['translations'] as $translationData) {
                 $contact->translations()->create([
                     'language_id' => $translationData['language_id'],
                     'label' => $translationData['label'],

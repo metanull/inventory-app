@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Picture\AttachPictureRequest;
+use App\Http\Requests\Picture\DestroyPictureRequest;
+use App\Http\Requests\Picture\DetachPictureRequest;
+use App\Http\Requests\Picture\IndexPictureRequest;
+use App\Http\Requests\Picture\ShowPictureRequest;
+use App\Http\Requests\Picture\UpdatePictureRequest;
 use App\Http\Resources\PictureResource;
 use App\Models\AvailableImage;
 use App\Models\Detail;
 use App\Models\Item;
 use App\Models\Partner;
 use App\Models\Picture;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,46 +22,29 @@ class PictureController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(IndexPictureRequest $request)
     {
+        $validatedData = $request->validated();
+
         return PictureResource::collection(Picture::all());
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Picture $picture)
+    public function show(ShowPictureRequest $request, Picture $picture)
     {
+        $validatedData = $request->validated();
+
         return new PictureResource($picture);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Picture $picture)
+    public function update(UpdatePictureRequest $request, Picture $picture)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string|max:255',
-            'backward_compatibility' => 'nullable|string|max:255',
-            'copyright_text' => 'nullable|string|max:1000',
-            'copyright_url' => 'nullable|url|max:255',
-            /** @ignoreParam */
-            'path' => 'prohibited',
-            /** @ignoreParam */
-            'upload_name' => 'prohibited',
-            /** @ignoreParam */
-            'upload_extension' => 'prohibited',
-            /** @ignoreParam */
-            'upload_mime_type' => 'prohibited',
-            /** @ignoreParam */
-            'upload_size' => 'prohibited',
-            /** @ignoreParam */
-            'pictureable_type' => 'prohibited',
-            /** @ignoreParam */
-            'pictureable_id' => 'prohibited',
-        ]);
+        $validated = $request->validated();
 
         $picture->update($validated);
         $picture->refresh();
@@ -67,8 +55,10 @@ class PictureController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Picture $picture)
+    public function destroy(DestroyPictureRequest $request, Picture $picture)
     {
+        $validatedData = $request->validated();
+
         // Delete the physical file
         $picturesDisk = config('localstorage.pictures.disk', 'public');
         if (Storage::disk($picturesDisk)->exists($picture->path)) {
@@ -83,7 +73,7 @@ class PictureController extends Controller
     /**
      * Attach an AvailableImage to an Item.
      */
-    public function attachToItem(Request $request, Item $item)
+    public function attachToItem(AttachPictureRequest $request, Item $item)
     {
         return $this->attachPicture($request, $item);
     }
@@ -91,7 +81,7 @@ class PictureController extends Controller
     /**
      * Attach an AvailableImage to a Detail.
      */
-    public function attachToDetail(Request $request, Detail $detail)
+    public function attachToDetail(AttachPictureRequest $request, Detail $detail)
     {
         return $this->attachPicture($request, $detail);
     }
@@ -99,7 +89,7 @@ class PictureController extends Controller
     /**
      * Attach an AvailableImage to a Partner.
      */
-    public function attachToPartner(Request $request, Partner $partner)
+    public function attachToPartner(AttachPictureRequest $request, Partner $partner)
     {
         return $this->attachPicture($request, $partner);
     }
@@ -107,15 +97,9 @@ class PictureController extends Controller
     /**
      * Common method to attach a picture to any pictureable model.
      */
-    private function attachPicture(Request $request, $pictureable)
+    private function attachPicture(AttachPictureRequest $request, $pictureable)
     {
-        $validated = $request->validate([
-            'available_image_id' => 'required|uuid|exists:available_images,id',
-            'internal_name' => 'required|string|max:255',
-            'backward_compatibility' => 'nullable|string|max:255',
-            'copyright_text' => 'nullable|string|max:1000',
-            'copyright_url' => 'nullable|url|max:255',
-        ]);
+        $validated = $request->validated();
 
         return DB::transaction(function () use ($validated, $pictureable) {
             // Get the AvailableImage
@@ -214,7 +198,7 @@ class PictureController extends Controller
     /**
      * Detach a Picture from an Item and convert it back to AvailableImage.
      */
-    public function detachFromItem(Request $request, Item $item, Picture $picture)
+    public function detachFromItem(DetachPictureRequest $request, Item $item, Picture $picture)
     {
         return $this->detachPicture($request, $item, $picture);
     }
@@ -222,7 +206,7 @@ class PictureController extends Controller
     /**
      * Detach a Picture from a Detail and convert it back to AvailableImage.
      */
-    public function detachFromDetail(Request $request, Detail $detail, Picture $picture)
+    public function detachFromDetail(DetachPictureRequest $request, Detail $detail, Picture $picture)
     {
         return $this->detachPicture($request, $detail, $picture);
     }
@@ -230,7 +214,7 @@ class PictureController extends Controller
     /**
      * Detach a Picture from a Partner and convert it back to AvailableImage.
      */
-    public function detachFromPartner(Request $request, Partner $partner, Picture $picture)
+    public function detachFromPartner(DetachPictureRequest $request, Partner $partner, Picture $picture)
     {
         return $this->detachPicture($request, $partner, $picture);
     }
@@ -238,11 +222,9 @@ class PictureController extends Controller
     /**
      * Common method to detach a picture from any pictureable model and convert it back to AvailableImage.
      */
-    private function detachPicture(Request $request, $pictureable, Picture $picture)
+    private function detachPicture(DetachPictureRequest $request, $pictureable, Picture $picture)
     {
-        $validated = $request->validate([
-            'comment' => 'nullable|string|max:1000',
-        ]);
+        $validated = $request->validated();
 
         // Validate that the picture belongs to the given pictureable model
         if ($picture->pictureable_type !== get_class($pictureable) || $picture->pictureable_id !== $pictureable->id) {

@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Context\IndexContextRequest;
+use App\Http\Requests\Context\ShowContextRequest;
+use App\Http\Requests\Context\StoreContextRequest;
+use App\Http\Requests\Context\UpdateContextRequest;
 use App\Http\Resources\ContextResource;
 use App\Models\Context;
 use App\Support\Includes\AllowList;
@@ -14,7 +18,7 @@ class ContextController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexContextRequest $request)
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('context'));
         $pagination = PaginationParams::fromRequest($request);
@@ -33,15 +37,9 @@ class ContextController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreContextRequest $request)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
-            'is_default' => 'prohibited|boolean',
-        ]);
+        $validated = $request->validated();
         $context = Context::create($validated);
         $context->refresh();
 
@@ -51,7 +49,7 @@ class ContextController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Context $context)
+    public function show(ShowContextRequest $request, Context $context)
     {
         return new ContextResource($context);
     }
@@ -59,15 +57,9 @@ class ContextController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Context $context)
+    public function update(UpdateContextRequest $request, Context $context)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
-            'is_default' => 'prohibited|boolean',
-        ]);
+        $validated = $request->validated();
         $context->update($validated);
         $context->refresh();
 
