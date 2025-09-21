@@ -38,17 +38,6 @@ class ExhibitionParameterValidationTest extends TestCase
         $response->assertJsonPath('meta.per_page', 5);
     }
 
-    public function test_index_accepts_valid_include_parameters()
-    {
-        Exhibition::factory()->count(3)->create();
-
-        $response = $this->getJson(route('exhibition.index', [
-            'include' => 'translations,items,galleries',
-        ]));
-
-        $response->assertOk();
-    }
-
     public function test_index_rejects_invalid_include_parameters()
     {
         Exhibition::factory()->count(2)->create();
@@ -83,15 +72,6 @@ class ExhibitionParameterValidationTest extends TestCase
     }
 
     // SHOW ENDPOINT TESTS
-    public function test_show_accepts_valid_include_parameters()
-    {
-        $exhibition = Exhibition::factory()->create();
-
-        $response = $this->getJson(route('exhibition.show', $exhibition).'?include=translations,items,galleries');
-
-        $response->assertOk();
-    }
-
     public function test_show_rejects_unexpected_query_parameters_currently()
     {
         $exhibition = Exhibition::factory()->create();

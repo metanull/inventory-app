@@ -19,6 +19,8 @@ class DetailResource extends JsonResource
             'id' => $this->id,
             // A name for this resource, for internal use only.
             'internal_name' => $this->internal_name,
+            // The item ID this detail belongs to
+            'item_id' => $this->item_id,
             // The item this detail belongs to (ItemResource)
             'item' => new ItemResource($this->whenLoaded('item')),
             // The Id(s) of matching resource in the legacy system (if any).

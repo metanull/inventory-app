@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DetailTranslation\IndexDetailTranslationRequest;
+use App\Http\Requests\DetailTranslation\ShowDetailTranslationRequest;
+use App\Http\Requests\DetailTranslation\StoreDetailTranslationRequest;
+use App\Http\Requests\DetailTranslation\UpdateDetailTranslationRequest;
 use App\Http\Resources\DetailTranslationResource;
 use App\Models\DetailTranslation;
 use Illuminate\Database\QueryException;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -18,7 +21,7 @@ class DetailTranslationController extends Controller
      *
      * @response DetailTranslationResource[]
      */
-    public function index(Request $request)
+    public function index(IndexDetailTranslationRequest $request)
     {
         $query = DetailTranslation::query();
 
@@ -51,22 +54,9 @@ class DetailTranslationController extends Controller
      *
      * @response 201 DetailTranslationResource
      */
-    public function store(Request $request)
+    public function store(StoreDetailTranslationRequest $request)
     {
-        $data = $request->validate([
-            'detail_id' => 'required|uuid|exists:details,id',
-            'language_id' => 'required|string|size:3|exists:languages,id',
-            'context_id' => 'required|uuid|exists:contexts,id',
-            'name' => 'required|string|max:255',
-            'alternate_name' => 'nullable|string|max:255',
-            'description' => 'required|string',
-            'author_id' => 'nullable|uuid|exists:authors,id',
-            'text_copy_editor_id' => 'nullable|uuid|exists:authors,id',
-            'translator_id' => 'nullable|uuid|exists:authors,id',
-            'translation_copy_editor_id' => 'nullable|uuid|exists:authors,id',
-            'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|json',
-        ]);
+        $data = $request->validated();
 
         try {
             $translation = DetailTranslation::create($data);
@@ -89,7 +79,7 @@ class DetailTranslationController extends Controller
      *
      * @response DetailTranslationResource
      */
-    public function show(DetailTranslation $detailTranslation)
+    public function show(ShowDetailTranslationRequest $request, DetailTranslation $detailTranslation)
     {
         $detailTranslation->load(['detail', 'language', 'context', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor']);
 
@@ -101,22 +91,9 @@ class DetailTranslationController extends Controller
      *
      * @response DetailTranslationResource
      */
-    public function update(Request $request, DetailTranslation $detailTranslation)
+    public function update(UpdateDetailTranslationRequest $request, DetailTranslation $detailTranslation)
     {
-        $data = $request->validate([
-            'detail_id' => 'sometimes|uuid|exists:details,id',
-            'language_id' => 'sometimes|string|size:3|exists:languages,id',
-            'context_id' => 'sometimes|uuid|exists:contexts,id',
-            'name' => 'sometimes|string|max:255',
-            'alternate_name' => 'nullable|string|max:255',
-            'description' => 'sometimes|string',
-            'author_id' => 'nullable|uuid|exists:authors,id',
-            'text_copy_editor_id' => 'nullable|uuid|exists:authors,id',
-            'translator_id' => 'nullable|uuid|exists:authors,id',
-            'translation_copy_editor_id' => 'nullable|uuid|exists:authors,id',
-            'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|json',
-        ]);
+        $data = $request->validated();
 
         try {
             $detailTranslation->update($data);

@@ -25,7 +25,7 @@ class StoreGalleryRequest extends FormRequest
         return [
             'internal_name' => 'required|string|max:255|unique:galleries,internal_name',
             'backward_compatibility' => 'nullable|string|max:255',
-            'include' => 'string|in:translations,partners,items,details',
+            'include' => 'sometimes|string',
         ];
     }
 

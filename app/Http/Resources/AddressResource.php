@@ -24,6 +24,8 @@ class AddressResource extends JsonResource
             'internal_name' => $this->internal_name,
             // The country this address belongs to (CountryResource id)
             'country_id' => $this->country_id,
+            // Backward compatibility identifier from previous system
+            'backward_compatibility' => $this->backward_compatibility,
             // Translations for this address (AddressTranslationResource[])
             'translations' => $this->whenLoaded('translations', function () {
                 return AddressTranslationResource::collection($this->translations);

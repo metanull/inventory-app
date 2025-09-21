@@ -18,7 +18,7 @@ class StorePartnerRequest extends FormRequest
             'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string',
             'type' => 'required|in:museum,institution,individual',
-            'country_id' => 'nullable|string|size:3',
+            'country_id' => 'nullable|string|size:3|exists:countries,id',
         ];
     }
 

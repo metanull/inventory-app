@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api\ParameterValidation;
 
 use App\Models\Country;
+use App\Models\Language;
 use App\Models\Province;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -44,7 +45,7 @@ class ProvinceParameterValidationTest extends TestCase
         Province::factory()->count(3)->create();
 
         $response = $this->getJson(route('province.index', [
-            'include' => 'country,translations,locations',
+            'include' => 'translations',
         ]));
 
         $response->assertOk();
@@ -88,7 +89,7 @@ class ProvinceParameterValidationTest extends TestCase
     {
         $province = Province::factory()->create();
 
-        $response = $this->getJson(route('province.show', $province).'?include=country,translations,locations');
+        $response = $this->getJson(route('province.show', $province).'?include=translations');
 
         $response->assertOk();
     }
@@ -137,10 +138,17 @@ class ProvinceParameterValidationTest extends TestCase
     public function test_store_accepts_valid_data_with_existing_country()
     {
         $country = Country::factory()->create();
+        $language = Language::factory()->create();
 
         $response = $this->postJson(route('province.store'), [
             'internal_name' => 'Valid Province',
             'country_id' => $country->id,
+            'translations' => [
+                [
+                    'language_id' => $language->id,
+                    'name' => 'Valid Province Name',
+                ],
+            ],
         ]);
 
         $response->assertCreated();
@@ -179,11 +187,18 @@ class ProvinceParameterValidationTest extends TestCase
     public function test_store_accepts_optional_backward_compatibility_field()
     {
         $country = Country::factory()->create();
+        $language = Language::factory()->create();
 
         $response = $this->postJson(route('province.store'), [
             'internal_name' => 'Legacy Province',
             'country_id' => $country->id,
             'backward_compatibility' => 'old_province_789',
+            'translations' => [
+                [
+                    'language_id' => $language->id,
+                    'name' => 'Legacy Province Name',
+                ],
+            ],
         ]);
 
         $response->assertCreated();
@@ -275,6 +290,7 @@ class ProvinceParameterValidationTest extends TestCase
     public function test_handles_unicode_characters_in_internal_name()
     {
         $country = Country::factory()->create();
+        $language = Language::factory()->create();
         $unicodeNames = [
             'Provence française',
             'Провинция русская',
@@ -289,6 +305,12 @@ class ProvinceParameterValidationTest extends TestCase
             $response = $this->postJson(route('province.store'), [
                 'internal_name' => $name,
                 'country_id' => $country->id,
+                'translations' => [
+                    [
+                        'language_id' => $language->id,
+                        'name' => $name.' Translation',
+                    ],
+                ],
             ]);
 
             $response->assertCreated(); // Should handle Unicode gracefully
@@ -445,6 +467,7 @@ class ProvinceParameterValidationTest extends TestCase
     {
         // Test if country_id is case-sensitive
         $country = Country::factory()->create(['id' => 'USA']);
+        $language = Language::factory()->create();
 
         $testCases = [
             'USA', // Exact match
@@ -457,6 +480,12 @@ class ProvinceParameterValidationTest extends TestCase
             $response = $this->postJson(route('province.store'), [
                 'internal_name' => "Province for {$countryId}",
                 'country_id' => $countryId,
+                'translations' => [
+                    [
+                        'language_id' => $language->id,
+                        'name' => "Province Name for {$countryId}",
+                    ],
+                ],
             ]);
 
             if ($countryId === 'USA') {

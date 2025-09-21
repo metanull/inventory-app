@@ -23,7 +23,7 @@ class ShowContactRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'include' => 'string|in:translations',
+            'include' => 'sometimes|string',
         ];
     }
 

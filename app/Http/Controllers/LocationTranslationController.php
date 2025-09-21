@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LocationTranslation\IndexLocationTranslationRequest;
+use App\Http\Requests\LocationTranslation\ShowLocationTranslationRequest;
+use App\Http\Requests\LocationTranslation\StoreLocationTranslationRequest;
+use App\Http\Requests\LocationTranslation\UpdateLocationTranslationRequest;
 use App\Http\Resources\LocationTranslationResource;
 use App\Models\LocationTranslation;
-use Illuminate\Http\Request;
 
 class LocationTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(IndexLocationTranslationRequest $request)
     {
         return LocationTranslationResource::collection(LocationTranslation::all());
     }
@@ -19,16 +22,9 @@ class LocationTranslationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreLocationTranslationRequest $request)
     {
-        $data = $request->validate([
-            'location_id' => 'required|uuid|exists:locations,id',
-            'language_id' => 'required|string|exists:languages,id',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
-        $translation = LocationTranslation::create($data);
+        $translation = LocationTranslation::create($request->validated());
 
         return new LocationTranslationResource($translation);
     }
@@ -36,7 +32,7 @@ class LocationTranslationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(LocationTranslation $locationTranslation)
+    public function show(ShowLocationTranslationRequest $request, LocationTranslation $locationTranslation)
     {
         return new LocationTranslationResource($locationTranslation);
     }
@@ -44,16 +40,9 @@ class LocationTranslationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, LocationTranslation $locationTranslation)
+    public function update(UpdateLocationTranslationRequest $request, LocationTranslation $locationTranslation)
     {
-        $data = $request->validate([
-            'location_id' => 'sometimes|uuid|exists:locations,id',
-            'language_id' => 'sometimes|string|exists:languages,id',
-            'name' => 'sometimes|string|max:255',
-            'description' => 'sometimes|nullable|string',
-        ]);
-
-        $locationTranslation->update($data);
+        $locationTranslation->update($request->validated());
 
         return new LocationTranslationResource($locationTranslation);
     }

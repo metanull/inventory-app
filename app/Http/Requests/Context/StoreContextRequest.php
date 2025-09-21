@@ -24,7 +24,7 @@ class StoreContextRequest extends FormRequest
     {
         return [
             'id' => 'prohibited',
-            'internal_name' => 'required|string',
+            'internal_name' => 'required|string|unique:contexts,internal_name',
             'backward_compatibility' => 'nullable|string',
             'is_default' => 'prohibited|boolean',
         ];

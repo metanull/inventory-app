@@ -25,7 +25,7 @@ class IndexExhibitionRequest extends FormRequest
         return [
             'page' => 'integer|min:1',
             'per_page' => 'integer|min:1|max:100',
-            'include' => 'string|in:translations,partners',
+            'include' => 'sometimes|string',
         ];
     }
 

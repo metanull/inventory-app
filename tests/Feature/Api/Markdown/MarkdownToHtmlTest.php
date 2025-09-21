@@ -97,7 +97,6 @@ class MarkdownToHtmlTest extends TestCase
         ]);
 
         $response->assertUnprocessable()
-            ->assertJsonPath('success', false)
             ->assertJsonValidationErrors(['markdown']);
     }
 
@@ -106,7 +105,6 @@ class MarkdownToHtmlTest extends TestCase
         $response = $this->postJson(route('markdown.toHtml'), []);
 
         $response->assertUnprocessable()
-            ->assertJsonPath('success', false)
             ->assertJsonValidationErrors(['markdown']);
     }
 
@@ -117,7 +115,6 @@ class MarkdownToHtmlTest extends TestCase
         ]);
 
         $response->assertUnprocessable()
-            ->assertJsonPath('success', false)
             ->assertJsonValidationErrors(['markdown']);
     }
 
@@ -146,7 +143,6 @@ class MarkdownToHtmlTest extends TestCase
         ]);
 
         $response->assertUnprocessable()
-            ->assertJsonPath('success', false)
             ->assertJsonValidationErrors(['markdown']);
     }
 

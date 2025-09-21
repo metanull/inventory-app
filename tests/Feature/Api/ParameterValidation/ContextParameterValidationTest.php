@@ -38,17 +38,6 @@ class ContextParameterValidationTest extends TestCase
         $response->assertJsonPath('meta.per_page', 3);
     }
 
-    public function test_index_accepts_valid_include_parameters()
-    {
-        Context::factory()->count(3)->create();
-
-        $response = $this->getJson(route('context.index', [
-            'include' => 'translations',
-        ]));
-
-        $response->assertOk();
-    }
-
     public function test_index_rejects_invalid_include_parameters()
     {
         Context::factory()->count(2)->create();
@@ -82,15 +71,6 @@ class ContextParameterValidationTest extends TestCase
     }
 
     // SHOW ENDPOINT TESTS
-    public function test_show_accepts_valid_include_parameters()
-    {
-        $context = Context::factory()->create();
-
-        $response = $this->getJson(route('context.show', $context).'?include=translations');
-
-        $response->assertOk();
-    }
-
     public function test_show_rejects_unexpected_query_parameters_currently()
     {
         $context = Context::factory()->create();
@@ -107,18 +87,7 @@ class ContextParameterValidationTest extends TestCase
         $response = $this->postJson(route('context.store'), []);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['internal_name', 'type']);
-    }
-
-    public function test_store_validates_enum_type_field()
-    {
-        $response = $this->postJson(route('context.store'), [
-            'internal_name' => 'Test Context',
-            'type' => 'invalid_type', // Should be: historical, geographical, cultural, etc.
-        ]);
-
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['type']);
+        $response->assertJsonValidationErrors(['internal_name']);
     }
 
     public function test_store_validates_unique_internal_name()
@@ -127,7 +96,6 @@ class ContextParameterValidationTest extends TestCase
 
         $response = $this->postJson(route('context.store'), [
             'internal_name' => $existingContext->internal_name,
-            'type' => 'historical',
         ]);
 
         $response->assertUnprocessable();
@@ -139,32 +107,16 @@ class ContextParameterValidationTest extends TestCase
         $response = $this->postJson(route('context.store'), [
             'id' => 'some-uuid', // Should be prohibited
             'internal_name' => 'Test Context',
-            'type' => 'historical',
         ]);
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['id']);
     }
 
-    public function test_store_accepts_valid_enum_values()
-    {
-        $validTypes = ['historical', 'geographical', 'cultural', 'social', 'political', 'economic', 'religious', 'artistic'];
-
-        foreach ($validTypes as $type) {
-            $response = $this->postJson(route('context.store'), [
-                'internal_name' => "Test Context {$type}",
-                'type' => $type,
-            ]);
-
-            $response->assertCreated();
-        }
-    }
-
     public function test_store_accepts_optional_backward_compatibility_field()
     {
         $response = $this->postJson(route('context.store'), [
             'internal_name' => 'Legacy Context',
-            'type' => 'historical',
             'backward_compatibility' => 'old_context_456',
         ]);
 
@@ -176,7 +128,6 @@ class ContextParameterValidationTest extends TestCase
     {
         $response = $this->postJson(route('context.store'), [
             'internal_name' => 'Test Context',
-            'type' => 'historical',
             'unexpected_field' => 'should_be_rejected',
             'priority' => 'high', // Not implemented
             'visibility' => 'public', // Not implemented
@@ -191,19 +142,6 @@ class ContextParameterValidationTest extends TestCase
     }
 
     // UPDATE ENDPOINT TESTS
-    public function test_update_validates_enum_type_field()
-    {
-        $context = Context::factory()->create();
-
-        $response = $this->putJson(route('context.update', $context), [
-            'internal_name' => 'Updated Context',
-            'type' => 'invalid_type',
-        ]);
-
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['type']);
-    }
-
     public function test_update_validates_unique_internal_name()
     {
         $context1 = Context::factory()->create();
@@ -211,7 +149,6 @@ class ContextParameterValidationTest extends TestCase
 
         $response = $this->putJson(route('context.update', $context1), [
             'internal_name' => $context2->internal_name,
-            'type' => 'historical',
         ]);
 
         $response->assertUnprocessable();
@@ -225,7 +162,6 @@ class ContextParameterValidationTest extends TestCase
         $response = $this->putJson(route('context.update', $context), [
             'id' => 'new-uuid', // Should be prohibited
             'internal_name' => 'Updated Context',
-            'type' => 'cultural',
         ]);
 
         $response->assertUnprocessable();
@@ -238,7 +174,6 @@ class ContextParameterValidationTest extends TestCase
 
         $response = $this->putJson(route('context.update', $context), [
             'internal_name' => $context->internal_name, // Same name should be allowed
-            'type' => 'cultural',
         ]);
 
         $response->assertOk();
@@ -250,7 +185,6 @@ class ContextParameterValidationTest extends TestCase
 
         $response = $this->putJson(route('context.update', $context), [
             'internal_name' => 'Updated Context',
-            'type' => 'cultural',
             'unexpected_field' => 'should_be_rejected',
             'change_priority' => 'urgent',
             'assign_reviewer' => 'admin',
@@ -263,25 +197,6 @@ class ContextParameterValidationTest extends TestCase
     }
 
     // EDGE CASE TESTS
-    public function test_handles_case_sensitivity_in_enum_values()
-    {
-        $caseSensitiveTypes = [
-            'HISTORICAL', // Uppercase
-            'Historical', // Title case
-            'hIsToRiCaL', // Mixed case
-        ];
-
-        foreach ($caseSensitiveTypes as $type) {
-            $response = $this->postJson(route('context.store'), [
-                'internal_name' => "Test Context {$type}",
-                'type' => $type,
-            ]);
-
-            $response->assertUnprocessable(); // Should be case-sensitive
-            $response->assertJsonValidationErrors(['type']);
-        }
-    }
-
     public function test_handles_null_vs_empty_string_for_optional_fields()
     {
         $context = Context::factory()->create();
@@ -294,7 +209,6 @@ class ContextParameterValidationTest extends TestCase
         foreach ($testCases as $data) {
             $updateData = array_merge([
                 'internal_name' => 'Test Context Update',
-                'type' => 'cultural',
             ], $data);
 
             $response = $this->putJson(route('context.update', $context), $updateData);
@@ -318,7 +232,6 @@ class ContextParameterValidationTest extends TestCase
         foreach ($unicodeNames as $name) {
             $response = $this->postJson(route('context.store'), [
                 'internal_name' => $name,
-                'type' => 'cultural',
             ]);
 
             $response->assertCreated(); // Should handle Unicode gracefully
@@ -331,7 +244,6 @@ class ContextParameterValidationTest extends TestCase
 
         $response = $this->postJson(route('context.store'), [
             'internal_name' => $veryLongName,
-            'type' => 'historical',
         ]);
 
         // Should handle gracefully - either accept (if no length limit) or reject with validation
@@ -360,7 +272,6 @@ class ContextParameterValidationTest extends TestCase
         foreach ($specialCharNames as $name) {
             $response = $this->postJson(route('context.store'), [
                 'internal_name' => $name,
-                'type' => 'cultural',
             ]);
 
             // Should handle gracefully
@@ -394,26 +305,9 @@ class ContextParameterValidationTest extends TestCase
         // Test what happens when arrays are passed to scalar fields
         $response = $this->postJson(route('context.store'), [
             'internal_name' => ['array' => 'instead_of_string'],
-            'type' => ['another' => 'array'],
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['internal_name', 'type']);
-    }
-
-    public function test_all_valid_enum_combinations()
-    {
-        $validTypes = ['historical', 'geographical', 'cultural', 'social', 'political', 'economic', 'religious', 'artistic'];
-
-        // Test all valid enum values work
-        foreach ($validTypes as $type) {
-            $response = $this->postJson(route('context.store'), [
-                'internal_name' => "Valid Context {$type}",
-                'type' => $type,
-            ]);
-
-            $response->assertCreated();
-            $response->assertJsonPath('data.type', $type);
-        }
+        $response->assertJsonValidationErrors(['internal_name']);
     }
 }

@@ -35,7 +35,7 @@ class UpdatePictureRequest extends FormRequest
             'upload_size' => 'prohibited',
             'pictureable_type' => 'prohibited',
             'pictureable_id' => 'prohibited',
-            'include' => 'string|in:translations,pictureable',
+            'include' => 'sometimes|string',
         ];
     }
 

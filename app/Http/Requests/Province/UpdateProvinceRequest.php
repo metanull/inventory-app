@@ -22,16 +22,16 @@ class UpdateProvinceRequest extends FormRequest
      */
     public function rules(): array
     {
-        $provinceId = $this->route('province');
+        $provinceId = $this->route('province') ? $this->route('province')->id : null;
 
         return [
-            'internal_name' => 'string|unique:provinces,internal_name,'.$provinceId,
-            'country_id' => 'exists:countries,id',
+            'internal_name' => 'required|string|unique:provinces,internal_name,'.$provinceId,
+            'country_id' => 'required|exists:countries,id',
             'backward_compatibility' => 'nullable|string',
             'translations' => 'array|min:1',
             'translations.*.language_id' => 'required_with:translations|exists:languages,id',
             'translations.*.name' => 'required_with:translations|string',
-            'include' => 'string|in:translations',
+            'include' => 'sometimes|string',
         ];
     }
 

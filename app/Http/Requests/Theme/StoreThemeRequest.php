@@ -27,7 +27,7 @@ class StoreThemeRequest extends FormRequest
             'parent_id' => 'nullable|uuid|exists:themes,id',
             'internal_name' => 'required|string|unique:themes,internal_name,NULL,id,exhibition_id,'.$this->input('exhibition_id'),
             'backward_compatibility' => 'nullable|string',
-            'include' => 'string|in:translations,subthemes,subthemes.translations',
+            'include' => 'sometimes|string',
         ];
     }
 

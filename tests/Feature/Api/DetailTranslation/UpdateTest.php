@@ -30,6 +30,9 @@ class UpdateTest extends TestCase
     {
         $translation = DetailTranslation::factory()->create();
         $data = [
+            'detail_id' => $translation->detail_id,
+            'language_id' => $translation->language_id,
+            'context_id' => $translation->context_id,
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->paragraph,
             'alternate_name' => $this->faker->words(2, true),
@@ -66,6 +69,11 @@ class UpdateTest extends TestCase
         $author = Author::factory()->create();
 
         $updateData = [
+            'detail_id' => $translation->detail_id,
+            'language_id' => $translation->language_id,
+            'context_id' => $translation->context_id,
+            'name' => $translation->name,
+            'description' => $translation->description,
             'alternate_name' => 'New Alternate Name',
             'extra' => ['new_field' => 'new_value'],
             'author_id' => $author->id,
@@ -101,6 +109,10 @@ class UpdateTest extends TestCase
 
         $updateData = [
             'detail_id' => $newDetail->id,
+            'language_id' => $translation->language_id,
+            'context_id' => $translation->context_id,
+            'name' => $translation->name,
+            'description' => $translation->description,
         ];
 
         $response = $this->putJson(route('detail-translation.update', $translation->id), $updateData);
@@ -120,7 +132,11 @@ class UpdateTest extends TestCase
         $newLanguage = Language::factory()->create();
 
         $updateData = [
+            'detail_id' => $translation->detail_id,
             'language_id' => $newLanguage->id,
+            'context_id' => $translation->context_id,
+            'name' => $translation->name,
+            'description' => $translation->description,
         ];
 
         $response = $this->putJson(route('detail-translation.update', $translation->id), $updateData);
@@ -140,7 +156,11 @@ class UpdateTest extends TestCase
         $newContext = Context::factory()->create();
 
         $updateData = [
+            'detail_id' => $translation->detail_id,
+            'language_id' => $translation->language_id,
             'context_id' => $newContext->id,
+            'name' => $translation->name,
+            'description' => $translation->description,
         ];
 
         $response = $this->putJson(route('detail-translation.update', $translation->id), $updateData);
@@ -178,6 +198,11 @@ class UpdateTest extends TestCase
         ]);
 
         $updateData = [
+            'detail_id' => $translation->detail_id,
+            'language_id' => $translation->language_id,
+            'context_id' => $translation->context_id,
+            'name' => $translation->name,
+            'description' => $translation->description,
             'alternate_name' => null,
         ];
 
@@ -195,6 +220,11 @@ class UpdateTest extends TestCase
         $originalDescription = $translation->description;
 
         $updateData = [
+            'detail_id' => $translation->detail_id,
+            'language_id' => $translation->language_id,
+            'context_id' => $translation->context_id,
+            'name' => $originalName,
+            'description' => $originalDescription,
             'alternate_name' => 'Updated Alternate Name',
         ];
 
@@ -249,6 +279,11 @@ class UpdateTest extends TestCase
     {
         $translation = DetailTranslation::factory()->create();
         $updateData = [
+            'detail_id' => $translation->detail_id,
+            'language_id' => $translation->language_id,
+            'context_id' => $translation->context_id,
+            'name' => $translation->name,
+            'description' => $translation->description,
             'author_id' => 'non-existent-id',
         ];
 

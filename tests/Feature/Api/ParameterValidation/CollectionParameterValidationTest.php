@@ -3,6 +3,8 @@
 namespace Tests\Feature\Api\ParameterValidation;
 
 use App\Models\Collection;
+use App\Models\Context;
+use App\Models\Language;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -43,7 +45,7 @@ class CollectionParameterValidationTest extends TestCase
         Collection::factory()->count(3)->create();
 
         $response = $this->getJson(route('collection.index', [
-            'include' => 'items,galleries,translations',
+            'include' => 'items,partners,translations',
         ]));
 
         $response->assertOk();
@@ -102,7 +104,7 @@ class CollectionParameterValidationTest extends TestCase
     {
         $collection = Collection::factory()->create();
 
-        $response = $this->getJson(route('collection.show', $collection).'?include=items,galleries,translations');
+        $response = $this->getJson(route('collection.show', $collection).'?include=items,partners,translations');
 
         $response->assertOk();
     }
@@ -159,8 +161,13 @@ class CollectionParameterValidationTest extends TestCase
 
     public function test_store_accepts_valid_data()
     {
+        $language = Language::factory()->create();
+        $context = Context::factory()->create();
+
         $response = $this->postJson(route('collection.store'), [
             'internal_name' => 'Modern European Art Collection',
+            'language_id' => $language->id,
+            'context_id' => $context->id,
         ]);
 
         $response->assertCreated();
@@ -169,8 +176,13 @@ class CollectionParameterValidationTest extends TestCase
 
     public function test_store_accepts_optional_backward_compatibility_field()
     {
+        $language = Language::factory()->create();
+        $context = Context::factory()->create();
+
         $response = $this->postJson(route('collection.store'), [
             'internal_name' => 'Legacy Collection',
+            'language_id' => $language->id,
+            'context_id' => $context->id,
             'backward_compatibility' => 'old_collection_456',
         ]);
 
@@ -281,6 +293,8 @@ class CollectionParameterValidationTest extends TestCase
     // EDGE CASE TESTS
     public function test_handles_unicode_characters_in_internal_name()
     {
+        $language = Language::factory()->create();
+        $context = Context::factory()->create();
         $unicodeNames = [
             'Collection ñ España',
             'Collection française',
@@ -296,6 +310,8 @@ class CollectionParameterValidationTest extends TestCase
         foreach ($unicodeNames as $name) {
             $response = $this->postJson(route('collection.store'), [
                 'internal_name' => $name,
+                'language_id' => $language->id,
+                'context_id' => $context->id,
             ]);
 
             $response->assertCreated(); // Should handle Unicode gracefully
@@ -382,6 +398,8 @@ class CollectionParameterValidationTest extends TestCase
 
     public function test_handles_numeric_internal_names()
     {
+        $language = Language::factory()->create();
+        $context = Context::factory()->create();
         $numericNames = [
             '123',
             '0',
@@ -396,6 +414,8 @@ class CollectionParameterValidationTest extends TestCase
         foreach ($numericNames as $name) {
             $response = $this->postJson(route('collection.store'), [
                 'internal_name' => $name,
+                'language_id' => $language->id,
+                'context_id' => $context->id,
             ]);
 
             $response->assertCreated(); // Numeric names should be allowed
@@ -404,6 +424,8 @@ class CollectionParameterValidationTest extends TestCase
 
     public function test_handles_json_injection_attempts()
     {
+        $language = Language::factory()->create();
+        $context = Context::factory()->create();
         $jsonPayloads = [
             '{"malicious": "payload"}',
             '[{"array": "injection"}]',
@@ -415,6 +437,8 @@ class CollectionParameterValidationTest extends TestCase
         foreach ($jsonPayloads as $payload) {
             $response = $this->postJson(route('collection.store'), [
                 'internal_name' => $payload,
+                'language_id' => $language->id,
+                'context_id' => $context->id,
             ]);
 
             $response->assertCreated(); // Should treat as regular strings
@@ -468,15 +492,21 @@ class CollectionParameterValidationTest extends TestCase
     public function test_handles_concurrent_creation_attempts()
     {
         // Test creating collections with same name (should fail uniqueness)
+        $language = Language::factory()->create();
+        $context = Context::factory()->create();
         $sameName = 'Duplicate Collection Name';
 
         $response1 = $this->postJson(route('collection.store'), [
             'internal_name' => $sameName,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
         ]);
         $response1->assertCreated();
 
         $response2 = $this->postJson(route('collection.store'), [
             'internal_name' => $sameName,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
         ]);
         $response2->assertUnprocessable();
         $response2->assertJsonValidationErrors(['internal_name']);

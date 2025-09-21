@@ -27,6 +27,9 @@ class UpdateTest extends TestCase
     {
         $themeTranslation = ThemeTranslation::factory()->create();
         $data = [
+            'theme_id' => $themeTranslation->theme_id,
+            'language_id' => $themeTranslation->language_id,
+            'context_id' => $themeTranslation->context_id,
             'title' => 'Updated Title',
             'description' => 'Updated Description',
             'introduction' => 'Updated Introduction',
@@ -69,7 +72,11 @@ class UpdateTest extends TestCase
         $newTheme = Theme::factory()->create();
         $data = [
             'theme_id' => $newTheme->id,
+            'language_id' => $themeTranslation->language_id,
+            'context_id' => $themeTranslation->context_id,
             'title' => $themeTranslation->title,
+            'description' => $themeTranslation->description,
+            'introduction' => $themeTranslation->introduction,
         ];
 
         $response = $this->putJson("/api/theme-translation/{$themeTranslation->id}", $data);
@@ -162,6 +169,8 @@ class UpdateTest extends TestCase
             'language_id' => $existing->language_id,
             'context_id' => $existing->context_id,
             'title' => 'Updated Title',
+            'description' => 'Updated Description',
+            'introduction' => 'Updated Introduction',
         ];
 
         $response = $this->putJson("/api/theme-translation/{$themeTranslation->id}", $data);
@@ -174,8 +183,13 @@ class UpdateTest extends TestCase
     {
         $themeTranslation = ThemeTranslation::factory()->create(['backward_compatibility' => null]);
         $data = [
-            'backward_compatibility' => 'legacy-id-456',
+            'theme_id' => $themeTranslation->theme_id,
+            'language_id' => $themeTranslation->language_id,
+            'context_id' => $themeTranslation->context_id,
             'title' => $themeTranslation->title,
+            'description' => $themeTranslation->description,
+            'introduction' => $themeTranslation->introduction,
+            'backward_compatibility' => 'legacy-id-456',
         ];
 
         $response = $this->putJson("/api/theme-translation/{$themeTranslation->id}", $data);
@@ -188,8 +202,12 @@ class UpdateTest extends TestCase
     {
         $themeTranslation = ThemeTranslation::factory()->create(['description' => 'Original Description']);
         $data = [
-            'description' => null,
+            'theme_id' => $themeTranslation->theme_id,
+            'language_id' => $themeTranslation->language_id,
+            'context_id' => $themeTranslation->context_id,
             'title' => $themeTranslation->title,
+            'description' => null,
+            'introduction' => $themeTranslation->introduction,
         ];
 
         $response = $this->putJson("/api/theme-translation/{$themeTranslation->id}", $data);

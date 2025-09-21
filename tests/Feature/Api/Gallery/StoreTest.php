@@ -169,9 +169,9 @@ class StoreTest extends TestCase
     }
 
     /**
-     * Test gallery creation ignores unknown fields.
+     * Test gallery creation rejects unknown fields.
      */
-    public function test_gallery_creation_ignores_unknown_fields(): void
+    public function test_gallery_creation_rejects_unknown_fields(): void
     {
         $galleryData = [
             'internal_name' => 'test-gallery-'.$this->faker->slug(2),
@@ -181,17 +181,8 @@ class StoreTest extends TestCase
 
         $response = $this->postJson(route('gallery.store'), $galleryData);
 
-        $response->assertCreated();
-        $response->assertJsonPath('data.internal_name', $galleryData['internal_name']);
-
-        $this->assertDatabaseHas('galleries', [
-            'internal_name' => $galleryData['internal_name'],
-        ]);
-
-        // Verify unknown fields are not stored
-        $this->assertDatabaseMissing('galleries', [
-            'unknown_field' => 'unknown_value',
-        ]);
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['unknown_field', 'another_unknown']);
     }
 
     /**

@@ -44,7 +44,7 @@ class PictureParameterValidationTest extends TestCase
         Picture::factory()->count(3)->create();
 
         $response = $this->getJson(route('picture.index', [
-            'include' => 'attachments,translations',
+            'include' => 'pictureable,translations',
         ]));
 
         $response->assertOk();
@@ -91,7 +91,7 @@ class PictureParameterValidationTest extends TestCase
     {
         $picture = Picture::factory()->create();
 
-        $response = $this->getJson(route('picture.show', $picture).'?include=attachments,translations');
+        $response = $this->getJson(route('picture.show', $picture).'?include=pictureable,translations');
 
         $response->assertOk();
     }

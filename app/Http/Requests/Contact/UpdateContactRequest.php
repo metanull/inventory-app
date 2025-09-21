@@ -33,7 +33,7 @@ class UpdateContactRequest extends FormRequest
             'translations' => 'array|min:1',
             'translations.*.language_id' => 'required_with:translations|exists:languages,id',
             'translations.*.label' => 'required_with:translations|string',
-            'include' => 'string|in:translations',
+            'include' => 'sometimes|string',
         ];
     }
 

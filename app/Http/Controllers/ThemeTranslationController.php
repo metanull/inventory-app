@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ThemeTranslation\IndexThemeTranslationRequest;
+use App\Http\Requests\ThemeTranslation\StoreThemeTranslationRequest;
+use App\Http\Requests\ThemeTranslation\UpdateThemeTranslationRequest;
 use App\Http\Resources\ThemeTranslationResource;
 use App\Models\ThemeTranslation;
 use Illuminate\Database\QueryException;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -18,7 +20,7 @@ class ThemeTranslationController extends Controller
      *
      * @response ThemeTranslationResource[]
      */
-    public function index(Request $request)
+    public function index(IndexThemeTranslationRequest $request)
     {
         $query = ThemeTranslation::query();
 
@@ -50,21 +52,10 @@ class ThemeTranslationController extends Controller
      *
      * @response ThemeTranslationResource
      */
-    public function store(Request $request)
+    public function store(StoreThemeTranslationRequest $request)
     {
-        $validated = $request->validate([
-            'theme_id' => 'required|uuid|exists:themes,id',
-            'language_id' => 'required|string|exists:languages,id',
-            'context_id' => 'required|uuid|exists:contexts,id',
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'introduction' => 'required|string',
-            'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|json',
-        ]);
-
         try {
-            $translation = ThemeTranslation::create($validated);
+            $translation = ThemeTranslation::create($request->validated());
 
             return new ThemeTranslationResource($translation);
         } catch (QueryException $e) {
@@ -96,21 +87,10 @@ class ThemeTranslationController extends Controller
      *
      * @response ThemeTranslationResource
      */
-    public function update(Request $request, ThemeTranslation $themeTranslation)
+    public function update(UpdateThemeTranslationRequest $request, ThemeTranslation $themeTranslation)
     {
-        $validated = $request->validate([
-            'theme_id' => 'sometimes|required|uuid|exists:themes,id',
-            'language_id' => 'sometimes|required|string|exists:languages,id',
-            'context_id' => 'sometimes|required|uuid|exists:contexts,id',
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
-            'introduction' => 'sometimes|required|string',
-            'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|json',
-        ]);
-
         try {
-            $themeTranslation->update($validated);
+            $themeTranslation->update($request->validated());
 
             return new ThemeTranslationResource($themeTranslation);
         } catch (QueryException $e) {

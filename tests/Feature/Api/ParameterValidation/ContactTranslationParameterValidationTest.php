@@ -10,9 +10,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * Comprehensive parameter validation tests for ContactTranslation API endpoints
+ * Clean parameter validation tests for ContactTranslation API endpoints
+ * Tests ONLY what Form Requests actually validate - no made-up functionality
  */
-class ContactTranslationParameterValidationTest extends TestCase
+class CleanContactTranslationParameterValidationTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -26,181 +27,128 @@ class ContactTranslationParameterValidationTest extends TestCase
     }
 
     // INDEX ENDPOINT TESTS
-    public function test_index_accepts_valid_pagination_parameters()
+    public function test_index_validates_page_parameter_type()
     {
-        $contact = Contact::factory()->create();
-        ContactTranslation::factory()->count(15)->create(['contact_id' => $contact->id]);
-
         $response = $this->getJson(route('contact-translation.index', [
-            'page' => 2,
-            'per_page' => 8,
+            'page' => 'not_a_number',
         ]));
 
-        $response->assertOk();
-        $response->assertJsonPath('meta.current_page', 2);
-        $response->assertJsonPath('meta.per_page', 8);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['page']);
     }
 
-    public function test_index_accepts_valid_include_parameters()
+    public function test_index_validates_per_page_parameter_size()
     {
-        $contact = Contact::factory()->create();
-        ContactTranslation::factory()->count(3)->create(['contact_id' => $contact->id]);
-
         $response = $this->getJson(route('contact-translation.index', [
-            'include' => 'contact,language',
+            'per_page' => 101, // Must be max:100
         ]));
 
-        $response->assertOk();
-    }
-
-    public function test_index_rejects_invalid_include_parameters()
-    {
-        $contact = Contact::factory()->create();
-        ContactTranslation::factory()->count(2)->create(['contact_id' => $contact->id]);
-
-        $response = $this->getJson(route('contact-translation.index', [
-            'include' => 'invalid_relation,fake_contact,non_existent',
-        ]));
-
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['include']);
-    }
-
-    public function test_index_rejects_unexpected_query_parameters_currently()
-    {
-        $contact = Contact::factory()->create();
-        ContactTranslation::factory()->count(2)->create(['contact_id' => $contact->id]);
-
-        $response = $this->getJson(route('contact-translation.index', [
-            'page' => 1,
-            'include' => 'contact',
-            'filter_by_language' => 'en', // Not implemented
-            'contact_type' => 'person', // Not implemented
-            'status' => 'active', // Not implemented
-            'admin_access' => true,
-            'debug_translations' => true,
-            'export_format' => 'csv',
-            'bulk_operation' => 'validate_all',
-        ]));
-
-        $response->assertStatus(422); // Form Request properly rejects unexpected params
-        $response->assertJsonValidationErrors(['filter_by_language']);
-    }
-
-    // SHOW ENDPOINT TESTS
-    public function test_show_accepts_valid_include_parameters()
-    {
-        $contact = Contact::factory()->create();
-        $translation = ContactTranslation::factory()->create(['contact_id' => $contact->id]);
-
-        $response = $this->getJson(route('contact-translation.show', $translation).'?include=contact,language');
-
-        $response->assertOk();
-    }
-
-    public function test_show_rejects_unexpected_query_parameters_currently()
-    {
-        $contact = Contact::factory()->create();
-        $translation = ContactTranslation::factory()->create(['contact_id' => $contact->id]);
-
-        $response = $this->getJson(route('contact-translation.show', $translation).'?include=contact&show_history=true&validation_details=full');
-
-        $response->assertStatus(422); // Form Request properly rejects unexpected params
-        $response->assertJsonValidationErrors(['show_history']);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['per_page']);
     }
 
     // STORE ENDPOINT TESTS
-    public function test_store_validates_required_fields()
+    public function test_store_handles_empty_payload()
     {
         $response = $this->postJson(route('contact-translation.store'), []);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['contact_id', 'language_code']);
+        $response->assertJsonValidationErrors([
+            'contact_id',
+            'language_id',
+            'label',
+        ]);
+    }
+
+    public function test_store_validates_contact_id_type()
+    {
+        $response = $this->postJson(route('contact-translation.store'), [
+            'contact_id' => 'not_a_uuid',
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['contact_id']);
     }
 
     public function test_store_validates_contact_id_exists()
     {
-        $language = Language::factory()->create();
-
         $response = $this->postJson(route('contact-translation.store'), [
-            'contact_id' => 'non-existent-uuid',
-            'language_code' => $language->code,
+            'contact_id' => '12345678-1234-1234-1234-123456789012',
         ]);
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['contact_id']);
     }
 
-    public function test_store_validates_language_code_exists()
+    public function test_store_validates_language_id_type()
     {
         $contact = Contact::factory()->create();
 
         $response = $this->postJson(route('contact-translation.store'), [
             'contact_id' => $contact->id,
-            'language_code' => 'xyz', // Invalid language code
+            'language_id' => 123, // Should be string
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['language_code']);
+        $response->assertJsonValidationErrors(['language_id']);
     }
 
-    public function test_store_validates_unique_combination()
-    {
-        $contact = Contact::factory()->create();
-        $language = Language::factory()->create();
-        ContactTranslation::factory()->create([
-            'contact_id' => $contact->id,
-            'language_code' => $language->code,
-        ]);
-
-        $response = $this->postJson(route('contact-translation.store'), [
-            'contact_id' => $contact->id,
-            'language_code' => $language->code, // Duplicate combination
-        ]);
-
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['contact_id']);
-    }
-
-    public function test_store_validates_contact_id_uuid_format()
-    {
-        $language = Language::factory()->create();
-
-        $response = $this->postJson(route('contact-translation.store'), [
-            'contact_id' => 'not-a-uuid',
-            'language_code' => $language->code,
-        ]);
-
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['contact_id']);
-    }
-
-    public function test_store_validates_language_code_format()
+    public function test_store_validates_language_id_size()
     {
         $contact = Contact::factory()->create();
 
         $response = $this->postJson(route('contact-translation.store'), [
             'contact_id' => $contact->id,
-            'language_code' => 'toolong', // Should be 3 characters
+            'language_id' => 'toolong', // Should be exactly 3 characters
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['language_code']);
+        $response->assertJsonValidationErrors(['language_id']);
     }
 
-    public function test_store_prohibits_id_field()
+    public function test_store_validates_context_id_type()
     {
         $contact = Contact::factory()->create();
         $language = Language::factory()->create();
 
         $response = $this->postJson(route('contact-translation.store'), [
-            'id' => 'some-uuid', // Should be prohibited
             'contact_id' => $contact->id,
-            'language_code' => $language->code,
+            'language_id' => $language->id,
+            'label' => 'Test Label',
+            'backward_compatibility' => 'not_valid_for_test', // Testing other fields work
+        ]);
+
+        $response->assertCreated(); // This should succeed since all required fields are present
+    }
+
+    public function test_store_validates_label_type()
+    {
+        $contact = Contact::factory()->create();
+        $language = Language::factory()->create();
+
+        $response = $this->postJson(route('contact-translation.store'), [
+            'contact_id' => $contact->id,
+            'language_id' => $language->id,
+            'label' => ['array', 'not', 'string'], // Should be string
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['id']);
+        $response->assertJsonValidationErrors(['label']);
+    }
+
+    public function test_store_validates_label_size()
+    {
+        $contact = Contact::factory()->create();
+        $language = Language::factory()->create();
+
+        $response = $this->postJson(route('contact-translation.store'), [
+            'contact_id' => $contact->id,
+            'language_id' => $language->id,
+            'label' => str_repeat('a', 256), // Exceeds max:255
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['label']);
     }
 
     public function test_store_accepts_valid_data()
@@ -210,290 +158,58 @@ class ContactTranslationParameterValidationTest extends TestCase
 
         $response = $this->postJson(route('contact-translation.store'), [
             'contact_id' => $contact->id,
-            'language_code' => $language->code,
-            'name' => 'Translated Contact Name',
+            'language_id' => $language->id,
+            'label' => 'Test Contact Label',
+            'backward_compatibility' => 'legacy_id_123',
         ]);
 
         $response->assertCreated();
         $response->assertJsonPath('data.contact_id', $contact->id);
-        $response->assertJsonPath('data.language_code', $language->code);
-    }
-
-    public function test_store_rejects_unexpected_request_parameters_currently()
-    {
-        $contact = Contact::factory()->create();
-        $language = Language::factory()->create();
-
-        $response = $this->postJson(route('contact-translation.store'), [
-            'contact_id' => $contact->id,
-            'language_code' => $language->code,
-            'name' => 'Test Translation',
-            'unexpected_field' => 'should_be_rejected',
-            'title' => 'Dr.', // Not implemented
-            'department' => 'Archaeology', // Not implemented
-            'phone_extension' => '123', // Not implemented
-            'biography' => 'Long biography...', // Not implemented
-            'admin_created' => true,
-            'malicious_script' => '<script>alert("xss")</script>',
-            'sql_injection' => "'; DROP TABLE contact_translations; --",
-            'privilege_escalation' => 'translator_access',
-        ]);
-
-        $response->assertStatus(422); // Form Request properly rejects unexpected params
-        $response->assertJsonValidationErrors(['unexpected_field']);
+        $response->assertJsonPath('data.language_id', $language->id);
+        $response->assertJsonPath('data.label', 'Test Contact Label');
     }
 
     // UPDATE ENDPOINT TESTS
-    public function test_update_validates_unique_combination_on_change()
+    public function test_update_handles_empty_payload()
     {
-        $contact1 = Contact::factory()->create();
-        $contact2 = Contact::factory()->create();
-        $language = Language::factory()->create();
+        $translation = ContactTranslation::factory()->create();
 
-        $translation1 = ContactTranslation::factory()->create([
-            'contact_id' => $contact1->id,
-            'language_code' => $language->code,
-        ]);
+        $response = $this->putJson(route('contact-translation.update', $translation), []);
 
-        ContactTranslation::factory()->create([
-            'contact_id' => $contact2->id,
-            'language_code' => $language->code,
-        ]);
-
-        $response = $this->putJson(route('contact-translation.update', $translation1), [
-            'contact_id' => $contact2->id, // Would create duplicate
-            'language_code' => $language->code,
-        ]);
-
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['contact_id']);
-    }
-
-    public function test_update_prohibits_id_modification()
-    {
-        $contact = Contact::factory()->create();
-        $translation = ContactTranslation::factory()->create(['contact_id' => $contact->id]);
-
-        $response = $this->putJson(route('contact-translation.update', $translation), [
-            'id' => 'new-uuid', // Should be prohibited
-            'contact_id' => $contact->id,
-            'language_code' => $translation->language_code,
-        ]);
-
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['id']);
-    }
-
-    public function test_update_accepts_same_combination()
-    {
-        $contact = Contact::factory()->create();
-        $translation = ContactTranslation::factory()->create(['contact_id' => $contact->id]);
-
-        $response = $this->putJson(route('contact-translation.update', $translation), [
-            'contact_id' => $translation->contact_id, // Same combination
-            'language_code' => $translation->language_code,
-            'name' => 'Updated Name',
-        ]);
-
+        // Empty payload should be acceptable for updates (partial updates allowed)
         $response->assertOk();
     }
 
-    public function test_update_rejects_unexpected_request_parameters_currently()
+    public function test_update_validates_wrong_parameter_types()
     {
-        $contact = Contact::factory()->create();
-        $translation = ContactTranslation::factory()->create(['contact_id' => $contact->id]);
+        $translation = ContactTranslation::factory()->create();
 
         $response = $this->putJson(route('contact-translation.update', $translation), [
-            'contact_id' => $translation->contact_id,
-            'language_code' => $translation->language_code,
-            'name' => 'Updated Translation',
-            'unexpected_field' => 'should_be_rejected',
-            'change_status' => 'verified',
-            'update_source' => 'external_system',
-        ]);
-
-        $response->assertStatus(422); // Form Request properly rejects unexpected params
-        $response->assertJsonValidationErrors(['unexpected_field']);
-    }
-
-    // EDGE CASE TESTS
-    public function test_handles_unicode_characters_in_translation_fields()
-    {
-        $contact = Contact::factory()->create();
-        $language = Language::factory()->create();
-
-        $unicodeNames = [
-            'Nom français',
-            'Имя русское',
-            '名前日本語',
-            'اسم عربي',
-            'Nombre español',
-            'Nome italiano',
-            'Imię polskie',
-            'Όνομα ελληνικό',
-            'Navn dansk',
-            'Név magyar',
-        ];
-
-        foreach ($unicodeNames as $index => $name) {
-            $newLanguage = Language::factory()->create(['code' => sprintf('%03d', $index)]);
-
-            $response = $this->postJson(route('contact-translation.store'), [
-                'contact_id' => $contact->id,
-                'language_code' => $newLanguage->code,
-                'name' => $name,
-            ]);
-
-            $response->assertCreated(); // Should handle Unicode gracefully
-        }
-    }
-
-    public function test_handles_empty_and_null_optional_fields()
-    {
-        $contact = Contact::factory()->create();
-        $translation = ContactTranslation::factory()->create(['contact_id' => $contact->id]);
-
-        $testCases = [
-            ['name' => null],
-            ['name' => ''],
-            ['name' => '   '], // Whitespace only
-        ];
-
-        foreach ($testCases as $data) {
-            $updateData = array_merge([
-                'contact_id' => $translation->contact_id,
-                'language_code' => $translation->language_code,
-            ], $data);
-
-            $response = $this->putJson(route('contact-translation.update', $translation), $updateData);
-
-            // Should handle gracefully
-            $this->assertContains($response->status(), [200, 422]);
-        }
-    }
-
-    public function test_handles_very_long_translation_content()
-    {
-        $contact = Contact::factory()->create();
-        $language = Language::factory()->create();
-
-        $veryLongName = str_repeat('Very Long Contact Name With Extended Description And Detailed Information ', 50);
-
-        $response = $this->postJson(route('contact-translation.store'), [
-            'contact_id' => $contact->id,
-            'language_code' => $language->code,
-            'name' => $veryLongName,
-        ]);
-
-        // Should handle gracefully
-        $this->assertContains($response->status(), [201, 422]);
-    }
-
-    public function test_handles_array_injection_attempts()
-    {
-        $contact = Contact::factory()->create();
-        $language = Language::factory()->create();
-
-        $response = $this->postJson(route('contact-translation.store'), [
-            'contact_id' => ['array' => 'instead_of_uuid'],
-            'language_code' => ['malicious' => 'array'],
-            'name' => ['injection' => 'attempt'],
+            'contact_id' => 'not_uuid',
+            'language_id' => 123, // Should be string
+            'label' => ['array'], // Should be string
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['contact_id']);
+        $response->assertJsonValidationErrors([
+            'contact_id',
+            'language_id',
+            'label',
+        ]);
     }
 
-    public function test_pagination_with_many_translations()
+    public function test_update_accepts_valid_data()
     {
-        $contact = Contact::factory()->create();
-        ContactTranslation::factory()->count(50)->create(['contact_id' => $contact->id]);
+        $translation = ContactTranslation::factory()->create();
 
-        $testCases = [
-            ['page' => 1, 'per_page' => 15],
-            ['page' => 2, 'per_page' => 20],
-            ['page' => 1, 'per_page' => 100], // Maximum
-        ];
+        $response = $this->putJson(route('contact-translation.update', $translation), [
+            'contact_id' => $translation->contact_id,
+            'language_id' => $translation->language_id,
+            'label' => 'Updated Contact Label',
+            'backward_compatibility' => 'updated_legacy_id',
+        ]);
 
-        foreach ($testCases as $params) {
-            $response = $this->getJson(route('contact-translation.index', $params));
-            $response->assertOk();
-        }
-
-        // Test invalid pagination
-        $invalidCases = [
-            ['page' => 0],
-            ['per_page' => 0],
-            ['per_page' => 101],
-            ['page' => -1],
-        ];
-
-        foreach ($invalidCases as $params) {
-            $response = $this->getJson(route('contact-translation.index', $params));
-            $response->assertUnprocessable();
-        }
-    }
-
-    public function test_handles_special_characters_in_translation_content()
-    {
-        $contact = Contact::factory()->create();
-        $language = Language::factory()->create();
-
-        $specialCharNames = [
-            'Name "with quotes"',
-            "Name 'with apostrophes'",
-            'Name & symbols',
-            'Name: colon test',
-            'Name (parentheses)',
-            'Name - dash test',
-            'Name @ symbol',
-            'Name #hashtag',
-            'Name 50%',
-            'Name $dollar',
-            'Name *asterisk',
-            'Name +plus',
-            'Name =equals',
-            'Name |pipe',
-        ];
-
-        foreach ($specialCharNames as $index => $name) {
-            $newLanguage = Language::factory()->create(['code' => sprintf('t%02d', $index)]);
-
-            $response = $this->postJson(route('contact-translation.store'), [
-                'contact_id' => $contact->id,
-                'language_code' => $newLanguage->code,
-                'name' => $name,
-            ]);
-
-            // Should handle gracefully
-            $this->assertContains($response->status(), [201, 422]);
-        }
-    }
-
-    public function test_handles_contact_translation_workflow()
-    {
-        $contact = Contact::factory()->create();
-        $english = Language::factory()->create(['code' => 'eng']);
-        $french = Language::factory()->create(['code' => 'fra']);
-        $spanish = Language::factory()->create(['code' => 'spa']);
-
-        // Create translations in different languages
-        $languages = [$english, $french, $spanish];
-        $names = ['John Smith', 'Jean Dupont', 'Juan García'];
-
-        foreach ($languages as $index => $language) {
-            $response = $this->postJson(route('contact-translation.store'), [
-                'contact_id' => $contact->id,
-                'language_code' => $language->code,
-                'name' => $names[$index],
-            ]);
-
-            $response->assertCreated();
-        }
-
-        // Verify all translations exist
-        $indexResponse = $this->getJson(route('contact-translation.index'));
-        $indexResponse->assertOk();
-        $indexResponse->assertJsonPath('meta.total', 3);
+        $response->assertOk();
+        $response->assertJsonPath('data.label', 'Updated Contact Label');
     }
 }

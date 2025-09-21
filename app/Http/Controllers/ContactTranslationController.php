@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ContactTranslation\IndexContactTranslationRequest;
+use App\Http\Requests\ContactTranslation\ShowContactTranslationRequest;
+use App\Http\Requests\ContactTranslation\StoreContactTranslationRequest;
+use App\Http\Requests\ContactTranslation\UpdateContactTranslationRequest;
 use App\Http\Resources\ContactTranslationResource;
 use App\Models\ContactTranslation;
-use Illuminate\Http\Request;
 
 class ContactTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(IndexContactTranslationRequest $request)
     {
         return ContactTranslationResource::collection(ContactTranslation::all());
     }
@@ -19,15 +22,9 @@ class ContactTranslationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreContactTranslationRequest $request)
     {
-        $data = $request->validate([
-            'contact_id' => 'required|uuid|exists:contacts,id',
-            'language_id' => 'required|string|exists:languages,id',
-            'label' => 'required|string|max:255',
-        ]);
-
-        $translation = ContactTranslation::create($data);
+        $translation = ContactTranslation::create($request->validated());
 
         return new ContactTranslationResource($translation);
     }
@@ -35,7 +32,7 @@ class ContactTranslationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ContactTranslation $contactTranslation)
+    public function show(ShowContactTranslationRequest $request, ContactTranslation $contactTranslation)
     {
         return new ContactTranslationResource($contactTranslation);
     }
@@ -43,15 +40,9 @@ class ContactTranslationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ContactTranslation $contactTranslation)
+    public function update(UpdateContactTranslationRequest $request, ContactTranslation $contactTranslation)
     {
-        $data = $request->validate([
-            'contact_id' => 'sometimes|uuid|exists:contacts,id',
-            'language_id' => 'sometimes|string|exists:languages,id',
-            'label' => 'sometimes|string|max:255',
-        ]);
-
-        $contactTranslation->update($data);
+        $contactTranslation->update($request->validated());
 
         return new ContactTranslationResource($contactTranslation);
     }

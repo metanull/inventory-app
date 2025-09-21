@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ItemTranslation\IndexItemTranslationRequest;
+use App\Http\Requests\ItemTranslation\ShowItemTranslationRequest;
+use App\Http\Requests\ItemTranslation\StoreItemTranslationRequest;
+use App\Http\Requests\ItemTranslation\UpdateItemTranslationRequest;
 use App\Http\Resources\ItemTranslationResource;
 use App\Models\ItemTranslation;
 use Illuminate\Database\QueryException;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -18,7 +21,7 @@ class ItemTranslationController extends Controller
      *
      * @response ItemTranslationResource[]
      */
-    public function index(Request $request)
+    public function index(IndexItemTranslationRequest $request)
     {
         $query = ItemTranslation::query();
 
@@ -51,34 +54,9 @@ class ItemTranslationController extends Controller
      *
      * @response 201 ItemTranslationResource
      */
-    public function store(Request $request)
+    public function store(StoreItemTranslationRequest $request)
     {
-        $data = $request->validate([
-            'item_id' => 'required|uuid|exists:items,id',
-            'language_id' => 'required|string|size:3|exists:languages,id',
-            'context_id' => 'required|uuid|exists:contexts,id',
-            'name' => 'required|string|max:255',
-            'alternate_name' => 'nullable|string|max:255',
-            'description' => 'required|string',
-            'type' => 'nullable|string|max:255',
-            'holder' => 'nullable|string',
-            'owner' => 'nullable|string',
-            'initial_owner' => 'nullable|string',
-            'dates' => 'nullable|string',
-            'location' => 'nullable|string',
-            'dimensions' => 'nullable|string',
-            'place_of_production' => 'nullable|string',
-            'method_for_datation' => 'nullable|string',
-            'method_for_provenance' => 'nullable|string',
-            'obtention' => 'nullable|string',
-            'bibliography' => 'nullable|string',
-            'author_id' => 'nullable|uuid|exists:authors,id',
-            'text_copy_editor_id' => 'nullable|uuid|exists:authors,id',
-            'translator_id' => 'nullable|uuid|exists:authors,id',
-            'translation_copy_editor_id' => 'nullable|uuid|exists:authors,id',
-            'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|json',
-        ]);
+        $data = $request->validated();
 
         try {
             $translation = ItemTranslation::create($data);
@@ -101,7 +79,7 @@ class ItemTranslationController extends Controller
      *
      * @response ItemTranslationResource
      */
-    public function show(ItemTranslation $itemTranslation)
+    public function show(ShowItemTranslationRequest $request, ItemTranslation $itemTranslation)
     {
         $itemTranslation->load(['item', 'language', 'context', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor']);
 
@@ -113,34 +91,9 @@ class ItemTranslationController extends Controller
      *
      * @response ItemTranslationResource
      */
-    public function update(Request $request, ItemTranslation $itemTranslation)
+    public function update(UpdateItemTranslationRequest $request, ItemTranslation $itemTranslation)
     {
-        $data = $request->validate([
-            'item_id' => 'sometimes|uuid|exists:items,id',
-            'language_id' => 'sometimes|string|size:3|exists:languages,id',
-            'context_id' => 'sometimes|uuid|exists:contexts,id',
-            'name' => 'sometimes|string|max:255',
-            'alternate_name' => 'nullable|string|max:255',
-            'description' => 'sometimes|string',
-            'type' => 'nullable|string|max:255',
-            'holder' => 'nullable|string',
-            'owner' => 'nullable|string',
-            'initial_owner' => 'nullable|string',
-            'dates' => 'nullable|string',
-            'location' => 'nullable|string',
-            'dimensions' => 'nullable|string',
-            'place_of_production' => 'nullable|string',
-            'method_for_datation' => 'nullable|string',
-            'method_for_provenance' => 'nullable|string',
-            'obtention' => 'nullable|string',
-            'bibliography' => 'nullable|string',
-            'author_id' => 'nullable|uuid|exists:authors,id',
-            'text_copy_editor_id' => 'nullable|uuid|exists:authors,id',
-            'translator_id' => 'nullable|uuid|exists:authors,id',
-            'translation_copy_editor_id' => 'nullable|uuid|exists:authors,id',
-            'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|json',
-        ]);
+        $data = $request->validated();
 
         try {
             $itemTranslation->update($data);

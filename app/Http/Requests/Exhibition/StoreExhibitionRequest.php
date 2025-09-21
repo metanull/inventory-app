@@ -25,7 +25,7 @@ class StoreExhibitionRequest extends FormRequest
         return [
             'internal_name' => 'required|string|unique:exhibitions,internal_name',
             'backward_compatibility' => 'nullable|string',
-            'include' => 'string|in:translations,partners',
+            'include' => 'sometimes|string',
         ];
     }
 

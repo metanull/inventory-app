@@ -26,13 +26,13 @@ class UpdateLocationRequest extends FormRequest
         $locationId = $location instanceof \App\Models\Location ? $location->id : $location;
 
         return [
-            'internal_name' => 'string|unique:locations,internal_name,'.$locationId.',id',
-            'country_id' => 'exists:countries,id',
+            'internal_name' => 'required|string|unique:locations,internal_name,'.$locationId.',id',
+            'country_id' => 'required|exists:countries,id',
             'backward_compatibility' => 'nullable|string',
             'translations' => 'array|min:1',
             'translations.*.language_id' => 'required_with:translations|exists:languages,id',
             'translations.*.name' => 'required_with:translations|string',
-            'include' => 'string|in:translations',
+            'include' => 'sometimes|string',
         ];
     }
 

@@ -27,7 +27,7 @@ class UpdateGalleryRequest extends FormRequest
         return [
             'internal_name' => 'sometimes|required|string|max:255|unique:galleries,internal_name,'.$gallery->id,
             'backward_compatibility' => 'nullable|string|max:255',
-            'include' => 'string|in:translations,partners,items,details',
+            'include' => 'sometimes|string',
         ];
     }
 

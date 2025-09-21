@@ -22,16 +22,18 @@ class UpdateProjectRequest extends FormRequest
      */
     public function rules(): array
     {
+        $projectId = $this->route('project') ? $this->route('project')->id : null;
+
         return [
             'id' => 'prohibited',
-            'internal_name' => 'required|string',
+            'internal_name' => 'required|string|unique:projects,internal_name,'.$projectId,
             'backward_compatibility' => 'nullable|string',
             'launch_date' => 'nullable|date',
             'is_launched' => 'boolean',
             'is_enabled' => 'boolean',
             'context_id' => 'nullable|uuid',
             'language_id' => 'nullable|string|size:3',
-            'include' => 'string|in:context,language',
+            'include' => 'sometimes|string',
         ];
     }
 

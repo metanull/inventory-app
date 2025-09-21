@@ -14,6 +14,7 @@ class StoreItemRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'include' => 'sometimes|string',
             'id' => 'prohibited',
             'partner_id' => 'nullable|uuid|exists:partners,id',
             'internal_name' => 'required|string',

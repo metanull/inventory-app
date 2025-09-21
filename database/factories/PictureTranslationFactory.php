@@ -40,10 +40,10 @@ class PictureTranslationFactory extends Factory
             },
             'description' => $this->faker->paragraph,
             'caption' => $this->faker->sentence,
-            'author_id' => $this->faker->optional()->randomElement([Author::factory(), null]),
-            'text_copy_editor_id' => $this->faker->optional()->randomElement([Author::factory(), null]),
-            'translator_id' => $this->faker->optional()->randomElement([Author::factory(), null]),
-            'translation_copy_editor_id' => $this->faker->optional()->randomElement([Author::factory(), null]),
+            'author_id' => $this->faker->optional()->passthrough(Author::factory()->create()->id),
+            'text_copy_editor_id' => $this->faker->optional()->passthrough(Author::factory()->create()->id),
+            'translator_id' => $this->faker->optional()->passthrough(Author::factory()->create()->id),
+            'translation_copy_editor_id' => $this->faker->optional()->passthrough(Author::factory()->create()->id),
             'extra' => $this->faker->optional()->randomElements(['key1' => 'value1', 'key2' => 'value2']),
         ];
     }

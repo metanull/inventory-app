@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Rules\MarkdownRule;
+use App\Http\Requests\Markdown\HtmlToMarkdownRequest;
+use App\Http\Requests\Markdown\IsMarkdownRequest;
+use App\Http\Requests\Markdown\MarkdownToHtmlRequest;
+use App\Http\Requests\Markdown\ValidateMarkdownRequest;
 use App\Services\MarkdownService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 /**
  * @tags Markdown
@@ -45,20 +45,8 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function markdownToHtml(Request $request): JsonResponse
+    public function markdownToHtml(MarkdownToHtmlRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'markdown' => ['required', 'string', new MarkdownRule],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
         try {
             $html = $this->markdownService->markdownToHtml($request->input('markdown'));
 
@@ -98,34 +86,8 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function htmlToMarkdown(Request $request): JsonResponse
+    public function htmlToMarkdown(HtmlToMarkdownRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'html' => [
-                'required',
-                'string',
-                'max:65535',
-                function ($attribute, $value, $fail) {
-                    try {
-                        $this->markdownService->validateHtml($value);
-                    } catch (ValidationException $e) {
-                        $errors = $e->validator->errors()->all();
-                        foreach ($errors as $error) {
-                            $fail($error);
-                        }
-                    }
-                },
-            ],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
         try {
             $markdown = $this->markdownService->htmlToMarkdown($request->input('html'));
 
@@ -165,20 +127,8 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function validateMarkdown(Request $request): JsonResponse
+    public function validateMarkdown(ValidateMarkdownRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'markdown' => ['required', 'string', new MarkdownRule],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
         return response()->json([
             'success' => true,
             'data' => [
@@ -219,7 +169,7 @@ class MarkdownController extends Controller
      * Generates an HTML preview of Markdown content for display purposes.
      * This is essentially the same as markdownToHtml but with a different semantic meaning.
      */
-    public function previewMarkdown(Request $request): JsonResponse
+    public function previewMarkdown(MarkdownToHtmlRequest $request): JsonResponse
     {
         return $this->markdownToHtml($request);
     }
@@ -239,20 +189,8 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function isMarkdown(Request $request): JsonResponse
+    public function isMarkdown(IsMarkdownRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'content' => ['required', 'string'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
         $content = $request->input('content');
         $isMarkdown = $this->markdownService->isMarkdown($content);
 

@@ -3,7 +3,7 @@
 namespace Tests\Feature\Api\ParameterValidation;
 
 use App\Models\Address;
-use App\Models\Location;
+use App\Models\Country;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -44,7 +44,7 @@ class AddressParameterValidationTest extends TestCase
         Address::factory()->count(3)->create();
 
         $response = $this->getJson(route('address.index', [
-            'include' => 'location,translations',
+            'include' => 'translations',
         ]));
 
         $response->assertOk();
@@ -69,7 +69,7 @@ class AddressParameterValidationTest extends TestCase
 
         $response = $this->getJson(route('address.index', [
             'page' => 1,
-            'include' => 'location',
+            'include' => 'translations',
             'filter_by_location' => 'uuid', // Not implemented
             'postal_code_range' => '10000-20000', // Not implemented
             'street_type' => 'avenue', // Not implemented
@@ -101,7 +101,7 @@ class AddressParameterValidationTest extends TestCase
     {
         $address = Address::factory()->create();
 
-        $response = $this->getJson(route('address.show', $address).'?include=location,translations');
+        $response = $this->getJson(route('address.show', $address).'?include=translations');
 
         $response->assertOk();
     }
@@ -111,7 +111,7 @@ class AddressParameterValidationTest extends TestCase
         // SECURITY TEST: Form Request should reject unexpected parameters
         $address = Address::factory()->create();
 
-        $response = $this->getJson(route('address.show', $address).'?include=location&admin_view=true&show_full_address=1&map_link=generate');
+        $response = $this->getJson(route('address.show', $address).'?include=translations&admin_view=true&show_full_address=1&map_link=generate');
 
         $response->assertUnprocessable();
         $response->assertJsonStructure([
@@ -130,69 +130,53 @@ class AddressParameterValidationTest extends TestCase
         $response = $this->postJson(route('address.store'), []);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['internal_name', 'location_id']);
+        $response->assertJsonValidationErrors(['internal_name', 'country_id']);
     }
 
-    public function test_store_validates_location_id_uuid_format()
+    public function test_store_validates_country_id_format()
     {
         $response = $this->postJson(route('address.store'), [
             'internal_name' => 'Test Address',
-            'location_id' => 'not-a-valid-uuid',
+            'country_id' => 'invalid-format',
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['location_id']);
+        $response->assertJsonValidationErrors(['country_id']);
     }
 
-    public function test_store_validates_location_id_existence()
+    public function test_store_validates_country_id_existence()
     {
-        $validUuid = '12345678-1234-1234-1234-123456789012';
-
         $response = $this->postJson(route('address.store'), [
             'internal_name' => 'Test Address',
-            'location_id' => $validUuid, // Valid UUID format but doesn't exist
+            'country_id' => 'XXX', // Valid format but doesn't exist
         ]);
 
-        // Current controller might not validate existence - security gap
-        $this->assertContains($response->status(), [201, 422]);
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['country_id']);
     }
 
-    public function test_store_accepts_valid_data_with_existing_location()
+    public function test_store_accepts_valid_data_with_existing_country()
     {
-        $location = Location::factory()->create();
+        $country = Country::factory()->create();
 
         $response = $this->postJson(route('address.store'), [
             'internal_name' => 'Valid Address',
-            'location_id' => $location->id,
+            'country_id' => $country->id,
         ]);
 
         $response->assertCreated();
         $response->assertJsonPath('data.internal_name', 'Valid Address');
-        $response->assertJsonPath('data.location_id', $location->id);
-    }
-
-    public function test_store_validates_postal_code_format_if_provided()
-    {
-        $location = Location::factory()->create();
-
-        $response = $this->postJson(route('address.store'), [
-            'internal_name' => 'Test Address',
-            'location_id' => $location->id,
-            'postal_code' => 'INVALID_POSTAL_CODE_123_!@#',
-        ]);
-
-        // Postal code validation might be lenient
-        $this->assertContains($response->status(), [201, 422]);
+        $response->assertJsonPath('data.country_id', $country->id);
     }
 
     public function test_store_prohibits_id_field()
     {
-        $location = Location::factory()->create();
+        $country = Country::factory()->create();
 
         $response = $this->postJson(route('address.store'), [
             'id' => 'some-uuid', // Should be prohibited
             'internal_name' => 'Test Address',
-            'location_id' => $location->id,
+            'country_id' => $country->id,
         ]);
 
         $response->assertUnprocessable();
@@ -201,11 +185,11 @@ class AddressParameterValidationTest extends TestCase
 
     public function test_store_accepts_optional_backward_compatibility_field()
     {
-        $location = Location::factory()->create();
+        $country = Country::factory()->create();
 
         $response = $this->postJson(route('address.store'), [
             'internal_name' => 'Legacy Address',
-            'location_id' => $location->id,
+            'country_id' => $country->id,
             'backward_compatibility' => 'old_address_456',
         ]);
 
@@ -254,17 +238,17 @@ class AddressParameterValidationTest extends TestCase
     }
 
     // UPDATE ENDPOINT TESTS
-    public function test_update_validates_location_id_uuid_format()
+    public function test_update_validates_country_id_uuid_format()
     {
         $address = Address::factory()->create();
 
         $response = $this->putJson(route('address.update', $address), [
             'internal_name' => 'Updated Address',
-            'location_id' => 'invalid-uuid-format',
+            'country_id' => 'invalid-format',
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['location_id']);
+        $response->assertJsonValidationErrors(['country_id']);
     }
 
     public function test_update_prohibits_id_modification()
@@ -274,7 +258,7 @@ class AddressParameterValidationTest extends TestCase
         $response = $this->putJson(route('address.update', $address), [
             'id' => 'new-uuid', // Should be prohibited
             'internal_name' => 'Updated Address',
-            'location_id' => $address->location_id,
+            'country_id' => $address->country_id,
         ]);
 
         $response->assertUnprocessable();
@@ -284,11 +268,11 @@ class AddressParameterValidationTest extends TestCase
     public function test_update_accepts_valid_data()
     {
         $address = Address::factory()->create();
-        $newLocation = Location::factory()->create();
+        $newCountry = Country::factory()->create();
 
         $response = $this->putJson(route('address.update', $address), [
             'internal_name' => 'Updated Address Name',
-            'location_id' => $newLocation->id,
+            'country_id' => $newCountry->id,
         ]);
 
         $response->assertOk();
@@ -330,7 +314,7 @@ class AddressParameterValidationTest extends TestCase
     // EDGE CASE TESTS
     public function test_handles_unicode_characters_in_internal_name()
     {
-        $location = Location::factory()->create();
+        $country = Country::factory()->create();
         $unicodeNames = [
             'Adresse française',
             'Адрес русский',
@@ -345,7 +329,7 @@ class AddressParameterValidationTest extends TestCase
         foreach ($unicodeNames as $name) {
             $response = $this->postJson(route('address.store'), [
                 'internal_name' => $name,
-                'location_id' => $location->id,
+                'country_id' => $country->id,
             ]);
 
             $response->assertCreated(); // Should handle Unicode gracefully
@@ -354,7 +338,7 @@ class AddressParameterValidationTest extends TestCase
 
     public function test_handles_special_characters_in_internal_name()
     {
-        $location = Location::factory()->create();
+        $country = Country::factory()->create();
         $specialCharNames = [
             'Address "With Quotes"',
             "Address 'With Apostrophes'",
@@ -374,7 +358,7 @@ class AddressParameterValidationTest extends TestCase
         foreach ($specialCharNames as $name) {
             $response = $this->postJson(route('address.store'), [
                 'internal_name' => $name,
-                'location_id' => $location->id,
+                'country_id' => $country->id,
             ]);
 
             // Should handle gracefully
@@ -382,41 +366,14 @@ class AddressParameterValidationTest extends TestCase
         }
     }
 
-    public function test_handles_various_postal_code_formats()
-    {
-        $location = Location::factory()->create();
-        $postalCodes = [
-            '12345', // US 5-digit
-            '12345-6789', // US ZIP+4
-            'K1A 0A6', // Canadian
-            'SW1A 1AA', // UK
-            '75008', // French
-            '10115', // German
-            '100-0001', // Japanese
-            'NSW 2000', // Australian
-            '1010', // Norwegian
-        ];
-
-        foreach ($postalCodes as $postalCode) {
-            $response = $this->postJson(route('address.store'), [
-                'internal_name' => "Address for {$postalCode}",
-                'location_id' => $location->id,
-                'postal_code' => $postalCode,
-            ]);
-
-            // Postal code validation might be lenient
-            $this->assertContains($response->status(), [201, 422]);
-        }
-    }
-
     public function test_handles_very_long_internal_name()
     {
-        $location = Location::factory()->create();
+        $country = Country::factory()->create();
         $veryLongName = str_repeat('Very Long Address Name With Building Details And Geographic References ', 25);
 
         $response = $this->postJson(route('address.store'), [
             'internal_name' => $veryLongName,
-            'location_id' => $location->id,
+            'country_id' => $country->id,
         ]);
 
         // Should handle gracefully
@@ -425,7 +382,7 @@ class AddressParameterValidationTest extends TestCase
 
     public function test_handles_empty_and_whitespace_internal_names()
     {
-        $location = Location::factory()->create();
+        $country = Country::factory()->create();
         $emptyNames = [
             '', // Empty
             '   ', // Spaces only
@@ -436,7 +393,7 @@ class AddressParameterValidationTest extends TestCase
         foreach ($emptyNames as $name) {
             $response = $this->postJson(route('address.store'), [
                 'internal_name' => $name,
-                'location_id' => $location->id,
+                'country_id' => $country->id,
             ]);
 
             $response->assertUnprocessable(); // Should reject empty names
@@ -444,31 +401,25 @@ class AddressParameterValidationTest extends TestCase
         }
     }
 
-    public function test_handles_malformed_uuid_variations_for_location_id()
+    public function test_handles_malformed_country_id_variations()
     {
-        $malformedUuids = [
-            '123',
-            '12345678-1234-1234-1234',
-            '12345678-1234-1234-1234-123456789012345',
-            'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-            '',
-            'null',
-            '00000000-0000-0000-0000-000000000000',
+        $malformedCountryIds = [
+            '123', // Too short
+            'ABCD', // Too long
+            '12', // Too short
+            '', // Empty
+            'null', // String null
+            'xx-', // Invalid format
         ];
 
-        foreach ($malformedUuids as $uuid) {
+        foreach ($malformedCountryIds as $countryId) {
             $response = $this->postJson(route('address.store'), [
                 'internal_name' => 'Test Address',
-                'location_id' => $uuid,
+                'country_id' => $countryId,
             ]);
 
-            if ($uuid === '') {
-                $response->assertUnprocessable();
-                $response->assertJsonValidationErrors(['location_id']);
-            } else {
-                // Most malformed UUIDs should be rejected
-                $this->assertContains($response->status(), [201, 422]);
-            }
+            $response->assertUnprocessable(); // Should reject malformed country IDs
+            $response->assertJsonValidationErrors(['country_id']);
         }
     }
 
@@ -479,14 +430,12 @@ class AddressParameterValidationTest extends TestCase
         $testCases = [
             ['backward_compatibility' => null],
             ['backward_compatibility' => ''],
-            ['postal_code' => null],
-            ['postal_code' => ''],
         ];
 
         foreach ($testCases as $data) {
             $updateData = array_merge([
                 'internal_name' => 'Test Address Update',
-                'location_id' => $address->location_id,
+                'country_id' => $address->country_id,
             ], $data);
 
             $response = $this->putJson(route('address.update', $address), $updateData);
@@ -528,17 +477,16 @@ class AddressParameterValidationTest extends TestCase
     {
         $response = $this->postJson(route('address.store'), [
             'internal_name' => ['array' => 'instead_of_string'],
-            'location_id' => ['malicious' => 'array'],
-            'postal_code' => ['injection' => 'attempt'],
+            'country_id' => ['malicious' => 'array'],
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['internal_name', 'location_id']);
+        $response->assertJsonValidationErrors(['internal_name', 'country_id']);
     }
 
     public function test_handles_address_format_variations()
     {
-        $location = Location::factory()->create();
+        $country = Country::factory()->create();
         $addressFormats = [
             '123 Main Street',
             '456 Oak Ave., Suite 789',
@@ -553,7 +501,7 @@ class AddressParameterValidationTest extends TestCase
         foreach ($addressFormats as $addressFormat) {
             $response = $this->postJson(route('address.store'), [
                 'internal_name' => $addressFormat,
-                'location_id' => $location->id,
+                'country_id' => $country->id,
             ]);
 
             $response->assertCreated(); // Should handle various address formats

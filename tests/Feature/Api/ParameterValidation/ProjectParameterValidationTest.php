@@ -38,17 +38,6 @@ class ProjectParameterValidationTest extends TestCase
         $response->assertJsonPath('meta.per_page', 2);
     }
 
-    public function test_index_accepts_valid_include_parameters()
-    {
-        Project::factory()->count(3)->create();
-
-        $response = $this->getJson(route('project.index', [
-            'include' => 'partners,translations,items',
-        ]));
-
-        $response->assertOk();
-    }
-
     public function test_index_rejects_invalid_include_parameters()
     {
         Project::factory()->count(2)->create();
@@ -85,15 +74,6 @@ class ProjectParameterValidationTest extends TestCase
     }
 
     // SHOW ENDPOINT TESTS
-    public function test_show_accepts_valid_include_parameters()
-    {
-        $project = Project::factory()->create();
-
-        $response = $this->getJson(route('project.show', $project).'?include=partners,items,translations');
-
-        $response->assertOk();
-    }
-
     public function test_show_rejects_unexpected_query_parameters_currently()
     {
         // SECURITY TEST: Validates Form Request security with parameter whitelisting

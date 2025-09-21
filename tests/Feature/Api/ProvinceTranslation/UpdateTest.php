@@ -26,6 +26,8 @@ class UpdateTest extends TestCase
     {
         $provinceTranslation = ProvinceTranslation::factory()->create();
         $data = [
+            'province_id' => $provinceTranslation->province_id,
+            'language_id' => $provinceTranslation->language_id,
             'name' => $this->faker->state,
             'description' => $this->faker->paragraph,
         ];
@@ -67,6 +69,8 @@ class UpdateTest extends TestCase
     {
         $provinceTranslation = ProvinceTranslation::factory()->create();
         $data = [
+            'province_id' => $provinceTranslation->province_id,
+            'language_id' => $provinceTranslation->language_id,
             'name' => $this->faker->state,
             'description' => null,
         ];

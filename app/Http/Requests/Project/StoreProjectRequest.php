@@ -24,14 +24,14 @@ class StoreProjectRequest extends FormRequest
     {
         return [
             'id' => 'prohibited',
-            'internal_name' => 'required|string',
+            'internal_name' => 'required|string|unique:projects,internal_name',
             'backward_compatibility' => 'nullable|string',
             'launch_date' => 'nullable|date',
             'is_launched' => 'boolean',
             'is_enabled' => 'boolean',
             'context_id' => 'nullable|uuid',
             'language_id' => 'nullable|string|size:3',
-            'include' => 'string|in:context,language',
+            'include' => 'sometimes|string',
         ];
     }
 

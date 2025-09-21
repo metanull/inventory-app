@@ -5,15 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Picture\AttachPictureRequest;
 use App\Http\Requests\Picture\DestroyPictureRequest;
 use App\Http\Requests\Picture\DetachPictureRequest;
+use App\Http\Requests\Picture\DownloadPictureRequest;
 use App\Http\Requests\Picture\IndexPictureRequest;
 use App\Http\Requests\Picture\ShowPictureRequest;
 use App\Http\Requests\Picture\UpdatePictureRequest;
+use App\Http\Requests\Picture\ViewPictureRequest;
 use App\Http\Resources\PictureResource;
 use App\Models\AvailableImage;
 use App\Models\Detail;
 use App\Models\Item;
 use App\Models\Partner;
 use App\Models\Picture;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -26,7 +30,21 @@ class PictureController extends Controller
     {
         $validatedData = $request->validated();
 
-        return PictureResource::collection(Picture::all());
+        $query = Picture::query();
+
+        // Handle includes using AllowList validation
+        $includes = IncludeParser::fromRequest($request, AllowList::for('picture'));
+        if (! empty($includes)) {
+            $query->with($includes);
+        }
+
+        // Apply pagination
+        $perPage = $validatedData['per_page'] ?? 15;
+        $page = $validatedData['page'] ?? 1;
+
+        $pictures = $query->paginate($perPage, ['*'], 'page', $page);
+
+        return PictureResource::collection($pictures);
     }
 
     /**
@@ -35,6 +53,12 @@ class PictureController extends Controller
     public function show(ShowPictureRequest $request, Picture $picture)
     {
         $validatedData = $request->validated();
+
+        // Handle includes using AllowList validation
+        $includes = IncludeParser::fromRequest($request, AllowList::for('picture'));
+        if (! empty($includes)) {
+            $picture->load($includes);
+        }
 
         return new PictureResource($picture);
     }
@@ -159,7 +183,7 @@ class PictureController extends Controller
     /**
      * Returns the file to the caller for download.
      */
-    public function download(Picture $picture)
+    public function download(DownloadPictureRequest $request, Picture $picture)
     {
         $picturesDisk = config('localstorage.pictures.disk', 'public');
         $path = $picture->path;
@@ -177,7 +201,7 @@ class PictureController extends Controller
     /**
      * Returns the picture file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(Picture $picture)
+    public function view(ViewPictureRequest $request, Picture $picture)
     {
         $picturesDisk = config('localstorage.pictures.disk', 'public');
         $path = $picture->path;

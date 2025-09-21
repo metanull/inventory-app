@@ -43,7 +43,7 @@ class GalleryParameterValidationTest extends TestCase
         Gallery::factory()->count(4)->create();
 
         $response = $this->getJson(route('gallery.index', [
-            'include' => 'translations,exhibitions,pictures',
+            'include' => 'translations,partners,items',
         ]));
 
         $response->assertOk();
@@ -87,7 +87,7 @@ class GalleryParameterValidationTest extends TestCase
     {
         $gallery = Gallery::factory()->create();
 
-        $response = $this->getJson(route('gallery.show', $gallery).'?include=translations,exhibitions,pictures');
+        $response = $this->getJson(route('gallery.show', $gallery).'?include=translations,partners,details');
 
         $response->assertOk();
     }

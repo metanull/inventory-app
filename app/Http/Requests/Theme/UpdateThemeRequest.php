@@ -28,7 +28,7 @@ class UpdateThemeRequest extends FormRequest
         return [
             'internal_name' => ['sometimes', 'string', Rule::unique('themes', 'internal_name')->ignore($theme->id, 'id')],
             'backward_compatibility' => 'nullable|string',
-            'include' => 'string|in:translations,subthemes,subthemes.translations',
+            'include' => 'sometimes|string',
         ];
     }
 

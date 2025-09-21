@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProvinceTranslation\IndexProvinceTranslationRequest;
+use App\Http\Requests\ProvinceTranslation\ShowProvinceTranslationRequest;
+use App\Http\Requests\ProvinceTranslation\StoreProvinceTranslationRequest;
+use App\Http\Requests\ProvinceTranslation\UpdateProvinceTranslationRequest;
 use App\Http\Resources\ProvinceTranslationResource;
 use App\Models\ProvinceTranslation;
-use Illuminate\Http\Request;
 
 class ProvinceTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(IndexProvinceTranslationRequest $request)
     {
         return ProvinceTranslationResource::collection(ProvinceTranslation::all());
     }
@@ -19,16 +22,9 @@ class ProvinceTranslationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreProvinceTranslationRequest $request)
     {
-        $data = $request->validate([
-            'province_id' => 'required|uuid|exists:provinces,id',
-            'language_id' => 'required|string|exists:languages,id',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
-        $translation = ProvinceTranslation::create($data);
+        $translation = ProvinceTranslation::create($request->validated());
 
         return new ProvinceTranslationResource($translation);
     }
@@ -36,7 +32,7 @@ class ProvinceTranslationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ProvinceTranslation $provinceTranslation)
+    public function show(ShowProvinceTranslationRequest $request, ProvinceTranslation $provinceTranslation)
     {
         return new ProvinceTranslationResource($provinceTranslation);
     }
@@ -44,16 +40,9 @@ class ProvinceTranslationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ProvinceTranslation $provinceTranslation)
+    public function update(UpdateProvinceTranslationRequest $request, ProvinceTranslation $provinceTranslation)
     {
-        $data = $request->validate([
-            'province_id' => 'sometimes|uuid|exists:provinces,id',
-            'language_id' => 'sometimes|string|exists:languages,id',
-            'name' => 'sometimes|string|max:255',
-            'description' => 'sometimes|nullable|string',
-        ]);
-
-        $provinceTranslation->update($data);
+        $provinceTranslation->update($request->validated());
 
         return new ProvinceTranslationResource($provinceTranslation);
     }

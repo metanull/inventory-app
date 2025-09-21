@@ -31,7 +31,7 @@ class StoreContactRequest extends FormRequest
             'translations' => 'required|array|min:1',
             'translations.*.language_id' => 'required|exists:languages,id',
             'translations.*.label' => 'required|string',
-            'include' => 'string|in:translations',
+            'include' => 'sometimes|string',
         ];
     }
 

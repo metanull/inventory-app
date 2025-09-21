@@ -25,7 +25,7 @@ class IndexProjectRequest extends FormRequest
         return [
             'page' => 'integer|min:1',
             'per_page' => 'integer|min:1|max:100',
-            'include' => 'string|in:context,language',
+            'include' => 'sometimes|string',
         ];
     }
 

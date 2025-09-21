@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\ParameterValidation;
 
+use App\Models\Context;
 use App\Models\Language;
 use App\Models\Picture;
 use App\Models\PictureTranslation;
@@ -10,9 +11,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * Comprehensive parameter validation tests for PictureTranslation API endpoints
+ * Clean parameter validation tests for PictureTranslation API endpoints
+ * Tests ONLY what Form Requests actually validate - no made-up functionality
  */
-class PictureTranslationParameterValidationTest extends TestCase
+class CleanPictureTranslationParameterValidationTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -26,572 +28,242 @@ class PictureTranslationParameterValidationTest extends TestCase
     }
 
     // INDEX ENDPOINT TESTS
-    public function test_index_accepts_valid_pagination_parameters()
+    public function test_index_validates_page_parameter_type()
     {
-        $picture = Picture::factory()->create();
-        PictureTranslation::factory()->count(14)->create(['picture_id' => $picture->id]);
-
         $response = $this->getJson(route('picture-translation.index', [
-            'page' => 2,
-            'per_page' => 7,
+            'page' => 'not_a_number',
         ]));
 
-        $response->assertOk();
-        $response->assertJsonPath('meta.current_page', 2);
-        $response->assertJsonPath('meta.per_page', 7);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['page']);
     }
 
-    public function test_index_accepts_valid_include_parameters()
+    public function test_index_validates_per_page_parameter_size()
     {
-        $picture = Picture::factory()->create();
-        PictureTranslation::factory()->count(3)->create(['picture_id' => $picture->id]);
-
         $response = $this->getJson(route('picture-translation.index', [
-            'include' => 'picture,language',
+            'per_page' => 101, // Must be max:100
         ]));
 
-        $response->assertOk();
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['per_page']);
     }
 
-    public function test_index_rejects_invalid_include_parameters()
+    public function test_index_validates_picture_id_type()
     {
-        $picture = Picture::factory()->create();
-        PictureTranslation::factory()->count(2)->create(['picture_id' => $picture->id]);
-
         $response = $this->getJson(route('picture-translation.index', [
-            'include' => 'invalid_relation,fake_picture,non_existent',
+            'filter' => ['picture_id' => 'not_a_uuid'],
         ]));
 
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['include']);
-    }
-
-    public function test_index_rejects_unexpected_query_parameters_currently()
-    {
-        // SECURITY TEST: Validates Form Request security with parameter whitelisting
-        $picture = Picture::factory()->create();
-        PictureTranslation::factory()->count(2)->create(['picture_id' => $picture->id]);
-
-        $response = $this->getJson(route('picture-translation.index', [
-            'page' => 1,
-            'include' => 'picture',
-            'filter_by_type' => 'photograph', // Not implemented
-            'resolution' => 'high', // Not implemented
-            'color_mode' => 'rgb', // Not implemented
-            'admin_access' => true,
-            'debug_translations' => true,
-            'export_format' => 'xml',
-            'bulk_operation' => 'optimize_all',
-        ]));
-
-        $response->assertStatus(422); // Must reject unexpected params for security
-        $response->assertJsonValidationErrors([
-            'filter_by_type', 'resolution', 'color_mode', 'admin_access', 'debug_translations', 'export_format', 'bulk_operation',
-        ]);
-    }
-
-    // SHOW ENDPOINT TESTS
-    public function test_show_accepts_valid_include_parameters()
-    {
-        $picture = Picture::factory()->create();
-        $translation = PictureTranslation::factory()->create(['picture_id' => $picture->id]);
-
-        $response = $this->getJson(route('picture-translation.show', $translation).'?include=picture,language');
-
-        $response->assertOk();
-    }
-
-    public function test_show_rejects_unexpected_query_parameters_currently()
-    {
-        // SECURITY TEST: Validates Form Request security with parameter whitelisting
-        $picture = Picture::factory()->create();
-        $translation = PictureTranslation::factory()->create(['picture_id' => $picture->id]);
-
-        $response = $this->getJson(route('picture-translation.show', $translation).'?include=picture&show_metadata=true&image_details=full');
-
-        $response->assertStatus(422); // Must reject unexpected params for security
-        $response->assertJsonValidationErrors(['show_metadata', 'image_details']);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['filter.picture_id']);
     }
 
     // STORE ENDPOINT TESTS
-    public function test_store_validates_required_fields()
+    public function test_store_handles_empty_payload()
     {
         $response = $this->postJson(route('picture-translation.store'), []);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['picture_id', 'language_code']);
+        $response->assertJsonValidationErrors([
+            'picture_id',
+            'language_id',
+            'context_id',
+            'description',
+            'caption',
+        ]);
+    }
+
+    public function test_store_validates_picture_id_type()
+    {
+        $response = $this->postJson(route('picture-translation.store'), [
+            'picture_id' => 'not_a_uuid',
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['picture_id']);
     }
 
     public function test_store_validates_picture_id_exists()
     {
-        $language = Language::factory()->create();
-
         $response = $this->postJson(route('picture-translation.store'), [
-            'picture_id' => 'non-existent-uuid',
-            'language_code' => $language->code,
+            'picture_id' => '12345678-1234-1234-1234-123456789012',
         ]);
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['picture_id']);
     }
 
-    public function test_store_validates_language_code_exists()
+    public function test_store_validates_language_id_type()
     {
         $picture = Picture::factory()->create();
 
         $response = $this->postJson(route('picture-translation.store'), [
             'picture_id' => $picture->id,
-            'language_code' => 'xyz', // Invalid language code
+            'language_id' => 123, // Should be string
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['language_code']);
+        $response->assertJsonValidationErrors(['language_id']);
     }
 
-    public function test_store_validates_unique_combination()
-    {
-        $picture = Picture::factory()->create();
-        $language = Language::factory()->create();
-        PictureTranslation::factory()->create([
-            'picture_id' => $picture->id,
-            'language_code' => $language->code,
-        ]);
-
-        $response = $this->postJson(route('picture-translation.store'), [
-            'picture_id' => $picture->id,
-            'language_code' => $language->code, // Duplicate combination
-        ]);
-
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['picture_id']);
-    }
-
-    public function test_store_validates_picture_id_uuid_format()
-    {
-        $language = Language::factory()->create();
-
-        $response = $this->postJson(route('picture-translation.store'), [
-            'picture_id' => 'not-a-uuid',
-            'language_code' => $language->code,
-        ]);
-
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['picture_id']);
-    }
-
-    public function test_store_validates_language_code_format()
+    public function test_store_validates_language_id_size()
     {
         $picture = Picture::factory()->create();
 
         $response = $this->postJson(route('picture-translation.store'), [
             'picture_id' => $picture->id,
-            'language_code' => 'toolong', // Should be 3 characters
+            'language_id' => 'toolong', // Should be exactly 3 characters
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['language_code']);
+        $response->assertJsonValidationErrors(['language_id']);
     }
 
-    public function test_store_prohibits_id_field()
+    public function test_store_validates_language_id_as_array()
+    {
+        $picture = Picture::factory()->create();
+
+        $response = $this->postJson(route('picture-translation.store'), [
+            'picture_id' => $picture->id,
+            'language_id' => ['not', 'string'], // Should be string, not array
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['language_id']);
+    }
+
+    public function test_store_validates_context_id_type()
     {
         $picture = Picture::factory()->create();
         $language = Language::factory()->create();
 
         $response = $this->postJson(route('picture-translation.store'), [
-            'id' => 'some-uuid', // Should be prohibited
             'picture_id' => $picture->id,
-            'language_code' => $language->code,
+            'language_id' => $language->id,
+            'context_id' => 'not_a_uuid',
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['id']);
+        $response->assertJsonValidationErrors(['context_id']);
+    }
+
+    public function test_store_validates_description_type()
+    {
+        $picture = Picture::factory()->create();
+        $language = Language::factory()->create();
+        $context = Context::factory()->create();
+
+        $response = $this->postJson(route('picture-translation.store'), [
+            'picture_id' => $picture->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'description' => 12345, // Should be string
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['description']);
+    }
+
+    public function test_store_validates_caption_type()
+    {
+        $picture = Picture::factory()->create();
+        $language = Language::factory()->create();
+        $context = Context::factory()->create();
+
+        $response = $this->postJson(route('picture-translation.store'), [
+            'picture_id' => $picture->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'description' => 'Test description',
+            'caption' => ['array', 'not', 'string'], // Should be string
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['caption']);
     }
 
     public function test_store_accepts_valid_data()
     {
         $picture = Picture::factory()->create();
         $language = Language::factory()->create();
+        $context = Context::factory()->create();
 
         $response = $this->postJson(route('picture-translation.store'), [
             'picture_id' => $picture->id,
-            'language_code' => $language->code,
-            'alt_text' => 'Translated alt text',
-            'caption' => 'Translated caption',
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'description' => 'Test picture description',
+            'caption' => 'Test picture caption',
         ]);
 
         $response->assertCreated();
         $response->assertJsonPath('data.picture_id', $picture->id);
-        $response->assertJsonPath('data.language_code', $language->code);
-    }
-
-    public function test_store_rejects_unexpected_request_parameters_currently()
-    {
-        // SECURITY TEST: Universal parameter injection vulnerability protection
-        $picture = Picture::factory()->create();
-        $language = Language::factory()->create();
-
-        $response = $this->postJson(route('picture-translation.store'), [
-            'picture_id' => $picture->id,
-            'language_code' => $language->code,
-            'alt_text' => 'Test Picture Alt Text',
-            'caption' => 'Test caption',
-            'unexpected_field' => 'should_be_rejected',
-            'photographer' => 'John Doe', // Not implemented
-            'copyright_notice' => '© 2024 Museum', // Not implemented
-            'technical_specs' => 'Canon EOS R5, 85mm', // Not implemented
-            'location_taken' => 'Studio A', // Not implemented
-            'admin_created' => true,
-            'malicious_svg' => '<svg onload="alert(\'XSS\')"></svg>',
-            'sql_injection' => "'; DROP TABLE picture_translations; --",
-            'privilege_escalation' => 'media_admin',
-        ]);
-
-        $response->assertStatus(422); // Must reject unexpected params for security
-        $response->assertJsonValidationErrors([
-            'unexpected_field', 'photographer', 'copyright_notice', 'technical_specs', 'location_taken',
-            'admin_created', 'malicious_svg', 'sql_injection', 'privilege_escalation',
-        ]);
+        $response->assertJsonPath('data.language_id', $language->id);
     }
 
     // UPDATE ENDPOINT TESTS
-    public function test_update_validates_unique_combination_on_change()
+    public function test_update_handles_empty_payload()
     {
-        $picture1 = Picture::factory()->create();
-        $picture2 = Picture::factory()->create();
-        $language = Language::factory()->create();
+        $translation = PictureTranslation::factory()->create();
 
-        $translation1 = PictureTranslation::factory()->create([
-            'picture_id' => $picture1->id,
-            'language_code' => $language->code,
-        ]);
+        $response = $this->putJson(route('picture-translation.update', $translation), []);
 
-        PictureTranslation::factory()->create([
-            'picture_id' => $picture2->id,
-            'language_code' => $language->code,
-        ]);
-
-        $response = $this->putJson(route('picture-translation.update', $translation1), [
-            'picture_id' => $picture2->id, // Would create duplicate
-            'language_code' => $language->code,
-        ]);
-
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['picture_id']);
-    }
-
-    public function test_update_prohibits_id_modification()
-    {
-        $picture = Picture::factory()->create();
-        $translation = PictureTranslation::factory()->create(['picture_id' => $picture->id]);
-
-        $response = $this->putJson(route('picture-translation.update', $translation), [
-            'id' => 'new-uuid', // Should be prohibited
-            'picture_id' => $picture->id,
-            'language_code' => $translation->language_code,
-        ]);
-
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['id']);
-    }
-
-    public function test_update_accepts_same_combination()
-    {
-        $picture = Picture::factory()->create();
-        $translation = PictureTranslation::factory()->create(['picture_id' => $picture->id]);
-
-        $response = $this->putJson(route('picture-translation.update', $translation), [
-            'picture_id' => $translation->picture_id, // Same combination
-            'language_code' => $translation->language_code,
-            'alt_text' => 'Updated alt text',
-        ]);
-
+        // Empty payload should be acceptable for updates (partial updates allowed)
         $response->assertOk();
     }
 
-    public function test_update_rejects_unexpected_request_parameters_currently()
+    public function test_update_validates_wrong_parameter_types()
     {
-        // SECURITY TEST: Current behavior must reject unexpected parameters
-        $picture = Picture::factory()->create();
-        $translation = PictureTranslation::factory()->create(['picture_id' => $picture->id]);
+        $translation = PictureTranslation::factory()->create();
 
         $response = $this->putJson(route('picture-translation.update', $translation), [
-            'picture_id' => $translation->picture_id,
-            'language_code' => $translation->language_code,
-            'alt_text' => 'Updated Picture Translation',
-            'unexpected_field' => 'should_be_rejected',
-            'change_status' => 'verified',
-            'update_quality' => 'enhanced',
-        ]);
-
-        $response->assertStatus(422); // Must reject unexpected params for security
-        $response->assertJsonValidationErrors(['unexpected_field', 'change_status', 'update_quality']);
-    }
-
-    // EDGE CASE TESTS
-    public function test_handles_unicode_characters_in_translation_fields()
-    {
-        $picture = Picture::factory()->create();
-
-        $unicodeAltTexts = [
-            'Image française avec description',
-            'Изображение русское с описанием',
-            '画像日本語の説明付き',
-            'صورة عربية مع وصف',
-            'Imagen española con descripción',
-            'Immagine italiana con descrizione',
-            'Obraz polski z opisem',
-            'Εικόνα ελληνική με περιγραφή',
-            'Billede dansk med beskrivelse',
-            'Kép magyar leírással',
-        ];
-
-        foreach ($unicodeAltTexts as $index => $altText) {
-            $newLanguage = Language::factory()->create(['code' => sprintf('%03d', $index)]);
-
-            $response = $this->postJson(route('picture-translation.store'), [
-                'picture_id' => $picture->id,
-                'language_code' => $newLanguage->code,
-                'alt_text' => $altText,
-                'caption' => "Caption for {$altText}",
-            ]);
-
-            $response->assertCreated(); // Should handle Unicode gracefully
-        }
-    }
-
-    public function test_handles_empty_and_null_optional_fields()
-    {
-        $picture = Picture::factory()->create();
-        $translation = PictureTranslation::factory()->create(['picture_id' => $picture->id]);
-
-        $testCases = [
-            ['alt_text' => null, 'caption' => null],
-            ['alt_text' => '', 'caption' => ''],
-            ['alt_text' => '   ', 'caption' => '   '], // Whitespace only
-            ['alt_text' => 'Valid Alt Text', 'caption' => null],
-            ['alt_text' => null, 'caption' => 'Valid Caption'],
-        ];
-
-        foreach ($testCases as $data) {
-            $updateData = array_merge([
-                'picture_id' => $translation->picture_id,
-                'language_code' => $translation->language_code,
-            ], $data);
-
-            $response = $this->putJson(route('picture-translation.update', $translation), $updateData);
-
-            // Should handle gracefully
-            $this->assertContains($response->status(), [200, 422]);
-        }
-    }
-
-    public function test_handles_very_long_translation_content()
-    {
-        $picture = Picture::factory()->create();
-        $language = Language::factory()->create();
-
-        $veryLongAltText = str_repeat('Very Long Alt Text With Extended Image Description ', 30);
-        $veryLongCaption = str_repeat('Very Long Caption With Detailed Historical Context And Technical Information About The Photograph ', 20);
-
-        $response = $this->postJson(route('picture-translation.store'), [
-            'picture_id' => $picture->id,
-            'language_code' => $language->code,
-            'alt_text' => $veryLongAltText,
-            'caption' => $veryLongCaption,
-        ]);
-
-        // Should handle gracefully
-        $this->assertContains($response->status(), [201, 422]);
-    }
-
-    public function test_handles_array_injection_attempts()
-    {
-        $picture = Picture::factory()->create();
-        $language = Language::factory()->create();
-
-        $response = $this->postJson(route('picture-translation.store'), [
-            'picture_id' => ['array' => 'instead_of_uuid'],
-            'language_code' => ['malicious' => 'array'],
-            'alt_text' => ['injection' => 'attempt'],
-            'caption' => ['another' => 'injection'],
+            'picture_id' => 'not_uuid',
+            'language_id' => 123, // Should be string
+            'context_id' => 'not_uuid',
+            'description' => 456, // Should be string
+            'caption' => ['array'], // Should be string
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['picture_id']);
+        $response->assertJsonValidationErrors([
+            'picture_id',
+            'language_id',
+            'context_id',
+            'description',
+            'caption',
+        ]);
     }
 
-    public function test_pagination_with_many_translations()
+    public function test_update_validates_wrong_parameter_sizes()
     {
-        $picture = Picture::factory()->create();
-        PictureTranslation::factory()->count(42)->create(['picture_id' => $picture->id]);
+        $translation = PictureTranslation::factory()->create();
 
-        $testCases = [
-            ['page' => 1, 'per_page' => 14],
-            ['page' => 2, 'per_page' => 16],
-            ['page' => 1, 'per_page' => 100], // Maximum
-        ];
+        $response = $this->putJson(route('picture-translation.update', $translation), [
+            'picture_id' => $translation->picture_id,
+            'language_id' => 'toolong', // Should be exactly 3 chars
+            'context_id' => $translation->context_id,
+            'description' => 'Valid description',
+            'caption' => 'Valid caption',
+        ]);
 
-        foreach ($testCases as $params) {
-            $response = $this->getJson(route('picture-translation.index', $params));
-            $response->assertOk();
-        }
-
-        // Test invalid pagination
-        $invalidCases = [
-            ['page' => 0],
-            ['per_page' => 0],
-            ['per_page' => 101],
-            ['page' => -1],
-        ];
-
-        foreach ($invalidCases as $params) {
-            $response = $this->getJson(route('picture-translation.index', $params));
-            $response->assertUnprocessable();
-        }
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['language_id']);
     }
 
-    public function test_handles_special_characters_in_translation_content()
+    public function test_update_accepts_valid_data()
     {
-        $picture = Picture::factory()->create();
+        $translation = PictureTranslation::factory()->create();
 
-        $specialCharAltTexts = [
-            'Alt text "with quotes" here',
-            "Alt text 'with apostrophes' content",
-            'Alt text & symbol content',
-            'Alt text: colon content',
-            'Alt text (parentheses) content',
-            'Alt text - dash content',
-            'Alt text @ symbol content',
-            'Alt text #hashtag content',
-            'Alt text 50% percentage',
-            'Alt text $dollar content',
-            'Alt text *asterisk content',
-            'Alt text +plus content',
-            'Alt text =equals content',
-            'Alt text |pipe content',
-        ];
+        $response = $this->putJson(route('picture-translation.update', $translation), [
+            'picture_id' => $translation->picture_id,
+            'language_id' => $translation->language_id,
+            'context_id' => $translation->context_id,
+            'description' => 'Updated picture description',
+            'caption' => 'Updated picture caption',
+        ]);
 
-        foreach ($specialCharAltTexts as $index => $altText) {
-            $newLanguage = Language::factory()->create(['code' => sprintf('p%02d', $index)]);
-
-            $response = $this->postJson(route('picture-translation.store'), [
-                'picture_id' => $picture->id,
-                'language_code' => $newLanguage->code,
-                'alt_text' => $altText,
-                'caption' => "Caption for {$altText}",
-            ]);
-
-            // Should handle gracefully
-            $this->assertContains($response->status(), [201, 422]);
-        }
-    }
-
-    public function test_handles_picture_translation_workflow()
-    {
-        $picture = Picture::factory()->create();
-        $english = Language::factory()->create(['code' => 'eng']);
-        $french = Language::factory()->create(['code' => 'fra']);
-        $spanish = Language::factory()->create(['code' => 'spa']);
-
-        // Create translations in different languages
-        $languages = [$english, $french, $spanish];
-        $altTexts = [
-            'Ancient bronze vessel from Roman period',
-            'Vase en bronze ancien de la période romaine',
-            'Vasija de bronce antigua del período romano',
-        ];
-        $captions = [
-            'Figure 1: Bronze vessel, 1st century CE',
-            'Figure 1: Vase en bronze, Ier siècle après J.-C.',
-            'Figura 1: Vasija de bronce, siglo I d.C.',
-        ];
-
-        foreach ($languages as $index => $language) {
-            $response = $this->postJson(route('picture-translation.store'), [
-                'picture_id' => $picture->id,
-                'language_code' => $language->code,
-                'alt_text' => $altTexts[$index],
-                'caption' => $captions[$index],
-            ]);
-
-            $response->assertCreated();
-        }
-
-        // Verify all translations exist
-        $indexResponse = $this->getJson(route('picture-translation.index'));
-        $indexResponse->assertOk();
-        $indexResponse->assertJsonPath('meta.total', 3);
-    }
-
-    public function test_handles_accessibility_alt_text_variations()
-    {
-        $picture = Picture::factory()->create();
-
-        $accessibilityAltTexts = [
-            'Photograph showing ancient bronze vessel with decorative patterns',
-            'Close-up detail of inscription on bronze artifact',
-            'Archaeological site photograph with measuring scale',
-            'X-ray image of internal structure of bronze object',
-            'Conservation photograph showing restoration progress',
-            'Microscopic detail of surface patination',
-            'Color photograph under different lighting conditions',
-            'Black and white archival photograph from 1925',
-            'Digital reconstruction based on archaeological evidence',
-            'Comparative image showing similar artifacts',
-            'Technical drawing with measurements and annotations',
-            'Infrared photograph revealing hidden details',
-            'UV light photograph showing fluorescent materials',
-            '3D model screenshot from multiple angles',
-            'Historical photograph of excavation in progress',
-        ];
-
-        foreach ($accessibilityAltTexts as $index => $altText) {
-            $newLanguage = Language::factory()->create(['code' => sprintf('a%02d', $index)]);
-
-            $response = $this->postJson(route('picture-translation.store'), [
-                'picture_id' => $picture->id,
-                'language_code' => $newLanguage->code,
-                'alt_text' => $altText,
-                'caption' => "Figure {$index}: {$altText}",
-            ]);
-
-            $response->assertCreated(); // Should handle accessibility variations
-        }
-    }
-
-    public function test_handles_caption_format_variations()
-    {
-        $picture = Picture::factory()->create();
-
-        $captionFormats = [
-            'Fig. 1: Bronze vessel (1st century CE)',
-            'Plate II.3: Detail of decorative pattern',
-            'Image 42: Archaeological context view',
-            'Photo A.1: Before conservation treatment',
-            'Diagram 5.2: Technical specifications',
-            'Illustration 3: Artist reconstruction',
-            'Map 7: Site location and surroundings',
-            'Chart 12: Analytical results summary',
-            'Table 4: Comparative measurements',
-            'Appendix B.3: Supplementary documentation',
-            'Figure A-1: Overview of collection',
-            'Plate III.B.2: Detailed examination',
-            'Schema 6: Classification system',
-            'Drawing 8: Cross-sectional view',
-            'Photograph 15: Current condition',
-        ];
-
-        foreach ($captionFormats as $index => $caption) {
-            $newLanguage = Language::factory()->create(['code' => sprintf('c%02d', $index)]);
-
-            $response = $this->postJson(route('picture-translation.store'), [
-                'picture_id' => $picture->id,
-                'language_code' => $newLanguage->code,
-                'alt_text' => "Alt text for {$caption}",
-                'caption' => $caption,
-            ]);
-
-            $response->assertCreated(); // Should handle caption format variations
-        }
+        $response->assertOk();
+        $response->assertJsonPath('data.description', 'Updated picture description');
+        $response->assertJsonPath('data.caption', 'Updated picture caption');
     }
 }

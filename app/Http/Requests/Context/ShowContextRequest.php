@@ -23,7 +23,7 @@ class ShowContextRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'include' => 'string|in:', // No includes allowed for Context
+            'include' => 'sometimes|string',
         ];
     }
 

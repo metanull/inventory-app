@@ -26,6 +26,8 @@ class UpdateTest extends TestCase
     {
         $locationTranslation = LocationTranslation::factory()->create();
         $data = [
+            'location_id' => $locationTranslation->location_id,
+            'language_id' => $locationTranslation->language_id,
             'name' => $this->faker->city,
             'description' => $this->faker->paragraph,
         ];
@@ -67,6 +69,8 @@ class UpdateTest extends TestCase
     {
         $locationTranslation = LocationTranslation::factory()->create();
         $data = [
+            'location_id' => $locationTranslation->location_id,
+            'language_id' => $locationTranslation->language_id,
             'name' => $this->faker->city,
             'description' => null,
         ];

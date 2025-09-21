@@ -23,7 +23,7 @@ class ShowDetailRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'include' => 'string|in:item,translations,pictures,galleries',
+            'include' => 'sometimes|string',
         ];
     }
 

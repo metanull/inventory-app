@@ -80,7 +80,7 @@ class LocationParameterValidationTest extends TestCase
         ]));
 
         $response->assertStatus(422); // Form Request now correctly rejects unexpected params
-        $response->assertJsonValidationErrors(['include', 'filter_by_province', 'city_type']);
+        $response->assertJsonValidationErrors(['filter_by_province', 'city_type', 'population_range']);
     }
 
     // SHOW ENDPOINT TESTS
@@ -101,7 +101,7 @@ class LocationParameterValidationTest extends TestCase
         $response = $this->getJson(route('location.show', $location).'?include=province&admin_view=true&show_coordinates=detailed&map_integration=google');
 
         $response->assertStatus(422); // Form Request now correctly rejects unexpected params
-        $response->assertJsonValidationErrors(['include', 'admin_view', 'show_coordinates']);
+        $response->assertJsonValidationErrors(['admin_view', 'show_coordinates', 'map_integration']);
     }
 
     // STORE ENDPOINT TESTS

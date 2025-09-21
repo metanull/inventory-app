@@ -23,7 +23,7 @@ class ShowExhibitionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'include' => 'string|in:translations,partners',
+            'include' => 'sometimes|string',
         ];
     }
 

@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ExhibitionTranslation\IndexExhibitionTranslationRequest;
+use App\Http\Requests\ExhibitionTranslation\ShowExhibitionTranslationRequest;
+use App\Http\Requests\ExhibitionTranslation\StoreExhibitionTranslationRequest;
+use App\Http\Requests\ExhibitionTranslation\UpdateExhibitionTranslationRequest;
 use App\Http\Resources\ExhibitionTranslationResource;
 use App\Models\ExhibitionTranslation;
 use Illuminate\Database\QueryException;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -18,7 +21,7 @@ class ExhibitionTranslationController extends Controller
      *
      * @response ExhibitionTranslationResource[]
      */
-    public function index(Request $request)
+    public function index(IndexExhibitionTranslationRequest $request)
     {
         $query = ExhibitionTranslation::query();
 
@@ -50,18 +53,9 @@ class ExhibitionTranslationController extends Controller
      *
      * @response ExhibitionTranslationResource
      */
-    public function store(Request $request)
+    public function store(StoreExhibitionTranslationRequest $request)
     {
-        $validated = $request->validate([
-            'exhibition_id' => 'required|uuid|exists:exhibitions,id',
-            'language_id' => 'required|string|exists:languages,id',
-            'context_id' => 'required|uuid|exists:contexts,id',
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'url' => 'nullable|url|max:255',
-            'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|json',
-        ]);
+        $validated = $request->validated();
 
         try {
             $translation = ExhibitionTranslation::create($validated);
@@ -86,7 +80,7 @@ class ExhibitionTranslationController extends Controller
      *
      * @response ExhibitionTranslationResource
      */
-    public function show(ExhibitionTranslation $exhibitionTranslation)
+    public function show(ShowExhibitionTranslationRequest $request, ExhibitionTranslation $exhibitionTranslation)
     {
         return new ExhibitionTranslationResource($exhibitionTranslation);
     }
@@ -96,18 +90,9 @@ class ExhibitionTranslationController extends Controller
      *
      * @response ExhibitionTranslationResource
      */
-    public function update(Request $request, ExhibitionTranslation $exhibitionTranslation)
+    public function update(UpdateExhibitionTranslationRequest $request, ExhibitionTranslation $exhibitionTranslation)
     {
-        $validated = $request->validate([
-            'exhibition_id' => 'sometimes|required|uuid|exists:exhibitions,id',
-            'language_id' => 'sometimes|required|string|exists:languages,id',
-            'context_id' => 'sometimes|required|uuid|exists:contexts,id',
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
-            'url' => 'nullable|url|max:255',
-            'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|json',
-        ]);
+        $validated = $request->validated();
 
         try {
             $exhibitionTranslation->update($validated);

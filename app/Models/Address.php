@@ -19,6 +19,7 @@ class Address extends Model
     protected $fillable = [
         'internal_name',
         'country_id',
+        'backward_compatibility',
     ];
 
     /**

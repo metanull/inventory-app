@@ -23,7 +23,7 @@ class ShowProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'include' => 'string|in:context,language',
+            'include' => 'sometimes|string',
         ];
     }
 

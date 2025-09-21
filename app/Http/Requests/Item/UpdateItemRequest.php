@@ -21,6 +21,7 @@ class UpdateItemRequest extends FormRequest
             'type' => 'sometimes|in:object,monument',
             'country_id' => 'sometimes|nullable|string|size:3|exists:countries,id',
             'project_id' => 'sometimes|nullable|uuid|exists:projects,id',
+            'include' => 'sometimes|string',
         ];
     }
 

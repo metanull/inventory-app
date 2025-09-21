@@ -25,7 +25,7 @@ class IndexContextRequest extends FormRequest
         return [
             'page' => 'integer|min:1',
             'per_page' => 'integer|min:1|max:100',
-            'include' => 'string|in:', // No includes allowed for Context
+            'include' => 'sometimes|string',
         ];
     }
 

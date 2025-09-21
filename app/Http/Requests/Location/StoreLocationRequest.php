@@ -29,7 +29,7 @@ class StoreLocationRequest extends FormRequest
             'translations' => 'required|array|min:1',
             'translations.*.language_id' => 'required|exists:languages,id',
             'translations.*.name' => 'required|string',
-            'include' => 'string|in:translations',
+            'include' => 'sometimes|string',
         ];
     }
 

@@ -30,6 +30,9 @@ class UpdateTest extends TestCase
     {
         $translation = ItemTranslation::factory()->create();
         $data = [
+            'item_id' => $translation->item_id,
+            'language_id' => $translation->language_id,
+            'context_id' => $translation->context_id,
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->paragraph,
             'type' => $this->faker->word,
@@ -66,6 +69,11 @@ class UpdateTest extends TestCase
         $author = Author::factory()->create();
 
         $updateData = [
+            'item_id' => $translation->item_id,
+            'language_id' => $translation->language_id,
+            'context_id' => $translation->context_id,
+            'name' => $translation->name,
+            'description' => $translation->description,
             'alternate_name' => 'New Alternate Name',
             'type' => 'New Type',
             'holder' => 'New Holder',
@@ -125,6 +133,10 @@ class UpdateTest extends TestCase
 
         $updateData = [
             'item_id' => $newItem->id,
+            'language_id' => $translation->language_id,
+            'context_id' => $translation->context_id,
+            'name' => $translation->name,
+            'description' => $translation->description,
         ];
 
         $response = $this->putJson(route('item-translation.update', $translation->id), $updateData);
@@ -144,7 +156,11 @@ class UpdateTest extends TestCase
         $newLanguage = Language::factory()->create();
 
         $updateData = [
+            'item_id' => $translation->item_id,
             'language_id' => $newLanguage->id,
+            'context_id' => $translation->context_id,
+            'name' => $translation->name,
+            'description' => $translation->description,
         ];
 
         $response = $this->putJson(route('item-translation.update', $translation->id), $updateData);
@@ -164,7 +180,11 @@ class UpdateTest extends TestCase
         $newContext = Context::factory()->create();
 
         $updateData = [
+            'item_id' => $translation->item_id,
+            'language_id' => $translation->language_id,
             'context_id' => $newContext->id,
+            'name' => $translation->name,
+            'description' => $translation->description,
         ];
 
         $response = $this->putJson(route('item-translation.update', $translation->id), $updateData);
@@ -188,6 +208,8 @@ class UpdateTest extends TestCase
             'item_id' => $translation1->item_id,
             'language_id' => $translation1->language_id,
             'context_id' => $translation1->context_id,
+            'name' => $translation2->name,
+            'description' => $translation2->description,
         ];
 
         $response = $this->putJson(route('item-translation.update', $translation2->id), $updateData);
@@ -204,6 +226,11 @@ class UpdateTest extends TestCase
         ]);
 
         $updateData = [
+            'item_id' => $translation->item_id,
+            'language_id' => $translation->language_id,
+            'context_id' => $translation->context_id,
+            'name' => $translation->name,
+            'description' => $translation->description,
             'alternate_name' => null,
             'type' => null,
             'holder' => null,
@@ -225,6 +252,11 @@ class UpdateTest extends TestCase
         $originalDescription = $translation->description;
 
         $updateData = [
+            'item_id' => $translation->item_id,
+            'language_id' => $translation->language_id,
+            'context_id' => $translation->context_id,
+            'name' => $translation->name,
+            'description' => $translation->description,
             'type' => 'Updated Type',
         ];
 

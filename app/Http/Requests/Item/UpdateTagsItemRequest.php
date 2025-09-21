@@ -18,6 +18,7 @@ class UpdateTagsItemRequest extends FormRequest
             'attach.*' => 'required|uuid|exists:tags,id',
             'detach' => 'sometimes|array',
             'detach.*' => 'required|uuid|exists:tags,id',
+            'include' => 'sometimes|string',
         ];
     }
 

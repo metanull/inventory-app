@@ -27,7 +27,7 @@ class UpdateDetailRequest extends FormRequest
             'item_id' => 'required|uuid',
             'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string',
-            'include' => 'string|in:item,translations,pictures,galleries',
+            'include' => 'sometimes|string',
         ];
     }
 

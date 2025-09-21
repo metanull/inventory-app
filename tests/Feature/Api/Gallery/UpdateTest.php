@@ -182,28 +182,22 @@ class UpdateTest extends TestCase
     }
 
     /**
-     * Test gallery update ignores unknown fields.
+     * Test gallery update rejects unknown fields.
      */
-    public function test_gallery_update_ignores_unknown_fields(): void
+    public function test_gallery_update_rejects_unknown_fields(): void
     {
         $gallery = Gallery::factory()->create();
-        $originalName = $gallery->internal_name;
 
         $updateData = [
+            'internal_name' => $gallery->internal_name,
             'unknown_field' => 'unknown_value',
             'another_unknown' => 123,
         ];
 
         $response = $this->putJson(route('gallery.update', $gallery), $updateData);
 
-        $response->assertOk();
-        $response->assertJsonPath('data.internal_name', $originalName); // Should remain unchanged
-
-        // Verify unknown fields are not stored
-        $this->assertDatabaseHas('galleries', [
-            'id' => $gallery->id,
-            'internal_name' => $originalName,
-        ]);
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['unknown_field', 'another_unknown']);
     }
 
     /**

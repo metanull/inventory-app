@@ -26,7 +26,7 @@ class UpdateExhibitionRequest extends FormRequest
         return [
             'internal_name' => ['sometimes', 'string', Rule::unique('exhibitions', 'internal_name')->ignore($this->route('exhibition')->id, 'id')],
             'backward_compatibility' => 'nullable|string',
-            'include' => 'string|in:translations,partners',
+            'include' => 'sometimes|string',
         ];
     }
 

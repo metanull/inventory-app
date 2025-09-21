@@ -24,10 +24,10 @@ class StoreDetailRequest extends FormRequest
     {
         return [
             'id' => 'prohibited',
-            'item_id' => 'required|uuid',
+            'item_id' => 'required|uuid|exists:items,id',
             'internal_name' => 'required|string',
             'backward_compatibility' => 'nullable|string',
-            'include' => 'string|in:item,translations,pictures,galleries',
+            'include' => 'sometimes|string',
         ];
     }
 

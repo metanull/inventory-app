@@ -22,9 +22,11 @@ class UpdateContextRequest extends FormRequest
      */
     public function rules(): array
     {
+        $contextId = $this->route('context') ? $this->route('context')->id : null;
+
         return [
             'id' => 'prohibited',
-            'internal_name' => 'required|string',
+            'internal_name' => 'required|string|unique:contexts,internal_name,'.$contextId,
             'backward_compatibility' => 'nullable|string',
             'is_default' => 'prohibited|boolean',
         ];

@@ -29,6 +29,8 @@ class ProvinceResource extends JsonResource
             'internal_name' => $this->internal_name,
             // The country this province belongs to (CountryResource id)
             'country_id' => $this->country_id,
+            // Backward compatibility ID from previous system (optional)
+            'backward_compatibility' => $this->backward_compatibility,
             // Translations for this province (ProvinceTranslationResource[])
             'translations' => $this->whenLoaded('translations', function () {
                 return ProvinceTranslationResource::collection($this->translations);
