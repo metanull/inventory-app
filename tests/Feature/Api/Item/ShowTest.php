@@ -183,4 +183,29 @@ class ShowTest extends TestCase
             ],
         ]);
     }
+
+    public function test_show_with_vue_frontend_include_parameters_should_succeed(): void
+    {
+        // Test the exact scenario from Vue.js frontend that's causing 422 error
+        $item = Item::factory()->create();
+
+        $response = $this->getJson(route('item.show', [
+            $item->id,
+            'include' => 'pictures,details,partner',
+        ]));
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'internal_name',
+                    'backward_compatibility',
+                    'type',
+                    'owner_reference',
+                    'mwnf_reference',
+                    'created_at',
+                    'updated_at',
+                ],
+            ]);
+    }
 }

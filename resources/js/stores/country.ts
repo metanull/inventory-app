@@ -6,6 +6,7 @@ import {
   type CountryUpdateRequest,
 } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
+import { addStoreMethodMetadata } from '@/utils/sessionAwareAxios'
 import { ErrorHandler } from '@/utils/errorHandler'
 import {
   type IndexQueryOptions,
@@ -50,7 +51,8 @@ export const useCountryStore = defineStore('country', () => {
     try {
       const api = createApiClient()
       const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
-      const response = await api.countryIndex({ params })
+      const config = addStoreMethodMetadata({}, { needsPagination: true, supportsInclude: true })
+      const response = await api.countryIndex({ params, ...config })
 
       const data = response.data?.data ?? []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
@@ -83,8 +85,11 @@ export const useCountryStore = defineStore('country', () => {
     try {
       const api = createApiClient()
       const params = mergeParams(buildIncludes(include))
+      const config = addStoreMethodMetadata({}, { needsPagination: false, supportsInclude: true })
       const hasParams = Object.keys(params).length > 0
-      const response = hasParams ? await api.countryShow(id, { params }) : await api.countryShow(id)
+      const response = hasParams
+        ? await api.countryShow(id, { params, ...config })
+        : await api.countryShow(id, config)
 
       if (response.data && response.data.data) {
         currentCountry.value = response.data.data

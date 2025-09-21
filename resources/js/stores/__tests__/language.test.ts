@@ -138,7 +138,12 @@ describe('Language Store', () => {
 
     const result = await store.fetchLanguage('eng')
 
-    expect(mockLanguageApi.languageShow).toHaveBeenCalledWith('eng')
+    expect(mockLanguageApi.languageShow).toHaveBeenCalledWith('eng', {
+      __storeMethod: {
+        needsPagination: false,
+        supportsInclude: true,
+      },
+    })
     expect(store.currentLanguage).toEqual(language)
     expect(result).toEqual(language)
   })

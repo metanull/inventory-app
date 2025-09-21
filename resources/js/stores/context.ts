@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { type ContextResource } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
+import { addStoreMethodMetadata } from '@/utils/sessionAwareAxios'
 import { ErrorHandler } from '@/utils/errorHandler'
 import {
   type IndexQueryOptions,
@@ -55,7 +56,8 @@ export const useContextStore = defineStore('context', () => {
     try {
       const apiClient = createApiClient()
       const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
-      const response = await apiClient.contextIndex({ params })
+      const config = addStoreMethodMetadata({}, { needsPagination: true, supportsInclude: true })
+      const response = await apiClient.contextIndex({ params, ...config })
       const data = response.data?.data || []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       contexts.value = data
@@ -84,10 +86,11 @@ export const useContextStore = defineStore('context', () => {
     try {
       const apiClient = createApiClient()
       const params = mergeParams(buildIncludes(include))
+      const config = addStoreMethodMetadata({}, { needsPagination: false, supportsInclude: true })
       const hasParams = Object.keys(params).length > 0
       const response = hasParams
-        ? await apiClient.contextShow(id, { params })
-        : await apiClient.contextShow(id)
+        ? await apiClient.contextShow(id, { params, ...config })
+        : await apiClient.contextShow(id, config)
       currentContext.value = response.data.data
       return response.data.data
     } catch (err: unknown) {

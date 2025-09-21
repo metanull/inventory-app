@@ -137,7 +137,15 @@ describe('Context Store', () => {
 
     const result = await store.fetchContext('123e4567-e89b-12d3-a456-426614174000')
 
-    expect(mockContextApi.contextShow).toHaveBeenCalledWith('123e4567-e89b-12d3-a456-426614174000')
+    expect(mockContextApi.contextShow).toHaveBeenCalledWith(
+      '123e4567-e89b-12d3-a456-426614174000',
+      {
+        __storeMethod: {
+          needsPagination: false,
+          supportsInclude: true,
+        },
+      }
+    )
     expect(store.currentContext).toEqual(context)
     expect(result).toEqual(context)
   })

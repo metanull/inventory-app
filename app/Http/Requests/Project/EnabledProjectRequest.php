@@ -24,6 +24,8 @@ class EnabledProjectRequest extends FormRequest
     {
         return [
             'include' => 'sometimes|string',
+            'page' => 'sometimes|integer|min:1',
+            'per_page' => 'sometimes|integer|min:1|max:100',
         ];
     }
 
@@ -33,7 +35,7 @@ class EnabledProjectRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function ($validator) {
-            $allowedParameters = ['include'];
+            $allowedParameters = ['include', 'page', 'per_page'];
             $receivedParameters = array_keys($this->all());
             $unexpectedParameters = array_diff($receivedParameters, $allowedParameters);
 

@@ -7,6 +7,7 @@ import {
 } from '@metanull/inventory-app-api-client'
 import { ErrorHandler, isAuthRedirect } from '@/utils/errorHandler'
 import { useApiClient } from '@/composables/useApiClient'
+import { addStoreMethodMetadata } from '@/utils/sessionAwareAxios'
 import {
   type IndexQueryOptions,
   type ShowQueryOptions,
@@ -46,7 +47,8 @@ export const useLanguageStore = defineStore('language', () => {
     try {
       const apiClient = createApiClient()
       const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
-      const response = await apiClient.languageIndex({ params })
+      const config = addStoreMethodMetadata({}, { needsPagination: true, supportsInclude: true })
+      const response = await apiClient.languageIndex({ params, ...config })
       const data = response.data?.data || []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       languages.value = data
@@ -78,10 +80,11 @@ export const useLanguageStore = defineStore('language', () => {
     try {
       const apiClient = createApiClient()
       const params = mergeParams(buildIncludes(include))
+      const config = addStoreMethodMetadata({}, { needsPagination: false, supportsInclude: true })
       const hasParams = Object.keys(params).length > 0
       const response = hasParams
-        ? await apiClient.languageShow(id, { params })
-        : await apiClient.languageShow(id)
+        ? await apiClient.languageShow(id, { params, ...config })
+        : await apiClient.languageShow(id, config)
       currentLanguage.value = response.data.data
       return response.data.data
     } catch (err: unknown) {

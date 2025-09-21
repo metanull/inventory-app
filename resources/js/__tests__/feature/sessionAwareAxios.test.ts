@@ -135,22 +135,44 @@ describe('sessionAwareAxios', () => {
 
     createSessionAwareAxios()
 
-    // Simulate a GET request config without per_page
-    const cfg: AxiosRequestConfig = {
+    // Simulate a GET request config without per_page but with store metadata
+    const cfg: AxiosRequestConfig & { __storeMethod?: { needsPagination?: boolean } } = {
       method: 'get',
       url: '/api/items',
       params: { page: 3 },
+      __storeMethod: { needsPagination: true },
     }
     const processed = requestHandlers[0](cfg)
     expect(processed.params.per_page).toBe(DEFAULT_PER_PAGE)
 
-    // Should not override when per_page is explicitly set
-    const cfgExplicit: AxiosRequestConfig = {
+    // Should not override when per_page is explicitly set, even with metadata
+    const cfgExplicit: AxiosRequestConfig & { __storeMethod?: { needsPagination?: boolean } } = {
       method: 'get',
       url: '/api/items',
       params: { page: 1, per_page: 50 },
+      __storeMethod: { needsPagination: true },
     }
     const processedExplicit = requestHandlers[0](cfgExplicit)
     expect(processedExplicit.params.per_page).toBe(50)
+
+    // Should not inject per_page when metadata indicates no pagination needed
+    const cfgNoPagination: AxiosRequestConfig & { __storeMethod?: { supportsInclude?: boolean } } =
+      {
+        method: 'get',
+        url: '/api/items/123',
+        params: { include: 'details' },
+        __storeMethod: { supportsInclude: true },
+      }
+    const processedNoPagination = requestHandlers[0](cfgNoPagination)
+    expect(processedNoPagination.params.per_page).toBeUndefined()
+
+    // Should not inject per_page when no metadata is present
+    const cfgNoMeta: AxiosRequestConfig = {
+      method: 'get',
+      url: '/api/items',
+      params: { page: 1 },
+    }
+    const processedNoMeta = requestHandlers[0](cfgNoMeta)
+    expect(processedNoMeta.params.per_page).toBeUndefined()
   })
 })

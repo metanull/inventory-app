@@ -10,6 +10,7 @@ import type {
   ContextResource,
   CollectionResource,
   AvailableImageResource,
+  DetailResource,
 } from '@metanull/inventory-app-api-client'
 import type { RouteRecordRaw } from 'vue-router'
 
@@ -121,6 +122,15 @@ export const createMockAvailableImage = (
   id: '123e4567-e89b-12d3-a456-426614174010',
   path: 'images/test-image.jpg',
   comment: 'Test available image',
+  created_at: '2023-01-01T00:00:00Z',
+  updated_at: '2023-01-01T00:00:00Z',
+  ...overrides,
+})
+
+export const createMockDetail = (overrides: Partial<DetailResource> = {}): DetailResource => ({
+  id: '123e4567-e89b-12d3-a456-426614174011',
+  internal_name: 'Test Detail',
+  backward_compatibility: null,
   created_at: '2023-01-01T00:00:00Z',
   updated_at: '2023-01-01T00:00:00Z',
   ...overrides,

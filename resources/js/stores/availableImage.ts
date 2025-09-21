@@ -5,6 +5,7 @@ import {
   type AvailableImageUpdateRequest,
 } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
+import { addStoreMethodMetadata } from '@/utils/sessionAwareAxios'
 import {
   type IndexQueryOptions,
   type ShowQueryOptions,
@@ -44,7 +45,8 @@ export const useAvailableImageStore = defineStore('availableImage', () => {
       loading.value = true
       const apiClient = createApiClient()
       const params = buildPagination(p, pp)
-      const response = await apiClient.availableImageIndex({ params })
+      const config = addStoreMethodMetadata({}, { needsPagination: true })
+      const response = await apiClient.availableImageIndex({ params, ...config })
       const data = response.data?.data ?? []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       availableImages.value = data
@@ -75,7 +77,8 @@ export const useAvailableImageStore = defineStore('availableImage', () => {
     try {
       loading.value = true
       const apiClient = createApiClient()
-      const response = await apiClient.availableImageShow(availableImageId)
+      const config = addStoreMethodMetadata({}, { needsPagination: false })
+      const response = await apiClient.availableImageShow(availableImageId, config)
       currentAvailableImage.value = response.data.data || null
     } finally {
       loading.value = false

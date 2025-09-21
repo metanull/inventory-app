@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { type ItemResource, type ItemStoreRequest } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
+import { addStoreMethodMetadata } from '@/utils/sessionAwareAxios'
 import {
   type IndexQueryOptions,
   type ShowQueryOptions,
@@ -41,7 +42,8 @@ export const useItemStore = defineStore('item', () => {
       loading.value = true
       const apiClient = createApiClient()
       const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
-      const response = await apiClient.itemIndex({ params })
+      const config = addStoreMethodMetadata({ params }, { needsPagination: true })
+      const response = await apiClient.itemIndex(config)
       const data = response.data?.data ?? []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       items.value = data
@@ -62,18 +64,21 @@ export const useItemStore = defineStore('item', () => {
 
   // Fetch single item by ID
   const fetchItem = async (
-    itemId: string,
-    { include = [] }: ShowQueryOptions = {}
-  ): Promise<void> => {
+    id: string,
+    { include = ['pictures', 'details', 'partner'] }: ShowQueryOptions = {}
+  ): Promise<ItemResource> => {
+    loading.value = true
+
     try {
-      loading.value = true
       const apiClient = createApiClient()
       const params = mergeParams(buildIncludes(include))
+      const config = addStoreMethodMetadata({}, { needsPagination: false, supportsInclude: true })
       const hasParams = Object.keys(params).length > 0
       const response = hasParams
-        ? await apiClient.itemShow(itemId, { params })
-        : await apiClient.itemShow(itemId)
-      currentItem.value = response.data.data || null
+        ? await apiClient.itemShow(id, { params, ...config })
+        : await apiClient.itemShow(id, config)
+      currentItem.value = response.data.data
+      return response.data.data
     } finally {
       loading.value = false
     }

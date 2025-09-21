@@ -124,7 +124,12 @@ describe('Country Store', () => {
 
       await countryStore.fetchCountry('USA')
 
-      expect(mockCountryApi.countryShow).toHaveBeenCalledWith('USA')
+      expect(mockCountryApi.countryShow).toHaveBeenCalledWith('USA', {
+        __storeMethod: {
+          needsPagination: false,
+          supportsInclude: true,
+        },
+      })
       expect(countryStore.currentCountry).toEqual(mockCountryData)
       expect(countryStore.loading).toBe(false)
       expect(countryStore.error).toBeNull()

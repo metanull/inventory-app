@@ -8,6 +8,7 @@ import {
 } from '@metanull/inventory-app-api-client'
 import { ErrorHandler } from '@/utils/errorHandler'
 import { useApiClient } from '@/composables/useApiClient'
+import { addStoreMethodMetadata } from '@/utils/sessionAwareAxios'
 import {
   type IndexQueryOptions,
   type ShowQueryOptions,
@@ -51,7 +52,8 @@ export const useProjectStore = defineStore('project', () => {
     try {
       const apiClient = createApiClient()
       const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
-      const response = await apiClient.projectIndex({ params })
+      const config = addStoreMethodMetadata({ params }, { needsPagination: true })
+      const response = await apiClient.projectIndex(config)
       const data = response.data?.data || []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       projects.value = data
@@ -113,10 +115,11 @@ export const useProjectStore = defineStore('project', () => {
     try {
       const apiClient = createApiClient()
       const params = mergeParams(buildIncludes(include))
+      const config = addStoreMethodMetadata({}, { needsPagination: false, supportsInclude: true })
       const hasParams = Object.keys(params).length > 0
       const response = hasParams
-        ? await apiClient.projectShow(id, { params })
-        : await apiClient.projectShow(id)
+        ? await apiClient.projectShow(id, { params, ...config })
+        : await apiClient.projectShow(id, config)
       currentProject.value = response.data.data
       return response.data.data
     } catch (err: unknown) {

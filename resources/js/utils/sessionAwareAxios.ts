@@ -37,6 +37,17 @@ const processQueue = (error: AxiosError | null, token: string | null = null) => 
 }
 
 /**
+ * Add store method metadata to axios config for parameter injection
+ */
+export const addStoreMethodMetadata = (
+  config: Record<string, unknown>,
+  metadata: { needsPagination?: boolean; supportsInclude?: boolean }
+) => {
+  config.__storeMethod = metadata
+  return config
+}
+
+/**
  * Create a session-aware axios instance with interceptors
  */
 export const createSessionAwareAxios = (): AxiosInstance => {
@@ -64,21 +75,15 @@ export const createSessionAwareAxios = (): AxiosInstance => {
         ;(config.headers as Record<string, unknown>).Authorization = `Bearer ${token}`
       }
 
-      // Ensure default per_page for list endpoints unless explicitly provided
-      // Supports both { params: { ... } } calls and direct URL queries
+      // Ensure default per_page for list endpoints using explicit store metadata
+      // This approach is reliable, testable, and doesn't rely on URL pattern matching
       const params = (config.params ?? {}) as Record<string, unknown>
       const hasPerPage = Object.prototype.hasOwnProperty.call(params, 'per_page')
+
       if (!hasPerPage) {
-        // Only inject for GET requests targeting index-like endpoints
-        const method = (config.method || 'get').toLowerCase()
-        const url = (config.url || '').toLowerCase()
-        const isList =
-          (method === 'get' &&
-            /\/(index|list|items|partners|countries|languages|contexts|collections|projects)?$/i.test(
-              url
-            )) ||
-          method === 'get'
-        if (isList) {
+        const requestMeta = (config as unknown as { __storeMethod?: { needsPagination?: boolean } })
+          .__storeMethod
+        if (requestMeta?.needsPagination === true) {
           ;(config.params as Record<string, unknown>) = { ...params, per_page: DEFAULT_PER_PAGE }
         }
       }

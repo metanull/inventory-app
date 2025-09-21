@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { type PartnerResource, type PartnerStoreRequest } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
+import { addStoreMethodMetadata } from '@/utils/sessionAwareAxios'
 import {
   type IndexQueryOptions,
   type ShowQueryOptions,
@@ -41,7 +42,8 @@ export const usePartnerStore = defineStore('partner', () => {
       loading.value = true
       const apiClient = createApiClient()
       const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
-      const response = await apiClient.partnerIndex({ params })
+      const config = addStoreMethodMetadata({}, { needsPagination: true, supportsInclude: true })
+      const response = await apiClient.partnerIndex({ params, ...config })
       const data = response.data?.data ?? []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       partners.value = data
@@ -67,7 +69,8 @@ export const usePartnerStore = defineStore('partner', () => {
       loading.value = true
       const apiClient = createApiClient()
       const params = mergeParams(buildIncludes(include))
-      const response = await apiClient.partnerShow(partnerId, { params })
+      const config = addStoreMethodMetadata({}, { needsPagination: false, supportsInclude: true })
+      const response = await apiClient.partnerShow(partnerId, { params, ...config })
       currentPartner.value = response.data.data || null
     } finally {
       loading.value = false

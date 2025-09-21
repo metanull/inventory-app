@@ -131,11 +131,20 @@ class ProjectController extends Controller
     {
         $validatedData = $request->validated();
         $includes = IncludeParser::fromRequest($request, AllowList::for('project'));
+        $pagination = PaginationParams::fromRequest($request);
+
         $query = Project::visible();
         if (! empty($includes)) {
             $query->with($includes);
         }
 
-        return ProjectResource::collection($query->get());
+        $paginator = $query->paginate(
+            $pagination['per_page'],
+            ['*'],
+            'page',
+            $pagination['page']
+        );
+
+        return ProjectResource::collection($paginator);
     }
 }

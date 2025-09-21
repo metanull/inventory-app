@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { type DetailResource, type DetailStoreRequest } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
+import { addStoreMethodMetadata } from '@/utils/sessionAwareAxios'
 import {
   type IndexQueryOptions,
   type ShowQueryOptions,
@@ -48,7 +49,8 @@ export const useDetailStore = defineStore('detail', () => {
         params = mergeParams(params, { item_id: itemId })
       }
 
-      const response = await apiClient.detailIndex({ params })
+      const config = addStoreMethodMetadata({}, { needsPagination: true, supportsInclude: true })
+      const response = await apiClient.detailIndex({ params, ...config })
       const data = response.data?.data ?? []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       details.value = data
@@ -77,7 +79,8 @@ export const useDetailStore = defineStore('detail', () => {
       loading.value = true
       const apiClient = createApiClient()
       const params = mergeParams(buildIncludes(include))
-      const response = await apiClient.detailShow(detailId, { params })
+      const config = addStoreMethodMetadata({}, { needsPagination: false, supportsInclude: true })
+      const response = await apiClient.detailShow(detailId, { params, ...config })
       currentDetail.value = response.data.data || null
     } finally {
       loading.value = false

@@ -115,6 +115,14 @@ class Item extends Model
     }
 
     /**
+     * Get all details associated with this item.
+     */
+    public function details(): HasMany
+    {
+        return $this->hasMany(Detail::class);
+    }
+
+    /**
      * Get the default context translation for this item in a specific language.
      */
     public function getDefaultTranslation(string $languageId): ?ItemTranslation
