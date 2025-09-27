@@ -22,6 +22,32 @@
                 "tags": [
                     "Address"
                 ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Paginated set of `AddressResource`",
@@ -156,11 +182,14 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
                     }
                 }
             },
@@ -265,6 +294,13 @@
                             "type": "string",
                             "format": "uuid"
                         }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -286,14 +322,17 @@
                             }
                         }
                     },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
                     }
                 }
             },
@@ -2257,6 +2296,32 @@
                 "tags": [
                     "Context"
                 ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Paginated set of `ContextResource`",
@@ -2391,11 +2456,14 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
                     }
                 }
             },
@@ -2477,6 +2545,13 @@
                             "type": "string",
                             "format": "uuid"
                         }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -2503,6 +2578,12 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
                     }
                 }
             },
@@ -2618,6 +2699,32 @@
                 "summary": "Display a listing of the resource",
                 "tags": [
                     "Country"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -2753,11 +2860,14 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
                     }
                 }
             },
@@ -2843,6 +2953,13 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -2864,14 +2981,17 @@
                             }
                         }
                     },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
                     }
                 }
             },
@@ -2984,6 +3104,32 @@
                 "summary": "Display a listing of the resource",
                 "tags": [
                     "Detail"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -3119,11 +3265,14 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
                     }
                 }
             },
@@ -3207,6 +3356,13 @@
                             "type": "string",
                             "format": "uuid"
                         }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -3228,14 +3384,17 @@
                             }
                         }
                     },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
                     }
                 }
             },
