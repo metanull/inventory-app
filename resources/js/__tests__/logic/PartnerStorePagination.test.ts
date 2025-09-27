@@ -13,12 +13,16 @@ describe('PartnerStore - pagination and includes', () => {
 
   it('uses default include ["country"] when none provided', async () => {
     const partners = [createMockPartner({ id: 'par-1' })]
-    let lastParams: Record<string, unknown> | undefined
+    let lastPage: number | undefined
+    let lastPerPage: number | undefined
+    let lastInclude: string | undefined
 
     vi.mocked(await import('@/composables/useApiClient')).useApiClient.mockReturnValue({
       createPartnerApi: () => ({
-        partnerIndex: (cfg?: { params?: Record<string, unknown> }) => {
-          lastParams = cfg?.params
+        partnerIndex: (page?: number, perPage?: number, include?: string) => {
+          lastPage = page
+          lastPerPage = perPage
+          lastInclude = include
           return Promise.resolve({
             data: { data: partners, meta: { total: 1, current_page: 1, per_page: 20 } },
           })
@@ -26,20 +30,16 @@ describe('PartnerStore - pagination and includes', () => {
       }),
     } as unknown as {
       createPartnerApi: () => {
-        partnerIndex: (cfg?: {
-          params?: Record<string, unknown>
-        }) => Promise<{ data: { data: unknown; meta: unknown } }>
+        partnerIndex: (page?: number, perPage?: number, include?: string) => Promise<{ data: { data: unknown; meta: unknown } }>
       }
     })
 
     const store = usePartnerStore()
     await store.fetchPartners()
 
-    expect(lastParams).toBeDefined()
-    const lp = lastParams as Record<string, unknown>
-    expect(lp.include).toBe('country')
-    expect(lp.page).toBe(1)
-    expect(lp.per_page).toBe(20)
+    expect(lastPage).toBe(1)
+    expect(lastPerPage).toBe(20)
+    expect(lastInclude).toBe('country')
   })
 
   it('applies pagination meta updates', async () => {
@@ -48,13 +48,12 @@ describe('PartnerStore - pagination and includes', () => {
 
     vi.mocked(await import('@/composables/useApiClient')).useApiClient.mockReturnValue({
       createPartnerApi: () => ({
-        partnerIndex: () => Promise.resolve({ data: { data: partners, meta } }),
+        partnerIndex: (_page?: number, _perPage?: number, _include?: string) => 
+          Promise.resolve({ data: { data: partners, meta } }),
       }),
     } as unknown as {
       createPartnerApi: () => {
-        partnerIndex: (cfg?: {
-          params?: Record<string, unknown>
-        }) => Promise<{ data: { data: unknown; meta: unknown } }>
+        partnerIndex: (page?: number, perPage?: number, include?: string) => Promise<{ data: { data: unknown; meta: unknown } }>
       }
     })
 

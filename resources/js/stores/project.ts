@@ -11,9 +11,6 @@ import { useApiClient } from '@/composables/useApiClient'
 import {
   type IndexQueryOptions,
   type ShowQueryOptions,
-  buildIncludes,
-  buildPagination,
-  mergeParams,
   type PaginationMeta,
   extractPaginationMeta,
 } from '@/utils/apiQueryParams'
@@ -50,8 +47,8 @@ export const useProjectStore = defineStore('project', () => {
 
     try {
       const apiClient = createApiClient()
-      const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
-      const response = await apiClient.projectIndex({ params })
+      const includeStr = include.length > 0 ? include.join(',') : undefined
+      const response = await apiClient.projectIndex(p, pp, includeStr)
       const data = response.data?.data || []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       projects.value = data
@@ -74,7 +71,6 @@ export const useProjectStore = defineStore('project', () => {
 
   // Fetch enabled projects only (visible projects) - supports pagination
   const fetchEnabledProjects = async ({
-    include = [],
     page: p = 1,
     perPage: pp = 20,
   }: IndexQueryOptions = {}) => {
@@ -83,8 +79,7 @@ export const useProjectStore = defineStore('project', () => {
 
     try {
       const apiClient = createApiClient()
-      const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
-      const response = await apiClient.projectEnabled({ params })
+      const response = await apiClient.projectEnabled()
       const data = response.data?.data || []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       visibleProjects.value = data
@@ -112,11 +107,8 @@ export const useProjectStore = defineStore('project', () => {
 
     try {
       const apiClient = createApiClient()
-      const params = mergeParams(buildIncludes(include))
-      const hasParams = Object.keys(params).length > 0
-      const response = hasParams
-        ? await apiClient.projectShow(id, { params })
-        : await apiClient.projectShow(id)
+      const includeStr = include.length > 0 ? include.join(',') : undefined
+      const response = await apiClient.projectShow(id, includeStr)
       currentProject.value = response.data.data
       return response.data.data
     } catch (err: unknown) {

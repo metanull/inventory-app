@@ -9,10 +9,6 @@ import { useApiClient } from '@/composables/useApiClient'
 import { ErrorHandler } from '@/utils/errorHandler'
 import {
   type IndexQueryOptions,
-  type ShowQueryOptions,
-  buildIncludes,
-  buildPagination,
-  mergeParams,
   type PaginationMeta,
   extractPaginationMeta,
 } from '@/utils/apiQueryParams'
@@ -40,7 +36,6 @@ export const useCountryStore = defineStore('country', () => {
 
   // Actions
   const fetchCountries = async ({
-    include = [],
     page: p = 1,
     perPage: pp = 20,
   }: IndexQueryOptions = {}): Promise<void> => {
@@ -49,8 +44,7 @@ export const useCountryStore = defineStore('country', () => {
 
     try {
       const api = createApiClient()
-      const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
-      const response = await api.countryIndex({ params })
+      const response = await api.countryIndex()
 
       const data = response.data?.data ?? []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
@@ -72,19 +66,14 @@ export const useCountryStore = defineStore('country', () => {
     }
   }
 
-  const fetchCountry = async (
-    id: string,
-    { include = [] }: ShowQueryOptions = {}
-  ): Promise<void> => {
+  const fetchCountry = async (id: string): Promise<void> => {
     loading.value = true
     error.value = null
     currentCountry.value = null
 
     try {
       const api = createApiClient()
-      const params = mergeParams(buildIncludes(include))
-      const hasParams = Object.keys(params).length > 0
-      const response = hasParams ? await api.countryShow(id, { params }) : await api.countryShow(id)
+      const response = await api.countryShow(id)
 
       if (response.data && response.data.data) {
         currentCountry.value = response.data.data

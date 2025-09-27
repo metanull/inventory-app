@@ -5,10 +5,6 @@ import { useApiClient } from '@/composables/useApiClient'
 import { ErrorHandler } from '@/utils/errorHandler'
 import {
   type IndexQueryOptions,
-  type ShowQueryOptions,
-  buildIncludes,
-  buildPagination,
-  mergeParams,
   type PaginationMeta,
   extractPaginationMeta,
 } from '@/utils/apiQueryParams'
@@ -45,7 +41,6 @@ export const useContextStore = defineStore('context', () => {
 
   // Fetch all contexts (supports includes + pagination)
   const fetchContexts = async ({
-    include = [],
     page: p = 1,
     perPage: pp = 20,
   }: IndexQueryOptions = {}) => {
@@ -54,8 +49,7 @@ export const useContextStore = defineStore('context', () => {
 
     try {
       const apiClient = createApiClient()
-      const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
-      const response = await apiClient.contextIndex({ params })
+      const response = await apiClient.contextIndex()
       const data = response.data?.data || []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       contexts.value = data
@@ -77,17 +71,13 @@ export const useContextStore = defineStore('context', () => {
   }
 
   // Fetch a single context by ID
-  const fetchContext = async (id: string, { include = [] }: ShowQueryOptions = {}) => {
+  const fetchContext = async (id: string) => {
     loading.value = true
     error.value = null
 
     try {
       const apiClient = createApiClient()
-      const params = mergeParams(buildIncludes(include))
-      const hasParams = Object.keys(params).length > 0
-      const response = hasParams
-        ? await apiClient.contextShow(id, { params })
-        : await apiClient.contextShow(id)
+      const response = await apiClient.contextShow(id)
       currentContext.value = response.data.data
       return response.data.data
     } catch (err: unknown) {
