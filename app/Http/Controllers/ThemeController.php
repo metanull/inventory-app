@@ -2,35 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexThemeRequest;
+use App\Http\Requests\Api\ShowThemeRequest;
 use App\Http\Resources\ThemeResource;
 use App\Models\Theme;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class ThemeController extends Controller
 {
     /**
-     * Display a listing of the themes for an exhibition.
+     * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexThemeRequest $request)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('theme'));
-        $pagination = PaginationParams::fromRequest($request);
+        $includes = $request->getIncludeParams();
+        $pagination = $request->getPaginationParams();
 
-        $query = Theme::query()->whereNull('parent_id');
-        if (! empty($includes)) {
-            $query->with($includes);
-        }
-
-        $paginator = $query->paginate(
-            $pagination['per_page'],
-            ['*'],
-            'page',
-            $pagination['page']
-        );
+        $paginator = Theme::query()->with($includes)->paginate($pagination['per_page'], ['*'], 'page', $pagination['page']);
 
         return ThemeResource::collection($paginator);
     }
@@ -56,14 +47,12 @@ class ThemeController extends Controller
     }
 
     /**
-     * Display the specified theme.
+     * Display the specified resource.
      */
-    public function show(Request $request, Theme $theme)
+    public function show(ShowThemeRequest $request, Theme $theme)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('theme'));
-        if (! empty($includes)) {
-            $theme->load($includes);
-        }
+        $includes = $request->getIncludeParams();
+        $theme->load($includes);
 
         return new ThemeResource($theme);
     }

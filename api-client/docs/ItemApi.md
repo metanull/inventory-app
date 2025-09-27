@@ -67,7 +67,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemForTag**
-> ItemIndex200Response itemForTag()
+> ItemForTag200Response itemForTag()
 
 
 ### Example
@@ -97,7 +97,7 @@ const { status, data } = await apiInstance.itemForTag(
 
 ### Return type
 
-**ItemIndex200Response**
+**ItemForTag200Response**
 
 ### Authorization
 
@@ -113,6 +113,7 @@ const { status, data } = await apiInstance.itemForTag(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Array of &#x60;ItemResource&#x60; |  -  |
+|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
 
@@ -133,11 +134,24 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ItemApi(configuration);
 
-const { status, data } = await apiInstance.itemIndex();
+let page: number; // (optional) (default to undefined)
+let perPage: number; // (optional) (default to undefined)
+let include: string; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.itemIndex(
+    page,
+    perPage,
+    include
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] |  | (optional) defaults to undefined|
+| **perPage** | [**number**] |  | (optional) defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -157,8 +171,10 @@ This endpoint does not have any parameters.
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Array of &#x60;ItemResource&#x60; |  -  |
+|**200** | Paginated set of &#x60;ItemResource&#x60; |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -178,9 +194,11 @@ const configuration = new Configuration();
 const apiInstance = new ItemApi(configuration);
 
 let item: string; //The item ID (default to undefined)
+let include: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemShow(
-    item
+    item,
+    include
 );
 ```
 
@@ -189,6 +207,7 @@ const { status, data } = await apiInstance.itemShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **item** | [**string**] | The item ID | defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -211,6 +230,8 @@ const { status, data } = await apiInstance.itemShow(
 |**200** | &#x60;ItemResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -383,7 +404,7 @@ const { status, data } = await apiInstance.itemUpdateTags(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemWithAllTags**
-> ItemIndex200Response itemWithAllTags(itemWithAllTagsRequest)
+> ItemForTag200Response itemWithAllTags(itemWithAllTagsRequest)
 
 
 ### Example
@@ -414,7 +435,7 @@ const { status, data } = await apiInstance.itemWithAllTags(
 
 ### Return type
 
-**ItemIndex200Response**
+**ItemForTag200Response**
 
 ### Authorization
 
@@ -436,7 +457,7 @@ const { status, data } = await apiInstance.itemWithAllTags(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemWithAnyTags**
-> ItemIndex200Response itemWithAnyTags(itemWithAllTagsRequest)
+> ItemForTag200Response itemWithAnyTags(itemWithAllTagsRequest)
 
 
 ### Example
@@ -467,7 +488,7 @@ const { status, data } = await apiInstance.itemWithAnyTags(
 
 ### Return type
 
-**ItemIndex200Response**
+**ItemForTag200Response**
 
 ### Authorization
 

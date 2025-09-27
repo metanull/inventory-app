@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexItemRequest;
+use App\Http\Requests\Api\ShowItemRequest;
 use App\Http\Resources\ItemResource;
 use App\Models\Item;
 use App\Models\Tag;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
@@ -31,11 +32,11 @@ class ItemController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexItemRequest $request)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $includes = $request->getIncludeParams();
         $with = $this->expandIncludes($includes);
-        $pagination = PaginationParams::fromRequest($request);
+        $pagination = $request->getPaginationParams();
 
         $query = Item::query()->with($with);
         $paginator = $query->paginate(
@@ -86,9 +87,9 @@ class ItemController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Item $item)
+    public function show(ShowItemRequest $request, Item $item)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $includes = $request->getIncludeParams();
         $item->load($this->expandIncludes($includes));
 
         return new ItemResource($item);

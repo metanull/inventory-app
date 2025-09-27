@@ -6,6 +6,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **data** | [**Array&lt;LanguageResource&gt;**](LanguageResource.md) |  | [default to undefined]
+**links** | [**AddressIndex200ResponseLinks**](AddressIndex200ResponseLinks.md) |  | [default to undefined]
+**meta** | [**AddressIndex200ResponseMeta**](AddressIndex200ResponseMeta.md) |  | [default to undefined]
 
 ## Example
 
@@ -14,6 +16,8 @@ import { LanguageIndex200Response } from './api';
 
 const instance: LanguageIndex200Response = {
     data,
+    links,
+    meta,
 };
 ```
 

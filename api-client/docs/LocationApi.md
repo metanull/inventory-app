@@ -77,11 +77,24 @@ import {
 const configuration = new Configuration();
 const apiInstance = new LocationApi(configuration);
 
-const { status, data } = await apiInstance.locationIndex();
+let page: number; // (optional) (default to undefined)
+let perPage: number; // (optional) (default to undefined)
+let include: string; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.locationIndex(
+    page,
+    perPage,
+    include
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] |  | (optional) defaults to undefined|
+| **perPage** | [**number**] |  | (optional) defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -101,8 +114,10 @@ This endpoint does not have any parameters.
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Array of &#x60;LocationResource&#x60; |  -  |
+|**200** | Paginated set of &#x60;LocationResource&#x60; |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -122,9 +137,11 @@ const configuration = new Configuration();
 const apiInstance = new LocationApi(configuration);
 
 let location: string; //The location ID (default to undefined)
+let include: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.locationShow(
-    location
+    location,
+    include
 );
 ```
 
@@ -133,6 +150,7 @@ const { status, data } = await apiInstance.locationShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **location** | [**string**] | The location ID | defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -155,6 +173,8 @@ const { status, data } = await apiInstance.locationShow(
 |**200** | &#x60;LocationResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -206,7 +226,7 @@ const { status, data } = await apiInstance.locationStore(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | &#x60;LocationResource&#x60; |  -  |
-|**422** |  |  -  |
+|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -262,7 +282,7 @@ const { status, data } = await apiInstance.locationUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;LocationResource&#x60; |  -  |
-|**422** |  |  -  |
+|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
 

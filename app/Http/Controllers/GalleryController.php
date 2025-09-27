@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexGalleryRequest;
+use App\Http\Requests\Api\ShowGalleryRequest;
 use App\Http\Resources\GalleryResource;
 use App\Models\Gallery;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -22,10 +23,10 @@ class GalleryController extends Controller
     /**
      * Display a listing of the galleries.
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(IndexGalleryRequest $request): AnonymousResourceCollection
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('gallery'));
-        $pagination = PaginationParams::fromRequest($request);
+        $includes = $request->getIncludeParams();
+        $pagination = $request->getPaginationParams();
 
         $defaults = ['translations', 'partners', 'items', 'details'];
         $with = array_values(array_unique(array_merge($defaults, $includes)));
@@ -67,9 +68,9 @@ class GalleryController extends Controller
     /**
      * Display the specified gallery.
      */
-    public function show(Request $request, Gallery $gallery): GalleryResource
+    public function show(ShowGalleryRequest $request, Gallery $gallery): GalleryResource
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('gallery'));
+        $includes = $request->getIncludeParams();
         if (! empty($includes)) {
             $gallery->load($includes);
         }

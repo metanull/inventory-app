@@ -6,6 +6,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **data** | [**Array&lt;ContactResource&gt;**](ContactResource.md) |  | [default to undefined]
+**links** | [**AddressIndex200ResponseLinks**](AddressIndex200ResponseLinks.md) |  | [default to undefined]
+**meta** | [**AddressIndex200ResponseMeta**](AddressIndex200ResponseMeta.md) |  | [default to undefined]
 
 ## Example
 
@@ -14,6 +16,8 @@ import { ContactIndex200Response } from './api';
 
 const instance: ContactIndex200Response = {
     data,
+    links,
+    meta,
 };
 ```
 

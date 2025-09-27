@@ -6,6 +6,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **data** | [**Array&lt;ContextResource&gt;**](ContextResource.md) |  | [default to undefined]
+**links** | [**AddressIndex200ResponseLinks**](AddressIndex200ResponseLinks.md) |  | [default to undefined]
+**meta** | [**AddressIndex200ResponseMeta**](AddressIndex200ResponseMeta.md) |  | [default to undefined]
 
 ## Example
 
@@ -14,6 +16,8 @@ import { ContextIndex200Response } from './api';
 
 const instance: ContextIndex200Response = {
     data,
+    links,
+    meta,
 };
 ```
 

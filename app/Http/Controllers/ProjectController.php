@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexProjectRequest;
+use App\Http\Requests\Api\ShowProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -14,10 +15,10 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexProjectRequest $request)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('project'));
-        $pagination = PaginationParams::fromRequest($request);
+        $includes = $request->getIncludeParams();
+        $pagination = $request->getPaginationParams();
 
         $query = Project::query();
         if (! empty($includes)) {
@@ -57,9 +58,9 @@ class ProjectController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Project $project)
+    public function show(ShowProjectRequest $request, Project $project)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('project'));
+        $includes = $request->getIncludeParams();
         if (! empty($includes)) {
             $project->load($includes);
         }
