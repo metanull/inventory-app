@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexAddressRequest;
+use App\Http\Requests\Api\ShowAddressRequest;
 use App\Http\Resources\AddressResource;
 use App\Models\Address;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,10 +19,10 @@ class AddressController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(IndexAddressRequest $request)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('address'));
-        $pagination = PaginationParams::fromRequest($request);
+        $includes = $request->getIncludeParams();
+        $pagination = $request->getPaginationParams();
 
         $defaults = ['translations'];
         $with = array_values(array_unique(array_merge($defaults, $includes)));
@@ -85,9 +86,9 @@ class AddressController extends Controller
      *
      * @return \App\Http\Resources\AddressResource
      */
-    public function show(Request $request, Address $address)
+    public function show(ShowAddressRequest $request, Address $address)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('address'));
+        $includes = $request->getIncludeParams();
         if (! empty($includes)) {
             $address->load($includes);
         }

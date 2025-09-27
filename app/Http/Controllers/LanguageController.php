@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexLanguageRequest;
+use App\Http\Requests\Api\ShowLanguageRequest;
 use App\Http\Resources\LanguageResource;
 use App\Models\Language;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 
 class LanguageController extends Controller
@@ -12,9 +13,9 @@ class LanguageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexLanguageRequest $request)
     {
-        $pagination = PaginationParams::fromRequest($request);
+        $pagination = $request->getPaginationParams();
 
         $query = Language::query();
         $paginator = $query->paginate(
@@ -47,7 +48,7 @@ class LanguageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Language $language)
+    public function show(ShowLanguageRequest $request, Language $language)
     {
         return new LanguageResource($language);
     }

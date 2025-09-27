@@ -9,10 +9,6 @@ import { ErrorHandler, isAuthRedirect } from '@/utils/errorHandler'
 import { useApiClient } from '@/composables/useApiClient'
 import {
   type IndexQueryOptions,
-  type ShowQueryOptions,
-  buildIncludes,
-  buildPagination,
-  mergeParams,
   type PaginationMeta,
   extractPaginationMeta,
 } from '@/utils/apiQueryParams'
@@ -34,19 +30,14 @@ export const useLanguageStore = defineStore('language', () => {
   const defaultLanguage = computed(() => languages.value.find(lang => lang.is_default))
   const defaultLanguages = computed(() => languages.value.filter(lang => lang.is_default))
 
-  // Fetch all languages (supports includes + pagination)
-  const fetchLanguages = async ({
-    include = [],
-    page: p = 1,
-    perPage: pp = 20,
-  }: IndexQueryOptions = {}) => {
+  // Fetch all languages (supports pagination only)
+  const fetchLanguages = async ({ page: p = 1, perPage: pp = 20 }: IndexQueryOptions = {}) => {
     loading.value = true
     error.value = null
 
     try {
       const apiClient = createApiClient()
-      const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
-      const response = await apiClient.languageIndex({ params })
+      const response = await apiClient.languageIndex(p, pp)
       const data = response.data?.data || []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       languages.value = data
@@ -71,17 +62,13 @@ export const useLanguageStore = defineStore('language', () => {
   }
 
   // Fetch a single language by ID
-  const fetchLanguage = async (id: string, { include = [] }: ShowQueryOptions = {}) => {
+  const fetchLanguage = async (id: string): Promise<LanguageResource> => {
     loading.value = true
     error.value = null
 
     try {
       const apiClient = createApiClient()
-      const params = mergeParams(buildIncludes(include))
-      const hasParams = Object.keys(params).length > 0
-      const response = hasParams
-        ? await apiClient.languageShow(id, { params })
-        : await apiClient.languageShow(id)
+      const response = await apiClient.languageShow(id)
       currentLanguage.value = response.data.data
       return response.data.data
     } catch (err: unknown) {

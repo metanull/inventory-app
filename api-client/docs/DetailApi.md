@@ -77,11 +77,24 @@ import {
 const configuration = new Configuration();
 const apiInstance = new DetailApi(configuration);
 
-const { status, data } = await apiInstance.detailIndex();
+let page: number; // (optional) (default to undefined)
+let perPage: number; // (optional) (default to undefined)
+let include: string; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.detailIndex(
+    page,
+    perPage,
+    include
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] |  | (optional) defaults to undefined|
+| **perPage** | [**number**] |  | (optional) defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -102,8 +115,9 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Paginated set of &#x60;DetailResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -123,9 +137,11 @@ const configuration = new Configuration();
 const apiInstance = new DetailApi(configuration);
 
 let detail: string; //The detail ID (default to undefined)
+let include: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.detailShow(
-    detail
+    detail,
+    include
 );
 ```
 
@@ -134,6 +150,7 @@ const { status, data } = await apiInstance.detailShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **detail** | [**string**] | The detail ID | defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -154,9 +171,10 @@ const { status, data } = await apiInstance.detailShow(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;DetailResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

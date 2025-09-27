@@ -69,4 +69,82 @@ class IndexTest extends TestCase
 
         $this->assertCount(3, $response->json('data'));
     }
+
+    public function test_index_returns_paginated_structure(): void
+    {
+        Language::factory(3)->create();
+        Country::factory(2)->create();
+        Address::factory(5)->create();
+
+        $response = $this->getJson(route('address.index'));
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data',
+                'links' => [
+                    'first', 'last', 'prev', 'next',
+                ],
+                'meta' => [
+                    'current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total',
+                ],
+            ]);
+    }
+
+    public function test_index_accepts_pagination_parameters(): void
+    {
+        Language::factory(3)->create();
+        Country::factory(2)->create();
+        Address::factory(5)->create();
+
+        $response = $this->getJson(route('address.index', ['per_page' => 2, 'page' => 1]));
+
+        $response->assertOk()
+            ->assertJsonPath('meta.per_page', 2)
+            ->assertJsonPath('meta.current_page', 1);
+
+        $this->assertCount(2, $response->json('data'));
+    }
+
+    public function test_index_accepts_include_parameter(): void
+    {
+        Language::factory(3)->create();
+        Country::factory(2)->create();
+        Address::factory(2)->create();
+
+        $response = $this->getJson(route('address.index', ['include' => 'translations']));
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'internal_name',
+                        'country_id',
+                        'translations' => [
+                            '*' => [
+                                'id',
+                                'address_id',
+                                'language_id',
+                                'address',
+                                'description',
+                            ],
+                        ],
+                        'created_at',
+                        'updated_at',
+                    ],
+                ],
+            ]);
+    }
+
+    public function test_index_validates_pagination_parameters(): void
+    {
+        $response = $this->getJson(route('address.index', ['per_page' => 0]));
+        $response->assertUnprocessable();
+
+        $response = $this->getJson(route('address.index', ['per_page' => 101]));
+        $response->assertUnprocessable();
+
+        $response = $this->getJson(route('address.index', ['page' => 0]));
+        $response->assertUnprocessable();
+    }
 }

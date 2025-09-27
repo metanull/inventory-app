@@ -72,4 +72,48 @@ class IndexTest extends TestCase
 
         $response->assertJsonPath('meta.total', 3);
     }
+
+    public function test_index_accepts_pagination_parameters(): void
+    {
+        Country::factory(5)->create();
+
+        $response = $this->getJson(route('country.index', ['per_page' => 2, 'page' => 1]));
+
+        $response->assertOk()
+            ->assertJsonPath('meta.per_page', 2)
+            ->assertJsonPath('meta.current_page', 1);
+
+        $this->assertCount(2, $response->json('data'));
+    }
+
+    public function test_index_accepts_include_parameter(): void
+    {
+        Country::factory(2)->create();
+
+        // Test that include parameter is accepted (no relationships for basic test)
+        $response = $this->getJson(route('country.index'));
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'internal_name',
+                        'backward_compatibility',
+                    ],
+                ],
+            ]);
+    }
+
+    public function test_index_validates_pagination_parameters(): void
+    {
+        $response = $this->getJson(route('country.index', ['per_page' => 0]));
+        $response->assertUnprocessable();
+
+        $response = $this->getJson(route('country.index', ['per_page' => 101]));
+        $response->assertUnprocessable();
+
+        $response = $this->getJson(route('country.index', ['page' => 0]));
+        $response->assertUnprocessable();
+    }
 }

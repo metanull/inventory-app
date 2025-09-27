@@ -5,9 +5,6 @@ import { useApiClient } from '@/composables/useApiClient'
 import {
   type IndexQueryOptions,
   type ShowQueryOptions,
-  buildIncludes,
-  buildPagination,
-  mergeParams,
   type PaginationMeta,
   extractPaginationMeta,
 } from '@/utils/apiQueryParams'
@@ -41,14 +38,18 @@ export const useDetailStore = defineStore('detail', () => {
     try {
       loading.value = true
       const apiClient = createApiClient()
-      let params = mergeParams(buildIncludes(include), buildPagination(p, pp))
 
-      // Add item filter if specified
-      if (itemId) {
-        params = mergeParams(params, { item_id: itemId })
+      // Build request options with query parameters since this API doesn't support direct params
+      const params: Record<string, unknown> = { page: p, per_page: pp }
+      if (include.length > 0) {
+        params.include = include.join(',')
       }
+      if (itemId) {
+        params.item_id = itemId
+      }
+      const options = { params }
 
-      const response = await apiClient.detailIndex({ params })
+      const response = await apiClient.detailIndex(options)
       const data = response.data?.data ?? []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       details.value = data
@@ -76,8 +77,11 @@ export const useDetailStore = defineStore('detail', () => {
     try {
       loading.value = true
       const apiClient = createApiClient()
-      const params = mergeParams(buildIncludes(include))
-      const response = await apiClient.detailShow(detailId, { params })
+      const options: Record<string, unknown> = {}
+      if (include.length > 0) {
+        options.params = { include: include.join(',') }
+      }
+      const response = await apiClient.detailShow(detailId, options)
       currentDetail.value = response.data.data || null
     } finally {
       loading.value = false

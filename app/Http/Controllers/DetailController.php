@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexDetailRequest;
+use App\Http\Requests\Api\ShowDetailRequest;
 use App\Http\Resources\DetailResource;
 use App\Models\Detail;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 
 class DetailController extends Controller
@@ -14,10 +15,10 @@ class DetailController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexDetailRequest $request)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('detail'));
-        $pagination = PaginationParams::fromRequest($request);
+        $includes = $request->getIncludeParams();
+        $pagination = $request->getPaginationParams();
 
         $query = Detail::query();
         if (! empty($includes)) {
@@ -53,9 +54,9 @@ class DetailController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Detail $detail)
+    public function show(ShowDetailRequest $request, Detail $detail)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('detail'));
+        $includes = $request->getIncludeParams();
         if (! empty($includes)) {
             $detail->load($includes);
         }

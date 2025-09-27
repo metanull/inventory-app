@@ -5,9 +5,6 @@ import { useApiClient } from '@/composables/useApiClient'
 import {
   type IndexQueryOptions,
   type ShowQueryOptions,
-  buildIncludes,
-  buildPagination,
-  mergeParams,
   type PaginationMeta,
   extractPaginationMeta,
 } from '@/utils/apiQueryParams'
@@ -40,8 +37,8 @@ export const usePartnerStore = defineStore('partner', () => {
     try {
       loading.value = true
       const apiClient = createApiClient()
-      const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
-      const response = await apiClient.partnerIndex({ params })
+      const includeStr = include.length > 0 ? include.join(',') : undefined
+      const response = await apiClient.partnerIndex(p, pp, includeStr)
       const data = response.data?.data ?? []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       partners.value = data
@@ -66,8 +63,8 @@ export const usePartnerStore = defineStore('partner', () => {
     try {
       loading.value = true
       const apiClient = createApiClient()
-      const params = mergeParams(buildIncludes(include))
-      const response = await apiClient.partnerShow(partnerId, { params })
+      const includeStr = include.length > 0 ? include.join(',') : undefined
+      const response = await apiClient.partnerShow(partnerId, includeStr)
       currentPartner.value = response.data.data || null
     } finally {
       loading.value = false

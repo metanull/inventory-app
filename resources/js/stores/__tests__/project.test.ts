@@ -159,7 +159,7 @@ describe('Project Store', () => {
       expect(projectStore.loading).toBe(false)
       expect(projectStore.currentProject).toEqual(mockProjectData)
       expect(projectStore.error).toBeNull()
-      expect(mockProjectApi.projectShow).toHaveBeenCalledWith(projectId)
+      expect(mockProjectApi.projectShow).toHaveBeenCalledWith(projectId, undefined)
     })
 
     it('should handle fetch project error', async () => {

@@ -55,7 +55,10 @@ class AllowList
                 'translations',
             ],
             'address' => [
-                'translations',
+                'country', 'translations',
+            ],
+            'context' => [
+                // Context model has no specific relationships
             ],
             'theme' => [
                 'translations', 'subthemes', 'subthemes.translations',

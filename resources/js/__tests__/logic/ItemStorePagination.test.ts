@@ -17,20 +17,26 @@ describe('ItemStore - pagination and includes', () => {
   it('uses minimal-by-default (no include) and applies pagination meta', async () => {
     const items = [createMockItem({ id: 'itm-1' })]
     const meta = { total: 100, current_page: 2, per_page: 50 }
-    let lastParams: Record<string, unknown> | undefined
+    let lastPage: number | undefined
+    let lastPerPage: number | undefined
+    let lastInclude: string | undefined
 
     vi.mocked(useApiClient).mockReturnValue({
       createItemApi: () => ({
-        itemIndex: (cfg?: { params?: Record<string, unknown> }) => {
-          lastParams = cfg?.params
+        itemIndex: (page?: number, perPage?: number, include?: string) => {
+          lastPage = page
+          lastPerPage = perPage
+          lastInclude = include
           return Promise.resolve({ data: { data: items, meta } })
         },
       }),
     } as unknown as {
       createItemApi: () => {
-        itemIndex: (cfg?: {
-          params?: Record<string, unknown>
-        }) => Promise<{ data: { data: unknown; meta: unknown } }>
+        itemIndex: (
+          page?: number,
+          perPage?: number,
+          include?: string
+        ) => Promise<{ data: { data: unknown; meta: unknown } }>
       }
     })
 
@@ -43,21 +49,23 @@ describe('ItemStore - pagination and includes', () => {
     expect(store.perPage).toBe(50)
     expect(store.total).toBe(100)
 
-    expect(lastParams).toBeDefined()
-    const lp = lastParams as Record<string, unknown>
-    expect(lp.include).toBeUndefined()
-    expect(lp.page).toBe(2)
-    expect(lp.per_page).toBe(50)
+    expect(lastPage).toBe(2)
+    expect(lastPerPage).toBe(50)
+    expect(lastInclude).toBeUndefined()
   })
 
   it('passes include when provided', async () => {
     const items = [createMockItem({ id: 'itm-2' })]
-    let lastParams: Record<string, unknown> | undefined
+    let lastPage: number | undefined
+    let lastPerPage: number | undefined
+    let lastInclude: string | undefined
 
     vi.mocked(useApiClient).mockReturnValue({
       createItemApi: () => ({
-        itemIndex: (cfg?: { params?: Record<string, unknown> }) => {
-          lastParams = cfg?.params
+        itemIndex: (page?: number, perPage?: number, include?: string) => {
+          lastPage = page
+          lastPerPage = perPage
+          lastInclude = include
           return Promise.resolve({
             data: { data: items, meta: { total: 1, current_page: 1, per_page: 20 } },
           })
@@ -65,9 +73,11 @@ describe('ItemStore - pagination and includes', () => {
       }),
     } as unknown as {
       createItemApi: () => {
-        itemIndex: (cfg?: {
-          params?: Record<string, unknown>
-        }) => Promise<{ data: { data: unknown; meta: unknown } }>
+        itemIndex: (
+          page?: number,
+          perPage?: number,
+          include?: string
+        ) => Promise<{ data: { data: unknown; meta: unknown } }>
       }
     })
 
@@ -75,8 +85,8 @@ describe('ItemStore - pagination and includes', () => {
     const store = useItemStore()
     await store.fetchItems({ include: ['partner', 'project'] })
 
-    expect(lastParams).toBeDefined()
-    const lp = lastParams as Record<string, unknown>
-    expect(lp.include).toBe('partner,project')
+    expect(lastPage).toBe(1)
+    expect(lastPerPage).toBe(20)
+    expect(lastInclude).toBe('partner,project')
   })
 })

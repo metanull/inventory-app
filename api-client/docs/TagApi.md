@@ -79,9 +79,13 @@ const configuration = new Configuration();
 const apiInstance = new TagApi(configuration);
 
 let item: string; //The item ID (default to undefined)
+let page: number; // (optional) (default to undefined)
+let perPage: number; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.tagForItem(
-    item
+    item,
+    page,
+    perPage
 );
 ```
 
@@ -90,6 +94,8 @@ const { status, data } = await apiInstance.tagForItem(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **item** | [**string**] | The item ID | defaults to undefined|
+| **page** | [**number**] |  | (optional) defaults to undefined|
+| **perPage** | [**number**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -110,9 +116,10 @@ const { status, data } = await apiInstance.tagForItem(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Paginated set of &#x60;TagResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -131,11 +138,21 @@ import {
 const configuration = new Configuration();
 const apiInstance = new TagApi(configuration);
 
-const { status, data } = await apiInstance.tagIndex();
+let page: number; // (optional) (default to undefined)
+let perPage: number; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.tagIndex(
+    page,
+    perPage
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] |  | (optional) defaults to undefined|
+| **perPage** | [**number**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -156,8 +173,9 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Paginated set of &#x60;TagResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -210,6 +228,8 @@ const { status, data } = await apiInstance.tagShow(
 |**200** | &#x60;TagResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
