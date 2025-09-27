@@ -95,4 +95,24 @@ class ShowTest extends TestCase
         $response->assertJsonPath('data.internal_name', $context->internal_name);
         $response->assertJsonPath('data.backward_compatibility', $context->backward_compatibility);
     }
+
+    public function test_show_accepts_include_parameter(): void
+    {
+        $context = Context::factory()->create();
+
+        // Context doesn't have many relationships, but test that include parameter is accepted without error
+        $response = $this->getJson(route('context.show', $context));
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'internal_name',
+                    'backward_compatibility',
+                    'is_default',
+                    'created_at',
+                    'updated_at',
+                ],
+            ]);
+    }
 }

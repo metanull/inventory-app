@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexCountryRequest;
+use App\Http\Requests\Api\ShowCountryRequest;
 use App\Http\Resources\CountryResource;
 use App\Models\Country;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 
 class CountryController extends Controller
@@ -14,10 +15,10 @@ class CountryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexCountryRequest $request)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('country'));
-        $pagination = PaginationParams::fromRequest($request);
+        $includes = $request->getIncludeParams();
+        $pagination = $request->getPaginationParams();
 
         $query = Country::query()->with($includes);
         $paginator = $query->paginate(
@@ -51,9 +52,9 @@ class CountryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Country $country)
+    public function show(ShowCountryRequest $request, Country $country)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('country'));
+        $includes = $request->getIncludeParams();
         $country->load($includes);
 
         return new CountryResource($country);

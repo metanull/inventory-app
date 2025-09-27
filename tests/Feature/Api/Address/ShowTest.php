@@ -98,4 +98,33 @@ class ShowTest extends TestCase
         $this->assertArrayHasKey('created_at', $data);
         $this->assertArrayHasKey('updated_at', $data);
     }
+
+    public function test_show_accepts_include_parameter_for_translations(): void
+    {
+        Language::factory(3)->create();
+        Country::factory(2)->create();
+        $address = Address::factory()->create();
+
+        $response = $this->getJson(route('address.show', [$address, 'include' => 'translations']));
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'internal_name',
+                    'country_id',
+                    'translations' => [
+                        '*' => [
+                            'id',
+                            'address_id',
+                            'language_id',
+                            'address',
+                            'description',
+                        ],
+                    ],
+                    'created_at',
+                    'updated_at',
+                ],
+            ]);
+    }
 }

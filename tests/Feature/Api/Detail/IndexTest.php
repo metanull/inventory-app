@@ -99,4 +99,29 @@ class IndexTest extends TestCase
             ->assertJsonPath('data.1.internal_name', $detail2->internal_name)
             ->assertJsonPath('data.1.backward_compatibility', $detail2->backward_compatibility);
     }
+
+    public function test_index_accepts_pagination_parameters(): void
+    {
+        Detail::factory(5)->WithItem()->create();
+
+        $response = $this->getJson(route('detail.index', ['per_page' => 2, 'page' => 1]));
+
+        $response->assertOk()
+            ->assertJsonPath('meta.per_page', 2)
+            ->assertJsonPath('meta.current_page', 1);
+
+        $this->assertCount(2, $response->json('data'));
+    }
+
+    public function test_index_validates_pagination_parameters(): void
+    {
+        $response = $this->getJson(route('detail.index', ['per_page' => 0]));
+        $response->assertUnprocessable();
+
+        $response = $this->getJson(route('detail.index', ['per_page' => 101]));
+        $response->assertUnprocessable();
+
+        $response = $this->getJson(route('detail.index', ['page' => 0]));
+        $response->assertUnprocessable();
+    }
 }

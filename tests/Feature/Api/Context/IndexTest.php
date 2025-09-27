@@ -90,4 +90,47 @@ class IndexTest extends TestCase
             ]);
         }
     }
+
+    public function test_index_returns_paginated_structure(): void
+    {
+        Context::factory(5)->create();
+
+        $response = $this->getJson(route('context.index'));
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data',
+                'links' => [
+                    'first', 'last', 'prev', 'next',
+                ],
+                'meta' => [
+                    'current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total',
+                ],
+            ]);
+    }
+
+    public function test_index_accepts_pagination_parameters(): void
+    {
+        Context::factory(5)->create();
+
+        $response = $this->getJson(route('context.index', ['per_page' => 2, 'page' => 1]));
+
+        $response->assertOk()
+            ->assertJsonPath('meta.per_page', 2)
+            ->assertJsonPath('meta.current_page', 1);
+
+        $this->assertCount(2, $response->json('data'));
+    }
+
+    public function test_index_validates_pagination_parameters(): void
+    {
+        $response = $this->getJson(route('context.index', ['per_page' => 0]));
+        $response->assertUnprocessable();
+
+        $response = $this->getJson(route('context.index', ['per_page' => 101]));
+        $response->assertUnprocessable();
+
+        $response = $this->getJson(route('context.index', ['page' => 0]));
+        $response->assertUnprocessable();
+    }
 }

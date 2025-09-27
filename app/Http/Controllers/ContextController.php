@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexContextRequest;
+use App\Http\Requests\Api\ShowContextRequest;
 use App\Http\Resources\ContextResource;
 use App\Models\Context;
-use App\Support\Includes\AllowList;
-use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 
 class ContextController extends Controller
@@ -14,10 +13,10 @@ class ContextController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexContextRequest $request)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('context'));
-        $pagination = PaginationParams::fromRequest($request);
+        $includes = $request->getIncludeParams();
+        $pagination = $request->getPaginationParams();
 
         $query = Context::query()->with($includes);
         $paginator = $query->paginate(
@@ -51,8 +50,13 @@ class ContextController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Context $context)
+    public function show(ShowContextRequest $request, Context $context)
     {
+        $includes = $request->getIncludeParams();
+        if (! empty($includes)) {
+            $context->load($includes);
+        }
+
         return new ContextResource($context);
     }
 
