@@ -35,6 +35,129 @@ export interface AddressIndex200Response {
      * @memberof AddressIndex200Response
      */
     'data': Array<AddressResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof AddressIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof AddressIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
+}
+/**
+ * 
+ * @export
+ * @interface AddressIndex200ResponseLinks
+ */
+export interface AddressIndex200ResponseLinks {
+    /**
+     * 
+     * @type {string}
+     * @memberof AddressIndex200ResponseLinks
+     */
+    'first': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof AddressIndex200ResponseLinks
+     */
+    'last': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof AddressIndex200ResponseLinks
+     */
+    'prev': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof AddressIndex200ResponseLinks
+     */
+    'next': string | null;
+}
+/**
+ * 
+ * @export
+ * @interface AddressIndex200ResponseMeta
+ */
+export interface AddressIndex200ResponseMeta {
+    /**
+     * 
+     * @type {number}
+     * @memberof AddressIndex200ResponseMeta
+     */
+    'current_page': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof AddressIndex200ResponseMeta
+     */
+    'from': number | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof AddressIndex200ResponseMeta
+     */
+    'last_page': number;
+    /**
+     * Generated paginator links.
+     * @type {Array<AddressIndex200ResponseMetaLinksInner>}
+     * @memberof AddressIndex200ResponseMeta
+     */
+    'links': Array<AddressIndex200ResponseMetaLinksInner>;
+    /**
+     * Base path for paginator generated URLs.
+     * @type {string}
+     * @memberof AddressIndex200ResponseMeta
+     */
+    'path': string | null;
+    /**
+     * Number of items shown per page.
+     * @type {number}
+     * @memberof AddressIndex200ResponseMeta
+     */
+    'per_page': number;
+    /**
+     * Number of the last item in the slice.
+     * @type {number}
+     * @memberof AddressIndex200ResponseMeta
+     */
+    'to': number | null;
+    /**
+     * Total number of items being paginated.
+     * @type {number}
+     * @memberof AddressIndex200ResponseMeta
+     */
+    'total': number;
+}
+/**
+ * 
+ * @export
+ * @interface AddressIndex200ResponseMetaLinksInner
+ */
+export interface AddressIndex200ResponseMetaLinksInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof AddressIndex200ResponseMetaLinksInner
+     */
+    'url': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof AddressIndex200ResponseMetaLinksInner
+     */
+    'label': string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof AddressIndex200ResponseMetaLinksInner
+     */
+    'active': boolean;
 }
 /**
  * 
@@ -91,19 +214,6 @@ export interface AddressStore201Response {
      * @memberof AddressStore201Response
      */
     'data': AddressResource;
-}
-/**
- * 
- * @export
- * @interface AddressStore422Response
- */
-export interface AddressStore422Response {
-    /**
-     * 
-     * @type {string}
-     * @memberof AddressStore422Response
-     */
-    'errors': string;
 }
 /**
  * 
@@ -488,6 +598,18 @@ export interface AvailableImageIndex200Response {
      * @memberof AvailableImageIndex200Response
      */
     'data': Array<AvailableImageResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof AvailableImageIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof AvailableImageIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -564,6 +686,18 @@ export interface CollectionIndex200Response {
      * @memberof CollectionIndex200Response
      */
     'data': Array<CollectionResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof CollectionIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof CollectionIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -840,6 +974,18 @@ export interface ContactIndex200Response {
      * @memberof ContactIndex200Response
      */
     'data': Array<ContactResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof ContactIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof ContactIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -1204,6 +1350,18 @@ export interface ContextIndex200Response {
      * @memberof ContextIndex200Response
      */
     'data': Array<ContextResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof ContextIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof ContextIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -1311,6 +1469,18 @@ export interface CountryIndex200Response {
      * @memberof CountryIndex200Response
      */
     'data': Array<CountryResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof CountryIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof CountryIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -1418,6 +1588,18 @@ export interface DetailIndex200Response {
      * @memberof DetailIndex200Response
      */
     'data': Array<DetailResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof DetailIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof DetailIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -1830,127 +2012,16 @@ export interface ExhibitionIndex200Response {
     'data': Array<ExhibitionResource>;
     /**
      * 
-     * @type {ExhibitionIndex200ResponseLinks}
+     * @type {AddressIndex200ResponseLinks}
      * @memberof ExhibitionIndex200Response
      */
-    'links': ExhibitionIndex200ResponseLinks;
+    'links': AddressIndex200ResponseLinks;
     /**
      * 
-     * @type {ExhibitionIndex200ResponseMeta}
+     * @type {AddressIndex200ResponseMeta}
      * @memberof ExhibitionIndex200Response
      */
-    'meta': ExhibitionIndex200ResponseMeta;
-}
-/**
- * 
- * @export
- * @interface ExhibitionIndex200ResponseLinks
- */
-export interface ExhibitionIndex200ResponseLinks {
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionIndex200ResponseLinks
-     */
-    'first': string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionIndex200ResponseLinks
-     */
-    'last': string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionIndex200ResponseLinks
-     */
-    'prev': string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionIndex200ResponseLinks
-     */
-    'next': string | null;
-}
-/**
- * 
- * @export
- * @interface ExhibitionIndex200ResponseMeta
- */
-export interface ExhibitionIndex200ResponseMeta {
-    /**
-     * 
-     * @type {number}
-     * @memberof ExhibitionIndex200ResponseMeta
-     */
-    'current_page': number;
-    /**
-     * 
-     * @type {number}
-     * @memberof ExhibitionIndex200ResponseMeta
-     */
-    'from': number | null;
-    /**
-     * 
-     * @type {number}
-     * @memberof ExhibitionIndex200ResponseMeta
-     */
-    'last_page': number;
-    /**
-     * Generated paginator links.
-     * @type {Array<ExhibitionIndex200ResponseMetaLinksInner>}
-     * @memberof ExhibitionIndex200ResponseMeta
-     */
-    'links': Array<ExhibitionIndex200ResponseMetaLinksInner>;
-    /**
-     * Base path for paginator generated URLs.
-     * @type {string}
-     * @memberof ExhibitionIndex200ResponseMeta
-     */
-    'path': string | null;
-    /**
-     * Number of items shown per page.
-     * @type {number}
-     * @memberof ExhibitionIndex200ResponseMeta
-     */
-    'per_page': number;
-    /**
-     * Number of the last item in the slice.
-     * @type {number}
-     * @memberof ExhibitionIndex200ResponseMeta
-     */
-    'to': number | null;
-    /**
-     * Total number of items being paginated.
-     * @type {number}
-     * @memberof ExhibitionIndex200ResponseMeta
-     */
-    'total': number;
-}
-/**
- * 
- * @export
- * @interface ExhibitionIndex200ResponseMetaLinksInner
- */
-export interface ExhibitionIndex200ResponseMetaLinksInner {
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionIndex200ResponseMetaLinksInner
-     */
-    'url': string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionIndex200ResponseMetaLinksInner
-     */
-    'label': string;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof ExhibitionIndex200ResponseMetaLinksInner
-     */
-    'active': boolean;
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -2260,6 +2331,18 @@ export interface GalleryIndex200Response {
      * @memberof GalleryIndex200Response
      */
     'data': Array<GalleryResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof GalleryIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof GalleryIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -2687,30 +2770,130 @@ export interface ImageUploadStore200Response {
 export interface InfoVersion200Response {
     /**
      * 
-     * @type {InfoVersion200ResponseVersion}
+     * @type {any}
      * @memberof InfoVersion200Response
      */
-    'version': InfoVersion200ResponseVersion;
+    'repository': any | null;
+    /**
+     * 
+     * @type {InfoVersion200ResponseAnyOfBuildTimestamp}
+     * @memberof InfoVersion200Response
+     */
+    'build_timestamp': InfoVersion200ResponseAnyOfBuildTimestamp;
+    /**
+     * 
+     * @type {any}
+     * @memberof InfoVersion200Response
+     */
+    'repository_url': any | null;
+    /**
+     * 
+     * @type {any}
+     * @memberof InfoVersion200Response
+     */
+    'api_client_version': any | null;
     /**
      * 
      * @type {string}
      * @memberof InfoVersion200Response
      */
-    'name': string;
+    'app_version': InfoVersion200ResponseAppVersionEnum;
     /**
      * 
-     * @type {string}
+     * @type {any}
      * @memberof InfoVersion200Response
      */
-    'timestamp': string;
+    'commit_sha': any | null;
 }
+
+export const InfoVersion200ResponseAppVersionEnum = {
+    _100Dev: '1.0.0-dev'
+} as const;
+
+export type InfoVersion200ResponseAppVersionEnum = typeof InfoVersion200ResponseAppVersionEnum[keyof typeof InfoVersion200ResponseAppVersionEnum];
+
 /**
  * 
  * @export
- * @interface InfoVersion200ResponseVersion
+ * @interface InfoVersion200ResponseAnyOf
  */
-export interface InfoVersion200ResponseVersion {
+export interface InfoVersion200ResponseAnyOf {
+    /**
+     * 
+     * @type {any}
+     * @memberof InfoVersion200ResponseAnyOf
+     */
+    'repository': any | null;
+    /**
+     * 
+     * @type {InfoVersion200ResponseAnyOfBuildTimestamp}
+     * @memberof InfoVersion200ResponseAnyOf
+     */
+    'build_timestamp': InfoVersion200ResponseAnyOfBuildTimestamp;
+    /**
+     * 
+     * @type {any}
+     * @memberof InfoVersion200ResponseAnyOf
+     */
+    'repository_url': any | null;
+    /**
+     * 
+     * @type {any}
+     * @memberof InfoVersion200ResponseAnyOf
+     */
+    'api_client_version': any | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof InfoVersion200ResponseAnyOf
+     */
+    'app_version': InfoVersion200ResponseAnyOfAppVersionEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof InfoVersion200ResponseAnyOf
+     */
+    'commit_sha': any | null;
 }
+
+export const InfoVersion200ResponseAnyOfAppVersionEnum = {
+    _100Dev: '1.0.0-dev'
+} as const;
+
+export type InfoVersion200ResponseAnyOfAppVersionEnum = typeof InfoVersion200ResponseAnyOfAppVersionEnum[keyof typeof InfoVersion200ResponseAnyOfAppVersionEnum];
+
+/**
+ * 
+ * @export
+ * @interface InfoVersion200ResponseAnyOfBuildTimestamp
+ */
+export interface InfoVersion200ResponseAnyOfBuildTimestamp {
+    /**
+     * 
+     * @type {string}
+     * @memberof InfoVersion200ResponseAnyOfBuildTimestamp
+     */
+    'value': string;
+    /**
+     * 
+     * @type {number}
+     * @memberof InfoVersion200ResponseAnyOfBuildTimestamp
+     */
+    'DisplayHint': InfoVersion200ResponseAnyOfBuildTimestampDisplayHintEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof InfoVersion200ResponseAnyOfBuildTimestamp
+     */
+    'DateTime': string;
+}
+
+export const InfoVersion200ResponseAnyOfBuildTimestampDisplayHintEnum = {
+    NUMBER_2: 2
+} as const;
+
+export type InfoVersion200ResponseAnyOfBuildTimestampDisplayHintEnum = typeof InfoVersion200ResponseAnyOfBuildTimestampDisplayHintEnum[keyof typeof InfoVersion200ResponseAnyOfBuildTimestampDisplayHintEnum];
+
 /**
  * 
  * @export
@@ -2746,6 +2929,19 @@ export interface InlineObject1 {
 /**
  * 
  * @export
+ * @interface ItemForTag200Response
+ */
+export interface ItemForTag200Response {
+    /**
+     * 
+     * @type {Array<ItemResource>}
+     * @memberof ItemForTag200Response
+     */
+    'data': Array<ItemResource>;
+}
+/**
+ * 
+ * @export
  * @interface ItemIndex200Response
  */
 export interface ItemIndex200Response {
@@ -2755,6 +2951,18 @@ export interface ItemIndex200Response {
      * @memberof ItemIndex200Response
      */
     'data': Array<ItemResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof ItemIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof ItemIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -2817,17 +3025,23 @@ export interface ItemResource {
      */
     'country'?: CountryResource;
     /**
+     * The collection that contains this item (CollectionResource)
+     * @type {CollectionResource}
+     * @memberof ItemResource
+     */
+    'collection'?: CollectionResource;
+    /**
      * Artists associated with this item (ArtistResource[])
      * @type {Array<ArtistResource>}
      * @memberof ItemResource
      */
-    'artists': Array<ArtistResource>;
+    'artists'?: Array<ArtistResource>;
     /**
      * Workshops associated with this item (WorkshopResource[])
      * @type {Array<WorkshopResource>}
      * @memberof ItemResource
      */
-    'workshops': Array<WorkshopResource>;
+    'workshops'?: Array<WorkshopResource>;
     /**
      * Tags associated with this item (TagResource[])
      * @type {Array<TagResource>}
@@ -2840,6 +3054,18 @@ export interface ItemResource {
      * @memberof ItemResource
      */
     'translations'?: Array<ItemTranslationResource>;
+    /**
+     * Pictures attached to this item (PictureResource[])
+     * @type {Array<PictureResource>}
+     * @memberof ItemResource
+     */
+    'pictures'?: Array<PictureResource>;
+    /**
+     * Galleries that include this item (GalleryResource[])
+     * @type {Array<GalleryResource>}
+     * @memberof ItemResource
+     */
+    'galleries'?: Array<GalleryResource>;
     /**
      * The date of creation of the resource (managed by the system)
      * @type {string}
@@ -3547,6 +3773,18 @@ export interface LanguageIndex200Response {
      * @memberof LanguageIndex200Response
      */
     'data': Array<LanguageResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof LanguageIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof LanguageIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -3672,6 +3910,18 @@ export interface LocationIndex200Response {
      * @memberof LocationIndex200Response
      */
     'data': Array<LocationResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof LocationIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof LocationIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -4101,6 +4351,18 @@ export interface PartnerIndex200Response {
      * @memberof PartnerIndex200Response
      */
     'data': Array<PartnerResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof PartnerIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof PartnerIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -4355,16 +4617,16 @@ export interface PictureTranslationIndex200Response {
     'data': Array<PictureTranslationResource>;
     /**
      * 
-     * @type {ExhibitionIndex200ResponseLinks}
+     * @type {AddressIndex200ResponseLinks}
      * @memberof PictureTranslationIndex200Response
      */
-    'links': ExhibitionIndex200ResponseLinks;
+    'links': AddressIndex200ResponseLinks;
     /**
      * 
-     * @type {ExhibitionIndex200ResponseMeta}
+     * @type {AddressIndex200ResponseMeta}
      * @memberof PictureTranslationIndex200Response
      */
-    'meta': ExhibitionIndex200ResponseMeta;
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -4663,6 +4925,31 @@ export interface ProjectEnabled200Response {
 /**
  * 
  * @export
+ * @interface ProjectIndex200Response
+ */
+export interface ProjectIndex200Response {
+    /**
+     * 
+     * @type {Array<ProjectResource>}
+     * @memberof ProjectIndex200Response
+     */
+    'data': Array<ProjectResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof ProjectIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof ProjectIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
+}
+/**
+ * 
+ * @export
  * @interface ProjectResource
  */
 export interface ProjectResource {
@@ -4827,6 +5114,18 @@ export interface ProvinceIndex200Response {
      * @memberof ProvinceIndex200Response
      */
     'data': Array<ProvinceResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof ProvinceIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof ProvinceIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -5033,6 +5332,18 @@ export interface TagIndex200Response {
      * @memberof TagIndex200Response
      */
     'data': Array<TagResource>;
+    /**
+     * 
+     * @type {AddressIndex200ResponseLinks}
+     * @memberof TagIndex200Response
+     */
+    'links': AddressIndex200ResponseLinks;
+    /**
+     * 
+     * @type {AddressIndex200ResponseMeta}
+     * @memberof TagIndex200Response
+     */
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -5129,16 +5440,16 @@ export interface ThemeIndex200Response {
     'data': Array<ThemeResource>;
     /**
      * 
-     * @type {ExhibitionIndex200ResponseLinks}
+     * @type {AddressIndex200ResponseLinks}
      * @memberof ThemeIndex200Response
      */
-    'links': ExhibitionIndex200ResponseLinks;
+    'links': AddressIndex200ResponseLinks;
     /**
      * 
-     * @type {ExhibitionIndex200ResponseMeta}
+     * @type {AddressIndex200ResponseMeta}
      * @memberof ThemeIndex200Response
      */
-    'meta': ExhibitionIndex200ResponseMeta;
+    'meta': AddressIndex200ResponseMeta;
 }
 /**
  * 
@@ -11548,10 +11859,13 @@ export const GalleryApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary Display a listing of the galleries
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        galleryIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        galleryIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/gallery`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -11568,6 +11882,18 @@ export const GalleryApiAxiosParamCreator = function (configuration?: Configurati
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -11583,10 +11909,11 @@ export const GalleryApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary Display the specified gallery
          * @param {string} gallery The gallery ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        galleryShow: async (gallery: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        galleryShow: async (gallery: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'gallery' is not null or undefined
             assertParamExists('galleryShow', 'gallery', gallery)
             const localVarPath = `/gallery/{gallery}`
@@ -11605,6 +11932,10 @@ export const GalleryApiAxiosParamCreator = function (configuration?: Configurati
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -11725,11 +12056,14 @@ export const GalleryApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of the galleries
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async galleryIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GalleryIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.galleryIndex(options);
+        async galleryIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GalleryIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.galleryIndex(page, perPage, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GalleryApi.galleryIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -11738,11 +12072,12 @@ export const GalleryApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified gallery
          * @param {string} gallery The gallery ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async galleryShow(gallery: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GalleryStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.galleryShow(gallery, options);
+        async galleryShow(gallery: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GalleryStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.galleryShow(gallery, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GalleryApi.galleryShow']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -11797,21 +12132,25 @@ export const GalleryApiFactory = function (configuration?: Configuration, basePa
         /**
          * 
          * @summary Display a listing of the galleries
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        galleryIndex(options?: RawAxiosRequestConfig): AxiosPromise<GalleryIndex200Response> {
-            return localVarFp.galleryIndex(options).then((request) => request(axios, basePath));
+        galleryIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<GalleryIndex200Response> {
+            return localVarFp.galleryIndex(page, perPage, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Display the specified gallery
          * @param {string} gallery The gallery ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        galleryShow(gallery: string, options?: RawAxiosRequestConfig): AxiosPromise<GalleryStore200Response> {
-            return localVarFp.galleryShow(gallery, options).then((request) => request(axios, basePath));
+        galleryShow(gallery: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<GalleryStore200Response> {
+            return localVarFp.galleryShow(gallery, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -11859,24 +12198,28 @@ export class GalleryApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of the galleries
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GalleryApi
      */
-    public galleryIndex(options?: RawAxiosRequestConfig) {
-        return GalleryApiFp(this.configuration).galleryIndex(options).then((request) => request(this.axios, this.basePath));
+    public galleryIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return GalleryApiFp(this.configuration).galleryIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Display the specified gallery
      * @param {string} gallery The gallery ID
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GalleryApi
      */
-    public galleryShow(gallery: string, options?: RawAxiosRequestConfig) {
-        return GalleryApiFp(this.configuration).galleryShow(gallery, options).then((request) => request(this.axios, this.basePath));
+    public galleryShow(gallery: string, include?: string, options?: RawAxiosRequestConfig) {
+        return GalleryApiFp(this.configuration).galleryShow(gallery, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -12633,10 +12976,13 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
         /**
          * 
          * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        itemIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/item`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -12653,6 +12999,18 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -12668,10 +13026,11 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
          * 
          * @summary Display the specified resource
          * @param {string} item The item ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemShow: async (item: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        itemShow: async (item: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'item' is not null or undefined
             assertParamExists('itemShow', 'item', item)
             const localVarPath = `/item/{item}`
@@ -12690,6 +13049,10 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -12938,7 +13301,7 @@ export const ItemApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemForTag(tag: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemIndex200Response>> {
+        async itemForTag(tag: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemForTag200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.itemForTag(tag, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemApi.itemForTag']?.[localVarOperationServerIndex]?.url;
@@ -12947,11 +13310,14 @@ export const ItemApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.itemIndex(options);
+        async itemIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemIndex(page, perPage, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemApi.itemIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -12960,11 +13326,12 @@ export const ItemApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} item The item ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemShow(item: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.itemShow(item, options);
+        async itemShow(item: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemShow(item, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemApi.itemShow']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -13017,7 +13384,7 @@ export const ItemApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemWithAllTags(itemWithAllTagsRequest: ItemWithAllTagsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemIndex200Response>> {
+        async itemWithAllTags(itemWithAllTagsRequest: ItemWithAllTagsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemForTag200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.itemWithAllTags(itemWithAllTagsRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemApi.itemWithAllTags']?.[localVarOperationServerIndex]?.url;
@@ -13030,7 +13397,7 @@ export const ItemApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemWithAnyTags(itemWithAllTagsRequest: ItemWithAllTagsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemIndex200Response>> {
+        async itemWithAnyTags(itemWithAllTagsRequest: ItemWithAllTagsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemForTag200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.itemWithAnyTags(itemWithAllTagsRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemApi.itemWithAnyTags']?.[localVarOperationServerIndex]?.url;
@@ -13063,27 +13430,31 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemForTag(tag: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemIndex200Response> {
+        itemForTag(tag: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemForTag200Response> {
             return localVarFp.itemForTag(tag, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemIndex(options?: RawAxiosRequestConfig): AxiosPromise<ItemIndex200Response> {
-            return localVarFp.itemIndex(options).then((request) => request(axios, basePath));
+        itemIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemIndex200Response> {
+            return localVarFp.itemIndex(page, perPage, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Display the specified resource
          * @param {string} item The item ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemShow(item: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemStore200Response> {
-            return localVarFp.itemShow(item, options).then((request) => request(axios, basePath));
+        itemShow(item: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemStore200Response> {
+            return localVarFp.itemShow(item, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -13124,7 +13495,7 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemWithAllTags(itemWithAllTagsRequest: ItemWithAllTagsRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemIndex200Response> {
+        itemWithAllTags(itemWithAllTagsRequest: ItemWithAllTagsRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemForTag200Response> {
             return localVarFp.itemWithAllTags(itemWithAllTagsRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -13134,7 +13505,7 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemWithAnyTags(itemWithAllTagsRequest: ItemWithAllTagsRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemIndex200Response> {
+        itemWithAnyTags(itemWithAllTagsRequest: ItemWithAllTagsRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemForTag200Response> {
             return localVarFp.itemWithAnyTags(itemWithAllTagsRequest, options).then((request) => request(axios, basePath));
         },
     };
@@ -13174,24 +13545,28 @@ export class ItemApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of the resource
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ItemApi
      */
-    public itemIndex(options?: RawAxiosRequestConfig) {
-        return ItemApiFp(this.configuration).itemIndex(options).then((request) => request(this.axios, this.basePath));
+    public itemIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Display the specified resource
      * @param {string} item The item ID
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ItemApi
      */
-    public itemShow(item: string, options?: RawAxiosRequestConfig) {
-        return ItemApiFp(this.configuration).itemShow(item, options).then((request) => request(this.axios, this.basePath));
+    public itemShow(item: string, include?: string, options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemShow(item, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -14806,10 +15181,13 @@ export const LocationApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary Display a listing of locations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        locationIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        locationIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/location`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -14826,6 +15204,18 @@ export const LocationApiAxiosParamCreator = function (configuration?: Configurat
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -14841,10 +15231,11 @@ export const LocationApiAxiosParamCreator = function (configuration?: Configurat
          * 
          * @summary Display the specified location
          * @param {string} location The location ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        locationShow: async (location: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        locationShow: async (location: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'location' is not null or undefined
             assertParamExists('locationShow', 'location', location)
             const localVarPath = `/location/{location}`
@@ -14863,6 +15254,10 @@ export const LocationApiAxiosParamCreator = function (configuration?: Configurat
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -14985,11 +15380,14 @@ export const LocationApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of locations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async locationIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LocationIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.locationIndex(options);
+        async locationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LocationIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.locationIndex(page, perPage, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LocationApi.locationIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -14998,11 +15396,12 @@ export const LocationApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified location
          * @param {string} location The location ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async locationShow(location: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LocationStore201Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.locationShow(location, options);
+        async locationShow(location: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LocationStore201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.locationShow(location, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LocationApi.locationShow']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -15057,21 +15456,25 @@ export const LocationApiFactory = function (configuration?: Configuration, baseP
         /**
          * 
          * @summary Display a listing of locations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        locationIndex(options?: RawAxiosRequestConfig): AxiosPromise<LocationIndex200Response> {
-            return localVarFp.locationIndex(options).then((request) => request(axios, basePath));
+        locationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<LocationIndex200Response> {
+            return localVarFp.locationIndex(page, perPage, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Display the specified location
          * @param {string} location The location ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        locationShow(location: string, options?: RawAxiosRequestConfig): AxiosPromise<LocationStore201Response> {
-            return localVarFp.locationShow(location, options).then((request) => request(axios, basePath));
+        locationShow(location: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<LocationStore201Response> {
+            return localVarFp.locationShow(location, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -15119,24 +15522,28 @@ export class LocationApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of locations
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LocationApi
      */
-    public locationIndex(options?: RawAxiosRequestConfig) {
-        return LocationApiFp(this.configuration).locationIndex(options).then((request) => request(this.axios, this.basePath));
+    public locationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return LocationApiFp(this.configuration).locationIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Display the specified location
      * @param {string} location The location ID
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LocationApi
      */
-    public locationShow(location: string, options?: RawAxiosRequestConfig) {
-        return LocationApiFp(this.configuration).locationShow(location, options).then((request) => request(this.axios, this.basePath));
+    public locationShow(location: string, include?: string, options?: RawAxiosRequestConfig) {
+        return LocationApiFp(this.configuration).locationShow(location, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -16738,10 +17145,13 @@ export const PartnerApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        partnerIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        partnerIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/partner`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -16758,6 +17168,18 @@ export const PartnerApiAxiosParamCreator = function (configuration?: Configurati
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -16773,10 +17195,11 @@ export const PartnerApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary Display the specified resource
          * @param {string} partner The partner ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        partnerShow: async (partner: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        partnerShow: async (partner: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'partner' is not null or undefined
             assertParamExists('partnerShow', 'partner', partner)
             const localVarPath = `/partner/{partner}`
@@ -16795,6 +17218,10 @@ export const PartnerApiAxiosParamCreator = function (configuration?: Configurati
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -16917,11 +17344,14 @@ export const PartnerApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async partnerIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerIndex(options);
+        async partnerIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerIndex(page, perPage, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PartnerApi.partnerIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -16930,11 +17360,12 @@ export const PartnerApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} partner The partner ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async partnerShow(partner: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerShow(partner, options);
+        async partnerShow(partner: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerShow(partner, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PartnerApi.partnerShow']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -16989,21 +17420,25 @@ export const PartnerApiFactory = function (configuration?: Configuration, basePa
         /**
          * 
          * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        partnerIndex(options?: RawAxiosRequestConfig): AxiosPromise<PartnerIndex200Response> {
-            return localVarFp.partnerIndex(options).then((request) => request(axios, basePath));
+        partnerIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<PartnerIndex200Response> {
+            return localVarFp.partnerIndex(page, perPage, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Display the specified resource
          * @param {string} partner The partner ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        partnerShow(partner: string, options?: RawAxiosRequestConfig): AxiosPromise<PartnerStore200Response> {
-            return localVarFp.partnerShow(partner, options).then((request) => request(axios, basePath));
+        partnerShow(partner: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<PartnerStore200Response> {
+            return localVarFp.partnerShow(partner, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -17051,24 +17486,28 @@ export class PartnerApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of the resource
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PartnerApi
      */
-    public partnerIndex(options?: RawAxiosRequestConfig) {
-        return PartnerApiFp(this.configuration).partnerIndex(options).then((request) => request(this.axios, this.basePath));
+    public partnerIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return PartnerApiFp(this.configuration).partnerIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Display the specified resource
      * @param {string} partner The partner ID
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PartnerApi
      */
-    public partnerShow(partner: string, options?: RawAxiosRequestConfig) {
-        return PartnerApiFp(this.configuration).partnerShow(partner, options).then((request) => request(this.axios, this.basePath));
+    public partnerShow(partner: string, include?: string, options?: RawAxiosRequestConfig) {
+        return PartnerApiFp(this.configuration).partnerShow(partner, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -18524,10 +18963,13 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        projectIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        projectIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/project`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -18543,6 +18985,18 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -18647,10 +19101,11 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary Display the specified resource
          * @param {string} project The project ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        projectShow: async (project: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        projectShow: async (project: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'project' is not null or undefined
             assertParamExists('projectShow', 'project', project)
             const localVarPath = `/project/{project}`
@@ -18669,6 +19124,10 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -18803,11 +19262,14 @@ export const ProjectApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async projectIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProjectEnabled200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.projectIndex(options);
+        async projectIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProjectIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.projectIndex(page, perPage, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProjectApi.projectIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -18844,11 +19306,12 @@ export const ProjectApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} project The project ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async projectShow(project: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProjectSetLaunched200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.projectShow(project, options);
+        async projectShow(project: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProjectSetLaunched200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.projectShow(project, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProjectApi.projectShow']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -18912,11 +19375,14 @@ export const ProjectApiFactory = function (configuration?: Configuration, basePa
         /**
          * 
          * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        projectIndex(options?: RawAxiosRequestConfig): AxiosPromise<ProjectEnabled200Response> {
-            return localVarFp.projectIndex(options).then((request) => request(axios, basePath));
+        projectIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ProjectIndex200Response> {
+            return localVarFp.projectIndex(page, perPage, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -18944,11 +19410,12 @@ export const ProjectApiFactory = function (configuration?: Configuration, basePa
          * 
          * @summary Display the specified resource
          * @param {string} project The project ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        projectShow(project: string, options?: RawAxiosRequestConfig): AxiosPromise<ProjectSetLaunched200Response> {
-            return localVarFp.projectShow(project, options).then((request) => request(axios, basePath));
+        projectShow(project: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ProjectSetLaunched200Response> {
+            return localVarFp.projectShow(project, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -19007,12 +19474,15 @@ export class ProjectApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of the resource
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ProjectApi
      */
-    public projectIndex(options?: RawAxiosRequestConfig) {
-        return ProjectApiFp(this.configuration).projectIndex(options).then((request) => request(this.axios, this.basePath));
+    public projectIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return ProjectApiFp(this.configuration).projectIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -19045,12 +19515,13 @@ export class ProjectApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} project The project ID
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ProjectApi
      */
-    public projectShow(project: string, options?: RawAxiosRequestConfig) {
-        return ProjectApiFp(this.configuration).projectShow(project, options).then((request) => request(this.axios, this.basePath));
+    public projectShow(project: string, include?: string, options?: RawAxiosRequestConfig) {
+        return ProjectApiFp(this.configuration).projectShow(project, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -19128,10 +19599,13 @@ export const ProvinceApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary Display a listing of provinces
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        provinceIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        provinceIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/province`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -19148,6 +19622,18 @@ export const ProvinceApiAxiosParamCreator = function (configuration?: Configurat
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -19163,10 +19649,11 @@ export const ProvinceApiAxiosParamCreator = function (configuration?: Configurat
          * 
          * @summary Display the specified province
          * @param {string} province The province ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        provinceShow: async (province: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        provinceShow: async (province: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'province' is not null or undefined
             assertParamExists('provinceShow', 'province', province)
             const localVarPath = `/province/{province}`
@@ -19185,6 +19672,10 @@ export const ProvinceApiAxiosParamCreator = function (configuration?: Configurat
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -19307,11 +19798,14 @@ export const ProvinceApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of provinces
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async provinceIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvinceIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceIndex(options);
+        async provinceIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvinceIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceIndex(page, perPage, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProvinceApi.provinceIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -19320,11 +19814,12 @@ export const ProvinceApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified province
          * @param {string} province The province ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async provinceShow(province: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvinceStore201Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceShow(province, options);
+        async provinceShow(province: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvinceStore201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceShow(province, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProvinceApi.provinceShow']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -19379,21 +19874,25 @@ export const ProvinceApiFactory = function (configuration?: Configuration, baseP
         /**
          * 
          * @summary Display a listing of provinces
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        provinceIndex(options?: RawAxiosRequestConfig): AxiosPromise<ProvinceIndex200Response> {
-            return localVarFp.provinceIndex(options).then((request) => request(axios, basePath));
+        provinceIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ProvinceIndex200Response> {
+            return localVarFp.provinceIndex(page, perPage, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Display the specified province
          * @param {string} province The province ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        provinceShow(province: string, options?: RawAxiosRequestConfig): AxiosPromise<ProvinceStore201Response> {
-            return localVarFp.provinceShow(province, options).then((request) => request(axios, basePath));
+        provinceShow(province: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ProvinceStore201Response> {
+            return localVarFp.provinceShow(province, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -19441,24 +19940,28 @@ export class ProvinceApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of provinces
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ProvinceApi
      */
-    public provinceIndex(options?: RawAxiosRequestConfig) {
-        return ProvinceApiFp(this.configuration).provinceIndex(options).then((request) => request(this.axios, this.basePath));
+    public provinceIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return ProvinceApiFp(this.configuration).provinceIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Display the specified province
      * @param {string} province The province ID
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ProvinceApi
      */
-    public provinceShow(province: string, options?: RawAxiosRequestConfig) {
-        return ProvinceApiFp(this.configuration).provinceShow(province, options).then((request) => request(this.axios, this.basePath));
+    public provinceShow(province: string, include?: string, options?: RawAxiosRequestConfig) {
+        return ProvinceApiFp(this.configuration).provinceShow(province, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -20422,11 +20925,14 @@ export const ThemeApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
-         * @summary Display a listing of the themes for an exhibition
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        themeIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        themeIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/theme`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -20443,6 +20949,18 @@ export const ThemeApiAxiosParamCreator = function (configuration?: Configuration
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -20456,12 +20974,13 @@ export const ThemeApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
-         * @summary Display the specified theme
+         * @summary Display the specified resource
          * @param {string} theme The theme ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        themeShow: async (theme: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        themeShow: async (theme: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'theme' is not null or undefined
             assertParamExists('themeShow', 'theme', theme)
             const localVarPath = `/theme/{theme}`
@@ -20480,6 +20999,10 @@ export const ThemeApiAxiosParamCreator = function (configuration?: Configuration
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -20599,25 +21122,29 @@ export const ThemeApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Display a listing of the themes for an exhibition
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async themeIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeIndex(options);
+        async themeIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.themeIndex(page, perPage, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ThemeApi.themeIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
-         * @summary Display the specified theme
+         * @summary Display the specified resource
          * @param {string} theme The theme ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async themeShow(theme: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeShow(theme, options);
+        async themeShow(theme: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.themeShow(theme, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ThemeApi.themeShow']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -20671,22 +21198,26 @@ export const ThemeApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
-         * @summary Display a listing of the themes for an exhibition
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        themeIndex(options?: RawAxiosRequestConfig): AxiosPromise<ThemeIndex200Response> {
-            return localVarFp.themeIndex(options).then((request) => request(axios, basePath));
+        themeIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ThemeIndex200Response> {
+            return localVarFp.themeIndex(page, perPage, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @summary Display the specified theme
+         * @summary Display the specified resource
          * @param {string} theme The theme ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        themeShow(theme: string, options?: RawAxiosRequestConfig): AxiosPromise<ThemeStore200Response> {
-            return localVarFp.themeShow(theme, options).then((request) => request(axios, basePath));
+        themeShow(theme: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ThemeStore200Response> {
+            return localVarFp.themeShow(theme, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -20733,25 +21264,29 @@ export class ThemeApi extends BaseAPI {
 
     /**
      * 
-     * @summary Display a listing of the themes for an exhibition
+     * @summary Display a listing of the resource
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ThemeApi
      */
-    public themeIndex(options?: RawAxiosRequestConfig) {
-        return ThemeApiFp(this.configuration).themeIndex(options).then((request) => request(this.axios, this.basePath));
+    public themeIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return ThemeApiFp(this.configuration).themeIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @summary Display the specified theme
+     * @summary Display the specified resource
      * @param {string} theme The theme ID
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ThemeApi
      */
-    public themeShow(theme: string, options?: RawAxiosRequestConfig) {
-        return ThemeApiFp(this.configuration).themeShow(theme, options).then((request) => request(this.axios, this.basePath));
+    public themeShow(theme: string, include?: string, options?: RawAxiosRequestConfig) {
+        return ThemeApiFp(this.configuration).themeShow(theme, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexPartnerRequest;
+use App\Http\Requests\Api\ShowPartnerRequest;
 use App\Http\Resources\PartnerResource;
 use App\Models\Partner;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 
 class PartnerController extends Controller
@@ -14,10 +15,10 @@ class PartnerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexPartnerRequest $request)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('partner'));
-        $pagination = PaginationParams::fromRequest($request);
+        $includes = $request->getIncludeParams();
+        $pagination = $request->getPaginationParams();
 
         $query = Partner::query()->with($includes);
         $paginator = $query->paginate(
@@ -54,9 +55,9 @@ class PartnerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Partner $partner)
+    public function show(ShowPartnerRequest $request, Partner $partner)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('partner'));
+        $includes = $request->getIncludeParams();
         $partner->load($includes);
 
         return new PartnerResource($partner);

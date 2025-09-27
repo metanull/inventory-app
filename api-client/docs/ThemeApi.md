@@ -5,8 +5,8 @@ All URIs are relative to *http://127.0.0.1:8000/api*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**themeDestroy**](#themedestroy) | **DELETE** /theme/{theme} | Remove the specified theme from storage|
-|[**themeIndex**](#themeindex) | **GET** /theme | Display a listing of the themes for an exhibition|
-|[**themeShow**](#themeshow) | **GET** /theme/{theme} | Display the specified theme|
+|[**themeIndex**](#themeindex) | **GET** /theme | Display a listing of the resource|
+|[**themeShow**](#themeshow) | **GET** /theme/{theme} | Display the specified resource|
 |[**themeStore**](#themestore) | **POST** /theme | Store a newly created theme in storage|
 |[**themeUpdate**](#themeupdate) | **PUT** /theme/{theme} | Update the specified theme in storage|
 
@@ -77,11 +77,24 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ThemeApi(configuration);
 
-const { status, data } = await apiInstance.themeIndex();
+let page: number; // (optional) (default to undefined)
+let perPage: number; // (optional) (default to undefined)
+let include: string; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.themeIndex(
+    page,
+    perPage,
+    include
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] |  | (optional) defaults to undefined|
+| **perPage** | [**number**] |  | (optional) defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -103,6 +116,8 @@ This endpoint does not have any parameters.
 |-------------|-------------|------------------|
 |**200** | Paginated set of &#x60;ThemeResource&#x60; |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -122,9 +137,11 @@ const configuration = new Configuration();
 const apiInstance = new ThemeApi(configuration);
 
 let theme: string; //The theme ID (default to undefined)
+let include: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.themeShow(
-    theme
+    theme,
+    include
 );
 ```
 
@@ -133,6 +150,7 @@ const { status, data } = await apiInstance.themeShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **theme** | [**string**] | The theme ID | defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -155,6 +173,8 @@ const { status, data } = await apiInstance.themeShow(
 |**200** | &#x60;ThemeResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

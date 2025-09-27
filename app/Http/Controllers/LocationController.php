@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexLocationRequest;
+use App\Http\Requests\Api\ShowLocationRequest;
 use App\Http\Resources\LocationResource;
 use App\Models\Location;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,10 +19,10 @@ class LocationController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(IndexLocationRequest $request)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('location'));
-        $pagination = PaginationParams::fromRequest($request);
+        $includes = $request->getIncludeParams();
+        $pagination = $request->getPaginationParams();
 
         $defaults = ['translations'];
         $with = array_values(array_unique(array_merge($defaults, $includes)));
@@ -80,9 +81,9 @@ class LocationController extends Controller
      *
      * @return \App\Http\Resources\LocationResource
      */
-    public function show(Request $request, Location $location)
+    public function show(ShowLocationRequest $request, Location $location)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('location'));
+        $includes = $request->getIncludeParams();
         if (! empty($includes)) {
             $location->load($includes);
         }

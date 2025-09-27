@@ -14,10 +14,13 @@ Name | Type | Description | Notes
 **partner** | [**PartnerResource**](PartnerResource.md) | The partner owning the item (PartnerResource) | [optional] [default to undefined]
 **project** | [**ProjectResource**](ProjectResource.md) | The project this item belongs to, nullable (ProjectResource) | [optional] [default to undefined]
 **country** | [**CountryResource**](CountryResource.md) | The country this item is associated with, nullable (CountryResource) | [optional] [default to undefined]
-**artists** | [**Array&lt;ArtistResource&gt;**](ArtistResource.md) | Artists associated with this item (ArtistResource[]) | [default to undefined]
-**workshops** | [**Array&lt;WorkshopResource&gt;**](WorkshopResource.md) | Workshops associated with this item (WorkshopResource[]) | [default to undefined]
+**collection** | [**CollectionResource**](CollectionResource.md) | The collection that contains this item (CollectionResource) | [optional] [default to undefined]
+**artists** | [**Array&lt;ArtistResource&gt;**](ArtistResource.md) | Artists associated with this item (ArtistResource[]) | [optional] [default to undefined]
+**workshops** | [**Array&lt;WorkshopResource&gt;**](WorkshopResource.md) | Workshops associated with this item (WorkshopResource[]) | [optional] [default to undefined]
 **tags** | [**Array&lt;TagResource&gt;**](TagResource.md) | Tags associated with this item (TagResource[]) | [optional] [default to undefined]
 **translations** | [**Array&lt;ItemTranslationResource&gt;**](ItemTranslationResource.md) | Translations for this item (internationalization and contextualization) (ItemTranslationResource[]) | [optional] [default to undefined]
+**pictures** | [**Array&lt;PictureResource&gt;**](PictureResource.md) | Pictures attached to this item (PictureResource[]) | [optional] [default to undefined]
+**galleries** | [**Array&lt;GalleryResource&gt;**](GalleryResource.md) | Galleries that include this item (GalleryResource[]) | [optional] [default to undefined]
 **created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
 **updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
 
@@ -36,10 +39,13 @@ const instance: ItemResource = {
     partner,
     project,
     country,
+    collection,
     artists,
     workshops,
     tags,
     translations,
+    pictures,
+    galleries,
     created_at,
     updated_at,
 };

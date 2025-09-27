@@ -6,8 +6,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **data** | [**Array&lt;PictureTranslationResource&gt;**](PictureTranslationResource.md) |  | [default to undefined]
-**links** | [**ExhibitionIndex200ResponseLinks**](ExhibitionIndex200ResponseLinks.md) |  | [default to undefined]
-**meta** | [**ExhibitionIndex200ResponseMeta**](ExhibitionIndex200ResponseMeta.md) |  | [default to undefined]
+**links** | [**AddressIndex200ResponseLinks**](AddressIndex200ResponseLinks.md) |  | [default to undefined]
+**meta** | [**AddressIndex200ResponseMeta**](AddressIndex200ResponseMeta.md) |  | [default to undefined]
 
 ## Example
 

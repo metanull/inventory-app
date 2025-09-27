@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexProvinceRequest;
+use App\Http\Requests\Api\ShowProvinceRequest;
 use App\Http\Resources\ProvinceResource;
 use App\Models\Province;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,10 +19,10 @@ class ProvinceController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(IndexProvinceRequest $request)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('province'));
-        $pagination = PaginationParams::fromRequest($request);
+        $includes = $request->getIncludeParams();
+        $pagination = $request->getPaginationParams();
 
         $defaults = ['translations'];
         $with = array_values(array_unique(array_merge($defaults, $includes)));
@@ -80,9 +81,9 @@ class ProvinceController extends Controller
      *
      * @return \App\Http\Resources\ProvinceResource
      */
-    public function show(Request $request, Province $province)
+    public function show(ShowProvinceRequest $request, Province $province)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('province'));
+        $includes = $request->getIncludeParams();
         if (! empty($includes)) {
             $province->load($includes);
         }

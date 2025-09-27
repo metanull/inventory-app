@@ -6,6 +6,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **data** | [**Array&lt;ItemResource&gt;**](ItemResource.md) |  | [default to undefined]
+**links** | [**AddressIndex200ResponseLinks**](AddressIndex200ResponseLinks.md) |  | [default to undefined]
+**meta** | [**AddressIndex200ResponseMeta**](AddressIndex200ResponseMeta.md) |  | [default to undefined]
 
 ## Example
 
@@ -14,6 +16,8 @@ import { ItemIndex200Response } from './api';
 
 const instance: ItemIndex200Response = {
     data,
+    links,
+    meta,
 };
 ```
 
