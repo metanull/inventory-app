@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexExhibitionTranslationRequest;
 use App\Http\Resources\ExhibitionTranslationResource;
 use App\Models\ExhibitionTranslation;
 use Illuminate\Database\QueryException;
@@ -18,7 +19,7 @@ class ExhibitionTranslationController extends Controller
      *
      * @response ExhibitionTranslationResource[]
      */
-    public function index(Request $request)
+    public function index(IndexExhibitionTranslationRequest $request)
     {
         $query = ExhibitionTranslation::query();
 

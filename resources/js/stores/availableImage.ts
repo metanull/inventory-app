@@ -8,7 +8,6 @@ import { useApiClient } from '@/composables/useApiClient'
 import {
   type IndexQueryOptions,
   type ShowQueryOptions,
-  buildPagination,
   type PaginationMeta,
   extractPaginationMeta,
 } from '@/utils/apiQueryParams'
@@ -43,8 +42,7 @@ export const useAvailableImageStore = defineStore('availableImage', () => {
     try {
       loading.value = true
       const apiClient = createApiClient()
-      const params = buildPagination(p, pp)
-      const response = await apiClient.availableImageIndex({ params })
+      const response = await apiClient.availableImageIndex(p, pp)
       const data = response.data?.data ?? []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       availableImages.value = data

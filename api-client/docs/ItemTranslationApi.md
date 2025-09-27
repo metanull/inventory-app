@@ -77,11 +77,33 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ItemTranslationApi(configuration);
 
-const { status, data } = await apiInstance.itemTranslationIndex();
+let page: number; // (optional) (default to undefined)
+let perPage: number; // (optional) (default to undefined)
+let itemId: string; // (optional) (default to undefined)
+let languageId: string; // (optional) (default to undefined)
+let contextId: string; // (optional) (default to undefined)
+let defaultContext: boolean; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.itemTranslationIndex(
+    page,
+    perPage,
+    itemId,
+    languageId,
+    contextId,
+    defaultContext
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] |  | (optional) defaults to undefined|
+| **perPage** | [**number**] |  | (optional) defaults to undefined|
+| **itemId** | [**string**] |  | (optional) defaults to undefined|
+| **languageId** | [**string**] |  | (optional) defaults to undefined|
+| **contextId** | [**string**] |  | (optional) defaults to undefined|
+| **defaultContext** | [**boolean**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -103,6 +125,8 @@ This endpoint does not have any parameters.
 |-------------|-------------|------------------|
 |**200** |  |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

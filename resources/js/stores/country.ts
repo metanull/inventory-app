@@ -44,7 +44,7 @@ export const useCountryStore = defineStore('country', () => {
 
     try {
       const api = createApiClient()
-      const response = await api.countryIndex()
+      const response = await api.countryIndex(p, pp)
 
       const data = response.data?.data ?? []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)

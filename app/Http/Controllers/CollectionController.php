@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexCollectionRequest;
+use App\Http\Requests\Api\ShowCollectionRequest;
 use App\Http\Resources\CollectionResource;
 use App\Models\Collection;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -22,10 +23,10 @@ class CollectionController extends Controller
     /**
      * Display a listing of the collections.
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(IndexCollectionRequest $request): AnonymousResourceCollection
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('collection'));
-        $pagination = PaginationParams::fromRequest($request);
+        $includes = $request->getIncludeParams();
+        $pagination = $request->getPaginationParams();
 
         $defaults = ['language', 'context', 'translations', 'partners', 'items'];
         $with = array_values(array_unique(array_merge($defaults, $includes)));
@@ -71,9 +72,9 @@ class CollectionController extends Controller
     /**
      * Display the specified collection.
      */
-    public function show(Request $request, Collection $collection): CollectionResource
+    public function show(ShowCollectionRequest $request, Collection $collection): CollectionResource
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('collection'));
+        $includes = $request->getIncludeParams();
         if (! empty($includes)) {
             $collection->load($includes);
         }

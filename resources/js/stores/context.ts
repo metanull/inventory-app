@@ -46,7 +46,7 @@ export const useContextStore = defineStore('context', () => {
 
     try {
       const apiClient = createApiClient()
-      const response = await apiClient.contextIndex()
+      const response = await apiClient.contextIndex(p, pp)
       const data = response.data?.data || []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       contexts.value = data

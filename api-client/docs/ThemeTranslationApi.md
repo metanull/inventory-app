@@ -77,11 +77,27 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ThemeTranslationApi(configuration);
 
-const { status, data } = await apiInstance.themeTranslationIndex();
+let themeId: string; // (optional) (default to undefined)
+let languageId: string; // (optional) (default to undefined)
+let contextId: string; // (optional) (default to undefined)
+let defaultContext: boolean; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.themeTranslationIndex(
+    themeId,
+    languageId,
+    contextId,
+    defaultContext
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **themeId** | [**string**] |  | (optional) defaults to undefined|
+| **languageId** | [**string**] |  | (optional) defaults to undefined|
+| **contextId** | [**string**] |  | (optional) defaults to undefined|
+| **defaultContext** | [**boolean**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -103,6 +119,8 @@ This endpoint does not have any parameters.
 |-------------|-------------|------------------|
 |**200** |  |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
