@@ -15,27 +15,26 @@ describe('ContextStore - pagination and includes', () => {
 
   it('minimal-by-default and pagination meta absent fallback', async () => {
     const contexts = [createMockContext({ id: 'ctx-1' })]
-    let optionsPassed: unknown
+    let lastPage: number | undefined
+    let lastPerPage: number | undefined
 
     vi.mocked(useApiClient).mockReturnValue({
       createContextApi: () => ({
-        contextIndex: (options?: unknown) => {
-          optionsPassed = options
+        contextIndex: (page?: number, perPage?: number) => {
+          lastPage = page
+          lastPerPage = perPage
           return Promise.resolve({ data: { data: contexts } })
         },
       }),
-    } as unknown as {
-      createContextApi: () => {
-        contextIndex: (options?: unknown) => Promise<{ data: { data: unknown } }>
-      }
-    })
+    } as unknown as ReturnType<typeof useApiClient>)
 
     const { useContextStore } = await import('@/stores/context')
     const store = useContextStore()
     await store.fetchContexts({ page: 4, perPage: 10 })
 
-    // contextIndex doesn't support pagination parameters - it just uses defaults
-    expect(optionsPassed).toBeUndefined()
+    // contextIndex now supports pagination parameters
+    expect(lastPage).toBe(4)
+    expect(lastPerPage).toBe(10)
     expect(store.page).toBe(4)
     expect(store.perPage).toBe(10)
     expect(store.total).toBeNull()

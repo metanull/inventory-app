@@ -19,12 +19,14 @@ describe('AvailableImageStore - pagination and API integration', () => {
       createMockAvailableImage({ id: 'img-2', path: 'images/test2.jpg' }),
     ]
     const meta = { total: 2, current_page: 1, per_page: 20 }
-    let lastParams: Record<string, unknown> | undefined
+    let lastPage: number | undefined
+    let lastPerPage: number | undefined
 
     vi.mocked(useApiClient).mockReturnValue({
       createAvailableImageApi: () => ({
-        availableImageIndex: (cfg?: { params?: Record<string, unknown> }) => {
-          lastParams = cfg?.params
+        availableImageIndex: (page?: number, perPage?: number) => {
+          lastPage = page
+          lastPerPage = perPage
           return Promise.resolve({ data: { data: availableImages, meta } })
         },
       }),
@@ -34,9 +36,8 @@ describe('AvailableImageStore - pagination and API integration', () => {
     const store = useAvailableImageStore()
     await store.fetchAvailableImages()
 
-    const lp = lastParams as Record<string, unknown>
-    expect(lp.page).toBe(1)
-    expect(lp.per_page).toBe(20)
+    expect(lastPage).toBe(1)
+    expect(lastPerPage).toBe(20)
     expect(store.availableImages).toEqual(availableImages)
     expect(store.total).toBe(2)
     expect(store.page).toBe(1)
@@ -46,12 +47,14 @@ describe('AvailableImageStore - pagination and API integration', () => {
   it('should handle custom pagination parameters', async () => {
     const availableImages = [createMockAvailableImage({ id: 'img-3' })]
     const meta = { total: 10, current_page: 3, per_page: 5 }
-    let lastParams: Record<string, unknown> | undefined
+    let lastPage: number | undefined
+    let lastPerPage: number | undefined
 
     vi.mocked(useApiClient).mockReturnValue({
       createAvailableImageApi: () => ({
-        availableImageIndex: (cfg?: { params?: Record<string, unknown> }) => {
-          lastParams = cfg?.params
+        availableImageIndex: (page?: number, perPage?: number) => {
+          lastPage = page
+          lastPerPage = perPage
           return Promise.resolve({ data: { data: availableImages, meta } })
         },
       }),
@@ -61,9 +64,8 @@ describe('AvailableImageStore - pagination and API integration', () => {
     const store = useAvailableImageStore()
     await store.fetchAvailableImages({ page: 3, perPage: 5 })
 
-    const lp = lastParams as Record<string, unknown>
-    expect(lp.page).toBe(3)
-    expect(lp.per_page).toBe(5)
+    expect(lastPage).toBe(3)
+    expect(lastPerPage).toBe(5)
     expect(store.total).toBe(10)
     expect(store.page).toBe(3)
     expect(store.perPage).toBe(5)

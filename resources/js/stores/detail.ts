@@ -39,18 +39,14 @@ export const useDetailStore = defineStore('detail', () => {
       loading.value = true
       const apiClient = createApiClient()
 
-      // Build request options with query parameters since this API doesn't support direct params
-      const params: Record<string, unknown> = { page: p, per_page: pp }
-      if (include.length > 0) {
-        params.include = include.join(',')
-      }
+      const includeStr = include.length > 0 ? include.join(',') : undefined
+      const response = await apiClient.detailIndex(p, pp, includeStr)
+      let data = response.data?.data ?? []
+      
+      // Filter by itemId if provided (client-side filtering until API supports it)
       if (itemId) {
-        params.item_id = itemId
+        data = data.filter(detail => detail.item?.id === itemId)
       }
-      const options = { params }
-
-      const response = await apiClient.detailIndex(options)
-      const data = response.data?.data ?? []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       details.value = data
 
@@ -77,11 +73,8 @@ export const useDetailStore = defineStore('detail', () => {
     try {
       loading.value = true
       const apiClient = createApiClient()
-      const options: Record<string, unknown> = {}
-      if (include.length > 0) {
-        options.params = { include: include.join(',') }
-      }
-      const response = await apiClient.detailShow(detailId, options)
+      const includeStr = include.length > 0 ? include.join(',') : undefined
+      const response = await apiClient.detailShow(detailId, includeStr)
       currentDetail.value = response.data.data || null
     } finally {
       loading.value = false

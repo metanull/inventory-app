@@ -8,9 +8,6 @@ import { useApiClient } from '@/composables/useApiClient'
 import {
   type IndexQueryOptions,
   type ShowQueryOptions,
-  buildIncludes,
-  buildPagination,
-  mergeParams,
   type PaginationMeta,
   extractPaginationMeta,
 } from '@/utils/apiQueryParams'
@@ -43,8 +40,8 @@ export const useCollectionStore = defineStore('collection', () => {
     try {
       loading.value = true
       const apiClient = createApiClient()
-      const params = mergeParams(buildIncludes(include), buildPagination(p, pp))
-      const response = await apiClient.collectionIndex({ params })
+      const includeStr = include.length > 0 ? include.join(',') : undefined
+      const response = await apiClient.collectionIndex(p, pp, includeStr)
       const data = response.data?.data || []
       const meta: PaginationMeta | undefined = extractPaginationMeta(response.data)
       collections.value = data
@@ -69,11 +66,8 @@ export const useCollectionStore = defineStore('collection', () => {
     try {
       loading.value = true
       const apiClient = createApiClient()
-      const params = mergeParams(buildIncludes(include))
-      const hasParams = Object.keys(params).length > 0
-      const response = hasParams
-        ? await apiClient.collectionShow(collectionId, { params })
-        : await apiClient.collectionShow(collectionId)
+      const includeStr = include.length > 0 ? include.join(',') : undefined
+      const response = await apiClient.collectionShow(collectionId, includeStr)
       currentCollection.value = response.data.data || null
     } finally {
       loading.value = false

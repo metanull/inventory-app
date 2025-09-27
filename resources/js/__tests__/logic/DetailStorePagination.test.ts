@@ -38,12 +38,16 @@ describe('DetailStore - pagination and item relationship', () => {
       createMockDetail({ id: 'detail-2', internal_name: 'Detail 2' }),
     ]
     const meta = { total: 2, current_page: 1, per_page: 20 }
-    let lastParams: Record<string, unknown> | undefined
+    let lastPage: number | undefined
+    let lastPerPage: number | undefined
+    let lastInclude: string | undefined
 
     vi.mocked(useApiClient).mockReturnValue({
       createDetailApi: () => ({
-        detailIndex: (cfg?: { params?: Record<string, unknown> }) => {
-          lastParams = cfg?.params
+        detailIndex: (page?: number, perPage?: number, include?: string) => {
+          lastPage = page
+          lastPerPage = perPage
+          lastInclude = include
           return Promise.resolve({ data: { data: details, meta } })
         },
       }),
@@ -53,9 +57,9 @@ describe('DetailStore - pagination and item relationship', () => {
     const store = useDetailStore()
     await store.fetchDetails()
 
-    const lp = lastParams as Record<string, unknown>
-    expect(lp.page).toBe(1)
-    expect(lp.per_page).toBe(20)
+    expect(lastPage).toBe(1)
+    expect(lastPerPage).toBe(20)
+    expect(lastInclude).toBe('item') // Default include for details
     expect(store.details).toEqual(details)
     expect(store.total).toBe(2)
     expect(store.page).toBe(1)
@@ -63,18 +67,25 @@ describe('DetailStore - pagination and item relationship', () => {
   })
 
   it('should filter details by item ID', async () => {
-    const details = [
-      createMockDetail({ id: 'detail-3', item_id: 'item-123' }),
-      createMockDetail({ id: 'detail-4', item_id: 'item-123' }),
+    // Mock details with item relationship - some match, some don't
+    const allDetails = [
+      createMockDetail({ id: 'detail-3', item: { id: 'item-123', internal_name: 'Item 123' } }),
+      createMockDetail({ id: 'detail-4', item: { id: 'item-123', internal_name: 'Item 123' } }),
+      createMockDetail({ id: 'detail-5', item: { id: 'item-456', internal_name: 'Item 456' } }),
     ]
-    const meta = { total: 2, current_page: 1, per_page: 20 }
-    let lastParams: Record<string, unknown> | undefined
+    const filteredDetails = allDetails.filter(d => d.item?.id === 'item-123')
+    const meta = { total: 3, current_page: 1, per_page: 20 }
+    let lastPage: number | undefined
+    let lastPerPage: number | undefined
+    let lastInclude: string | undefined
 
     vi.mocked(useApiClient).mockReturnValue({
       createDetailApi: () => ({
-        detailIndex: (cfg?: { params?: Record<string, unknown> }) => {
-          lastParams = cfg?.params
-          return Promise.resolve({ data: { data: details, meta } })
+        detailIndex: (page?: number, perPage?: number, include?: string) => {
+          lastPage = page
+          lastPerPage = perPage
+          lastInclude = include
+          return Promise.resolve({ data: { data: allDetails, meta } })
         },
       }),
     } as unknown as ReturnType<typeof useApiClient>)
@@ -83,9 +94,12 @@ describe('DetailStore - pagination and item relationship', () => {
     const store = useDetailStore()
     await store.fetchDetails({ itemId: 'item-123' })
 
-    const lp = lastParams as Record<string, unknown>
-    expect(lp.item_id).toBe('item-123')
-    expect(store.details).toEqual(details)
+    // API is called without itemId filtering (client-side filtering)
+    expect(lastPage).toBe(1)
+    expect(lastPerPage).toBe(20)
+    expect(lastInclude).toBe('item')
+    // Store should contain filtered results
+    expect(store.details).toEqual(filteredDetails)
   })
 
   it('should handle loading states correctly', async () => {
