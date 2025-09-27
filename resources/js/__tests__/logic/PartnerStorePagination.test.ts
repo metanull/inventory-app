@@ -30,7 +30,11 @@ describe('PartnerStore - pagination and includes', () => {
       }),
     } as unknown as {
       createPartnerApi: () => {
-        partnerIndex: (page?: number, perPage?: number, include?: string) => Promise<{ data: { data: unknown; meta: unknown } }>
+        partnerIndex: (
+          page?: number,
+          perPage?: number,
+          include?: string
+        ) => Promise<{ data: { data: unknown; meta: unknown } }>
       }
     })
 
@@ -48,12 +52,16 @@ describe('PartnerStore - pagination and includes', () => {
 
     vi.mocked(await import('@/composables/useApiClient')).useApiClient.mockReturnValue({
       createPartnerApi: () => ({
-        partnerIndex: (_page?: number, _perPage?: number, _include?: string) => 
+        partnerIndex: (_page?: number, _perPage?: number, _include?: string) =>
           Promise.resolve({ data: { data: partners, meta } }),
       }),
     } as unknown as {
       createPartnerApi: () => {
-        partnerIndex: (page?: number, perPage?: number, include?: string) => Promise<{ data: { data: unknown; meta: unknown } }>
+        partnerIndex: (
+          page?: number,
+          perPage?: number,
+          include?: string
+        ) => Promise<{ data: { data: unknown; meta: unknown } }>
       }
     })
 

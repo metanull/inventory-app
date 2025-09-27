@@ -31,10 +31,7 @@ export const useLanguageStore = defineStore('language', () => {
   const defaultLanguages = computed(() => languages.value.filter(lang => lang.is_default))
 
   // Fetch all languages (supports pagination only)
-  const fetchLanguages = async ({
-    page: p = 1,
-    perPage: pp = 20,
-  }: IndexQueryOptions = {}) => {
+  const fetchLanguages = async ({ page: p = 1, perPage: pp = 20 }: IndexQueryOptions = {}) => {
     loading.value = true
     error.value = null
 
@@ -64,7 +61,7 @@ export const useLanguageStore = defineStore('language', () => {
     }
   }
 
-    // Fetch a single language by ID
+  // Fetch a single language by ID
   const fetchLanguage = async (id: string): Promise<LanguageResource> => {
     loading.value = true
     error.value = null

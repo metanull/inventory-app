@@ -29,7 +29,10 @@ describe('LanguageStore - pagination and includes', () => {
       }),
     } as unknown as {
       createLanguageApi: () => {
-        languageIndex: (page?: number, perPage?: number) => Promise<{ data: { data: unknown; meta: unknown } }>
+        languageIndex: (
+          page?: number,
+          perPage?: number
+        ) => Promise<{ data: { data: unknown; meta: unknown } }>
       }
     })
 

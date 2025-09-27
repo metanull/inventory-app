@@ -38,7 +38,7 @@ export const useDetailStore = defineStore('detail', () => {
     try {
       loading.value = true
       const apiClient = createApiClient()
-      
+
       // Build request options with query parameters since this API doesn't support direct params
       const params: Record<string, unknown> = { page: p, per_page: pp }
       if (include.length > 0) {

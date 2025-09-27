@@ -40,10 +40,7 @@ export const useContextStore = defineStore('context', () => {
   const defaultContexts = computed(() => contexts.value.filter(context => context.is_default))
 
   // Fetch all contexts (supports includes + pagination)
-  const fetchContexts = async ({
-    page: p = 1,
-    perPage: pp = 20,
-  }: IndexQueryOptions = {}) => {
+  const fetchContexts = async ({ page: p = 1, perPage: pp = 20 }: IndexQueryOptions = {}) => {
     loading.value = true
     error.value = null
 

@@ -31,7 +31,11 @@ describe('ProjectStore - pagination and includes', () => {
       }),
     } as unknown as {
       createProjectApi: () => {
-        projectIndex: (page?: number, perPage?: number, include?: string) => Promise<{ data: { data: unknown; meta: unknown } }>
+        projectIndex: (
+          page?: number,
+          perPage?: number,
+          include?: string
+        ) => Promise<{ data: { data: unknown; meta: unknown } }>
       }
     })
 

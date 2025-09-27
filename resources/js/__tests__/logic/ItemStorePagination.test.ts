@@ -32,7 +32,11 @@ describe('ItemStore - pagination and includes', () => {
       }),
     } as unknown as {
       createItemApi: () => {
-        itemIndex: (page?: number, perPage?: number, include?: string) => Promise<{ data: { data: unknown; meta: unknown } }>
+        itemIndex: (
+          page?: number,
+          perPage?: number,
+          include?: string
+        ) => Promise<{ data: { data: unknown; meta: unknown } }>
       }
     })
 
@@ -69,7 +73,11 @@ describe('ItemStore - pagination and includes', () => {
       }),
     } as unknown as {
       createItemApi: () => {
-        itemIndex: (page?: number, perPage?: number, include?: string) => Promise<{ data: { data: unknown; meta: unknown } }>
+        itemIndex: (
+          page?: number,
+          perPage?: number,
+          include?: string
+        ) => Promise<{ data: { data: unknown; meta: unknown } }>
       }
     })
 
