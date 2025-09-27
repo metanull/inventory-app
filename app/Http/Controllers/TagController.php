@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexTagForItemRequest;
+use App\Http\Requests\Api\IndexTagRequest;
+use App\Http\Requests\Api\ShowTagRequest;
 use App\Http\Resources\TagResource;
 use App\Models\Item;
 use App\Models\Tag;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 
 class TagController extends Controller
@@ -13,9 +15,9 @@ class TagController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexTagRequest $request)
     {
-        $pagination = PaginationParams::fromRequest($request);
+        $pagination = $request->getPaginationParams();
         $paginator = Tag::query()->paginate(
             $pagination['per_page'],
             ['*'],
@@ -47,7 +49,7 @@ class TagController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Tag $tag)
+    public function show(ShowTagRequest $request, Tag $tag)
     {
         return new TagResource($tag);
     }
@@ -73,9 +75,9 @@ class TagController extends Controller
     /**
      * Get tags for a specific item.
      */
-    public function forItem(Request $request, Item $item)
+    public function forItem(IndexTagForItemRequest $request, Item $item)
     {
-        $pagination = PaginationParams::fromRequest($request);
+        $pagination = $request->getPaginationParams();
         $paginator = Tag::forItem($item)->paginate(
             $pagination['per_page'],
             ['*'],

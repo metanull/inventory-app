@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexExhibitionRequest;
+use App\Http\Requests\Api\ShowExhibitionRequest;
 use App\Http\Resources\ExhibitionResource;
 use App\Models\Exhibition;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\Rule;
@@ -16,10 +17,10 @@ class ExhibitionController extends Controller
     /**
      * Display a listing of the exhibitions.
      */
-    public function index(Request $request)
+    public function index(IndexExhibitionRequest $request)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('exhibition'));
-        $pagination = PaginationParams::fromRequest($request);
+        $includes = $request->getIncludeParams();
+        $pagination = $request->getPaginationParams();
 
         $query = Exhibition::query();
         if (! empty($includes)) {
@@ -57,9 +58,9 @@ class ExhibitionController extends Controller
     /**
      * Display the specified exhibition.
      */
-    public function show(Request $request, Exhibition $exhibition)
+    public function show(ShowExhibitionRequest $request, Exhibition $exhibition)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('exhibition'));
+        $includes = $request->getIncludeParams();
         if (! empty($includes)) {
             $exhibition->load($includes);
         }
