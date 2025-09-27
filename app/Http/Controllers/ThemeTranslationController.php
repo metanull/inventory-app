@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexThemeTranslationRequest;
 use App\Http\Resources\ThemeTranslationResource;
 use App\Models\ThemeTranslation;
 use Illuminate\Database\QueryException;
@@ -18,7 +19,7 @@ class ThemeTranslationController extends Controller
      *
      * @response ThemeTranslationResource[]
      */
-    public function index(Request $request)
+    public function index(IndexThemeTranslationRequest $request)
     {
         $query = ThemeTranslation::query();
 

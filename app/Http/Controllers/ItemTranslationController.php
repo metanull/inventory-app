@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexItemTranslationRequest;
 use App\Http\Resources\ItemTranslationResource;
 use App\Models\ItemTranslation;
 use Illuminate\Database\QueryException;
@@ -18,7 +19,7 @@ class ItemTranslationController extends Controller
      *
      * @response ItemTranslationResource[]
      */
-    public function index(Request $request)
+    public function index(IndexItemTranslationRequest $request)
     {
         $query = ItemTranslation::query();
 
@@ -40,8 +41,9 @@ class ItemTranslationController extends Controller
             $query->defaultContext();
         }
 
+        $pagination = $request->getPaginationParams();
         $translations = $query->with(['item', 'language', 'context', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor'])
-            ->paginate(15);
+            ->paginate($pagination['per_page'], ['*'], 'page', $pagination['page']);
 
         return ItemTranslationResource::collection($translations);
     }

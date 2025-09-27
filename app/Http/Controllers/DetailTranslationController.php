@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexDetailTranslationRequest;
 use App\Http\Resources\DetailTranslationResource;
 use App\Models\DetailTranslation;
 use Illuminate\Database\QueryException;
@@ -18,7 +19,7 @@ class DetailTranslationController extends Controller
      *
      * @response DetailTranslationResource[]
      */
-    public function index(Request $request)
+    public function index(IndexDetailTranslationRequest $request)
     {
         $query = DetailTranslation::query();
 
@@ -40,8 +41,9 @@ class DetailTranslationController extends Controller
             $query->defaultContext();
         }
 
+        $pagination = $request->getPaginationParams();
         $translations = $query->with(['detail', 'language', 'context', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor'])
-            ->paginate(15);
+            ->paginate($pagination['per_page'], ['*'], 'page', $pagination['page']);
 
         return DetailTranslationResource::collection($translations);
     }

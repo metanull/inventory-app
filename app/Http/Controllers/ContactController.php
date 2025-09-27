@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\IndexContactRequest;
+use App\Http\Requests\Api\ShowContactRequest;
 use App\Http\Resources\ContactResource;
 use App\Models\Contact;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,10 +19,10 @@ class ContactController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(IndexContactRequest $request)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('contact'));
-        $pagination = PaginationParams::fromRequest($request);
+        $includes = $request->getIncludeParams();
+        $pagination = $request->getPaginationParams();
 
         // Default includes expected by tests/clients
         $defaults = ['translations'];
@@ -87,9 +88,9 @@ class ContactController extends Controller
      *
      * @return \App\Http\Resources\ContactResource
      */
-    public function show(Request $request, Contact $contact)
+    public function show(ShowContactRequest $request, Contact $contact)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('contact'));
+        $includes = $request->getIncludeParams();
         if (! empty($includes)) {
             $contact->load($includes);
         }

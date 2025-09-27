@@ -6764,10 +6764,13 @@ export const AvailableImageApiAxiosParamCreator = function (configuration?: Conf
         /**
          * 
          * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        availableImageIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        availableImageIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/available-image`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -6783,6 +6786,18 @@ export const AvailableImageApiAxiosParamCreator = function (configuration?: Conf
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -6952,11 +6967,14 @@ export const AvailableImageApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async availableImageIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AvailableImageIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.availableImageIndex(options);
+        async availableImageIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AvailableImageIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.availableImageIndex(page, perPage, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AvailableImageApi.availableImageIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -7034,11 +7052,14 @@ export const AvailableImageApiFactory = function (configuration?: Configuration,
         /**
          * 
          * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        availableImageIndex(options?: RawAxiosRequestConfig): AxiosPromise<AvailableImageIndex200Response> {
-            return localVarFp.availableImageIndex(options).then((request) => request(axios, basePath));
+        availableImageIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<AvailableImageIndex200Response> {
+            return localVarFp.availableImageIndex(page, perPage, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -7108,12 +7129,15 @@ export class AvailableImageApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of the resource
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AvailableImageApi
      */
-    public availableImageIndex(options?: RawAxiosRequestConfig) {
-        return AvailableImageApiFp(this.configuration).availableImageIndex(options).then((request) => request(this.axios, this.basePath));
+    public availableImageIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return AvailableImageApiFp(this.configuration).availableImageIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -7203,10 +7227,13 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
         /**
          * 
          * @summary Display a listing of the collections
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/collection`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -7223,6 +7250,18 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -7238,10 +7277,11 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * 
          * @summary Display the specified collection
          * @param {string} collection The collection ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionShow: async (collection: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionShow: async (collection: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'collection' is not null or undefined
             assertParamExists('collectionShow', 'collection', collection)
             const localVarPath = `/collection/{collection}`
@@ -7260,6 +7300,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -7380,11 +7424,14 @@ export const CollectionApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of the collections
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionIndex(options);
+        async collectionIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionIndex(page, perPage, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -7393,11 +7440,12 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified collection
          * @param {string} collection The collection ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionShow(collection: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionShow(collection, options);
+        async collectionShow(collection: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionShow(collection, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionShow']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -7452,21 +7500,25 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
         /**
          * 
          * @summary Display a listing of the collections
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionIndex(options?: RawAxiosRequestConfig): AxiosPromise<CollectionIndex200Response> {
-            return localVarFp.collectionIndex(options).then((request) => request(axios, basePath));
+        collectionIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionIndex200Response> {
+            return localVarFp.collectionIndex(page, perPage, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Display the specified collection
          * @param {string} collection The collection ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionShow(collection: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionStore200Response> {
-            return localVarFp.collectionShow(collection, options).then((request) => request(axios, basePath));
+        collectionShow(collection: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionStore200Response> {
+            return localVarFp.collectionShow(collection, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -7514,24 +7566,28 @@ export class CollectionApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of the collections
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CollectionApi
      */
-    public collectionIndex(options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionIndex(options).then((request) => request(this.axios, this.basePath));
+    public collectionIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Display the specified collection
      * @param {string} collection The collection ID
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CollectionApi
      */
-    public collectionShow(collection: string, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionShow(collection, options).then((request) => request(this.axios, this.basePath));
+    public collectionShow(collection: string, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionShow(collection, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -7609,10 +7665,13 @@ export const ContactApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary Display a listing of contacts
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        contactIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        contactIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/contact`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -7629,6 +7688,18 @@ export const ContactApiAxiosParamCreator = function (configuration?: Configurati
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -7644,10 +7715,11 @@ export const ContactApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary Display the specified contact
          * @param {string} contact The contact ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        contactShow: async (contact: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        contactShow: async (contact: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'contact' is not null or undefined
             assertParamExists('contactShow', 'contact', contact)
             const localVarPath = `/contact/{contact}`
@@ -7666,6 +7738,10 @@ export const ContactApiAxiosParamCreator = function (configuration?: Configurati
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -7788,11 +7864,14 @@ export const ContactApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of contacts
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async contactIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ContactIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.contactIndex(options);
+        async contactIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ContactIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.contactIndex(page, perPage, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ContactApi.contactIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -7801,11 +7880,12 @@ export const ContactApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified contact
          * @param {string} contact The contact ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async contactShow(contact: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ContactStore201Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.contactShow(contact, options);
+        async contactShow(contact: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ContactStore201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.contactShow(contact, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ContactApi.contactShow']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -7860,21 +7940,25 @@ export const ContactApiFactory = function (configuration?: Configuration, basePa
         /**
          * 
          * @summary Display a listing of contacts
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        contactIndex(options?: RawAxiosRequestConfig): AxiosPromise<ContactIndex200Response> {
-            return localVarFp.contactIndex(options).then((request) => request(axios, basePath));
+        contactIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ContactIndex200Response> {
+            return localVarFp.contactIndex(page, perPage, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Display the specified contact
          * @param {string} contact The contact ID
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        contactShow(contact: string, options?: RawAxiosRequestConfig): AxiosPromise<ContactStore201Response> {
-            return localVarFp.contactShow(contact, options).then((request) => request(axios, basePath));
+        contactShow(contact: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ContactStore201Response> {
+            return localVarFp.contactShow(contact, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -7922,24 +8006,28 @@ export class ContactApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of contacts
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ContactApi
      */
-    public contactIndex(options?: RawAxiosRequestConfig) {
-        return ContactApiFp(this.configuration).contactIndex(options).then((request) => request(this.axios, this.basePath));
+    public contactIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return ContactApiFp(this.configuration).contactIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Display the specified contact
      * @param {string} contact The contact ID
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ContactApi
      */
-    public contactShow(contact: string, options?: RawAxiosRequestConfig) {
-        return ContactApiFp(this.configuration).contactShow(contact, options).then((request) => request(this.axios, this.basePath));
+    public contactShow(contact: string, include?: string, options?: RawAxiosRequestConfig) {
+        return ContactApiFp(this.configuration).contactShow(contact, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -9957,10 +10045,16 @@ export const DetailTranslationApiAxiosParamCreator = function (configuration?: C
         /**
          * 
          * @summary Display a listing of detail translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [detailId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        detailTranslationIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        detailTranslationIndex: async (page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/detail-translation`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -9976,6 +10070,30 @@ export const DetailTranslationApiAxiosParamCreator = function (configuration?: C
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (detailId !== undefined) {
+                localVarQueryParameter['detail_id'] = detailId;
+            }
+
+            if (languageId !== undefined) {
+                localVarQueryParameter['language_id'] = languageId;
+            }
+
+            if (contextId !== undefined) {
+                localVarQueryParameter['context_id'] = contextId;
+            }
+
+            if (defaultContext !== undefined) {
+                localVarQueryParameter['default_context'] = defaultContext;
+            }
 
 
     
@@ -10134,11 +10252,17 @@ export const DetailTranslationApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of detail translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [detailId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async detailTranslationIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DetailTranslationResource>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailTranslationIndex(options);
+        async detailTranslationIndex(page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DetailTranslationResource>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.detailTranslationIndex(page, perPage, detailId, languageId, contextId, defaultContext, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DetailTranslationApi.detailTranslationIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -10206,11 +10330,17 @@ export const DetailTranslationApiFactory = function (configuration?: Configurati
         /**
          * 
          * @summary Display a listing of detail translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [detailId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        detailTranslationIndex(options?: RawAxiosRequestConfig): AxiosPromise<Array<DetailTranslationResource>> {
-            return localVarFp.detailTranslationIndex(options).then((request) => request(axios, basePath));
+        detailTranslationIndex(page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<DetailTranslationResource>> {
+            return localVarFp.detailTranslationIndex(page, perPage, detailId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -10268,12 +10398,18 @@ export class DetailTranslationApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of detail translations
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [detailId] 
+     * @param {string} [languageId] 
+     * @param {string} [contextId] 
+     * @param {boolean} [defaultContext] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DetailTranslationApi
      */
-    public detailTranslationIndex(options?: RawAxiosRequestConfig) {
-        return DetailTranslationApiFp(this.configuration).detailTranslationIndex(options).then((request) => request(this.axios, this.basePath));
+    public detailTranslationIndex(page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
+        return DetailTranslationApiFp(this.configuration).detailTranslationIndex(page, perPage, detailId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -10363,10 +10499,16 @@ export const DetailTranslationsApiAxiosParamCreator = function (configuration?: 
         /**
          * 
          * @summary Display a listing of detail translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [detailId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        detailTranslationIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        detailTranslationIndex: async (page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/detail-translation`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -10382,6 +10524,30 @@ export const DetailTranslationsApiAxiosParamCreator = function (configuration?: 
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (detailId !== undefined) {
+                localVarQueryParameter['detail_id'] = detailId;
+            }
+
+            if (languageId !== undefined) {
+                localVarQueryParameter['language_id'] = languageId;
+            }
+
+            if (contextId !== undefined) {
+                localVarQueryParameter['context_id'] = contextId;
+            }
+
+            if (defaultContext !== undefined) {
+                localVarQueryParameter['default_context'] = defaultContext;
+            }
 
 
     
@@ -10540,11 +10706,17 @@ export const DetailTranslationsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of detail translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [detailId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async detailTranslationIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DetailTranslationResource>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailTranslationIndex(options);
+        async detailTranslationIndex(page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DetailTranslationResource>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.detailTranslationIndex(page, perPage, detailId, languageId, contextId, defaultContext, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DetailTranslationsApi.detailTranslationIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -10612,11 +10784,17 @@ export const DetailTranslationsApiFactory = function (configuration?: Configurat
         /**
          * 
          * @summary Display a listing of detail translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [detailId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        detailTranslationIndex(options?: RawAxiosRequestConfig): AxiosPromise<Array<DetailTranslationResource>> {
-            return localVarFp.detailTranslationIndex(options).then((request) => request(axios, basePath));
+        detailTranslationIndex(page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<DetailTranslationResource>> {
+            return localVarFp.detailTranslationIndex(page, perPage, detailId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -10674,12 +10852,18 @@ export class DetailTranslationsApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of detail translations
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [detailId] 
+     * @param {string} [languageId] 
+     * @param {string} [contextId] 
+     * @param {boolean} [defaultContext] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DetailTranslationsApi
      */
-    public detailTranslationIndex(options?: RawAxiosRequestConfig) {
-        return DetailTranslationsApiFp(this.configuration).detailTranslationIndex(options).then((request) => request(this.axios, this.basePath));
+    public detailTranslationIndex(page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
+        return DetailTranslationsApiFp(this.configuration).detailTranslationIndex(page, perPage, detailId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -11207,10 +11391,14 @@ export const ExhibitionTranslationApiAxiosParamCreator = function (configuration
         /**
          * 
          * @summary Display a listing of exhibition translations
+         * @param {string} [exhibitionId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        exhibitionTranslationIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        exhibitionTranslationIndex: async (exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/exhibition-translation`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -11226,6 +11414,22 @@ export const ExhibitionTranslationApiAxiosParamCreator = function (configuration
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (exhibitionId !== undefined) {
+                localVarQueryParameter['exhibition_id'] = exhibitionId;
+            }
+
+            if (languageId !== undefined) {
+                localVarQueryParameter['language_id'] = languageId;
+            }
+
+            if (contextId !== undefined) {
+                localVarQueryParameter['context_id'] = contextId;
+            }
+
+            if (defaultContext !== undefined) {
+                localVarQueryParameter['default_context'] = defaultContext;
+            }
 
 
     
@@ -11384,11 +11588,15 @@ export const ExhibitionTranslationApiFp = function(configuration?: Configuration
         /**
          * 
          * @summary Display a listing of exhibition translations
+         * @param {string} [exhibitionId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async exhibitionTranslationIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ExhibitionTranslationResource>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionTranslationIndex(options);
+        async exhibitionTranslationIndex(exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ExhibitionTranslationResource>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionTranslationIndex(exhibitionId, languageId, contextId, defaultContext, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ExhibitionTranslationApi.exhibitionTranslationIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -11456,11 +11664,15 @@ export const ExhibitionTranslationApiFactory = function (configuration?: Configu
         /**
          * 
          * @summary Display a listing of exhibition translations
+         * @param {string} [exhibitionId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        exhibitionTranslationIndex(options?: RawAxiosRequestConfig): AxiosPromise<Array<ExhibitionTranslationResource>> {
-            return localVarFp.exhibitionTranslationIndex(options).then((request) => request(axios, basePath));
+        exhibitionTranslationIndex(exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<ExhibitionTranslationResource>> {
+            return localVarFp.exhibitionTranslationIndex(exhibitionId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -11518,12 +11730,16 @@ export class ExhibitionTranslationApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of exhibition translations
+     * @param {string} [exhibitionId] 
+     * @param {string} [languageId] 
+     * @param {string} [contextId] 
+     * @param {boolean} [defaultContext] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ExhibitionTranslationApi
      */
-    public exhibitionTranslationIndex(options?: RawAxiosRequestConfig) {
-        return ExhibitionTranslationApiFp(this.configuration).exhibitionTranslationIndex(options).then((request) => request(this.axios, this.basePath));
+    public exhibitionTranslationIndex(exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
+        return ExhibitionTranslationApiFp(this.configuration).exhibitionTranslationIndex(exhibitionId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -11613,10 +11829,14 @@ export const ExhibitionTranslationsApiAxiosParamCreator = function (configuratio
         /**
          * 
          * @summary Display a listing of exhibition translations
+         * @param {string} [exhibitionId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        exhibitionTranslationIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        exhibitionTranslationIndex: async (exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/exhibition-translation`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -11632,6 +11852,22 @@ export const ExhibitionTranslationsApiAxiosParamCreator = function (configuratio
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (exhibitionId !== undefined) {
+                localVarQueryParameter['exhibition_id'] = exhibitionId;
+            }
+
+            if (languageId !== undefined) {
+                localVarQueryParameter['language_id'] = languageId;
+            }
+
+            if (contextId !== undefined) {
+                localVarQueryParameter['context_id'] = contextId;
+            }
+
+            if (defaultContext !== undefined) {
+                localVarQueryParameter['default_context'] = defaultContext;
+            }
 
 
     
@@ -11790,11 +12026,15 @@ export const ExhibitionTranslationsApiFp = function(configuration?: Configuratio
         /**
          * 
          * @summary Display a listing of exhibition translations
+         * @param {string} [exhibitionId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async exhibitionTranslationIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ExhibitionTranslationResource>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionTranslationIndex(options);
+        async exhibitionTranslationIndex(exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ExhibitionTranslationResource>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionTranslationIndex(exhibitionId, languageId, contextId, defaultContext, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ExhibitionTranslationsApi.exhibitionTranslationIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -11862,11 +12102,15 @@ export const ExhibitionTranslationsApiFactory = function (configuration?: Config
         /**
          * 
          * @summary Display a listing of exhibition translations
+         * @param {string} [exhibitionId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        exhibitionTranslationIndex(options?: RawAxiosRequestConfig): AxiosPromise<Array<ExhibitionTranslationResource>> {
-            return localVarFp.exhibitionTranslationIndex(options).then((request) => request(axios, basePath));
+        exhibitionTranslationIndex(exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<ExhibitionTranslationResource>> {
+            return localVarFp.exhibitionTranslationIndex(exhibitionId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -11924,12 +12168,16 @@ export class ExhibitionTranslationsApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of exhibition translations
+     * @param {string} [exhibitionId] 
+     * @param {string} [languageId] 
+     * @param {string} [contextId] 
+     * @param {boolean} [defaultContext] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ExhibitionTranslationsApi
      */
-    public exhibitionTranslationIndex(options?: RawAxiosRequestConfig) {
-        return ExhibitionTranslationsApiFp(this.configuration).exhibitionTranslationIndex(options).then((request) => request(this.axios, this.basePath));
+    public exhibitionTranslationIndex(exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
+        return ExhibitionTranslationsApiFp(this.configuration).exhibitionTranslationIndex(exhibitionId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -13841,10 +14089,16 @@ export const ItemTranslationApiAxiosParamCreator = function (configuration?: Con
         /**
          * 
          * @summary Display a listing of item translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [itemId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemTranslationIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        itemTranslationIndex: async (page?: number, perPage?: number, itemId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/item-translation`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -13860,6 +14114,30 @@ export const ItemTranslationApiAxiosParamCreator = function (configuration?: Con
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (itemId !== undefined) {
+                localVarQueryParameter['item_id'] = itemId;
+            }
+
+            if (languageId !== undefined) {
+                localVarQueryParameter['language_id'] = languageId;
+            }
+
+            if (contextId !== undefined) {
+                localVarQueryParameter['context_id'] = contextId;
+            }
+
+            if (defaultContext !== undefined) {
+                localVarQueryParameter['default_context'] = defaultContext;
+            }
 
 
     
@@ -14018,11 +14296,17 @@ export const ItemTranslationApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of item translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [itemId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemTranslationIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ItemTranslationResource>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.itemTranslationIndex(options);
+        async itemTranslationIndex(page?: number, perPage?: number, itemId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ItemTranslationResource>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemTranslationIndex(page, perPage, itemId, languageId, contextId, defaultContext, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemTranslationApi.itemTranslationIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -14090,11 +14374,17 @@ export const ItemTranslationApiFactory = function (configuration?: Configuration
         /**
          * 
          * @summary Display a listing of item translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [itemId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemTranslationIndex(options?: RawAxiosRequestConfig): AxiosPromise<Array<ItemTranslationResource>> {
-            return localVarFp.itemTranslationIndex(options).then((request) => request(axios, basePath));
+        itemTranslationIndex(page?: number, perPage?: number, itemId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<ItemTranslationResource>> {
+            return localVarFp.itemTranslationIndex(page, perPage, itemId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -14152,12 +14442,18 @@ export class ItemTranslationApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of item translations
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [itemId] 
+     * @param {string} [languageId] 
+     * @param {string} [contextId] 
+     * @param {boolean} [defaultContext] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ItemTranslationApi
      */
-    public itemTranslationIndex(options?: RawAxiosRequestConfig) {
-        return ItemTranslationApiFp(this.configuration).itemTranslationIndex(options).then((request) => request(this.axios, this.basePath));
+    public itemTranslationIndex(page?: number, perPage?: number, itemId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
+        return ItemTranslationApiFp(this.configuration).itemTranslationIndex(page, perPage, itemId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -14247,10 +14543,16 @@ export const ItemTranslationsApiAxiosParamCreator = function (configuration?: Co
         /**
          * 
          * @summary Display a listing of item translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [itemId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemTranslationIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        itemTranslationIndex: async (page?: number, perPage?: number, itemId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/item-translation`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -14266,6 +14568,30 @@ export const ItemTranslationsApiAxiosParamCreator = function (configuration?: Co
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (itemId !== undefined) {
+                localVarQueryParameter['item_id'] = itemId;
+            }
+
+            if (languageId !== undefined) {
+                localVarQueryParameter['language_id'] = languageId;
+            }
+
+            if (contextId !== undefined) {
+                localVarQueryParameter['context_id'] = contextId;
+            }
+
+            if (defaultContext !== undefined) {
+                localVarQueryParameter['default_context'] = defaultContext;
+            }
 
 
     
@@ -14424,11 +14750,17 @@ export const ItemTranslationsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of item translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [itemId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemTranslationIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ItemTranslationResource>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.itemTranslationIndex(options);
+        async itemTranslationIndex(page?: number, perPage?: number, itemId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ItemTranslationResource>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemTranslationIndex(page, perPage, itemId, languageId, contextId, defaultContext, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemTranslationsApi.itemTranslationIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -14496,11 +14828,17 @@ export const ItemTranslationsApiFactory = function (configuration?: Configuratio
         /**
          * 
          * @summary Display a listing of item translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [itemId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemTranslationIndex(options?: RawAxiosRequestConfig): AxiosPromise<Array<ItemTranslationResource>> {
-            return localVarFp.itemTranslationIndex(options).then((request) => request(axios, basePath));
+        itemTranslationIndex(page?: number, perPage?: number, itemId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<ItemTranslationResource>> {
+            return localVarFp.itemTranslationIndex(page, perPage, itemId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -14558,12 +14896,18 @@ export class ItemTranslationsApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of item translations
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [itemId] 
+     * @param {string} [languageId] 
+     * @param {string} [contextId] 
+     * @param {boolean} [defaultContext] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ItemTranslationsApi
      */
-    public itemTranslationIndex(options?: RawAxiosRequestConfig) {
-        return ItemTranslationsApiFp(this.configuration).itemTranslationIndex(options).then((request) => request(this.axios, this.basePath));
+    public itemTranslationIndex(page?: number, perPage?: number, itemId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
+        return ItemTranslationsApiFp(this.configuration).itemTranslationIndex(page, perPage, itemId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -21572,10 +21916,14 @@ export const ThemeTranslationApiAxiosParamCreator = function (configuration?: Co
         /**
          * 
          * @summary Display a listing of theme translations
+         * @param {string} [themeId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        themeTranslationIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        themeTranslationIndex: async (themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/theme-translation`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -21591,6 +21939,22 @@ export const ThemeTranslationApiAxiosParamCreator = function (configuration?: Co
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (themeId !== undefined) {
+                localVarQueryParameter['theme_id'] = themeId;
+            }
+
+            if (languageId !== undefined) {
+                localVarQueryParameter['language_id'] = languageId;
+            }
+
+            if (contextId !== undefined) {
+                localVarQueryParameter['context_id'] = contextId;
+            }
+
+            if (defaultContext !== undefined) {
+                localVarQueryParameter['default_context'] = defaultContext;
+            }
 
 
     
@@ -21749,11 +22113,15 @@ export const ThemeTranslationApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of theme translations
+         * @param {string} [themeId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async themeTranslationIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ThemeTranslationResource>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationIndex(options);
+        async themeTranslationIndex(themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ThemeTranslationResource>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationIndex(themeId, languageId, contextId, defaultContext, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ThemeTranslationApi.themeTranslationIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -21821,11 +22189,15 @@ export const ThemeTranslationApiFactory = function (configuration?: Configuratio
         /**
          * 
          * @summary Display a listing of theme translations
+         * @param {string} [themeId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        themeTranslationIndex(options?: RawAxiosRequestConfig): AxiosPromise<Array<ThemeTranslationResource>> {
-            return localVarFp.themeTranslationIndex(options).then((request) => request(axios, basePath));
+        themeTranslationIndex(themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<ThemeTranslationResource>> {
+            return localVarFp.themeTranslationIndex(themeId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -21883,12 +22255,16 @@ export class ThemeTranslationApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of theme translations
+     * @param {string} [themeId] 
+     * @param {string} [languageId] 
+     * @param {string} [contextId] 
+     * @param {boolean} [defaultContext] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ThemeTranslationApi
      */
-    public themeTranslationIndex(options?: RawAxiosRequestConfig) {
-        return ThemeTranslationApiFp(this.configuration).themeTranslationIndex(options).then((request) => request(this.axios, this.basePath));
+    public themeTranslationIndex(themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
+        return ThemeTranslationApiFp(this.configuration).themeTranslationIndex(themeId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -21978,10 +22354,14 @@ export const ThemeTranslationsApiAxiosParamCreator = function (configuration?: C
         /**
          * 
          * @summary Display a listing of theme translations
+         * @param {string} [themeId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        themeTranslationIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        themeTranslationIndex: async (themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/theme-translation`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -21997,6 +22377,22 @@ export const ThemeTranslationsApiAxiosParamCreator = function (configuration?: C
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (themeId !== undefined) {
+                localVarQueryParameter['theme_id'] = themeId;
+            }
+
+            if (languageId !== undefined) {
+                localVarQueryParameter['language_id'] = languageId;
+            }
+
+            if (contextId !== undefined) {
+                localVarQueryParameter['context_id'] = contextId;
+            }
+
+            if (defaultContext !== undefined) {
+                localVarQueryParameter['default_context'] = defaultContext;
+            }
 
 
     
@@ -22155,11 +22551,15 @@ export const ThemeTranslationsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display a listing of theme translations
+         * @param {string} [themeId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async themeTranslationIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ThemeTranslationResource>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationIndex(options);
+        async themeTranslationIndex(themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ThemeTranslationResource>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationIndex(themeId, languageId, contextId, defaultContext, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ThemeTranslationsApi.themeTranslationIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -22227,11 +22627,15 @@ export const ThemeTranslationsApiFactory = function (configuration?: Configurati
         /**
          * 
          * @summary Display a listing of theme translations
+         * @param {string} [themeId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        themeTranslationIndex(options?: RawAxiosRequestConfig): AxiosPromise<Array<ThemeTranslationResource>> {
-            return localVarFp.themeTranslationIndex(options).then((request) => request(axios, basePath));
+        themeTranslationIndex(themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<ThemeTranslationResource>> {
+            return localVarFp.themeTranslationIndex(themeId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -22289,12 +22693,16 @@ export class ThemeTranslationsApi extends BaseAPI {
     /**
      * 
      * @summary Display a listing of theme translations
+     * @param {string} [themeId] 
+     * @param {string} [languageId] 
+     * @param {string} [contextId] 
+     * @param {boolean} [defaultContext] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ThemeTranslationsApi
      */
-    public themeTranslationIndex(options?: RawAxiosRequestConfig) {
-        return ThemeTranslationsApiFp(this.configuration).themeTranslationIndex(options).then((request) => request(this.axios, this.basePath));
+    public themeTranslationIndex(themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
+        return ThemeTranslationsApiFp(this.configuration).themeTranslationIndex(themeId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
