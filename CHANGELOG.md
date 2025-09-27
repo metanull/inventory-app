@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Dependencies - Updated development and production dependencies to latest versions
+    - **Laravel Framework** 12.29.0 → 12.31.1 (includes performance improvements and bug fixes)
+    - **Laravel Pint** 1.24.0 → 1.25.1 (code formatting improvements)
+    - **OpenAPI Generator CLI** 2.23.3 → 2.23.4 (bug fixes)
+    - **@types/node** 24.5.0 → 24.5.2 (TypeScript definitions updates)
+    - **ESLint** 9.35.0 → 9.36.0 (new linting rules and fixes)
+    - **eslint-plugin-vue** 10.4.0 → 10.5.0 (Vue.js linting improvements)
+    - **Vite** 7.1.5 → 7.1.7 (build tool bug fixes and performance improvements)
+    - **Removed @types/uuid** (deprecated package - uuid now provides its own types)
+
 ### Added
 
 - Backend (Testing) - Complete web test standardization and consistency improvements
