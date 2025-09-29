@@ -2,8 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Exhibition;
-use App\Models\Picture;
+use App\Models\Collection;
 use App\Models\Theme;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -14,7 +13,7 @@ class ThemeFactory extends Factory
     public function definition(): array
     {
         return [
-            'exhibition_id' => Exhibition::factory(),
+            'collection_id' => Collection::factory()->state(['type' => 'exhibition']),
             'parent_id' => null,
             'internal_name' => $this->faker->unique()->slug(3),
             'backward_compatibility' => null,
@@ -23,11 +22,8 @@ class ThemeFactory extends Factory
 
     public function configure()
     {
-        return $this->afterCreating(function (Theme $theme) {
-            if (Picture::count() > 0) {
-                $theme->pictures()->attach(Picture::inRandomOrder()->first()->id);
-            }
-        });
+        // Legacy Picture attachment removed - Theme images now handled via ItemImage for associated items
+        return $this;
     }
 
     /**

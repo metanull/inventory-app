@@ -22,7 +22,9 @@ Additional descriptive information linked to Items, supporting detailed catalogi
 
 Polymorphic image attachment system that allows attaching images to Items, Details, and Partners.
 
-**Key Features:**
+**DEPRECATED**: The Picture model has been replaced by ItemImage model.
+
+**Legacy Key Features:**
 
 - UUID-based primary key
 - Polymorphic relationships with Items, Details, and Partners via `pictureable_type` and `pictureable_id`
@@ -30,6 +32,8 @@ Polymorphic image attachment system that allows attaching images to Items, Detai
 - File management with transactional operations
 - Automatic file moves from AvailableImage pool on attachment
 - Direct download and inline viewing capabilities
+
+**New ItemImage Model**: Images are now handled through the ItemImage model with direct Item relationships.
 
 **API Endpoints:**
 
@@ -559,10 +563,13 @@ Context (1) ──→ (N) ItemTranslation
 Context (1) ──→ (N) DetailTranslation
 Context (1) ──→ (N) GalleryTranslation
 
-# Polymorphic Picture Relationships
-Item (1) ──→ (N) Picture (polymorphic: pictureable)
-Detail (1) ──→ (N) Picture (polymorphic: pictureable)
-Partner (1) ──→ (N) Picture (polymorphic: pictureable)
+# Picture Relationships (DEPRECATED - replaced by ItemImage)
+~~Item (1) ──→ (N) Picture (polymorphic: pictureable)~~
+~~Detail (1) ──→ (N) Picture (polymorphic: pictureable)~~
+~~Partner (1) ──→ (N) Picture (polymorphic: pictureable)~~
+
+# New ItemImage Relationships
+Item (1) ──→ (N) ItemImage (direct relationship)
 
 # Gallery Polymorphic Relationships
 Gallery (N) ←──→ (N) Item (polymorphic: galleryable via galleryables)

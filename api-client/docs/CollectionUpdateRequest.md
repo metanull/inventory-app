@@ -6,6 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **internal_name** | **string** |  | [optional] [default to undefined]
+**type** | **string** |  | [optional] [default to undefined]
 **language_id** | **string** |  | [optional] [default to undefined]
 **context_id** | **string** |  | [optional] [default to undefined]
 **backward_compatibility** | **string** |  | [optional] [default to undefined]
@@ -17,6 +18,7 @@ import { CollectionUpdateRequest } from './api';
 
 const instance: CollectionUpdateRequest = {
     internal_name,
+    type,
     language_id,
     context_id,
     backward_compatibility,

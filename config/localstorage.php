@@ -102,11 +102,11 @@ return [
     'pictures' => [
         /*
         |--------------------------------------------------------------------------
-        | The Disk for Attached Pictures
+        | The Disk for ItemImages (formerly Pictures)
         |--------------------------------------------------------------------------
         |
-        | This disk is used to store pictures that are attached to Items, Details,
-        | or Partners. It is defined in the filesystem configuration. The default
+        | This disk is used to store images that are attached to Items via the
+        | ItemImage model. It is defined in the filesystem configuration. The default
         | disk is set to **public**, but you can change it to any other disk
         | defined in your filesystem configuration.
         |
@@ -115,11 +115,11 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | The Directory for Attached Pictures
+        | The Directory for ItemImages (formerly Pictures)
         |--------------------------------------------------------------------------
         |
-        | This directory is used to store pictures that are attached to Items,
-        | Details, or Partners. It is relative to the _disk_ disk.
+        | This directory is used to store images that are attached to Items via the
+        | ItemImage model. It is relative to the _disk_ disk.
         |
         */
         'directory' => env('PICTURES_DIRECTORY', 'pictures'),

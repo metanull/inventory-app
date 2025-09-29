@@ -30,14 +30,13 @@ class FastDatabaseSeeder extends Seeder
             TagSeeder::class,
             PartnerSeeder::class,
             ItemSeeder::class,
-            DetailSeeder::class,
             ItemTagSeeder::class,
+            ItemImageSeeder::class,
             CollectionSeeder::class,
             GallerySeeder::class,
 
             // Use optimized translation seeders
             OptimizedItemTranslationSeeder::class,
-            OptimizedDetailTranslationSeeder::class,
 
             // Use optimized image seeders
             OptimizedImageUploadSeeder::class,
@@ -45,8 +44,6 @@ class FastDatabaseSeeder extends Seeder
             ArtistSeeder::class,
             AuthorSeeder::class,
             WorkshopSeeder::class,
-            OptimizedPictureSeeder::class,
-            PictureTranslationSeeder::class,
             ExhibitionSeeder::class,
             ThemeSeeder::class,
         ]);

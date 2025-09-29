@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api\Item;
 
 use App\Models\Item;
+use App\Models\ItemImage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -154,10 +155,13 @@ class ShowTest extends TestCase
 
     public function test_show_returns_the_expected_structure_with_all_relations_loaded(): void
     {
-        $item = Item::factory()->create();
+        $item = Item::factory()
+            ->has(ItemImage::factory()->count(2))
+            ->create();
+
         $response = $this->getJson(route('item.show', [
             $item->id,
-            'include' => 'partner,country,project,collection,artists,workshops,tags,translations,pictures,galleries',
+            'include' => 'partner,country,project,collection,artists,workshops,tags,translations,itemImages',
         ]));
 
         $response->assertJsonStructure([
@@ -166,6 +170,7 @@ class ShowTest extends TestCase
                 'internal_name',
                 'backward_compatibility',
                 'type',
+                'parent_id',
                 'owner_reference',
                 'mwnf_reference',
                 'partner',
@@ -176,8 +181,19 @@ class ShowTest extends TestCase
                 'workshops',
                 'tags',
                 'translations',
-                'pictures',
-                'galleries',
+                'itemImages' => [
+                    '*' => [
+                        'id',
+                        'path',
+                        'original_name',
+                        'mime_type',
+                        'size',
+                        'alt_text',
+                        'display_order',
+                        'created_at',
+                        'updated_at',
+                    ],
+                ],
                 'created_at',
                 'updated_at',
             ],

@@ -123,7 +123,6 @@
   </DetailView>
 
   <!-- Details Section (only show when viewing an existing item) -->
-  <DetailList v-if="mode === 'view' && item" :item-id="item.id" :color="color" />
 </template>
 
 <script setup lang="ts">
@@ -142,7 +141,7 @@
   import DescriptionDetail from '@/components/format/description/DescriptionDetail.vue'
   import FormInput from '@/components/format/FormInput.vue'
   import DisplayText from '@/components/format/DisplayText.vue'
-  import DetailList from '@/components/details/DetailList.vue'
+
   import GenericDropdown from '@/components/format/GenericDropdown.vue'
   import { ArchiveBoxIcon as ItemIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline'
   import { useItemStore } from '@/stores/item'

@@ -30,6 +30,7 @@ class StoreTest extends TestCase
 
         $payload = [
             'internal_name' => 'Test Collection',
+            'type' => 'collection',
             'language_id' => $lang->id,
             'context_id' => $ctx->id,
             'backward_compatibility' => 'COL-LEG',
@@ -39,6 +40,7 @@ class StoreTest extends TestCase
         $response->assertRedirect();
         $this->assertDatabaseHas('collections', [
             'internal_name' => 'Test Collection',
+            'type' => 'collection',
             'language_id' => $lang->id,
             'context_id' => $ctx->id,
         ]);

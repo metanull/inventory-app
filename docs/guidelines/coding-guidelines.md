@@ -197,11 +197,11 @@ class Item extends Model
     }
 
     /**
-     * Get the pictures associated with the item.
+     * Get the images associated with the item.
      */
-    public function pictures(): HasMany
+    public function itemImages(): HasMany
     {
-        return $this->hasMany(Picture::class);
+        return $this->hasMany(ItemImage::class);
     }
 }
 ```

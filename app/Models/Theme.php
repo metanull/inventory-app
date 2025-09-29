@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
  * Theme Model
@@ -20,15 +19,15 @@ class Theme extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
-        'exhibition_id',
+        'collection_id',
         'parent_id',
         'internal_name',
         'backward_compatibility',
     ];
 
-    public function exhibition(): BelongsTo
+    public function collection(): BelongsTo
     {
-        return $this->belongsTo(Exhibition::class);
+        return $this->belongsTo(Collection::class);
     }
 
     public function parent(): BelongsTo
@@ -44,14 +43,6 @@ class Theme extends Model
     public function translations(): HasMany
     {
         return $this->hasMany(ThemeTranslation::class);
-    }
-
-    /**
-     * Get all pictures attached to this theme (or subtheme).
-     */
-    public function pictures(): MorphToMany
-    {
-        return $this->morphToMany(Picture::class, 'pictureable');
     }
 
     /**

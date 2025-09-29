@@ -6,6 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **internal_name** | **string** |  | [default to undefined]
+**type** | **string** |  | [default to undefined]
 **language_id** | **string** |  | [default to undefined]
 **context_id** | **string** |  | [default to undefined]
 **backward_compatibility** | **string** |  | [optional] [default to undefined]
@@ -17,6 +18,7 @@ import { CollectionStoreRequest } from './api';
 
 const instance: CollectionStoreRequest = {
     internal_name,
+    type,
     language_id,
     context_id,
     backward_compatibility,

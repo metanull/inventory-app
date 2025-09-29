@@ -4,15 +4,118 @@ All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**itemByType**](#itembytype) | **GET** /item/type/{type} | Get items by type|
+|[**itemChildren**](#itemchildren) | **GET** /item/children | Get child items (items with a parent)|
 |[**itemDestroy**](#itemdestroy) | **DELETE** /item/{item} | Remove the specified resource from storage|
 |[**itemForTag**](#itemfortag) | **GET** /item/for-tag/{tag} | Get items for a specific tag|
 |[**itemIndex**](#itemindex) | **GET** /item | Display a listing of the resource|
+|[**itemParents**](#itemparents) | **GET** /item/parents | Get parent items (items with no parent)|
 |[**itemShow**](#itemshow) | **GET** /item/{item} | Display the specified resource|
 |[**itemStore**](#itemstore) | **POST** /item | Store a newly created resource in storage|
 |[**itemUpdate**](#itemupdate) | **PUT** /item/{item} | Update the specified resource in storage|
 |[**itemUpdateTags**](#itemupdatetags) | **PATCH** /item/{item}/tags | Update tags for the specified item without modifying other item properties|
 |[**itemWithAllTags**](#itemwithalltags) | **POST** /item/with-all-tags | Get items that have ALL of the specified tags (AND condition)|
 |[**itemWithAnyTags**](#itemwithanytags) | **POST** /item/with-any-tags | Get items that have ANY of the specified tags (OR condition)|
+
+# **itemByType**
+> ItemForTag200Response itemByType()
+
+
+### Example
+
+```typescript
+import {
+    ItemApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ItemApi(configuration);
+
+let type: string; // (default to undefined)
+let type2: 'object' | 'monument' | 'detail' | 'picture'; // (default to undefined)
+
+const { status, data } = await apiInstance.itemByType(
+    type,
+    type2
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **type** | [**string**] |  | defaults to undefined|
+| **type2** | [**&#39;object&#39; | &#39;monument&#39; | &#39;detail&#39; | &#39;picture&#39;**]**Array<&#39;object&#39; &#124; &#39;monument&#39; &#124; &#39;detail&#39; &#124; &#39;picture&#39;>** |  | defaults to undefined|
+
+
+### Return type
+
+**ItemForTag200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Array of &#x60;ItemResource&#x60; |  -  |
+|**422** | Validation error |  -  |
+|**401** | Unauthenticated |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **itemChildren**
+> ItemForTag200Response itemChildren()
+
+
+### Example
+
+```typescript
+import {
+    ItemApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ItemApi(configuration);
+
+const { status, data } = await apiInstance.itemChildren();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**ItemForTag200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Array of &#x60;ItemResource&#x60; |  -  |
+|**422** | Validation error |  -  |
+|**401** | Unauthenticated |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemDestroy**
 > itemDestroy()
@@ -178,6 +281,51 @@ const { status, data } = await apiInstance.itemIndex(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **itemParents**
+> ItemForTag200Response itemParents()
+
+
+### Example
+
+```typescript
+import {
+    ItemApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ItemApi(configuration);
+
+const { status, data } = await apiInstance.itemParents();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**ItemForTag200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Array of &#x60;ItemResource&#x60; |  -  |
+|**422** | Validation error |  -  |
+|**401** | Unauthenticated |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **itemShow**
 > ItemStore200Response itemShow()
 
@@ -236,7 +384,7 @@ const { status, data } = await apiInstance.itemShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemStore**
-> ItemStore200Response itemStore(itemStoreRequest)
+> ItemStore200Response itemStore(storeItemRequest)
 
 
 ### Example
@@ -245,16 +393,16 @@ const { status, data } = await apiInstance.itemShow(
 import {
     ItemApi,
     Configuration,
-    ItemStoreRequest
+    StoreItemRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ItemApi(configuration);
 
-let itemStoreRequest: ItemStoreRequest; //
+let storeItemRequest: StoreItemRequest; //
 
 const { status, data } = await apiInstance.itemStore(
-    itemStoreRequest
+    storeItemRequest
 );
 ```
 
@@ -262,7 +410,7 @@ const { status, data } = await apiInstance.itemStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **itemStoreRequest** | **ItemStoreRequest**|  | |
+| **storeItemRequest** | **StoreItemRequest**|  | |
 
 
 ### Return type
@@ -285,11 +433,12 @@ const { status, data } = await apiInstance.itemStore(
 |**200** | &#x60;ItemResource&#x60; |  -  |
 |**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemUpdate**
-> ItemStore200Response itemUpdate(itemStoreRequest)
+> ItemStore200Response itemUpdate()
 
 
 ### Example
@@ -298,18 +447,18 @@ const { status, data } = await apiInstance.itemStore(
 import {
     ItemApi,
     Configuration,
-    ItemStoreRequest
+    UpdateItemRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ItemApi(configuration);
 
 let item: string; //The item ID (default to undefined)
-let itemStoreRequest: ItemStoreRequest; //
+let updateItemRequest: UpdateItemRequest; // (optional)
 
 const { status, data } = await apiInstance.itemUpdate(
     item,
-    itemStoreRequest
+    updateItemRequest
 );
 ```
 
@@ -317,7 +466,7 @@ const { status, data } = await apiInstance.itemUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **itemStoreRequest** | **ItemStoreRequest**|  | |
+| **updateItemRequest** | **UpdateItemRequest**|  | |
 | **item** | [**string**] | The item ID | defaults to undefined|
 
 
@@ -339,9 +488,10 @@ const { status, data } = await apiInstance.itemUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ItemResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

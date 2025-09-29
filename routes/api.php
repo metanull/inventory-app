@@ -9,22 +9,16 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ContactTranslationController;
 use App\Http\Controllers\ContextController;
 use App\Http\Controllers\CountryController;
-use App\Http\Controllers\DetailController;
-use App\Http\Controllers\DetailTranslationController;
-use App\Http\Controllers\ExhibitionController;
-use App\Http\Controllers\ExhibitionTranslationController;
-use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\InfoController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ItemImageController;
 use App\Http\Controllers\ItemTranslationController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LocationTranslationController;
 use App\Http\Controllers\MobileAppAuthenticationController;
 use App\Http\Controllers\PartnerController;
-use App\Http\Controllers\PictureController;
-use App\Http\Controllers\PictureTranslationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\ProvinceTranslationController;
@@ -127,6 +121,60 @@ Route::post('item/with-any-tags', [ItemController::class, 'withAnyTags'])
     ->name('item.withAnyTags')
     ->middleware('auth:sanctum');
 
+// New routes for item types and hierarchical relationships
+Route::get('item/type/{type}', [ItemController::class, 'byType'])
+    ->name('item.byType')
+    ->middleware('auth:sanctum');
+
+Route::get('item/parents', [ItemController::class, 'parents'])
+    ->name('item.parents')
+    ->middleware('auth:sanctum');
+
+Route::get('item/children', [ItemController::class, 'children'])
+    ->name('item.children')
+    ->middleware('auth:sanctum');
+
+// ItemImage routes - nested under items
+Route::get('item/{item}/images', [ItemImageController::class, 'index'])
+    ->name('item.images.index')
+    ->middleware('auth:sanctum');
+
+Route::post('item/{item}/images', [ItemImageController::class, 'store'])
+    ->name('item.images.store')
+    ->middleware('auth:sanctum');
+
+Route::get('item-image/{itemImage}', [ItemImageController::class, 'show'])
+    ->name('item-image.show')
+    ->middleware('auth:sanctum');
+
+Route::patch('item-image/{itemImage}', [ItemImageController::class, 'update'])
+    ->name('item-image.update')
+    ->middleware('auth:sanctum');
+
+Route::delete('item-image/{itemImage}', [ItemImageController::class, 'destroy'])
+    ->name('item-image.destroy')
+    ->middleware('auth:sanctum');
+
+Route::patch('item-image/{itemImage}/move-up', [ItemImageController::class, 'moveUp'])
+    ->name('item-image.moveUp')
+    ->middleware('auth:sanctum');
+
+Route::patch('item-image/{itemImage}/move-down', [ItemImageController::class, 'moveDown'])
+    ->name('item-image.moveDown')
+    ->middleware('auth:sanctum');
+
+Route::patch('item-image/{itemImage}/tighten-ordering', [ItemImageController::class, 'tightenOrdering'])
+    ->name('item-image.tightenOrdering')
+    ->middleware('auth:sanctum');
+
+Route::post('item/{item}/attach-image', [ItemImageController::class, 'attachFromAvailable'])
+    ->name('item.attachImage')
+    ->middleware('auth:sanctum');
+
+Route::post('item-image/{itemImage}/detach', [ItemImageController::class, 'detachToAvailable'])
+    ->name('item-image.detach')
+    ->middleware('auth:sanctum');
+
 Route::resource('project', ProjectController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
@@ -148,50 +196,6 @@ Route::get('available-image/{available_image}/view', [AvailableImageController::
     ->middleware('auth:sanctum');
 
 Route::resource('available-image', AvailableImageController::class)->except([
-    'create', 'edit', 'store',
-])->middleware('auth:sanctum');
-
-Route::resource('detail', DetailController::class)->except([
-    'create', 'edit',
-])->middleware('auth:sanctum');
-
-// Picture attachment routes
-Route::post('item/{item}/pictures', [PictureController::class, 'attachToItem'])
-    ->name('picture.attachToItem')
-    ->middleware('auth:sanctum');
-
-Route::post('detail/{detail}/pictures', [PictureController::class, 'attachToDetail'])
-    ->name('picture.attachToDetail')
-    ->middleware('auth:sanctum');
-
-Route::post('partner/{partner}/pictures', [PictureController::class, 'attachToPartner'])
-    ->name('picture.attachToPartner')
-    ->middleware('auth:sanctum');
-
-// Picture detachment routes
-Route::delete('item/{item}/pictures/{picture}', [PictureController::class, 'detachFromItem'])
-    ->name('picture.detachFromItem')
-    ->middleware('auth:sanctum');
-
-Route::delete('detail/{detail}/pictures/{picture}', [PictureController::class, 'detachFromDetail'])
-    ->name('picture.detachFromDetail')
-    ->middleware('auth:sanctum');
-
-Route::delete('partner/{partner}/pictures/{picture}', [PictureController::class, 'detachFromPartner'])
-    ->name('picture.detachFromPartner')
-    ->middleware('auth:sanctum');
-
-// Picture file access routes
-Route::get('picture/{picture}/download', [PictureController::class, 'download'])
-    ->name('picture.download')
-    ->middleware('auth:sanctum');
-
-Route::get('picture/{picture}/view', [PictureController::class, 'view'])
-    ->name('picture.view')
-    ->middleware('auth:sanctum');
-
-// Picture resource routes
-Route::resource('picture', PictureController::class)->except([
     'create', 'edit', 'store',
 ])->middleware('auth:sanctum');
 
@@ -231,14 +235,6 @@ Route::resource('item-translation', ItemTranslationController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 
-Route::resource('detail-translation', DetailTranslationController::class)->except([
-    'create', 'edit',
-])->middleware('auth:sanctum');
-
-Route::resource('picture-translation', PictureTranslationController::class)->except([
-    'create', 'edit',
-])->middleware('auth:sanctum');
-
 Route::post('mobile/acquire-token', [MobileAppAuthenticationController::class, 'acquire_token'])
     ->name('token.acquire');
 
@@ -250,9 +246,26 @@ Route::resource('collection', CollectionController::class)->except([
     'create', 'edit',
 ])->middleware('auth:sanctum');
 
-Route::resource('gallery', GalleryController::class)->except([
-    'create', 'edit',
-])->middleware('auth:sanctum');
+// New routes for collection types and item management
+Route::get('collection/type/{type}', [CollectionController::class, 'byType'])
+    ->name('collection.byType')
+    ->middleware('auth:sanctum');
+
+Route::post('collection/{collection}/attach-item', [CollectionController::class, 'attachItem'])
+    ->name('collection.attachItem')
+    ->middleware('auth:sanctum');
+
+Route::delete('collection/{collection}/detach-item', [CollectionController::class, 'detachItem'])
+    ->name('collection.detachItem')
+    ->middleware('auth:sanctum');
+
+Route::post('collection/{collection}/attach-items', [CollectionController::class, 'attachItems'])
+    ->name('collection.attachItems')
+    ->middleware('auth:sanctum');
+
+Route::delete('collection/{collection}/detach-items', [CollectionController::class, 'detachItems'])
+    ->name('collection.detachItems')
+    ->middleware('auth:sanctum');
 
 // Markdown conversion routes
 Route::prefix('markdown')->group(function () {
@@ -274,14 +287,6 @@ Route::prefix('markdown')->group(function () {
     Route::get('allowed-elements', [MarkdownController::class, 'getAllowedElements'])
         ->name('markdown.allowedElements');
 });
-
-Route::resource('exhibition', ExhibitionController::class)->except([
-    'create', 'edit',
-])->middleware('auth:sanctum');
-
-Route::resource('exhibition-translation', ExhibitionTranslationController::class)->except([
-    'create', 'edit',
-])->middleware('auth:sanctum');
 
 Route::resource('theme', ThemeController::class)->except([
     'create', 'edit',

@@ -4,7 +4,6 @@ import type {
   PartnerResource,
   ProjectResource,
   TagResource,
-  PictureResource,
   CountryResource,
   LanguageResource,
   ContextResource,
@@ -92,24 +91,15 @@ export const createMockTag = (overrides: Partial<TagResource> = {}): TagResource
   ...overrides,
 })
 
-export const createMockPicture = (overrides: Partial<PictureResource> = {}): PictureResource => ({
-  id: '123e4567-e89b-12d3-a456-426614174005',
-  internal_name: 'Test Picture',
-  display_name: 'Test Picture Display',
-  backward_compatibility: null,
-  file_path: '/test/path/image.jpg',
-  created_at: '2023-01-01T00:00:00Z',
-  updated_at: '2023-01-01T00:00:00Z',
-  ...overrides,
-})
-
 export const createMockCollection = (
   overrides: Partial<CollectionResource> = {}
 ): CollectionResource => ({
   id: '123e4567-e89b-12d3-a456-426614174006',
   internal_name: 'Test Collection',
+  type: 'collection',
+  language_id: 'ENG',
+  context_id: '123e4567-e89b-12d3-a456-426614174007',
   backward_compatibility: null,
-  translations: [],
   created_at: '2023-01-01T00:00:00Z',
   updated_at: '2023-01-01T00:00:00Z',
   ...overrides,

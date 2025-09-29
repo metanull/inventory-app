@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Backend (Architecture)** - Major model simplification and unification initiative
+    - **Item Model Enhancement**: Added `type` field (object/monument) and hierarchical `parent_id` support for complex object relationships
+    - **Collection Model Unification**: Added `type` field (collection/exhibition/gallery) to replace separate Gallery and Exhibition models
+    - **Removed Legacy Models**: Eliminated Picture, Detail, Gallery, Exhibition models (replaced by ItemImage and unified Collection)
+    - **ItemImage System**: New direct item-to-image relationship model with display ordering and management capabilities
+    - **Theme Model Update**: Replaced Exhibition relationship with optional Collection relationship
+    - **API Simplification**: Streamlined endpoints with consistent patterns, eliminated polymorphic relationships
+    - **Database Optimization**: Reduced model count from 37+ to 28 focused models with clearer relationships
+    - **Frontend Cleanup**: Removed obsolete Vue.js Detail components and updated API client integration
+
 - Dependencies - Updated development and production dependencies to latest versions
     - **Laravel Framework** 12.29.0 → 12.31.1 (includes performance improvements and bug fixes)
     - **Laravel Pint** 1.24.0 → 1.25.1 (code formatting improvements)
@@ -20,6 +30,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - **Removed @types/uuid** (deprecated package - uuid now provides its own types)
 
 ### Added
+
+- **Backend (Models)** - New ItemImage system for enhanced image management
+    - **ItemImage Model**: Direct item-to-image relationships with display ordering (replaces polymorphic Picture attachments)
+    - **Image Ordering**: Display order management with reordering capabilities (moveUp, moveDown, moveToPosition methods)
+    - **Attach/Detach Operations**: Simplified image attachment workflows with automatic ordering
+    - **ItemImageController**: RESTful API endpoints for image management (/api/items/{item}/images/*)
+    - **ItemImageFactory & Seeder**: Comprehensive testing support with realistic data generation
+
+- **Backend (Database)** - Schema migrations for model simplification
+    - **Migration**: Add type and hierarchical support to items table
+    - **Migration**: Add type field to collections table for unified collection types
+    - **Migration**: Create item_images table with display ordering
+    - **Migration**: Create collection_item pivot table for many-to-many relationships
+    - **Migration**: Remove legacy picture, detail, gallery, exhibition tables and related data
+
+- **Backend (API)** - Enhanced controllers and resources for simplified models
+    - **ItemController**: Enhanced with type filtering, hierarchical queries, and image management
+    - **CollectionController**: Unified handling of collections, exhibitions, and galleries via type field
+    - **Updated Resources**: ItemResource and CollectionResource with new fields and relationships
+    - **Form Requests**: Comprehensive validation for hierarchical item structures and collection types
+    - **OpenAPI Specification**: Updated documentation reflecting simplified model structure
 
 - Backend (Testing) - Complete web test standardization and consistency improvements
     - Created comprehensive Languages web test suite with 7 CRUD tests (Create, Destroy, Edit, Index, Show, Store, Update)
@@ -86,6 +117,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - All 7 entity tables now support dynamic sorting with visual feedback
     - Modal confirmations replace browser dialogs on all delete operations
     - Improved user experience with loading indicators during form submissions
+
+### Removed
+
+- **Backend (Models)** - Legacy model removal as part of simplification initiative
+    - **Picture Model**: Removed polymorphic picture attachments (replaced by ItemImage direct relationships)
+    - **Detail Model**: Eliminated detail model (functionality integrated into Item model)
+    - **Gallery Model**: Removed separate gallery model (unified into Collection with type='gallery')
+    - **Exhibition Model**: Removed separate exhibition model (unified into Collection with type='exhibition')
+    - **Translation Models**: Removed PictureTranslation, DetailTranslation, GalleryTranslation, ExhibitionTranslation
+    - **Pivot Models**: Removed Galleryable, GalleryPartner models (simplified relationships)
+
+- **Frontend (Vue.js)** - Obsolete component cleanup
+    - **Detail Components**: Removed DetailDetail.vue, DetailList.vue, DetailDialog.vue views and components
+    - **Detail Store**: Removed detail.ts Pinia store and related state management
+    - **Detail Routes**: Removed /items/:itemId/details/* router entries
+    - **Detail Tests**: Removed DetailStorePagination.test.ts and DetailDetail integration tests
+    - **Test Utilities**: Removed Picture and Detail mock functions from test-utils.ts
+
+- **Backend (Controllers & Routes)** - Obsolete API endpoints removal
+    - **PictureController**: Removed entire controller and related /api/pictures/* endpoints
+    - **DetailController**: Removed entire controller and related /api/details/* endpoints
+    - **GalleryController**: Removed (functionality moved to CollectionController)
+    - **ExhibitionController**: Removed (functionality moved to CollectionController)
+
+- **Documentation** - Outdated model documentation cleanup
+    - **Model Documentation**: Removed docs/models files for Picture, Detail, Gallery, Exhibition models
+    - **API Documentation**: Updated OpenAPI specification to remove obsolete endpoints
 
 ### Fixed
 

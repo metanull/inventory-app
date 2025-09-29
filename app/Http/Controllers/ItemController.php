@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\IndexItemRequest;
 use App\Http\Requests\Api\ShowItemRequest;
+use App\Http\Requests\Api\StoreItemRequest;
+use App\Http\Requests\Api\UpdateItemRequest;
 use App\Http\Resources\ItemResource;
 use App\Models\Item;
 use App\Models\Tag;
@@ -24,6 +26,15 @@ class ItemController extends Controller
         $with = $includes;
         if (in_array('partner', $includes, true)) {
             $with[] = 'partner.country';
+        }
+        if (in_array('parent', $includes, true)) {
+            $with[] = 'parent';
+        }
+        if (in_array('children', $includes, true)) {
+            $with[] = 'children';
+        }
+        if (in_array('itemImages', $includes, true)) {
+            $with[] = 'itemImages';
         }
 
         return array_values(array_unique($with));
@@ -52,18 +63,9 @@ class ItemController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreItemRequest $request)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'partner_id' => 'nullable|uuid',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
-            'type' => 'required|in:object,monument',
-            'country_id' => 'nullable|string|size:3',
-            'project_id' => 'nullable|uuid',
-        ]);
+        $validated = $request->validated();
         $item = Item::create($validated);
         $item->refresh();
 
@@ -98,18 +100,9 @@ class ItemController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Item $item)
+    public function update(UpdateItemRequest $request, Item $item)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'partner_id' => 'nullable|uuid',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
-            'type' => 'required|in:object,monument',
-            'country_id' => 'nullable|string|size:3',
-            'project_id' => 'nullable|uuid',
-        ]);
+        $validated = $request->validated();
         $item->update($validated);
         $item->refresh();
 
@@ -205,6 +198,64 @@ class ItemController extends Controller
         $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
         $with = $this->expandIncludes($includes);
         $items = Item::withAnyTags($validated['tags'])->with($with)->get();
+
+        return ItemResource::collection($items);
+    }
+
+    /**
+     * Get items by type.
+     */
+    public function byType(Request $request, string $type)
+    {
+        $validated = $request->validate([
+            'type' => 'required|in:object,monument,detail,picture',
+        ]);
+
+        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $with = $this->expandIncludes($includes);
+
+        $query = Item::query()->with($with);
+
+        switch ($type) {
+            case 'object':
+                $query->objects();
+                break;
+            case 'monument':
+                $query->monuments();
+                break;
+            case 'detail':
+                $query->details();
+                break;
+            case 'picture':
+                $query->pictures();
+                break;
+        }
+
+        $items = $query->get();
+
+        return ItemResource::collection($items);
+    }
+
+    /**
+     * Get parent items (items with no parent).
+     */
+    public function parents(Request $request)
+    {
+        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $with = $this->expandIncludes($includes);
+        $items = Item::parents()->with($with)->get();
+
+        return ItemResource::collection($items);
+    }
+
+    /**
+     * Get child items (items with a parent).
+     */
+    public function children(Request $request)
+    {
+        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $with = $this->expandIncludes($includes);
+        $items = Item::children()->with($with)->get();
 
         return ItemResource::collection($items);
     }

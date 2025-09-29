@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Partner extends Model
 {
@@ -40,14 +39,6 @@ class Partner extends Model
     public function items(): HasMany
     {
         return $this->hasMany(Item::class)->chaperone('partner');
-    }
-
-    /**
-     * Get all pictures attached to this partner.
-     */
-    public function pictures(): MorphMany
-    {
-        return $this->morphMany(Picture::class, 'pictureable')->chaperone('pictureable');
     }
 
     /**

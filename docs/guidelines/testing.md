@@ -175,7 +175,7 @@ class IndexTest extends TestCase
 namespace Tests\Integration;
 
 use App\Models\Item;
-use App\Models\Picture;
+use App\Models\ItemImage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -218,14 +218,14 @@ class ImageUploadWorkflowTest extends TestCase
         $response->assertCreated();
 
         // Verify database record
-        $this->assertDatabaseHas('pictures', [
-            'internal_name' => 'Test Picture',
+        $this->assertDatabaseHas('item_images', [
+            'original_name' => 'test-image.jpg',
             'item_id' => $item->id,
         ]);
 
         // Verify file storage
-        $picture = Picture::where('internal_name', 'Test Picture')->first();
-        Storage::disk('public')->assertExists($picture->file_path);
+        $itemImage = ItemImage::where('original_name', 'test-image.jpg')->first();
+        Storage::disk('public')->assertExists($itemImage->path);
     }
 }
 ```

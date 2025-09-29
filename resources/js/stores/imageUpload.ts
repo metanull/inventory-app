@@ -339,7 +339,7 @@ export const useImageUploadStore = defineStore('imageUpload', () => {
     }
   }
 
-  // Periodically check processing status (legacy function for backward compatibility)
+  // Start monitoring processing status
   const startProcessingMonitor = () => {
     ensureProcessingMonitor()
 

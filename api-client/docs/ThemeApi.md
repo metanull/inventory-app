@@ -241,18 +241,18 @@ const { status, data } = await apiInstance.themeStore(
 import {
     ThemeApi,
     Configuration,
-    ExhibitionUpdateRequest
+    ThemeUpdateRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ThemeApi(configuration);
 
 let theme: string; //The theme ID (default to undefined)
-let exhibitionUpdateRequest: ExhibitionUpdateRequest; // (optional)
+let themeUpdateRequest: ThemeUpdateRequest; // (optional)
 
 const { status, data } = await apiInstance.themeUpdate(
     theme,
-    exhibitionUpdateRequest
+    themeUpdateRequest
 );
 ```
 
@@ -260,7 +260,7 @@ const { status, data } = await apiInstance.themeUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **exhibitionUpdateRequest** | **ExhibitionUpdateRequest**|  | |
+| **themeUpdateRequest** | **ThemeUpdateRequest**|  | |
 | **theme** | [**string**] | The theme ID | defaults to undefined|
 
 

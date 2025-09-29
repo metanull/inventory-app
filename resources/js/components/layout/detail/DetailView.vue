@@ -181,7 +181,7 @@
 
     // Mode state - Single source of truth
     mode: Mode
-    hasUnsavedChanges?: boolean // New prop to track unsaved changes
+    hasUnsavedChanges?: boolean // Track unsaved changes
 
     // Creation mode customization
     createTitle?: string // Custom title for creation mode
@@ -210,7 +210,7 @@
     cancel: []
     delete: []
     statusToggle: [index: number]
-    unsavedChanges: [hasChanges: boolean] // New emit for parent to notify of changes
+    unsavedChanges: [hasChanges: boolean] // Notify parent of unsaved changes
   }>()
 
   // Internal loading state for initial page load
