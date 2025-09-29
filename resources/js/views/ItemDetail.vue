@@ -154,8 +154,8 @@
   import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
   import { useColors, type ColorName } from '@/composables/useColors'
   import type {
-    ItemStoreRequest,
-    ItemStoreRequestTypeEnum,
+    StoreItemRequest,
+    StoreItemRequestTypeEnum,
   } from '@metanull/inventory-app-api-client'
 
   // Types
@@ -362,10 +362,10 @@
     try {
       loadingStore.show(mode.value === 'create' ? 'Creating...' : 'Saving...')
 
-      const itemData: ItemStoreRequest = {
+      const itemData: StoreItemRequest = {
         internal_name: editForm.value.internal_name,
         backward_compatibility: editForm.value.backward_compatibility || null,
-        type: editForm.value.type as ItemStoreRequestTypeEnum,
+        type: editForm.value.type as StoreItemRequestTypeEnum,
         partner_id: editForm.value.partner_id || null,
         project_id: editForm.value.project_id || null,
         country_id: editForm.value.country_id || null,

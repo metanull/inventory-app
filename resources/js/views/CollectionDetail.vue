@@ -34,6 +34,24 @@
           </DescriptionDetail>
         </DescriptionRow>
         <DescriptionRow variant="white">
+          <DescriptionTerm>Type</DescriptionTerm>
+          <DescriptionDetail>
+            <select
+              v-if="mode === 'edit' || mode === 'create'"
+              v-model="editForm.type"
+              class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+            >
+              <option value="">Select type...</option>
+              <option value="collection">Collection</option>
+              <option value="exhibition">Exhibition</option>
+              <option value="gallery">Gallery</option>
+            </select>
+            <DisplayText v-else>
+              <span class="capitalize">{{ collection?.type || '—' }}</span>
+            </DisplayText>
+          </DescriptionDetail>
+        </DescriptionRow>
+        <DescriptionRow variant="gray">
           <DescriptionTerm>Language</DescriptionTerm>
           <DescriptionDetail>
             <GenericDropdown
@@ -150,7 +168,10 @@
   import { useErrorDisplayStore } from '@/stores/errorDisplay'
   import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
   import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
-  import type { CollectionStoreRequest } from '@metanull/inventory-app-api-client'
+  import type {
+    CollectionStoreRequest,
+    CollectionStoreRequestTypeEnum,
+  } from '@metanull/inventory-app-api-client'
   import { useColors, type ColorName } from '@/composables/useColors'
 
   // Types
@@ -162,6 +183,7 @@
     language_id: string
     context_id: string
     backward_compatibility: string
+    type: string
   }
 
   interface Props {
@@ -198,6 +220,7 @@
     language_id: '',
     context_id: '',
     backward_compatibility: '',
+    type: '',
   })
 
   // Information description based on mode
@@ -248,7 +271,8 @@
         editForm.value.internal_name !== defaultValues.internal_name ||
         editForm.value.language_id !== defaultValues.language_id ||
         editForm.value.context_id !== defaultValues.context_id ||
-        editForm.value.backward_compatibility !== defaultValues.backward_compatibility
+        editForm.value.backward_compatibility !== defaultValues.backward_compatibility ||
+        editForm.value.type !== defaultValues.type
       )
     }
 
@@ -260,7 +284,8 @@
       editForm.value.internal_name !== originalValues.internal_name ||
       editForm.value.language_id !== originalValues.language_id ||
       editForm.value.context_id !== originalValues.context_id ||
-      editForm.value.backward_compatibility !== originalValues.backward_compatibility
+      editForm.value.backward_compatibility !== originalValues.backward_compatibility ||
+      editForm.value.type !== originalValues.type
     )
   })
 
@@ -280,6 +305,7 @@
     language_id: collection.value?.language_id || '',
     context_id: collection.value?.context_id || '',
     backward_compatibility: collection.value?.backward_compatibility || '',
+    type: collection.value?.type || '',
   })
 
   // Get default form values for create mode
@@ -288,6 +314,7 @@
     language_id: languageStore.defaultLanguage?.id || '',
     context_id: contextStore.defaultContext?.id || '',
     backward_compatibility: '',
+    type: 'collection', // Default to 'collection' type
   })
 
   // Mode management functions
@@ -317,6 +344,7 @@
         language_id: editForm.value.language_id,
         context_id: editForm.value.context_id,
         backward_compatibility: editForm.value.backward_compatibility || undefined,
+        type: editForm.value.type as CollectionStoreRequestTypeEnum,
       }
 
       if (mode.value === 'create') {

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { type ItemResource, type ItemStoreRequest } from '@metanull/inventory-app-api-client'
+import { type ItemResource, type StoreItemRequest } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
 import {
   type IndexQueryOptions,
@@ -74,10 +74,7 @@ export const useItemStore = defineStore('item', () => {
   }
 
   // Create new item
-  const createItem = async (
-    itemData: ItemStoreRequest,
-    options: ShowQueryOptions = {}
-  ): Promise<ItemResource> => {
+  const createItem = async (itemData: StoreItemRequest): Promise<ItemResource> => {
     try {
       loading.value = true
       const apiClient = createApiClient()
@@ -90,8 +87,8 @@ export const useItemStore = defineStore('item', () => {
         if (existingIndex === -1) {
           items.value.unshift(newItem)
         }
-        // Reload current item with requested includes (if any)
-        await fetchItem(newItem.id, options)
+        // Reload current item to get full data
+        await fetchItem(newItem.id)
       }
 
       return newItem
@@ -101,26 +98,27 @@ export const useItemStore = defineStore('item', () => {
   }
 
   // Update existing item
-  const updateItem = async (
-    itemId: string,
-    itemData: ItemStoreRequest,
-    options: ShowQueryOptions = {}
-  ): Promise<void> => {
+  const updateItem = async (id: string, itemData: StoreItemRequest): Promise<ItemResource> => {
     try {
       loading.value = true
       const apiClient = createApiClient()
-      const response = await apiClient.itemUpdate(itemId, itemData)
+      const response = await apiClient.itemUpdate(id, itemData)
       const updatedItem = response.data.data
 
       if (updatedItem) {
         // Update in items list
-        const index = items.value.findIndex((item: ItemResource) => item.id === itemId)
+        const index = items.value.findIndex((item: ItemResource) => item.id === id)
         if (index !== -1) {
           items.value[index] = updatedItem
         }
-        // Reload current item with requested includes (if currently selected)
-        if (currentItem.value?.id === itemId) await fetchItem(itemId, options)
+        // Reload current item if currently selected
+        if (currentItem.value?.id === id) {
+          await fetchItem(id)
+        }
+        return updatedItem
       }
+
+      throw new Error('No updated item returned from API')
     } finally {
       loading.value = false
     }

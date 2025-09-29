@@ -216,24 +216,24 @@
   // Computed filtered and sorted items
   const items = computed(() => itemStore.items || [])
 
-  const objectItems = computed(() => items.value.filter(item => item.type === 'object'))
-  const monumentItems = computed(() => items.value.filter(item => item.type === 'monument'))
+  const objectItems = computed(() => items.value.filter((item: ItemResource) => item.type === 'object'))
+  const monumentItems = computed(() => items.value.filter((item: ItemResource) => item.type === 'monument'))
 
   const filteredItems = computed(() => {
     let filtered = items.value
 
     // Apply filter mode
     if (filterMode.value === 'objects') {
-      filtered = filtered.filter(item => item.type === 'object')
+      filtered = filtered.filter((item: ItemResource) => item.type === 'object')
     } else if (filterMode.value === 'monuments') {
-      filtered = filtered.filter(item => item.type === 'monument')
+      filtered = filtered.filter((item: ItemResource) => item.type === 'monument')
     }
 
     // Apply search
     if (searchQuery.value.trim()) {
       const query = searchQuery.value.toLowerCase()
       filtered = filtered.filter(
-        item =>
+        (item: ItemResource) =>
           item.internal_name.toLowerCase().includes(query) ||
           (item.backward_compatibility &&
             item.backward_compatibility.toLowerCase().includes(query)) ||
@@ -244,7 +244,7 @@
     }
 
     // Apply sorting
-    return filtered.sort((a, b) => {
+    return filtered.sort((a: ItemResource, b: ItemResource) => {
       let aValue: unknown = a[sortKey.value as keyof typeof a]
       let bValue: unknown = b[sortKey.value as keyof typeof b]
 
