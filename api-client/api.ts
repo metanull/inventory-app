@@ -677,6 +677,149 @@ export interface AvailableImageUpdateRequest {
 /**
  * 
  * @export
+ * @interface CollectionAttachItem200Response
+ */
+export interface CollectionAttachItem200Response {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CollectionAttachItem200Response
+     */
+    'success': boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionAttachItem200Response
+     */
+    'message': CollectionAttachItem200ResponseMessageEnum;
+}
+
+export const CollectionAttachItem200ResponseMessageEnum = {
+    ItemAttachedToCollectionSuccessfully: 'Item attached to collection successfully'
+} as const;
+
+export type CollectionAttachItem200ResponseMessageEnum = typeof CollectionAttachItem200ResponseMessageEnum[keyof typeof CollectionAttachItem200ResponseMessageEnum];
+
+/**
+ * 
+ * @export
+ * @interface CollectionAttachItemRequest
+ */
+export interface CollectionAttachItemRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionAttachItemRequest
+     */
+    'item_id': string;
+}
+/**
+ * 
+ * @export
+ * @interface CollectionAttachItems200Response
+ */
+export interface CollectionAttachItems200Response {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CollectionAttachItems200Response
+     */
+    'success': boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionAttachItems200Response
+     */
+    'message': CollectionAttachItems200ResponseMessageEnum;
+}
+
+export const CollectionAttachItems200ResponseMessageEnum = {
+    ItemsAttachedToCollectionSuccessfully: 'Items attached to collection successfully'
+} as const;
+
+export type CollectionAttachItems200ResponseMessageEnum = typeof CollectionAttachItems200ResponseMessageEnum[keyof typeof CollectionAttachItems200ResponseMessageEnum];
+
+/**
+ * 
+ * @export
+ * @interface CollectionAttachItemsRequest
+ */
+export interface CollectionAttachItemsRequest {
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof CollectionAttachItemsRequest
+     */
+    'item_ids': Array<string>;
+}
+/**
+ * 
+ * @export
+ * @interface CollectionByType200Response
+ */
+export interface CollectionByType200Response {
+    /**
+     * 
+     * @type {Array<CollectionResource>}
+     * @memberof CollectionByType200Response
+     */
+    'data': Array<CollectionResource>;
+}
+/**
+ * 
+ * @export
+ * @interface CollectionDetachItem200Response
+ */
+export interface CollectionDetachItem200Response {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CollectionDetachItem200Response
+     */
+    'success': boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionDetachItem200Response
+     */
+    'message': CollectionDetachItem200ResponseMessageEnum;
+}
+
+export const CollectionDetachItem200ResponseMessageEnum = {
+    ItemDetachedFromCollectionSuccessfully: 'Item detached from collection successfully'
+} as const;
+
+export type CollectionDetachItem200ResponseMessageEnum = typeof CollectionDetachItem200ResponseMessageEnum[keyof typeof CollectionDetachItem200ResponseMessageEnum];
+
+/**
+ * 
+ * @export
+ * @interface CollectionDetachItems200Response
+ */
+export interface CollectionDetachItems200Response {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CollectionDetachItems200Response
+     */
+    'success': boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionDetachItems200Response
+     */
+    'message': CollectionDetachItems200ResponseMessageEnum;
+}
+
+export const CollectionDetachItems200ResponseMessageEnum = {
+    ItemsDetachedFromCollectionSuccessfully: 'Items detached from collection successfully'
+} as const;
+
+export type CollectionDetachItems200ResponseMessageEnum = typeof CollectionDetachItems200ResponseMessageEnum[keyof typeof CollectionDetachItems200ResponseMessageEnum];
+
+/**
+ * 
+ * @export
  * @interface CollectionIndex200Response
  */
 export interface CollectionIndex200Response {
@@ -717,6 +860,12 @@ export interface CollectionResource {
      * @memberof CollectionResource
      */
     'internal_name': string;
+    /**
+     * The type of collection: \'collection\', \'exhibition\', or \'gallery\'
+     * @type {string}
+     * @memberof CollectionResource
+     */
+    'type': string;
     /**
      * The language this collection belongs to (LanguageResource id)
      * @type {string}
@@ -772,17 +921,29 @@ export interface CollectionResource {
      */
     'partners'?: Array<PartnerResource>;
     /**
-     * Items associated with this collection (ItemResource[])
+     * Items associated with this collection - primary relationship (ItemResource[])
      * @type {Array<ItemResource>}
      * @memberof CollectionResource
      */
     'items'?: Array<ItemResource>;
+    /**
+     * Items attached to this collection via many-to-many relationship (ItemResource[])
+     * @type {Array<ItemResource>}
+     * @memberof CollectionResource
+     */
+    'attachedItems'?: Array<ItemResource>;
     /**
      * The number of items in this collection (computed)
      * @type {string}
      * @memberof CollectionResource
      */
     'items_count'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionResource
+     */
+    'attached_items_count'?: string;
     /**
      * 
      * @type {string}
@@ -826,6 +987,12 @@ export interface CollectionStoreRequest {
      * @type {string}
      * @memberof CollectionStoreRequest
      */
+    'type': CollectionStoreRequestTypeEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionStoreRequest
+     */
     'language_id': string;
     /**
      * 
@@ -840,6 +1007,15 @@ export interface CollectionStoreRequest {
      */
     'backward_compatibility'?: string | null;
 }
+
+export const CollectionStoreRequestTypeEnum = {
+    Collection: 'collection',
+    Exhibition: 'exhibition',
+    Gallery: 'gallery'
+} as const;
+
+export type CollectionStoreRequestTypeEnum = typeof CollectionStoreRequestTypeEnum[keyof typeof CollectionStoreRequestTypeEnum];
+
 /**
  * 
  * @export
@@ -948,6 +1124,12 @@ export interface CollectionUpdateRequest {
      * @type {string}
      * @memberof CollectionUpdateRequest
      */
+    'type'?: CollectionUpdateRequestTypeEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof CollectionUpdateRequest
+     */
     'language_id'?: string;
     /**
      * 
@@ -962,6 +1144,15 @@ export interface CollectionUpdateRequest {
      */
     'backward_compatibility'?: string | null;
 }
+
+export const CollectionUpdateRequestTypeEnum = {
+    Collection: 'collection',
+    Exhibition: 'exhibition',
+    Gallery: 'gallery'
+} as const;
+
+export type CollectionUpdateRequestTypeEnum = typeof CollectionUpdateRequestTypeEnum[keyof typeof CollectionUpdateRequestTypeEnum];
+
 /**
  * 
  * @export
@@ -1579,1007 +1770,6 @@ export interface CountryUpdateRequest {
 /**
  * 
  * @export
- * @interface DetailIndex200Response
- */
-export interface DetailIndex200Response {
-    /**
-     * 
-     * @type {Array<DetailResource>}
-     * @memberof DetailIndex200Response
-     */
-    'data': Array<DetailResource>;
-    /**
-     * 
-     * @type {AddressIndex200ResponseLinks}
-     * @memberof DetailIndex200Response
-     */
-    'links': AddressIndex200ResponseLinks;
-    /**
-     * 
-     * @type {AddressIndex200ResponseMeta}
-     * @memberof DetailIndex200Response
-     */
-    'meta': AddressIndex200ResponseMeta;
-}
-/**
- * 
- * @export
- * @interface DetailResource
- */
-export interface DetailResource {
-    /**
-     * The unique identifier (GUID)
-     * @type {string}
-     * @memberof DetailResource
-     */
-    'id': string;
-    /**
-     * A name for this resource, for internal use only.
-     * @type {string}
-     * @memberof DetailResource
-     */
-    'internal_name': string;
-    /**
-     * The item this detail belongs to (ItemResource)
-     * @type {ItemResource}
-     * @memberof DetailResource
-     */
-    'item'?: ItemResource;
-    /**
-     * The Id(s) of matching resource in the legacy system (if any).
-     * @type {string}
-     * @memberof DetailResource
-     */
-    'backward_compatibility': string | null;
-    /**
-     * Translations for this detail (internationalization and contextualization) (DetailTranslationResource[])
-     * @type {Array<DetailTranslationResource>}
-     * @memberof DetailResource
-     */
-    'translations'?: Array<DetailTranslationResource>;
-    /**
-     * The date of creation of the resource (managed by the system)
-     * @type {string}
-     * @memberof DetailResource
-     */
-    'created_at': string | null;
-    /**
-     * The date of last modification of the resource (managed by the system)
-     * @type {string}
-     * @memberof DetailResource
-     */
-    'updated_at': string | null;
-}
-/**
- * 
- * @export
- * @interface DetailStore200Response
- */
-export interface DetailStore200Response {
-    /**
-     * 
-     * @type {DetailResource}
-     * @memberof DetailStore200Response
-     */
-    'data': DetailResource;
-}
-/**
- * 
- * @export
- * @interface DetailStoreRequest
- */
-export interface DetailStoreRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailStoreRequest
-     */
-    'item_id': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailStoreRequest
-     */
-    'internal_name': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailStoreRequest
-     */
-    'backward_compatibility'?: string | null;
-}
-/**
- * 
- * @export
- * @interface DetailTranslationResource
- */
-export interface DetailTranslationResource {
-    /**
-     * The unique identifier (GUID)
-     * @type {string}
-     * @memberof DetailTranslationResource
-     */
-    'id': string;
-    /**
-     * The detail this translation belongs to (DetailResource id)
-     * @type {string}
-     * @memberof DetailTranslationResource
-     */
-    'detail_id': string;
-    /**
-     * The language of this translation (LanguageResource id)
-     * @type {string}
-     * @memberof DetailTranslationResource
-     */
-    'language_id': string;
-    /**
-     * The context of this translation (ContextResource id)
-     * @type {string}
-     * @memberof DetailTranslationResource
-     */
-    'context_id': string;
-    /**
-     * The name of the detail translation
-     * @type {string}
-     * @memberof DetailTranslationResource
-     */
-    'name': string;
-    /**
-     * The alternate name of the detail translation
-     * @type {string}
-     * @memberof DetailTranslationResource
-     */
-    'alternate_name': string | null;
-    /**
-     * The description of the detail translation
-     * @type {string}
-     * @memberof DetailTranslationResource
-     */
-    'description': string;
-    /**
-     * The author of the translation (AuthorResource id)
-     * @type {string}
-     * @memberof DetailTranslationResource
-     */
-    'author_id': string | null;
-    /**
-     * The text copy editor of the translation (UserResource id)
-     * @type {string}
-     * @memberof DetailTranslationResource
-     */
-    'text_copy_editor_id': string | null;
-    /**
-     * The translator of the translation (UserResource id)
-     * @type {string}
-     * @memberof DetailTranslationResource
-     */
-    'translator_id': string | null;
-    /**
-     * The translation copy editor of the translation (UserResource id)
-     * @type {string}
-     * @memberof DetailTranslationResource
-     */
-    'translation_copy_editor_id': string | null;
-    /**
-     * The Id(s) of matching resource in the legacy system (if any).
-     * @type {string}
-     * @memberof DetailTranslationResource
-     */
-    'backward_compatibility': string | null;
-    /**
-     * Extra data for translation (object, may be null)
-     * @type {object}
-     * @memberof DetailTranslationResource
-     */
-    'extra': object | null;
-    /**
-     * The date of creation of the resource (managed by the system)
-     * @type {string}
-     * @memberof DetailTranslationResource
-     */
-    'created_at': string | null;
-    /**
-     * The date of last modification of the resource (managed by the system)
-     * @type {string}
-     * @memberof DetailTranslationResource
-     */
-    'updated_at': string | null;
-    /**
-     * The detail relationship (DetailResource)
-     * @type {DetailResource}
-     * @memberof DetailTranslationResource
-     */
-    'detail'?: DetailResource;
-    /**
-     * The language relationship (LanguageResource)
-     * @type {LanguageResource}
-     * @memberof DetailTranslationResource
-     */
-    'language'?: LanguageResource;
-    /**
-     * The context relationship (ContextResource)
-     * @type {ContextResource}
-     * @memberof DetailTranslationResource
-     */
-    'context'?: ContextResource;
-    /**
-     * The author relationship (AuthorResource)
-     * @type {AuthorResource}
-     * @memberof DetailTranslationResource
-     */
-    'author'?: AuthorResource;
-    /**
-     * The text copy editor relationship (AuthorResource)
-     * @type {AuthorResource}
-     * @memberof DetailTranslationResource
-     */
-    'text_copy_editor'?: AuthorResource;
-    /**
-     * The translator relationship (AuthorResource)
-     * @type {AuthorResource}
-     * @memberof DetailTranslationResource
-     */
-    'translator'?: AuthorResource;
-    /**
-     * The translation copy editor relationship (AuthorResource)
-     * @type {AuthorResource}
-     * @memberof DetailTranslationResource
-     */
-    'translation_copy_editor'?: AuthorResource;
-}
-/**
- * 
- * @export
- * @interface DetailTranslationShow200Response
- */
-export interface DetailTranslationShow200Response {
-    /**
-     * 
-     * @type {DetailTranslationResource}
-     * @memberof DetailTranslationShow200Response
-     */
-    'data': DetailTranslationResource;
-}
-/**
- * 
- * @export
- * @interface DetailTranslationStoreRequest
- */
-export interface DetailTranslationStoreRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationStoreRequest
-     */
-    'detail_id': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationStoreRequest
-     */
-    'language_id': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationStoreRequest
-     */
-    'context_id': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationStoreRequest
-     */
-    'name': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationStoreRequest
-     */
-    'alternate_name'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationStoreRequest
-     */
-    'description': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationStoreRequest
-     */
-    'author_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationStoreRequest
-     */
-    'text_copy_editor_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationStoreRequest
-     */
-    'translator_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationStoreRequest
-     */
-    'translation_copy_editor_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationStoreRequest
-     */
-    'backward_compatibility'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationStoreRequest
-     */
-    'extra'?: string | null;
-}
-/**
- * 
- * @export
- * @interface DetailTranslationUpdateRequest
- */
-export interface DetailTranslationUpdateRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationUpdateRequest
-     */
-    'detail_id'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationUpdateRequest
-     */
-    'language_id'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationUpdateRequest
-     */
-    'context_id'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationUpdateRequest
-     */
-    'name'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationUpdateRequest
-     */
-    'alternate_name'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationUpdateRequest
-     */
-    'description'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationUpdateRequest
-     */
-    'author_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationUpdateRequest
-     */
-    'text_copy_editor_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationUpdateRequest
-     */
-    'translator_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationUpdateRequest
-     */
-    'translation_copy_editor_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationUpdateRequest
-     */
-    'backward_compatibility'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof DetailTranslationUpdateRequest
-     */
-    'extra'?: string | null;
-}
-/**
- * 
- * @export
- * @interface ExhibitionIndex200Response
- */
-export interface ExhibitionIndex200Response {
-    /**
-     * 
-     * @type {Array<ExhibitionResource>}
-     * @memberof ExhibitionIndex200Response
-     */
-    'data': Array<ExhibitionResource>;
-    /**
-     * 
-     * @type {AddressIndex200ResponseLinks}
-     * @memberof ExhibitionIndex200Response
-     */
-    'links': AddressIndex200ResponseLinks;
-    /**
-     * 
-     * @type {AddressIndex200ResponseMeta}
-     * @memberof ExhibitionIndex200Response
-     */
-    'meta': AddressIndex200ResponseMeta;
-}
-/**
- * 
- * @export
- * @interface ExhibitionResource
- */
-export interface ExhibitionResource {
-    /**
-     * The unique identifier (GUID)
-     * @type {string}
-     * @memberof ExhibitionResource
-     */
-    'id': string;
-    /**
-     * A name for this resource, for internal use only.
-     * @type {string}
-     * @memberof ExhibitionResource
-     */
-    'internal_name': string;
-    /**
-     * The Id(s) of matching resource in the legacy system (if any).
-     * @type {string}
-     * @memberof ExhibitionResource
-     */
-    'backward_compatibility': string | null;
-    /**
-     * Translations for this exhibition (ExhibitionTranslationResource[])
-     * @type {Array<ExhibitionTranslationResource>}
-     * @memberof ExhibitionResource
-     */
-    'translations'?: Array<ExhibitionTranslationResource>;
-    /**
-     * Partners associated with this exhibition (PartnerResource[])
-     * @type {Array<PartnerResource>}
-     * @memberof ExhibitionResource
-     */
-    'partners'?: Array<PartnerResource>;
-    /**
-     * The date of creation of the resource (managed by the system)
-     * @type {string}
-     * @memberof ExhibitionResource
-     */
-    'created_at': string | null;
-    /**
-     * The date of last modification of the resource (managed by the system)
-     * @type {string}
-     * @memberof ExhibitionResource
-     */
-    'updated_at': string | null;
-}
-/**
- * 
- * @export
- * @interface ExhibitionStore200Response
- */
-export interface ExhibitionStore200Response {
-    /**
-     * 
-     * @type {ExhibitionResource}
-     * @memberof ExhibitionStore200Response
-     */
-    'data': ExhibitionResource;
-}
-/**
- * 
- * @export
- * @interface ExhibitionStoreRequest
- */
-export interface ExhibitionStoreRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionStoreRequest
-     */
-    'internal_name': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionStoreRequest
-     */
-    'backward_compatibility'?: string | null;
-}
-/**
- * 
- * @export
- * @interface ExhibitionTranslationResource
- */
-export interface ExhibitionTranslationResource {
-    /**
-     * The unique identifier (GUID)
-     * @type {string}
-     * @memberof ExhibitionTranslationResource
-     */
-    'id': string;
-    /**
-     * The exhibition this translation belongs to (ExhibitionResource id)
-     * @type {string}
-     * @memberof ExhibitionTranslationResource
-     */
-    'exhibition_id': string;
-    /**
-     * The language of this translation (LanguageResource id)
-     * @type {string}
-     * @memberof ExhibitionTranslationResource
-     */
-    'language_id': string;
-    /**
-     * The context of this translation (ContextResource id)
-     * @type {string}
-     * @memberof ExhibitionTranslationResource
-     */
-    'context_id': string;
-    /**
-     * The title of the exhibition translation
-     * @type {string}
-     * @memberof ExhibitionTranslationResource
-     */
-    'title': string;
-    /**
-     * The description of the exhibition translation
-     * @type {string}
-     * @memberof ExhibitionTranslationResource
-     */
-    'description': string;
-    /**
-     * The URL for the exhibition translation
-     * @type {string}
-     * @memberof ExhibitionTranslationResource
-     */
-    'url': string | null;
-    /**
-     * The Id(s) of matching resource in the legacy system (if any).
-     * @type {string}
-     * @memberof ExhibitionTranslationResource
-     */
-    'backward_compatibility': string | null;
-    /**
-     * Extra data for translation (object, may be null)
-     * @type {object}
-     * @memberof ExhibitionTranslationResource
-     */
-    'extra': object | null;
-    /**
-     * The date of creation of the resource (managed by the system)
-     * @type {string}
-     * @memberof ExhibitionTranslationResource
-     */
-    'created_at': string | null;
-    /**
-     * The date of last modification of the resource (managed by the system)
-     * @type {string}
-     * @memberof ExhibitionTranslationResource
-     */
-    'updated_at': string | null;
-}
-/**
- * 
- * @export
- * @interface ExhibitionTranslationStore200Response
- */
-export interface ExhibitionTranslationStore200Response {
-    /**
-     * 
-     * @type {ExhibitionTranslationResource}
-     * @memberof ExhibitionTranslationStore200Response
-     */
-    'data': ExhibitionTranslationResource;
-}
-/**
- * 
- * @export
- * @interface ExhibitionTranslationStoreRequest
- */
-export interface ExhibitionTranslationStoreRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationStoreRequest
-     */
-    'exhibition_id': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationStoreRequest
-     */
-    'language_id': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationStoreRequest
-     */
-    'context_id': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationStoreRequest
-     */
-    'title': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationStoreRequest
-     */
-    'description': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationStoreRequest
-     */
-    'url'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationStoreRequest
-     */
-    'backward_compatibility'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationStoreRequest
-     */
-    'extra'?: string | null;
-}
-/**
- * 
- * @export
- * @interface ExhibitionTranslationUpdateRequest
- */
-export interface ExhibitionTranslationUpdateRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationUpdateRequest
-     */
-    'exhibition_id'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationUpdateRequest
-     */
-    'language_id'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationUpdateRequest
-     */
-    'context_id'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationUpdateRequest
-     */
-    'title'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationUpdateRequest
-     */
-    'description'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationUpdateRequest
-     */
-    'url'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationUpdateRequest
-     */
-    'backward_compatibility'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionTranslationUpdateRequest
-     */
-    'extra'?: string | null;
-}
-/**
- * 
- * @export
- * @interface ExhibitionUpdateRequest
- */
-export interface ExhibitionUpdateRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionUpdateRequest
-     */
-    'internal_name'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ExhibitionUpdateRequest
-     */
-    'backward_compatibility'?: string | null;
-}
-/**
- * 
- * @export
- * @interface GalleryIndex200Response
- */
-export interface GalleryIndex200Response {
-    /**
-     * 
-     * @type {Array<GalleryResource>}
-     * @memberof GalleryIndex200Response
-     */
-    'data': Array<GalleryResource>;
-    /**
-     * 
-     * @type {AddressIndex200ResponseLinks}
-     * @memberof GalleryIndex200Response
-     */
-    'links': AddressIndex200ResponseLinks;
-    /**
-     * 
-     * @type {AddressIndex200ResponseMeta}
-     * @memberof GalleryIndex200Response
-     */
-    'meta': AddressIndex200ResponseMeta;
-}
-/**
- * 
- * @export
- * @interface GalleryResource
- */
-export interface GalleryResource {
-    /**
-     * The unique identifier (GUID)
-     * @type {string}
-     * @memberof GalleryResource
-     */
-    'id': string;
-    /**
-     * A name for this resource, for internal use only.
-     * @type {string}
-     * @memberof GalleryResource
-     */
-    'internal_name': string;
-    /**
-     * The Id(s) of matching resource in the legacy system (if any).
-     * @type {string}
-     * @memberof GalleryResource
-     */
-    'backward_compatibility': string | null;
-    /**
-     * The date of creation of the resource (managed by the system)
-     * @type {string}
-     * @memberof GalleryResource
-     */
-    'created_at': string | null;
-    /**
-     * The date of last modification of the resource (managed by the system)
-     * @type {string}
-     * @memberof GalleryResource
-     */
-    'updated_at': string | null;
-    /**
-     * Translations for this gallery (GalleryTranslationResource[])
-     * @type {Array<GalleryTranslationResource>}
-     * @memberof GalleryResource
-     */
-    'translations'?: Array<GalleryTranslationResource>;
-    /**
-     * Partners associated with this gallery (PartnerResource[])
-     * @type {Array<PartnerResource>}
-     * @memberof GalleryResource
-     */
-    'partners'?: Array<PartnerResource>;
-    /**
-     * Items associated with this gallery (ItemResource[])
-     * @type {Array<ItemResource>}
-     * @memberof GalleryResource
-     */
-    'items'?: Array<ItemResource>;
-    /**
-     * Details associated with this gallery (DetailResource[])
-     * @type {Array<DetailResource>}
-     * @memberof GalleryResource
-     */
-    'details'?: Array<DetailResource>;
-    /**
-     * The number of items in this gallery (computed)
-     * @type {string}
-     * @memberof GalleryResource
-     */
-    'items_count'?: string;
-    /**
-     * The number of details in this gallery (computed)
-     * @type {string}
-     * @memberof GalleryResource
-     */
-    'details_count'?: string;
-    /**
-     * The total number of content items in this gallery (computed)
-     * @type {string}
-     * @memberof GalleryResource
-     */
-    'total_content_count'?: string;
-    /**
-     * The total number of partners in this gallery (computed)
-     * @type {string}
-     * @memberof GalleryResource
-     */
-    'partners_count'?: string;
-    /**
-     * The total number of translations in this gallery (computed)
-     * @type {string}
-     * @memberof GalleryResource
-     */
-    'translations_count'?: string;
-}
-/**
- * 
- * @export
- * @interface GalleryStore200Response
- */
-export interface GalleryStore200Response {
-    /**
-     * 
-     * @type {GalleryResource}
-     * @memberof GalleryStore200Response
-     */
-    'data': GalleryResource;
-}
-/**
- * 
- * @export
- * @interface GalleryStoreRequest
- */
-export interface GalleryStoreRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof GalleryStoreRequest
-     */
-    'internal_name': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof GalleryStoreRequest
-     */
-    'backward_compatibility'?: string | null;
-}
-/**
- * 
- * @export
- * @interface GalleryTranslationResource
- */
-export interface GalleryTranslationResource {
-    /**
-     * The unique identifier (GUID)
-     * @type {string}
-     * @memberof GalleryTranslationResource
-     */
-    'id': string;
-    /**
-     * The gallery this translation belongs to (GalleryResource id)
-     * @type {string}
-     * @memberof GalleryTranslationResource
-     */
-    'gallery_id': string;
-    /**
-     * The language of this translation (LanguageResource id)
-     * @type {string}
-     * @memberof GalleryTranslationResource
-     */
-    'language_id': string;
-    /**
-     * The context of this translation (ContextResource id)
-     * @type {string}
-     * @memberof GalleryTranslationResource
-     */
-    'context_id': string;
-    /**
-     * The title of the gallery translation
-     * @type {string}
-     * @memberof GalleryTranslationResource
-     */
-    'title': string;
-    /**
-     * The description of the gallery translation
-     * @type {string}
-     * @memberof GalleryTranslationResource
-     */
-    'description': string;
-    /**
-     * The URL for the gallery translation
-     * @type {string}
-     * @memberof GalleryTranslationResource
-     */
-    'url': string | null;
-    /**
-     * The Id(s) of matching resource in the legacy system (if any).
-     * @type {string}
-     * @memberof GalleryTranslationResource
-     */
-    'backward_compatibility': string | null;
-    /**
-     * Extra data for translation (object, may be null)
-     * @type {object}
-     * @memberof GalleryTranslationResource
-     */
-    'extra': object | null;
-    /**
-     * The date of creation of the resource (managed by the system)
-     * @type {string}
-     * @memberof GalleryTranslationResource
-     */
-    'created_at': string | null;
-    /**
-     * The date of last modification of the resource (managed by the system)
-     * @type {string}
-     * @memberof GalleryTranslationResource
-     */
-    'updated_at': string | null;
-    /**
-     * The gallery relationship (GalleryResource)
-     * @type {GalleryResource}
-     * @memberof GalleryTranslationResource
-     */
-    'gallery'?: GalleryResource;
-    /**
-     * The language relationship (LanguageResource)
-     * @type {LanguageResource}
-     * @memberof GalleryTranslationResource
-     */
-    'language'?: LanguageResource;
-    /**
-     * The context relationship (ContextResource)
-     * @type {ContextResource}
-     * @memberof GalleryTranslationResource
-     */
-    'context'?: ContextResource;
-}
-/**
- * 
- * @export
- * @interface GalleryUpdateRequest
- */
-export interface GalleryUpdateRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof GalleryUpdateRequest
-     */
-    'internal_name'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof GalleryUpdateRequest
-     */
-    'backward_compatibility'?: string | null;
-}
-/**
- * 
- * @export
  * @interface ImageUploadIndex200Response
  */
 export interface ImageUploadIndex200Response {
@@ -2929,6 +2119,19 @@ export interface InlineObject1 {
 /**
  * 
  * @export
+ * @interface ItemAttachImageRequest
+ */
+export interface ItemAttachImageRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof ItemAttachImageRequest
+     */
+    'available_image_id': string;
+}
+/**
+ * 
+ * @export
  * @interface ItemForTag200Response
  */
 export interface ItemForTag200Response {
@@ -2938,6 +2141,163 @@ export interface ItemForTag200Response {
      * @memberof ItemForTag200Response
      */
     'data': Array<ItemResource>;
+}
+/**
+ * 
+ * @export
+ * @interface ItemImageDetach200Response
+ */
+export interface ItemImageDetach200Response {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ItemImageDetach200Response
+     */
+    'success': boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof ItemImageDetach200Response
+     */
+    'message': ItemImageDetach200ResponseMessageEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof ItemImageDetach200Response
+     */
+    'available_image_id': string;
+}
+
+export const ItemImageDetach200ResponseMessageEnum = {
+    ImageDetachedSuccessfully: 'Image detached successfully'
+} as const;
+
+export type ItemImageDetach200ResponseMessageEnum = typeof ItemImageDetach200ResponseMessageEnum[keyof typeof ItemImageDetach200ResponseMessageEnum];
+
+/**
+ * 
+ * @export
+ * @interface ItemImageResource
+ */
+export interface ItemImageResource {
+    /**
+     * The unique identifier (GUID)
+     * @type {string}
+     * @memberof ItemImageResource
+     */
+    'id': string;
+    /**
+     * The item this image belongs to
+     * @type {string}
+     * @memberof ItemImageResource
+     */
+    'item_id': string;
+    /**
+     * The path to the image file
+     * @type {string}
+     * @memberof ItemImageResource
+     */
+    'path': string;
+    /**
+     * The original filename when uploaded
+     * @type {string}
+     * @memberof ItemImageResource
+     */
+    'original_name': string;
+    /**
+     * The MIME type of the image
+     * @type {string}
+     * @memberof ItemImageResource
+     */
+    'mime_type': string;
+    /**
+     * The file size in bytes
+     * @type {number}
+     * @memberof ItemImageResource
+     */
+    'size': number;
+    /**
+     * Alternative text for accessibility
+     * @type {string}
+     * @memberof ItemImageResource
+     */
+    'alt_text': string | null;
+    /**
+     * Display order for sorting images
+     * @type {number}
+     * @memberof ItemImageResource
+     */
+    'display_order': number;
+    /**
+     * The item this image belongs to (ItemResource)
+     * @type {ItemResource}
+     * @memberof ItemImageResource
+     */
+    'item'?: ItemResource;
+    /**
+     * The date of creation of the resource (managed by the system)
+     * @type {string}
+     * @memberof ItemImageResource
+     */
+    'created_at': string | null;
+    /**
+     * The date of last modification of the resource (managed by the system)
+     * @type {string}
+     * @memberof ItemImageResource
+     */
+    'updated_at': string | null;
+}
+/**
+ * 
+ * @export
+ * @interface ItemImageTightenOrdering200Response
+ */
+export interface ItemImageTightenOrdering200Response {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ItemImageTightenOrdering200Response
+     */
+    'success': boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof ItemImageTightenOrdering200Response
+     */
+    'message': ItemImageTightenOrdering200ResponseMessageEnum;
+}
+
+export const ItemImageTightenOrdering200ResponseMessageEnum = {
+    ImageOrderingTightenedSuccessfully: 'Image ordering tightened successfully'
+} as const;
+
+export type ItemImageTightenOrdering200ResponseMessageEnum = typeof ItemImageTightenOrdering200ResponseMessageEnum[keyof typeof ItemImageTightenOrdering200ResponseMessageEnum];
+
+/**
+ * 
+ * @export
+ * @interface ItemImagesIndex200Response
+ */
+export interface ItemImagesIndex200Response {
+    /**
+     * 
+     * @type {Array<ItemImageResource>}
+     * @memberof ItemImagesIndex200Response
+     */
+    'data': Array<ItemImageResource>;
+}
+/**
+ * 
+ * @export
+ * @interface ItemImagesStore200Response
+ */
+export interface ItemImagesStore200Response {
+    /**
+     * 
+     * @type {ItemImageResource}
+     * @memberof ItemImagesStore200Response
+     */
+    'data': ItemImageResource;
 }
 /**
  * 
@@ -2989,11 +2349,17 @@ export interface ItemResource {
      */
     'backward_compatibility': string | null;
     /**
-     * The type of the item, either \'object\' or \'monument\'.
+     * The type of the item: \'object\', \'monument\', \'detail\', or \'picture\'.
      * @type {string}
      * @memberof ItemResource
      */
     'type': string;
+    /**
+     * The parent item ID (for hierarchical relationships), nullable
+     * @type {string}
+     * @memberof ItemResource
+     */
+    'parent_id': string | null;
     /**
      * Owner\'s reference number for the item (external reference from owner)
      * @type {string}
@@ -3006,6 +2372,18 @@ export interface ItemResource {
      * @memberof ItemResource
      */
     'mwnf_reference': string | null;
+    /**
+     * The parent item (for hierarchical relationships), nullable (ItemResource)
+     * @type {ItemResource}
+     * @memberof ItemResource
+     */
+    'parent'?: ItemResource;
+    /**
+     * The child items (for hierarchical relationships) (ItemResource[])
+     * @type {Array<ItemResource>}
+     * @memberof ItemResource
+     */
+    'children'?: Array<ItemResource>;
     /**
      * The partner owning the item (PartnerResource)
      * @type {PartnerResource}
@@ -3055,17 +2433,11 @@ export interface ItemResource {
      */
     'translations'?: Array<ItemTranslationResource>;
     /**
-     * Pictures attached to this item (PictureResource[])
-     * @type {Array<PictureResource>}
+     * Item images attached to this item with display ordering (ItemImageResource[])
+     * @type {Array<ItemImageResource>}
      * @memberof ItemResource
      */
-    'pictures'?: Array<PictureResource>;
-    /**
-     * Galleries that include this item (GalleryResource[])
-     * @type {Array<GalleryResource>}
-     * @memberof ItemResource
-     */
-    'galleries'?: Array<GalleryResource>;
+    'itemImages'?: Array<ItemImageResource>;
     /**
      * The date of creation of the resource (managed by the system)
      * @type {string}
@@ -3092,57 +2464,6 @@ export interface ItemStore200Response {
      */
     'data': ItemResource;
 }
-/**
- * 
- * @export
- * @interface ItemStoreRequest
- */
-export interface ItemStoreRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof ItemStoreRequest
-     */
-    'partner_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof ItemStoreRequest
-     */
-    'internal_name': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ItemStoreRequest
-     */
-    'backward_compatibility'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof ItemStoreRequest
-     */
-    'type': ItemStoreRequestTypeEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof ItemStoreRequest
-     */
-    'country_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof ItemStoreRequest
-     */
-    'project_id'?: string | null;
-}
-
-export const ItemStoreRequestTypeEnum = {
-    Object: 'object',
-    Monument: 'monument'
-} as const;
-
-export type ItemStoreRequestTypeEnum = typeof ItemStoreRequestTypeEnum[keyof typeof ItemStoreRequestTypeEnum];
-
 /**
  * 
  * @export
@@ -4469,449 +3790,6 @@ export type PartnerStoreRequestTypeEnum = typeof PartnerStoreRequestTypeEnum[key
 /**
  * 
  * @export
- * @interface PictureDetachFromItem422Response
- */
-export interface PictureDetachFromItem422Response {
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureDetachFromItem422Response
-     */
-    'error': PictureDetachFromItem422ResponseErrorEnum;
-}
-
-export const PictureDetachFromItem422ResponseErrorEnum = {
-    PictureDoesNotBelongToThisModel: 'Picture does not belong to this model'
-} as const;
-
-export type PictureDetachFromItem422ResponseErrorEnum = typeof PictureDetachFromItem422ResponseErrorEnum[keyof typeof PictureDetachFromItem422ResponseErrorEnum];
-
-/**
- * 
- * @export
- * @interface PictureIndex200Response
- */
-export interface PictureIndex200Response {
-    /**
-     * 
-     * @type {Array<PictureResource>}
-     * @memberof PictureIndex200Response
-     */
-    'data': Array<PictureResource>;
-}
-/**
- * 
- * @export
- * @interface PictureResource
- */
-export interface PictureResource {
-    /**
-     * The unique identifier (GUID)
-     * @type {string}
-     * @memberof PictureResource
-     */
-    'id': string;
-    /**
-     * A name for this resource, for internal use only.
-     * @type {string}
-     * @memberof PictureResource
-     */
-    'internal_name': string;
-    /**
-     * The Id(s) of matching resource in the legacy system (if any).
-     * @type {string}
-     * @memberof PictureResource
-     */
-    'backward_compatibility': string | null;
-    /**
-     * The path to the picture file
-     * @type {string}
-     * @memberof PictureResource
-     */
-    'path': string;
-    /**
-     * The copyright text associated with the picture
-     * @type {string}
-     * @memberof PictureResource
-     */
-    'copyright_text': string | null;
-    /**
-     * The URL for the copyright information
-     * @type {string}
-     * @memberof PictureResource
-     */
-    'copyright_url': string | null;
-    /**
-     * The original name of the uploaded file
-     * @type {string}
-     * @memberof PictureResource
-     */
-    'upload_name': string;
-    /**
-     * The file extension of the uploaded file
-     * @type {string}
-     * @memberof PictureResource
-     */
-    'upload_extension': string;
-    /**
-     * The MIME type of the uploaded file
-     * @type {string}
-     * @memberof PictureResource
-     */
-    'upload_mime_type': string;
-    /**
-     * The size of the uploaded file in bytes
-     * @type {number}
-     * @memberof PictureResource
-     */
-    'upload_size': number;
-    /**
-     * The type of the parent model (Item, Detail, Partner)
-     * @type {string}
-     * @memberof PictureResource
-     */
-    'pictureable_type': string;
-    /**
-     * The ID of the parent model
-     * @type {string}
-     * @memberof PictureResource
-     */
-    'pictureable_id': string;
-    /**
-     * Date of creation
-     * @type {string}
-     * @memberof PictureResource
-     */
-    'created_at': string | null;
-    /**
-     * Date of last modification
-     * @type {string}
-     * @memberof PictureResource
-     */
-    'updated_at': string | null;
-}
-/**
- * 
- * @export
- * @interface PictureShow200Response
- */
-export interface PictureShow200Response {
-    /**
-     * 
-     * @type {PictureResource}
-     * @memberof PictureShow200Response
-     */
-    'data': PictureResource;
-}
-/**
- * 
- * @export
- * @interface PictureTranslationIndex200Response
- */
-export interface PictureTranslationIndex200Response {
-    /**
-     * 
-     * @type {Array<PictureTranslationResource>}
-     * @memberof PictureTranslationIndex200Response
-     */
-    'data': Array<PictureTranslationResource>;
-    /**
-     * 
-     * @type {AddressIndex200ResponseLinks}
-     * @memberof PictureTranslationIndex200Response
-     */
-    'links': AddressIndex200ResponseLinks;
-    /**
-     * 
-     * @type {AddressIndex200ResponseMeta}
-     * @memberof PictureTranslationIndex200Response
-     */
-    'meta': AddressIndex200ResponseMeta;
-}
-/**
- * 
- * @export
- * @interface PictureTranslationResource
- */
-export interface PictureTranslationResource {
-    /**
-     * The unique identifier (GUID)
-     * @type {string}
-     * @memberof PictureTranslationResource
-     */
-    'id': string;
-    /**
-     * The picture this translation belongs to (PictureResource id)
-     * @type {string}
-     * @memberof PictureTranslationResource
-     */
-    'picture_id': string;
-    /**
-     * The language of this translation (LanguageResource id)
-     * @type {string}
-     * @memberof PictureTranslationResource
-     */
-    'language_id': string;
-    /**
-     * The context of this translation (ContextResource id)
-     * @type {string}
-     * @memberof PictureTranslationResource
-     */
-    'context_id': string;
-    /**
-     * The description of the picture translation
-     * @type {string}
-     * @memberof PictureTranslationResource
-     */
-    'description': string;
-    /**
-     * The caption of the picture translation
-     * @type {string}
-     * @memberof PictureTranslationResource
-     */
-    'caption': string;
-    /**
-     * The author of the translation (AuthorResource id)
-     * @type {string}
-     * @memberof PictureTranslationResource
-     */
-    'author_id': string | null;
-    /**
-     * The text copy editor of the translation (UserResource id)
-     * @type {string}
-     * @memberof PictureTranslationResource
-     */
-    'text_copy_editor_id': string | null;
-    /**
-     * The translator of the translation (UserResource id)
-     * @type {string}
-     * @memberof PictureTranslationResource
-     */
-    'translator_id': string | null;
-    /**
-     * The translation copy editor of the translation (UserResource id)
-     * @type {string}
-     * @memberof PictureTranslationResource
-     */
-    'translation_copy_editor_id': string | null;
-    /**
-     * The Id(s) of matching resource in the legacy system (if any).
-     * @type {string}
-     * @memberof PictureTranslationResource
-     */
-    'backward_compatibility': string | null;
-    /**
-     * Extra data for translation (object, may be null)
-     * @type {object}
-     * @memberof PictureTranslationResource
-     */
-    'extra': object | null;
-    /**
-     * The date of creation of the resource (managed by the system)
-     * @type {string}
-     * @memberof PictureTranslationResource
-     */
-    'created_at': string | null;
-    /**
-     * The date of last modification of the resource (managed by the system)
-     * @type {string}
-     * @memberof PictureTranslationResource
-     */
-    'updated_at': string | null;
-}
-/**
- * 
- * @export
- * @interface PictureTranslationStore200Response
- */
-export interface PictureTranslationStore200Response {
-    /**
-     * 
-     * @type {PictureTranslationResource}
-     * @memberof PictureTranslationStore200Response
-     */
-    'data': PictureTranslationResource;
-}
-/**
- * 
- * @export
- * @interface PictureTranslationStoreRequest
- */
-export interface PictureTranslationStoreRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationStoreRequest
-     */
-    'picture_id': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationStoreRequest
-     */
-    'language_id': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationStoreRequest
-     */
-    'context_id': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationStoreRequest
-     */
-    'description': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationStoreRequest
-     */
-    'caption': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationStoreRequest
-     */
-    'author_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationStoreRequest
-     */
-    'text_copy_editor_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationStoreRequest
-     */
-    'translator_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationStoreRequest
-     */
-    'translation_copy_editor_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationStoreRequest
-     */
-    'backward_compatibility'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationStoreRequest
-     */
-    'extra'?: string | null;
-}
-/**
- * 
- * @export
- * @interface PictureTranslationUpdateRequest
- */
-export interface PictureTranslationUpdateRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationUpdateRequest
-     */
-    'picture_id'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationUpdateRequest
-     */
-    'language_id'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationUpdateRequest
-     */
-    'context_id'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationUpdateRequest
-     */
-    'description'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationUpdateRequest
-     */
-    'caption'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationUpdateRequest
-     */
-    'author_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationUpdateRequest
-     */
-    'text_copy_editor_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationUpdateRequest
-     */
-    'translator_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationUpdateRequest
-     */
-    'translation_copy_editor_id'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationUpdateRequest
-     */
-    'backward_compatibility'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureTranslationUpdateRequest
-     */
-    'extra'?: string | null;
-}
-/**
- * 
- * @export
- * @interface PictureUpdateRequest
- */
-export interface PictureUpdateRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureUpdateRequest
-     */
-    'internal_name': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureUpdateRequest
-     */
-    'backward_compatibility'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureUpdateRequest
-     */
-    'copyright_text'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof PictureUpdateRequest
-     */
-    'copyright_url'?: string | null;
-}
-/**
- * 
- * @export
  * @interface ProjectEnabled200Response
  */
 export interface ProjectEnabled200Response {
@@ -5320,6 +4198,132 @@ export interface ProvinceTranslationUpdateRequest {
      */
     'description'?: string | null;
 }
+/**
+ * 
+ * @export
+ * @interface StoreItemImageRequest
+ */
+export interface StoreItemImageRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemImageRequest
+     */
+    'path': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemImageRequest
+     */
+    'original_name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemImageRequest
+     */
+    'mime_type': string;
+    /**
+     * 
+     * @type {number}
+     * @memberof StoreItemImageRequest
+     */
+    'size': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemImageRequest
+     */
+    'alt_text'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof StoreItemImageRequest
+     */
+    'display_order'?: number;
+}
+/**
+ * 
+ * @export
+ * @interface StoreItemRequest
+ */
+export interface StoreItemRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemRequest
+     */
+    'id'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemRequest
+     */
+    'internal_name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemRequest
+     */
+    'backward_compatibility'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemRequest
+     */
+    'type': StoreItemRequestTypeEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemRequest
+     */
+    'parent_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemRequest
+     */
+    'country_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemRequest
+     */
+    'partner_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemRequest
+     */
+    'project_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemRequest
+     */
+    'collection_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemRequest
+     */
+    'owner_reference'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof StoreItemRequest
+     */
+    'mwnf_reference'?: string | null;
+}
+
+export const StoreItemRequestTypeEnum = {
+    Object: 'object',
+    Monument: 'monument',
+    Detail: 'detail',
+    Picture: 'picture'
+} as const;
+
+export type StoreItemRequestTypeEnum = typeof StoreItemRequestTypeEnum[keyof typeof StoreItemRequestTypeEnum];
+
 /**
  * 
  * @export
@@ -5755,6 +4759,25 @@ export interface ThemeTranslationUpdateRequest {
 /**
  * 
  * @export
+ * @interface ThemeUpdateRequest
+ */
+export interface ThemeUpdateRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof ThemeUpdateRequest
+     */
+    'internal_name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ThemeUpdateRequest
+     */
+    'backward_compatibility'?: string | null;
+}
+/**
+ * 
+ * @export
  * @interface TokenAcquireRequest
  */
 export interface TokenAcquireRequest {
@@ -5783,6 +4806,132 @@ export interface TokenAcquireRequest {
      */
     'wipe_tokens'?: boolean;
 }
+/**
+ * 
+ * @export
+ * @interface UpdateItemImageRequest
+ */
+export interface UpdateItemImageRequest {
+    /**
+     * Path and item_id are immutable - not allowed in updates
+     * @type {string}
+     * @memberof UpdateItemImageRequest
+     */
+    'original_name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateItemImageRequest
+     */
+    'mime_type'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof UpdateItemImageRequest
+     */
+    'size'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateItemImageRequest
+     */
+    'alt_text'?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof UpdateItemImageRequest
+     */
+    'display_order'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateItemImageRequest
+     */
+    'include'?: string;
+}
+/**
+ * 
+ * @export
+ * @interface UpdateItemRequest
+ */
+export interface UpdateItemRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateItemRequest
+     */
+    'id'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateItemRequest
+     */
+    'internal_name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateItemRequest
+     */
+    'backward_compatibility'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateItemRequest
+     */
+    'type'?: UpdateItemRequestTypeEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateItemRequest
+     */
+    'parent_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateItemRequest
+     */
+    'country_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateItemRequest
+     */
+    'partner_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateItemRequest
+     */
+    'project_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateItemRequest
+     */
+    'collection_id'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateItemRequest
+     */
+    'owner_reference'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateItemRequest
+     */
+    'mwnf_reference'?: string | null;
+}
+
+export const UpdateItemRequestTypeEnum = {
+    Object: 'object',
+    Monument: 'monument',
+    Detail: 'detail',
+    Picture: 'picture'
+} as const;
+
+export type UpdateItemRequestTypeEnum = typeof UpdateItemRequestTypeEnum[keyof typeof UpdateItemRequestTypeEnum];
+
 /**
  * 
  * @export
@@ -7188,6 +6337,139 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
     return {
         /**
          * 
+         * @summary Attach an item to a collection via many-to-many relationship
+         * @param {string} collection The collection ID
+         * @param {CollectionAttachItemRequest} collectionAttachItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionAttachItem: async (collection: string, collectionAttachItemRequest: CollectionAttachItemRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collection' is not null or undefined
+            assertParamExists('collectionAttachItem', 'collection', collection)
+            // verify required parameter 'collectionAttachItemRequest' is not null or undefined
+            assertParamExists('collectionAttachItem', 'collectionAttachItemRequest', collectionAttachItemRequest)
+            const localVarPath = `/collection/{collection}/attach-item`
+                .replace(`{${"collection"}}`, encodeURIComponent(String(collection)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(collectionAttachItemRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Attach multiple items to a collection
+         * @param {string} collection The collection ID
+         * @param {CollectionAttachItemsRequest} collectionAttachItemsRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionAttachItems: async (collection: string, collectionAttachItemsRequest: CollectionAttachItemsRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collection' is not null or undefined
+            assertParamExists('collectionAttachItems', 'collection', collection)
+            // verify required parameter 'collectionAttachItemsRequest' is not null or undefined
+            assertParamExists('collectionAttachItems', 'collectionAttachItemsRequest', collectionAttachItemsRequest)
+            const localVarPath = `/collection/{collection}/attach-items`
+                .replace(`{${"collection"}}`, encodeURIComponent(String(collection)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(collectionAttachItemsRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get collections by type
+         * @param {string} type 
+         * @param {CollectionByTypeTypeEnum} type2 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionByType: async (type: string, type2: CollectionByTypeTypeEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'type' is not null or undefined
+            assertParamExists('collectionByType', 'type', type)
+            // verify required parameter 'type2' is not null or undefined
+            assertParamExists('collectionByType', 'type2', type2)
+            const localVarPath = `/collection/type/{type}`
+                .replace(`{${"type"}}`, encodeURIComponent(String(type)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (type2 !== undefined) {
+                localVarQueryParameter['type'] = type2;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Remove the specified collection from storage
          * @param {string} collection The collection ID
          * @param {*} [options] Override http request option.
@@ -7212,6 +6494,96 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Detach an item from a collection
+         * @param {string} collection The collection ID
+         * @param {string} itemId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionDetachItem: async (collection: string, itemId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collection' is not null or undefined
+            assertParamExists('collectionDetachItem', 'collection', collection)
+            // verify required parameter 'itemId' is not null or undefined
+            assertParamExists('collectionDetachItem', 'itemId', itemId)
+            const localVarPath = `/collection/{collection}/detach-item`
+                .replace(`{${"collection"}}`, encodeURIComponent(String(collection)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (itemId !== undefined) {
+                localVarQueryParameter['item_id'] = itemId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Detach multiple items from a collection
+         * @param {string} collection The collection ID
+         * @param {Array<string>} itemIds 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionDetachItems: async (collection: string, itemIds: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collection' is not null or undefined
+            assertParamExists('collectionDetachItems', 'collection', collection)
+            // verify required parameter 'itemIds' is not null or undefined
+            assertParamExists('collectionDetachItems', 'itemIds', itemIds)
+            const localVarPath = `/collection/{collection}/detach-items`
+                .replace(`{${"collection"}}`, encodeURIComponent(String(collection)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (itemIds) {
+                localVarQueryParameter['item_ids[]'] = itemIds;
+            }
 
 
     
@@ -7410,6 +6782,48 @@ export const CollectionApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Attach an item to a collection via many-to-many relationship
+         * @param {string} collection The collection ID
+         * @param {CollectionAttachItemRequest} collectionAttachItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionAttachItem(collection: string, collectionAttachItemRequest: CollectionAttachItemRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionAttachItem(collection, collectionAttachItemRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionAttachItem']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Attach multiple items to a collection
+         * @param {string} collection The collection ID
+         * @param {CollectionAttachItemsRequest} collectionAttachItemsRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionAttachItems(collection: string, collectionAttachItemsRequest: CollectionAttachItemsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItems200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionAttachItems(collection, collectionAttachItemsRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionAttachItems']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get collections by type
+         * @param {string} type 
+         * @param {CollectionByTypeTypeEnum} type2 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionByType(type: string, type2: CollectionByTypeTypeEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionByType200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionByType(type, type2, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionByType']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Remove the specified collection from storage
          * @param {string} collection The collection ID
          * @param {*} [options] Override http request option.
@@ -7419,6 +6833,34 @@ export const CollectionApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDestroy(collection, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Detach an item from a collection
+         * @param {string} collection The collection ID
+         * @param {string} itemId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionDetachItem200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItem(collection, itemId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionDetachItem']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Detach multiple items from a collection
+         * @param {string} collection The collection ID
+         * @param {Array<string>} itemIds 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionDetachItems200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItems(collection, itemIds, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionDetachItems']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -7489,6 +6931,39 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
     return {
         /**
          * 
+         * @summary Attach an item to a collection via many-to-many relationship
+         * @param {string} collection The collection ID
+         * @param {CollectionAttachItemRequest} collectionAttachItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionAttachItem(collection: string, collectionAttachItemRequest: CollectionAttachItemRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+            return localVarFp.collectionAttachItem(collection, collectionAttachItemRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Attach multiple items to a collection
+         * @param {string} collection The collection ID
+         * @param {CollectionAttachItemsRequest} collectionAttachItemsRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionAttachItems(collection: string, collectionAttachItemsRequest: CollectionAttachItemsRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItems200Response> {
+            return localVarFp.collectionAttachItems(collection, collectionAttachItemsRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get collections by type
+         * @param {string} type 
+         * @param {CollectionByTypeTypeEnum} type2 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionByType(type: string, type2: CollectionByTypeTypeEnum, options?: RawAxiosRequestConfig): AxiosPromise<CollectionByType200Response> {
+            return localVarFp.collectionByType(type, type2, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Remove the specified collection from storage
          * @param {string} collection The collection ID
          * @param {*} [options] Override http request option.
@@ -7496,6 +6971,28 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
          */
         collectionDestroy(collection: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.collectionDestroy(collection, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Detach an item from a collection
+         * @param {string} collection The collection ID
+         * @param {string} itemId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionDetachItem200Response> {
+            return localVarFp.collectionDetachItem(collection, itemId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Detach multiple items from a collection
+         * @param {string} collection The collection ID
+         * @param {Array<string>} itemIds 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<CollectionDetachItems200Response> {
+            return localVarFp.collectionDetachItems(collection, itemIds, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -7553,6 +7050,45 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
 export class CollectionApi extends BaseAPI {
     /**
      * 
+     * @summary Attach an item to a collection via many-to-many relationship
+     * @param {string} collection The collection ID
+     * @param {CollectionAttachItemRequest} collectionAttachItemRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionApi
+     */
+    public collectionAttachItem(collection: string, collectionAttachItemRequest: CollectionAttachItemRequest, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionAttachItem(collection, collectionAttachItemRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Attach multiple items to a collection
+     * @param {string} collection The collection ID
+     * @param {CollectionAttachItemsRequest} collectionAttachItemsRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionApi
+     */
+    public collectionAttachItems(collection: string, collectionAttachItemsRequest: CollectionAttachItemsRequest, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionAttachItems(collection, collectionAttachItemsRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get collections by type
+     * @param {string} type 
+     * @param {CollectionByTypeTypeEnum} type2 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionApi
+     */
+    public collectionByType(type: string, type2: CollectionByTypeTypeEnum, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionByType(type, type2, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Remove the specified collection from storage
      * @param {string} collection The collection ID
      * @param {*} [options] Override http request option.
@@ -7561,6 +7097,32 @@ export class CollectionApi extends BaseAPI {
      */
     public collectionDestroy(collection: string, options?: RawAxiosRequestConfig) {
         return CollectionApiFp(this.configuration).collectionDestroy(collection, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Detach an item from a collection
+     * @param {string} collection The collection ID
+     * @param {string} itemId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionApi
+     */
+    public collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionDetachItem(collection, itemId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Detach multiple items from a collection
+     * @param {string} collection The collection ID
+     * @param {Array<string>} itemIds 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CollectionApi
+     */
+    public collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionDetachItems(collection, itemIds, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -7616,6 +7178,15 @@ export class CollectionApi extends BaseAPI {
     }
 }
 
+/**
+ * @export
+ */
+export const CollectionByTypeTypeEnum = {
+    Collection: 'collection',
+    Exhibition: 'exhibition',
+    Gallery: 'gallery'
+} as const;
+export type CollectionByTypeTypeEnum = typeof CollectionByTypeTypeEnum[keyof typeof CollectionByTypeTypeEnum];
 
 
 /**
@@ -9559,3106 +9130,6 @@ export class CountryApi extends BaseAPI {
 
 
 /**
- * DetailApi - axios parameter creator
- * @export
- */
-export const DetailApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} detail The detail ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailDestroy: async (detail: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'detail' is not null or undefined
-            assertParamExists('detailDestroy', 'detail', detail)
-            const localVarPath = `/detail/{detail}`
-                .replace(`{${"detail"}}`, encodeURIComponent(String(detail)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/detail`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
-            if (perPage !== undefined) {
-                localVarQueryParameter['per_page'] = perPage;
-            }
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} detail The detail ID
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailShow: async (detail: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'detail' is not null or undefined
-            assertParamExists('detailShow', 'detail', detail)
-            const localVarPath = `/detail/{detail}`
-                .replace(`{${"detail"}}`, encodeURIComponent(String(detail)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created resource in storage
-         * @param {DetailStoreRequest} detailStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailStore: async (detailStoreRequest: DetailStoreRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'detailStoreRequest' is not null or undefined
-            assertParamExists('detailStore', 'detailStoreRequest', detailStoreRequest)
-            const localVarPath = `/detail`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(detailStoreRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} detail The detail ID
-         * @param {DetailStoreRequest} detailStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailUpdate: async (detail: string, detailStoreRequest: DetailStoreRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'detail' is not null or undefined
-            assertParamExists('detailUpdate', 'detail', detail)
-            // verify required parameter 'detailStoreRequest' is not null or undefined
-            assertParamExists('detailUpdate', 'detailStoreRequest', detailStoreRequest)
-            const localVarPath = `/detail/{detail}`
-                .replace(`{${"detail"}}`, encodeURIComponent(String(detail)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(detailStoreRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * DetailApi - functional programming interface
- * @export
- */
-export const DetailApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = DetailApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} detail The detail ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailDestroy(detail: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailDestroy(detail, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailApi.detailDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DetailIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailIndex(page, perPage, include, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailApi.detailIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} detail The detail ID
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailShow(detail: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DetailStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailShow(detail, include, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailApi.detailShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created resource in storage
-         * @param {DetailStoreRequest} detailStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailStore(detailStoreRequest: DetailStoreRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DetailStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailStore(detailStoreRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailApi.detailStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} detail The detail ID
-         * @param {DetailStoreRequest} detailStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailUpdate(detail: string, detailStoreRequest: DetailStoreRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DetailStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailUpdate(detail, detailStoreRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailApi.detailUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * DetailApi - factory interface
- * @export
- */
-export const DetailApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = DetailApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} detail The detail ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailDestroy(detail: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.detailDestroy(detail, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<DetailIndex200Response> {
-            return localVarFp.detailIndex(page, perPage, include, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} detail The detail ID
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailShow(detail: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<DetailStore200Response> {
-            return localVarFp.detailShow(detail, include, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created resource in storage
-         * @param {DetailStoreRequest} detailStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailStore(detailStoreRequest: DetailStoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<DetailStore200Response> {
-            return localVarFp.detailStore(detailStoreRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} detail The detail ID
-         * @param {DetailStoreRequest} detailStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailUpdate(detail: string, detailStoreRequest: DetailStoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<DetailStore200Response> {
-            return localVarFp.detailUpdate(detail, detailStoreRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * DetailApi - object-oriented interface
- * @export
- * @class DetailApi
- * @extends {BaseAPI}
- */
-export class DetailApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified resource from storage
-     * @param {string} detail The detail ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailApi
-     */
-    public detailDestroy(detail: string, options?: RawAxiosRequestConfig) {
-        return DetailApiFp(this.configuration).detailDestroy(detail, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of the resource
-     * @param {number} [page] 
-     * @param {number} [perPage] 
-     * @param {string} [include] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailApi
-     */
-    public detailIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
-        return DetailApiFp(this.configuration).detailIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified resource
-     * @param {string} detail The detail ID
-     * @param {string} [include] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailApi
-     */
-    public detailShow(detail: string, include?: string, options?: RawAxiosRequestConfig) {
-        return DetailApiFp(this.configuration).detailShow(detail, include, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created resource in storage
-     * @param {DetailStoreRequest} detailStoreRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailApi
-     */
-    public detailStore(detailStoreRequest: DetailStoreRequest, options?: RawAxiosRequestConfig) {
-        return DetailApiFp(this.configuration).detailStore(detailStoreRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified resource in storage
-     * @param {string} detail The detail ID
-     * @param {DetailStoreRequest} detailStoreRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailApi
-     */
-    public detailUpdate(detail: string, detailStoreRequest: DetailStoreRequest, options?: RawAxiosRequestConfig) {
-        return DetailApiFp(this.configuration).detailUpdate(detail, detailStoreRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * DetailTranslationApi - axios parameter creator
- * @export
- */
-export const DetailTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationDestroy: async (detailTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'detailTranslation' is not null or undefined
-            assertParamExists('detailTranslationDestroy', 'detailTranslation', detailTranslation)
-            const localVarPath = `/detail-translation/{detailTranslation}`
-                .replace(`{${"detailTranslation"}}`, encodeURIComponent(String(detailTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of detail translations
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [detailId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationIndex: async (page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/detail-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
-            if (perPage !== undefined) {
-                localVarQueryParameter['per_page'] = perPage;
-            }
-
-            if (detailId !== undefined) {
-                localVarQueryParameter['detail_id'] = detailId;
-            }
-
-            if (languageId !== undefined) {
-                localVarQueryParameter['language_id'] = languageId;
-            }
-
-            if (contextId !== undefined) {
-                localVarQueryParameter['context_id'] = contextId;
-            }
-
-            if (defaultContext !== undefined) {
-                localVarQueryParameter['default_context'] = defaultContext;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationShow: async (detailTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'detailTranslation' is not null or undefined
-            assertParamExists('detailTranslationShow', 'detailTranslation', detailTranslation)
-            const localVarPath = `/detail-translation/{detailTranslation}`
-                .replace(`{${"detailTranslation"}}`, encodeURIComponent(String(detailTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created detail translation
-         * @param {DetailTranslationStoreRequest} detailTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationStore: async (detailTranslationStoreRequest: DetailTranslationStoreRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'detailTranslationStoreRequest' is not null or undefined
-            assertParamExists('detailTranslationStore', 'detailTranslationStoreRequest', detailTranslationStoreRequest)
-            const localVarPath = `/detail-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(detailTranslationStoreRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {DetailTranslationUpdateRequest} [detailTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationUpdate: async (detailTranslation: string, detailTranslationUpdateRequest?: DetailTranslationUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'detailTranslation' is not null or undefined
-            assertParamExists('detailTranslationUpdate', 'detailTranslation', detailTranslation)
-            const localVarPath = `/detail-translation/{detailTranslation}`
-                .replace(`{${"detailTranslation"}}`, encodeURIComponent(String(detailTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(detailTranslationUpdateRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * DetailTranslationApi - functional programming interface
- * @export
- */
-export const DetailTranslationApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = DetailTranslationApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailTranslationDestroy(detailTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailTranslationDestroy(detailTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailTranslationApi.detailTranslationDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of detail translations
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [detailId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailTranslationIndex(page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DetailTranslationResource>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailTranslationIndex(page, perPage, detailId, languageId, contextId, defaultContext, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailTranslationApi.detailTranslationIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailTranslationShow(detailTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DetailTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailTranslationShow(detailTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailTranslationApi.detailTranslationShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created detail translation
-         * @param {DetailTranslationStoreRequest} detailTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailTranslationStore(detailTranslationStoreRequest: DetailTranslationStoreRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailTranslationStore(detailTranslationStoreRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailTranslationApi.detailTranslationStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {DetailTranslationUpdateRequest} [detailTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailTranslationUpdate(detailTranslation: string, detailTranslationUpdateRequest?: DetailTranslationUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DetailTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailTranslationUpdate(detailTranslation, detailTranslationUpdateRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailTranslationApi.detailTranslationUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * DetailTranslationApi - factory interface
- * @export
- */
-export const DetailTranslationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = DetailTranslationApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationDestroy(detailTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<number> {
-            return localVarFp.detailTranslationDestroy(detailTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of detail translations
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [detailId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationIndex(page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<DetailTranslationResource>> {
-            return localVarFp.detailTranslationIndex(page, perPage, detailId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationShow(detailTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<DetailTranslationShow200Response> {
-            return localVarFp.detailTranslationShow(detailTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created detail translation
-         * @param {DetailTranslationStoreRequest} detailTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationStore(detailTranslationStoreRequest: DetailTranslationStoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<number> {
-            return localVarFp.detailTranslationStore(detailTranslationStoreRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {DetailTranslationUpdateRequest} [detailTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationUpdate(detailTranslation: string, detailTranslationUpdateRequest?: DetailTranslationUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<DetailTranslationShow200Response> {
-            return localVarFp.detailTranslationUpdate(detailTranslation, detailTranslationUpdateRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * DetailTranslationApi - object-oriented interface
- * @export
- * @class DetailTranslationApi
- * @extends {BaseAPI}
- */
-export class DetailTranslationApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified detail translation
-     * @param {string} detailTranslation The detail translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailTranslationApi
-     */
-    public detailTranslationDestroy(detailTranslation: string, options?: RawAxiosRequestConfig) {
-        return DetailTranslationApiFp(this.configuration).detailTranslationDestroy(detailTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of detail translations
-     * @param {number} [page] 
-     * @param {number} [perPage] 
-     * @param {string} [detailId] 
-     * @param {string} [languageId] 
-     * @param {string} [contextId] 
-     * @param {boolean} [defaultContext] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailTranslationApi
-     */
-    public detailTranslationIndex(page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
-        return DetailTranslationApiFp(this.configuration).detailTranslationIndex(page, perPage, detailId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified detail translation
-     * @param {string} detailTranslation The detail translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailTranslationApi
-     */
-    public detailTranslationShow(detailTranslation: string, options?: RawAxiosRequestConfig) {
-        return DetailTranslationApiFp(this.configuration).detailTranslationShow(detailTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created detail translation
-     * @param {DetailTranslationStoreRequest} detailTranslationStoreRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailTranslationApi
-     */
-    public detailTranslationStore(detailTranslationStoreRequest: DetailTranslationStoreRequest, options?: RawAxiosRequestConfig) {
-        return DetailTranslationApiFp(this.configuration).detailTranslationStore(detailTranslationStoreRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified detail translation
-     * @param {string} detailTranslation The detail translation ID
-     * @param {DetailTranslationUpdateRequest} [detailTranslationUpdateRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailTranslationApi
-     */
-    public detailTranslationUpdate(detailTranslation: string, detailTranslationUpdateRequest?: DetailTranslationUpdateRequest, options?: RawAxiosRequestConfig) {
-        return DetailTranslationApiFp(this.configuration).detailTranslationUpdate(detailTranslation, detailTranslationUpdateRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * DetailTranslationsApi - axios parameter creator
- * @export
- */
-export const DetailTranslationsApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationDestroy: async (detailTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'detailTranslation' is not null or undefined
-            assertParamExists('detailTranslationDestroy', 'detailTranslation', detailTranslation)
-            const localVarPath = `/detail-translation/{detailTranslation}`
-                .replace(`{${"detailTranslation"}}`, encodeURIComponent(String(detailTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of detail translations
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [detailId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationIndex: async (page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/detail-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
-            if (perPage !== undefined) {
-                localVarQueryParameter['per_page'] = perPage;
-            }
-
-            if (detailId !== undefined) {
-                localVarQueryParameter['detail_id'] = detailId;
-            }
-
-            if (languageId !== undefined) {
-                localVarQueryParameter['language_id'] = languageId;
-            }
-
-            if (contextId !== undefined) {
-                localVarQueryParameter['context_id'] = contextId;
-            }
-
-            if (defaultContext !== undefined) {
-                localVarQueryParameter['default_context'] = defaultContext;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationShow: async (detailTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'detailTranslation' is not null or undefined
-            assertParamExists('detailTranslationShow', 'detailTranslation', detailTranslation)
-            const localVarPath = `/detail-translation/{detailTranslation}`
-                .replace(`{${"detailTranslation"}}`, encodeURIComponent(String(detailTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created detail translation
-         * @param {DetailTranslationStoreRequest} detailTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationStore: async (detailTranslationStoreRequest: DetailTranslationStoreRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'detailTranslationStoreRequest' is not null or undefined
-            assertParamExists('detailTranslationStore', 'detailTranslationStoreRequest', detailTranslationStoreRequest)
-            const localVarPath = `/detail-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(detailTranslationStoreRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {DetailTranslationUpdateRequest} [detailTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationUpdate: async (detailTranslation: string, detailTranslationUpdateRequest?: DetailTranslationUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'detailTranslation' is not null or undefined
-            assertParamExists('detailTranslationUpdate', 'detailTranslation', detailTranslation)
-            const localVarPath = `/detail-translation/{detailTranslation}`
-                .replace(`{${"detailTranslation"}}`, encodeURIComponent(String(detailTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(detailTranslationUpdateRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * DetailTranslationsApi - functional programming interface
- * @export
- */
-export const DetailTranslationsApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = DetailTranslationsApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailTranslationDestroy(detailTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailTranslationDestroy(detailTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailTranslationsApi.detailTranslationDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of detail translations
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [detailId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailTranslationIndex(page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DetailTranslationResource>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailTranslationIndex(page, perPage, detailId, languageId, contextId, defaultContext, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailTranslationsApi.detailTranslationIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailTranslationShow(detailTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DetailTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailTranslationShow(detailTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailTranslationsApi.detailTranslationShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created detail translation
-         * @param {DetailTranslationStoreRequest} detailTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailTranslationStore(detailTranslationStoreRequest: DetailTranslationStoreRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailTranslationStore(detailTranslationStoreRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailTranslationsApi.detailTranslationStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {DetailTranslationUpdateRequest} [detailTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async detailTranslationUpdate(detailTranslation: string, detailTranslationUpdateRequest?: DetailTranslationUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DetailTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.detailTranslationUpdate(detailTranslation, detailTranslationUpdateRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DetailTranslationsApi.detailTranslationUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * DetailTranslationsApi - factory interface
- * @export
- */
-export const DetailTranslationsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = DetailTranslationsApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationDestroy(detailTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<number> {
-            return localVarFp.detailTranslationDestroy(detailTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of detail translations
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [detailId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationIndex(page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<DetailTranslationResource>> {
-            return localVarFp.detailTranslationIndex(page, perPage, detailId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationShow(detailTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<DetailTranslationShow200Response> {
-            return localVarFp.detailTranslationShow(detailTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created detail translation
-         * @param {DetailTranslationStoreRequest} detailTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationStore(detailTranslationStoreRequest: DetailTranslationStoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<number> {
-            return localVarFp.detailTranslationStore(detailTranslationStoreRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified detail translation
-         * @param {string} detailTranslation The detail translation ID
-         * @param {DetailTranslationUpdateRequest} [detailTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        detailTranslationUpdate(detailTranslation: string, detailTranslationUpdateRequest?: DetailTranslationUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<DetailTranslationShow200Response> {
-            return localVarFp.detailTranslationUpdate(detailTranslation, detailTranslationUpdateRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * DetailTranslationsApi - object-oriented interface
- * @export
- * @class DetailTranslationsApi
- * @extends {BaseAPI}
- */
-export class DetailTranslationsApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified detail translation
-     * @param {string} detailTranslation The detail translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailTranslationsApi
-     */
-    public detailTranslationDestroy(detailTranslation: string, options?: RawAxiosRequestConfig) {
-        return DetailTranslationsApiFp(this.configuration).detailTranslationDestroy(detailTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of detail translations
-     * @param {number} [page] 
-     * @param {number} [perPage] 
-     * @param {string} [detailId] 
-     * @param {string} [languageId] 
-     * @param {string} [contextId] 
-     * @param {boolean} [defaultContext] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailTranslationsApi
-     */
-    public detailTranslationIndex(page?: number, perPage?: number, detailId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
-        return DetailTranslationsApiFp(this.configuration).detailTranslationIndex(page, perPage, detailId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified detail translation
-     * @param {string} detailTranslation The detail translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailTranslationsApi
-     */
-    public detailTranslationShow(detailTranslation: string, options?: RawAxiosRequestConfig) {
-        return DetailTranslationsApiFp(this.configuration).detailTranslationShow(detailTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created detail translation
-     * @param {DetailTranslationStoreRequest} detailTranslationStoreRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailTranslationsApi
-     */
-    public detailTranslationStore(detailTranslationStoreRequest: DetailTranslationStoreRequest, options?: RawAxiosRequestConfig) {
-        return DetailTranslationsApiFp(this.configuration).detailTranslationStore(detailTranslationStoreRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified detail translation
-     * @param {string} detailTranslation The detail translation ID
-     * @param {DetailTranslationUpdateRequest} [detailTranslationUpdateRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DetailTranslationsApi
-     */
-    public detailTranslationUpdate(detailTranslation: string, detailTranslationUpdateRequest?: DetailTranslationUpdateRequest, options?: RawAxiosRequestConfig) {
-        return DetailTranslationsApiFp(this.configuration).detailTranslationUpdate(detailTranslation, detailTranslationUpdateRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * ExhibitionApi - axios parameter creator
- * @export
- */
-export const ExhibitionApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified exhibition from storage
-         * @param {string} exhibition The exhibition ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionDestroy: async (exhibition: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'exhibition' is not null or undefined
-            assertParamExists('exhibitionDestroy', 'exhibition', exhibition)
-            const localVarPath = `/exhibition/{exhibition}`
-                .replace(`{${"exhibition"}}`, encodeURIComponent(String(exhibition)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of the exhibitions
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/exhibition`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
-            if (perPage !== undefined) {
-                localVarQueryParameter['per_page'] = perPage;
-            }
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified exhibition
-         * @param {string} exhibition The exhibition ID
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionShow: async (exhibition: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'exhibition' is not null or undefined
-            assertParamExists('exhibitionShow', 'exhibition', exhibition)
-            const localVarPath = `/exhibition/{exhibition}`
-                .replace(`{${"exhibition"}}`, encodeURIComponent(String(exhibition)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created exhibition in storage
-         * @param {ExhibitionStoreRequest} exhibitionStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionStore: async (exhibitionStoreRequest: ExhibitionStoreRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'exhibitionStoreRequest' is not null or undefined
-            assertParamExists('exhibitionStore', 'exhibitionStoreRequest', exhibitionStoreRequest)
-            const localVarPath = `/exhibition`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(exhibitionStoreRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified exhibition in storage
-         * @param {string} exhibition The exhibition ID
-         * @param {ExhibitionUpdateRequest} [exhibitionUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionUpdate: async (exhibition: string, exhibitionUpdateRequest?: ExhibitionUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'exhibition' is not null or undefined
-            assertParamExists('exhibitionUpdate', 'exhibition', exhibition)
-            const localVarPath = `/exhibition/{exhibition}`
-                .replace(`{${"exhibition"}}`, encodeURIComponent(String(exhibition)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(exhibitionUpdateRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * ExhibitionApi - functional programming interface
- * @export
- */
-export const ExhibitionApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = ExhibitionApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified exhibition from storage
-         * @param {string} exhibition The exhibition ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionDestroy(exhibition: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionDestroy(exhibition, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionApi.exhibitionDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of the exhibitions
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExhibitionIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionIndex(page, perPage, include, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionApi.exhibitionIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified exhibition
-         * @param {string} exhibition The exhibition ID
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionShow(exhibition: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExhibitionStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionShow(exhibition, include, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionApi.exhibitionShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created exhibition in storage
-         * @param {ExhibitionStoreRequest} exhibitionStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionStore(exhibitionStoreRequest: ExhibitionStoreRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExhibitionStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionStore(exhibitionStoreRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionApi.exhibitionStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified exhibition in storage
-         * @param {string} exhibition The exhibition ID
-         * @param {ExhibitionUpdateRequest} [exhibitionUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionUpdate(exhibition: string, exhibitionUpdateRequest?: ExhibitionUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExhibitionStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionUpdate(exhibition, exhibitionUpdateRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionApi.exhibitionUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * ExhibitionApi - factory interface
- * @export
- */
-export const ExhibitionApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = ExhibitionApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified exhibition from storage
-         * @param {string} exhibition The exhibition ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionDestroy(exhibition: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.exhibitionDestroy(exhibition, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of the exhibitions
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ExhibitionIndex200Response> {
-            return localVarFp.exhibitionIndex(page, perPage, include, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified exhibition
-         * @param {string} exhibition The exhibition ID
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionShow(exhibition: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ExhibitionStore200Response> {
-            return localVarFp.exhibitionShow(exhibition, include, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created exhibition in storage
-         * @param {ExhibitionStoreRequest} exhibitionStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionStore(exhibitionStoreRequest: ExhibitionStoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<ExhibitionStore200Response> {
-            return localVarFp.exhibitionStore(exhibitionStoreRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified exhibition in storage
-         * @param {string} exhibition The exhibition ID
-         * @param {ExhibitionUpdateRequest} [exhibitionUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionUpdate(exhibition: string, exhibitionUpdateRequest?: ExhibitionUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<ExhibitionStore200Response> {
-            return localVarFp.exhibitionUpdate(exhibition, exhibitionUpdateRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * ExhibitionApi - object-oriented interface
- * @export
- * @class ExhibitionApi
- * @extends {BaseAPI}
- */
-export class ExhibitionApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified exhibition from storage
-     * @param {string} exhibition The exhibition ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionApi
-     */
-    public exhibitionDestroy(exhibition: string, options?: RawAxiosRequestConfig) {
-        return ExhibitionApiFp(this.configuration).exhibitionDestroy(exhibition, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of the exhibitions
-     * @param {number} [page] 
-     * @param {number} [perPage] 
-     * @param {string} [include] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionApi
-     */
-    public exhibitionIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
-        return ExhibitionApiFp(this.configuration).exhibitionIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified exhibition
-     * @param {string} exhibition The exhibition ID
-     * @param {string} [include] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionApi
-     */
-    public exhibitionShow(exhibition: string, include?: string, options?: RawAxiosRequestConfig) {
-        return ExhibitionApiFp(this.configuration).exhibitionShow(exhibition, include, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created exhibition in storage
-     * @param {ExhibitionStoreRequest} exhibitionStoreRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionApi
-     */
-    public exhibitionStore(exhibitionStoreRequest: ExhibitionStoreRequest, options?: RawAxiosRequestConfig) {
-        return ExhibitionApiFp(this.configuration).exhibitionStore(exhibitionStoreRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified exhibition in storage
-     * @param {string} exhibition The exhibition ID
-     * @param {ExhibitionUpdateRequest} [exhibitionUpdateRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionApi
-     */
-    public exhibitionUpdate(exhibition: string, exhibitionUpdateRequest?: ExhibitionUpdateRequest, options?: RawAxiosRequestConfig) {
-        return ExhibitionApiFp(this.configuration).exhibitionUpdate(exhibition, exhibitionUpdateRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * ExhibitionTranslationApi - axios parameter creator
- * @export
- */
-export const ExhibitionTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationDestroy: async (exhibitionTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'exhibitionTranslation' is not null or undefined
-            assertParamExists('exhibitionTranslationDestroy', 'exhibitionTranslation', exhibitionTranslation)
-            const localVarPath = `/exhibition-translation/{exhibitionTranslation}`
-                .replace(`{${"exhibitionTranslation"}}`, encodeURIComponent(String(exhibitionTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of exhibition translations
-         * @param {string} [exhibitionId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationIndex: async (exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/exhibition-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (exhibitionId !== undefined) {
-                localVarQueryParameter['exhibition_id'] = exhibitionId;
-            }
-
-            if (languageId !== undefined) {
-                localVarQueryParameter['language_id'] = languageId;
-            }
-
-            if (contextId !== undefined) {
-                localVarQueryParameter['context_id'] = contextId;
-            }
-
-            if (defaultContext !== undefined) {
-                localVarQueryParameter['default_context'] = defaultContext;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationShow: async (exhibitionTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'exhibitionTranslation' is not null or undefined
-            assertParamExists('exhibitionTranslationShow', 'exhibitionTranslation', exhibitionTranslation)
-            const localVarPath = `/exhibition-translation/{exhibitionTranslation}`
-                .replace(`{${"exhibitionTranslation"}}`, encodeURIComponent(String(exhibitionTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created exhibition translation
-         * @param {ExhibitionTranslationStoreRequest} exhibitionTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationStore: async (exhibitionTranslationStoreRequest: ExhibitionTranslationStoreRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'exhibitionTranslationStoreRequest' is not null or undefined
-            assertParamExists('exhibitionTranslationStore', 'exhibitionTranslationStoreRequest', exhibitionTranslationStoreRequest)
-            const localVarPath = `/exhibition-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(exhibitionTranslationStoreRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {ExhibitionTranslationUpdateRequest} [exhibitionTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationUpdate: async (exhibitionTranslation: string, exhibitionTranslationUpdateRequest?: ExhibitionTranslationUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'exhibitionTranslation' is not null or undefined
-            assertParamExists('exhibitionTranslationUpdate', 'exhibitionTranslation', exhibitionTranslation)
-            const localVarPath = `/exhibition-translation/{exhibitionTranslation}`
-                .replace(`{${"exhibitionTranslation"}}`, encodeURIComponent(String(exhibitionTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(exhibitionTranslationUpdateRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * ExhibitionTranslationApi - functional programming interface
- * @export
- */
-export const ExhibitionTranslationApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = ExhibitionTranslationApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionTranslationDestroy(exhibitionTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionTranslationDestroy(exhibitionTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionTranslationApi.exhibitionTranslationDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of exhibition translations
-         * @param {string} [exhibitionId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionTranslationIndex(exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ExhibitionTranslationResource>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionTranslationIndex(exhibitionId, languageId, contextId, defaultContext, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionTranslationApi.exhibitionTranslationIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionTranslationShow(exhibitionTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExhibitionTranslationStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionTranslationShow(exhibitionTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionTranslationApi.exhibitionTranslationShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created exhibition translation
-         * @param {ExhibitionTranslationStoreRequest} exhibitionTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionTranslationStore(exhibitionTranslationStoreRequest: ExhibitionTranslationStoreRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExhibitionTranslationStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionTranslationStore(exhibitionTranslationStoreRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionTranslationApi.exhibitionTranslationStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {ExhibitionTranslationUpdateRequest} [exhibitionTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionTranslationUpdate(exhibitionTranslation: string, exhibitionTranslationUpdateRequest?: ExhibitionTranslationUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExhibitionTranslationStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionTranslationUpdate(exhibitionTranslation, exhibitionTranslationUpdateRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionTranslationApi.exhibitionTranslationUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * ExhibitionTranslationApi - factory interface
- * @export
- */
-export const ExhibitionTranslationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = ExhibitionTranslationApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationDestroy(exhibitionTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<number> {
-            return localVarFp.exhibitionTranslationDestroy(exhibitionTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of exhibition translations
-         * @param {string} [exhibitionId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationIndex(exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<ExhibitionTranslationResource>> {
-            return localVarFp.exhibitionTranslationIndex(exhibitionId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationShow(exhibitionTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<ExhibitionTranslationStore200Response> {
-            return localVarFp.exhibitionTranslationShow(exhibitionTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created exhibition translation
-         * @param {ExhibitionTranslationStoreRequest} exhibitionTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationStore(exhibitionTranslationStoreRequest: ExhibitionTranslationStoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<ExhibitionTranslationStore200Response> {
-            return localVarFp.exhibitionTranslationStore(exhibitionTranslationStoreRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {ExhibitionTranslationUpdateRequest} [exhibitionTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationUpdate(exhibitionTranslation: string, exhibitionTranslationUpdateRequest?: ExhibitionTranslationUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<ExhibitionTranslationStore200Response> {
-            return localVarFp.exhibitionTranslationUpdate(exhibitionTranslation, exhibitionTranslationUpdateRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * ExhibitionTranslationApi - object-oriented interface
- * @export
- * @class ExhibitionTranslationApi
- * @extends {BaseAPI}
- */
-export class ExhibitionTranslationApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified exhibition translation
-     * @param {string} exhibitionTranslation The exhibition translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionTranslationApi
-     */
-    public exhibitionTranslationDestroy(exhibitionTranslation: string, options?: RawAxiosRequestConfig) {
-        return ExhibitionTranslationApiFp(this.configuration).exhibitionTranslationDestroy(exhibitionTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of exhibition translations
-     * @param {string} [exhibitionId] 
-     * @param {string} [languageId] 
-     * @param {string} [contextId] 
-     * @param {boolean} [defaultContext] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionTranslationApi
-     */
-    public exhibitionTranslationIndex(exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
-        return ExhibitionTranslationApiFp(this.configuration).exhibitionTranslationIndex(exhibitionId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified exhibition translation
-     * @param {string} exhibitionTranslation The exhibition translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionTranslationApi
-     */
-    public exhibitionTranslationShow(exhibitionTranslation: string, options?: RawAxiosRequestConfig) {
-        return ExhibitionTranslationApiFp(this.configuration).exhibitionTranslationShow(exhibitionTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created exhibition translation
-     * @param {ExhibitionTranslationStoreRequest} exhibitionTranslationStoreRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionTranslationApi
-     */
-    public exhibitionTranslationStore(exhibitionTranslationStoreRequest: ExhibitionTranslationStoreRequest, options?: RawAxiosRequestConfig) {
-        return ExhibitionTranslationApiFp(this.configuration).exhibitionTranslationStore(exhibitionTranslationStoreRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified exhibition translation
-     * @param {string} exhibitionTranslation The exhibition translation ID
-     * @param {ExhibitionTranslationUpdateRequest} [exhibitionTranslationUpdateRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionTranslationApi
-     */
-    public exhibitionTranslationUpdate(exhibitionTranslation: string, exhibitionTranslationUpdateRequest?: ExhibitionTranslationUpdateRequest, options?: RawAxiosRequestConfig) {
-        return ExhibitionTranslationApiFp(this.configuration).exhibitionTranslationUpdate(exhibitionTranslation, exhibitionTranslationUpdateRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * ExhibitionTranslationsApi - axios parameter creator
- * @export
- */
-export const ExhibitionTranslationsApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationDestroy: async (exhibitionTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'exhibitionTranslation' is not null or undefined
-            assertParamExists('exhibitionTranslationDestroy', 'exhibitionTranslation', exhibitionTranslation)
-            const localVarPath = `/exhibition-translation/{exhibitionTranslation}`
-                .replace(`{${"exhibitionTranslation"}}`, encodeURIComponent(String(exhibitionTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of exhibition translations
-         * @param {string} [exhibitionId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationIndex: async (exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/exhibition-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (exhibitionId !== undefined) {
-                localVarQueryParameter['exhibition_id'] = exhibitionId;
-            }
-
-            if (languageId !== undefined) {
-                localVarQueryParameter['language_id'] = languageId;
-            }
-
-            if (contextId !== undefined) {
-                localVarQueryParameter['context_id'] = contextId;
-            }
-
-            if (defaultContext !== undefined) {
-                localVarQueryParameter['default_context'] = defaultContext;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationShow: async (exhibitionTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'exhibitionTranslation' is not null or undefined
-            assertParamExists('exhibitionTranslationShow', 'exhibitionTranslation', exhibitionTranslation)
-            const localVarPath = `/exhibition-translation/{exhibitionTranslation}`
-                .replace(`{${"exhibitionTranslation"}}`, encodeURIComponent(String(exhibitionTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created exhibition translation
-         * @param {ExhibitionTranslationStoreRequest} exhibitionTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationStore: async (exhibitionTranslationStoreRequest: ExhibitionTranslationStoreRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'exhibitionTranslationStoreRequest' is not null or undefined
-            assertParamExists('exhibitionTranslationStore', 'exhibitionTranslationStoreRequest', exhibitionTranslationStoreRequest)
-            const localVarPath = `/exhibition-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(exhibitionTranslationStoreRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {ExhibitionTranslationUpdateRequest} [exhibitionTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationUpdate: async (exhibitionTranslation: string, exhibitionTranslationUpdateRequest?: ExhibitionTranslationUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'exhibitionTranslation' is not null or undefined
-            assertParamExists('exhibitionTranslationUpdate', 'exhibitionTranslation', exhibitionTranslation)
-            const localVarPath = `/exhibition-translation/{exhibitionTranslation}`
-                .replace(`{${"exhibitionTranslation"}}`, encodeURIComponent(String(exhibitionTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(exhibitionTranslationUpdateRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * ExhibitionTranslationsApi - functional programming interface
- * @export
- */
-export const ExhibitionTranslationsApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = ExhibitionTranslationsApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionTranslationDestroy(exhibitionTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionTranslationDestroy(exhibitionTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionTranslationsApi.exhibitionTranslationDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of exhibition translations
-         * @param {string} [exhibitionId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionTranslationIndex(exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ExhibitionTranslationResource>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionTranslationIndex(exhibitionId, languageId, contextId, defaultContext, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionTranslationsApi.exhibitionTranslationIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionTranslationShow(exhibitionTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExhibitionTranslationStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionTranslationShow(exhibitionTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionTranslationsApi.exhibitionTranslationShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created exhibition translation
-         * @param {ExhibitionTranslationStoreRequest} exhibitionTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionTranslationStore(exhibitionTranslationStoreRequest: ExhibitionTranslationStoreRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExhibitionTranslationStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionTranslationStore(exhibitionTranslationStoreRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionTranslationsApi.exhibitionTranslationStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {ExhibitionTranslationUpdateRequest} [exhibitionTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async exhibitionTranslationUpdate(exhibitionTranslation: string, exhibitionTranslationUpdateRequest?: ExhibitionTranslationUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExhibitionTranslationStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.exhibitionTranslationUpdate(exhibitionTranslation, exhibitionTranslationUpdateRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExhibitionTranslationsApi.exhibitionTranslationUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * ExhibitionTranslationsApi - factory interface
- * @export
- */
-export const ExhibitionTranslationsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = ExhibitionTranslationsApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationDestroy(exhibitionTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<number> {
-            return localVarFp.exhibitionTranslationDestroy(exhibitionTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of exhibition translations
-         * @param {string} [exhibitionId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationIndex(exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<ExhibitionTranslationResource>> {
-            return localVarFp.exhibitionTranslationIndex(exhibitionId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationShow(exhibitionTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<ExhibitionTranslationStore200Response> {
-            return localVarFp.exhibitionTranslationShow(exhibitionTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created exhibition translation
-         * @param {ExhibitionTranslationStoreRequest} exhibitionTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationStore(exhibitionTranslationStoreRequest: ExhibitionTranslationStoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<ExhibitionTranslationStore200Response> {
-            return localVarFp.exhibitionTranslationStore(exhibitionTranslationStoreRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified exhibition translation
-         * @param {string} exhibitionTranslation The exhibition translation ID
-         * @param {ExhibitionTranslationUpdateRequest} [exhibitionTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        exhibitionTranslationUpdate(exhibitionTranslation: string, exhibitionTranslationUpdateRequest?: ExhibitionTranslationUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<ExhibitionTranslationStore200Response> {
-            return localVarFp.exhibitionTranslationUpdate(exhibitionTranslation, exhibitionTranslationUpdateRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * ExhibitionTranslationsApi - object-oriented interface
- * @export
- * @class ExhibitionTranslationsApi
- * @extends {BaseAPI}
- */
-export class ExhibitionTranslationsApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified exhibition translation
-     * @param {string} exhibitionTranslation The exhibition translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionTranslationsApi
-     */
-    public exhibitionTranslationDestroy(exhibitionTranslation: string, options?: RawAxiosRequestConfig) {
-        return ExhibitionTranslationsApiFp(this.configuration).exhibitionTranslationDestroy(exhibitionTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of exhibition translations
-     * @param {string} [exhibitionId] 
-     * @param {string} [languageId] 
-     * @param {string} [contextId] 
-     * @param {boolean} [defaultContext] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionTranslationsApi
-     */
-    public exhibitionTranslationIndex(exhibitionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
-        return ExhibitionTranslationsApiFp(this.configuration).exhibitionTranslationIndex(exhibitionId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified exhibition translation
-     * @param {string} exhibitionTranslation The exhibition translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionTranslationsApi
-     */
-    public exhibitionTranslationShow(exhibitionTranslation: string, options?: RawAxiosRequestConfig) {
-        return ExhibitionTranslationsApiFp(this.configuration).exhibitionTranslationShow(exhibitionTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created exhibition translation
-     * @param {ExhibitionTranslationStoreRequest} exhibitionTranslationStoreRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionTranslationsApi
-     */
-    public exhibitionTranslationStore(exhibitionTranslationStoreRequest: ExhibitionTranslationStoreRequest, options?: RawAxiosRequestConfig) {
-        return ExhibitionTranslationsApiFp(this.configuration).exhibitionTranslationStore(exhibitionTranslationStoreRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified exhibition translation
-     * @param {string} exhibitionTranslation The exhibition translation ID
-     * @param {ExhibitionTranslationUpdateRequest} [exhibitionTranslationUpdateRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExhibitionTranslationsApi
-     */
-    public exhibitionTranslationUpdate(exhibitionTranslation: string, exhibitionTranslationUpdateRequest?: ExhibitionTranslationUpdateRequest, options?: RawAxiosRequestConfig) {
-        return ExhibitionTranslationsApiFp(this.configuration).exhibitionTranslationUpdate(exhibitionTranslation, exhibitionTranslationUpdateRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * GalleryApi - axios parameter creator
- * @export
- */
-export const GalleryApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified gallery from storage
-         * @param {string} gallery The gallery ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        galleryDestroy: async (gallery: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'gallery' is not null or undefined
-            assertParamExists('galleryDestroy', 'gallery', gallery)
-            const localVarPath = `/gallery/{gallery}`
-                .replace(`{${"gallery"}}`, encodeURIComponent(String(gallery)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of the galleries
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        galleryIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/gallery`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
-            if (perPage !== undefined) {
-                localVarQueryParameter['per_page'] = perPage;
-            }
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified gallery
-         * @param {string} gallery The gallery ID
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        galleryShow: async (gallery: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'gallery' is not null or undefined
-            assertParamExists('galleryShow', 'gallery', gallery)
-            const localVarPath = `/gallery/{gallery}`
-                .replace(`{${"gallery"}}`, encodeURIComponent(String(gallery)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created gallery in storage
-         * @param {GalleryStoreRequest} galleryStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        galleryStore: async (galleryStoreRequest: GalleryStoreRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'galleryStoreRequest' is not null or undefined
-            assertParamExists('galleryStore', 'galleryStoreRequest', galleryStoreRequest)
-            const localVarPath = `/gallery`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(galleryStoreRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified gallery in storage
-         * @param {string} gallery The gallery ID
-         * @param {GalleryUpdateRequest} [galleryUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        galleryUpdate: async (gallery: string, galleryUpdateRequest?: GalleryUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'gallery' is not null or undefined
-            assertParamExists('galleryUpdate', 'gallery', gallery)
-            const localVarPath = `/gallery/{gallery}`
-                .replace(`{${"gallery"}}`, encodeURIComponent(String(gallery)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(galleryUpdateRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * GalleryApi - functional programming interface
- * @export
- */
-export const GalleryApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = GalleryApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified gallery from storage
-         * @param {string} gallery The gallery ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async galleryDestroy(gallery: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.galleryDestroy(gallery, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['GalleryApi.galleryDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of the galleries
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async galleryIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GalleryIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.galleryIndex(page, perPage, include, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['GalleryApi.galleryIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified gallery
-         * @param {string} gallery The gallery ID
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async galleryShow(gallery: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GalleryStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.galleryShow(gallery, include, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['GalleryApi.galleryShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created gallery in storage
-         * @param {GalleryStoreRequest} galleryStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async galleryStore(galleryStoreRequest: GalleryStoreRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GalleryStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.galleryStore(galleryStoreRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['GalleryApi.galleryStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified gallery in storage
-         * @param {string} gallery The gallery ID
-         * @param {GalleryUpdateRequest} [galleryUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async galleryUpdate(gallery: string, galleryUpdateRequest?: GalleryUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GalleryStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.galleryUpdate(gallery, galleryUpdateRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['GalleryApi.galleryUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * GalleryApi - factory interface
- * @export
- */
-export const GalleryApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = GalleryApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified gallery from storage
-         * @param {string} gallery The gallery ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        galleryDestroy(gallery: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.galleryDestroy(gallery, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of the galleries
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        galleryIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<GalleryIndex200Response> {
-            return localVarFp.galleryIndex(page, perPage, include, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified gallery
-         * @param {string} gallery The gallery ID
-         * @param {string} [include] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        galleryShow(gallery: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<GalleryStore200Response> {
-            return localVarFp.galleryShow(gallery, include, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created gallery in storage
-         * @param {GalleryStoreRequest} galleryStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        galleryStore(galleryStoreRequest: GalleryStoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<GalleryStore200Response> {
-            return localVarFp.galleryStore(galleryStoreRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified gallery in storage
-         * @param {string} gallery The gallery ID
-         * @param {GalleryUpdateRequest} [galleryUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        galleryUpdate(gallery: string, galleryUpdateRequest?: GalleryUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<GalleryStore200Response> {
-            return localVarFp.galleryUpdate(gallery, galleryUpdateRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * GalleryApi - object-oriented interface
- * @export
- * @class GalleryApi
- * @extends {BaseAPI}
- */
-export class GalleryApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified gallery from storage
-     * @param {string} gallery The gallery ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof GalleryApi
-     */
-    public galleryDestroy(gallery: string, options?: RawAxiosRequestConfig) {
-        return GalleryApiFp(this.configuration).galleryDestroy(gallery, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of the galleries
-     * @param {number} [page] 
-     * @param {number} [perPage] 
-     * @param {string} [include] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof GalleryApi
-     */
-    public galleryIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
-        return GalleryApiFp(this.configuration).galleryIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified gallery
-     * @param {string} gallery The gallery ID
-     * @param {string} [include] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof GalleryApi
-     */
-    public galleryShow(gallery: string, include?: string, options?: RawAxiosRequestConfig) {
-        return GalleryApiFp(this.configuration).galleryShow(gallery, include, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created gallery in storage
-     * @param {GalleryStoreRequest} galleryStoreRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof GalleryApi
-     */
-    public galleryStore(galleryStoreRequest: GalleryStoreRequest, options?: RawAxiosRequestConfig) {
-        return GalleryApiFp(this.configuration).galleryStore(galleryStoreRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified gallery in storage
-     * @param {string} gallery The gallery ID
-     * @param {GalleryUpdateRequest} [galleryUpdateRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof GalleryApi
-     */
-    public galleryUpdate(gallery: string, galleryUpdateRequest?: GalleryUpdateRequest, options?: RawAxiosRequestConfig) {
-        return GalleryApiFp(this.configuration).galleryUpdate(gallery, galleryUpdateRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
  * ImageUploadApi - axios parameter creator
  * @export
  */
@@ -13307,6 +9778,85 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
     return {
         /**
          * 
+         * @summary Get items by type
+         * @param {string} type 
+         * @param {ItemByTypeTypeEnum} type2 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemByType: async (type: string, type2: ItemByTypeTypeEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'type' is not null or undefined
+            assertParamExists('itemByType', 'type', type)
+            // verify required parameter 'type2' is not null or undefined
+            assertParamExists('itemByType', 'type2', type2)
+            const localVarPath = `/item/type/{type}`
+                .replace(`{${"type"}}`, encodeURIComponent(String(type)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (type2 !== undefined) {
+                localVarQueryParameter['type'] = type2;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get child items (items with a parent)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemChildren: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/item/children`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Remove the specified resource from storage
          * @param {string} item The item ID
          * @param {*} [options] Override http request option.
@@ -13432,6 +9982,40 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
         },
         /**
          * 
+         * @summary Get parent items (items with no parent)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemParents: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/item/parents`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Display the specified resource
          * @param {string} item The item ID
          * @param {string} [include] 
@@ -13476,13 +10060,13 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
         /**
          * 
          * @summary Store a newly created resource in storage
-         * @param {ItemStoreRequest} itemStoreRequest 
+         * @param {StoreItemRequest} storeItemRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemStore: async (itemStoreRequest: ItemStoreRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'itemStoreRequest' is not null or undefined
-            assertParamExists('itemStore', 'itemStoreRequest', itemStoreRequest)
+        itemStore: async (storeItemRequest: StoreItemRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storeItemRequest' is not null or undefined
+            assertParamExists('itemStore', 'storeItemRequest', storeItemRequest)
             const localVarPath = `/item`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -13506,7 +10090,7 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(itemStoreRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(storeItemRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -13517,15 +10101,13 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
          * 
          * @summary Update the specified resource in storage
          * @param {string} item The item ID
-         * @param {ItemStoreRequest} itemStoreRequest 
+         * @param {UpdateItemRequest} [updateItemRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemUpdate: async (item: string, itemStoreRequest: ItemStoreRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        itemUpdate: async (item: string, updateItemRequest?: UpdateItemRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'item' is not null or undefined
             assertParamExists('itemUpdate', 'item', item)
-            // verify required parameter 'itemStoreRequest' is not null or undefined
-            assertParamExists('itemUpdate', 'itemStoreRequest', itemStoreRequest)
             const localVarPath = `/item/{item}`
                 .replace(`{${"item"}}`, encodeURIComponent(String(item)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -13550,7 +10132,7 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(itemStoreRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(updateItemRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -13691,6 +10273,32 @@ export const ItemApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Get items by type
+         * @param {string} type 
+         * @param {ItemByTypeTypeEnum} type2 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemByType(type: string, type2: ItemByTypeTypeEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemForTag200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemByType(type, type2, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemApi.itemByType']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get child items (items with a parent)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemChildren(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemForTag200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemChildren(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemApi.itemChildren']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Remove the specified resource from storage
          * @param {string} item The item ID
          * @param {*} [options] Override http request option.
@@ -13732,6 +10340,18 @@ export const ItemApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get parent items (items with no parent)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemParents(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemForTag200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemParents(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemApi.itemParents']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Display the specified resource
          * @param {string} item The item ID
          * @param {string} [include] 
@@ -13747,12 +10367,12 @@ export const ItemApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Store a newly created resource in storage
-         * @param {ItemStoreRequest} itemStoreRequest 
+         * @param {StoreItemRequest} storeItemRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemStore(itemStoreRequest: ItemStoreRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.itemStore(itemStoreRequest, options);
+        async itemStore(storeItemRequest: StoreItemRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemStore(storeItemRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemApi.itemStore']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -13761,12 +10381,12 @@ export const ItemApiFp = function(configuration?: Configuration) {
          * 
          * @summary Update the specified resource in storage
          * @param {string} item The item ID
-         * @param {ItemStoreRequest} itemStoreRequest 
+         * @param {UpdateItemRequest} [updateItemRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemUpdate(item: string, itemStoreRequest: ItemStoreRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.itemUpdate(item, itemStoreRequest, options);
+        async itemUpdate(item: string, updateItemRequest?: UpdateItemRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemUpdate(item, updateItemRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemApi.itemUpdate']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -13823,6 +10443,26 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
     return {
         /**
          * 
+         * @summary Get items by type
+         * @param {string} type 
+         * @param {ItemByTypeTypeEnum} type2 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemByType(type: string, type2: ItemByTypeTypeEnum, options?: RawAxiosRequestConfig): AxiosPromise<ItemForTag200Response> {
+            return localVarFp.itemByType(type, type2, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get child items (items with a parent)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemChildren(options?: RawAxiosRequestConfig): AxiosPromise<ItemForTag200Response> {
+            return localVarFp.itemChildren(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Remove the specified resource from storage
          * @param {string} item The item ID
          * @param {*} [options] Override http request option.
@@ -13855,6 +10495,15 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
         },
         /**
          * 
+         * @summary Get parent items (items with no parent)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemParents(options?: RawAxiosRequestConfig): AxiosPromise<ItemForTag200Response> {
+            return localVarFp.itemParents(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Display the specified resource
          * @param {string} item The item ID
          * @param {string} [include] 
@@ -13867,23 +10516,23 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
         /**
          * 
          * @summary Store a newly created resource in storage
-         * @param {ItemStoreRequest} itemStoreRequest 
+         * @param {StoreItemRequest} storeItemRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemStore(itemStoreRequest: ItemStoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemStore200Response> {
-            return localVarFp.itemStore(itemStoreRequest, options).then((request) => request(axios, basePath));
+        itemStore(storeItemRequest: StoreItemRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemStore200Response> {
+            return localVarFp.itemStore(storeItemRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Update the specified resource in storage
          * @param {string} item The item ID
-         * @param {ItemStoreRequest} itemStoreRequest 
+         * @param {UpdateItemRequest} [updateItemRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemUpdate(item: string, itemStoreRequest: ItemStoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemStore200Response> {
-            return localVarFp.itemUpdate(item, itemStoreRequest, options).then((request) => request(axios, basePath));
+        itemUpdate(item: string, updateItemRequest?: UpdateItemRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemStore200Response> {
+            return localVarFp.itemUpdate(item, updateItemRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * This endpoint allows quick editing of tag associations by specifying which tags to attach or detach from the item. It provides fine-grained control over tag operations without requiring a full item update.
@@ -13928,6 +10577,30 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
 export class ItemApi extends BaseAPI {
     /**
      * 
+     * @summary Get items by type
+     * @param {string} type 
+     * @param {ItemByTypeTypeEnum} type2 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemApi
+     */
+    public itemByType(type: string, type2: ItemByTypeTypeEnum, options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemByType(type, type2, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get child items (items with a parent)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemApi
+     */
+    public itemChildren(options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemChildren(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Remove the specified resource from storage
      * @param {string} item The item ID
      * @param {*} [options] Override http request option.
@@ -13966,6 +10639,17 @@ export class ItemApi extends BaseAPI {
 
     /**
      * 
+     * @summary Get parent items (items with no parent)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemApi
+     */
+    public itemParents(options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemParents(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Display the specified resource
      * @param {string} item The item ID
      * @param {string} [include] 
@@ -13980,26 +10664,26 @@ export class ItemApi extends BaseAPI {
     /**
      * 
      * @summary Store a newly created resource in storage
-     * @param {ItemStoreRequest} itemStoreRequest 
+     * @param {StoreItemRequest} storeItemRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ItemApi
      */
-    public itemStore(itemStoreRequest: ItemStoreRequest, options?: RawAxiosRequestConfig) {
-        return ItemApiFp(this.configuration).itemStore(itemStoreRequest, options).then((request) => request(this.axios, this.basePath));
+    public itemStore(storeItemRequest: StoreItemRequest, options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemStore(storeItemRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Update the specified resource in storage
      * @param {string} item The item ID
-     * @param {ItemStoreRequest} itemStoreRequest 
+     * @param {UpdateItemRequest} [updateItemRequest] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ItemApi
      */
-    public itemUpdate(item: string, itemStoreRequest: ItemStoreRequest, options?: RawAxiosRequestConfig) {
-        return ItemApiFp(this.configuration).itemUpdate(item, itemStoreRequest, options).then((request) => request(this.axios, this.basePath));
+    public itemUpdate(item: string, updateItemRequest?: UpdateItemRequest, options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemUpdate(item, updateItemRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -14037,6 +10721,826 @@ export class ItemApi extends BaseAPI {
      */
     public itemWithAnyTags(itemWithAllTagsRequest: ItemWithAllTagsRequest, options?: RawAxiosRequestConfig) {
         return ItemApiFp(this.configuration).itemWithAnyTags(itemWithAllTagsRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+/**
+ * @export
+ */
+export const ItemByTypeTypeEnum = {
+    Object: 'object',
+    Monument: 'monument',
+    Detail: 'detail',
+    Picture: 'picture'
+} as const;
+export type ItemByTypeTypeEnum = typeof ItemByTypeTypeEnum[keyof typeof ItemByTypeTypeEnum];
+
+
+/**
+ * ItemImageApi - axios parameter creator
+ * @export
+ */
+export const ItemImageApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Attach an available image to an item
+         * @param {string} item The item ID
+         * @param {ItemAttachImageRequest} itemAttachImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemAttachImage: async (item: string, itemAttachImageRequest: ItemAttachImageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'item' is not null or undefined
+            assertParamExists('itemAttachImage', 'item', item)
+            // verify required parameter 'itemAttachImageRequest' is not null or undefined
+            assertParamExists('itemAttachImage', 'itemAttachImageRequest', itemAttachImageRequest)
+            const localVarPath = `/item/{item}/attach-image`
+                .replace(`{${"item"}}`, encodeURIComponent(String(item)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(itemAttachImageRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Remove the specified item image
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImageDestroy: async (itemImage: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemImage' is not null or undefined
+            assertParamExists('itemImageDestroy', 'itemImage', itemImage)
+            const localVarPath = `/item-image/{itemImage}`
+                .replace(`{${"itemImage"}}`, encodeURIComponent(String(itemImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Detach an item image and convert it back to available image
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImageDetach: async (itemImage: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemImage' is not null or undefined
+            assertParamExists('itemImageDetach', 'itemImage', itemImage)
+            const localVarPath = `/item-image/{itemImage}/detach`
+                .replace(`{${"itemImage"}}`, encodeURIComponent(String(itemImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Move item image down in display order
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImageMoveDown: async (itemImage: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemImage' is not null or undefined
+            assertParamExists('itemImageMoveDown', 'itemImage', itemImage)
+            const localVarPath = `/item-image/{itemImage}/move-down`
+                .replace(`{${"itemImage"}}`, encodeURIComponent(String(itemImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Move item image up in display order
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImageMoveUp: async (itemImage: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemImage' is not null or undefined
+            assertParamExists('itemImageMoveUp', 'itemImage', itemImage)
+            const localVarPath = `/item-image/{itemImage}/move-up`
+                .replace(`{${"itemImage"}}`, encodeURIComponent(String(itemImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified item image
+         * @param {string} itemImage The item image ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImageShow: async (itemImage: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemImage' is not null or undefined
+            assertParamExists('itemImageShow', 'itemImage', itemImage)
+            const localVarPath = `/item-image/{itemImage}`
+                .replace(`{${"itemImage"}}`, encodeURIComponent(String(itemImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Tighten ordering for all images of the item
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImageTightenOrdering: async (itemImage: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemImage' is not null or undefined
+            assertParamExists('itemImageTightenOrdering', 'itemImage', itemImage)
+            const localVarPath = `/item-image/{itemImage}/tighten-ordering`
+                .replace(`{${"itemImage"}}`, encodeURIComponent(String(itemImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified item image
+         * @param {string} itemImage The item image ID
+         * @param {UpdateItemImageRequest} [updateItemImageRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImageUpdate: async (itemImage: string, updateItemImageRequest?: UpdateItemImageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemImage' is not null or undefined
+            assertParamExists('itemImageUpdate', 'itemImage', itemImage)
+            const localVarPath = `/item-image/{itemImage}`
+                .replace(`{${"itemImage"}}`, encodeURIComponent(String(itemImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateItemImageRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of item images for a specific item
+         * @param {string} item The item ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImagesIndex: async (item: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'item' is not null or undefined
+            assertParamExists('itemImagesIndex', 'item', item)
+            const localVarPath = `/item/{item}/images`
+                .replace(`{${"item"}}`, encodeURIComponent(String(item)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created item image
+         * @param {string} item The item ID
+         * @param {StoreItemImageRequest} storeItemImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImagesStore: async (item: string, storeItemImageRequest: StoreItemImageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'item' is not null or undefined
+            assertParamExists('itemImagesStore', 'item', item)
+            // verify required parameter 'storeItemImageRequest' is not null or undefined
+            assertParamExists('itemImagesStore', 'storeItemImageRequest', storeItemImageRequest)
+            const localVarPath = `/item/{item}/images`
+                .replace(`{${"item"}}`, encodeURIComponent(String(item)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storeItemImageRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ItemImageApi - functional programming interface
+ * @export
+ */
+export const ItemImageApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ItemImageApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Attach an available image to an item
+         * @param {string} item The item ID
+         * @param {ItemAttachImageRequest} itemAttachImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemAttachImage(item: string, itemAttachImageRequest: ItemAttachImageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemImagesStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemAttachImage(item, itemAttachImageRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemAttachImage']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Remove the specified item image
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemImageDestroy(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemImageDestroy(itemImage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImageDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Detach an item image and convert it back to available image
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemImageDetach200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemImageDetach(itemImage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImageDetach']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Move item image down in display order
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemImageMoveDown(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemImagesStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemImageMoveDown(itemImage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImageMoveDown']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Move item image up in display order
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemImageMoveUp(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemImagesStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemImageMoveUp(itemImage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImageMoveUp']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified item image
+         * @param {string} itemImage The item image ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemImageShow(itemImage: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemImagesStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemImageShow(itemImage, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImageShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Tighten ordering for all images of the item
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemImageTightenOrdering200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemImageTightenOrdering(itemImage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImageTightenOrdering']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified item image
+         * @param {string} itemImage The item image ID
+         * @param {UpdateItemImageRequest} [updateItemImageRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemImageUpdate(itemImage: string, updateItemImageRequest?: UpdateItemImageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemImagesStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemImageUpdate(itemImage, updateItemImageRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImageUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of item images for a specific item
+         * @param {string} item The item ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemImagesIndex(item: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemImagesIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemImagesIndex(item, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImagesIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created item image
+         * @param {string} item The item ID
+         * @param {StoreItemImageRequest} storeItemImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemImagesStore(item: string, storeItemImageRequest: StoreItemImageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemImagesStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemImagesStore(item, storeItemImageRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImagesStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ItemImageApi - factory interface
+ * @export
+ */
+export const ItemImageApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ItemImageApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Attach an available image to an item
+         * @param {string} item The item ID
+         * @param {ItemAttachImageRequest} itemAttachImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemAttachImage(item: string, itemAttachImageRequest: ItemAttachImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemImagesStore200Response> {
+            return localVarFp.itemAttachImage(item, itemAttachImageRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Remove the specified item image
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImageDestroy(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.itemImageDestroy(itemImage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Detach an item image and convert it back to available image
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemImageDetach200Response> {
+            return localVarFp.itemImageDetach(itemImage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Move item image down in display order
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImageMoveDown(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemImagesStore200Response> {
+            return localVarFp.itemImageMoveDown(itemImage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Move item image up in display order
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImageMoveUp(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemImagesStore200Response> {
+            return localVarFp.itemImageMoveUp(itemImage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified item image
+         * @param {string} itemImage The item image ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImageShow(itemImage: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemImagesStore200Response> {
+            return localVarFp.itemImageShow(itemImage, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Tighten ordering for all images of the item
+         * @param {string} itemImage The item image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemImageTightenOrdering200Response> {
+            return localVarFp.itemImageTightenOrdering(itemImage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified item image
+         * @param {string} itemImage The item image ID
+         * @param {UpdateItemImageRequest} [updateItemImageRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImageUpdate(itemImage: string, updateItemImageRequest?: UpdateItemImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemImagesStore200Response> {
+            return localVarFp.itemImageUpdate(itemImage, updateItemImageRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of item images for a specific item
+         * @param {string} item The item ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImagesIndex(item: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemImagesIndex200Response> {
+            return localVarFp.itemImagesIndex(item, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created item image
+         * @param {string} item The item ID
+         * @param {StoreItemImageRequest} storeItemImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemImagesStore(item: string, storeItemImageRequest: StoreItemImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemImagesStore200Response> {
+            return localVarFp.itemImagesStore(item, storeItemImageRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ItemImageApi - object-oriented interface
+ * @export
+ * @class ItemImageApi
+ * @extends {BaseAPI}
+ */
+export class ItemImageApi extends BaseAPI {
+    /**
+     * 
+     * @summary Attach an available image to an item
+     * @param {string} item The item ID
+     * @param {ItemAttachImageRequest} itemAttachImageRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemImageApi
+     */
+    public itemAttachImage(item: string, itemAttachImageRequest: ItemAttachImageRequest, options?: RawAxiosRequestConfig) {
+        return ItemImageApiFp(this.configuration).itemAttachImage(item, itemAttachImageRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Remove the specified item image
+     * @param {string} itemImage The item image ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemImageApi
+     */
+    public itemImageDestroy(itemImage: string, options?: RawAxiosRequestConfig) {
+        return ItemImageApiFp(this.configuration).itemImageDestroy(itemImage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Detach an item image and convert it back to available image
+     * @param {string} itemImage The item image ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemImageApi
+     */
+    public itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig) {
+        return ItemImageApiFp(this.configuration).itemImageDetach(itemImage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Move item image down in display order
+     * @param {string} itemImage The item image ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemImageApi
+     */
+    public itemImageMoveDown(itemImage: string, options?: RawAxiosRequestConfig) {
+        return ItemImageApiFp(this.configuration).itemImageMoveDown(itemImage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Move item image up in display order
+     * @param {string} itemImage The item image ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemImageApi
+     */
+    public itemImageMoveUp(itemImage: string, options?: RawAxiosRequestConfig) {
+        return ItemImageApiFp(this.configuration).itemImageMoveUp(itemImage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified item image
+     * @param {string} itemImage The item image ID
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemImageApi
+     */
+    public itemImageShow(itemImage: string, include?: string, options?: RawAxiosRequestConfig) {
+        return ItemImageApiFp(this.configuration).itemImageShow(itemImage, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Tighten ordering for all images of the item
+     * @param {string} itemImage The item image ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemImageApi
+     */
+    public itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig) {
+        return ItemImageApiFp(this.configuration).itemImageTightenOrdering(itemImage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified item image
+     * @param {string} itemImage The item image ID
+     * @param {UpdateItemImageRequest} [updateItemImageRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemImageApi
+     */
+    public itemImageUpdate(itemImage: string, updateItemImageRequest?: UpdateItemImageRequest, options?: RawAxiosRequestConfig) {
+        return ItemImageApiFp(this.configuration).itemImageUpdate(itemImage, updateItemImageRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of item images for a specific item
+     * @param {string} item The item ID
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemImageApi
+     */
+    public itemImagesIndex(item: string, include?: string, options?: RawAxiosRequestConfig) {
+        return ItemImageApiFp(this.configuration).itemImagesIndex(item, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created item image
+     * @param {string} item The item ID
+     * @param {StoreItemImageRequest} storeItemImageRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemImageApi
+     */
+    public itemImagesStore(item: string, storeItemImageRequest: StoreItemImageRequest, options?: RawAxiosRequestConfig) {
+        return ItemImageApiFp(this.configuration).itemImagesStore(item, storeItemImageRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -18059,1350 +15563,6 @@ export class PartnerApi extends BaseAPI {
 
 
 /**
- * PictureApi - axios parameter creator
- * @export
- */
-export const PictureApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Attach an AvailableImage to a Detail
-         * @param {string} detail The detail ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureAttachToDetail: async (detail: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'detail' is not null or undefined
-            assertParamExists('pictureAttachToDetail', 'detail', detail)
-            const localVarPath = `/detail/{detail}/pictures`
-                .replace(`{${"detail"}}`, encodeURIComponent(String(detail)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Attach an AvailableImage to an Item
-         * @param {string} item The item ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureAttachToItem: async (item: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'item' is not null or undefined
-            assertParamExists('pictureAttachToItem', 'item', item)
-            const localVarPath = `/item/{item}/pictures`
-                .replace(`{${"item"}}`, encodeURIComponent(String(item)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Attach an AvailableImage to a Partner
-         * @param {string} partner The partner ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureAttachToPartner: async (partner: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'partner' is not null or undefined
-            assertParamExists('pictureAttachToPartner', 'partner', partner)
-            const localVarPath = `/partner/{partner}/pictures`
-                .replace(`{${"partner"}}`, encodeURIComponent(String(partner)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureDestroy: async (picture: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'picture' is not null or undefined
-            assertParamExists('pictureDestroy', 'picture', picture)
-            const localVarPath = `/picture/{picture}`
-                .replace(`{${"picture"}}`, encodeURIComponent(String(picture)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Detach a Picture from a Detail and convert it back to AvailableImage
-         * @param {string} detail The detail ID
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureDetachFromDetail: async (detail: string, picture: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'detail' is not null or undefined
-            assertParamExists('pictureDetachFromDetail', 'detail', detail)
-            // verify required parameter 'picture' is not null or undefined
-            assertParamExists('pictureDetachFromDetail', 'picture', picture)
-            const localVarPath = `/detail/{detail}/pictures/{picture}`
-                .replace(`{${"detail"}}`, encodeURIComponent(String(detail)))
-                .replace(`{${"picture"}}`, encodeURIComponent(String(picture)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Detach a Picture from an Item and convert it back to AvailableImage
-         * @param {string} item The item ID
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureDetachFromItem: async (item: string, picture: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'item' is not null or undefined
-            assertParamExists('pictureDetachFromItem', 'item', item)
-            // verify required parameter 'picture' is not null or undefined
-            assertParamExists('pictureDetachFromItem', 'picture', picture)
-            const localVarPath = `/item/{item}/pictures/{picture}`
-                .replace(`{${"item"}}`, encodeURIComponent(String(item)))
-                .replace(`{${"picture"}}`, encodeURIComponent(String(picture)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Detach a Picture from a Partner and convert it back to AvailableImage
-         * @param {string} partner The partner ID
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureDetachFromPartner: async (partner: string, picture: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'partner' is not null or undefined
-            assertParamExists('pictureDetachFromPartner', 'partner', partner)
-            // verify required parameter 'picture' is not null or undefined
-            assertParamExists('pictureDetachFromPartner', 'picture', picture)
-            const localVarPath = `/partner/{partner}/pictures/{picture}`
-                .replace(`{${"partner"}}`, encodeURIComponent(String(partner)))
-                .replace(`{${"picture"}}`, encodeURIComponent(String(picture)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Returns the file to the caller for download
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureDownload: async (picture: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'picture' is not null or undefined
-            assertParamExists('pictureDownload', 'picture', picture)
-            const localVarPath = `/picture/{picture}/download`
-                .replace(`{${"picture"}}`, encodeURIComponent(String(picture)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/picture`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureShow: async (picture: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'picture' is not null or undefined
-            assertParamExists('pictureShow', 'picture', picture)
-            const localVarPath = `/picture/{picture}`
-                .replace(`{${"picture"}}`, encodeURIComponent(String(picture)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} picture The picture ID
-         * @param {PictureUpdateRequest} pictureUpdateRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureUpdate: async (picture: string, pictureUpdateRequest: PictureUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'picture' is not null or undefined
-            assertParamExists('pictureUpdate', 'picture', picture)
-            // verify required parameter 'pictureUpdateRequest' is not null or undefined
-            assertParamExists('pictureUpdate', 'pictureUpdateRequest', pictureUpdateRequest)
-            const localVarPath = `/picture/{picture}`
-                .replace(`{${"picture"}}`, encodeURIComponent(String(picture)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(pictureUpdateRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Returns the picture file for direct viewing (e.g., for use in <img> src attribute)
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureView: async (picture: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'picture' is not null or undefined
-            assertParamExists('pictureView', 'picture', picture)
-            const localVarPath = `/picture/{picture}/view`
-                .replace(`{${"picture"}}`, encodeURIComponent(String(picture)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * PictureApi - functional programming interface
- * @export
- */
-export const PictureApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = PictureApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Attach an AvailableImage to a Detail
-         * @param {string} detail The detail ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureAttachToDetail(detail: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureAttachToDetail(detail, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureApi.pictureAttachToDetail']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Attach an AvailableImage to an Item
-         * @param {string} item The item ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureAttachToItem(item: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureAttachToItem(item, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureApi.pictureAttachToItem']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Attach an AvailableImage to a Partner
-         * @param {string} partner The partner ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureAttachToPartner(partner: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureAttachToPartner(partner, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureApi.pictureAttachToPartner']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureDestroy(picture: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureDestroy(picture, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureApi.pictureDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Detach a Picture from a Detail and convert it back to AvailableImage
-         * @param {string} detail The detail ID
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureDetachFromDetail(detail: string, picture: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureDetachFromDetail(detail, picture, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureApi.pictureDetachFromDetail']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Detach a Picture from an Item and convert it back to AvailableImage
-         * @param {string} item The item ID
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureDetachFromItem(item: string, picture: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureDetachFromItem(item, picture, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureApi.pictureDetachFromItem']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Detach a Picture from a Partner and convert it back to AvailableImage
-         * @param {string} partner The partner ID
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureDetachFromPartner(partner: string, picture: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureDetachFromPartner(partner, picture, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureApi.pictureDetachFromPartner']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Returns the file to the caller for download
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureDownload(picture: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<File>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureDownload(picture, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureApi.pictureDownload']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PictureIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureIndex(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureApi.pictureIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureShow(picture: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PictureShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureShow(picture, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureApi.pictureShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} picture The picture ID
-         * @param {PictureUpdateRequest} pictureUpdateRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureUpdate(picture: string, pictureUpdateRequest: PictureUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PictureShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureUpdate(picture, pictureUpdateRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureApi.pictureUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Returns the picture file for direct viewing (e.g., for use in <img> src attribute)
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureView(picture: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureView(picture, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureApi.pictureView']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * PictureApi - factory interface
- * @export
- */
-export const PictureApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = PictureApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Attach an AvailableImage to a Detail
-         * @param {string} detail The detail ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureAttachToDetail(detail: string, options?: RawAxiosRequestConfig): AxiosPromise<string> {
-            return localVarFp.pictureAttachToDetail(detail, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Attach an AvailableImage to an Item
-         * @param {string} item The item ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureAttachToItem(item: string, options?: RawAxiosRequestConfig): AxiosPromise<string> {
-            return localVarFp.pictureAttachToItem(item, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Attach an AvailableImage to a Partner
-         * @param {string} partner The partner ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureAttachToPartner(partner: string, options?: RawAxiosRequestConfig): AxiosPromise<string> {
-            return localVarFp.pictureAttachToPartner(partner, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureDestroy(picture: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.pictureDestroy(picture, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Detach a Picture from a Detail and convert it back to AvailableImage
-         * @param {string} detail The detail ID
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureDetachFromDetail(detail: string, picture: string, options?: RawAxiosRequestConfig): AxiosPromise<string> {
-            return localVarFp.pictureDetachFromDetail(detail, picture, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Detach a Picture from an Item and convert it back to AvailableImage
-         * @param {string} item The item ID
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureDetachFromItem(item: string, picture: string, options?: RawAxiosRequestConfig): AxiosPromise<string> {
-            return localVarFp.pictureDetachFromItem(item, picture, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Detach a Picture from a Partner and convert it back to AvailableImage
-         * @param {string} partner The partner ID
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureDetachFromPartner(partner: string, picture: string, options?: RawAxiosRequestConfig): AxiosPromise<string> {
-            return localVarFp.pictureDetachFromPartner(partner, picture, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Returns the file to the caller for download
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureDownload(picture: string, options?: RawAxiosRequestConfig): AxiosPromise<File> {
-            return localVarFp.pictureDownload(picture, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureIndex(options?: RawAxiosRequestConfig): AxiosPromise<PictureIndex200Response> {
-            return localVarFp.pictureIndex(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureShow(picture: string, options?: RawAxiosRequestConfig): AxiosPromise<PictureShow200Response> {
-            return localVarFp.pictureShow(picture, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} picture The picture ID
-         * @param {PictureUpdateRequest} pictureUpdateRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureUpdate(picture: string, pictureUpdateRequest: PictureUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<PictureShow200Response> {
-            return localVarFp.pictureUpdate(picture, pictureUpdateRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Returns the picture file for direct viewing (e.g., for use in <img> src attribute)
-         * @param {string} picture The picture ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureView(picture: string, options?: RawAxiosRequestConfig): AxiosPromise<string> {
-            return localVarFp.pictureView(picture, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * PictureApi - object-oriented interface
- * @export
- * @class PictureApi
- * @extends {BaseAPI}
- */
-export class PictureApi extends BaseAPI {
-    /**
-     * 
-     * @summary Attach an AvailableImage to a Detail
-     * @param {string} detail The detail ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureApi
-     */
-    public pictureAttachToDetail(detail: string, options?: RawAxiosRequestConfig) {
-        return PictureApiFp(this.configuration).pictureAttachToDetail(detail, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Attach an AvailableImage to an Item
-     * @param {string} item The item ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureApi
-     */
-    public pictureAttachToItem(item: string, options?: RawAxiosRequestConfig) {
-        return PictureApiFp(this.configuration).pictureAttachToItem(item, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Attach an AvailableImage to a Partner
-     * @param {string} partner The partner ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureApi
-     */
-    public pictureAttachToPartner(partner: string, options?: RawAxiosRequestConfig) {
-        return PictureApiFp(this.configuration).pictureAttachToPartner(partner, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Remove the specified resource from storage
-     * @param {string} picture The picture ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureApi
-     */
-    public pictureDestroy(picture: string, options?: RawAxiosRequestConfig) {
-        return PictureApiFp(this.configuration).pictureDestroy(picture, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Detach a Picture from a Detail and convert it back to AvailableImage
-     * @param {string} detail The detail ID
-     * @param {string} picture The picture ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureApi
-     */
-    public pictureDetachFromDetail(detail: string, picture: string, options?: RawAxiosRequestConfig) {
-        return PictureApiFp(this.configuration).pictureDetachFromDetail(detail, picture, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Detach a Picture from an Item and convert it back to AvailableImage
-     * @param {string} item The item ID
-     * @param {string} picture The picture ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureApi
-     */
-    public pictureDetachFromItem(item: string, picture: string, options?: RawAxiosRequestConfig) {
-        return PictureApiFp(this.configuration).pictureDetachFromItem(item, picture, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Detach a Picture from a Partner and convert it back to AvailableImage
-     * @param {string} partner The partner ID
-     * @param {string} picture The picture ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureApi
-     */
-    public pictureDetachFromPartner(partner: string, picture: string, options?: RawAxiosRequestConfig) {
-        return PictureApiFp(this.configuration).pictureDetachFromPartner(partner, picture, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Returns the file to the caller for download
-     * @param {string} picture The picture ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureApi
-     */
-    public pictureDownload(picture: string, options?: RawAxiosRequestConfig) {
-        return PictureApiFp(this.configuration).pictureDownload(picture, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of the resource
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureApi
-     */
-    public pictureIndex(options?: RawAxiosRequestConfig) {
-        return PictureApiFp(this.configuration).pictureIndex(options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified resource
-     * @param {string} picture The picture ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureApi
-     */
-    public pictureShow(picture: string, options?: RawAxiosRequestConfig) {
-        return PictureApiFp(this.configuration).pictureShow(picture, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified resource in storage
-     * @param {string} picture The picture ID
-     * @param {PictureUpdateRequest} pictureUpdateRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureApi
-     */
-    public pictureUpdate(picture: string, pictureUpdateRequest: PictureUpdateRequest, options?: RawAxiosRequestConfig) {
-        return PictureApiFp(this.configuration).pictureUpdate(picture, pictureUpdateRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Returns the picture file for direct viewing (e.g., for use in <img> src attribute)
-     * @param {string} picture The picture ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureApi
-     */
-    public pictureView(picture: string, options?: RawAxiosRequestConfig) {
-        return PictureApiFp(this.configuration).pictureView(picture, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * PictureTranslationApi - axios parameter creator
- * @export
- */
-export const PictureTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} pictureTranslation The picture translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureTranslationDestroy: async (pictureTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'pictureTranslation' is not null or undefined
-            assertParamExists('pictureTranslationDestroy', 'pictureTranslation', pictureTranslation)
-            const localVarPath = `/picture-translation/{pictureTranslation}`
-                .replace(`{${"pictureTranslation"}}`, encodeURIComponent(String(pictureTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureTranslationIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/picture-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} pictureTranslation The picture translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureTranslationShow: async (pictureTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'pictureTranslation' is not null or undefined
-            assertParamExists('pictureTranslationShow', 'pictureTranslation', pictureTranslation)
-            const localVarPath = `/picture-translation/{pictureTranslation}`
-                .replace(`{${"pictureTranslation"}}`, encodeURIComponent(String(pictureTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created resource in storage
-         * @param {PictureTranslationStoreRequest} pictureTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureTranslationStore: async (pictureTranslationStoreRequest: PictureTranslationStoreRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'pictureTranslationStoreRequest' is not null or undefined
-            assertParamExists('pictureTranslationStore', 'pictureTranslationStoreRequest', pictureTranslationStoreRequest)
-            const localVarPath = `/picture-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(pictureTranslationStoreRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} pictureTranslation The picture translation ID
-         * @param {PictureTranslationUpdateRequest} [pictureTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureTranslationUpdate: async (pictureTranslation: string, pictureTranslationUpdateRequest?: PictureTranslationUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'pictureTranslation' is not null or undefined
-            assertParamExists('pictureTranslationUpdate', 'pictureTranslation', pictureTranslation)
-            const localVarPath = `/picture-translation/{pictureTranslation}`
-                .replace(`{${"pictureTranslation"}}`, encodeURIComponent(String(pictureTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(pictureTranslationUpdateRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * PictureTranslationApi - functional programming interface
- * @export
- */
-export const PictureTranslationApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = PictureTranslationApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} pictureTranslation The picture translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureTranslationDestroy(pictureTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureTranslationDestroy(pictureTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureTranslationApi.pictureTranslationDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureTranslationIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PictureTranslationIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureTranslationIndex(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureTranslationApi.pictureTranslationIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} pictureTranslation The picture translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureTranslationShow(pictureTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PictureTranslationStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureTranslationShow(pictureTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureTranslationApi.pictureTranslationShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created resource in storage
-         * @param {PictureTranslationStoreRequest} pictureTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureTranslationStore(pictureTranslationStoreRequest: PictureTranslationStoreRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PictureTranslationStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureTranslationStore(pictureTranslationStoreRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureTranslationApi.pictureTranslationStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} pictureTranslation The picture translation ID
-         * @param {PictureTranslationUpdateRequest} [pictureTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async pictureTranslationUpdate(pictureTranslation: string, pictureTranslationUpdateRequest?: PictureTranslationUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PictureTranslationStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.pictureTranslationUpdate(pictureTranslation, pictureTranslationUpdateRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PictureTranslationApi.pictureTranslationUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * PictureTranslationApi - factory interface
- * @export
- */
-export const PictureTranslationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = PictureTranslationApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} pictureTranslation The picture translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureTranslationDestroy(pictureTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.pictureTranslationDestroy(pictureTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureTranslationIndex(options?: RawAxiosRequestConfig): AxiosPromise<PictureTranslationIndex200Response> {
-            return localVarFp.pictureTranslationIndex(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} pictureTranslation The picture translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureTranslationShow(pictureTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<PictureTranslationStore200Response> {
-            return localVarFp.pictureTranslationShow(pictureTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created resource in storage
-         * @param {PictureTranslationStoreRequest} pictureTranslationStoreRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureTranslationStore(pictureTranslationStoreRequest: PictureTranslationStoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<PictureTranslationStore200Response> {
-            return localVarFp.pictureTranslationStore(pictureTranslationStoreRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} pictureTranslation The picture translation ID
-         * @param {PictureTranslationUpdateRequest} [pictureTranslationUpdateRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        pictureTranslationUpdate(pictureTranslation: string, pictureTranslationUpdateRequest?: PictureTranslationUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<PictureTranslationStore200Response> {
-            return localVarFp.pictureTranslationUpdate(pictureTranslation, pictureTranslationUpdateRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * PictureTranslationApi - object-oriented interface
- * @export
- * @class PictureTranslationApi
- * @extends {BaseAPI}
- */
-export class PictureTranslationApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified resource from storage
-     * @param {string} pictureTranslation The picture translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureTranslationApi
-     */
-    public pictureTranslationDestroy(pictureTranslation: string, options?: RawAxiosRequestConfig) {
-        return PictureTranslationApiFp(this.configuration).pictureTranslationDestroy(pictureTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of the resource
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureTranslationApi
-     */
-    public pictureTranslationIndex(options?: RawAxiosRequestConfig) {
-        return PictureTranslationApiFp(this.configuration).pictureTranslationIndex(options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified resource
-     * @param {string} pictureTranslation The picture translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureTranslationApi
-     */
-    public pictureTranslationShow(pictureTranslation: string, options?: RawAxiosRequestConfig) {
-        return PictureTranslationApiFp(this.configuration).pictureTranslationShow(pictureTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created resource in storage
-     * @param {PictureTranslationStoreRequest} pictureTranslationStoreRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureTranslationApi
-     */
-    public pictureTranslationStore(pictureTranslationStoreRequest: PictureTranslationStoreRequest, options?: RawAxiosRequestConfig) {
-        return PictureTranslationApiFp(this.configuration).pictureTranslationStore(pictureTranslationStoreRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified resource in storage
-     * @param {string} pictureTranslation The picture translation ID
-     * @param {PictureTranslationUpdateRequest} [pictureTranslationUpdateRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PictureTranslationApi
-     */
-    public pictureTranslationUpdate(pictureTranslation: string, pictureTranslationUpdateRequest?: PictureTranslationUpdateRequest, options?: RawAxiosRequestConfig) {
-        return PictureTranslationApiFp(this.configuration).pictureTranslationUpdate(pictureTranslation, pictureTranslationUpdateRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
  * ProjectApi - axios parameter creator
  * @export
  */
@@ -21611,11 +17771,11 @@ export const ThemeApiAxiosParamCreator = function (configuration?: Configuration
          * 
          * @summary Update the specified theme in storage
          * @param {string} theme The theme ID
-         * @param {ExhibitionUpdateRequest} [exhibitionUpdateRequest] 
+         * @param {ThemeUpdateRequest} [themeUpdateRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        themeUpdate: async (theme: string, exhibitionUpdateRequest?: ExhibitionUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        themeUpdate: async (theme: string, themeUpdateRequest?: ThemeUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'theme' is not null or undefined
             assertParamExists('themeUpdate', 'theme', theme)
             const localVarPath = `/theme/{theme}`
@@ -21642,7 +17802,7 @@ export const ThemeApiAxiosParamCreator = function (configuration?: Configuration
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(exhibitionUpdateRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(themeUpdateRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -21718,12 +17878,12 @@ export const ThemeApiFp = function(configuration?: Configuration) {
          * 
          * @summary Update the specified theme in storage
          * @param {string} theme The theme ID
-         * @param {ExhibitionUpdateRequest} [exhibitionUpdateRequest] 
+         * @param {ThemeUpdateRequest} [themeUpdateRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async themeUpdate(theme: string, exhibitionUpdateRequest?: ExhibitionUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeStore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeUpdate(theme, exhibitionUpdateRequest, options);
+        async themeUpdate(theme: string, themeUpdateRequest?: ThemeUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.themeUpdate(theme, themeUpdateRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ThemeApi.themeUpdate']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -21785,12 +17945,12 @@ export const ThemeApiFactory = function (configuration?: Configuration, basePath
          * 
          * @summary Update the specified theme in storage
          * @param {string} theme The theme ID
-         * @param {ExhibitionUpdateRequest} [exhibitionUpdateRequest] 
+         * @param {ThemeUpdateRequest} [themeUpdateRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        themeUpdate(theme: string, exhibitionUpdateRequest?: ExhibitionUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThemeStore200Response> {
-            return localVarFp.themeUpdate(theme, exhibitionUpdateRequest, options).then((request) => request(axios, basePath));
+        themeUpdate(theme: string, themeUpdateRequest?: ThemeUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThemeStore200Response> {
+            return localVarFp.themeUpdate(theme, themeUpdateRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -21857,13 +18017,13 @@ export class ThemeApi extends BaseAPI {
      * 
      * @summary Update the specified theme in storage
      * @param {string} theme The theme ID
-     * @param {ExhibitionUpdateRequest} [exhibitionUpdateRequest] 
+     * @param {ThemeUpdateRequest} [themeUpdateRequest] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ThemeApi
      */
-    public themeUpdate(theme: string, exhibitionUpdateRequest?: ExhibitionUpdateRequest, options?: RawAxiosRequestConfig) {
-        return ThemeApiFp(this.configuration).themeUpdate(theme, exhibitionUpdateRequest, options).then((request) => request(this.axios, this.basePath));
+    public themeUpdate(theme: string, themeUpdateRequest?: ThemeUpdateRequest, options?: RawAxiosRequestConfig) {
+        return ThemeApiFp(this.configuration).themeUpdate(theme, themeUpdateRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

@@ -22,9 +22,10 @@ class ItemFactory extends Factory
         return [
             'id' => $this->faker->unique()->uuid(),
             'partner_id' => null, // This must be set to a valid partner ID
+            'parent_id' => null, // This should be set for detail and picture types
             'internal_name' => $this->faker->unique()->words(3, true),
             'backward_compatibility' => $this->faker->lexify('???'),
-            'type' => $this->faker->randomElement(['object', 'monument']),
+            'type' => $this->faker->randomElement(['object', 'monument']), // Default to top-level types
             'project_id' => null, // This should be set to a valid project ID if needed
             'country_id' => null, // This should be set to a valid country ID if needed
             'owner_reference' => $this->faker->bothify('???##'),
@@ -70,6 +71,29 @@ class ItemFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => 'monument',
+        ]);
+    }
+
+    public function Detail(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'detail',
+            'parent_id' => \App\Models\Item::factory()->Object(), // Details must have a parent
+        ]);
+    }
+
+    public function Picture(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'picture',
+            'parent_id' => \App\Models\Item::factory(), // Pictures can have any type of parent
+        ]);
+    }
+
+    public function withParent(\App\Models\Item $parent): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'parent_id' => $parent->id,
         ]);
     }
 

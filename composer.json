@@ -135,6 +135,9 @@
             "@php artisan scramble:export --path=docs/_openapi/api.json --ansi",
             "pwsh -File scripts/generate-api-client.ps1 -Force"
         ],
+        "ci-model-doc": [
+            "@php artisan docs:models --force --ansi"
+        ],
         "ci-before:commit": [
             "@composer ci-lint:dirty"
         ],

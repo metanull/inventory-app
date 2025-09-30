@@ -28,6 +28,7 @@ class CollectionFactory extends Factory
     {
         return [
             'internal_name' => $this->faker->unique()->slug(2),
+            'type' => $this->faker->randomElement(['collection', 'exhibition', 'gallery']),
             'language_id' => Language::factory(),
             'context_id' => Context::factory(),
             'backward_compatibility' => $this->faker->optional()->uuid(),
@@ -88,5 +89,35 @@ class CollectionFactory extends Factory
                 ]);
             }
         });
+    }
+
+    /**
+     * Create a collection of type 'collection'.
+     */
+    public function collection(): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'collection',
+        ]);
+    }
+
+    /**
+     * Create a collection of type 'exhibition'.
+     */
+    public function exhibition(): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'exhibition',
+        ]);
+    }
+
+    /**
+     * Create a collection of type 'gallery'.
+     */
+    public function gallery(): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'gallery',
+        ]);
     }
 }

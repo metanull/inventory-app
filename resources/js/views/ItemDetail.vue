@@ -17,7 +17,10 @@
     @delete="deleteItem"
   >
     <template #resource-icon>
-      <ItemIcon :class="`h-6 w-6 ${colorClasses.icon}`" />
+      <component
+        :is="getTypeIcon(item?.type || 'object')"
+        :class="['h-6 w-6', colorClasses.icon]"
+      />
     </template>
     <template #information>
       <DescriptionList>
@@ -47,16 +50,20 @@
               <option value="">Select type...</option>
               <option value="object">Object</option>
               <option value="monument">Monument</option>
+              <option value="detail">Detail</option>
+              <option value="picture">Picture</option>
             </select>
             <div v-else class="flex items-center">
               <span
                 :class="[
                   'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                  colorClasses.badgeBackground,
-                  colorClasses.badge,
+                  getTypeColorClasses(item?.type || 'object'),
                 ]"
               >
-                {{ item?.type === 'object' ? 'Object' : 'Monument' }}
+                {{
+                  (item?.type || 'object').charAt(0).toUpperCase() +
+                  (item?.type || 'object').slice(1)
+                }}
               </span>
             </div>
           </DescriptionDetail>
@@ -123,7 +130,6 @@
   </DetailView>
 
   <!-- Details Section (only show when viewing an existing item) -->
-  <DetailList v-if="mode === 'view' && item" :item-id="item.id" :color="color" />
 </template>
 
 <script setup lang="ts">
@@ -142,9 +148,15 @@
   import DescriptionDetail from '@/components/format/description/DescriptionDetail.vue'
   import FormInput from '@/components/format/FormInput.vue'
   import DisplayText from '@/components/format/DisplayText.vue'
-  import DetailList from '@/components/details/DetailList.vue'
+
   import GenericDropdown from '@/components/format/GenericDropdown.vue'
-  import { ArchiveBoxIcon as ItemIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline'
+  import {
+    TrophyIcon as ObjectIcon,
+    BuildingOffice2Icon as MonumentIcon,
+    PuzzlePieceIcon as DetailIcon,
+    CameraIcon as PictureIcon,
+    ArrowLeftIcon,
+  } from '@heroicons/vue/24/outline'
   import { useItemStore } from '@/stores/item'
   import { usePartnerStore } from '@/stores/partner'
   import { useProjectStore } from '@/stores/project'
@@ -155,8 +167,8 @@
   import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
   import { useColors, type ColorName } from '@/composables/useColors'
   import type {
-    ItemStoreRequest,
-    ItemStoreRequestTypeEnum,
+    StoreItemRequest,
+    StoreItemRequestTypeEnum,
   } from '@metanull/inventory-app-api-client'
 
   // Types
@@ -321,6 +333,37 @@
     }
   }
 
+  // Type-based icon and color functions
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'object':
+        return ObjectIcon
+      case 'monument':
+        return MonumentIcon
+      case 'detail':
+        return DetailIcon
+      case 'picture':
+        return PictureIcon
+      default:
+        return ObjectIcon
+    }
+  }
+
+  const getTypeColorClasses = (type: string) => {
+    switch (type) {
+      case 'object':
+        return 'text-teal-600 bg-teal-100'
+      case 'monument':
+        return 'text-green-600 bg-green-100'
+      case 'detail':
+        return 'text-orange-600 bg-orange-100'
+      case 'picture':
+        return 'text-purple-600 bg-purple-100'
+      default:
+        return 'text-teal-600 bg-teal-100'
+    }
+  }
+
   // Fetch item function
   const fetchItem = async () => {
     const itemId = route.params.id as string
@@ -363,10 +406,10 @@
     try {
       loadingStore.show(mode.value === 'create' ? 'Creating...' : 'Saving...')
 
-      const itemData: ItemStoreRequest = {
+      const itemData: StoreItemRequest = {
         internal_name: editForm.value.internal_name,
         backward_compatibility: editForm.value.backward_compatibility || null,
-        type: editForm.value.type as ItemStoreRequestTypeEnum,
+        type: editForm.value.type as StoreItemRequestTypeEnum,
         partner_id: editForm.value.partner_id || null,
         project_id: editForm.value.project_id || null,
         country_id: editForm.value.country_id || null,

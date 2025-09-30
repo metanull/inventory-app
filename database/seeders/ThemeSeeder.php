@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Exhibition;
+use App\Models\Collection;
 use App\Models\Theme;
 use App\Models\ThemeTranslation;
 use Illuminate\Database\Seeder;
@@ -15,9 +15,11 @@ class ThemeSeeder extends Seeder
         if (! $defaultContext) {
             return;
         }
-        Exhibition::all()->each(function ($exhibition) use ($defaultContext) {
+
+        // Only create themes for exhibition-type collections
+        Collection::where('type', 'exhibition')->get()->each(function ($collection) use ($defaultContext) {
             $mainThemes = Theme::factory()->count(2)->create([
-                'exhibition_id' => $exhibition->id,
+                'collection_id' => $collection->id,
                 'parent_id' => null,
             ]);
             $mainThemes->each(function ($theme) use ($defaultContext) {
@@ -26,14 +28,11 @@ class ThemeSeeder extends Seeder
                     'language_id' => 'eng',
                     'context_id' => $defaultContext->id,
                 ]);
-                // Attach random pictures (ensure unique pictures per theme)
-                $pictures = \App\Models\Picture::inRandomOrder()->take(4)->pluck('id')->unique()->take(2);
-                if ($pictures->isNotEmpty()) {
-                    $theme->pictures()->sync($pictures);
-                }
+                // TODO: Replace with ItemImage attachment when Theme-ItemImage relationship is implemented
+                // Previously attached random pictures, but Picture model was removed in favor of ItemImage
                 // Add subthemes
                 Theme::factory()->count(2)->create([
-                    'exhibition_id' => $theme->exhibition_id,
+                    'collection_id' => $theme->collection_id,
                     'parent_id' => $theme->id,
                 ])->each(function ($subtheme) use ($defaultContext) {
                     ThemeTranslation::factory()->create([
@@ -41,11 +40,8 @@ class ThemeSeeder extends Seeder
                         'language_id' => 'eng',
                         'context_id' => $defaultContext->id,
                     ]);
-                    // Attach random pictures to subthemes (ensure unique pictures per subtheme)
-                    $pictures = \App\Models\Picture::inRandomOrder()->take(4)->pluck('id')->unique()->take(2);
-                    if ($pictures->isNotEmpty()) {
-                        $subtheme->pictures()->sync($pictures);
-                    }
+                    // TODO: Replace with ItemImage attachment when Theme-ItemImage relationship is implemented
+                    // Previously attached random pictures, but Picture model was removed in favor of ItemImage
                 });
             });
         });

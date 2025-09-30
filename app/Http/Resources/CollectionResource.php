@@ -25,6 +25,8 @@ class CollectionResource extends JsonResource
             'id' => $this->id,
             // A name for this resource, for internal use only.
             'internal_name' => $this->internal_name,
+            // The type of collection: 'collection', 'exhibition', or 'gallery'
+            'type' => $this->type,
             // The language this collection belongs to (LanguageResource id)
             'language_id' => $this->language_id,
             // The context this collection belongs to (ContextResource id)
@@ -44,11 +46,14 @@ class CollectionResource extends JsonResource
             'translations' => CollectionTranslationResource::collection($this->whenLoaded('translations')),
             // Partners associated with this collection (PartnerResource[])
             'partners' => PartnerResource::collection($this->whenLoaded('partners')),
-            // Items associated with this collection (ItemResource[])
+            // Items associated with this collection - primary relationship (ItemResource[])
             'items' => ItemResource::collection($this->whenLoaded('items')),
+            // Items attached to this collection via many-to-many relationship (ItemResource[])
+            'attachedItems' => ItemResource::collection($this->whenLoaded('attachedItems')),
 
             // The number of items in this collection (computed)
             'items_count' => $this->when($this->relationLoaded('items'), fn () => $this->items->count()),
+            'attached_items_count' => $this->when($this->relationLoaded('attachedItems'), fn () => $this->attachedItems->count()),
             'partners_count' => $this->when($this->relationLoaded('partners'), fn () => $this->partners->count()),
             'translations_count' => $this->when($this->relationLoaded('translations'), fn () => $this->translations->count()),
         ];

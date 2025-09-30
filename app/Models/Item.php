@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Item extends Model
@@ -19,9 +18,19 @@ class Item extends Model
 
     // No model-level eager loads. Use request-scoped includes in controllers.
 
+    // Type constants
+    public const TYPE_OBJECT = 'object';
+
+    public const TYPE_MONUMENT = 'monument';
+
+    public const TYPE_DETAIL = 'detail';
+
+    public const TYPE_PICTURE = 'picture';
+
     protected $fillable = [
         // 'id',
         'partner_id',
+        'parent_id',
         'internal_name',
         'type',
         'backward_compatibility',
@@ -65,6 +74,30 @@ class Item extends Model
     }
 
     /**
+     * The parent item (for hierarchical relationships).
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Item::class, 'parent_id');
+    }
+
+    /**
+     * The child items (for hierarchical relationships).
+     */
+    public function children(): HasMany
+    {
+        return $this->hasMany(Item::class, 'parent_id');
+    }
+
+    /**
+     * The item images attached to this item.
+     */
+    public function itemImages(): HasMany
+    {
+        return $this->hasMany(ItemImage::class)->orderBy('display_order');
+    }
+
+    /**
      * The tags that belong to this item.
      */
     public function tags(): BelongsToMany
@@ -97,20 +130,21 @@ class Item extends Model
     }
 
     /**
-     * Get all pictures attached to this item.
-     */
-    public function pictures(): MorphMany
-    {
-        return $this->morphMany(Picture::class, 'pictureable')->chaperone('pictureable');
-    }
-
-    /**
      * Get all galleries that include this item.
      */
     public function galleries(): MorphToMany
     {
         return $this->morphToMany(Gallery::class, 'galleryable')
             ->withPivot(['order', 'backward_compatibility'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get all collections this item is attached to via many-to-many relationship.
+     */
+    public function attachedToCollections(): BelongsToMany
+    {
+        return $this->belongsToMany(Collection::class, 'collection_item')
             ->withTimestamps();
     }
 
@@ -149,6 +183,54 @@ class Item extends Model
         }
 
         return $this->getDefaultTranslation($languageId);
+    }
+
+    /**
+     * Scope to get only object items.
+     */
+    public function scopeObjects(Builder $query): Builder
+    {
+        return $query->where('type', self::TYPE_OBJECT);
+    }
+
+    /**
+     * Scope to get only monument items.
+     */
+    public function scopeMonuments(Builder $query): Builder
+    {
+        return $query->where('type', self::TYPE_MONUMENT);
+    }
+
+    /**
+     * Scope to get only detail items.
+     */
+    public function scopeDetails(Builder $query): Builder
+    {
+        return $query->where('type', self::TYPE_DETAIL);
+    }
+
+    /**
+     * Scope to get only picture items.
+     */
+    public function scopePictures(Builder $query): Builder
+    {
+        return $query->where('type', self::TYPE_PICTURE);
+    }
+
+    /**
+     * Scope to get parent items (items with no parent).
+     */
+    public function scopeParents(Builder $query): Builder
+    {
+        return $query->whereNull('parent_id');
+    }
+
+    /**
+     * Scope to get child items (items with a parent).
+     */
+    public function scopeChildren(Builder $query): Builder
+    {
+        return $query->whereNotNull('parent_id');
     }
 
     /**
@@ -198,6 +280,44 @@ class Item extends Model
 
         return $query->whereHas('tags', function (Builder $query) use ($tagIds) {
             $query->whereIn('tags.id', $tagIds);
+        });
+    }
+
+    /**
+     * Reorder child items to eliminate gaps in display order.
+     * Useful when child items are deleted or moved around.
+     */
+    public function reorderChildItems(): void
+    {
+        $this->getConnection()->transaction(function () {
+            $childItems = $this->children()
+                ->orderBy('created_at')
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($childItems as $index => $child) {
+                // For now, we don't have display_order on items,
+                // but this method structure is ready if we add it later
+                // $child->update(['display_order' => $index + 1]);
+            }
+        });
+    }
+
+    /**
+     * Reorder all item images to eliminate gaps in display order.
+     * This is a convenience method to tighten image ordering.
+     */
+    public function reorderItemImages(): void
+    {
+        $this->getConnection()->transaction(function () {
+            $images = $this->itemImages()
+                ->orderBy('display_order')
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($images as $index => $image) {
+                $image->update(['display_order' => $index + 1]);
+            }
         });
     }
 

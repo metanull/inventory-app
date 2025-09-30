@@ -8,7 +8,7 @@ import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
 import Items from '@/views/Items.vue'
 import ItemDetail from '@/views/ItemDetail.vue'
-import DetailDetail from '@/views/DetailDetail.vue'
+
 import Languages from '@/views/Languages.vue'
 import LanguageDetail from '@/views/LanguageDetail.vue'
 import Countries from '@/views/Countries.vue'
@@ -53,18 +53,7 @@ const router = createRouter({
       component: ItemDetail,
       meta: { requiresAuth: true },
     },
-    {
-      path: '/items/:itemId/details/new',
-      name: 'detail-new',
-      component: DetailDetail,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/items/:itemId/details/:id',
-      name: 'detail-detail',
-      component: DetailDetail,
-      meta: { requiresAuth: true },
-    },
+
     {
       path: '/partners',
       name: 'partners',

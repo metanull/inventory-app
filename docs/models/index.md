@@ -7,19 +7,20 @@ has_children: true
 
 # 🗄️ Database Models
 
-{: .highlight }
+{: .hi| 📚 [Collection](Collection) | Content | Collections, exhibitions and galleries |hlight }
 
-> This documentation provides a comprehensive overview of all database models in the application, their properties, relationships, and usage patterns.
+> This do| 🔨 [Workshop](Workshop) | People | Workshops and production studios |
+> | 👤 [User](User) | System | Application user accounts |umentation provides a comprehensive overview of all database models in the application, their properties, relationships, and usage patterns after the recent model simplification initiative.
 
 ## 📊 Overview
 
-- **📈 Total Models Documented:** 37
+- **📈 Total Models:** 28
 - **🔧 Common Features:**
   - 🆔 All models use UUIDs (except Language, Country, User)
-  - 🏷️ All models have `internal_name` and `backward_compatibility` fields
+  - 🏷️ Most models have `internal_name` and `backward_compatibility` fields
   - 🔗 Relationships are defined using Eloquent ORM best practices
   - 🌍 Translations are handled via dedicated translation models
-  - 🔄 Many models support polymorphic and many-to-many relationships
+  - 🔄 Many models support hierarchical and many-to-many relationships
 
 ## 🎯 Key Model Categories
 
@@ -31,17 +32,21 @@ has_children: true
 
 - **🎨 Artist, Author, Partner:** Represent people/entities, with relationships to items and collections
 
-### 📦 Core Content Models
+### 📦 Core Content Models (SIMPLIFIED)
 
-- **🏛️ Item, Collection, Exhibition, Gallery, Theme:** Core content models, supporting translations, partners, and hierarchical relationships
+- **🏛️ Item:** Unified model for objects and monuments with hierarchical support
+- **📚 Collection:** Unified model for collections, exhibitions, and galleries (type-based)
+- **🎨 Theme:** Thematic groupings with collection relationships
 
-### 🖼️ Media Models
+### 🖼️ Media Models (RESTRUCTURED)
 
-- **📸 Picture, ImageUpload, AvailableImage:** Handle image storage and metadata
+- **📸 ItemImage:** Direct item-to-image relationships with display ordering
+- **🖼️ ImageUpload, AvailableImage:** Core image storage and metadata management
 
-### 🏷️ Classification
+### 🏷️ Classification & Metadata
 
-- **🔖 Tag:** Supports tagging of items
+- **🔖 Tag:** Item tagging system
+- **🏗️ Context:** Organizational contexts (museums, institutions)
 
 ### 👤 System Models
 
@@ -50,30 +55,40 @@ has_children: true
 
 ## 🔗 Relationship Types
 
-| Type                  | Icon | Description                | Example                       |
-| --------------------- | ---- | -------------------------- | ----------------------------- |
-| **BelongsTo**         | ⬆️   | Foreign key relationships  | Item → Partner                |
-| **HasMany**           | ⬇️   | One-to-many relationships  | Country → Item                |
-| **BelongsToMany**     | ↔️   | Many-to-many relationships | Artist ↔ Item                |
-| **MorphTo/MorphMany** | 🔄   | Polymorphic relationships  | Picture → Item/Detail/Partner |
+| Type                 | Icon | Description                | Example            |
+| -------------------- | ---- | -------------------------- | ------------------ |
+| **BelongsTo**        | ⬆️   | Foreign key relationships  | Item → Partner     |
+| **HasMany**          | ⬇️   | One-to-many relationships  | Item → ItemImage   |
+| **BelongsToMany**    | ↔️   | Many-to-many relationships | Collection ↔ Item |
+| **Self-Referential** | 🔄   | Hierarchical relationships | Item → Parent Item |
 
 ## 🌍 Translation System
 
-- 🗣️ Most core models have a corresponding translation model (e.g., ItemTranslation, CollectionTranslation)
-- 📝 Translation models include language, context, and extra metadata fields
-- 🎯 Supports multi-language and multi-context content delivery
+- 🗣️ Most core models have corresponding translation models (e.g., ItemTranslation, CollectionTranslation)
+- 📝 Translation models include language-specific display names and descriptions
+- 🎯 Supports multi-language content delivery with context awareness
 
-## ⚙️ Technical Features
+## ⚙️ Key Architectural Changes
+
+### 🚀 Model Simplification Benefits
+
+- **📉 Reduced Complexity:** From 37+ models to 28 focused models
+- **🎯 Unified Structure:** Single Item model with hierarchical support
+- **📊 Type-Based Design:** Collection model handles collections/exhibitions/galleries via type field
+- **🖼️ Direct Relationships:** ItemImage provides direct item-to-image relationships with ordering
+- **⚡ Better Performance:** Eliminated polymorphic relationships for clearer, faster queries
 
 ### 📏 Scopes & Filtering
 
-- 🔍 Models use Laravel scopes for filtering (e.g., `default`, `english`, `forItem`)
-- ⚡ Optimized query performance through strategic scoping
+- 🔍 Enhanced scoping system with type-based filtering (e.g., `objects()`, `exhibitions()`)
+- ⚡ Optimized query performance through strategic relationship loading
+- 🏗️ Hierarchical scopes for parent/child item relationships
 
 ### 🛠️ Traits & Patterns
 
-- 🏭 All models use `HasFactory` and `HasUuids` traits where appropriate
-- 📋 Consistent coding patterns across all models
+- 🏭 Consistent use of `HasFactory` and `HasUuids` traits
+- 📋 Standardized validation patterns across all models
+- 🔧 Enhanced business logic methods for common operations
 - 🔒 Built-in security and validation features
 
 ---
@@ -83,47 +98,65 @@ has_children: true
 {: .fs-6 .fw-300 }
 Click any model name below to view its detailed documentation with properties, relationships, and usage examples.
 
-## 🔤 Alphabetical Model List
+## 🔤 Current Model List (28 Models)
 
-| Model                                             | Category       | Description                                   |
-| ------------------------------------------------- | -------------- | --------------------------------------------- |
-| 📍 [Address](Address)                             | Geographic     | Physical addresses with country relationships |
-| 🌍 [AddressTranslation](AddressTranslation)       | Translation    | Multi-language address translations           |
-| 🎨 [Artist](Artist)                               | People         | Artists who create items in collections       |
-| ✍️ [Author](Author)                               | People         | Authors of written content                    |
-| 🖼️ [AvailableImage](AvailableImage)               | Media          | Available images with metadata                |
-| 📦 [Collection](Collection)                       | Content        | Collections of museum items                   |
-| 🤝 [CollectionPartner](CollectionPartner)         | Relationship   | Collection-partner associations               |
-| 🌍 [CollectionTranslation](CollectionTranslation) | Translation    | Multi-language collection content             |
-| 📞 [Contact](Contact)                             | Communication  | Contact information storage                   |
-| 🌍 [ContactTranslation](ContactTranslation)       | Translation    | Multi-language contact labels                 |
-| ⚙️ [Context](Context)                             | Configuration  | Application context settings                  |
-| 🗺️ [Country](Country)                             | Geographic     | Countries using ISO codes                     |
-| 📋 [Detail](Detail)                               | Content        | Detailed item descriptions                    |
-| 🌍 [DetailTranslation](DetailTranslation)         | Translation    | Multi-language detail content                 |
-| 🏛️ [Exhibition](Exhibition)                       | Content        | Museum exhibitions                            |
-| 🌍 [ExhibitionTranslation](ExhibitionTranslation) | Translation    | Multi-language exhibition content             |
-| 🖼️ [Gallery](Gallery)                             | Content        | Image galleries                               |
-| 🔗 [Galleryable](Galleryable)                     | Relationship   | Gallery content associations                  |
-| 🤝 [GalleryPartner](GalleryPartner)               | Relationship   | Gallery-partner associations                  |
-| 🌍 [GalleryTranslation](GalleryTranslation)       | Translation    | Multi-language gallery content                |
-| 📤 [ImageUpload](ImageUpload)                     | Media          | Uploaded image metadata                       |
-| 🏺 [Item](Item)                                   | Content        | Core museum items                             |
-| 🌍 [ItemTranslation](ItemTranslation)             | Translation    | Multi-language item content                   |
-| 🌐 [Language](Language)                           | Configuration  | Supported languages (ISO codes)               |
-| 📍 [Location](Location)                           | Geographic     | Specific locations                            |
-| 🌍 [LocationTranslation](LocationTranslation)     | Translation    | Multi-language location names                 |
-| 🏢 [Partner](Partner)                             | Organization   | Institutional partners                        |
-| 📸 [Picture](Picture)                             | Media          | Images with metadata and relationships        |
-| 🌍 [PictureTranslation](PictureTranslation)       | Translation    | Multi-language picture descriptions           |
-| 📊 [Project](Project)                             | Management     | Project management                            |
-| 🗺️ [Province](Province)                           | Geographic     | Administrative provinces                      |
-| 🌍 [ProvinceTranslation](ProvinceTranslation)     | Translation    | Multi-language province names                 |
-| 🏷️ [Tag](Tag)                                     | Classification | Content tagging system                        |
-| 🎯 [Theme](Theme)                                 | Content        | Exhibition themes and subthemes               |
-| 🌍 [ThemeTranslation](ThemeTranslation)           | Translation    | Multi-language theme content                  |
-| 👤 [User](User)                                   | System         | Application users                             |
-| 🔨 [Workshop](Workshop)                           | Content        | Workshop information                          |
+| Model                                             | Category       | Description                                                  |
+| ------------------------------------------------- | -------------- | ------------------------------------------------------------ |
+| 📍 [Address](Address)                             | Geographic     | Physical addresses with country relationships                |
+| 🌍 [AddressTranslation](AddressTranslation)       | Translation    | Multi-language address translations                          |
+| 🎨 [Artist](Artist)                               | People         | Artists who create items in collections                      |
+| ✍️ [Author](Author)                               | People         | Authors of written content                                   |
+| 🖼️ [AvailableImage](AvailableImage)               | Media          | Available images for item attachment                         |
+| � [Collection](Collection)                        | Content        | **ENHANCED:** Collections, exhibitions & galleries (unified) |
+| 🌍 [CollectionTranslation](CollectionTranslation) | Translation    | Multi-language collection content                            |
+| 📞 [Contact](Contact)                             | Communication  | Contact information storage                                  |
+| 🌍 [ContactTranslation](ContactTranslation)       | Translation    | Multi-language contact labels                                |
+| ⚙️ [Context](Context)                             | Configuration  | Application context settings                                 |
+| 🗺️ [Country](Country)                             | Geographic     | Countries using ISO 3166-1 codes                             |
+| � [ImageUpload](ImageUpload)                      | Media          | Uploaded image metadata and processing                       |
+| 🏛️ [Item](Item)                                   | Content        | Objects and monuments with hierarchical support              |
+| 📸 [ItemImage](ItemImage)                         | Media          | Item-to-image relationships with ordering                    |
+| 🌍 [ItemTranslation](ItemTranslation)             | Translation    | Multi-language item content                                  |
+| 🌐 [Language](Language)                           | Configuration  | Supported languages (ISO 639-3 codes)                        |
+| � [Location](Location)                            | Geographic     | Specific geographic locations                                |
+| 🌍 [LocationTranslation](LocationTranslation)     | Translation    | Multi-language location names                                |
+| � [Partner](Partner)                              | Organization   | Institutional partners and owners                            |
+| 📊 [Project](Project)                             | Management     | Project organization and management                          |
+| �️ [Province](Province)                           | Geographic     | Administrative provinces and regions                         |
+| 🌍 [ProvinceTranslation](ProvinceTranslation)     | Translation    | Multi-language province names                                |
+| �️ [Tag](Tag)                                     | Classification | Content tagging and categorization                           |
+| 🎯 [Theme](Theme)                                 | Content        | Thematic groupings with collection relationships             |
+| 🌍 [ThemeTranslation](ThemeTranslation)           | Translation    | Multi-language theme content                                 |
+| � [User](User)                                    | System         | Application user accounts                                    |
+| � [Workshop](Workshop)                            | People         | Workshops and production studios                             |
+
+## 🚀 Recent Model Changes
+
+### ✅ **Models Added/Enhanced**
+
+- **📸 ItemImage:** New model for direct item-to-image relationships with display ordering
+- **🏛️ Item:** Enhanced with `type` field (object/monument) and hierarchical `parent_id` support
+- **📚 Collection:** Enhanced with `type` field (collection/exhibition/gallery) replacing 3 separate models
+
+### ❌ **Models Removed**
+
+- **~~📋 Detail~~:** Functionality integrated into Item model
+- **~~📸 Picture~~:** Replaced by ItemImage model with better relationship design
+- **~~�️ Exhibition~~:** Merged into Collection model (type='exhibition')
+- **~~🖼️ Gallery~~:** Merged into Collection model (type='gallery')
+- **~~🔗 Galleryable~~:** No longer needed with simplified relationships
+- **~~🤝 GalleryPartner~~:** No longer needed with unified Collection model
+- **~~Translation models~~:** Removed for Gallery, Exhibition, Detail, Picture
+
+### 🎯 **Benefits of Simplification**
+
+- **📉 37% Reduction:** From 37+ models to 28 focused models
+- **⚡ Better Performance:** Eliminated polymorphic relationships
+- **🎯 Clearer Logic:** Type-based design instead of separate models
+- **🔧 Enhanced APIs:** Simplified endpoints with consistent patterns
+- **📚 Better Documentation:** Focused, comprehensive model docs
+  | 👤 [User](User) | System | Application users |
+  | 🔨 [Workshop](Workshop) | Content | Workshop information |
 
 ---
 

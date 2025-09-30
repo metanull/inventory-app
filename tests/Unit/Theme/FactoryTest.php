@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Theme;
 
-use App\Models\Exhibition;
+use App\Models\Collection;
 use App\Models\Theme;
 use App\Models\ThemeTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,13 +20,13 @@ class FactoryTest extends TestCase
         $this->assertDatabaseHas('themes', [
             'id' => $theme->id,
             'internal_name' => $theme->internal_name,
-            'exhibition_id' => $theme->exhibition_id,
+            'collection_id' => $theme->collection_id,
         ]);
 
         $this->assertIsString($theme->id);
         $this->assertNotEmpty($theme->internal_name);
         $this->assertIsString($theme->internal_name);
-        $this->assertNotNull($theme->exhibition_id);
+        $this->assertNotNull($theme->collection_id);
     }
 
     public function test_theme_factory_creates_unique_internal_names(): void
@@ -37,13 +37,13 @@ class FactoryTest extends TestCase
         $this->assertNotEquals($theme1->internal_name, $theme2->internal_name);
     }
 
-    public function test_theme_factory_can_create_with_exhibition(): void
+    public function test_theme_factory_can_create_with_collection(): void
     {
-        $exhibition = Exhibition::factory()->create();
-        $theme = Theme::factory()->create(['exhibition_id' => $exhibition->id]);
+        $collection = Collection::factory()->state(['type' => 'exhibition'])->create();
+        $theme = Theme::factory()->create(['collection_id' => $collection->id]);
 
-        $this->assertEquals($exhibition->id, $theme->exhibition_id);
-        $this->assertInstanceOf(Exhibition::class, $theme->exhibition);
+        $this->assertEquals($collection->id, $theme->collection_id);
+        $this->assertInstanceOf(Collection::class, $theme->collection);
     }
 
     public function test_theme_factory_can_create_main_theme(): void
@@ -77,11 +77,11 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $theme->translations());
     }
 
-    public function test_theme_has_exhibition_relationship(): void
+    public function test_theme_has_collection_relationship(): void
     {
         $theme = Theme::factory()->create();
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $theme->exhibition());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $theme->collection());
     }
 
     public function test_theme_has_parent_relationship(): void
@@ -98,12 +98,8 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $theme->subthemes());
     }
 
-    public function test_theme_has_pictures_relationship(): void
-    {
-        $theme = Theme::factory()->create();
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\MorphToMany::class, $theme->pictures());
-    }
+    // NOTE: Theme-Picture relationship removed in favor of ItemImage system
+    // Themes will be connected to pictures through their associated items
 
     public function test_theme_can_have_multiple_translations(): void
     {
@@ -142,7 +138,7 @@ class FactoryTest extends TestCase
         $theme = new Theme;
         $fillable = $theme->getFillable();
 
-        $this->assertContains('exhibition_id', $fillable);
+        $this->assertContains('collection_id', $fillable);
         $this->assertContains('parent_id', $fillable);
         $this->assertContains('internal_name', $fillable);
         $this->assertContains('backward_compatibility', $fillable);

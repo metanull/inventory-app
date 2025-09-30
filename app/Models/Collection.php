@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PartnerLevel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,13 @@ class Collection extends Model
 {
     use HasFactory, HasUuids;
 
+    // Type constants
+    public const TYPE_COLLECTION = 'collection';
+
+    public const TYPE_EXHIBITION = 'exhibition';
+
+    public const TYPE_GALLERY = 'gallery';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -27,6 +35,7 @@ class Collection extends Model
      */
     protected $fillable = [
         'internal_name',
+        'type',
         'language_id',
         'context_id',
         'backward_compatibility',
@@ -74,11 +83,44 @@ class Collection extends Model
     }
 
     /**
-     * Get all items belonging to this collection.
+     * Get all items belonging to this collection (primary relationship).
      */
     public function items(): HasMany
     {
         return $this->hasMany(Item::class);
+    }
+
+    /**
+     * Get all items attached to this collection via many-to-many relationship.
+     */
+    public function attachedItems(): BelongsToMany
+    {
+        return $this->belongsToMany(Item::class, 'collection_item')
+            ->withTimestamps();
+    }
+
+    /**
+     * Scope to get only collection type collections.
+     */
+    public function scopeCollections(Builder $query): Builder
+    {
+        return $query->where('type', self::TYPE_COLLECTION);
+    }
+
+    /**
+     * Scope to get only exhibition type collections.
+     */
+    public function scopeExhibitions(Builder $query): Builder
+    {
+        return $query->where('type', self::TYPE_EXHIBITION);
+    }
+
+    /**
+     * Scope to get only gallery type collections.
+     */
+    public function scopeGalleries(Builder $query): Builder
+    {
+        return $query->where('type', self::TYPE_GALLERY);
     }
 
     /**
@@ -160,5 +202,37 @@ class Collection extends Model
     public function minorContributors(): BelongsToMany
     {
         return $this->partnersByLevel(PartnerLevel::MINOR_CONTRIBUTOR);
+    }
+
+    /**
+     * Attach an item to this collection via many-to-many relationship.
+     */
+    public function attachItem(Item $item): void
+    {
+        $this->attachedItems()->syncWithoutDetaching([$item->id]);
+    }
+
+    /**
+     * Detach an item from this collection.
+     */
+    public function detachItem(Item $item): void
+    {
+        $this->attachedItems()->detach($item->id);
+    }
+
+    /**
+     * Attach multiple items to this collection.
+     */
+    public function attachItems(array $itemIds): void
+    {
+        $this->attachedItems()->syncWithoutDetaching($itemIds);
+    }
+
+    /**
+     * Detach multiple items from this collection.
+     */
+    public function detachItems(array $itemIds): void
+    {
+        $this->attachedItems()->detach($itemIds);
     }
 }

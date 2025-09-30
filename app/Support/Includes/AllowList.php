@@ -18,29 +18,21 @@ class AllowList
         return match ($entity) {
             'item' => [
                 'partner', 'country', 'project', 'collection',
+                'parent', 'children', 'itemImages',
                 'artists', 'workshops', 'tags', 'translations',
-                'pictures', 'galleries',
+                'attachedToCollections',
+            ],
+            'itemImage' => [
+                'item',
             ],
             'collection' => [
-                'language', 'context', 'translations', 'partners', 'items',
-            ],
-            'gallery' => [
-                'translations', 'partners', 'items', 'details',
-            ],
-            'exhibition' => [
-                'translations', 'partners',
+                'language', 'context', 'translations', 'partners', 'items', 'attachedItems',
             ],
             'partner' => [
                 'country', 'items', 'pictures',
             ],
             'country' => [
                 'items', 'partners',
-            ],
-            'detail' => [
-                'item', 'translations', 'pictures', 'galleries',
-            ],
-            'picture' => [
-                'translations', 'pictureable',
             ],
             'project' => [
                 'context', 'language',
@@ -65,6 +57,9 @@ class AllowList
             ],
             'available_image' => [
                 // AvailableImage model has no relationships
+            ],
+            'itemImage' => [
+                'item',
             ],
             default => [],
         };

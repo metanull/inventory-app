@@ -18,4 +18,4 @@ parent: Database Models
 **Relationships:**
 
 - `items()`: Has many `Item`
-- `pictures()`: Morph many `Picture`
+- `country()`: Belongs to `Country`

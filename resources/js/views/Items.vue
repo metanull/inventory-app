@@ -20,7 +20,7 @@
   >
     <!-- Icon -->
     <template #icon>
-      <ItemIcon />
+      <component :is="getMainIcon()" />
     </template>
     <!-- Filter Buttons -->
     <template #filters>
@@ -37,7 +37,7 @@
         :is-active="filterMode === 'objects'"
         :count="objectItems.length"
         variant="info"
-        :color="color"
+        color="teal"
         @click="filterMode = 'objects'"
       />
       <FilterButton
@@ -45,8 +45,24 @@
         :is-active="filterMode === 'monuments'"
         :count="monumentItems.length"
         variant="success"
-        :color="color"
+        color="green"
         @click="filterMode = 'monuments'"
+      />
+      <FilterButton
+        label="Details"
+        :is-active="filterMode === 'details'"
+        :count="detailItems.length"
+        variant="info"
+        color="orange"
+        @click="filterMode = 'details'"
+      />
+      <FilterButton
+        label="Pictures"
+        :is-active="filterMode === 'pictures'"
+        :count="pictureItems.length"
+        variant="info"
+        color="purple"
+        @click="filterMode = 'pictures'"
       />
     </template>
 
@@ -103,7 +119,10 @@
             :backward-compatibility="item.backward_compatibility"
           >
             <template #icon>
-              <ItemIcon :class="['h-5 w-5', colorClasses.icon]" />
+              <component
+                :is="getTypeIcon(item.type)"
+                :class="['h-5 w-5', getTypeIconClasses(item.type)]"
+              />
             </template>
           </InternalName>
         </TableCell>
@@ -112,11 +131,10 @@
             <span
               :class="[
                 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                colorClasses.badgeBackground,
-                colorClasses.badge,
+                getTypeColorClasses(item.type),
               ]"
             >
-              {{ item.type === 'object' ? 'Object' : 'Monument' }}
+              {{ item.type.charAt(0).toUpperCase() + item.type.slice(1) }}
             </span>
           </div>
         </TableCell>
@@ -179,7 +197,18 @@
   import TableRow from '@/components/format/table/TableRow.vue'
   import TableCell from '@/components/format/table/TableCell.vue'
   import InternalName from '@/components/format/InternalName.vue'
-  import { ArchiveBoxIcon as ItemIcon } from '@heroicons/vue/24/solid'
+  import {
+    TrophyIcon as ObjectIcon,
+    BuildingOffice2Icon as MonumentIcon,
+    PuzzlePieceIcon as DetailIcon,
+    CameraIcon as PictureIcon,
+  } from '@heroicons/vue/24/solid'
+  import {
+    TrophyIcon,
+    BuildingOffice2Icon,
+    PuzzlePieceIcon,
+    CameraIcon,
+  } from '@heroicons/vue/24/outline'
   import SearchControl from '@/components/layout/list/SearchControl.vue'
   import type { ItemResource } from '@metanull/inventory-app-api-client'
   import { useColors, type ColorName } from '@/composables/useColors'
@@ -204,7 +233,7 @@
   const colorClasses = useColors(computed(() => props.color))
 
   // Filter state - default to 'all'
-  const filterMode = ref<'all' | 'objects' | 'monuments'>('all')
+  const filterMode = ref<'all' | 'objects' | 'monuments' | 'details' | 'pictures'>('all')
 
   // Sorting state
   const sortKey = ref<string>('internal_name')
@@ -216,24 +245,38 @@
   // Computed filtered and sorted items
   const items = computed(() => itemStore.items || [])
 
-  const objectItems = computed(() => items.value.filter(item => item.type === 'object'))
-  const monumentItems = computed(() => items.value.filter(item => item.type === 'monument'))
+  const objectItems = computed(() =>
+    items.value.filter((item: ItemResource) => item.type === 'object')
+  )
+  const monumentItems = computed(() =>
+    items.value.filter((item: ItemResource) => item.type === 'monument')
+  )
+  const detailItems = computed(() =>
+    items.value.filter((item: ItemResource) => item.type === 'detail')
+  )
+  const pictureItems = computed(() =>
+    items.value.filter((item: ItemResource) => item.type === 'picture')
+  )
 
   const filteredItems = computed(() => {
     let filtered = items.value
 
     // Apply filter mode
     if (filterMode.value === 'objects') {
-      filtered = filtered.filter(item => item.type === 'object')
+      filtered = filtered.filter((item: ItemResource) => item.type === 'object')
     } else if (filterMode.value === 'monuments') {
-      filtered = filtered.filter(item => item.type === 'monument')
+      filtered = filtered.filter((item: ItemResource) => item.type === 'monument')
+    } else if (filterMode.value === 'details') {
+      filtered = filtered.filter((item: ItemResource) => item.type === 'detail')
+    } else if (filterMode.value === 'pictures') {
+      filtered = filtered.filter((item: ItemResource) => item.type === 'picture')
     }
 
     // Apply search
     if (searchQuery.value.trim()) {
       const query = searchQuery.value.toLowerCase()
       filtered = filtered.filter(
-        item =>
+        (item: ItemResource) =>
           item.internal_name.toLowerCase().includes(query) ||
           (item.backward_compatibility &&
             item.backward_compatibility.toLowerCase().includes(query)) ||
@@ -244,7 +287,7 @@
     }
 
     // Apply sorting
-    return filtered.sort((a, b) => {
+    return filtered.sort((a: ItemResource, b: ItemResource) => {
       let aValue: unknown = a[sortKey.value as keyof typeof a]
       let bValue: unknown = b[sortKey.value as keyof typeof b]
 
@@ -262,6 +305,67 @@
       return 0
     })
   })
+
+  // Type-based icon and color functions
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'object':
+        return ObjectIcon
+      case 'monument':
+        return MonumentIcon
+      case 'detail':
+        return DetailIcon
+      case 'picture':
+        return PictureIcon
+      default:
+        return ObjectIcon
+    }
+  }
+
+  const getTypeColorClasses = (type: string) => {
+    switch (type) {
+      case 'object':
+        return 'text-teal-600 bg-teal-100'
+      case 'monument':
+        return 'text-green-600 bg-green-100'
+      case 'detail':
+        return 'text-orange-600 bg-orange-100'
+      case 'picture':
+        return 'text-purple-600 bg-purple-100'
+      default:
+        return 'text-teal-600 bg-teal-100'
+    }
+  }
+
+  const getTypeIconClasses = (type: string) => {
+    switch (type) {
+      case 'object':
+        return 'text-teal-600'
+      case 'monument':
+        return 'text-green-600'
+      case 'detail':
+        return 'text-orange-600'
+      case 'picture':
+        return 'text-purple-600'
+      default:
+        return 'text-teal-600'
+    }
+  }
+
+  const getMainIcon = () => {
+    switch (filterMode.value) {
+      case 'objects':
+        return TrophyIcon
+      case 'monuments':
+        return BuildingOffice2Icon
+      case 'details':
+        return PuzzlePieceIcon
+      case 'pictures':
+        return CameraIcon
+      default:
+        return TrophyIcon
+    }
+  }
 
   // Sort handler
   const handleSort = (key: string) => {

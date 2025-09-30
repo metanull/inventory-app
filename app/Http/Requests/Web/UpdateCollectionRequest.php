@@ -14,10 +14,11 @@ class UpdateCollectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'internal_name' => ['required', 'string', 'max:255'],
-            'language_id' => ['required', 'string', 'size:3', 'exists:languages,id'],
-            'context_id' => ['required', 'uuid', 'exists:contexts,id'],
-            'backward_compatibility' => ['nullable', 'string', 'max:255'],
+            'internal_name' => ['sometimes', 'required', 'string', 'max:255'],
+            'type' => ['sometimes', 'required', 'in:collection,exhibition,gallery'],
+            'language_id' => ['sometimes', 'required', 'string', 'size:3', 'exists:languages,id'],
+            'context_id' => ['sometimes', 'required', 'uuid', 'exists:contexts,id'],
+            'backward_compatibility' => ['sometimes', 'nullable', 'string', 'max:255'],
         ];
     }
 }

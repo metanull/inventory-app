@@ -54,6 +54,37 @@ class StoreTest extends TestCase
         ]);
     }
 
+    public function test_factory_detail(): void
+    {
+        $item = Item::factory()->Detail()->create();
+        $this->assertDatabaseHas('items', [
+            'id' => $item->id,
+            'type' => 'detail',
+        ]);
+        $this->assertNotNull($item->parent_id);
+    }
+
+    public function test_factory_picture(): void
+    {
+        $item = Item::factory()->Picture()->create();
+        $this->assertDatabaseHas('items', [
+            'id' => $item->id,
+            'type' => 'picture',
+        ]);
+        $this->assertNotNull($item->parent_id);
+    }
+
+    public function test_factory_with_parent(): void
+    {
+        $parent = Item::factory()->Object()->create();
+        $child = Item::factory()->withParent($parent)->create();
+
+        $this->assertDatabaseHas('items', [
+            'id' => $child->id,
+            'parent_id' => $parent->id,
+        ]);
+    }
+
     public function test_factory_with_partner(): void
     {
         $item = Item::factory()->withPartner()->create();
@@ -194,5 +225,113 @@ class StoreTest extends TestCase
             ->assertJsonPath('data.internal_name', 'Test Item')
             ->assertJsonPath('data.backward_compatibility', 'TI')
             ->assertJsonPath('data.type', 'object');
+    }
+
+    public function test_store_validates_detail_requires_parent(): void
+    {
+        $response = $this->postJson(route('item.store'), [
+            'partner_id' => Partner::factory()->create()->id,
+            'internal_name' => 'Test Detail',
+            'backward_compatibility' => 'TD',
+            'type' => 'detail',
+            // Missing parent_id
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['parent_id']);
+    }
+
+    public function test_store_validates_picture_requires_parent(): void
+    {
+        $response = $this->postJson(route('item.store'), [
+            'partner_id' => Partner::factory()->create()->id,
+            'internal_name' => 'Test Picture',
+            'backward_compatibility' => 'TP',
+            'type' => 'picture',
+            // Missing parent_id
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['parent_id']);
+    }
+
+    public function test_store_validates_object_cannot_have_parent(): void
+    {
+        $parent = Item::factory()->create();
+
+        $response = $this->postJson(route('item.store'), [
+            'partner_id' => Partner::factory()->create()->id,
+            'internal_name' => 'Test Object',
+            'backward_compatibility' => 'TO',
+            'type' => 'object',
+            'parent_id' => $parent->id, // Invalid: objects cannot have parents
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['parent_id']);
+    }
+
+    public function test_store_validates_monument_cannot_have_parent(): void
+    {
+        $parent = Item::factory()->create();
+
+        $response = $this->postJson(route('item.store'), [
+            'partner_id' => Partner::factory()->create()->id,
+            'internal_name' => 'Test Monument',
+            'backward_compatibility' => 'TM',
+            'type' => 'monument',
+            'parent_id' => $parent->id, // Invalid: monuments cannot have parents
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['parent_id']);
+    }
+
+    public function test_store_allows_valid_detail_with_parent(): void
+    {
+        $parent = Item::factory()->Object()->create();
+
+        $response = $this->postJson(route('item.store'), [
+            'partner_id' => Partner::factory()->create()->id,
+            'internal_name' => 'Test Detail',
+            'backward_compatibility' => 'TD',
+            'type' => 'detail',
+            'parent_id' => $parent->id,
+        ]);
+
+        $response->assertCreated();
+        $response->assertJsonPath('data.type', 'detail');
+        $response->assertJsonPath('data.parent_id', $parent->id);
+    }
+
+    public function test_store_allows_valid_picture_with_parent(): void
+    {
+        $parent = Item::factory()->Monument()->create();
+
+        $response = $this->postJson(route('item.store'), [
+            'partner_id' => Partner::factory()->create()->id,
+            'internal_name' => 'Test Picture',
+            'backward_compatibility' => 'TP',
+            'type' => 'picture',
+            'parent_id' => $parent->id,
+        ]);
+
+        $response->assertCreated();
+        $response->assertJsonPath('data.type', 'picture');
+        $response->assertJsonPath('data.parent_id', $parent->id);
+    }
+
+    public function test_store_validates_parent_exists(): void
+    {
+        $response = $this->postJson(route('item.store'), [
+            'partner_id' => Partner::factory()->create()->id,
+            'internal_name' => 'Test Detail',
+            'backward_compatibility' => 'TD',
+            'type' => 'detail',
+            'parent_id' => 'nonexistent-uuid',
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['parent_id']);
     }
 }

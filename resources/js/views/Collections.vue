@@ -21,6 +21,42 @@
       <CollectionIcon />
     </template>
 
+    <!-- Filter Buttons -->
+    <template #filters>
+      <FilterButton
+        label="All Collections"
+        :is-active="filterMode === 'all'"
+        :count="collections.length"
+        variant="primary"
+        color="indigo"
+        @click="filterMode = 'all'"
+      />
+      <FilterButton
+        label="Collections"
+        :is-active="filterMode === 'collections'"
+        :count="collectionItems.length"
+        variant="info"
+        color="indigo"
+        @click="filterMode = 'collections'"
+      />
+      <FilterButton
+        label="Exhibitions"
+        :is-active="filterMode === 'exhibitions'"
+        :count="exhibitionItems.length"
+        variant="success"
+        color="indigo"
+        @click="filterMode = 'exhibitions'"
+      />
+      <FilterButton
+        label="Galleries"
+        :is-active="filterMode === 'galleries'"
+        :count="galleryItems.length"
+        variant="info"
+        color="indigo"
+        @click="filterMode = 'galleries'"
+      />
+    </template>
+
     <!-- Search Slot -->
     <!-- Search Slot -->
     <template #search="slotProps">
@@ -41,6 +77,7 @@
         >
           Collection
         </TableHeader>
+        <TableHeader class="hidden sm:table-cell">Type</TableHeader>
         <TableHeader class="hidden md:table-cell">Language</TableHeader>
         <TableHeader class="hidden lg:table-cell">Context</TableHeader>
         <TableHeader class="hidden lg:table-cell">Items</TableHeader>
@@ -76,6 +113,16 @@
               <CollectionIcon :class="['h-5 w-5', colorClasses!.icon]" />
             </template>
           </InternalName>
+        </TableCell>
+        <TableCell class="hidden sm:table-cell">
+          <span
+            :class="[
+              'inline-flex items-center px-2 py-1 rounded text-xs font-medium capitalize',
+              getTypeColorClasses(collection.type),
+            ]"
+          >
+            {{ collection.type || '—' }}
+          </span>
         </TableCell>
         <TableCell class="hidden md:table-cell">
           <DisplayText small>{{
@@ -165,6 +212,7 @@
   import InternalName from '@/components/format/InternalName.vue'
   import { RectangleStackIcon as CollectionIcon } from '@heroicons/vue/24/solid'
   import SearchControl from '@/components/layout/list/SearchControl.vue'
+  import FilterButton from '@/components/layout/list/FilterButton.vue'
   import type { CollectionResource } from '@metanull/inventory-app-api-client'
   import { useColors, type ColorName } from '@/composables/useColors'
   import PaginationControls from '@/components/layout/list/PaginationControls.vue'
@@ -194,11 +242,37 @@
   // Search state
   const searchQuery = ref('')
 
+  // Filter state - default to 'all'
+  const filterMode = ref<'all' | 'collections' | 'exhibitions' | 'galleries'>('all')
+
   // Computed filtered and sorted collections
   const collections = computed(() => collectionStore.collections || [])
 
+  const collectionItems = computed(() =>
+    collections.value.filter((collection: CollectionResource) => collection.type === 'collection')
+  )
+  const exhibitionItems = computed(() =>
+    collections.value.filter((collection: CollectionResource) => collection.type === 'exhibition')
+  )
+  const galleryItems = computed(() =>
+    collections.value.filter((collection: CollectionResource) => collection.type === 'gallery')
+  )
+
   const filteredCollections = computed(() => {
     let filtered = collections.value
+
+    // Apply filter mode
+    if (filterMode.value === 'collections') {
+      filtered = filtered.filter(
+        (collection: CollectionResource) => collection.type === 'collection'
+      )
+    } else if (filterMode.value === 'exhibitions') {
+      filtered = filtered.filter(
+        (collection: CollectionResource) => collection.type === 'exhibition'
+      )
+    } else if (filterMode.value === 'galleries') {
+      filtered = filtered.filter((collection: CollectionResource) => collection.type === 'gallery')
+    }
 
     // Apply search
     if (searchQuery.value.trim()) {
@@ -242,6 +316,20 @@
     } else {
       sortKey.value = key
       sortDirection.value = 'asc'
+    }
+  }
+
+  // Get color classes for collection type badges
+  const getTypeColorClasses = (type: string) => {
+    switch (type) {
+      case 'collection':
+        return 'bg-blue-100 text-blue-800'
+      case 'exhibition':
+        return 'bg-purple-100 text-purple-800'
+      case 'gallery':
+        return 'bg-green-100 text-green-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
     }
   }
 

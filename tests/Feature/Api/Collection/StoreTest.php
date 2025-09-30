@@ -34,6 +34,7 @@ class StoreTest extends TestCase
 
         $collectionData = [
             'internal_name' => 'test_collection',
+            'type' => 'collection',
             'language_id' => $language->id,
             'context_id' => $context->id,
         ];
@@ -78,6 +79,7 @@ class StoreTest extends TestCase
 
         $collectionData = [
             'internal_name' => 'test_collection_bc',
+            'type' => 'collection',
             'language_id' => $language->id,
             'context_id' => $context->id,
             'backward_compatibility' => 'legacy-id-123',

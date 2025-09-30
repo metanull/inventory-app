@@ -12,14 +12,10 @@ import {
   ContactTranslationApi,
   ContextApi,
   CountryApi,
-  DetailApi,
-  DetailTranslationApi,
-  ExhibitionApi,
-  ExhibitionTranslationApi,
-  GalleryApi,
   ImageUploadApi,
   InfoApi,
   ItemApi,
+  ItemImageApi,
   ItemTranslationApi,
   LanguageApi,
   LocationApi,
@@ -27,8 +23,6 @@ import {
   MarkdownApi,
   MobileAppAuthenticationApi,
   PartnerApi,
-  PictureApi,
-  PictureTranslationApi,
   ProjectApi,
   ProvinceApi,
   ProvinceTranslationApi,
@@ -99,21 +93,6 @@ export const useApiClient = () => {
   const createCountryApi = () =>
     new CountryApi(configuration.value, configuration.value.basePath, sessionAxios)
 
-  const createDetailApi = () =>
-    new DetailApi(configuration.value, configuration.value.basePath, sessionAxios)
-
-  const createDetailTranslationApi = () =>
-    new DetailTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
-
-  const createExhibitionApi = () =>
-    new ExhibitionApi(configuration.value, configuration.value.basePath, sessionAxios)
-
-  const createExhibitionTranslationApi = () =>
-    new ExhibitionTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
-
-  const createGalleryApi = () =>
-    new GalleryApi(configuration.value, configuration.value.basePath, sessionAxios)
-
   const createImageUploadApi = () =>
     new ImageUploadApi(configuration.value, configuration.value.basePath, sessionAxios)
 
@@ -122,6 +101,9 @@ export const useApiClient = () => {
 
   const createItemApi = () =>
     new ItemApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createItemImageApi = () =>
+    new ItemImageApi(configuration.value, configuration.value.basePath, sessionAxios)
 
   const createItemTranslationApi = () =>
     new ItemTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
@@ -143,12 +125,6 @@ export const useApiClient = () => {
 
   const createPartnerApi = () =>
     new PartnerApi(configuration.value, configuration.value.basePath, sessionAxios)
-
-  const createPictureApi = () =>
-    new PictureApi(configuration.value, configuration.value.basePath, sessionAxios)
-
-  const createPictureTranslationApi = () =>
-    new PictureTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
 
   const createProjectApi = () =>
     new ProjectApi(configuration.value, configuration.value.basePath, sessionAxios)
@@ -185,14 +161,10 @@ export const useApiClient = () => {
     createContactTranslationApi,
     createContextApi,
     createCountryApi,
-    createDetailApi,
-    createDetailTranslationApi,
-    createExhibitionApi,
-    createExhibitionTranslationApi,
-    createGalleryApi,
     createImageUploadApi,
     createInfoApi,
     createItemApi,
+    createItemImageApi,
     createItemTranslationApi,
     createLanguageApi,
     createLocationApi,
@@ -200,8 +172,6 @@ export const useApiClient = () => {
     createMarkdownApi,
     createMobileAppAuthenticationApi,
     createPartnerApi,
-    createPictureApi,
-    createPictureTranslationApi,
     createProjectApi,
     createProvinceApi,
     createProvinceTranslationApi,
