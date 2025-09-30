@@ -181,6 +181,12 @@ PICTURES_PATH=pictures
 
 ## Critical Development Rules
 
+### Comments
+- Add comments describing the purpose and intent of complex code blocks.
+- Avoid obvious comments that do not add value.
+- Remove comments that are not explaining the feature's logic (e.g. a comment explaing that "this code was removed" is misguiding as the reader we may be lacking the reference to how it was before).
+- Remove comments that are not related to the current implementation.
+
 ### PowerShell Environment (WINDOWS ONLY)
 - **NEVER use Unix commands** (ls, cat, rm, cp, mv, grep, sed)
 - **ALWAYS use PowerShell equivalents** (Get-ChildItem, Get-Content, Remove-Item, Copy-Item, Move-Item, Select-String)

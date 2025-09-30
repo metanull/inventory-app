@@ -11,18 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Remove legacy tables in order (respecting foreign key constraints)
+        // Remove legacy detail tables (pictures and pictureables handled by separate migrations)
 
-        // 1. Remove polymorphic pivot table first
-        Schema::dropIfExists('pictureables');
-
-        // 2. Remove translation tables (depend on main tables)
+        // 1. Remove translation tables (depend on main tables)
         Schema::dropIfExists('detail_translations');
         Schema::dropIfExists('picture_translations');
 
-        // 3. Remove main legacy tables
+        // 2. Remove details table
         Schema::dropIfExists('details');
-        Schema::dropIfExists('pictures');
     }
 
     /**
@@ -30,28 +26,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Recreate tables in reverse order (this is a complex rollback)
-        // WARNING: This rollback is complex and may require manual intervention
-        // Consider creating a backup before running the up() migration
+        // Recreate legacy detail tables (pictures and pictureables handled by separate migrations)
 
-        // Main tables
-        Schema::create('pictures', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('internal_name');
-            $table->string('backward_compatibility')->nullable();
-            $table->text('copyright_text')->nullable();
-            $table->string('copyright_url')->nullable();
-            $table->string('path')->nullable();
-            $table->string('upload_name')->nullable();
-            $table->string('upload_extension')->nullable();
-            $table->string('upload_mime_type')->nullable();
-            $table->integer('upload_size')->nullable();
-            $table->string('pictureable_type')->nullable();
-            $table->uuid('pictureable_id')->nullable();
-            $table->timestamps();
-
-            $table->index(['pictureable_type', 'pictureable_id']);
-        });
+        // Note: pictures table handled by separate migration (2025_07_08_000001_drop_pictures_table)
 
         Schema::create('details', function (Blueprint $table) {
             $table->uuid('id')->primary();
@@ -92,16 +69,6 @@ return new class extends Migration
             $table->foreign('context_id')->references('id')->on('contexts')->onDelete('cascade');
         });
 
-        // Polymorphic pivot table
-        Schema::create('pictureables', function (Blueprint $table) {
-            $table->uuid('picture_id');
-            $table->uuid('pictureable_id');
-            $table->string('pictureable_type');
-            $table->integer('order')->default(1);
-            $table->timestamps();
-
-            $table->primary(['picture_id', 'pictureable_id', 'pictureable_type'], 'pictureables_primary');
-            $table->foreign('picture_id')->references('id')->on('pictures')->onDelete('cascade');
-        });
+        // Note: pictureables table handled by separate migration (2025_09_28_113107_drop_pictureables_table)
     }
 };

@@ -13,26 +13,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('themes', function (Blueprint $table) {
-            // Add collection_id as optional foreign key only if it doesn't exist
-            if (! Schema::hasColumn('themes', 'collection_id')) {
-                $table->uuid('collection_id')->nullable()->after('exhibition_id');
-                $table->foreign('collection_id')->references('id')->on('collections')->onDelete('set null');
+            $table->uuid('collection_id')->nullable()->after('exhibition_id');
+            $table->foreign('collection_id')->references('id')->on('collections')->onDelete('set null');
+        });
+
+        Schema::table('themes', function (Blueprint $table) {
+            $table->dropUnique(['exhibition_id', 'internal_name']);
+
+            // SQLite requires explicit index drop before column drop
+            if (DB::connection()->getDriverName() === 'sqlite') {
+                $table->dropIndex(['exhibition_id', 'parent_id']);
             }
         });
 
-        // Drop all indexes that reference exhibition_id before dropping the column
-        DB::statement('DROP INDEX IF EXISTS themes_internal_name_exhibition_id_unique');
-        DB::statement('DROP INDEX IF EXISTS themes_exhibition_id_internal_name_unique');
-        DB::statement('DROP INDEX IF EXISTS themes_exhibition_id_parent_id_index');
-
         Schema::table('themes', function (Blueprint $table) {
-            // Drop exhibition_id column
-            if (Schema::hasColumn('themes', 'exhibition_id')) {
-                $table->dropForeign(['exhibition_id']);
-                $table->dropColumn('exhibition_id');
-            }
-
-            // Create new unique index without exhibition_id
+            $table->dropForeign(['exhibition_id']);
+            $table->dropColumn('exhibition_id');
             $table->unique(['internal_name']);
         });
     }
@@ -43,19 +39,23 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('themes', function (Blueprint $table) {
-            // Drop the unique index
             $table->dropUnique(['internal_name']);
+            $table->uuid('exhibition_id')->after('collection_id');
+            $table->foreign('exhibition_id')->references('id')->on('exhibitions')->onDelete('cascade');
+        });
 
-            // Add back exhibition_id
-            $table->uuid('exhibition_id')->nullable()->after('collection_id');
-            $table->foreign('exhibition_id')->references('id')->on('exhibitions')->onDelete('set null');
+        Schema::table('themes', function (Blueprint $table) {
+            $table->unique(['exhibition_id', 'internal_name']);
 
-            // Drop collection_id
+            // Recreate index for SQLite (MariaDB handles this automatically via foreign keys)
+            if (DB::connection()->getDriverName() === 'sqlite') {
+                $table->index(['exhibition_id', 'parent_id']);
+            }
+        });
+
+        Schema::table('themes', function (Blueprint $table) {
             $table->dropForeign(['collection_id']);
             $table->dropColumn('collection_id');
-
-            // Recreate the original unique index
-            $table->unique(['internal_name', 'exhibition_id']);
         });
     }
 };
