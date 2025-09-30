@@ -39,15 +39,21 @@ return new class extends Migration
             $table->uuid('exhibition_id');
             $table->string('language_id', 3);
             $table->uuid('context_id');
-            $table->string('name');
+            $table->string('title');
             $table->text('description');
+            $table->string('url')->nullable();
+            $table->string('backward_compatibility')->nullable()->default(null);
+            $table->json('extra')->nullable();
             $table->timestamps();
 
             $table->foreign('exhibition_id')->references('id')->on('exhibitions')->onDelete('cascade');
             $table->foreign('language_id')->references('id')->on('languages')->onDelete('cascade');
             $table->foreign('context_id')->references('id')->on('contexts')->onDelete('cascade');
 
-            $table->unique(['exhibition_id', 'language_id', 'context_id']);
+            $table->unique(['exhibition_id', 'language_id', 'context_id'], 'exh_tr_exh_lang_ctx_unique');
+            $table->index(['exhibition_id', 'language_id']);
+            $table->index(['exhibition_id', 'context_id']);
+            $table->index(['language_id', 'context_id']);
         });
     }
 };
