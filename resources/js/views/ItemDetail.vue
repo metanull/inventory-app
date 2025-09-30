@@ -17,7 +17,10 @@
     @delete="deleteItem"
   >
     <template #resource-icon>
-      <component :is="getTypeIcon(item?.type || 'object')" :class="['h-6 w-6', colorClasses.icon]" />
+      <component
+        :is="getTypeIcon(item?.type || 'object')"
+        :class="['h-6 w-6', colorClasses.icon]"
+      />
     </template>
     <template #information>
       <DescriptionList>
@@ -57,7 +60,10 @@
                   getTypeColorClasses(item?.type || 'object'),
                 ]"
               >
-                {{ (item?.type || 'object').charAt(0).toUpperCase() + (item?.type || 'object').slice(1) }}
+                {{
+                  (item?.type || 'object').charAt(0).toUpperCase() +
+                  (item?.type || 'object').slice(1)
+                }}
               </span>
             </div>
           </DescriptionDetail>
@@ -144,12 +150,12 @@
   import DisplayText from '@/components/format/DisplayText.vue'
 
   import GenericDropdown from '@/components/format/GenericDropdown.vue'
-  import { 
+  import {
     TrophyIcon as ObjectIcon,
-    BuildingOffice2Icon as MonumentIcon, 
+    BuildingOffice2Icon as MonumentIcon,
     PuzzlePieceIcon as DetailIcon,
     CameraIcon as PictureIcon,
-    ArrowLeftIcon 
+    ArrowLeftIcon,
   } from '@heroicons/vue/24/outline'
   import { useItemStore } from '@/stores/item'
   import { usePartnerStore } from '@/stores/partner'
@@ -357,8 +363,6 @@
         return 'text-teal-600 bg-teal-100'
     }
   }
-
-
 
   // Fetch item function
   const fetchItem = async () => {

@@ -119,7 +119,10 @@
             :backward-compatibility="item.backward_compatibility"
           >
             <template #icon>
-              <component :is="getTypeIcon(item.type)" :class="['h-5 w-5', getTypeIconClasses(item.type)]" />
+              <component
+                :is="getTypeIcon(item.type)"
+                :class="['h-5 w-5', getTypeIconClasses(item.type)]"
+              />
             </template>
           </InternalName>
         </TableCell>
@@ -194,17 +197,17 @@
   import TableRow from '@/components/format/table/TableRow.vue'
   import TableCell from '@/components/format/table/TableCell.vue'
   import InternalName from '@/components/format/InternalName.vue'
-  import { 
+  import {
     TrophyIcon as ObjectIcon,
-    BuildingOffice2Icon as MonumentIcon, 
+    BuildingOffice2Icon as MonumentIcon,
     PuzzlePieceIcon as DetailIcon,
-    CameraIcon as PictureIcon
+    CameraIcon as PictureIcon,
   } from '@heroicons/vue/24/solid'
   import {
     TrophyIcon,
     BuildingOffice2Icon,
-    PuzzlePieceIcon, 
-    CameraIcon
+    PuzzlePieceIcon,
+    CameraIcon,
   } from '@heroicons/vue/24/outline'
   import SearchControl from '@/components/layout/list/SearchControl.vue'
   import type { ItemResource } from '@metanull/inventory-app-api-client'

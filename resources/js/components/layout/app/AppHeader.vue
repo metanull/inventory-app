@@ -82,8 +82,6 @@
             </div>
           </div>
 
-
-
           <!-- Image Management Dropdown -->
           <div class="relative" @mouseleave="closeImagesDropdown">
             <button
@@ -350,8 +348,6 @@
             </div>
           </div>
 
-
-
           <!-- Mobile Image Management Section -->
           <div class="px-3">
             <button
@@ -536,7 +532,6 @@
     UserGroupIcon,
     RectangleStackIcon,
     PhotoIcon,
-
     ArrowUpTrayIcon,
   } from '@heroicons/vue/24/outline'
 
@@ -627,8 +622,6 @@
     isInventoryDropdownOpen.value = !isInventoryDropdownOpen.value
   }
 
-
-
   // Images dropdown functions
   const openImagesDropdown = () => {
     if (imagesDropdownTimeout) {
@@ -682,8 +675,6 @@
   const toggleMobileInventoryDropdown = () => {
     isMobileInventoryDropdownOpen.value = !isMobileInventoryDropdownOpen.value
   }
-
-
 
   const toggleMobileImagesDropdown = () => {
     isMobileImagesDropdownOpen.value = !isMobileImagesDropdownOpen.value

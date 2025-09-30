@@ -247,7 +247,7 @@
 
   // Computed filtered and sorted collections
   const collections = computed(() => collectionStore.collections || [])
-  
+
   const collectionItems = computed(() =>
     collections.value.filter((collection: CollectionResource) => collection.type === 'collection')
   )
@@ -263,9 +263,13 @@
 
     // Apply filter mode
     if (filterMode.value === 'collections') {
-      filtered = filtered.filter((collection: CollectionResource) => collection.type === 'collection')
+      filtered = filtered.filter(
+        (collection: CollectionResource) => collection.type === 'collection'
+      )
     } else if (filterMode.value === 'exhibitions') {
-      filtered = filtered.filter((collection: CollectionResource) => collection.type === 'exhibition')
+      filtered = filtered.filter(
+        (collection: CollectionResource) => collection.type === 'exhibition'
+      )
     } else if (filterMode.value === 'galleries') {
       filtered = filtered.filter((collection: CollectionResource) => collection.type === 'gallery')
     }
