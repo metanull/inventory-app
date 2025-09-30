@@ -68,67 +68,21 @@
                 <UserGroupIcon class="w-4 h-4" :class="partnersColors.icon" />
                 Partners
               </RouterLink>
-            </div>
-          </div>
-
-          <!-- Collections Dropdown -->
-          <div class="relative" @mouseleave="closeCollectionsDropdown">
-            <button
-              :class="[
-                getThemeClass('navLinkColor'),
-                'px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1',
-              ]"
-              @mouseenter="openCollectionsDropdown"
-              @click="toggleCollectionsDropdown"
-            >
-              Collections
-              <ChevronDownIcon
-                class="w-4 h-4 transition-transform"
-                :class="{ 'rotate-180': isCollectionsDropdownOpen }"
-              />
-            </button>
-
-            <div
-              v-if="isCollectionsDropdownOpen"
-              :class="[
-                'absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 z-50 border',
-                getThemeClass('dropdownBorder'),
-                'bg-white',
-              ]"
-              @mouseenter="keepCollectionsDropdownOpen"
-              @mouseleave="closeCollectionsDropdown"
-            >
               <RouterLink
                 to="/collections"
                 :class="[
                   getThemeClass('dropdownItemColor'),
                   'px-4 py-2 text-sm flex items-center gap-2',
                 ]"
-                @click="closeCollectionsDropdown"
+                @click="closeInventoryDropdown"
               >
                 <RectangleStackIcon class="w-4 h-4" :class="collectionsColors.icon" />
                 Collections
               </RouterLink>
-              <div
-                :class="['px-4 py-2 text-sm flex items-center gap-2', getThemeClass('neutralText')]"
-              >
-                <PhotoIcon class="w-4 h-4" :class="getThemeClass('mobileMuted')" />
-                <div class="flex flex-col">
-                  <span>Galleries</span>
-                  <span :class="getThemeClass('comingSoonText')">Coming Soon</span>
-                </div>
-              </div>
-              <div
-                :class="['px-4 py-2 text-sm flex items-center gap-2', getThemeClass('neutralText')]"
-              >
-                <PresentationChartLineIcon class="w-4 h-4" :class="getThemeClass('mobileMuted')" />
-                <div class="flex flex-col">
-                  <span>Exhibitions</span>
-                  <span :class="getThemeClass('comingSoonText')">Coming Soon</span>
-                </div>
-              </div>
             </div>
           </div>
+
+
 
           <!-- Image Management Dropdown -->
           <div class="relative" @mouseleave="closeImagesDropdown">
@@ -382,29 +336,6 @@
                 <UserGroupIcon class="w-4 h-4" :class="partnersColors.icon" />
                 Partners
               </RouterLink>
-            </div>
-          </div>
-
-          <!-- Mobile Collections Section -->
-          <div class="px-3">
-            <button
-              :class="[
-                getThemeClass('mobileNavLinkColor'),
-                'w-full text-left py-2 text-base font-medium flex items-center justify-between',
-              ]"
-              @click="toggleMobileCollectionsDropdown"
-            >
-              Collections
-              <ChevronDownIcon
-                class="w-4 h-4 transition-transform"
-                :class="{ 'rotate-180': isMobileCollectionsDropdownOpen }"
-              />
-            </button>
-
-            <div
-              v-if="isMobileCollectionsDropdownOpen"
-              :class="['mt-2 space-y-2 pl-4 border-l-2', getThemeClass('mobileBorder')]"
-            >
               <RouterLink
                 to="/collections"
                 :class="[
@@ -416,22 +347,10 @@
                 <RectangleStackIcon class="w-4 h-4" :class="collectionsColors.icon" />
                 Collections
               </RouterLink>
-              <div :class="['py-2 text-sm flex items-center gap-2', getThemeClass('mobileMuted')]">
-                <PhotoIcon class="w-4 h-4" :class="getThemeClass('mobileMuted')" />
-                <div class="flex flex-col">
-                  <span>Galleries</span>
-                  <span :class="getThemeClass('comingSoonText')">Coming Soon</span>
-                </div>
-              </div>
-              <div :class="['py-2 text-sm flex items-center gap-2', getThemeClass('mobileMuted')]">
-                <PresentationChartLineIcon class="w-4 h-4" :class="getThemeClass('mobileMuted')" />
-                <div class="flex flex-col">
-                  <span>Exhibitions</span>
-                  <span :class="getThemeClass('comingSoonText')">Coming Soon</span>
-                </div>
-              </div>
             </div>
           </div>
+
+
 
           <!-- Mobile Image Management Section -->
           <div class="px-3">
@@ -617,7 +536,7 @@
     UserGroupIcon,
     RectangleStackIcon,
     PhotoIcon,
-    PresentationChartLineIcon,
+
     ArrowUpTrayIcon,
   } from '@heroicons/vue/24/outline'
 
@@ -639,12 +558,12 @@
   // Desktop dropdown state
   const isDropdownOpen = ref(false)
   const isInventoryDropdownOpen = ref(false)
-  const isCollectionsDropdownOpen = ref(false)
+
   const isImagesDropdownOpen = ref(false)
   const isToolsDropdownOpen = ref(false)
   let dropdownTimeout: ReturnType<typeof setTimeout> | null = null
   let inventoryDropdownTimeout: ReturnType<typeof setTimeout> | null = null
-  let collectionsDropdownTimeout: ReturnType<typeof setTimeout> | null = null
+
   let imagesDropdownTimeout: ReturnType<typeof setTimeout> | null = null
   let toolsDropdownTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -652,7 +571,7 @@
   const isMobileMenuOpen = ref(false)
   const isMobileDropdownOpen = ref(false)
   const isMobileInventoryDropdownOpen = ref(false)
-  const isMobileCollectionsDropdownOpen = ref(false)
+
   const isMobileImagesDropdownOpen = ref(false)
   const isMobileToolsDropdownOpen = ref(false)
 
@@ -708,31 +627,7 @@
     isInventoryDropdownOpen.value = !isInventoryDropdownOpen.value
   }
 
-  // Collections dropdown functions
-  const openCollectionsDropdown = () => {
-    if (collectionsDropdownTimeout) {
-      clearTimeout(collectionsDropdownTimeout)
-      collectionsDropdownTimeout = null
-    }
-    isCollectionsDropdownOpen.value = true
-  }
 
-  const closeCollectionsDropdown = () => {
-    collectionsDropdownTimeout = setTimeout(() => {
-      isCollectionsDropdownOpen.value = false
-    }, 150)
-  }
-
-  const keepCollectionsDropdownOpen = () => {
-    if (collectionsDropdownTimeout) {
-      clearTimeout(collectionsDropdownTimeout)
-      collectionsDropdownTimeout = null
-    }
-  }
-
-  const toggleCollectionsDropdown = () => {
-    isCollectionsDropdownOpen.value = !isCollectionsDropdownOpen.value
-  }
 
   // Images dropdown functions
   const openImagesDropdown = () => {
@@ -766,7 +661,7 @@
     if (!isMobileMenuOpen.value) {
       isMobileDropdownOpen.value = false
       isMobileInventoryDropdownOpen.value = false
-      isMobileCollectionsDropdownOpen.value = false
+
       isMobileImagesDropdownOpen.value = false
       isMobileToolsDropdownOpen.value = false
     }
@@ -776,7 +671,7 @@
     isMobileMenuOpen.value = false
     isMobileDropdownOpen.value = false
     isMobileInventoryDropdownOpen.value = false
-    isMobileCollectionsDropdownOpen.value = false
+
     isMobileToolsDropdownOpen.value = false
   }
 
@@ -788,9 +683,7 @@
     isMobileInventoryDropdownOpen.value = !isMobileInventoryDropdownOpen.value
   }
 
-  const toggleMobileCollectionsDropdown = () => {
-    isMobileCollectionsDropdownOpen.value = !isMobileCollectionsDropdownOpen.value
-  }
+
 
   const toggleMobileImagesDropdown = () => {
     isMobileImagesDropdownOpen.value = !isMobileImagesDropdownOpen.value

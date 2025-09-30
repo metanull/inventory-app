@@ -107,17 +107,15 @@
 <script setup lang="ts">
   import { ref, onMounted, onUnmounted, type Component } from 'vue'
   import NavigationCard from '@/components/format/card/NavigationCard.vue'
-  import InformationCard from '@/components/format/card/InformationCard.vue'
   import {
     LanguageIcon,
     GlobeAltIcon as CountryIcon,
     CogIcon as ContextIcon,
     FolderIcon as ProjectIcon,
-    ArchiveBoxIcon as ItemIcon,
+    TrophyIcon as ItemIcon,
     UserGroupIcon as PartnerIcon,
     RectangleStackIcon as CollectionIcon,
     PhotoIcon as GalleryIcon,
-    PresentationChartLineIcon as ExhibitionIcon,
     CloudArrowUpIcon,
   } from '@heroicons/vue/24/outline'
 
@@ -227,47 +225,17 @@
           },
           icon: PartnerIcon,
         },
-      ],
-    },
-    {
-      id: 'collections',
-      title: 'Collections',
-      cards: [
         {
           title: 'Collections',
           component: NavigationCard,
           props: {
             title: 'Collections',
-            description: 'Manage collections of museum items with context and translation support',
+            description: 'Manage collections, exhibitions, and galleries of museum items',
             mainColor: 'indigo',
             buttonText: 'Manage Collections',
             buttonRoute: '/collections',
           },
           icon: CollectionIcon,
-        },
-        {
-          title: 'Galleries',
-          component: InformationCard,
-          props: {
-            title: 'Galleries',
-            description:
-              'Mixed content galleries containing Items and Details will be available in future updates.',
-            mainColor: 'gray',
-            pillText: 'Coming Soon',
-          },
-          icon: GalleryIcon,
-        },
-        {
-          title: 'Exhibitions',
-          component: InformationCard,
-          props: {
-            title: 'Exhibitions',
-            description:
-              'Theme-based exhibition collections with hierarchical organization will be available in future updates.',
-            mainColor: 'gray',
-            pillText: 'Coming Soon',
-          },
-          icon: ExhibitionIcon,
         },
       ],
     },

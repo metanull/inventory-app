@@ -17,7 +17,7 @@
     @delete="deleteItem"
   >
     <template #resource-icon>
-      <ItemIcon :class="`h-6 w-6 ${colorClasses.icon}`" />
+      <component :is="getTypeIcon(item?.type || 'object')" :class="['h-6 w-6', colorClasses.icon]" />
     </template>
     <template #information>
       <DescriptionList>
@@ -47,16 +47,17 @@
               <option value="">Select type...</option>
               <option value="object">Object</option>
               <option value="monument">Monument</option>
+              <option value="detail">Detail</option>
+              <option value="picture">Picture</option>
             </select>
             <div v-else class="flex items-center">
               <span
                 :class="[
                   'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                  colorClasses.badgeBackground,
-                  colorClasses.badge,
+                  getTypeColorClasses(item?.type || 'object'),
                 ]"
               >
-                {{ item?.type === 'object' ? 'Object' : 'Monument' }}
+                {{ (item?.type || 'object').charAt(0).toUpperCase() + (item?.type || 'object').slice(1) }}
               </span>
             </div>
           </DescriptionDetail>
@@ -143,7 +144,13 @@
   import DisplayText from '@/components/format/DisplayText.vue'
 
   import GenericDropdown from '@/components/format/GenericDropdown.vue'
-  import { ArchiveBoxIcon as ItemIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline'
+  import { 
+    TrophyIcon as ObjectIcon,
+    BuildingOffice2Icon as MonumentIcon, 
+    PuzzlePieceIcon as DetailIcon,
+    CameraIcon as PictureIcon,
+    ArrowLeftIcon 
+  } from '@heroicons/vue/24/outline'
   import { useItemStore } from '@/stores/item'
   import { usePartnerStore } from '@/stores/partner'
   import { useProjectStore } from '@/stores/project'
@@ -319,6 +326,39 @@
       country_id: item.value.country?.id || '',
     }
   }
+
+  // Type-based icon and color functions
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'object':
+        return ObjectIcon
+      case 'monument':
+        return MonumentIcon
+      case 'detail':
+        return DetailIcon
+      case 'picture':
+        return PictureIcon
+      default:
+        return ObjectIcon
+    }
+  }
+
+  const getTypeColorClasses = (type: string) => {
+    switch (type) {
+      case 'object':
+        return 'text-teal-600 bg-teal-100'
+      case 'monument':
+        return 'text-green-600 bg-green-100'
+      case 'detail':
+        return 'text-orange-600 bg-orange-100'
+      case 'picture':
+        return 'text-purple-600 bg-purple-100'
+      default:
+        return 'text-teal-600 bg-teal-100'
+    }
+  }
+
+
 
   // Fetch item function
   const fetchItem = async () => {
