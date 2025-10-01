@@ -112,4 +112,19 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Email Two-Factor Authentication
+    |--------------------------------------------------------------------------
+    |
+    | Configuration options for email-based two-factor authentication.
+    |
+    */
+
+    'email_2fa' => [
+        'expiry_minutes' => env('EMAIL_2FA_EXPIRY_MINUTES', 5),
+        'rate_limit' => env('EMAIL_2FA_RATE_LIMIT', 3),
+        'enabled' => env('EMAIL_2FA_ENABLED', true),
+    ],
+
 ];

@@ -76,6 +76,15 @@
           </button>
         </div>
       </form>
+
+      <!-- Two-Factor Authentication Component -->
+      <div v-if="authStore.requires2FA && authStore.twoFactorChallenge">
+        <TwoFactorVerification
+          :challenge="authStore.twoFactorChallenge"
+          @verified="handle2FAVerified"
+          @cancelled="handle2FACancelled"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -86,6 +95,7 @@
   import { useAuthStore } from '@/stores/auth'
   import { ArrowRightOnRectangleIcon } from '@heroicons/vue/24/outline'
   import { getThemeClass } from '@/composables/useColors'
+  import TwoFactorVerification from '@/components/TwoFactorVerification.vue'
   // safeRedirect no longer needed here as we only accept named redirects
   import type { RouteParamsRaw } from 'vue-router'
 
@@ -101,27 +111,48 @@
     authStore.clearError()
     try {
       await authStore.login(form.email, form.password)
-      const q = router.currentRoute.value.query
-      const redirectName = q.redirectName as string | undefined
-      const redirectParamsRaw = q.redirectParams as string | undefined
-      let redirectParams: RouteParamsRaw | undefined
-      if (redirectParamsRaw) {
-        try {
-          const parsed = JSON.parse(decodeURIComponent(redirectParamsRaw)) as unknown
-          if (parsed && typeof parsed === 'object') {
-            redirectParams = parsed as RouteParamsRaw
-          }
-        } catch {
-          redirectParams = undefined
-        }
+
+      // Check if 2FA is required - if so, the component will show automatically
+      if (authStore.requires2FA) {
+        return // Stay on login page to show 2FA component
       }
-      if (redirectName) {
-        await router.push({ name: redirectName, params: redirectParams })
-      } else {
-        await router.push('/')
-      }
+
+      // No 2FA required, proceed with redirect
+      await handleSuccessfulLogin()
     } catch {
       // Error is handled by the store
+    }
+  }
+
+  const handle2FAVerified = async () => {
+    await handleSuccessfulLogin()
+  }
+
+  const handle2FACancelled = () => {
+    // Reset form or stay on login page
+    form.email = ''
+    form.password = ''
+  }
+
+  const handleSuccessfulLogin = async () => {
+    const q = router.currentRoute.value.query
+    const redirectName = q.redirectName as string | undefined
+    const redirectParamsRaw = q.redirectParams as string | undefined
+    let redirectParams: RouteParamsRaw | undefined
+    if (redirectParamsRaw) {
+      try {
+        const parsed = JSON.parse(decodeURIComponent(redirectParamsRaw)) as unknown
+        if (parsed && typeof parsed === 'object') {
+          redirectParams = parsed as RouteParamsRaw
+        }
+      } catch {
+        redirectParams = undefined
+      }
+    }
+    if (redirectName) {
+      await router.push({ name: redirectName, params: redirectParams })
+    } else {
+      await router.push('/')
     }
   }
 

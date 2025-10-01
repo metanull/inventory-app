@@ -14,7 +14,31 @@ class JetstreamServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register our custom profile route early to take precedence
+        $this->registerCustomRoutes();
+    }
+
+    /**
+     * Register custom routes with /web prefix to match Fortify configuration.
+     */
+    protected function registerCustomRoutes(): void
+    {
+        $this->app->booted(function () {
+            if (config('jetstream.stack') === 'livewire') {
+                \Illuminate\Support\Facades\Route::middleware(['web', 'auth:sanctum', 'verified'])
+                    ->prefix('web')
+                    ->group(function () {
+                        \Illuminate\Support\Facades\Route::get('/user/profile', [\Laravel\Jetstream\Http\Controllers\Livewire\UserProfileController::class, 'show'])
+                            ->name('web.profile.show');
+
+                        // Add API tokens route if API features are enabled
+                        if (\Laravel\Jetstream\Jetstream::hasApiFeatures()) {
+                            \Illuminate\Support\Facades\Route::get('/user/api-tokens', [\Laravel\Jetstream\Http\Controllers\Livewire\ApiTokenController::class, 'index'])
+                                ->name('web.api-tokens.index');
+                        }
+                    });
+            }
+        });
     }
 
     /**
@@ -24,9 +48,20 @@ class JetstreamServiceProvider extends ServiceProvider
     {
         $this->configurePermissions();
 
+        $this->configureRoutes();
+
         Jetstream::deleteUsersUsing(DeleteUser::class);
 
         Vite::prefetch(concurrency: 3);
+    }
+
+    /**
+     * Configure custom routes to match the /web prefix used by Fortify.
+     */
+    protected function configureRoutes(): void
+    {
+        // Register profile route with /web prefix for consistency with Fortify
+        // This should be called in register() method instead for earlier loading
     }
 
     /**

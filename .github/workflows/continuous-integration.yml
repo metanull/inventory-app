@@ -67,6 +67,11 @@ jobs:
         run: |
           php artisan migrate --force
 
+      - name: "Setup > Laravel > Validate migrations"
+        run: |
+          php artisan migrate:rollback
+          php artisan migrate
+
       - name: "Check > Laravel > Linting"
         run: |
           ./vendor/bin/pint --bail

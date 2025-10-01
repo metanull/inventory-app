@@ -238,6 +238,15 @@ Route::resource('item-translation', ItemTranslationController::class)->except([
 Route::post('mobile/acquire-token', [MobileAppAuthenticationController::class, 'acquire_token'])
     ->name('token.acquire');
 
+Route::post('mobile/verify-two-factor', [MobileAppAuthenticationController::class, 'verify_two_factor'])
+    ->name('token.verify_two_factor');
+
+Route::post('mobile/request-email-code', [MobileAppAuthenticationController::class, 'request_email_code'])
+    ->name('token.request_email_code');
+
+Route::post('mobile/two-factor-status', [MobileAppAuthenticationController::class, 'two_factor_status'])
+    ->name('token.two_factor_status');
+
 Route::get('mobile/wipe', [MobileAppAuthenticationController::class, 'wipe_tokens'])
     ->name('token.wipe')
     ->middleware('auth:sanctum');

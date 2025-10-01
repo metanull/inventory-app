@@ -4,23 +4,40 @@ This repo is a Laravel 12 (PHP 8.2+) backend and Vue 3 + TypeScript SPA frontend
 
 - Workspace layout: key folders are `app/` (Laravel code), `routes/api.php` (REST surface), `resources/js/` (Vue app + Pinia stores and `resources/js/**/__tests__` for Vitest tests), `database/` (migrations, factories, seeders), `docs/` (Jekyll site - Ruby, built via WSL), `docs/_openapi/api.json` (generated API specification), `docs/_docs`(generated commit history) and `api-client/` (generated TypeScript client).
 
-- Environment & shell: Windows + PowerShell only. Never use Unix commands; prefer PowerShell equivalents (Get-ChildItem, Get-Content, Copy-Item, etc.). For Ruby and Jekyll steps use WSL via `wsl bash -lc '...'`.
+- Environment & shell: Windows + PowerShell only. 
+  - Never use Unix commands; prefer PowerShell equivalents (Get-ChildItem, Get-Content, Copy-Item, etc.). 
+  - For special characters, do not use Unix escaping (backslash "\"), use Powershell escaping (backtick "`")
+  - For Ruby and Jekyll run commands via Windows Substystem for Linux via `wsl bash -lc '...'`.
 
-- Tests & CI:
-  - Backend tests: use Laravel's test runner directly: `php artisan test` (prefer `--compact` and `--parallel` when helpful).
-  - Frontend tests (Vitest): run `vitest run` (prefer `--reporter=dot` for CI-friendly output). Vitest tests live under `resources/js/**/__tests__` alongside the Vue app.
+- Tests:
+  - Use VS Code testing features to run tests.
+  - If exceptionally you must run test in a terminal, then 
+    - for Backend tests: use Laravel's test runner directly: `php artisan test` (prefer `--compact` and `--parallel` when helpful).
+    - for Frontend tests (Vitest): run `vitest run` (prefer `--reporter=dot` for CI-friendly output). Vitest tests live under `resources/js/**/__tests__` alongside the Vue app.
+  - Testing in mandatory before push and PR.
+  
+- CI:
   - CI workflows live in `.github/workflows/` — `laravel.yml` is the main CI.
 
-- Linting & pre-commit checks (mandatory before PRs):
-  - Backend: run Pint directly: `\.\vendor\bin\pint` or `php artisan pint` if configured.
-  - Frontend: run ESLint directly: `npx eslint . --ext .ts,.vue` or via project npm scripts (`npm run lint`).
-  - Security audits: run `composer audit` for PHP dependencies and `npm audit` (or `npm audit --audit-level=moderate`) for Node dependencies as part of pre-PR checks.
+- Linting & pre-commit checks
+  - Backend checks: 
+    - run Pint directly: `\.\vendor\bin\pint` or `php artisan pint` if configured.
+  - Frontend checks: 
+    - run ESLint directly: `npx eslint . --ext .ts,.vue` or via project npm scripts (`npm run lint`).
+    - run typescript checks via npm scripts (`npm run type-check`).
+    - run build via `npm run build`.
+  - Security audits: 
+    - run `composer audit` for PHP dependencies
+    - run `npm audit` (or `npm audit --audit-level=moderate`) for Node dependencies.
+  - Checking is mandatory before push and PR. No warnings or errors must be ignored.
 
 - Git rules and branching (enforced by repo rules):
-  - When starting a new job, always `git pull` first to ensure you're working on the latest code then create a new branch.
-  - Never push/commit directly to `main`. Create a branch with `feature/` or `fix/` prefix.
-  - Use `gh pr create` for PRs, preferably with the option `--assignee "@me"`; commit/pr messages are often stored in temporary markdown files (`temp_*.md`) to avoid escaping issues.
-  - Before creation of a PR run semantic versioning (`npm version patch|minor|major`) and update `CHANGELOG.md`.
+  - When starting a new job
+    - Always pull the latest `main` to ensure you're working on the latest code.
+    - Create a branch with `feature/` or `fix/` prefix.
+  - Never push/commit directly to `main`. 
+    - Use `gh pr create` for PRs, preferably with the option `--assignee "@me"`; commit/pr messages are often stored in temporary markdown files (`temp_*.md`) to avoid escaping issues.
+    - Before creation of a PR, right after the push, run semantic versioning (`npm version patch|minor|major`) and update `CHANGELOG.md`.
 
 - Laravel conventions to preserve when modifying/adding models or APIs:
   - Every new model must include Migration, Resource, Controller, Factory, Seeder and Tests.

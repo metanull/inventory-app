@@ -179,7 +179,16 @@ docs/ThemeTranslationStoreRequest.md
 docs/ThemeTranslationUpdateRequest.md
 docs/ThemeTranslationsApi.md
 docs/ThemeUpdateRequest.md
+docs/TokenAcquire201Response.md
+docs/TokenAcquire201ResponseUser.md
+docs/TokenAcquire202Response.md
 docs/TokenAcquireRequest.md
+docs/TokenRequestEmailCode200Response.md
+docs/TokenRequestEmailCodeRequest.md
+docs/TokenTwoFactorStatus200Response.md
+docs/TokenVerifyTwoFactor201Response.md
+docs/TokenVerifyTwoFactor201ResponseUser.md
+docs/TokenVerifyTwoFactorRequest.md
 docs/UpdateItemImageRequest.md
 docs/UpdateItemRequest.md
 docs/WorkshopResource.md
