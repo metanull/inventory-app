@@ -34,16 +34,14 @@ class AuthorizationMiddlewareTest extends TestCase
         })->middleware(['auth:sanctum', 'role:Manager of Users']);
     }
 
-    /** @test */
-    public function it_denies_access_to_unauthenticated_users()
+    public function test_it_denies_access_to_unauthenticated_users(): void
     {
         $response = $this->getJson('/test-permission');
 
         $response->assertStatus(401);
     }
 
-    /** @test */
-    public function it_denies_access_to_users_without_permission()
+    public function test_it_denies_access_to_users_without_permission(): void
     {
         $user = User::factory()->create();
 
@@ -53,8 +51,7 @@ class AuthorizationMiddlewareTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
-    public function it_allows_access_to_users_with_permission()
+    public function test_it_allows_access_to_users_with_permission(): void
     {
         $user = User::factory()->create();
         $role = Role::findByName('Regular User');
@@ -67,8 +64,7 @@ class AuthorizationMiddlewareTest extends TestCase
             ->assertJson(['message' => 'success']);
     }
 
-    /** @test */
-    public function it_denies_access_to_users_without_role()
+    public function test_it_denies_access_to_users_without_role(): void
     {
         $user = User::factory()->create();
 
@@ -78,8 +74,7 @@ class AuthorizationMiddlewareTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
-    public function it_allows_access_to_users_with_correct_role()
+    public function test_it_allows_access_to_users_with_correct_role(): void
     {
         $user = User::factory()->create();
         $role = Role::findByName('Manager of Users');
@@ -92,8 +87,7 @@ class AuthorizationMiddlewareTest extends TestCase
             ->assertJson(['message' => 'success']);
     }
 
-    /** @test */
-    public function it_denies_access_to_users_with_direct_permissions_but_no_roles()
+    public function test_it_denies_access_to_users_with_direct_permissions_but_no_roles(): void
     {
         // According to requirements: "No Role: No access"
         // Users must have roles, direct permissions alone are not sufficient
@@ -108,8 +102,7 @@ class AuthorizationMiddlewareTest extends TestCase
             ->assertJsonFragment(['reason' => 'User has no assigned roles']);
     }
 
-    /** @test */
-    public function custom_role_middleware_denies_users_without_any_roles()
+    public function test_custom_role_middleware_denies_users_without_any_roles(): void
     {
         $user = User::factory()->create();
 
@@ -120,8 +113,7 @@ class AuthorizationMiddlewareTest extends TestCase
         $response->assertJsonFragment(['reason' => 'User has no assigned roles']);
     }
 
-    /** @test */
-    public function custom_role_middleware_allows_users_with_correct_role()
+    public function test_custom_role_middleware_allows_users_with_correct_role(): void
     {
         $user = User::factory()->create();
         $role = Role::findByName('Regular User');

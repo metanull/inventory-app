@@ -13,17 +13,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->trustProxies(
-            at: [
-                '192.168.255.157',
-                '10.0.0.0/8',
-                '127.0.0.1',
-            ],
-            headers: Request::HEADER_X_FORWARDED_FOR |
-                Request::HEADER_X_FORWARDED_HOST |
-                Request::HEADER_X_FORWARDED_PORT |
-                Request::HEADER_X_FORWARDED_PROTO
-        );
+        // Configure trusted proxies from environment variable
+        $trustedProxies = env('TRUSTED_PROXIES', '');
+        if (! empty($trustedProxies)) {
+            $proxies = array_map('trim', explode(',', $trustedProxies));
+            $middleware->trustProxies(
+                at: $proxies,
+                headers: Request::HEADER_X_FORWARDED_FOR |
+                    Request::HEADER_X_FORWARDED_HOST |
+                    Request::HEADER_X_FORWARDED_PORT |
+                    Request::HEADER_X_FORWARDED_PROTO
+            );
+        }
 
         // Register authorization middleware
         $middleware->alias([

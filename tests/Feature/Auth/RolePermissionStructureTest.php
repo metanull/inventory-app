@@ -19,8 +19,7 @@ class RolePermissionStructureTest extends TestCase
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
     }
 
-    /** @test */
-    public function it_creates_all_required_permissions()
+    public function test_it_creates_all_required_permissions(): void
     {
         $expectedPermissions = [
             'view data',
@@ -43,8 +42,7 @@ class RolePermissionStructureTest extends TestCase
         $this->assertEquals(count($expectedPermissions), Permission::count());
     }
 
-    /** @test */
-    public function it_creates_required_roles()
+    public function test_it_creates_required_roles(): void
     {
         $this->assertDatabaseHas('roles', [
             'name' => 'Regular User',
@@ -57,8 +55,7 @@ class RolePermissionStructureTest extends TestCase
         $this->assertEquals(2, Role::count());
     }
 
-    /** @test */
-    public function regular_user_role_has_correct_permissions()
+    public function test_regular_user_role_has_correct_permissions(): void
     {
         $regularUser = Role::findByName('Regular User');
 
@@ -79,8 +76,7 @@ class RolePermissionStructureTest extends TestCase
         $this->assertFalse($regularUser->hasPermissionTo('view user management'));
     }
 
-    /** @test */
-    public function manager_role_has_all_permissions()
+    public function test_manager_role_has_all_permissions(): void
     {
         $manager = Role::findByName('Manager of Users');
 
@@ -101,8 +97,7 @@ class RolePermissionStructureTest extends TestCase
         }
     }
 
-    /** @test */
-    public function permissions_have_descriptions()
+    public function test_permissions_have_descriptions(): void
     {
         $permissions = Permission::all();
 
@@ -112,8 +107,7 @@ class RolePermissionStructureTest extends TestCase
         }
     }
 
-    /** @test */
-    public function roles_have_descriptions()
+    public function test_roles_have_descriptions(): void
     {
         $roles = Role::all();
 

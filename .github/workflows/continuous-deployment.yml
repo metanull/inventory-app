@@ -15,6 +15,7 @@
 #   DB_CONNECTION, DB_HOST, DB_PORT
 #   API_DOCS_ENABLED (optional, defaults to false)
 #   APACHE_SERVICE_USER (optional, defaults to SYSTEM)
+#   TRUSTED_PROXIES (optional, comma-separated list of proxy IPs/CIDR blocks)
 #
 # Secrets:
 #   APP_KEY, MARIADB_DATABASE, MARIADB_USER, MARIADB_SECRET
@@ -532,6 +533,8 @@ jobs:
       MAIL_ENCRYPTION: ${{ vars.MAIL_ENCRYPTION || 'null' }}
       MAIL_FROM_ADDRESS: ${{ vars.MAIL_FROM_ADDRESS || 'user@example.com' }}
       MAIL_FROM_NAME: ${{ vars.MAIL_FROM_NAME || 'Inventory App' }}
+      # Trusted Proxies configuration
+      TRUSTED_PROXIES: ${{ vars.TRUSTED_PROXIES || '' }}
       # Vue.js environment
       VITE_API_BASE_URL: ${{ vars.APP_URL || 'http://localhost' }}/api
       VITE_APP_TITLE: ${{ vars.APP_NAME || 'Inventory App' }}
@@ -601,6 +604,7 @@ jobs:
             'MAIL_PASSWORD=null' = "MAIL_PASSWORD=$env:MAIL_PASSWORD"
             'MAIL_ENCRYPTION=null' = "MAIL_ENCRYPTION=$env:MAIL_ENCRYPTION"
             'MAIL_FROM_ADDRESS="user@example.com"' = "MAIL_FROM_ADDRESS=`"$env:MAIL_FROM_ADDRESS`""
+            'TRUSTED_PROXIES=' = "TRUSTED_PROXIES=$env:TRUSTED_PROXIES"
           }
           
           Write-Host "::group::Environment variable replacements"

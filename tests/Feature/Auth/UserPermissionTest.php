@@ -20,8 +20,7 @@ class UserPermissionTest extends TestCase
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
     }
 
-    /** @test */
-    public function user_can_be_assigned_role_and_permissions()
+    public function test_user_can_be_assigned_role_and_permissions(): void
     {
         $user = User::factory()->create();
         $role = Role::findByName('Regular User');
@@ -42,8 +41,7 @@ class UserPermissionTest extends TestCase
         $this->assertFalse($user->hasPermissionTo('manage users'));
     }
 
-    /** @test */
-    public function user_can_be_given_direct_permissions()
+    public function test_user_can_be_given_direct_permissions(): void
     {
         $user = User::factory()->create();
         $permission = Permission::findByName('view data');
@@ -56,8 +54,7 @@ class UserPermissionTest extends TestCase
         $this->assertTrue($user->hasDirectPermission('view data'));
     }
 
-    /** @test */
-    public function user_with_manager_role_has_all_permissions()
+    public function test_user_with_manager_role_has_all_permissions(): void
     {
         $user = User::factory()->create();
         $role = Role::findByName('Manager of Users');
@@ -76,8 +73,7 @@ class UserPermissionTest extends TestCase
         $this->assertTrue($user->hasPermissionTo('view user management'));
     }
 
-    /** @test */
-    public function user_without_roles_has_no_permissions()
+    public function test_user_without_roles_has_no_permissions(): void
     {
         $user = User::factory()->create();
 

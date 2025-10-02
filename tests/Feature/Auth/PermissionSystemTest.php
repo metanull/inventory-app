@@ -12,8 +12,7 @@ class PermissionSystemTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function it_can_create_roles_and_permissions()
+    public function test_it_can_create_roles_and_permissions(): void
     {
         // Create a role
         $role = Role::create(['name' => 'test-role']);
@@ -35,8 +34,7 @@ class PermissionSystemTest extends TestCase
         $this->assertTrue($role->hasPermissionTo('test-permission'));
     }
 
-    /** @test */
-    public function it_can_assign_roles_to_users()
+    public function test_it_can_assign_roles_to_users(): void
     {
         $user = User::factory()->create();
         $role = Role::create(['name' => 'test-role']);
@@ -52,8 +50,7 @@ class PermissionSystemTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function it_can_check_user_permissions()
+    public function test_it_can_check_user_permissions(): void
     {
         $user = User::factory()->create();
         $role = Role::create(['name' => 'test-role']);
@@ -65,8 +62,7 @@ class PermissionSystemTest extends TestCase
         $this->assertTrue($user->hasPermissionTo('test-permission'));
     }
 
-    /** @test */
-    public function it_can_give_direct_permissions_to_users()
+    public function test_it_can_give_direct_permissions_to_users(): void
     {
         $user = User::factory()->create();
         $permission = Permission::create(['name' => 'direct-permission']);

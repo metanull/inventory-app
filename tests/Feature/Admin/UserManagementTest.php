@@ -19,8 +19,7 @@ class UserManagementTest extends TestCase
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
     }
 
-    /** @test */
-    public function manager_can_access_user_management_index()
+    public function test_manager_can_access_user_management_index(): void
     {
         $manager = User::factory()->create();
         $managerRole = Role::findByName('Manager of Users');
@@ -33,8 +32,7 @@ class UserManagementTest extends TestCase
         $response->assertSee('User Management');
     }
 
-    /** @test */
-    public function regular_user_cannot_access_user_management()
+    public function test_regular_user_cannot_access_user_management(): void
     {
         $user = User::factory()->create();
         $regularRole = Role::findByName('Regular User');
@@ -46,8 +44,7 @@ class UserManagementTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
-    public function user_without_roles_cannot_access_user_management()
+    public function test_user_without_roles_cannot_access_user_management(): void
     {
         $user = User::factory()->create();
 
@@ -57,8 +54,7 @@ class UserManagementTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
-    public function manager_can_view_user_details()
+    public function test_manager_can_view_user_details(): void
     {
         $manager = User::factory()->create();
         $managerRole = Role::findByName('Manager of Users');
@@ -77,8 +73,7 @@ class UserManagementTest extends TestCase
         $response->assertSee('view data');
     }
 
-    /** @test */
-    public function manager_can_create_new_user()
+    public function test_manager_can_create_new_user(): void
     {
         $manager = User::factory()->create();
         $managerRole = Role::findByName('Manager of Users');
@@ -109,8 +104,7 @@ class UserManagementTest extends TestCase
         $this->assertTrue($newUser->hasRole('Regular User'));
     }
 
-    /** @test */
-    public function manager_can_update_user()
+    public function test_manager_can_update_user(): void
     {
         $manager = User::factory()->create();
         $managerRole = Role::findByName('Manager of Users');
@@ -137,8 +131,7 @@ class UserManagementTest extends TestCase
         $this->assertFalse($targetUser->hasRole('Regular User'));
     }
 
-    /** @test */
-    public function manager_can_delete_other_users()
+    public function test_manager_can_delete_other_users(): void
     {
         $manager = User::factory()->create();
         $managerRole = Role::findByName('Manager of Users');
@@ -156,8 +149,7 @@ class UserManagementTest extends TestCase
         $this->assertDatabaseMissing('users', ['id' => $targetUserId]);
     }
 
-    /** @test */
-    public function manager_cannot_delete_themselves()
+    public function test_manager_cannot_delete_themselves(): void
     {
         $manager = User::factory()->create();
         $managerRole = Role::findByName('Manager of Users');
@@ -172,8 +164,7 @@ class UserManagementTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $manager->id]);
     }
 
-    /** @test */
-    public function search_functionality_works()
+    public function test_search_functionality_works(): void
     {
         $manager = User::factory()->create();
         $managerRole = Role::findByName('Manager of Users');
@@ -190,8 +181,7 @@ class UserManagementTest extends TestCase
         $response->assertDontSee('Bob Jones');
     }
 
-    /** @test */
-    public function role_filter_works()
+    public function test_role_filter_works(): void
     {
         $manager = User::factory()->create();
         $managerRole = Role::findByName('Manager of Users');

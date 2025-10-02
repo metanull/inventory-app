@@ -20,8 +20,7 @@ class ProfileManagementTest extends TestCase
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
     }
 
-    /** @test */
-    public function profile_page_displays_user_roles_and_permissions()
+    public function test_profile_page_displays_user_roles_and_permissions(): void
     {
         $user = User::factory()->create();
         $role = Role::findByName('Regular User');
@@ -37,8 +36,7 @@ class ProfileManagementTest extends TestCase
         $response->assertSee('create data');
     }
 
-    /** @test */
-    public function profile_shows_warning_for_users_without_roles()
+    public function test_profile_shows_warning_for_users_without_roles(): void
     {
         $user = User::factory()->create();
 
@@ -50,8 +48,7 @@ class ProfileManagementTest extends TestCase
         $response->assertSee('Please contact an administrator');
     }
 
-    /** @test */
-    public function user_role_information_livewire_component_works()
+    public function test_user_role_information_livewire_component_works(): void
     {
         $user = User::factory()->create();
         $role = Role::findByName('Manager of Users');
@@ -65,8 +62,7 @@ class ProfileManagementTest extends TestCase
             ->assertSee('view data');
     }
 
-    /** @test */
-    public function user_role_information_shows_no_roles_message()
+    public function test_user_role_information_shows_no_roles_message(): void
     {
         $user = User::factory()->create();
 
@@ -76,16 +72,14 @@ class ProfileManagementTest extends TestCase
             ->assertSee('Please contact an administrator');
     }
 
-    /** @test */
-    public function email_verification_is_enabled()
+    public function test_email_verification_is_enabled(): void
     {
         $this->assertTrue(
             in_array('email-verification', config('fortify.features'))
         );
     }
 
-    /** @test */
-    public function profile_update_features_are_enabled()
+    public function test_profile_update_features_are_enabled(): void
     {
         $this->assertTrue(
             in_array('update-profile-information', config('fortify.features'))
@@ -96,8 +90,7 @@ class ProfileManagementTest extends TestCase
         );
     }
 
-    /** @test */
-    public function two_factor_authentication_is_enabled()
+    public function test_two_factor_authentication_is_enabled(): void
     {
         $this->assertTrue(
             in_array('two-factor-authentication', config('fortify.features'))
