@@ -34,34 +34,37 @@ The Inventory Management System provides comprehensive command-line tools for us
 After deploying the application, you need to create an initial admin user to access the system:
 
 ```powershell
-# Create a new user with Manager of Users role
-php artisan make:user admin@company.com "Admin User" --role="Manager of Users"
+# Step 1: Create a new user (generates a random secure password)
+php artisan user:create "Admin User" admin@company.com
 
-# Or create a user interactively
-php artisan make:user
+# Step 2: Assign the Manager role to the user
+php artisan user:assign-role admin@company.com "Manager of Users"
+
+# Step 3: Verify the user was created correctly
+php artisan user:show admin@company.com
 ```
 
-### Interactive User Creation
+The `user:create` command will output the generated password. **Save this password** as it's the only time you'll see it. The user can change it later through the web interface.
 
-When running `php artisan make:user` without parameters, you'll be prompted for:
+Example output:
 
-- **Email Address**: Must be unique and valid
-- **Full Name**: Display name for the user
-- **Password**: Will be securely hashed (leave empty to generate random password)
-- **Role Assignment**: Choose from available roles
-
-Example:
 ```
-$ php artisan make:user
+$ php artisan user:create "System Administrator" admin@museumwnf.org
 
- Enter email address:
- > admin@museumwnf.org
+User created successfully.
+Username: System Administrator
+Email: admin@museumwnf.org
+Password: Xy9kL2mN8pQ5wE7tR1
+
+$ php artisan user:assign-role admin@museumwnf.org "Manager of Users"
+
+Successfully assigned role 'Manager of Users' to user 'System Administrator' (admin@museumwnf.org).
 
  Enter full name:
  > Museum Administrator
 
  Enter password (leave empty for random):
- > 
+ >
 
  Available roles:
   [0] Manager of Users
@@ -82,14 +85,8 @@ Role: Manager of Users
 ### Creating Users
 
 ```powershell
-# Create user with specific role
-php artisan make:user user@company.com "Regular User" --role="Regular User"
-
-# Create user with generated password
-php artisan make:user user@company.com "Test User" --generate-password
-
-# Create user interactively
-php artisan make:user
+# Create a user with a random password (password will be displayed once)
+php artisan user:create "User Name" user@company.com
 ```
 
 ### Managing User Roles
@@ -100,21 +97,18 @@ php artisan user:assign-role user@company.com "Manager of Users"
 
 # Remove role from user
 php artisan user:remove-role user@company.com "Regular User"
-
-# List user's current roles
-php artisan user:roles user@company.com
 ```
 
 ### User Information
 
 ```powershell
-# Display user details
-php artisan user:info user@company.com
+# Display detailed user information including roles and permissions
+php artisan user:show user@company.com
 
-# List all users
+# List all users with their roles
 php artisan user:list
 
-# List users by role
+# List users filtered by role
 php artisan user:list --role="Manager of Users"
 ```
 
@@ -140,14 +134,17 @@ The system includes two predefined roles:
 # Rebuild all permissions (useful after updates)
 php artisan permissions:rebuild
 
-# List all permissions
-php artisan permission:list
+# Show detailed permission matrix for all roles
+php artisan permission:show
 
-# List all roles
-php artisan role:list
+# Create a new role (if needed)
+php artisan permission:create-role "New Role Name"
 
-# Show role permissions
-php artisan role:permissions "Manager of Users"
+# Create a new permission (if needed)
+php artisan permission:create-permission "new permission name"
+
+# Clear permission cache
+php artisan permission:cache-reset
 ```
 
 ## System Maintenance Commands
@@ -161,9 +158,7 @@ php artisan permissions:rebuild
 # Clear permission cache
 php artisan cache:clear
 php artisan config:clear
-
-# Verify permission structure
-php artisan role:verify
+php artisan permission:cache-reset
 ```
 
 ### Database Seeding
@@ -190,19 +185,25 @@ php artisan migrate
 php artisan db:seed --class=RolePermissionSeeder
 
 # 3. Create initial admin user
-php artisan make:user admin@company.com "System Administrator" --role="Manager of Users"
+php artisan user:create "System Administrator" admin@company.com
 
-# 4. Verify setup
-php artisan user:info admin@company.com
+# 4. Assign admin role
+php artisan user:assign-role admin@company.com "Manager of Users"
+
+# 5. Verify setup
+php artisan user:show admin@company.com
 ```
 
 ### Adding New Team Members
 
 ```powershell
 # Create regular user account
-php artisan make:user newuser@company.com "New Team Member" --role="Regular User"
+php artisan user:create "New Team Member" newuser@company.com
 
-# Send login credentials to user (password will be displayed)
+# Assign regular user role
+php artisan user:assign-role newuser@company.com "Regular User"
+
+# Send login credentials to user (password will be displayed when created)
 ```
 
 ### Promoting Users to Admin
@@ -212,14 +213,14 @@ php artisan make:user newuser@company.com "New Team Member" --role="Regular User
 php artisan user:assign-role user@company.com "Manager of Users"
 
 # Verify role assignment
-php artisan user:roles user@company.com
+php artisan user:show user@company.com
 ```
 
 ### Troubleshooting Access Issues
 
 ```powershell
 # Check user's current roles and permissions
-php artisan user:info user@company.com
+php artisan user:show user@company.com
 
 # Rebuild permission system
 php artisan permissions:rebuild
@@ -227,6 +228,7 @@ php artisan permissions:rebuild
 # Clear caches
 php artisan cache:clear
 php artisan config:clear
+php artisan permission:cache-reset
 ```
 
 ## Security Considerations
@@ -257,12 +259,14 @@ php artisan config:clear
 ### Common Issues
 
 **"Role does not exist" Error**
+
 ```powershell
 # Ensure roles are seeded
 php artisan db:seed --class=RolePermissionSeeder
 ```
 
 **"Permission denied" Error**
+
 ```powershell
 # Rebuild permissions
 php artisan permissions:rebuild
@@ -272,19 +276,20 @@ php artisan cache:clear
 ```
 
 **User Cannot Access System**
+
 ```powershell
 # Check user has a role assigned
-php artisan user:roles user@company.com
+php artisan user:show user@company.com
 
-# Verify role has correct permissions
-php artisan role:permissions "Role Name"
+# View permission matrix
+php artisan permission:show
 ```
 
 ### Getting Help
 
 ```powershell
 # Get help for specific commands
-php artisan help make:user
+php artisan help user:create
 php artisan help user:assign-role
 php artisan help permissions:rebuild
 
