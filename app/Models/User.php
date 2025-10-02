@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Auth\Authenticatable;
+use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
+use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 // use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -13,12 +16,14 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Model implements AuthenticatableContract
+class User extends Model implements AuthenticatableContract, CanResetPasswordContract, MustVerifyEmail
 {
     use Authenticatable;
+    use CanResetPassword;
     use HasApiTokens;
     use HasFactory;
     use HasProfilePhoto;
+    use MustVerifyEmailTrait;
     use Notifiable;
     use TwoFactorAuthenticatable;
 
@@ -76,11 +81,26 @@ class User extends Model implements AuthenticatableContract
     }
 
     /**
+     * Override Fortify's method to include email 2FA.
+     * This ensures Fortify redirects users with email 2FA to the challenge page.
+     */
+    public function hasEnabledTwoFactorAuthentication(): bool
+    {
+        // Check for TOTP 2FA (Fortify's default behavior)
+        $hasTotpEnabled = ! is_null($this->two_factor_secret) &&
+                          ! is_null($this->two_factor_confirmed_at);
+
+        // Check for email 2FA (custom implementation)
+        return $hasTotpEnabled || $this->email_2fa_enabled;
+    }
+
+    /**
      * Check if the user has any form of 2FA enabled.
+     * Alias for hasEnabledTwoFactorAuthentication() method.
      */
     public function hasTwoFactorEnabled(): bool
     {
-        return $this->hasEnabledTwoFactorAuthentication() || $this->email_2fa_enabled;
+        return $this->hasEnabledTwoFactorAuthentication();
     }
 
     /**
@@ -244,5 +264,47 @@ class User extends Model implements AuthenticatableContract
         $service = app(\App\Services\EmailTwoFactorService::class);
 
         return $service->verifyCode($this, $code);
+    }
+
+    /**
+     * Validate and consume a recovery code using Fortify's standard secure approach.
+     * Provides case-insensitive comparison while maintaining Fortify's replacement security model.
+     */
+    public function validateAndConsumeRecoveryCode(string $code): bool
+    {
+        if (! $this->hasEnabledTwoFactorAuthentication()) {
+            return false;
+        }
+
+        $recoveryCodes = $this->recoveryCodes();
+
+        if (empty($recoveryCodes)) {
+            return false;
+        }
+
+        // Case insensitive comparison with Fortify's standard replacement approach
+        foreach ($recoveryCodes as $recoveryCode) {
+            if (hash_equals(strtolower($recoveryCode), strtolower($code))) {
+                // Use Fortify's standard replacement approach (more secure than tracking)
+                $this->replaceRecoveryCode($recoveryCode);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the user's two factor authentication recovery codes.
+     * Override Fortify's method to handle null values gracefully.
+     */
+    public function recoveryCodes(): array
+    {
+        if (is_null($this->two_factor_recovery_codes)) {
+            return [];
+        }
+
+        return json_decode(decrypt($this->two_factor_recovery_codes), true) ?? [];
     }
 }

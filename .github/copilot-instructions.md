@@ -10,9 +10,9 @@ This repo is a Laravel 12 (PHP 8.2+) backend and Vue 3 + TypeScript SPA frontend
   - For Ruby and Jekyll run commands via Windows Substystem for Linux via `wsl bash -lc '...'`.
 
 - Tests:
-  - Use VS Code testing features to run tests.
+  - **CRITICAL**: Always use VS Code testing features to run tests.
   - If exceptionally you must run test in a terminal, then 
-    - for Backend tests: use Laravel's test runner directly: `php artisan test` (prefer `--compact` and `--parallel` when helpful).
+    - for Backend tests: use Laravel's test runner directly: `php artisan test` (always with `--parallel` and with `--compact` when helpful).
     - for Frontend tests (Vitest): run `vitest run` (prefer `--reporter=dot` for CI-friendly output). Vitest tests live under `resources/js/**/__tests__` alongside the Vue app.
   - Testing in mandatory before push and PR.
   

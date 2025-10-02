@@ -14,6 +14,9 @@ class JetstreamServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Disable Jetstream's default route registration
+        Jetstream::ignoreRoutes();
+
         // Register our custom profile route early to take precedence
         $this->registerCustomRoutes();
     }
@@ -48,20 +51,9 @@ class JetstreamServiceProvider extends ServiceProvider
     {
         $this->configurePermissions();
 
-        $this->configureRoutes();
-
         Jetstream::deleteUsersUsing(DeleteUser::class);
 
         Vite::prefetch(concurrency: 3);
-    }
-
-    /**
-     * Configure custom routes to match the /web prefix used by Fortify.
-     */
-    protected function configureRoutes(): void
-    {
-        // Register profile route with /web prefix for consistency with Fortify
-        // This should be called in register() method instead for earlier loading
     }
 
     /**

@@ -90,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-  import { reactive, onMounted } from 'vue'
+  import { reactive, onMounted, watch } from 'vue'
   import { useRouter } from 'vue-router'
   import { useAuthStore } from '@/stores/auth'
   import { ArrowRightOnRectangleIcon } from '@heroicons/vue/24/outline'
@@ -152,11 +152,28 @@
     if (redirectName) {
       await router.push({ name: redirectName, params: redirectParams })
     } else {
-      await router.push('/')
+      // Redirect to home (dashboard) route by name, not path
+      await router.push({ name: 'home' })
     }
   }
 
   onMounted(() => {
     authStore.clearError()
   })
+
+  // Watch for authentication state changes and redirect if user becomes authenticated
+  watch(
+    () => authStore.isAuthenticated,
+    isAuthenticated => {
+      if (isAuthenticated && !authStore.requires2FA) {
+        // Only redirect if we're not in the middle of a 2FA flow
+        const query = router.currentRoute.value.query
+        const hasRedirectIntent = typeof query?.redirectName === 'string'
+        if (!hasRedirectIntent) {
+          // No specific redirect intent, go to home
+          router.push({ name: 'home' })
+        }
+      }
+    }
+  )
 </script>

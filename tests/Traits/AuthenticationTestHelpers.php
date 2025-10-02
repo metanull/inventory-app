@@ -4,9 +4,9 @@ namespace Tests\Traits;
 
 use App\Models\User;
 use App\Services\EmailTwoFactorService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
-use Laravel\Fortify\RecoveryCode;
 
 trait AuthenticationTestHelpers
 {
@@ -41,12 +41,18 @@ trait AuthenticationTestHelpers
      */
     protected function createUserWithEmailTwoFactor(array $attributes = []): User
     {
-        return User::factory()->create(array_merge([
+        $user = User::factory()->create(array_merge([
             'password' => Hash::make('password'),
             'two_factor_secret' => null,
             'two_factor_confirmed_at' => null,
             'email_2fa_enabled' => true,
+            'preferred_2fa_method' => 'email',
         ], $attributes));
+
+        // Pre-generate the expected email 2FA code for testing
+        $this->createEmailTwoFactorCode($user, $this->getValidEmailTwoFactorCode());
+
+        return $user;
     }
 
     /**
@@ -54,12 +60,18 @@ trait AuthenticationTestHelpers
      */
     protected function createUserWithBothTwoFactor(array $attributes = []): User
     {
-        return User::factory()->create(array_merge([
+        $user = User::factory()->create(array_merge([
             'password' => Hash::make('password'),
             'two_factor_secret' => encrypt('test-secret'),
             'two_factor_confirmed_at' => now(),
             'email_2fa_enabled' => true,
+            'preferred_2fa_method' => 'both',
         ], $attributes));
+
+        // Pre-generate the expected email 2FA code for testing
+        $this->createEmailTwoFactorCode($user, $this->getValidEmailTwoFactorCode());
+
+        return $user;
     }
 
     /**
@@ -69,15 +81,13 @@ trait AuthenticationTestHelpers
     {
         $user = $this->createUserWithTotp($attributes);
 
-        $recoveryCodes = collect([
-            'recovery-code-1',
-            'recovery-code-2',
-            'recovery-code-3',
-            'recovery-code-4',
-            'recovery-code-5',
-        ])->map(function ($code) {
-            return new RecoveryCode($code);
-        })->toArray();
+        $recoveryCodes = [
+            'RECOVERY-CODE-1',
+            'RECOVERY-CODE-2',
+            'RECOVERY-CODE-3',
+            'RECOVERY-CODE-4',
+            'RECOVERY-CODE-5',
+        ];
 
         $user->forceFill([
             'two_factor_recovery_codes' => encrypt(json_encode($recoveryCodes)),
@@ -148,7 +158,7 @@ trait AuthenticationTestHelpers
      */
     protected function getUnusedRecoveryCode(): string
     {
-        return 'recovery-code-1';
+        return 'RECOVERY-CODE-1';
     }
 
     /**
@@ -160,21 +170,25 @@ trait AuthenticationTestHelpers
     }
 
     /**
-     * Mark a recovery code as used for a user.
+     * Simulate using a recovery code by replacing it (following Fortify's secure approach).
      */
     protected function markRecoveryCodeAsUsed(User $user, string $code): void
     {
-        $recoveryCodes = collect(json_decode(decrypt($user->two_factor_recovery_codes), true))
-            ->map(function ($recoveryCode) use ($code) {
-                if ($recoveryCode['code'] === $code) {
-                    $recoveryCode['used_at'] = now()->toISOString();
-                }
+        // Use Fortify's standard replacement approach for testing
+        $user->replaceRecoveryCode($code);
+    }
 
-                return $recoveryCode;
-            });
-
-        $user->forceFill([
-            'two_factor_recovery_codes' => encrypt($recoveryCodes->toJson()),
-        ])->save();
+    /**
+     * Create an email 2FA code for testing.
+     */
+    protected function createEmailTwoFactorCode(User $user, string $code): void
+    {
+        DB::table('email_two_factor_codes')->insert([
+            'user_id' => $user->id,
+            'code' => $code,
+            'expires_at' => now()->addMinutes(5),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }

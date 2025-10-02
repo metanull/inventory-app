@@ -16,7 +16,7 @@ class MobileAuthenticationTest extends TestCase
 {
     use AuthenticationTestHelpers, RefreshDatabase, WithFaker;
 
-    protected string $mobileTokenEndpoint = '/mobile/acquire-token';
+    protected string $mobileTokenEndpoint = '/api/mobile/acquire-token';
 
     public function test_mobile_user_can_acquire_token_without_two_factor(): void
     {
@@ -28,7 +28,7 @@ class MobileAuthenticationTest extends TestCase
             'device_name' => 'Test Mobile Device',
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
         $response->assertJsonStructure([
             'token',
             'user' => [
@@ -112,8 +112,13 @@ class MobileAuthenticationTest extends TestCase
             'device_name' => 'Test Mobile Device',
         ]);
 
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['two_factor_code']);
+        $response->assertStatus(202);
+        $response->assertJsonStructure([
+            'message',
+            'requires_two_factor',
+            'primary_method',
+            'available_methods',
+        ]);
     }
 
     public function test_mobile_user_with_email_2fa_requires_two_factor_code(): void
@@ -126,8 +131,13 @@ class MobileAuthenticationTest extends TestCase
             'device_name' => 'Test Mobile Device',
         ]);
 
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['two_factor_code']);
+        $response->assertStatus(202);
+        $response->assertJsonStructure([
+            'message',
+            'requires_two_factor',
+            'primary_method',
+            'available_methods',
+        ]);
     }
 
     public function test_mobile_user_can_acquire_token_with_valid_totp_code(): void
@@ -142,7 +152,7 @@ class MobileAuthenticationTest extends TestCase
             'two_factor_code' => $this->getValidTotpCode(),
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
         $response->assertJsonStructure([
             'token',
             'user' => [
@@ -171,7 +181,7 @@ class MobileAuthenticationTest extends TestCase
             'two_factor_code' => $this->getValidEmailTwoFactorCode(),
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
         $response->assertJsonStructure([
             'token',
             'user' => [
@@ -237,7 +247,7 @@ class MobileAuthenticationTest extends TestCase
             'two_factor_code' => $this->getValidTotpCode(),
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
     }
 
     public function test_mobile_user_with_both_2fa_methods_falls_back_to_email(): void
@@ -260,7 +270,7 @@ class MobileAuthenticationTest extends TestCase
             'two_factor_code' => $this->getValidEmailTwoFactorCode(),
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
     }
 
     public function test_mobile_user_can_use_recovery_code_for_token_acquisition(): void
@@ -274,13 +284,17 @@ class MobileAuthenticationTest extends TestCase
             'recovery_code' => $this->getUnusedRecoveryCode(),
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
 
-        // Verify recovery code is marked as used
+        // Verify recovery code is replaced (Fortify's secure approach)
         $user->refresh();
         $recoveryCodes = collect(json_decode(decrypt($user->two_factor_recovery_codes), true));
-        $usedCode = $recoveryCodes->firstWhere('code', $this->getUnusedRecoveryCode());
-        $this->assertNotNull($usedCode['used_at']);
+
+        // The used code should no longer exist (replaced with new one)
+        $this->assertFalse($recoveryCodes->contains($this->getUnusedRecoveryCode()));
+
+        // Should still have same number of recovery codes
+        $this->assertCount(5, $recoveryCodes);
     }
 
     public function test_mobile_user_cannot_use_already_used_recovery_code(): void
@@ -312,7 +326,7 @@ class MobileAuthenticationTest extends TestCase
             'device_name' => 'Test Mobile Device',
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
 
         // Get the created token
         $token = PersonalAccessToken::where('tokenable_id', $user->id)->first();
@@ -408,8 +422,11 @@ class MobileAuthenticationTest extends TestCase
 
         $response->assertStatus(200);
 
-        // Revoke all tokens for user
+        // Revoke all tokens for user using Sanctum's method
         $user->tokens()->delete();
+
+        // Clear any authentication state that might be cached
+        $this->app['auth']->forgetGuards();
 
         // Token should no longer work
         $response = $this->withHeaders([
@@ -467,7 +484,7 @@ class MobileAuthenticationTest extends TestCase
             'device_name' => 'iPhone 15 Pro',
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
 
         // Verify token has device info
         $token = PersonalAccessToken::where('tokenable_id', $user->id)->first();

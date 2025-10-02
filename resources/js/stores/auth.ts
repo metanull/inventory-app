@@ -1,20 +1,26 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { type TokenAcquireRequest } from '@metanull/inventory-app-api-client'
+import {
+  type TokenAcquireRequest,
+  type TokenAcquire202Response,
+  type TokenVerifyTwoFactorRequest,
+  type TokenRequestEmailCodeRequest,
+  type TokenVerifyTwoFactorRequestMethodEnum,
+} from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
 
 export interface TwoFactorChallenge {
   requires_two_factor: boolean
   available_methods: string[]
-  primary_method: string
+  primary_method: string | null
   message: string
 }
 
 export interface TwoFactorStatus {
-  two_factor_enabled: boolean
-  available_methods: string[]
-  primary_method: string | null
-  requires_two_factor: boolean
+  two_factor_enabled: string
+  available_methods: string
+  primary_method: string
+  requires_two_factor: string
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -54,7 +60,14 @@ export const useAuthStore = defineStore('auth', () => {
 
       // Check if response indicates 2FA required (status 202)
       if (response.status === 202) {
-        twoFactorChallenge.value = response.data as unknown as TwoFactorChallenge
+        // The 202 response contains the 2FA challenge info
+        const challengeData = response.data as unknown as TokenAcquire202Response
+        twoFactorChallenge.value = {
+          requires_two_factor: challengeData.requires_two_factor,
+          available_methods: challengeData.available_methods,
+          primary_method: challengeData.primary_method,
+          message: challengeData.message,
+        }
         pendingCredentials.value = { email, password, device_name: 'Inventory Management UI' }
         return // Don't complete login, wait for 2FA
       }
@@ -65,7 +78,13 @@ export const useAuthStore = defineStore('auth', () => {
       // Check if error response indicates 2FA required
       const errorResponse = (err as { response?: { status?: number; data?: unknown } })?.response
       if (errorResponse?.status === 202) {
-        twoFactorChallenge.value = errorResponse.data as unknown as TwoFactorChallenge
+        const challengeData = errorResponse.data as unknown as TokenAcquire202Response
+        twoFactorChallenge.value = {
+          requires_two_factor: challengeData.requires_two_factor,
+          available_methods: challengeData.available_methods,
+          primary_method: challengeData.primary_method,
+          message: challengeData.message,
+        }
         pendingCredentials.value = { email, password, device_name: 'Inventory Management UI' }
         return
       }
@@ -81,7 +100,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const verifyTwoFactor = async (code: string, method?: string) => {
+  const verifyTwoFactor = async (code: string, method?: 'totp' | 'email') => {
     if (!pendingCredentials.value) {
       throw new Error('No pending authentication')
     }
@@ -90,28 +109,18 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      const response = await globalThis.fetch('/api/mobile/verify-two-factor', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          email: pendingCredentials.value.email,
-          password: pendingCredentials.value.password,
-          device_name: pendingCredentials.value.device_name,
-          code,
-          method,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || '2FA verification failed')
+      const apiClient = createApiClient()
+      const verifyRequest: TokenVerifyTwoFactorRequest = {
+        email: pendingCredentials.value.email,
+        password: pendingCredentials.value.password,
+        device_name: pendingCredentials.value.device_name,
+        code,
+        method: method as TokenVerifyTwoFactorRequestMethodEnum,
       }
 
-      const data = await response.json()
-      handleLoginSuccess(data)
+      const response = await apiClient.tokenVerifyTwoFactor(verifyRequest)
+
+      handleLoginSuccess(response.data)
 
       // Clear 2FA state
       twoFactorChallenge.value = null
@@ -134,25 +143,14 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      const response = await globalThis.fetch('/api/mobile/request-email-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          email: pendingCredentials.value.email,
-          password: pendingCredentials.value.password,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Failed to send email code')
+      const apiClient = createApiClient()
+      const emailCodeRequest: TokenRequestEmailCodeRequest = {
+        email: pendingCredentials.value.email,
+        password: pendingCredentials.value.password,
       }
 
-      const data = await response.json()
-      return data
+      const response = await apiClient.tokenRequestEmailCode(emailCodeRequest)
+      return response.data
     } catch (err: unknown) {
       const errorMessage = (err as { message?: string })?.message || 'Failed to send email code'
       error.value = errorMessage
@@ -164,21 +162,14 @@ export const useAuthStore = defineStore('auth', () => {
 
   const getTwoFactorStatus = async (email: string, password: string): Promise<TwoFactorStatus> => {
     try {
-      const response = await globalThis.fetch('/api/mobile/two-factor-status', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Failed to get 2FA status')
+      const apiClient = createApiClient()
+      const statusRequest: TokenRequestEmailCodeRequest = {
+        email,
+        password,
       }
 
-      return await response.json()
+      const response = await apiClient.tokenTwoFactorStatus(statusRequest)
+      return response.data
     } catch (err: unknown) {
       const errorMessage = (err as { message?: string })?.message || 'Failed to get 2FA status'
       error.value = errorMessage

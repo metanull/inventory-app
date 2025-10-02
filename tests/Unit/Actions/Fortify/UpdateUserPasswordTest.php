@@ -98,7 +98,7 @@ class UpdateUserPasswordTest extends TestCase
     {
         // Enable TOTP for user
         $this->user->forceFill([
-            'two_factor_secret' => 'test-secret',
+            'two_factor_secret' => encrypt('test-secret'),
             'two_factor_confirmed_at' => now(),
         ])->save();
 
@@ -106,7 +106,7 @@ class UpdateUserPasswordTest extends TestCase
         $totpProvider = $this->mock(TwoFactorAuthenticationProvider::class);
         $totpProvider->shouldReceive('verify')
             ->once()
-            ->with($this->user, '123456')
+            ->with('test-secret', '123456')
             ->andReturn(true);
 
         $input = [
@@ -125,7 +125,7 @@ class UpdateUserPasswordTest extends TestCase
     {
         // Enable TOTP for user
         $this->user->forceFill([
-            'two_factor_secret' => 'test-secret',
+            'two_factor_secret' => encrypt('test-secret'),
             'two_factor_confirmed_at' => now(),
         ])->save();
 
@@ -133,7 +133,7 @@ class UpdateUserPasswordTest extends TestCase
         $totpProvider = $this->mock(TwoFactorAuthenticationProvider::class);
         $totpProvider->shouldReceive('verify')
             ->once()
-            ->with($this->user, '000000')
+            ->with('test-secret', '000000')
             ->andReturn(false);
 
         $input = [
@@ -208,7 +208,7 @@ class UpdateUserPasswordTest extends TestCase
     {
         // Enable both TOTP and email 2FA for user
         $this->user->forceFill([
-            'two_factor_secret' => 'test-secret',
+            'two_factor_secret' => encrypt('test-secret'),
             'two_factor_confirmed_at' => now(),
             'email_2fa_enabled' => true,
         ])->save();
@@ -217,7 +217,7 @@ class UpdateUserPasswordTest extends TestCase
         $totpProvider = $this->mock(TwoFactorAuthenticationProvider::class);
         $totpProvider->shouldReceive('verify')
             ->once()
-            ->with($this->user, '123456')
+            ->with('test-secret', '123456')
             ->andReturn(false);
 
         // Mock email 2FA service to return true (valid email code)
@@ -243,7 +243,7 @@ class UpdateUserPasswordTest extends TestCase
     {
         // Enable both TOTP and email 2FA for user
         $this->user->forceFill([
-            'two_factor_secret' => 'test-secret',
+            'two_factor_secret' => encrypt('test-secret'),
             'two_factor_confirmed_at' => now(),
             'email_2fa_enabled' => true,
         ])->save();
@@ -252,7 +252,7 @@ class UpdateUserPasswordTest extends TestCase
         $totpProvider = $this->mock(TwoFactorAuthenticationProvider::class);
         $totpProvider->shouldReceive('verify')
             ->once()
-            ->with($this->user, '000000')
+            ->with('test-secret', '000000')
             ->andReturn(false);
 
         $emailService = $this->mock(EmailTwoFactorService::class);
@@ -281,7 +281,7 @@ class UpdateUserPasswordTest extends TestCase
     {
         // Enable both TOTP and email 2FA for user
         $this->user->forceFill([
-            'two_factor_secret' => 'test-secret',
+            'two_factor_secret' => encrypt('test-secret'),
             'two_factor_confirmed_at' => now(),
             'email_2fa_enabled' => true,
         ])->save();
@@ -290,7 +290,7 @@ class UpdateUserPasswordTest extends TestCase
         $totpProvider = $this->mock(TwoFactorAuthenticationProvider::class);
         $totpProvider->shouldReceive('verify')
             ->once()
-            ->with($this->user, '123456')
+            ->with('test-secret', '123456')
             ->andReturn(true);
 
         // Email service should not be called since TOTP succeeds

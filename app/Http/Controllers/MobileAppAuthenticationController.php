@@ -22,6 +22,8 @@ class MobileAppAuthenticationController extends Controller
             'password' => 'required|string',
             'device_name' => 'required|string|max:255',
             'wipe_tokens' => 'sometimes|boolean',
+            'two_factor_code' => 'sometimes|string',
+            'recovery_code' => 'sometimes|string',
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -31,9 +33,46 @@ class MobileAppAuthenticationController extends Controller
             ]);
         }
 
+        // Check if email verification is required
+        if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+            throw ValidationException::withMessages([
+                'email' => ['Your email address is not verified.'],
+            ]);
+        }
+
         // Check if user has 2FA enabled
         if ($user->hasTwoFactorEnabled()) {
-            return $this->requireTwoFactorAuthentication($user);
+            // If 2FA code or recovery code provided, verify it
+            if ($request->filled('two_factor_code') || $request->filled('recovery_code')) {
+                $code = $request->two_factor_code ?? $request->recovery_code;
+                $isRecovery = $request->filled('recovery_code');
+
+                if ($this->verifyTwoFactorCode($user, $code, $isRecovery)) {
+                    // 2FA verification successful, proceed to issue token
+                    if ($request->boolean('wipe_tokens', false)) {
+                        $user->tokens()->delete();
+                    }
+
+                    return response()->json([
+                        'token' => $user->createToken($request->device_name)->plainTextToken,
+                        'user' => [
+                            'id' => $user->id,
+                            'name' => $user->name,
+                            'email' => $user->email,
+                            'two_factor_enabled' => true,
+                        ],
+                    ], 201);
+                } else {
+                    // 2FA verification failed
+                    $fieldName = $isRecovery ? 'recovery_code' : 'two_factor_code';
+                    throw ValidationException::withMessages([
+                        $fieldName => ['The provided two-factor authentication code is invalid.'],
+                    ]);
+                }
+            } else {
+                // No 2FA code provided, require 2FA
+                return $this->requireTwoFactorAuthentication($user);
+            }
         }
 
         // No 2FA required, issue token directly
@@ -88,7 +127,16 @@ class MobileAppAuthenticationController extends Controller
         switch ($method) {
             case 'totp':
                 if ($user->canUseTotpFor2fa()) {
-                    $verified = app(TwoFactorAuthenticationProvider::class)->verify($user, $request->code);
+                    try {
+                        $decryptedSecret = decrypt($user->two_factor_secret);
+                        $verified = app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $request->code);
+                    } catch (\PragmaRX\Google2FA\Exceptions\InvalidCharactersException $e) {
+                        // Invalid TOTP secret in database - treat as invalid code
+                        $verified = false;
+                    } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+                        // Invalid encrypted secret in database - treat as invalid code
+                        $verified = false;
+                    }
                 }
                 break;
 
@@ -101,7 +149,16 @@ class MobileAppAuthenticationController extends Controller
             default:
                 // Try both methods if no specific method requested
                 if ($user->canUseTotpFor2fa()) {
-                    $verified = app(TwoFactorAuthenticationProvider::class)->verify($user, $request->code);
+                    try {
+                        $decryptedSecret = decrypt($user->two_factor_secret);
+                        $verified = app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $request->code);
+                    } catch (\PragmaRX\Google2FA\Exceptions\InvalidCharactersException $e) {
+                        // Invalid TOTP secret in database - treat as invalid code
+                        $verified = false;
+                    } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+                        // Invalid encrypted secret in database - treat as invalid code
+                        $verified = false;
+                    }
                 }
 
                 if (! $verified && $user->canUseEmailFor2fa()) {
@@ -226,5 +283,36 @@ class MobileAppAuthenticationController extends Controller
         $request->user()->tokens()->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * Verify two-factor authentication code for a user.
+     */
+    private function verifyTwoFactorCode(User $user, string $code, bool $isRecovery = false): bool
+    {
+        if ($isRecovery) {
+            return $user->validateAndConsumeRecoveryCode($code);
+        }
+
+        // Try TOTP first if enabled
+        if ($user->canUseTotpFor2fa()) {
+            try {
+                $decryptedSecret = decrypt($user->two_factor_secret);
+                if (app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $code)) {
+                    return true;
+                }
+            } catch (\PragmaRX\Google2FA\Exceptions\InvalidCharactersException $e) {
+                // Invalid TOTP secret in database - treat as invalid
+            } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+                // Invalid encrypted secret in database - treat as invalid
+            }
+        }
+
+        // Try email 2FA if TOTP failed and email 2FA is enabled
+        if ($user->canUseEmailFor2fa()) {
+            return $user->verifyEmailTwoFactorCode($code);
+        }
+
+        return false;
     }
 }

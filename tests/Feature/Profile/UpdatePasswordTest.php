@@ -31,7 +31,7 @@ class UpdatePasswordTest extends TestCase
             'two_factor_confirmed_at' => now(),
         ])->save();
 
-        $response = $this->actingAs($this->user)->get('/user/profile');
+        $response = $this->actingAs($this->user)->get(route('web.profile.show'));
 
         $response->assertOk();
         $response->assertSee('Two-Factor Authentication Code');
@@ -43,7 +43,7 @@ class UpdatePasswordTest extends TestCase
         // Enable email 2FA for user
         $this->user->forceFill(['email_2fa_enabled' => true])->save();
 
-        $response = $this->actingAs($this->user)->get('/user/profile');
+        $response = $this->actingAs($this->user)->get(route('web.profile.show'));
 
         $response->assertOk();
         $response->assertSee('Two-Factor Authentication Code');
@@ -52,7 +52,7 @@ class UpdatePasswordTest extends TestCase
 
     public function test_password_form_does_not_show_2fa_field_when_2fa_disabled(): void
     {
-        $response = $this->actingAs($this->user)->get('/user/profile');
+        $response = $this->actingAs($this->user)->get(route('web.profile.show'));
 
         $response->assertOk();
         $response->assertDontSee('Two-Factor Authentication Code');

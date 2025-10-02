@@ -223,7 +223,7 @@
     try {
       const result = await authStore.requestEmailCode()
       emailCodeSent.value = true
-      emailCodeExpiry.value = Math.ceil(result.expires_in / 60) // Convert seconds to minutes
+      emailCodeExpiry.value = Math.ceil(parseInt(result.expires_in) / 60) // Convert seconds to minutes
     } catch (err) {
       error.value = (err as Error).message
     } finally {
@@ -238,7 +238,7 @@
     error.value = null
 
     try {
-      await authStore.verifyTwoFactor(code.value, selectedMethod.value)
+      await authStore.verifyTwoFactor(code.value, selectedMethod.value as 'totp' | 'email')
       emit('verified')
     } catch (err) {
       error.value = (err as Error).message

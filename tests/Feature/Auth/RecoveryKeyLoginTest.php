@@ -6,7 +6,6 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
-use Laravel\Fortify\RecoveryCode;
 use Tests\TestCase;
 use Tests\Traits\AuthenticationTestHelpers;
 
@@ -20,18 +19,18 @@ class RecoveryKeyLoginTest extends TestCase
         $user = $this->createUserWithRecoveryCodes();
 
         // First, login to get to 2FA challenge
-        $this->post('/login', [
+        $this->post(route('login.store'), [
             'email' => $user->email,
             'password' => 'password',
         ]);
 
         // Then use recovery code
-        $response = $this->post('/two-factor-challenge', [
+        $response = $this->post(route('two-factor.login.store'), [
             'recovery_code' => $this->getUnusedRecoveryCode(),
         ]);
 
         $response->assertStatus(302);
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($user);
         Event::assertDispatched(Login::class);
     }
@@ -41,24 +40,26 @@ class RecoveryKeyLoginTest extends TestCase
         $user = $this->createUserWithRecoveryCodes();
 
         // Login to get to 2FA challenge
-        $this->post('/login', [
+        $this->post(route('login.store'), [
             'email' => $user->email,
             'password' => 'password',
         ]);
 
         // Use recovery code
         $recoveryCode = $this->getUnusedRecoveryCode();
-        $this->post('/two-factor-challenge', [
+        $this->post(route('two-factor.login.store'), [
             'recovery_code' => $recoveryCode,
         ]);
 
-        // Check that recovery code is marked as used
+        // Verify recovery code is replaced (Fortify's secure approach)
         $user->refresh();
         $recoveryCodes = collect(json_decode(decrypt($user->two_factor_recovery_codes), true));
 
-        $usedCode = $recoveryCodes->firstWhere('code', $recoveryCode);
-        $this->assertNotNull($usedCode);
-        $this->assertNotNull($usedCode['used_at']);
+        // The used code should no longer exist (replaced with new one)
+        $this->assertFalse($recoveryCodes->contains($recoveryCode));
+
+        // Should still have same number of recovery codes
+        $this->assertCount(5, $recoveryCodes);
     }
 
     public function test_user_cannot_login_with_already_used_recovery_code(): void
@@ -70,18 +71,18 @@ class RecoveryKeyLoginTest extends TestCase
         $this->markRecoveryCodeAsUsed($user, $usedCode);
 
         // Login to get to 2FA challenge
-        $this->post('/login', [
+        $this->post(route('login.store'), [
             'email' => $user->email,
             'password' => 'password',
         ]);
 
         // Try to use the already used recovery code
-        $response = $this->post('/two-factor-challenge', [
+        $response = $this->post(route('two-factor.login.store'), [
             'recovery_code' => $usedCode,
         ]);
 
         $response->assertStatus(302);
-        $response->assertSessionHasErrors(['recovery_code']);
+        $response->assertRedirect(route('two-factor.login'));
         $this->assertGuest();
     }
 
@@ -90,18 +91,18 @@ class RecoveryKeyLoginTest extends TestCase
         $user = $this->createUserWithRecoveryCodes();
 
         // Login to get to 2FA challenge
-        $this->post('/login', [
+        $this->post(route('login.store'), [
             'email' => $user->email,
             'password' => 'password',
         ]);
 
         // Try invalid recovery code
-        $response = $this->post('/two-factor-challenge', [
+        $response = $this->post(route('two-factor.login.store'), [
             'recovery_code' => 'invalid-recovery-code',
         ]);
 
         $response->assertStatus(302);
-        $response->assertSessionHasErrors(['recovery_code']);
+        $response->assertRedirect(route('two-factor.login'));
         $this->assertGuest();
     }
 
@@ -110,18 +111,18 @@ class RecoveryKeyLoginTest extends TestCase
         $user = $this->createUserWithRecoveryCodes();
 
         // Login to get to 2FA challenge
-        $this->post('/login', [
+        $this->post(route('login.store'), [
             'email' => $user->email,
             'password' => 'password',
         ]);
 
         // Try empty recovery code
-        $response = $this->post('/two-factor-challenge', [
+        $response = $this->post(route('two-factor.login.store'), [
             'recovery_code' => '',
         ]);
 
         $response->assertStatus(302);
-        $response->assertSessionHasErrors(['recovery_code']);
+        $response->assertRedirect(route('two-factor.login'));
         $this->assertGuest();
     }
 
@@ -131,30 +132,28 @@ class RecoveryKeyLoginTest extends TestCase
         $user = $this->createUserWithBothTwoFactor();
 
         // Add recovery codes
-        $recoveryCodes = collect([
+        $recoveryCodes = [
             'recovery-code-1',
             'recovery-code-2',
-        ])->map(function ($code) {
-            return new RecoveryCode($code);
-        })->toArray();
+        ];
 
         $user->forceFill([
             'two_factor_recovery_codes' => encrypt(json_encode($recoveryCodes)),
         ])->save();
 
         // Login to get to 2FA challenge
-        $this->post('/login', [
+        $this->post(route('login.store'), [
             'email' => $user->email,
             'password' => 'password',
         ]);
 
         // Use recovery code
-        $response = $this->post('/two-factor-challenge', [
+        $response = $this->post(route('two-factor.login.store'), [
             'recovery_code' => 'recovery-code-1',
         ]);
 
         $response->assertStatus(302);
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($user);
         Event::assertDispatched(Login::class);
     }
@@ -164,12 +163,12 @@ class RecoveryKeyLoginTest extends TestCase
         $user = $this->createUserWithRecoveryCodes();
 
         // Try to use recovery code without being in 2FA challenge
-        $response = $this->post('/two-factor-challenge', [
+        $response = $this->post(route('two-factor.login.store'), [
             'recovery_code' => $this->getUnusedRecoveryCode(),
         ]);
 
         $response->assertStatus(302);
-        $response->assertRedirect('/login');
+        $response->assertRedirect(route('login'));
         $this->assertGuest();
     }
 
@@ -180,18 +179,18 @@ class RecoveryKeyLoginTest extends TestCase
         ]);
 
         // Login to get to 2FA challenge
-        $this->post('/login', [
+        $this->post(route('login.store'), [
             'email' => $user->email,
             'password' => 'password',
         ]);
 
         // Try to use recovery code
-        $response = $this->post('/two-factor-challenge', [
+        $response = $this->post(route('two-factor.login.store'), [
             'recovery_code' => 'some-recovery-code',
         ]);
 
         $response->assertStatus(302);
-        $response->assertSessionHasErrors(['recovery_code']);
+        $response->assertRedirect(route('two-factor.login'));
         $this->assertGuest();
     }
 
@@ -200,18 +199,18 @@ class RecoveryKeyLoginTest extends TestCase
         $user = $this->createUserWithRecoveryCodes();
 
         // Login to get to 2FA challenge
-        $this->post('/login', [
+        $this->post(route('login.store'), [
             'email' => $user->email,
             'password' => 'password',
         ]);
 
         // Try recovery code with invalid format
-        $response = $this->post('/two-factor-challenge', [
+        $response = $this->post(route('two-factor.login.store'), [
             'recovery_code' => 'short',
         ]);
 
         $response->assertStatus(302);
-        $response->assertSessionHasErrors(['recovery_code']);
+        $response->assertRedirect(route('two-factor.login'));
         $this->assertGuest();
     }
 
@@ -221,57 +220,58 @@ class RecoveryKeyLoginTest extends TestCase
         $user = $this->createUserWithRecoveryCodes();
 
         // Login to get to 2FA challenge
-        $this->post('/login', [
+        $this->post(route('login.store'), [
             'email' => $user->email,
             'password' => 'password',
         ]);
 
         // Use recovery code in different case
-        $response = $this->post('/two-factor-challenge', [
+        $response = $this->post(route('two-factor.login.store'), [
             'recovery_code' => strtoupper($this->getUnusedRecoveryCode()),
         ]);
 
         $response->assertStatus(302);
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($user);
     }
 
-    public function test_all_recovery_codes_can_be_used_once(): void
+    public function test_recovery_code_can_only_be_used_once(): void
     {
         Event::fake();
         $user = $this->createUserWithRecoveryCodes();
 
-        $recoveryCodes = collect(json_decode(decrypt($user->two_factor_recovery_codes), true))
-            ->pluck('code')
-            ->toArray();
+        $recoveryCode = $this->getUnusedRecoveryCode();
 
-        foreach ($recoveryCodes as $index => $code) {
-            // Create fresh session for each attempt
-            $this->post('/logout');
+        // First use should succeed
+        $this->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
 
-            // Login to get to 2FA challenge
-            $this->post('/login', [
-                'email' => $user->email,
-                'password' => 'password',
-            ]);
+        $response = $this->post(route('two-factor.login.store'), [
+            'recovery_code' => $recoveryCode,
+        ]);
 
-            // Use recovery code
-            $response = $this->post('/two-factor-challenge', [
-                'recovery_code' => $code,
-            ]);
+        $response->assertStatus(302);
+        $response->assertRedirect(route('dashboard'));
+        $this->assertAuthenticatedAs($user);
 
-            $response->assertStatus(302);
-            $response->assertRedirect('/dashboard');
-            $this->assertAuthenticatedAs($user);
-        }
+        // Logout and try to use the same code again
+        $this->post(route('logout'));
 
-        // All codes should now be marked as used
-        $user->refresh();
-        $updatedCodes = collect(json_decode(decrypt($user->two_factor_recovery_codes), true));
+        $this->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
 
-        foreach ($updatedCodes as $recoveryCode) {
-            $this->assertNotNull($recoveryCode['used_at']);
-        }
+        // Second use of same code should fail (code was replaced after first use)
+        $response = $this->post(route('two-factor.login.store'), [
+            'recovery_code' => $recoveryCode,
+        ]);
+
+        $response->assertStatus(302);
+        $response->assertRedirect(route('two-factor.login'));
+        $this->assertGuest();
     }
 
     public function test_recovery_code_login_rate_limiting(): void
@@ -279,14 +279,14 @@ class RecoveryKeyLoginTest extends TestCase
         $user = $this->createUserWithRecoveryCodes();
 
         // Login to get to 2FA challenge
-        $this->post('/login', [
+        $this->post(route('login.store'), [
             'email' => $user->email,
             'password' => 'password',
         ]);
 
         // Make multiple failed attempts
         for ($i = 0; $i < 10; $i++) {
-            $response = $this->post('/two-factor-challenge', [
+            $response = $this->post(route('two-factor.login.store'), [
                 'recovery_code' => 'invalid-code-'.$i,
             ]);
         }
@@ -302,7 +302,7 @@ class RecoveryKeyLoginTest extends TestCase
         $user = $this->createUserWithRecoveryCodes();
 
         // Login to get to 2FA challenge
-        $this->post('/login', [
+        $this->post(route('login.store'), [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -311,12 +311,12 @@ class RecoveryKeyLoginTest extends TestCase
         session()->flush();
 
         // Try to use recovery code with expired session
-        $response = $this->post('/two-factor-challenge', [
+        $response = $this->post(route('two-factor.login.store'), [
             'recovery_code' => $this->getUnusedRecoveryCode(),
         ]);
 
         $response->assertStatus(302);
-        $response->assertRedirect('/login');
+        $response->assertRedirect(route('login'));
         $this->assertGuest();
     }
 }

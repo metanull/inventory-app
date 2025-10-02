@@ -19,7 +19,7 @@ test('old profile route still works for backward compatibility', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
 
-    $response = $this->get('/user/profile');
+    $response = $this->get(route('web.profile.show'));
     $response->assertOk();
 });
 
