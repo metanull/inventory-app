@@ -1,3 +1,10 @@
+---
+layout: default
+title: Trusted Proxy Configuration
+parent: Deployment Guide
+nav_order: 5
+---
+
 # Trusted Proxy Configuration
 
 ## Overview

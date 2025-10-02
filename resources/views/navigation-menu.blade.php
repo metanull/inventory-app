@@ -113,6 +113,19 @@
                                     </x-dropdown-link>
                                 @endif
 
+                                @can('manage users')
+                                    <div class="border-t border-gray-200"></div>
+                                    
+                                    <!-- Administration -->
+                                    <div class="block px-4 py-2 text-xs text-gray-400">
+                                        {{ __('Administration') }}
+                                    </div>
+
+                                    <x-dropdown-link href="{{ route('admin.users.index') }}">
+                                        {{ __('User Management') }}
+                                    </x-dropdown-link>
+                                @endcan
+
                                 <div class="border-t border-gray-200"></div>
 
                                 <!-- Authentication -->
@@ -200,6 +213,13 @@
                             {{ __('API Tokens') }}
                         </x-responsive-nav-link>
                     @endif
+
+                    @can('manage users')
+                        <!-- Administration -->
+                        <x-responsive-nav-link href="{{ route('admin.users.index') }}" :active="request()->routeIs('admin.users.*')">
+                            {{ __('User Management') }}
+                        </x-responsive-nav-link>
+                    @endcan
 
                     <!-- Authentication -->
                     <form method="POST" action="{{ route('logout') }}" x-data>
