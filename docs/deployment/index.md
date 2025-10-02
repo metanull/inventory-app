@@ -110,3 +110,5 @@ The application follows a modern N-tier architecture:
 - 💻 [Development Setup](development-setup) - Local development environment
 - 🔧 [Configuration](configuration) - Environment and application configuration
 - 🚀 [Server Configuration](server-configuration) - Web server setup guides
+- 🌐 [Trusted Proxy Configuration](trusted-proxies) - Configure reverse proxy support
+- 👥 [Command Line User Management](command-line-user-management) - Manage users and roles via CLI
