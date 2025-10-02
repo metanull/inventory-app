@@ -24,6 +24,15 @@ return Application::configure(basePath: dirname(__DIR__))
                 Request::HEADER_X_FORWARDED_PORT |
                 Request::HEADER_X_FORWARDED_PROTO
         );
+
+        // Register authorization middleware
+        $middleware->alias([
+            'permission' => \App\Http\Middleware\RequirePermission::class,
+            'role' => \App\Http\Middleware\RequireRole::class,
+            'role.spatie' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission.spatie' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

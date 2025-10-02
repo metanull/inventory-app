@@ -38,6 +38,13 @@ Route::prefix('web')->group(function () {
         Route::resource('contexts', WebContextController::class);
         Route::resource('collections', WebCollectionController::class);
     });
+
+    // Admin routes - User Management
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('users', \App\Http\Controllers\UserManagementController::class);
+        Route::get('users/{user}/roles', [\App\Http\Controllers\UserManagementController::class, 'roles'])->name('users.roles');
+        Route::put('users/{user}/roles', [\App\Http\Controllers\UserManagementController::class, 'updateRoles'])->name('users.updateRoles');
+    });
 });
 
 // Vue.js SPA Route - serves the client app at /cli (demo client)

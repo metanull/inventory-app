@@ -11,7 +11,7 @@
     "require": {
         "php": "^8.2",
         "blade-ui-kit/blade-heroicons": "^2.6",
-    "dedoc/scramble": "^0.12.35",
+        "dedoc/scramble": "^0.12.35",
         "intervention/image": "^3.11",
         "laravel/framework": "^12.31",
         "laravel/jetstream": "^5.3",
@@ -21,6 +21,7 @@
         "league/html-to-markdown": "^5.1",
         "livewire/livewire": "^3.0",
         "propaganistas/laravel-phone": "^6.0",
+        "spatie/laravel-permission": "^6.21",
         "symfony/process": "^7.3"
     },
     "require-dev": {
