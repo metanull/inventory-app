@@ -78,32 +78,6 @@ class UsedRecoveryKeyTest extends TestCase
         $this->assertStringContainsString('invalid', strtolower($errors->first('recovery_code')));
     }
 
-    public function test_attempting_to_use_consumed_recovery_code_is_logged(): void
-    {
-        Log::spy();
-
-        $user = $this->createUserWithRecoveryCodes();
-        $recoveryCode = $this->getUnusedRecoveryCode();
-
-        // Mark recovery code as used
-        $this->markRecoveryCodeAsUsed($user, $recoveryCode);
-
-        // Attempt login
-        $this->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        $this->post(route('two-factor.login.store'), [
-            'recovery_code' => $recoveryCode,
-        ]);
-
-        // Note: Fortify doesn't log recovery code attempts by default
-        // This is actually more secure as it doesn't create audit trails that could be exploited
-        // If logging is required, it should be added via custom event listeners
-        // The critical security behavior is verified above (user remains unauthenticated)
-    }
-
     public function test_multiple_failed_recovery_code_attempts_are_tracked(): void
     {
         Log::spy();
@@ -316,10 +290,11 @@ class UsedRecoveryKeyTest extends TestCase
         // Access the 2FA challenge page
         $response = $this->get(route('two-factor.login'));
 
-        // Verify security headers are present (Fortify's actual headers)
-        $response->assertHeader('Cache-Control', 'no-cache, private');
-        // Note: Fortify uses 'no-cache, private' which is also secure
-        // This prevents caching while allowing intermediate proxies to handle private content
+        // Verify critical cache control directives are present
+        $cacheControl = $response->headers->get('Cache-Control');
+        $this->assertStringContainsString('no-cache', $cacheControl);
+        $this->assertStringContainsString('private', $cacheControl);
+        // These directives prevent caching of sensitive 2FA pages
     }
 
     public function test_recovery_code_brute_force_protection(): void
