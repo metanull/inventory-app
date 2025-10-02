@@ -4778,6 +4778,94 @@ export interface ThemeUpdateRequest {
 /**
  * 
  * @export
+ * @interface TokenAcquire201Response
+ */
+export interface TokenAcquire201Response {
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenAcquire201Response
+     */
+    'token': string;
+    /**
+     * 
+     * @type {TokenAcquire201ResponseUser}
+     * @memberof TokenAcquire201Response
+     */
+    'user': TokenAcquire201ResponseUser;
+}
+/**
+ * 
+ * @export
+ * @interface TokenAcquire201ResponseUser
+ */
+export interface TokenAcquire201ResponseUser {
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenAcquire201ResponseUser
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenAcquire201ResponseUser
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenAcquire201ResponseUser
+     */
+    'email': string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TokenAcquire201ResponseUser
+     */
+    'two_factor_enabled': boolean;
+}
+/**
+ * 
+ * @export
+ * @interface TokenAcquire202Response
+ */
+export interface TokenAcquire202Response {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TokenAcquire202Response
+     */
+    'requires_two_factor': boolean;
+    /**
+     * 
+     * @type {Array<any>}
+     * @memberof TokenAcquire202Response
+     */
+    'available_methods': Array<any>;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenAcquire202Response
+     */
+    'primary_method': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenAcquire202Response
+     */
+    'message': TokenAcquire202ResponseMessageEnum;
+}
+
+export const TokenAcquire202ResponseMessageEnum = {
+    TwoFactorAuthenticationRequiredPleaseProvideAVerificationCode: 'Two-factor authentication required. Please provide a verification code.'
+} as const;
+
+export type TokenAcquire202ResponseMessageEnum = typeof TokenAcquire202ResponseMessageEnum[keyof typeof TokenAcquire202ResponseMessageEnum];
+
+/**
+ * 
+ * @export
  * @interface TokenAcquireRequest
  */
 export interface TokenAcquireRequest {
@@ -4806,6 +4894,189 @@ export interface TokenAcquireRequest {
      */
     'wipe_tokens'?: boolean;
 }
+/**
+ * 
+ * @export
+ * @interface TokenRequestEmailCode200Response
+ */
+export interface TokenRequestEmailCode200Response {
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenRequestEmailCode200Response
+     */
+    'message': TokenRequestEmailCode200ResponseMessageEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenRequestEmailCode200Response
+     */
+    'expires_in': string;
+}
+
+export const TokenRequestEmailCode200ResponseMessageEnum = {
+    EmailVerificationCodeSentSuccessfully: 'Email verification code sent successfully.'
+} as const;
+
+export type TokenRequestEmailCode200ResponseMessageEnum = typeof TokenRequestEmailCode200ResponseMessageEnum[keyof typeof TokenRequestEmailCode200ResponseMessageEnum];
+
+/**
+ * 
+ * @export
+ * @interface TokenRequestEmailCodeRequest
+ */
+export interface TokenRequestEmailCodeRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenRequestEmailCodeRequest
+     */
+    'email': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenRequestEmailCodeRequest
+     */
+    'password': string;
+}
+/**
+ * 
+ * @export
+ * @interface TokenTwoFactorStatus200Response
+ */
+export interface TokenTwoFactorStatus200Response {
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenTwoFactorStatus200Response
+     */
+    'two_factor_enabled': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenTwoFactorStatus200Response
+     */
+    'available_methods': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenTwoFactorStatus200Response
+     */
+    'primary_method': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenTwoFactorStatus200Response
+     */
+    'requires_two_factor': string;
+}
+/**
+ * 
+ * @export
+ * @interface TokenVerifyTwoFactor201Response
+ */
+export interface TokenVerifyTwoFactor201Response {
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenVerifyTwoFactor201Response
+     */
+    'token': string;
+    /**
+     * 
+     * @type {TokenVerifyTwoFactor201ResponseUser}
+     * @memberof TokenVerifyTwoFactor201Response
+     */
+    'user': TokenVerifyTwoFactor201ResponseUser;
+}
+/**
+ * 
+ * @export
+ * @interface TokenVerifyTwoFactor201ResponseUser
+ */
+export interface TokenVerifyTwoFactor201ResponseUser {
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenVerifyTwoFactor201ResponseUser
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenVerifyTwoFactor201ResponseUser
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenVerifyTwoFactor201ResponseUser
+     */
+    'email': string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TokenVerifyTwoFactor201ResponseUser
+     */
+    'two_factor_enabled': boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenVerifyTwoFactor201ResponseUser
+     */
+    'two_factor_method': string;
+}
+/**
+ * 
+ * @export
+ * @interface TokenVerifyTwoFactorRequest
+ */
+export interface TokenVerifyTwoFactorRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenVerifyTwoFactorRequest
+     */
+    'email': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenVerifyTwoFactorRequest
+     */
+    'password': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenVerifyTwoFactorRequest
+     */
+    'device_name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenVerifyTwoFactorRequest
+     */
+    'code': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenVerifyTwoFactorRequest
+     */
+    'method'?: TokenVerifyTwoFactorRequestMethodEnum;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TokenVerifyTwoFactorRequest
+     */
+    'wipe_tokens'?: boolean;
+}
+
+export const TokenVerifyTwoFactorRequestMethodEnum = {
+    Totp: 'totp',
+    Email: 'email'
+} as const;
+
+export type TokenVerifyTwoFactorRequestMethodEnum = typeof TokenVerifyTwoFactorRequestMethodEnum[keyof typeof TokenVerifyTwoFactorRequestMethodEnum];
+
 /**
  * 
  * @export
@@ -14990,6 +15261,114 @@ export const MobileAppAuthenticationApiAxiosParamCreator = function (configurati
         },
         /**
          * 
+         * @summary Request an email 2FA code for mobile authentication
+         * @param {TokenRequestEmailCodeRequest} tokenRequestEmailCodeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tokenRequestEmailCode: async (tokenRequestEmailCodeRequest: TokenRequestEmailCodeRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'tokenRequestEmailCodeRequest' is not null or undefined
+            assertParamExists('tokenRequestEmailCode', 'tokenRequestEmailCodeRequest', tokenRequestEmailCodeRequest)
+            const localVarPath = `/mobile/request-email-code`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(tokenRequestEmailCodeRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get user\'s 2FA status and available methods
+         * @param {TokenRequestEmailCodeRequest} tokenRequestEmailCodeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tokenTwoFactorStatus: async (tokenRequestEmailCodeRequest: TokenRequestEmailCodeRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'tokenRequestEmailCodeRequest' is not null or undefined
+            assertParamExists('tokenTwoFactorStatus', 'tokenRequestEmailCodeRequest', tokenRequestEmailCodeRequest)
+            const localVarPath = `/mobile/two-factor-status`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(tokenRequestEmailCodeRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Verify two-factor authentication and acquire token
+         * @param {TokenVerifyTwoFactorRequest} tokenVerifyTwoFactorRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tokenVerifyTwoFactor: async (tokenVerifyTwoFactorRequest: TokenVerifyTwoFactorRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'tokenVerifyTwoFactorRequest' is not null or undefined
+            assertParamExists('tokenVerifyTwoFactor', 'tokenVerifyTwoFactorRequest', tokenVerifyTwoFactorRequest)
+            const localVarPath = `/mobile/verify-two-factor`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(tokenVerifyTwoFactorRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Revoke all the token for the current user
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -15039,10 +15418,49 @@ export const MobileAppAuthenticationApiFp = function(configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async tokenAcquire(tokenAcquireRequest: TokenAcquireRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+        async tokenAcquire(tokenAcquireRequest: TokenAcquireRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TokenAcquire201Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.tokenAcquire(tokenAcquireRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MobileAppAuthenticationApi.tokenAcquire']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Request an email 2FA code for mobile authentication
+         * @param {TokenRequestEmailCodeRequest} tokenRequestEmailCodeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tokenRequestEmailCode(tokenRequestEmailCodeRequest: TokenRequestEmailCodeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TokenRequestEmailCode200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.tokenRequestEmailCode(tokenRequestEmailCodeRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['MobileAppAuthenticationApi.tokenRequestEmailCode']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get user\'s 2FA status and available methods
+         * @param {TokenRequestEmailCodeRequest} tokenRequestEmailCodeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tokenTwoFactorStatus(tokenRequestEmailCodeRequest: TokenRequestEmailCodeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TokenTwoFactorStatus200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.tokenTwoFactorStatus(tokenRequestEmailCodeRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['MobileAppAuthenticationApi.tokenTwoFactorStatus']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Verify two-factor authentication and acquire token
+         * @param {TokenVerifyTwoFactorRequest} tokenVerifyTwoFactorRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tokenVerifyTwoFactor(tokenVerifyTwoFactorRequest: TokenVerifyTwoFactorRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TokenVerifyTwoFactor201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.tokenVerifyTwoFactor(tokenVerifyTwoFactorRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['MobileAppAuthenticationApi.tokenVerifyTwoFactor']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -15074,8 +15492,38 @@ export const MobileAppAuthenticationApiFactory = function (configuration?: Confi
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tokenAcquire(tokenAcquireRequest: TokenAcquireRequest, options?: RawAxiosRequestConfig): AxiosPromise<string> {
+        tokenAcquire(tokenAcquireRequest: TokenAcquireRequest, options?: RawAxiosRequestConfig): AxiosPromise<TokenAcquire201Response> {
             return localVarFp.tokenAcquire(tokenAcquireRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Request an email 2FA code for mobile authentication
+         * @param {TokenRequestEmailCodeRequest} tokenRequestEmailCodeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tokenRequestEmailCode(tokenRequestEmailCodeRequest: TokenRequestEmailCodeRequest, options?: RawAxiosRequestConfig): AxiosPromise<TokenRequestEmailCode200Response> {
+            return localVarFp.tokenRequestEmailCode(tokenRequestEmailCodeRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get user\'s 2FA status and available methods
+         * @param {TokenRequestEmailCodeRequest} tokenRequestEmailCodeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tokenTwoFactorStatus(tokenRequestEmailCodeRequest: TokenRequestEmailCodeRequest, options?: RawAxiosRequestConfig): AxiosPromise<TokenTwoFactorStatus200Response> {
+            return localVarFp.tokenTwoFactorStatus(tokenRequestEmailCodeRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Verify two-factor authentication and acquire token
+         * @param {TokenVerifyTwoFactorRequest} tokenVerifyTwoFactorRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tokenVerifyTwoFactor(tokenVerifyTwoFactorRequest: TokenVerifyTwoFactorRequest, options?: RawAxiosRequestConfig): AxiosPromise<TokenVerifyTwoFactor201Response> {
+            return localVarFp.tokenVerifyTwoFactor(tokenVerifyTwoFactorRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -15106,6 +15554,42 @@ export class MobileAppAuthenticationApi extends BaseAPI {
      */
     public tokenAcquire(tokenAcquireRequest: TokenAcquireRequest, options?: RawAxiosRequestConfig) {
         return MobileAppAuthenticationApiFp(this.configuration).tokenAcquire(tokenAcquireRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Request an email 2FA code for mobile authentication
+     * @param {TokenRequestEmailCodeRequest} tokenRequestEmailCodeRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MobileAppAuthenticationApi
+     */
+    public tokenRequestEmailCode(tokenRequestEmailCodeRequest: TokenRequestEmailCodeRequest, options?: RawAxiosRequestConfig) {
+        return MobileAppAuthenticationApiFp(this.configuration).tokenRequestEmailCode(tokenRequestEmailCodeRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get user\'s 2FA status and available methods
+     * @param {TokenRequestEmailCodeRequest} tokenRequestEmailCodeRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MobileAppAuthenticationApi
+     */
+    public tokenTwoFactorStatus(tokenRequestEmailCodeRequest: TokenRequestEmailCodeRequest, options?: RawAxiosRequestConfig) {
+        return MobileAppAuthenticationApiFp(this.configuration).tokenTwoFactorStatus(tokenRequestEmailCodeRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Verify two-factor authentication and acquire token
+     * @param {TokenVerifyTwoFactorRequest} tokenVerifyTwoFactorRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MobileAppAuthenticationApi
+     */
+    public tokenVerifyTwoFactor(tokenVerifyTwoFactorRequest: TokenVerifyTwoFactorRequest, options?: RawAxiosRequestConfig) {
+        return MobileAppAuthenticationApiFp(this.configuration).tokenVerifyTwoFactor(tokenVerifyTwoFactorRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -206,7 +206,7 @@ router.beforeEach(
       if (hasIntended) {
         next()
       } else {
-        next('/')
+        next({ name: 'home' })
       }
     } else {
       next()

@@ -27,6 +27,12 @@
                 </div>
 
                 <x-section-border />
+
+                <div class="mt-10 sm:mt-0">
+                    @livewire('profile.email-two-factor-form')
+                </div>
+
+                <x-section-border />
             @endif
 
             <div class="mt-10 sm:mt-0">

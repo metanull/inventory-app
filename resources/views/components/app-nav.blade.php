@@ -88,7 +88,10 @@
         <div class="flex items-center gap-4">
             @auth
                 <div class="hidden md:flex items-center gap-3">
-                    <span class="text-sm text-gray-600">{{ auth()->user()->name }}</span>
+                    <a href="{{ route('web.profile.show') }}" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 text-sm">
+                        <x-heroicon-o-user class="w-4 h-4" />
+                        Profile
+                    </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="text-xs px-2 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50">Logout</button>
@@ -138,7 +141,10 @@
             <div class="pt-2 border-t border-gray-100">
                 @auth
                     <div class="flex items-center justify-between">
-                        <span class="text-gray-600">{{ auth()->user()->name }}</span>
+                        <a href="{{ route('web.profile.show') }}" class="inline-flex items-center gap-2 px-2 py-1 rounded text-gray-600 hover:bg-gray-50 hover:text-gray-800">
+                            <x-heroicon-o-user class="w-4 h-4" />
+                            Profile
+                        </a>
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
                             <button type="submit" class="text-xs px-2 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50">Logout</button>
