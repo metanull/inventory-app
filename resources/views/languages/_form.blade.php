@@ -1,6 +1,7 @@
 @csrf
 
-<x-form.field label="Code (3 letters)" name="id" variant="gray" required>
+<div class="p-6 space-y-6">
+    <x-form.field label="Code (3 letters)" name="id" variant="gray" required>
     <x-form.input 
         name="id" 
         :value="old('id', $language->id ?? '')" 
@@ -39,6 +40,7 @@
         <span class="text-sm text-gray-700">Mark as default language</span>
     </label>
 </x-form.field>
+</div>
 
 <x-form.actions 
     :cancel-route="isset($language) ? route('languages.show', $language) : route('languages.index')"

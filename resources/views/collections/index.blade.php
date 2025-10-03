@@ -10,6 +10,10 @@
             </a>
         </x-entity.header>
 
+        @if(session('status'))
+            <x-ui.alert :message="session('status')" type="success" entity="collections" />
+        @endif
+
         <livewire:tables.collections-table />
     </div>
 @endsection

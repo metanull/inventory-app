@@ -1,6 +1,7 @@
 @csrf
 
-<x-form.field label="Code (3 letters)" name="id" variant="gray" required>
+<div class="p-6 space-y-6">
+    <x-form.field label="Code (3 letters)" name="id" variant="gray" required>
     <x-form.input 
         name="id" 
         :value="old('id', $country->id ?? '')" 
@@ -26,6 +27,8 @@
         maxlength="2"
     />
 </x-form.field>
+
+</div>
 
 <x-form.actions 
     :cancel-route="isset($country) ? route('countries.show', $country) : route('countries.index')"

@@ -9,6 +9,11 @@
             Add Context
         </a>
     </x-entity.header>
+
+    @if(session('status'))
+        <x-ui.alert :message="session('status')" type="success" entity="contexts" />
+    @endif
+
     <livewire:tables.contexts-table />
 </div>
 @endsection

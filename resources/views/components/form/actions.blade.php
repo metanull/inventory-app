@@ -27,12 +27,12 @@ document.addEventListener('DOMContentLoaded', function() {
     forms.forEach(form => {
         form.addEventListener('submit', function(e) {
             const submitButton = form.querySelector('button[type="submit"]');
-            const spinner = submitButton.querySelector('.animate-spin');
+            const spinnerContainer = submitButton.querySelector('.flex.items-center.justify-center');
             const text = submitButton.querySelector('.submit-text');
             
-            if (submitButton && spinner && text) {
+            if (submitButton && spinnerContainer && text) {
                 submitButton.disabled = true;
-                spinner.style.display = 'block';
+                spinnerContainer.style.display = 'block';
                 text.textContent = 'Saving...';
             }
         });
