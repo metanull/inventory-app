@@ -198,4 +198,80 @@ class UserManagementTest extends TestCase
         $response->assertSee($regularUser->name);
         $response->assertDontSee($manager->name);
     }
+
+    public function test_admin_can_verify_user_email_through_edit_form(): void
+    {
+        $manager = User::factory()->create(['email_verified_at' => now()]);
+        $managerRole = Role::findByName('Manager of Users');
+        $manager->assignRole($managerRole);
+
+        $targetUser = User::factory()->create(['email_verified_at' => null]);
+        $this->assertFalse($targetUser->hasVerifiedEmail());
+
+        $response = $this->actingAs($manager)->put(route('admin.users.update', $targetUser), [
+            'name' => $targetUser->name,
+            'email' => $targetUser->email,
+            'verify_email' => '1',
+            'roles' => [],
+        ]);
+
+        $response->assertRedirect(route('admin.users.index'));
+        $this->assertTrue($targetUser->fresh()->hasVerifiedEmail());
+    }
+
+    public function test_admin_can_unverify_user_email_through_edit_form(): void
+    {
+        $manager = User::factory()->create(['email_verified_at' => now()]);
+        $managerRole = Role::findByName('Manager of Users');
+        $manager->assignRole($managerRole);
+
+        $targetUser = User::factory()->create(['email_verified_at' => now()]);
+        $this->assertTrue($targetUser->hasVerifiedEmail());
+
+        $response = $this->actingAs($manager)->put(route('admin.users.update', $targetUser), [
+            'name' => $targetUser->name,
+            'email' => $targetUser->email,
+            'unverify_email' => '1',
+            'roles' => [],
+        ]);
+
+        $response->assertRedirect(route('admin.users.index'));
+        $this->assertFalse($targetUser->fresh()->hasVerifiedEmail());
+    }
+
+    public function test_admin_user_edit_form_shows_email_verification_status(): void
+    {
+        $manager = User::factory()->create(['email_verified_at' => now()]);
+        $managerRole = Role::findByName('Manager of Users');
+        $manager->assignRole($managerRole);
+
+        // Test with verified user
+        $verifiedUser = User::factory()->create(['email_verified_at' => now()]);
+        $response = $this->actingAs($manager)->get(route('admin.users.edit', $verifiedUser));
+        $response->assertStatus(200);
+        $response->assertSee('✅ Verified');
+        $response->assertSee('Remove verification');
+
+        // Test with unverified user
+        $unverifiedUser = User::factory()->create(['email_verified_at' => null]);
+        $response = $this->actingAs($manager)->get(route('admin.users.edit', $unverifiedUser));
+        $response->assertStatus(200);
+        $response->assertSee('❌ Not Verified');
+        $response->assertSee('Mark as verified');
+    }
+
+    public function test_user_show_page_displays_edit_link_instead_of_manage_roles(): void
+    {
+        $manager = User::factory()->create(['email_verified_at' => now()]);
+        $managerRole = Role::findByName('Manager of Users');
+        $manager->assignRole($managerRole);
+
+        $targetUser = User::factory()->create();
+
+        $response = $this->actingAs($manager)->get(route('admin.users.show', $targetUser));
+
+        $response->assertStatus(200);
+        $response->assertSee('Edit User & Roles');
+        $response->assertDontSee('Manage Roles');
+    }
 }

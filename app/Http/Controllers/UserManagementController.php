@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
@@ -62,23 +63,33 @@ class UserManagementController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
             'roles' => ['array'],
             'roles.*' => ['exists:roles,id'],
         ]);
 
+        // Generate a secure password
+        $generatedPassword = $this->generateSecurePassword();
+
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
+            'password' => Hash::make($generatedPassword),
         ]);
 
         if (isset($validated['roles'])) {
-            $user->syncRoles($validated['roles']);
+            // Convert role IDs to role objects for syncRoles
+            $roles = Role::whereIn('id', $validated['roles'])->get();
+            $user->syncRoles($roles);
+        } else {
+            // If no roles are provided, remove all roles
+            $user->syncRoles([]);
         }
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User created successfully.');
+            ->with('success', 'User created successfully.')
+            ->with('generated_password', $generatedPassword)
+            ->with('user_name', $user->name)
+            ->with('user_email', $user->email);
     }
 
     /**
@@ -110,9 +121,11 @@ class UserManagementController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'roles' => ['array'],
             'roles.*' => ['exists:roles,id'],
+            'verify_email' => ['nullable', 'boolean'],
+            'unverify_email' => ['nullable', 'boolean'],
+            'generate_new_password' => ['nullable', 'boolean'],
         ]);
 
         $user->update([
@@ -120,16 +133,39 @@ class UserManagementController extends Controller
             'email' => $validated['email'],
         ]);
 
-        if (! empty($validated['password'])) {
-            $user->update(['password' => Hash::make($validated['password'])]);
+        $generatedPassword = null;
+        if (! empty($validated['generate_new_password'])) {
+            $generatedPassword = $this->generateSecurePassword();
+            $user->update(['password' => Hash::make($generatedPassword)]);
         }
 
         if (isset($validated['roles'])) {
-            $user->syncRoles($validated['roles']);
+            // Convert role IDs to role objects for syncRoles
+            $roles = Role::whereIn('id', $validated['roles'])->get();
+            $user->syncRoles($roles);
+        } else {
+            // If no roles are provided, remove all roles
+            $user->syncRoles([]);
         }
 
-        return redirect()->route('admin.users.index')
+        // Handle email verification management
+        if (! empty($validated['verify_email']) && ! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        } elseif (! empty($validated['unverify_email']) && $user->hasVerifiedEmail()) {
+            $user->email_verified_at = null;
+            $user->save();
+        }
+
+        $redirect = redirect()->route('admin.users.index')
             ->with('success', 'User updated successfully.');
+
+        if ($generatedPassword) {
+            $redirect->with('generated_password', $generatedPassword)
+                ->with('user_name', $user->name)
+                ->with('user_email', $user->email);
+        }
+
+        return $redirect;
     }
 
     /**
@@ -137,7 +173,7 @@ class UserManagementController extends Controller
      */
     public function destroy(User $user)
     {
-        if ($user->id === auth()->id()) {
+        if ($user->id === Auth::id()) {
             return redirect()->route('admin.users.index')
                 ->with('error', 'You cannot delete your own account.');
         }
@@ -149,29 +185,18 @@ class UserManagementController extends Controller
     }
 
     /**
-     * Manage user roles.
+     * Generate a secure password.
      */
-    public function roles(User $user)
+    private function generateSecurePassword(): string
     {
-        $roles = Role::all();
-        $user->load('roles');
+        $length = 16;
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
+        $password = '';
 
-        return view('admin.users.roles', compact('user', 'roles'));
-    }
+        for ($i = 0; $i < $length; $i++) {
+            $password .= $characters[random_int(0, strlen($characters) - 1)];
+        }
 
-    /**
-     * Update user roles.
-     */
-    public function updateRoles(Request $request, User $user)
-    {
-        $validated = $request->validate([
-            'roles' => ['array'],
-            'roles.*' => ['exists:roles,id'],
-        ]);
-
-        $user->syncRoles($validated['roles'] ?? []);
-
-        return redirect()->route('admin.users.show', $user)
-            ->with('success', 'User roles updated successfully.');
+        return $password;
     }
 }

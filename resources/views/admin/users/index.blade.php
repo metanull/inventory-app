@@ -16,6 +16,39 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="p-6">
+                    <!-- Generated Password Notification -->
+                    @if(session('generated_password'))
+                        <div class="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <h3 class="text-sm font-medium text-green-800">
+                                        {{ __('Password Generated Successfully') }}
+                                    </h3>
+                                    <div class="mt-2 text-sm text-green-700">
+                                        <p><strong>{{ __('User:') }}</strong> {{ session('user_name') }} ({{ session('user_email') }})</p>
+                                        <p><strong>{{ __('Generated Password:') }}</strong> 
+                                            <span class="font-mono bg-gray-100 px-2 py-1 rounded text-gray-900 select-all" id="generated-password">{{ session('generated_password') }}</span>
+                                        </p>
+                                        <p class="mt-2 text-xs">{{ __('Please copy this password and share it securely with the user. This password will not be shown again.') }}</p>
+                                    </div>
+                                </div>
+                                <div class="ml-4 flex-shrink-0">
+                                    <button type="button" class="bg-green-100 rounded-md inline-flex text-green-400 hover:text-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" onclick="copyToClipboard('{{ session('generated_password') }}')">
+                                        <span class="sr-only">{{ __('Copy password') }}</span>
+                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Search and Filters -->
                     <div class="mb-6">
                         <form method="GET" action="{{ route('admin.users.index') }}" class="flex flex-wrap gap-4">
@@ -147,4 +180,18 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Show temporary feedback
+                const button = event.target.closest('button');
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<svg class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+                setTimeout(function() {
+                    button.innerHTML = originalHTML;
+                }, 2000);
+            });
+        }
+    </script>
 </x-app-layout>

@@ -189,19 +189,21 @@
         <section class="space-y-4">
             <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Resources &amp; Tools</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <a href="{{ url('/docs/api') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:opacity-90">
-                                <x-heroicon-o-book-open class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">API Documentation</h3>
+                @auth
+                    <a href="{{ url('/docs/api') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:opacity-90">
+                                    <x-heroicon-o-book-open class="w-6 h-6" />
+                                </span>
+                                <h3 class="text-lg font-semibold text-gray-900">API Documentation</h3>
+                            </div>
+                            <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-600" />
                         </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-600" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">REST endpoints, schemas and integration notes.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:underline">Browse &rarr;</span>
-                </a>
+                        <p class="text-sm text-gray-600 flex-1">REST endpoints, schemas and integration notes.</p>
+                        <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:underline">Browse &rarr;</span>
+                    </a>
+                @endauth
 
                 @if(config('interface.show_spa_link'))
                 <a href="{{ url('/cli') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col">
