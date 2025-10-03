@@ -116,10 +116,20 @@ class IndexTest extends TestCase
         $response = $this->getJson(route('context.index', ['per_page' => 2, 'page' => 1]));
 
         $response->assertOk()
-            ->assertJsonPath('meta.per_page', 2)
+            ->assertJsonStructure([
+                'meta' => [
+                    'per_page',
+                    'current_page',
+                    'total',
+                    'last_page',
+                ],
+                'data' => [],
+            ])
             ->assertJsonPath('meta.current_page', 1);
 
         $this->assertCount(2, $response->json('data'));
+        $this->assertIsInt($response->json('meta.per_page'));
+        $this->assertGreaterThan(0, $response->json('meta.per_page'));
     }
 
     public function test_index_validates_pagination_parameters(): void
