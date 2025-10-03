@@ -70,8 +70,8 @@
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-medium text-gray-900">{{ __('Roles & Permissions') }}</h3>
                             @can('assign roles')
-                                <a href="{{ route('admin.users.roles', $user) }}" class="text-blue-600 hover:text-blue-900">
-                                    {{ __('Manage Roles') }}
+                                <a href="{{ route('admin.users.edit', $user) }}" class="text-blue-600 hover:text-blue-900">
+                                    {{ __('Edit User & Roles') }}
                                 </a>
                             @endcan
                         </div>

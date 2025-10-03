@@ -6,26 +6,96 @@ use App\Models\Country;
 use App\Models\Language;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class ProductionDataSeeder extends Seeder
 {
     /**
      * Run the database seeds for production.
      *
-     * This seeder imports the full dataset of countries and languages
-     * from JSON files. Should only be used in production environments.
+     * This seeder imports the full dataset of countries, languages,
+     * and creates essential roles and permissions.
      */
     public function run(): void
     {
-        // Only run in production
-        if (! app()->environment('production')) {
-            $this->command->warn('ProductionDataSeeder should only be run in production environment.');
-
-            return;
-        }
-
+        $this->setupRolesAndPermissions();
         $this->importCountries();
         $this->importLanguages();
+    }
+
+    /**
+     * Setup essential roles and permissions.
+     */
+    protected function setupRolesAndPermissions(): void
+    {
+        // Reset cached roles and permissions
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Create permissions
+        $permissions = [
+            // Data operation permissions
+            'view data' => 'Read access to all data models',
+            'create data' => 'Create new records in data models',
+            'update data' => 'Modify existing records',
+            'delete data' => 'Remove records from data models',
+
+            // User management permissions
+            'manage users' => 'Create, read, update, delete users',
+            'assign roles' => 'Grant and revoke user roles',
+            'view user management' => 'Access user management interfaces',
+
+            // Role management permissions
+            'manage roles' => 'Create, read, update roles and permissions',
+            'view role management' => 'Access role management interfaces',
+        ];
+
+        foreach ($permissions as $name => $description) {
+            Permission::firstOrCreate(
+                ['name' => $name],
+                ['description' => $description]
+            );
+        }
+
+        // Create "Regular User" role with data operation permissions
+        $regularUserRole = Role::firstOrCreate(
+            ['name' => 'Regular User'],
+            ['description' => 'Standard user with data operation access']
+        );
+
+        $regularUserRole->syncPermissions([
+            'view data',
+            'create data',
+            'update data',
+            'delete data',
+        ]);
+
+        // Create "Manager of Users" role with all permissions
+        $managerRole = Role::firstOrCreate(
+            ['name' => 'Manager of Users'],
+            ['description' => 'User management with full data operation access']
+        );
+
+        $managerRole->syncPermissions([
+            // Data operation permissions
+            'view data',
+            'create data',
+            'update data',
+            'delete data',
+
+            // User management permissions
+            'manage users',
+            'assign roles',
+            'view user management',
+
+            // Role management permissions
+            'manage roles',
+            'view role management',
+        ]);
+
+        $this->command->info('Roles and permissions setup completed!');
+        $this->command->info('Roles: Regular User, Manager of Users');
+        $this->command->info('Permissions: '.count($permissions).' created/verified');
     }
 
     /**

@@ -42,8 +42,6 @@ Route::prefix('web')->group(function () {
     // Admin routes - User Management
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', \App\Http\Controllers\UserManagementController::class);
-        Route::get('users/{user}/roles', [\App\Http\Controllers\UserManagementController::class, 'roles'])->name('users.roles');
-        Route::put('users/{user}/roles', [\App\Http\Controllers\UserManagementController::class, 'updateRoles'])->name('users.updateRoles');
     });
 });
 

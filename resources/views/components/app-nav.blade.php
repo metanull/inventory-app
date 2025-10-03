@@ -83,6 +83,28 @@
                         </a>
                     </div>
                 </div>
+
+                @auth
+                    @can('manage users')
+                        <!-- Administration Dropdown -->
+                        <div class="relative" @mouseenter="openMenu='admin'" @mouseleave="openMenu=null">
+                            <button @click="openMenu = openMenu==='admin'? null : 'admin'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('admin.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
+                                <x-heroicon-o-cog-6-tooth class="w-4 h-4" /> Administration
+                                <span class="w-4 h-4 transition" x-bind:class="openMenu==='admin' ? 'rotate-180' : ''">
+                                    <x-heroicon-o-chevron-down class="w-4 h-4" />
+                                </span>
+                            </button>
+                            <div x-show="openMenu==='admin'" x-transition @click.outside="openMenu=null" class="absolute z-30 mt-2 w-60 rounded-md border border-gray-200 bg-white shadow-lg py-2">
+                                <div class="px-3 py-2 text-xs font-medium text-gray-500 uppercase">
+                                    System Management
+                                </div>
+                                <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('admin.users.*') ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                                    <x-heroicon-o-users class="w-4 h-4" /> User Management
+                                </a>
+                            </div>
+                        </div>
+                    @endcan
+                @endauth
             </div>
         </div>
         <div class="flex items-center gap-4">
@@ -138,6 +160,14 @@
                 <a href="https://github.com/metanull/inventory-app" target="_blank" class="block px-2 py-1 rounded text-gray-600 hover:bg-gray-50 hover:text-gray-800">Source Code</a>
                 <a href="https://metanull.github.io/inventory-app" target="_blank" class="block px-2 py-1 rounded text-gray-600 hover:bg-gray-50 hover:text-gray-800">Project Docs</a>
             </div>
+            @auth
+                @can('manage users')
+                    <div class="space-y-2">
+                        <p class="text-[11px] font-semibold text-gray-400 uppercase">Administration</p>
+                        <a href="{{ route('admin.users.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('admin.users.*') ? 'bg-red-50 text-red-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">User Management</a>
+                    </div>
+                @endcan
+            @endauth
             <div class="pt-2 border-t border-gray-100">
                 @auth
                     <div class="flex items-center justify-between">
