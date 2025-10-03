@@ -24,13 +24,16 @@ class IndexTest extends TestCase
 
     public function test_index_lists_languages_with_pagination(): void
     {
-        Language::factory()->count(20)->create();
+        // Create a language with a specific ID to ensure deterministic ordering
+        $firstLanguage = Language::factory()->create(['id' => 'AAA', 'internal_name' => 'Test Language AAA']);
+        Language::factory()->count(19)->create();
+
         $response = $this->get(route('languages.index'));
         $response->assertOk();
         $response->assertSee('Languages');
         $response->assertSee('Rows per page');
-        $first = Language::query()->orderByDesc('created_at')->first();
-        $response->assertSee(e($first->internal_name));
+        // Since default sort is by 'id' ASC, 'AAA' should be the first
+        $response->assertSee(e($firstLanguage->internal_name));
     }
 
     public function test_index_search_filters_results(): void
