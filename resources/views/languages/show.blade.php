@@ -11,6 +11,10 @@
         :backward-compatibility="$language->backward_compatibility"
         :badges="$language->is_default ? ['Default'] : []"
     >
+        @if(session('status'))
+            <x-ui.alert :message="session('status')" type="success" entity="languages" />
+        @endif
+
         <x-display.description-list>
             <x-display.field label="ID (ISO 639-3)" :value="$language->id" />
             <x-display.field label="Internal Name" :value="$language->internal_name" />
@@ -24,18 +28,4 @@
             </x-display.field>
         </x-display.description-list>
     </x-layout.show-page>
-@endsection
-@extends('layouts.app')
-
-@section('content')
-<x-layout.show-page entity="languages" :title="$language->internal_name" :model="$language">
-    <x-display.description-list title="Information">
-        <x-display.field label="ISO Code" :value="$language->id" variant="gray" />
-        <x-display.field label="Internal Name" :value="$language->internal_name" />
-        <x-display.boolean label="Default" :value="$language->is_default" variant="gray" />
-        <x-display.field label="Legacy ID" :value="$language->backward_compatibility" />
-        <x-display.timestamp label="Created At" :value="$language->created_at" variant="gray" />
-        <x-display.timestamp label="Updated At" :value="$language->updated_at" />
-    </x-display.description-list>
-</x-layout.show-page>
 @endsection

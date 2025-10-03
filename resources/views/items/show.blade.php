@@ -10,6 +10,10 @@
         delete-confirm="Are you sure you want to delete this item?"
         :backward-compatibility="$item->backward_compatibility"
     >
+        @if(session('status'))
+            <x-ui.alert :message="session('status')" type="success" entity="items" />
+        @endif
+
         <x-display.description-list>
             <x-display.field label="Internal Name" :value="$item->internal_name" />
             <x-display.field label="Type" :value="$item->type === 'object' ? 'Object' : 'Monument'" />

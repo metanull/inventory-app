@@ -20,7 +20,7 @@ class CountriesTable extends Component
 
     protected $queryString = [
         'q' => ['except' => ''],
-        'perPage' => ['except' => 20],
+        'perPage' => ['except' => 10],
         'sortBy' => ['except' => 'id'],
         'sortDirection' => ['except' => 'asc'],
     ];

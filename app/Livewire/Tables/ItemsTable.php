@@ -24,7 +24,7 @@ class ItemsTable extends Component
     protected $queryString = [
         'q' => ['except' => ''],
         // Keep in sync with config('interface.pagination.default_per_page')
-        'perPage' => ['except' => 20],
+        'perPage' => ['except' => 10],
         'sortBy' => ['except' => 'created_at'],
         'sortDirection' => ['except' => 'desc'],
     ];

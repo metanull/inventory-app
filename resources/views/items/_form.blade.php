@@ -1,6 +1,7 @@
 @csrf
 
-<x-form.field label="Internal Name" name="internal_name" variant="gray" required>
+<div class="p-6 space-y-6">
+    <x-form.field label="Internal Name" name="internal_name" variant="gray" required>
     <x-form.input 
         name="internal_name" 
         :value="old('internal_name', $item->internal_name ?? '')" 
@@ -31,6 +32,8 @@
         placeholder="Optional legacy identifier" 
     />
 </x-form.field>
+
+</div>
 
 <x-form.actions 
     :cancel-route="$item ? route('items.show', $item) : route('items.index')"

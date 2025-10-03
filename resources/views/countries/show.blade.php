@@ -10,6 +10,10 @@
         delete-confirm="Delete this country?"
         :backward-compatibility="$country->backward_compatibility"
     >
+        @if(session('status'))
+            <x-ui.alert :message="session('status')" type="success" entity="countries" />
+        @endif
+
         <x-display.description-list>
             <x-display.field label="ID (ISO 3166-1 alpha-3)" :value="$country->id" />
             <x-display.field label="Internal Name" :value="$country->internal_name" />

@@ -17,14 +17,11 @@
     
     <x-entity.header :entity="$entity" :title="$title" />
 
-    <form method="POST" action="{{ $submitRoute }}" class="bg-white shadow sm:rounded-lg p-6 space-y-6">
+    <form method="POST" action="{{ $submitRoute }}" class="bg-white shadow sm:rounded-lg">
         @if($method !== 'POST')
             @method($method)
         @endif
-        @csrf
         
-        <dl>
-            {{ $slot }}
-        </dl>
+        {{ $slot }}
     </form>
 </div>
