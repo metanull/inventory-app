@@ -59,7 +59,8 @@ class ProfileManagementTest extends TestCase
             ->assertSee('Manager of Users')
             ->assertSee('manage users')
             ->assertSee('assign roles')
-            ->assertSee('view data');
+            ->assertSee('view user management')
+            ->assertDontSee('view data'); // Managers no longer have data permissions
     }
 
     public function test_user_role_information_shows_no_roles_message(): void

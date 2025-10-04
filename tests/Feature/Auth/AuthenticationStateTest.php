@@ -3,7 +3,6 @@
 namespace Tests\Feature\Auth;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 use Tests\Traits\AuthenticationTestHelpers;
 
@@ -83,9 +82,8 @@ class AuthenticationStateTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('items.index'));
 
-        // The current system might allow access to items without specific role requirements
-        // Let's check if this is actually expected behavior by testing admin pages instead
-        $response->assertStatus(200);
+        // Users without roles should now be denied access
+        $response->assertStatus(403);
     }
 
     public function test_regular_users_can_access_data_pages(): void
@@ -152,6 +150,9 @@ class AuthenticationStateTest extends TestCase
 
     public function test_navigation_adapts_to_authentication_state(): void
     {
+        // Enable self-registration for this test
+        \App\Models\Setting::set('self_registration_enabled', true, 'boolean');
+
         // Test unauthenticated navigation
         $response = $this->get(route('web.welcome'));
         $response->assertStatus(200);

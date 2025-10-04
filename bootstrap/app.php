@@ -33,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role.spatie' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission.spatie' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'self_registration' => \App\Http\Middleware\CheckSelfRegistrationEnabled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

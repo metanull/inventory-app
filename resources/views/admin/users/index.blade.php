@@ -4,7 +4,7 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('User Management') }}
             </h2>
-            @can('manage users')
+            @can(\App\Enums\Permission::MANAGE_USERS->value)
                 <a href="{{ route('admin.users.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     {{ __('Create User') }}
                 </a>
@@ -141,7 +141,7 @@
                                                 <a href="{{ route('admin.users.show', $user) }}" class="text-blue-600 hover:text-blue-900">
                                                     {{ __('View') }}
                                                 </a>
-                                                @can('manage users')
+                                                @can(\App\Enums\Permission::MANAGE_USERS->value)
                                                     <a href="{{ route('admin.users.edit', $user) }}" class="text-green-600 hover:text-green-900">
                                                         {{ __('Edit') }}
                                                     </a>

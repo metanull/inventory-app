@@ -24,7 +24,7 @@
                             Login
                         </x-welcome-cta-button>
                         
-                        @if (Route::has('register'))
+                        @if (Route::has('register') && \App\Models\Setting::get('self_registration_enabled', false))
                             <x-welcome-cta-button href="{{ route('register') }}" variant="secondary">
                                 <x-heroicon-o-user-plus class="size-5 mr-2" />
                                 Register
@@ -59,7 +59,7 @@
                         <p class="text-sm text-gray-600 flex-1">Access the authenticated inventory management portal.</p>
                         <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">Login <span class="ml-1">&rarr;</span></span>
                     </a>
-                    @if(Route::has('register'))
+                    @if(Route::has('register') && \App\Models\Setting::get('self_registration_enabled', false))
                         {{-- Register Tile --}}
                         <a href="{{ route('register') }}" class="group rounded-xl border border-gray-200 bg-white p-6 hover:border-indigo-300 hover:shadow transition flex flex-col">
                             <div class="flex items-center justify-between mb-4">
@@ -168,10 +168,12 @@
                 </p>
                 <div class="flex flex-wrap justify-center gap-4">
                     @guest
-                        <x-welcome-cta-button href="{{ route('register') }}" variant="primary">
-                            <x-heroicon-o-user-plus class="size-5 mr-2" />
-                            Get Started Today
-                        </x-welcome-cta-button>
+                        @if(\App\Models\Setting::get('self_registration_enabled', false))
+                            <x-welcome-cta-button href="{{ route('register') }}" variant="primary">
+                                <x-heroicon-o-user-plus class="size-5 mr-2" />
+                                Get Started Today
+                            </x-welcome-cta-button>
+                        @endif
                         <x-welcome-cta-button href="{{ route('login') }}" variant="secondary">
                             <x-heroicon-o-arrow-right-on-rectangle class="size-5 mr-2" />
                             Sign In

@@ -4,23 +4,21 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Web\Item;
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Tests\Traits\RequiresDataPermissions;
 
 class StoreTest extends TestCase
 {
     use RefreshDatabase;
+    use RequiresDataPermissions;
     use WithFaker;
-
-    protected ?User $user = null;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
-        $this->actingAs($this->user);
+        $this->actAsRegularUser();
     }
 
     public function test_store_persists_item_and_redirects(): void

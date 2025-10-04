@@ -22,6 +22,9 @@ class RegistrationTest extends TestCase
     {
         parent::setUp();
 
+        // Seed roles and permissions
+        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+
         // Mock email sending for all tests
         Mail::fake();
         Notification::fake();
@@ -54,6 +57,35 @@ class RegistrationTest extends TestCase
         $this->assertAuthenticatedAs($user);
 
         Event::assertDispatched(Registered::class);
+    }
+
+    public function test_registration_assigns_non_verified_users_role(): void
+    {
+        $userData = [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => 'secure-password123',
+            'password_confirmation' => 'secure-password123',
+            'terms' => true,
+        ];
+
+        $response = $this->post(route('register.store'), $userData);
+
+        $response->assertStatus(302);
+
+        $user = User::where('email', 'john@example.com')->first();
+        $this->assertNotNull($user);
+
+        // Verify user is assigned the "Non-verified users" role
+        $this->assertTrue($user->hasRole('Non-verified users'));
+
+        // Verify user does not have any permissions
+        $this->assertFalse($user->hasPermissionTo('view data'));
+        $this->assertFalse($user->hasPermissionTo('create data'));
+        $this->assertFalse($user->hasPermissionTo('manage users'));
+
+        // Verify only has the one role
+        $this->assertEquals(1, $user->roles()->count());
     }
 
     public function test_registration_requires_name(): void

@@ -6,21 +6,19 @@ namespace Tests\Feature\Web\Collections;
 
 use App\Models\Context;
 use App\Models\Language;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\RequiresDataPermissions;
 
 class StoreTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected ?User $user = null;
+    use RequiresDataPermissions;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
-        $this->actingAs($this->user);
+        $this->actAsRegularUser();
     }
 
     public function test_store_persists_collection_and_redirects(): void

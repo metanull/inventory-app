@@ -22,12 +22,8 @@ class RequirePermission
 
         $user = Auth::user();
 
-        // Check if user has any roles - users without roles should not have access
-        if ($user->roles()->count() === 0) {
-            return $this->handleUnauthorized($request, 'User has no assigned roles');
-        }
-
         // Check if user has the required permission using Spatie's method
+        // Note: Users can have permissions directly or through roles - feature-based authorization
         if (! $user->hasPermissionTo($permission)) {
             return $this->handleUnauthorized($request, "Missing permission: {$permission}");
         }

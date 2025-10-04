@@ -5,19 +5,23 @@ declare(strict_types=1);
 namespace Tests\Feature\Web\Countries;
 
 use App\Models\Country;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\RequiresDataPermissions;
 
 class StoreTest extends TestCase
 {
     use RefreshDatabase;
+    use RequiresDataPermissions;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->actAsRegularUser();
+    }
 
     public function test_country_can_be_created(): void
     {
-        /** @var User $user */
-        $user = User::factory()->create();
-        $this->actingAs($user);
 
         $payload = [
             'id' => 'AAA',
@@ -36,10 +40,7 @@ class StoreTest extends TestCase
 
     public function test_country_requires_unique_id(): void
     {
-        /** @var User $user */
-        $user = User::factory()->create();
         Country::factory()->create(['id' => 'AAA']);
-        $this->actingAs($user);
 
         $payload = [
             'id' => 'AAA',

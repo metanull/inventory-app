@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Console;
 
+use App\Enums\Permission as PermissionEnum;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
