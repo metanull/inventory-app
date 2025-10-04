@@ -5,21 +5,19 @@ declare(strict_types=1);
 namespace Tests\Feature\Web\Collections;
 
 use App\Models\Collection;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\RequiresDataPermissions;
 
 class IndexTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected ?User $user = null;
+    use RequiresDataPermissions;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
-        $this->actingAs($this->user);
+        $this->actAsRegularUser();
     }
 
     public function test_index_lists_collections_with_pagination(): void

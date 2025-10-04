@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Web\Languages;
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\RequiresDataPermissions;
 
 class StoreTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected ?User $user = null;
+    use RequiresDataPermissions;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
-        $this->actingAs($this->user);
+        $this->actAsRegularUser();
     }
 
     public function test_store_persists_language_and_redirects(): void

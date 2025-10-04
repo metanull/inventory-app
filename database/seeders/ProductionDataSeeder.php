@@ -57,6 +57,15 @@ class ProductionDataSeeder extends Seeder
             );
         }
 
+        // Create "Non-verified users" role with no permissions
+        $nonVerifiedRole = Role::firstOrCreate(
+            ['name' => 'Non-verified users'],
+            ['description' => 'Self-registered users awaiting verification by administrators']
+        );
+
+        // Non-verified users get no permissions - they cannot do anything until verified
+        $nonVerifiedRole->syncPermissions([]);
+
         // Create "Regular User" role with data operation permissions
         $regularUserRole = Role::firstOrCreate(
             ['name' => 'Regular User'],
@@ -70,19 +79,13 @@ class ProductionDataSeeder extends Seeder
             'delete data',
         ]);
 
-        // Create "Manager of Users" role with all permissions
+        // Create "Manager of Users" role with only user/role management permissions
         $managerRole = Role::firstOrCreate(
             ['name' => 'Manager of Users'],
-            ['description' => 'User management with full data operation access']
+            ['description' => 'User and role management access only (no data operations)']
         );
 
         $managerRole->syncPermissions([
-            // Data operation permissions
-            'view data',
-            'create data',
-            'update data',
-            'delete data',
-
             // User management permissions
             'manage users',
             'assign roles',
@@ -94,7 +97,7 @@ class ProductionDataSeeder extends Seeder
         ]);
 
         $this->command->info('Roles and permissions setup completed!');
-        $this->command->info('Roles: Regular User, Manager of Users');
+        $this->command->info('Roles: Non-verified users, Regular User, Manager of Users');
         $this->command->info('Permissions: '.count($permissions).' created/verified');
     }
 

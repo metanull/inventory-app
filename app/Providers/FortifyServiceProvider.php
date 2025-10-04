@@ -96,5 +96,11 @@ class FortifyServiceProvider extends ServiceProvider
             // Clear 2FA challenge session
             session()->forget('login.id');
         });
+
+        // Apply middleware to registration routes
+        Fortify::registerView(function () {
+            // This is handled by middleware check
+            return view('auth.register');
+        });
     }
 }

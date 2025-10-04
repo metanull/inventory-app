@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Web;
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\RequiresDataPermissions;
 
 class HomeTest extends TestCase
 {
     use RefreshDatabase;
+    use RequiresDataPermissions;
 
     public function test_home_tiles_render_for_authenticated_user(): void
     {
-        $user = User::factory()->create();
+        $user = $this->createAuthenticatedUserWithDataPermissions();
         /** @var \Illuminate\Contracts\Auth\Authenticatable $user */
         $this->actingAs($user);
 

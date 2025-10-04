@@ -45,6 +45,10 @@ class RolePermissionStructureTest extends TestCase
     public function test_it_creates_required_roles(): void
     {
         $this->assertDatabaseHas('roles', [
+            'name' => 'Non-verified users',
+        ]);
+
+        $this->assertDatabaseHas('roles', [
             'name' => 'Regular User',
         ]);
 
@@ -52,7 +56,7 @@ class RolePermissionStructureTest extends TestCase
             'name' => 'Manager of Users',
         ]);
 
-        $this->assertEquals(2, Role::count());
+        $this->assertEquals(3, Role::count());
     }
 
     public function test_regular_user_role_has_correct_permissions(): void
@@ -76,15 +80,25 @@ class RolePermissionStructureTest extends TestCase
         $this->assertFalse($regularUser->hasPermissionTo('view user management'));
     }
 
-    public function test_manager_role_has_all_permissions(): void
+    public function test_non_verified_users_role_has_no_permissions(): void
+    {
+        $nonVerifiedRole = Role::findByName('Non-verified users');
+
+        // Should have no permissions at all
+        $this->assertEquals(0, $nonVerifiedRole->permissions()->count());
+
+        // Explicitly check that it doesn't have any of the main permissions
+        $this->assertFalse($nonVerifiedRole->hasPermissionTo('view data'));
+        $this->assertFalse($nonVerifiedRole->hasPermissionTo('create data'));
+        $this->assertFalse($nonVerifiedRole->hasPermissionTo('manage users'));
+    }
+
+    public function test_manager_role_has_only_user_management_permissions(): void
     {
         $manager = Role::findByName('Manager of Users');
 
-        $allPermissions = [
-            'view data',
-            'create data',
-            'update data',
-            'delete data',
+        // Should have user/role management permissions
+        $managementPermissions = [
             'manage users',
             'assign roles',
             'view user management',
@@ -92,8 +106,20 @@ class RolePermissionStructureTest extends TestCase
             'view role management',
         ];
 
-        foreach ($allPermissions as $permission) {
+        foreach ($managementPermissions as $permission) {
             $this->assertTrue($manager->hasPermissionTo($permission));
+        }
+
+        // Should NOT have data operation permissions
+        $dataPermissions = [
+            'view data',
+            'create data',
+            'update data',
+            'delete data',
+        ];
+
+        foreach ($dataPermissions as $permission) {
+            $this->assertFalse($manager->hasPermissionTo($permission));
         }
     }
 

@@ -36,8 +36,26 @@
         </section>
         @endguest
 
-        {{-- Primary Domain Group (if authenticated) --}}
+        {{-- Non-verified User Message --}}
         @auth
+        @if(Auth::user()->hasRole('Non-verified users'))
+        <section class="space-y-4">
+            <div class="rounded-lg bg-yellow-50 border border-yellow-200 p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <x-heroicon-o-exclamation-triangle class="h-8 w-8 text-yellow-600" />
+                    <h2 class="text-lg font-semibold text-yellow-800">Account Under Review</h2>
+                </div>
+                <p class="text-yellow-700 mb-4">
+                    Your account has been successfully created, but it requires verification by an administrator before you can access the system features. 
+                </p>
+                <p class="text-yellow-700">
+                    Please wait for an administrator to grant you the appropriate permissions. You will receive an email notification once your account has been verified and activated.
+                </p>
+            </div>
+        </section>
+        @else
+        {{-- Primary Domain Group (if authenticated and has data permissions) --}}
+        @can('view data')
         <section class="space-y-4">
             <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Primary Domains</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -147,6 +165,8 @@
                 </a>
             </div>
         </section>
+        @endcan
+        @endif
 
         {{-- Administration Group (for Manager of Users only) --}}
         @can('manage users')

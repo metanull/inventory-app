@@ -41,6 +41,14 @@ class RolePermissionSeeder extends Seeder
             ]);
         }
 
+        // Create "Non-verified users" role with no permissions
+        $nonVerifiedRole = Role::create([
+            'name' => 'Non-verified users',
+            'description' => 'Self-registered users awaiting verification by administrators',
+        ]);
+
+        // Non-verified users get no permissions - they cannot do anything until verified
+
         // Create "Regular User" role with data operation permissions
         $regularUserRole = Role::create([
             'name' => 'Regular User',
@@ -54,19 +62,13 @@ class RolePermissionSeeder extends Seeder
             'delete data',
         ]);
 
-        // Create "Manager of Users" role with all permissions
+        // Create "Manager of Users" role with only user/role management permissions
         $managerRole = Role::create([
             'name' => 'Manager of Users',
-            'description' => 'User management with full data operation access',
+            'description' => 'User and role management access only (no data operations)',
         ]);
 
         $managerRole->givePermissionTo([
-            // Data operation permissions
-            'view data',
-            'create data',
-            'update data',
-            'delete data',
-
             // User management permissions
             'manage users',
             'assign roles',
@@ -78,7 +80,7 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         $this->command->info('Roles and permissions created successfully!');
-        $this->command->info('Created roles: Regular User, Manager of Users');
+        $this->command->info('Created roles: Non-verified users, Regular User, Manager of Users');
         $this->command->info('Created '.count($permissions).' permissions');
     }
 }

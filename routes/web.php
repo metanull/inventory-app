@@ -28,8 +28,8 @@ Route::prefix('web')->group(function () {
         return redirect()->route('web.welcome');
     })->name('dashboard');
 
-    // Authenticated resource management
-    Route::middleware(['auth'])->group(function () {
+    // Authenticated resource management (requires data permissions)
+    Route::middleware(['auth', 'permission:view data'])->group(function () {
         Route::resource('items', WebItemController::class);
         Route::resource('partners', WebPartnerController::class);
         Route::resource('countries', WebCountryController::class);
@@ -39,10 +39,25 @@ Route::prefix('web')->group(function () {
         Route::resource('collections', WebCollectionController::class);
     });
 
-    // Admin routes - User Management
-    Route::prefix('admin')->name('admin.')->group(function () {
+    // Admin routes - User Management (requires user management permissions)
+    Route::prefix('admin')->name('admin.')->middleware(['auth', 'permission:manage users'])->group(function () {
         Route::resource('users', \App\Http\Controllers\UserManagementController::class);
     });
+
+    // Settings routes (requires settings management permissions)
+    Route::middleware(['auth', 'permission:manage settings'])->group(function () {
+        Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [\App\Http\Controllers\SettingsController::class, 'update'])->name('settings.update');
+    });
+});
+
+// Override Fortify registration routes with self-registration check
+Route::middleware(['guest', 'self_registration'])->group(function () {
+    Route::get('/register', function () {
+        return view('auth.register');
+    })->name('register');
+
+    Route::post('/register', [\Laravel\Fortify\Http\Controllers\RegisteredUserController::class, 'store']);
 });
 
 // Vue.js SPA Route - serves the client app at /cli (demo client)

@@ -9,6 +9,7 @@
                 <span class="hidden sm:inline">{{ config('app.name') }}</span>
             </a>
             <div class="hidden md:flex gap-6 text-sm">
+                @can('view data')
                 <!-- Inventory Dropdown -->
                 <div class="relative" @mouseenter="openMenu='inventory'" @mouseleave="openMenu=null">
                     <button @click="openMenu = openMenu==='inventory'? null : 'inventory'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('items.*') || request()->routeIs('partners.*') || request()->routeIs('projects.*') || request()->routeIs('collections.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
@@ -57,6 +58,7 @@
                         </a>
                     </div>
                 </div>
+                @endcan
 
                 <!-- Resources Dropdown -->
                 <div class="relative" @mouseenter="openMenu='resources'" @mouseleave="openMenu=null">
@@ -101,6 +103,11 @@
                                 <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('admin.users.*') ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-50' }}">
                                     <x-heroicon-o-users class="w-4 h-4" /> User Management
                                 </a>
+                                @can('manage settings')
+                                    <a href="{{ route('settings.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('settings.*') ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                                        <x-heroicon-o-cog-6-tooth class="w-4 h-4" /> Settings
+                                    </a>
+                                @endcan
                             </div>
                         </div>
                     @endcan
@@ -122,7 +129,7 @@
             @else
                 <div class="hidden md:flex items-center gap-2 text-sm">
                     <a href="{{ route('login') }}" class="px-2 py-1 rounded text-gray-600 hover:text-gray-800 hover:bg-gray-50">Login</a>
-                    @if(Route::has('register'))
+                    @if(Route::has('register') && \App\Models\Setting::get('self_registration_enabled', false))
                         <a href="{{ route('register') }}" class="px-2 py-1 rounded text-gray-600 hover:text-gray-800 hover:bg-gray-50">Register</a>
                     @endif
                 </div>
@@ -135,6 +142,7 @@
     </div>
     <div x-show="mobile" x-transition class="md:hidden border-t border-gray-200 bg-white">
         <div class="px-4 py-4 space-y-6 text-sm">
+            @can('view data')
             <div class="space-y-2">
                 <p class="text-[11px] font-semibold text-gray-400 uppercase">Inventory</p>
                 <a href="{{ route('items.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('items.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Items</a>
@@ -151,6 +159,7 @@
                 <a href="{{ route('languages.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('languages.*') ? $lc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Languages</a>
                 <a href="{{ route('contexts.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('contexts.*') ? $xc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Contexts</a>
             </div>
+            @endcan
             <div class="space-y-2">
                 <p class="text-[11px] font-semibold text-gray-400 uppercase">Resources</p>
                 @if(config('interface.show_spa_link'))
@@ -183,7 +192,7 @@
                 @else
                     <div class="flex gap-2">
                         <a href="{{ route('login') }}" class="flex-1 text-center px-2 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50">Login</a>
-                        @if(Route::has('register'))
+                        @if(Route::has('register') && \App\Models\Setting::get('self_registration_enabled', false))
                             <a href="{{ route('register') }}" class="flex-1 text-center px-2 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50">Register</a>
                         @endif
                     </div>
