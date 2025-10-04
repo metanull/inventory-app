@@ -5,7 +5,7 @@
                 {{ __('User Details') }}: {{ $user->name }}
             </h2>
             <div class="flex space-x-2">
-                @can('manage users')
+                @can(\App\Enums\Permission::MANAGE_USERS->value)
                     <a href="{{ route('admin.users.edit', $user) }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                         {{ __('Edit User') }}
                     </a>
@@ -69,7 +69,7 @@
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-medium text-gray-900">{{ __('Roles & Permissions') }}</h3>
-                            @can('assign roles')
+                            @can(\App\Enums\Permission::ASSIGN_ROLES->value)
                                 <a href="{{ route('admin.users.edit', $user) }}" class="text-blue-600 hover:text-blue-900">
                                     {{ __('Edit User & Roles') }}
                                 </a>

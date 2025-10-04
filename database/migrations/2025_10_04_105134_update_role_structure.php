@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Permission as PermissionEnum;
 use Illuminate\Database\Migrations\Migration;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -40,16 +41,16 @@ return new class extends Migration
     {
         // Create permissions if they don't exist
         $permissions = [
-            ['name' => 'view data', 'description' => 'View all data models (items, partners, etc.)'],
-            ['name' => 'create data', 'description' => 'Create new data records'],
-            ['name' => 'update data', 'description' => 'Update existing data records'],
-            ['name' => 'delete data', 'description' => 'Delete data records'],
-            ['name' => 'manage users', 'description' => 'Create, update, and delete users'],
-            ['name' => 'assign roles', 'description' => 'Assign and remove roles from users'],
-            ['name' => 'view user management', 'description' => 'Access user management interfaces'],
-            ['name' => 'manage roles', 'description' => 'Create and modify roles'],
-            ['name' => 'view role management', 'description' => 'Access role management interfaces'],
-            ['name' => 'manage settings', 'description' => 'View and modify system settings'],
+            ['name' => PermissionEnum::VIEW_DATA->value, 'description' => 'View all data models (items, partners, etc.)'],
+            ['name' => PermissionEnum::CREATE_DATA->value, 'description' => 'Create new data records'],
+            ['name' => PermissionEnum::UPDATE_DATA->value, 'description' => 'Update existing data records'],
+            ['name' => PermissionEnum::DELETE_DATA->value, 'description' => 'Delete data records'],
+            ['name' => PermissionEnum::MANAGE_USERS->value, 'description' => 'Create, update, and delete users'],
+            ['name' => PermissionEnum::ASSIGN_ROLES->value, 'description' => 'Assign and remove roles from users'],
+            ['name' => PermissionEnum::VIEW_USER_MANAGEMENT->value, 'description' => 'Access user management interfaces'],
+            ['name' => PermissionEnum::MANAGE_ROLES->value, 'description' => 'Create and modify roles'],
+            ['name' => PermissionEnum::VIEW_ROLE_MANAGEMENT->value, 'description' => 'Access role management interfaces'],
+            ['name' => PermissionEnum::MANAGE_SETTINGS->value, 'description' => 'View and modify system settings'],
         ];
 
         foreach ($permissions as $permission) {
@@ -86,7 +87,12 @@ return new class extends Migration
         );
 
         // Remove data permissions from manager role if they exist
-        $dataPermissions = ['view data', 'create data', 'update data', 'delete data'];
+        $dataPermissions = [
+            PermissionEnum::VIEW_DATA->value,
+            PermissionEnum::CREATE_DATA->value,
+            PermissionEnum::UPDATE_DATA->value,
+            PermissionEnum::DELETE_DATA->value,
+        ];
         foreach ($dataPermissions as $permission) {
             $perm = Permission::findByName($permission);
             if ($perm && $managerRole->hasPermissionTo($perm)) {
@@ -95,7 +101,14 @@ return new class extends Migration
         }
 
         // Ensure manager has user management permissions
-        $managerPermissions = ['manage users', 'assign roles', 'view user management', 'manage roles', 'view role management', 'manage settings'];
+        $managerPermissions = [
+            PermissionEnum::MANAGE_USERS->value,
+            PermissionEnum::ASSIGN_ROLES->value,
+            PermissionEnum::VIEW_USER_MANAGEMENT->value,
+            PermissionEnum::MANAGE_ROLES->value,
+            PermissionEnum::VIEW_ROLE_MANAGEMENT->value,
+            PermissionEnum::MANAGE_SETTINGS->value,
+        ];
         foreach ($managerPermissions as $permission) {
             $perm = Permission::findByName($permission);
             if ($perm && ! $managerRole->hasPermissionTo($perm)) {

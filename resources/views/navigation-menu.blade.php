@@ -113,7 +113,7 @@
                                     </x-dropdown-link>
                                 @endif
 
-                                @can('manage users')
+                                @can(\App\Enums\Permission::MANAGE_USERS->value)
                                     <div class="border-t border-gray-200"></div>
                                     
                                     <!-- Administration -->
@@ -214,7 +214,7 @@
                         </x-responsive-nav-link>
                     @endif
 
-                    @can('manage users')
+                    @can(\App\Enums\Permission::MANAGE_USERS->value)
                         <!-- Administration -->
                         <x-responsive-nav-link href="{{ route('admin.users.index') }}" :active="request()->routeIs('admin.users.*')">
                             {{ __('User Management') }}

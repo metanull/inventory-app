@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Permission;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +14,7 @@ class UserManagementController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'permission:manage users']);
+        $this->middleware(['auth', 'permission:'.Permission::MANAGE_USERS->value]);
     }
 
     /**

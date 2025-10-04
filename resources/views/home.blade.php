@@ -55,7 +55,7 @@
         </section>
         @else
         {{-- Primary Domain Group (if authenticated and has data permissions) --}}
-        @can('view data')
+        @can(\App\Enums\Permission::VIEW_DATA->value)
         <section class="space-y-4">
             <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Primary Domains</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -169,7 +169,7 @@
         @endif
 
         {{-- Administration Group (for Manager of Users only) --}}
-        @can('manage users')
+        @can(\App\Enums\Permission::MANAGE_USERS->value)
         <section class="space-y-4">
             <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Administration</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

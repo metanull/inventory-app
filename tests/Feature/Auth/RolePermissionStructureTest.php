@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Enums\Permission as PermissionEnum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -31,6 +32,7 @@ class RolePermissionStructureTest extends TestCase
             'view user management',
             'manage roles',
             'view role management',
+            'manage settings',
         ];
 
         foreach ($expectedPermissions as $permission) {

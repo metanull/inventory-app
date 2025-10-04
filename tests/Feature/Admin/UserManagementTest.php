@@ -2,28 +2,19 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Enums\Permission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class UserManagementTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesUsersWithPermissions, RefreshDatabase;
 
-    protected function setUp(): void
+    public function test_user_with_manage_users_permission_can_access_user_management_index(): void
     {
-        parent::setUp();
-
-        // Seed roles and permissions
-        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
-    }
-
-    public function test_manager_can_access_user_management_index(): void
-    {
-        $manager = User::factory()->create();
-        $managerRole = Role::findByName('Manager of Users');
-        $manager->assignRole($managerRole);
+        $manager = $this->createUserWithPermissions([Permission::MANAGE_USERS->value]);
 
         $response = $this->actingAs($manager)
             ->get(route('admin.users.index'));
@@ -32,11 +23,10 @@ class UserManagementTest extends TestCase
         $response->assertSee('User Management');
     }
 
-    public function test_regular_user_cannot_access_user_management(): void
+    public function test_user_with_data_permissions_cannot_access_user_management(): void
     {
-        $user = User::factory()->create();
-        $regularRole = Role::findByName('Regular User');
-        $user->assignRole($regularRole);
+        // Create user with data permissions but no user management permissions
+        $user = $this->createUserWithPermissions([Permission::VIEW_DATA->value]);
 
         $response = $this->actingAs($user)
             ->get(route('admin.users.index'));
@@ -44,9 +34,9 @@ class UserManagementTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_user_without_roles_cannot_access_user_management(): void
+    public function test_user_without_permissions_cannot_access_user_management(): void
     {
-        $user = User::factory()->create();
+        $user = $this->createUnprivilegedUser();
 
         $response = $this->actingAs($user)
             ->get(route('admin.users.index'));
@@ -54,23 +44,18 @@ class UserManagementTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_manager_can_view_user_details(): void
+    public function test_user_manager_can_view_user_details(): void
     {
-        $manager = User::factory()->create();
-        $managerRole = Role::findByName('Manager of Users');
-        $manager->assignRole($managerRole);
-
-        $targetUser = User::factory()->create(['name' => 'John Doe']);
-        $regularRole = Role::findByName('Regular User');
-        $targetUser->assignRole($regularRole);
+        $manager = $this->createUserWithPermissions([Permission::MANAGE_USERS->value]);
+        $targetUser = $this->createUserWithPermissions([Permission::VIEW_DATA->value]);
+        $targetUser->update(['name' => 'John Doe']);
 
         $response = $this->actingAs($manager)
             ->get(route('admin.users.show', $targetUser));
 
         $response->assertStatus(200);
         $response->assertSee('John Doe');
-        $response->assertSee('Regular User');
-        $response->assertSee('view data');
+        $response->assertSee(Permission::VIEW_DATA->value);
     }
 
     public function test_manager_can_create_new_user(): void

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Permission;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,7 +12,7 @@ class SettingsController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'permission:manage settings']);
+        $this->middleware(['auth', 'permission:'.Permission::MANAGE_SETTINGS->value]);
     }
 
     public function index(): View
