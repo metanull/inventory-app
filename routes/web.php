@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Permission;
 use App\Http\Controllers\Web\CollectionController as WebCollectionController;
 use App\Http\Controllers\Web\ContextController as WebContextController;
 use App\Http\Controllers\Web\CountryController as WebCountryController;
@@ -28,8 +29,8 @@ Route::prefix('web')->group(function () {
         return redirect()->route('web.welcome');
     })->name('dashboard');
 
-    // Authenticated resource management
-    Route::middleware(['auth'])->group(function () {
+    // Authenticated resource management (requires data permissions)
+    Route::middleware(['auth', 'permission:'.Permission::VIEW_DATA->value])->group(function () {
         Route::resource('items', WebItemController::class);
         Route::resource('partners', WebPartnerController::class);
         Route::resource('countries', WebCountryController::class);
@@ -39,11 +40,20 @@ Route::prefix('web')->group(function () {
         Route::resource('collections', WebCollectionController::class);
     });
 
-    // Admin routes - User Management
-    Route::prefix('admin')->name('admin.')->group(function () {
+    // Admin routes - User Management (requires user management permissions)
+    Route::prefix('admin')->name('admin.')->middleware(['auth', 'permission:'.Permission::MANAGE_USERS->value])->group(function () {
         Route::resource('users', \App\Http\Controllers\UserManagementController::class);
     });
+
+    // Settings routes (requires settings management permissions)
+    Route::middleware(['auth', 'permission:'.Permission::MANAGE_SETTINGS->value])->group(function () {
+        Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [\App\Http\Controllers\SettingsController::class, 'update'])->name('settings.update');
+    });
 });
+
+// Note: Registration routes are handled by Fortify with self_registration middleware
+// See app/Providers/FortifyServiceProvider.php for middleware configuration
 
 // Vue.js SPA Route - serves the client app at /cli (demo client)
 Route::get('/cli/{any?}', function () {

@@ -96,5 +96,16 @@ class FortifyServiceProvider extends ServiceProvider
             // Clear 2FA challenge session
             session()->forget('login.id');
         });
+
+        // Configure registration view with self-registration check
+        Fortify::registerView(function () {
+            // Check if self-registration is enabled
+            if (! \App\Models\Setting::get('self_registration_enabled', false)) {
+                return redirect()->route('login')
+                    ->with('error', 'Self-registration is currently disabled. Please contact an administrator.');
+            }
+
+            return view('auth.register');
+        });
     }
 }

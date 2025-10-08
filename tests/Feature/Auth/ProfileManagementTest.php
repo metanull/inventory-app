@@ -2,41 +2,54 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Enums\Permission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
+use Spatie\Permission\Models\Permission as PermissionModel;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
+/**
+ * Test profile management features related to permissions.
+ * These tests verify the FEATURE of displaying permissions to users.
+ */
 class ProfileManagementTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp(): void
+    public function test_profile_page_displays_user_permissions(): void
     {
-        parent::setUp();
+        // Create permission and assign to user
+        $viewPermission = PermissionModel::create([
+            'name' => Permission::VIEW_DATA->value,
+            'guard_name' => 'web',
+        ]);
+        $createPermission = PermissionModel::create([
+            'name' => Permission::CREATE_DATA->value,
+            'guard_name' => 'web',
+        ]);
 
-        // Seed roles and permissions
-        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
-    }
+        // Create role with permissions
+        $role = Role::create(['name' => 'Test Role', 'guard_name' => 'web']);
+        $role->givePermissionTo([$viewPermission, $createPermission]);
 
-    public function test_profile_page_displays_user_roles_and_permissions(): void
-    {
         $user = User::factory()->create();
-        $role = Role::findByName('Regular User');
         $user->assignRole($role);
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)
             ->get(route('web.profile.show'));
 
         $response->assertStatus(200);
         $response->assertSee('User Roles & Permissions');
-        $response->assertSee('Regular User');
-        $response->assertSee('view data');
-        $response->assertSee('create data');
+        $response->assertSee('Test Role');
+        $response->assertSee(Permission::VIEW_DATA->value);
+        $response->assertSee(Permission::CREATE_DATA->value);
     }
 
-    public function test_profile_shows_warning_for_users_without_roles(): void
+    public function test_profile_shows_warning_for_users_without_permissions(): void
     {
         $user = User::factory()->create();
 
@@ -48,18 +61,33 @@ class ProfileManagementTest extends TestCase
         $response->assertSee('Please contact an administrator');
     }
 
-    public function test_user_role_information_livewire_component_works(): void
+    public function test_user_role_information_livewire_component_displays_permissions(): void
     {
+        // Create permissions
+        $managePermission = PermissionModel::create([
+            'name' => Permission::MANAGE_USERS->value,
+            'guard_name' => 'web',
+        ]);
+        $assignPermission = PermissionModel::create([
+            'name' => Permission::ASSIGN_ROLES->value,
+            'guard_name' => 'web',
+        ]);
+
+        // Create role with permissions
+        $role = Role::create(['name' => 'Test Manager Role', 'guard_name' => 'web']);
+        $role->givePermissionTo([$managePermission, $assignPermission]);
+
         $user = User::factory()->create();
-        $role = Role::findByName('Manager of Users');
         $user->assignRole($role);
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\Profile\UserRoleInformation::class)
-            ->assertSee('Manager of Users')
-            ->assertSee('manage users')
-            ->assertSee('assign roles')
-            ->assertSee('view data');
+            ->assertSee('Test Manager Role')
+            ->assertSee(Permission::MANAGE_USERS->value)
+            ->assertSee(Permission::ASSIGN_ROLES->value)
+            ->assertDontSee(Permission::VIEW_DATA->value); // This role doesn't have data permissions
     }
 
     public function test_user_role_information_shows_no_roles_message(): void

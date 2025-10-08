@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Permission as PermissionEnum;
 use App\Models\Country;
 use App\Models\Language;
 use Illuminate\Database\Seeder;
@@ -35,19 +36,19 @@ class ProductionDataSeeder extends Seeder
         // Create permissions
         $permissions = [
             // Data operation permissions
-            'view data' => 'Read access to all data models',
-            'create data' => 'Create new records in data models',
-            'update data' => 'Modify existing records',
-            'delete data' => 'Remove records from data models',
+            PermissionEnum::VIEW_DATA->value => 'Read access to all data models',
+            PermissionEnum::CREATE_DATA->value => 'Create new records in data models',
+            PermissionEnum::UPDATE_DATA->value => 'Modify existing records',
+            PermissionEnum::DELETE_DATA->value => 'Remove records from data models',
 
             // User management permissions
-            'manage users' => 'Create, read, update, delete users',
-            'assign roles' => 'Grant and revoke user roles',
-            'view user management' => 'Access user management interfaces',
+            PermissionEnum::MANAGE_USERS->value => 'Create, read, update, delete users',
+            PermissionEnum::ASSIGN_ROLES->value => 'Grant and revoke user roles',
+            PermissionEnum::VIEW_USER_MANAGEMENT->value => 'Access user management interfaces',
 
             // Role management permissions
-            'manage roles' => 'Create, read, update roles and permissions',
-            'view role management' => 'Access role management interfaces',
+            PermissionEnum::MANAGE_ROLES->value => 'Create, read, update roles and permissions',
+            PermissionEnum::VIEW_ROLE_MANAGEMENT->value => 'Access role management interfaces',
         ];
 
         foreach ($permissions as $name => $description) {
@@ -57,6 +58,15 @@ class ProductionDataSeeder extends Seeder
             );
         }
 
+        // Create "Non-verified users" role with no permissions
+        $nonVerifiedRole = Role::firstOrCreate(
+            ['name' => 'Non-verified users'],
+            ['description' => 'Self-registered users awaiting verification by administrators']
+        );
+
+        // Non-verified users get no permissions - they cannot do anything until verified
+        $nonVerifiedRole->syncPermissions([]);
+
         // Create "Regular User" role with data operation permissions
         $regularUserRole = Role::firstOrCreate(
             ['name' => 'Regular User'],
@@ -64,37 +74,31 @@ class ProductionDataSeeder extends Seeder
         );
 
         $regularUserRole->syncPermissions([
-            'view data',
-            'create data',
-            'update data',
-            'delete data',
+            PermissionEnum::VIEW_DATA->value,
+            PermissionEnum::CREATE_DATA->value,
+            PermissionEnum::UPDATE_DATA->value,
+            PermissionEnum::DELETE_DATA->value,
         ]);
 
-        // Create "Manager of Users" role with all permissions
+        // Create "Manager of Users" role with only user/role management permissions
         $managerRole = Role::firstOrCreate(
             ['name' => 'Manager of Users'],
-            ['description' => 'User management with full data operation access']
+            ['description' => 'User and role management access only (no data operations)']
         );
 
         $managerRole->syncPermissions([
-            // Data operation permissions
-            'view data',
-            'create data',
-            'update data',
-            'delete data',
-
             // User management permissions
-            'manage users',
-            'assign roles',
-            'view user management',
+            PermissionEnum::MANAGE_USERS->value,
+            PermissionEnum::ASSIGN_ROLES->value,
+            PermissionEnum::VIEW_USER_MANAGEMENT->value,
 
             // Role management permissions
-            'manage roles',
-            'view role management',
+            PermissionEnum::MANAGE_ROLES->value,
+            PermissionEnum::VIEW_ROLE_MANAGEMENT->value,
         ]);
 
         $this->command->info('Roles and permissions setup completed!');
-        $this->command->info('Roles: Regular User, Manager of Users');
+        $this->command->info('Roles: Non-verified users, Regular User, Manager of Users');
         $this->command->info('Permissions: '.count($permissions).' created/verified');
     }
 

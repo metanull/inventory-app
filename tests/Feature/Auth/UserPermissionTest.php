@@ -2,87 +2,72 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Enums\Permission as PermissionEnum;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class UserPermissionTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesUsersWithPermissions, RefreshDatabase;
 
-    protected function setUp(): void
+    public function test_user_can_be_assigned_role_with_permissions(): void
     {
-        parent::setUp();
+        // Create permissions first
+        $viewPermission = Permission::create(['name' => PermissionEnum::VIEW_DATA->value]);
+        $createPermission = Permission::create(['name' => PermissionEnum::CREATE_DATA->value]);
+        $managePermission = Permission::create(['name' => PermissionEnum::MANAGE_USERS->value]);
 
-        // Seed roles and permissions
-        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
-    }
+        // Create a role with specific permissions
+        $role = Role::create(['name' => 'Test Role']);
+        $role->givePermissionTo([$viewPermission, $createPermission]);
 
-    public function test_user_can_be_assigned_role_and_permissions(): void
-    {
         $user = User::factory()->create();
-        $role = Role::findByName('Regular User');
 
-        // Assign role to user
+        // Test: Assign role to user
         $user->assignRole($role);
 
-        // Check user has role
-        $this->assertTrue($user->hasRole('Regular User'));
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Check user has permissions from role
-        $this->assertTrue($user->hasPermissionTo('view data'));
-        $this->assertTrue($user->hasPermissionTo('create data'));
-        $this->assertTrue($user->hasPermissionTo('update data'));
-        $this->assertTrue($user->hasPermissionTo('delete data'));
+        // Verify: User has the role and its permissions
+        $this->assertTrue($user->hasRole('Test Role'));
+        $this->assertTrue($user->hasPermissionTo(PermissionEnum::VIEW_DATA->value));
+        $this->assertTrue($user->hasPermissionTo(PermissionEnum::CREATE_DATA->value));
 
-        // Check user doesn't have permissions they shouldn't have
-        $this->assertFalse($user->hasPermissionTo('manage users'));
+        // Verify: User doesn't have permissions not in the role
+        $this->assertFalse($user->hasPermissionTo(PermissionEnum::MANAGE_USERS->value));
     }
 
     public function test_user_can_be_given_direct_permissions(): void
     {
         $user = User::factory()->create();
-        $permission = Permission::findByName('view data');
+        $permission = Permission::create(['name' => PermissionEnum::VIEW_DATA->value]);
 
-        // Give permission directly to user
+        // Test: Give permission directly to user
         $user->givePermissionTo($permission);
 
-        // Check user has permission
-        $this->assertTrue($user->hasPermissionTo('view data'));
-        $this->assertTrue($user->hasDirectPermission('view data'));
+        // Verify: User has the permission directly
+        $this->assertTrue($user->hasPermissionTo(PermissionEnum::VIEW_DATA->value));
+        $this->assertTrue($user->hasDirectPermission(PermissionEnum::VIEW_DATA->value));
     }
 
-    public function test_user_with_manager_role_has_all_permissions(): void
+    public function test_user_without_permissions_cannot_access_features(): void
     {
-        $user = User::factory()->create();
-        $role = Role::findByName('Manager of Users');
+        // Create permissions first (needed for the check)
+        Permission::create(['name' => PermissionEnum::VIEW_DATA->value]);
+        Permission::create(['name' => PermissionEnum::CREATE_DATA->value]);
+        Permission::create(['name' => PermissionEnum::MANAGE_USERS->value]);
 
-        $user->assignRole($role);
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Check data permissions
-        $this->assertTrue($user->hasPermissionTo('view data'));
-        $this->assertTrue($user->hasPermissionTo('create data'));
-        $this->assertTrue($user->hasPermissionTo('update data'));
-        $this->assertTrue($user->hasPermissionTo('delete data'));
-
-        // Check user management permissions
-        $this->assertTrue($user->hasPermissionTo('manage users'));
-        $this->assertTrue($user->hasPermissionTo('assign roles'));
-        $this->assertTrue($user->hasPermissionTo('view user management'));
-    }
-
-    public function test_user_without_roles_has_no_permissions(): void
-    {
         $user = User::factory()->create();
 
-        // User has no roles
-        $this->assertEquals(0, $user->roles()->count());
-
-        // User has no permissions
-        $this->assertFalse($user->hasPermissionTo('view data'));
-        $this->assertFalse($user->hasPermissionTo('create data'));
-        $this->assertFalse($user->hasPermissionTo('manage users'));
+        // Test: User with no permissions cannot access any features
+        $this->assertFalse($user->hasPermissionTo(PermissionEnum::VIEW_DATA->value));
+        $this->assertFalse($user->hasPermissionTo(PermissionEnum::CREATE_DATA->value));
+        $this->assertFalse($user->hasPermissionTo(PermissionEnum::MANAGE_USERS->value));
     }
 }

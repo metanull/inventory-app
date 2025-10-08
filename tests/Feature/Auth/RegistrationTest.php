@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Enums\Permission;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -21,6 +22,12 @@ class RegistrationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Enable self-registration for these tests
+        \App\Models\Setting::set('self_registration_enabled', true, 'boolean');
+
+        // Note: New users start with NO roles/permissions (permission-based system)
+        // Admins must explicitly grant permissions for access
 
         // Mock email sending for all tests
         Mail::fake();
@@ -54,6 +61,50 @@ class RegistrationTest extends TestCase
         $this->assertAuthenticatedAs($user);
 
         Event::assertDispatched(Registered::class);
+    }
+
+    public function test_registration_assigns_non_verified_users_role(): void
+    {
+        // Create permissions so we can check user doesn't have them
+        \Spatie\Permission\Models\Permission::firstOrCreate([
+            'name' => Permission::VIEW_DATA->value,
+            'guard_name' => 'web',
+        ]);
+        \Spatie\Permission\Models\Permission::firstOrCreate([
+            'name' => Permission::CREATE_DATA->value,
+            'guard_name' => 'web',
+        ]);
+        \Spatie\Permission\Models\Permission::firstOrCreate([
+            'name' => Permission::MANAGE_USERS->value,
+            'guard_name' => 'web',
+        ]);
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        $userData = [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => 'secure-password123',
+            'password_confirmation' => 'secure-password123',
+            'terms' => true,
+        ];
+
+        $response = $this->post(route('register.store'), $userData);
+
+        $response->assertStatus(302);
+
+        $user = User::where('email', 'john@example.com')->first();
+        $this->assertNotNull($user);
+
+        // Verify new user has NO roles or permissions
+        // This is the permission-based system: users start with nothing
+        $this->assertEquals(0, $user->roles()->count());
+        $this->assertEquals(0, $user->getAllPermissions()->count());
+
+        // Verify user does not have any specific permissions
+        $this->assertFalse($user->hasPermissionTo(Permission::VIEW_DATA->value));
+        $this->assertFalse($user->hasPermissionTo(Permission::CREATE_DATA->value));
+        $this->assertFalse($user->hasPermissionTo(Permission::MANAGE_USERS->value));
     }
 
     public function test_registration_requires_name(): void
