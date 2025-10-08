@@ -36,9 +36,12 @@
         </section>
         @endguest
 
-        {{-- Non-verified User Message --}}
+        {{-- Users Without Any Permissions --}}
         @auth
-        @if(Auth::user()->hasRole('Non-verified users'))
+        @php
+            $hasAnyPermission = Auth::user()->getAllPermissions()->isNotEmpty();
+        @endphp
+        @if(!$hasAnyPermission)
         <section class="space-y-4">
             <div class="rounded-lg bg-yellow-50 border border-yellow-200 p-6">
                 <div class="flex items-center gap-3 mb-4">

@@ -18,7 +18,7 @@ class StoreTest extends TestCase
     {
         parent::setUp();
         $this->user = User::factory()->create();
-        $this->actingAs($this->user);
+        $this->actingAs($this->user, 'sanctum');
     }
 
     /**

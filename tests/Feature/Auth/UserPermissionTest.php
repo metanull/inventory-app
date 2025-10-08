@@ -16,16 +16,21 @@ class UserPermissionTest extends TestCase
 
     public function test_user_can_be_assigned_role_with_permissions(): void
     {
-        // Create a role with specific permissions
-        $role = Role::create(['name' => 'Test Role']);
+        // Create permissions first
         $viewPermission = Permission::create(['name' => PermissionEnum::VIEW_DATA->value]);
         $createPermission = Permission::create(['name' => PermissionEnum::CREATE_DATA->value]);
+        $managePermission = Permission::create(['name' => PermissionEnum::MANAGE_USERS->value]);
+
+        // Create a role with specific permissions
+        $role = Role::create(['name' => 'Test Role']);
         $role->givePermissionTo([$viewPermission, $createPermission]);
 
         $user = User::factory()->create();
 
         // Test: Assign role to user
         $user->assignRole($role);
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Verify: User has the role and its permissions
         $this->assertTrue($user->hasRole('Test Role'));
@@ -51,6 +56,13 @@ class UserPermissionTest extends TestCase
 
     public function test_user_without_permissions_cannot_access_features(): void
     {
+        // Create permissions first (needed for the check)
+        Permission::create(['name' => PermissionEnum::VIEW_DATA->value]);
+        Permission::create(['name' => PermissionEnum::CREATE_DATA->value]);
+        Permission::create(['name' => PermissionEnum::MANAGE_USERS->value]);
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         $user = User::factory()->create();
 
         // Test: User with no permissions cannot access any features

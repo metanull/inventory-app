@@ -149,7 +149,7 @@
                             </a>
                         @endif
 
-                        @if (Route::has('register'))
+                        @if (Route::has('register') && \App\Models\Setting::get('self_registration_enabled', false))
                             <a href="{{ route('register') }}" class="text-sm text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md px-3 py-2 bg-gray-100 hover:bg-gray-200">
                                 {{ __('Register') }}
                             </a>
@@ -275,7 +275,7 @@
                         </x-responsive-nav-link>
                     @endif
 
-                    @if (Route::has('register'))
+                    @if (Route::has('register') && \App\Models\Setting::get('self_registration_enabled', false))
                         <x-responsive-nav-link href="{{ route('register') }}">
                             {{ __('Register') }}
                         </x-responsive-nav-link>

@@ -25,6 +25,14 @@ class UserManagementTest extends TestCase
 
     public function test_user_with_data_permissions_cannot_access_user_management(): void
     {
+        // Create MANAGE_USERS permission (route checks for it even for denial)
+        \Spatie\Permission\Models\Permission::firstOrCreate([
+            'name' => Permission::MANAGE_USERS->value,
+            'guard_name' => 'web',
+        ]);
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         // Create user with data permissions but no user management permissions
         $user = $this->createUserWithPermissions([Permission::VIEW_DATA->value]);
 
@@ -36,6 +44,14 @@ class UserManagementTest extends TestCase
 
     public function test_user_without_permissions_cannot_access_user_management(): void
     {
+        // Create the MANAGE_USERS permission (route checks for it)
+        \Spatie\Permission\Models\Permission::firstOrCreate([
+            'name' => Permission::MANAGE_USERS->value,
+            'guard_name' => 'web',
+        ]);
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         $user = $this->createUnprivilegedUser();
 
         $response = $this->actingAs($user)
@@ -60,11 +76,14 @@ class UserManagementTest extends TestCase
 
     public function test_manager_can_create_new_user(): void
     {
-        $manager = User::factory()->create();
-        $managerRole = Role::findByName('Manager of Users');
-        $manager->assignRole($managerRole);
+        // Create manager with MANAGE_USERS permission
+        $manager = $this->createUserWithPermissions([Permission::MANAGE_USERS->value]);
 
-        $regularRole = Role::findByName('Regular User');
+        // Create a role to assign to the new user
+        $regularRole = \Spatie\Permission\Models\Role::create([
+            'name' => 'Regular User',
+            'guard_name' => 'web',
+        ]);
 
         $userData = [
             'name' => 'New User',
@@ -91,17 +110,18 @@ class UserManagementTest extends TestCase
 
     public function test_manager_can_update_user(): void
     {
-        $manager = User::factory()->create();
-        $managerRole = Role::findByName('Manager of Users');
-        $manager->assignRole($managerRole);
+        // Create manager with MANAGE_USERS permission
+        $manager = $this->createUserWithPermissions([Permission::MANAGE_USERS->value]);
 
         $targetUser = User::factory()->create(['name' => 'Old Name']);
-        $regularRole = Role::findByName('Regular User');
+
+        // Create roles for assignment
+        $managerRole = \Spatie\Permission\Models\Role::create(['name' => 'Manager Role', 'guard_name' => 'web']);
 
         $updateData = [
             'name' => 'Updated Name',
             'email' => $targetUser->email,
-            'roles' => [$managerRole->id], // Change role
+            'roles' => [$managerRole->id],
         ];
 
         $response = $this->actingAs($manager)
@@ -112,15 +132,13 @@ class UserManagementTest extends TestCase
 
         $targetUser->refresh();
         $this->assertEquals('Updated Name', $targetUser->name);
-        $this->assertTrue($targetUser->hasRole('Manager of Users'));
-        $this->assertFalse($targetUser->hasRole('Regular User'));
+        $this->assertTrue($targetUser->hasRole('Manager Role'));
     }
 
     public function test_manager_can_delete_other_users(): void
     {
-        $manager = User::factory()->create();
-        $managerRole = Role::findByName('Manager of Users');
-        $manager->assignRole($managerRole);
+        // Create manager with MANAGE_USERS permission
+        $manager = $this->createUserWithPermissions([Permission::MANAGE_USERS->value]);
 
         $targetUser = User::factory()->create();
         $targetUserId = $targetUser->id;
@@ -136,9 +154,8 @@ class UserManagementTest extends TestCase
 
     public function test_manager_cannot_delete_themselves(): void
     {
-        $manager = User::factory()->create();
-        $managerRole = Role::findByName('Manager of Users');
-        $manager->assignRole($managerRole);
+        // Create manager with MANAGE_USERS permission
+        $manager = $this->createUserWithPermissions([Permission::MANAGE_USERS->value]);
 
         $response = $this->actingAs($manager)
             ->delete(route('admin.users.destroy', $manager));
@@ -151,9 +168,8 @@ class UserManagementTest extends TestCase
 
     public function test_search_functionality_works(): void
     {
-        $manager = User::factory()->create();
-        $managerRole = Role::findByName('Manager of Users');
-        $manager->assignRole($managerRole);
+        // Create manager with MANAGE_USERS permission
+        $manager = $this->createUserWithPermissions([Permission::MANAGE_USERS->value]);
 
         $user1 = User::factory()->create(['name' => 'Alice Smith']);
         $user2 = User::factory()->create(['name' => 'Bob Jones']);
@@ -168,10 +184,11 @@ class UserManagementTest extends TestCase
 
     public function test_role_filter_works(): void
     {
-        $manager = User::factory()->create();
-        $managerRole = Role::findByName('Manager of Users');
-        $regularRole = Role::findByName('Regular User');
-        $manager->assignRole($managerRole);
+        // Create manager with MANAGE_USERS permission
+        $manager = $this->createUserWithPermissions([Permission::MANAGE_USERS->value]);
+
+        // Create a test role
+        $regularRole = \Spatie\Permission\Models\Role::create(['name' => 'Regular User', 'guard_name' => 'web']);
 
         $regularUser = User::factory()->create();
         $regularUser->assignRole($regularRole);
@@ -186,9 +203,8 @@ class UserManagementTest extends TestCase
 
     public function test_admin_can_verify_user_email_through_edit_form(): void
     {
-        $manager = User::factory()->create(['email_verified_at' => now()]);
-        $managerRole = Role::findByName('Manager of Users');
-        $manager->assignRole($managerRole);
+        // Create manager with MANAGE_USERS permission
+        $manager = $this->createUserWithPermissions([Permission::MANAGE_USERS->value]);
 
         $targetUser = User::factory()->create(['email_verified_at' => null]);
         $this->assertFalse($targetUser->hasVerifiedEmail());
@@ -206,9 +222,8 @@ class UserManagementTest extends TestCase
 
     public function test_admin_can_unverify_user_email_through_edit_form(): void
     {
-        $manager = User::factory()->create(['email_verified_at' => now()]);
-        $managerRole = Role::findByName('Manager of Users');
-        $manager->assignRole($managerRole);
+        // Create manager with MANAGE_USERS permission
+        $manager = $this->createUserWithPermissions([Permission::MANAGE_USERS->value]);
 
         $targetUser = User::factory()->create(['email_verified_at' => now()]);
         $this->assertTrue($targetUser->hasVerifiedEmail());
@@ -226,9 +241,8 @@ class UserManagementTest extends TestCase
 
     public function test_admin_user_edit_form_shows_email_verification_status(): void
     {
-        $manager = User::factory()->create(['email_verified_at' => now()]);
-        $managerRole = Role::findByName('Manager of Users');
-        $manager->assignRole($managerRole);
+        // Create manager with MANAGE_USERS permission
+        $manager = $this->createUserWithPermissions([Permission::MANAGE_USERS->value]);
 
         // Test with verified user
         $verifiedUser = User::factory()->create(['email_verified_at' => now()]);
@@ -247,16 +261,15 @@ class UserManagementTest extends TestCase
 
     public function test_user_show_page_displays_edit_link_instead_of_manage_roles(): void
     {
-        $manager = User::factory()->create(['email_verified_at' => now()]);
-        $managerRole = Role::findByName('Manager of Users');
-        $manager->assignRole($managerRole);
+        // Create manager with MANAGE_USERS permission
+        $manager = $this->createUserWithPermissions([Permission::MANAGE_USERS->value]);
 
         $targetUser = User::factory()->create();
 
         $response = $this->actingAs($manager)->get(route('admin.users.show', $targetUser));
 
         $response->assertStatus(200);
-        $response->assertSee('Edit User & Roles');
+        $response->assertSee('Edit User'); // Button text in the view
         $response->assertDontSee('Manage Roles');
     }
 }

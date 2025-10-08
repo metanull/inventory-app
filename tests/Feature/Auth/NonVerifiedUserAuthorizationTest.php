@@ -2,28 +2,26 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Enums\Permission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission as PermissionModel;
 use Tests\TestCase;
 
+/**
+ * Test authorization features for users without permissions (non-verified users).
+ * These tests verify FEATURES, not roles or data structure.
+ */
 class NonVerifiedUserAuthorizationTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Seed roles and permissions
-        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
-    }
-
-    public function test_non_verified_user_sees_account_under_review_message(): void
+    /**
+     * Test that users without permissions can access welcome page and see account under review message
+     */
+    public function test_user_without_permissions_sees_account_under_review_message(): void
     {
         $user = User::factory()->create(['email_verified_at' => now()]);
-        $nonVerifiedRole = Role::findByName('Non-verified users');
-        $user->assignRole($nonVerifiedRole);
 
         $response = $this->actingAs($user)->get(route('web.welcome'));
 
@@ -33,11 +31,12 @@ class NonVerifiedUserAuthorizationTest extends TestCase
         $response->assertSee('Please wait for an administrator');
     }
 
-    public function test_non_verified_user_does_not_see_inventory_links(): void
+    /**
+     * Test that users without VIEW_DATA permission don't see inventory links
+     */
+    public function test_user_without_view_data_permission_does_not_see_inventory_links(): void
     {
         $user = User::factory()->create(['email_verified_at' => now()]);
-        $nonVerifiedRole = Role::findByName('Non-verified users');
-        $user->assignRole($nonVerifiedRole);
 
         $response = $this->actingAs($user)->get(route('web.welcome'));
 
@@ -49,23 +48,40 @@ class NonVerifiedUserAuthorizationTest extends TestCase
         $response->assertDontSee('Collections');
     }
 
-    public function test_non_verified_user_cannot_access_items_page(): void
+    /**
+     * Test that users without VIEW_DATA permission cannot access data routes
+     */
+    public function test_user_without_view_data_permission_cannot_access_items_page(): void
     {
+        // Create the permission (route needs it to exist, even for denial)
+        PermissionModel::create([
+            'name' => Permission::VIEW_DATA->value,
+            'guard_name' => 'web',
+        ]);
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         $user = User::factory()->create(['email_verified_at' => now()]);
-        $nonVerifiedRole = Role::findByName('Non-verified users');
-        $user->assignRole($nonVerifiedRole);
 
         $response = $this->actingAs($user)->get(route('items.index'));
 
-        // Should be denied access due to lack of permissions
         $response->assertStatus(403);
     }
 
-    public function test_regular_user_sees_inventory_content(): void
+    /**
+     * Test that users with VIEW_DATA permission see inventory content
+     */
+    public function test_user_with_view_data_permission_sees_inventory_content(): void
     {
+        $permission = PermissionModel::create([
+            'name' => Permission::VIEW_DATA->value,
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create(['email_verified_at' => now()]);
-        $regularRole = Role::findByName('Regular User');
-        $user->assignRole($regularRole);
+        $user->givePermissionTo($permission);
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)->get(route('web.welcome'));
 
@@ -78,22 +94,40 @@ class NonVerifiedUserAuthorizationTest extends TestCase
         $response->assertDontSee('Account Under Review');
     }
 
-    public function test_regular_user_can_access_items_page(): void
+    /**
+     * Test that users with VIEW_DATA permission can access data routes
+     */
+    public function test_user_with_view_data_permission_can_access_items_page(): void
     {
+        $permission = PermissionModel::create([
+            'name' => Permission::VIEW_DATA->value,
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create(['email_verified_at' => now()]);
-        $regularRole = Role::findByName('Regular User');
-        $user->assignRole($regularRole);
+        $user->givePermissionTo($permission);
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)->get(route('items.index'));
 
         $response->assertStatus(200);
     }
 
-    public function test_manager_user_sees_administration_but_not_inventory(): void
+    /**
+     * Test that users with MANAGE_USERS but not VIEW_DATA see admin but not inventory
+     */
+    public function test_user_with_manage_users_permission_sees_administration_but_not_inventory(): void
     {
+        $permission = PermissionModel::create([
+            'name' => Permission::MANAGE_USERS->value,
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create(['email_verified_at' => now()]);
-        $managerRole = Role::findByName('Manager of Users');
-        $user->assignRole($managerRole);
+        $user->givePermissionTo($permission);
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)->get(route('web.welcome'));
 
@@ -104,23 +138,46 @@ class NonVerifiedUserAuthorizationTest extends TestCase
         $response->assertDontSee('Account Under Review');
     }
 
-    public function test_manager_user_cannot_access_items_page(): void
+    /**
+     * Test that users with MANAGE_USERS but not VIEW_DATA cannot access data routes
+     */
+    public function test_user_with_manage_users_permission_cannot_access_items_page(): void
     {
+        // Create both permissions (items route requires VIEW_DATA to exist)
+        PermissionModel::create([
+            'name' => Permission::VIEW_DATA->value,
+            'guard_name' => 'web',
+        ]);
+
+        $permission = PermissionModel::create([
+            'name' => Permission::MANAGE_USERS->value,
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create(['email_verified_at' => now()]);
-        $managerRole = Role::findByName('Manager of Users');
-        $user->assignRole($managerRole);
+        $user->givePermissionTo($permission); // Give MANAGE_USERS but not VIEW_DATA
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)->get(route('items.index'));
 
-        // Should be denied access since managers don't have data permissions
         $response->assertStatus(403);
     }
 
-    public function test_manager_user_can_access_user_management(): void
+    /**
+     * Test that users with MANAGE_USERS permission can access user management
+     */
+    public function test_user_with_manage_users_permission_can_access_user_management(): void
     {
+        $permission = PermissionModel::create([
+            'name' => Permission::MANAGE_USERS->value,
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create(['email_verified_at' => now()]);
-        $managerRole = Role::findByName('Manager of Users');
-        $user->assignRole($managerRole);
+        $user->givePermissionTo($permission);
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)->get(route('admin.users.index'));
 

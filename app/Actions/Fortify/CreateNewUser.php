@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 use Laravel\Jetstream\Jetstream;
-use Spatie\Permission\Models\Role;
 
 class CreateNewUser implements CreatesNewUsers
 {
@@ -44,11 +43,9 @@ class CreateNewUser implements CreatesNewUsers
             'preferred_2fa_method' => $input['preferred_2fa_method'] ?? 'totp',
         ]);
 
-        // Assign "Non-verified users" role to newly registered users
-        $nonVerifiedRole = Role::findByName('Non-verified users');
-        if ($nonVerifiedRole) {
-            $user->assignRole($nonVerifiedRole);
-        }
+        // New users start with NO permissions
+        // Admins must explicitly grant permissions for access
+        // Users without permissions will see "Account Under Review" message
 
         return $user;
     }
