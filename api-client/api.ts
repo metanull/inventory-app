@@ -2091,17 +2091,11 @@ export type InfoVersion200ResponseAnyOfBuildTimestampDisplayHintEnum = typeof In
  */
 export interface InlineObject {
     /**
-     * Errors overview.
+     * Error overview.
      * @type {string}
      * @memberof InlineObject
      */
     'message': string;
-    /**
-     * A detailed description of each field that failed validation.
-     * @type {{ [key: string]: Array<string>; }}
-     * @memberof InlineObject
-     */
-    'errors': { [key: string]: Array<string>; };
 }
 /**
  * 
@@ -2110,11 +2104,17 @@ export interface InlineObject {
  */
 export interface InlineObject1 {
     /**
-     * Error overview.
+     * Errors overview.
      * @type {string}
      * @memberof InlineObject1
      */
     'message': string;
+    /**
+     * A detailed description of each field that failed validation.
+     * @type {{ [key: string]: Array<string>; }}
+     * @memberof InlineObject1
+     */
+    'errors': { [key: string]: Array<string>; };
 }
 /**
  * 
@@ -4893,6 +4893,18 @@ export interface TokenAcquireRequest {
      * @memberof TokenAcquireRequest
      */
     'wipe_tokens'?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenAcquireRequest
+     */
+    'two_factor_code'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenAcquireRequest
+     */
+    'recovery_code'?: string;
 }
 /**
  * 
@@ -5203,6 +5215,19 @@ export const UpdateItemRequestTypeEnum = {
 
 export type UpdateItemRequestTypeEnum = typeof UpdateItemRequestTypeEnum[keyof typeof UpdateItemRequestTypeEnum];
 
+/**
+ * 
+ * @export
+ * @interface UserPermissions200Response
+ */
+export interface UserPermissions200Response {
+    /**
+     * 
+     * @type {string}
+     * @memberof UserPermissions200Response
+     */
+    'data': string;
+}
 /**
  * 
  * @export
@@ -19384,6 +19409,111 @@ export class ThemeTranslationsApi extends BaseAPI {
      */
     public themeTranslationUpdate(themeTranslation: string, themeTranslationUpdateRequest?: ThemeTranslationUpdateRequest, options?: RawAxiosRequestConfig) {
         return ThemeTranslationsApiFp(this.configuration).themeTranslationUpdate(themeTranslation, themeTranslationUpdateRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * UserPermissionsApi - axios parameter creator
+ * @export
+ */
+export const UserPermissionsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Get the authenticated user\'s permissions.    Returns a list of permission names that the authenticated user has.  This is a read-only endpoint for UI clients to determine what features  to show to the user
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        userPermissions: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/user/permissions`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * UserPermissionsApi - functional programming interface
+ * @export
+ */
+export const UserPermissionsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = UserPermissionsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Get the authenticated user\'s permissions.    Returns a list of permission names that the authenticated user has.  This is a read-only endpoint for UI clients to determine what features  to show to the user
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async userPermissions(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserPermissions200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.userPermissions(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UserPermissionsApi.userPermissions']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * UserPermissionsApi - factory interface
+ * @export
+ */
+export const UserPermissionsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = UserPermissionsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Get the authenticated user\'s permissions.    Returns a list of permission names that the authenticated user has.  This is a read-only endpoint for UI clients to determine what features  to show to the user
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        userPermissions(options?: RawAxiosRequestConfig): AxiosPromise<UserPermissions200Response> {
+            return localVarFp.userPermissions(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * UserPermissionsApi - object-oriented interface
+ * @export
+ * @class UserPermissionsApi
+ * @extends {BaseAPI}
+ */
+export class UserPermissionsApi extends BaseAPI {
+    /**
+     * 
+     * @summary Get the authenticated user\'s permissions.    Returns a list of permission names that the authenticated user has.  This is a read-only endpoint for UI clients to determine what features  to show to the user
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserPermissionsApi
+     */
+    public userPermissions(options?: RawAxiosRequestConfig) {
+        return UserPermissionsApiFp(this.configuration).userPermissions(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

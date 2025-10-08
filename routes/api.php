@@ -37,6 +37,10 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::get('/user/permissions', [\App\Http\Controllers\UserPermissionsController::class, 'index'])
+    ->name('user.permissions')
+    ->middleware('auth:sanctum');
+
 Route::patch('context/{context}/default', [ContextController::class, 'setDefault'])
     ->name('context.setDefault')
     ->middleware('auth:sanctum');

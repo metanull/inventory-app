@@ -21,7 +21,7 @@
           </RouterLink>
 
           <!-- Inventory Dropdown -->
-          <div class="relative" @mouseleave="closeInventoryDropdown">
+          <div v-if="canViewData" class="relative" @mouseleave="closeInventoryDropdown">
             <button
               :class="[
                 getThemeClass('navLinkColor'),
@@ -83,7 +83,11 @@
           </div>
 
           <!-- Image Management Dropdown -->
-          <div class="relative" @mouseleave="closeImagesDropdown">
+          <div
+            v-if="canViewData || canCreateData"
+            class="relative"
+            @mouseleave="closeImagesDropdown"
+          >
             <button
               :class="[
                 getThemeClass('navLinkColor'),
@@ -110,6 +114,7 @@
               @mouseleave="closeImagesDropdown"
             >
               <RouterLink
+                v-if="canViewData"
                 to="/images"
                 :class="[
                   getThemeClass('dropdownItemColor'),
@@ -121,6 +126,7 @@
                 Available Images
               </RouterLink>
               <RouterLink
+                v-if="canCreateData"
                 to="/images/upload"
                 :class="[
                   getThemeClass('dropdownItemColor'),
@@ -135,7 +141,7 @@
           </div>
 
           <!-- Reference Data Dropdown -->
-          <div class="relative" @mouseleave="closeDropdown">
+          <div v-if="canViewData" class="relative" @mouseleave="closeDropdown">
             <button
               :class="[
                 getThemeClass('navLinkColor'),
@@ -293,7 +299,7 @@
           </RouterLink>
 
           <!-- Mobile Inventory Section -->
-          <div class="px-3">
+          <div v-if="canViewData" class="px-3">
             <button
               :class="[
                 getThemeClass('mobileNavLinkColor'),
@@ -349,7 +355,7 @@
           </div>
 
           <!-- Mobile Image Management Section -->
-          <div class="px-3">
+          <div v-if="canViewData || canCreateData" class="px-3">
             <button
               :class="[
                 getThemeClass('mobileNavLinkColor'),
@@ -369,6 +375,7 @@
               :class="['mt-2 space-y-2 pl-4 border-l-2', getThemeClass('mobileBorder')]"
             >
               <RouterLink
+                v-if="canViewData"
                 to="/images"
                 :class="[
                   getThemeClass('mobileNavLinkColor'),
@@ -380,6 +387,7 @@
                 Available Images
               </RouterLink>
               <RouterLink
+                v-if="canCreateData"
                 to="/images/upload"
                 :class="[
                   getThemeClass('mobileNavLinkColor'),
@@ -394,7 +402,7 @@
           </div>
 
           <!-- Mobile Reference Data Section -->
-          <div class="px-3">
+          <div v-if="canViewData" class="px-3">
             <button
               :class="[
                 getThemeClass('mobileNavLinkColor'),
@@ -512,9 +520,10 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue'
+  import { ref, computed } from 'vue'
   import { RouterLink, useRouter } from 'vue-router'
   import { useAuthStore } from '@/stores/auth'
+  import { usePermissionsStore } from '@/stores/permissions'
   import { clearCacheAndReload } from '@/utils/storeUtils'
   import { useThemeColors, getThemeClass } from '@/composables/useColors'
   import {
@@ -537,7 +546,12 @@
 
   const router = useRouter()
   const authStore = useAuthStore()
+  const permissionsStore = usePermissionsStore()
   const appTitle = import.meta.env.VITE_APP_TITLE
+
+  // Computed properties for permissions
+  const canViewData = computed(() => permissionsStore.hasPermission('view data'))
+  const canCreateData = computed(() => permissionsStore.hasPermission('create data'))
 
   // Theme colors for header icons (proof-of-concept)
   const itemsColors = useThemeColors('items')

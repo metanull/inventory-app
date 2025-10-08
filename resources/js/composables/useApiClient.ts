@@ -29,6 +29,7 @@ import {
   TagApi,
   ThemeApi,
   ThemeTranslationApi,
+  UserPermissionsApi,
 } from '@metanull/inventory-app-api-client'
 
 /**
@@ -144,6 +145,9 @@ export const useApiClient = () => {
   const createThemeTranslationApi = () =>
     new ThemeTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
 
+  const createUserPermissionsApi = () =>
+    new UserPermissionsApi(configuration.value, configuration.value.basePath, sessionAxios)
+
   // Return all factory methods
   return {
     // Core configuration (for advanced use cases)
@@ -178,6 +182,7 @@ export const useApiClient = () => {
     createTagApi,
     createThemeApi,
     createThemeTranslationApi,
+    createUserPermissionsApi,
   }
 }
 

@@ -105,8 +105,9 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, onUnmounted, type Component } from 'vue'
+  import { ref, computed, onMounted, onUnmounted, type Component } from 'vue'
   import NavigationCard from '@/components/format/card/NavigationCard.vue'
+  import { usePermissionsStore } from '@/stores/permissions'
   import {
     LanguageIcon,
     GlobeAltIcon as CountryIcon,
@@ -118,6 +119,9 @@
     PhotoIcon as GalleryIcon,
     CloudArrowUpIcon,
   } from '@heroicons/vue/24/outline'
+
+  // Get permissions store
+  const permissionsStore = usePermissionsStore()
 
   // Current group index
   const currentGroup = ref(0)
@@ -146,7 +150,7 @@
     const difference = touchStartX - touchEndX
 
     if (Math.abs(difference) > swipeThreshold) {
-      if (difference > 0 && currentGroup.value < groups.length - 1) {
+      if (difference > 0 && currentGroup.value < groups.value.length - 1) {
         // Swipe left - next group
         currentGroup.value++
       } else if (difference < 0 && currentGroup.value > 0) {
@@ -162,7 +166,7 @@
     if (key === 'ArrowLeft' && currentGroup.value > 0) {
       currentGroup.value--
       e.preventDefault()
-    } else if (key === 'ArrowRight' && currentGroup.value < groups.length - 1) {
+    } else if (key === 'ArrowRight' && currentGroup.value < groups.value.length - 1) {
       currentGroup.value++
       e.preventDefault()
     }
@@ -187,6 +191,7 @@
     component: Component
     props: Record<string, any>
     icon: Component
+    requiredPermission?: string
   }
 
   interface GroupData {
@@ -195,8 +200,8 @@
     cards: CardData[]
   }
 
-  // Define all groups
-  const groups: GroupData[] = [
+  // Define all groups with permission requirements
+  const allGroups: GroupData[] = [
     {
       id: 'inventory',
       title: 'Inventory',
@@ -212,6 +217,7 @@
             buttonRoute: '/items',
           },
           icon: ItemIcon,
+          requiredPermission: 'view data',
         },
         {
           title: 'Partners',
@@ -224,6 +230,7 @@
             buttonRoute: '/partners',
           },
           icon: PartnerIcon,
+          requiredPermission: 'view data',
         },
         {
           title: 'Collections',
@@ -236,6 +243,7 @@
             buttonRoute: '/collections',
           },
           icon: CollectionIcon,
+          requiredPermission: 'view data',
         },
       ],
     },
@@ -254,6 +262,7 @@
             buttonRoute: '/images/upload',
           },
           icon: CloudArrowUpIcon,
+          requiredPermission: 'create data',
         },
         {
           title: 'Available Images',
@@ -266,6 +275,7 @@
             buttonRoute: '/images',
           },
           icon: GalleryIcon,
+          requiredPermission: 'view data',
         },
       ],
     },
@@ -284,6 +294,7 @@
             buttonRoute: '/languages',
           },
           icon: LanguageIcon,
+          requiredPermission: 'view data',
         },
         {
           title: 'Countries',
@@ -296,6 +307,7 @@
             buttonRoute: '/countries',
           },
           icon: CountryIcon,
+          requiredPermission: 'view data',
         },
         {
           title: 'Contexts',
@@ -308,6 +320,7 @@
             buttonRoute: '/contexts',
           },
           icon: ContextIcon,
+          requiredPermission: 'view data',
         },
         {
           title: 'Projects',
@@ -320,8 +333,24 @@
             buttonRoute: '/projects',
           },
           icon: ProjectIcon,
+          requiredPermission: 'view data',
         },
       ],
     },
   ]
+
+  // Computed property to filter groups based on permissions
+  const groups = computed(() => {
+    return allGroups
+      .map(group => ({
+        ...group,
+        cards: group.cards.filter(card => {
+          // If card has no permission requirement, show it
+          if (!card.requiredPermission) return true
+          // Otherwise check if user has the required permission
+          return permissionsStore.hasPermission(card.requiredPermission)
+        }),
+      }))
+      .filter(group => group.cards.length > 0) // Remove groups with no visible cards
+  })
 </script>

@@ -1,19 +1,19 @@
-# InlineObject
+# UserPermissions200Response
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**message** | **string** | Error overview. | [default to undefined]
+**data** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { InlineObject } from './api';
+import { UserPermissions200Response } from './api';
 
-const instance: InlineObject = {
-    message,
+const instance: UserPermissions200Response = {
+    data,
 };
 ```
 
