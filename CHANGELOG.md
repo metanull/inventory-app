@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.4.1] - 2025-10-08
+
+### Changed
+
+- Dependencies - Updated composer and npm dependencies to latest versions
+    - **Laravel Framework** 12.31.1 → 12.33.0
+    - **Laravel Fortify** 1.30.0 → 1.31.1
+    - **Symfony components** 7.3.3 → 7.3.4 (console, error-handler, http-foundation, http-kernel, mailer, mime, routing, string, translation, var-dumper)
+    - **Removed phiki/phiki** v2.0.4 (dependency cleanup)
+    - **NPM packages** - Various updates (56 packages added, 40 changed)
+
+### Security
+
+- All dependencies audited with no vulnerabilities found
+
 ### Changed
 
 - **Backend (Architecture)** - Major model simplification and unification initiative
