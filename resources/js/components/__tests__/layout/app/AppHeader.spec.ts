@@ -21,10 +21,16 @@ interface MockAuthStore {
   logout: ReturnType<typeof vi.fn>
 }
 
+interface MockPermissionsStore {
+  hasPermission: ReturnType<typeof vi.fn>
+  permissions: string[]
+}
+
 describe('AppHeader', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let wrapper: VueWrapper<any>
   let mockAuthStore: MockAuthStore
+  let mockPermissionsStore: MockPermissionsStore
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -34,15 +40,24 @@ describe('AppHeader', () => {
         plugins: [
           createTestingPinia({
             createSpy: vi.fn,
+            initialState: {
+              permissions: {
+                permissions: ['view data', 'create data'],
+              },
+            },
           }),
         ],
       },
     })
 
-    // Get the actual store instance from the wrapper and set up the mock
+    // Get the actual store instances from the wrapper and set up the mocks
     mockAuthStore = wrapper.vm.authStore
     mockAuthStore.isAuthenticated = true // Set authenticated state
     mockAuthStore.logout = vi.fn().mockResolvedValue(undefined)
+
+    mockPermissionsStore = wrapper.vm.permissionsStore
+    mockPermissionsStore.hasPermission = vi.fn().mockReturnValue(true)
+    mockPermissionsStore.permissions = ['view data', 'create data']
   })
 
   it('renders correctly', () => {

@@ -1,6 +1,6 @@
 # LocationApi
 
-All URIs are relative to *http://127.0.0.1:8000/api*
+All URIs are relative to *http://localhost/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|

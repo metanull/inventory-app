@@ -7,6 +7,9 @@ vi.mock('@metanull/inventory-app-api-client', () => ({
     tokenAcquire: vi.fn(),
     tokenWipe: vi.fn(),
   })),
+  UserPermissionsApi: vi.fn().mockImplementation(() => ({
+    userPermissions: vi.fn().mockResolvedValue({ data: { data: [] } }),
+  })),
   Configuration: vi.fn(),
 }))
 

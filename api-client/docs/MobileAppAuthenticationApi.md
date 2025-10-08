@@ -1,6 +1,6 @@
 # MobileAppAuthenticationApi
 
-All URIs are relative to *http://127.0.0.1:8000/api*
+All URIs are relative to *http://localhost/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -58,7 +58,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** |  |  -  |
-|**202** |  |  -  |
+|**202** | No 2FA code provided, require 2FA |  -  |
 |**422** | Validation error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

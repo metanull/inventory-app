@@ -191,6 +191,8 @@ docs/TokenVerifyTwoFactor201ResponseUser.md
 docs/TokenVerifyTwoFactorRequest.md
 docs/UpdateItemImageRequest.md
 docs/UpdateItemRequest.md
+docs/UserPermissions200Response.md
+docs/UserPermissionsApi.md
 docs/WorkshopResource.md
 git_push.sh
 index.ts

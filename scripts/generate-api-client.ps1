@@ -193,7 +193,7 @@ try {
     exit 1
 }
 
-# Create package.json if it doesn't exist or Force is specified
+# Create or update package.json
 if (-not (Test-Path -Path $PackageJsonPath) -or $Force) {
     Write-Information "Creating package.json..."
     $PackageContent = $Config.Templates.PackageJson -f @(
@@ -208,6 +208,13 @@ if (-not (Test-Path -Path $PackageJsonPath) -or $Force) {
     )
     Set-Content -Path $PackageJsonPath -Value $PackageContent -Encoding UTF8
     Write-Information "✔ package.json created"
+} else {
+    # Update only the version in existing package.json
+    Write-Information "Updating version in existing package.json..."
+    $ExistingPackage = Get-Content -Path $PackageJsonPath -Raw | ConvertFrom-Json
+    $ExistingPackage.version = $ClientVersion
+    $ExistingPackage | ConvertTo-Json -Depth 100 | Set-Content -Path $PackageJsonPath -Encoding UTF8
+    Write-Information "✔ package.json version updated to $ClientVersion"
 }
 
 # Create README.md if it doesn't exist or Force is specified

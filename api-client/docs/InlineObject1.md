@@ -5,7 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**message** | **string** | Error overview. | [default to undefined]
+**message** | **string** | Errors overview. | [default to undefined]
+**errors** | **{ [key: string]: Array&lt;string&gt;; }** | A detailed description of each field that failed validation. | [default to undefined]
 
 ## Example
 
@@ -14,6 +15,7 @@ import { InlineObject1 } from './api';
 
 const instance: InlineObject1 = {
     message,
+    errors,
 };
 ```
 

@@ -8,6 +8,7 @@ import {
   type TokenVerifyTwoFactorRequestMethodEnum,
 } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
+import { usePermissionsStore } from './permissions'
 
 export interface TwoFactorChallenge {
   requires_two_factor: boolean
@@ -73,7 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       // Handle successful login response
-      handleLoginSuccess(response.data)
+      await handleLoginSuccess(response.data)
     } catch (err: unknown) {
       // Check if error response indicates 2FA required
       const errorResponse = (err as { response?: { status?: number; data?: unknown } })?.response
@@ -120,7 +121,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       const response = await apiClient.tokenVerifyTwoFactor(verifyRequest)
 
-      handleLoginSuccess(response.data)
+      await handleLoginSuccess(response.data)
 
       // Clear 2FA state
       twoFactorChallenge.value = null
@@ -177,7 +178,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const handleLoginSuccess = (responseData: unknown) => {
+  const handleLoginSuccess = async (responseData: unknown) => {
     let authToken: string
 
     const data = responseData as { token?: string } | string
@@ -201,6 +202,10 @@ export const useAuthStore = defineStore('auth', () => {
 
     token.value = authToken
     localStorage.setItem('auth_token', authToken)
+
+    // Fetch user permissions after successful authentication
+    const permissionsStore = usePermissionsStore()
+    await permissionsStore.fetchPermissions()
   }
 
   const cancel2FA = () => {
@@ -220,6 +225,11 @@ export const useAuthStore = defineStore('auth', () => {
     } finally {
       token.value = null
       localStorage.removeItem('auth_token')
+
+      // Clear user permissions on logout
+      const permissionsStore = usePermissionsStore()
+      permissionsStore.clearPermissions()
+
       loading.value = false
     }
   }

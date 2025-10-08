@@ -39,6 +39,9 @@ param(
 # Set strict mode for better error handling
 Set-StrictMode -Version 3.0
 
+# Save current location to restore later
+$OriginalLocation = Get-Location
+
 # Ensure we're running from the project root
 $ScriptPath = $PSScriptRoot
 $ProjectRoot = Split-Path -Path $ScriptPath -Parent
@@ -76,30 +79,45 @@ Write-Information "Package: $PackageName"
 Write-Information "Version: $PackageVersion"
 Write-Information "Registry: $Registry"
 
+# Store original directory to return to it later
+$OriginalLocation = Get-Location
+
 # Change to client directory
 Set-Location -Path $ClientPath
 
-# Check if npm is logged in for the target registry
-$whoami = & npm whoami --registry $Registry 2>$null
-if (-not $whoami) {
-    Write-Information "You are not logged in to $Registry. Running 'npm login'..."
-    if ($Credential) {
-        $npmUser = $Credential.UserName
-        $npmPass = $Credential.GetNetworkCredential().Password
-        $loginInput = "${npmUser}`n${npmPass}`n"
-        $loginInput | & npm login --registry $Registry
-        Remove-Variable -Name loginInput -ErrorAction SilentlyContinue
-    }
-    else {
-        & npm login --registry $Registry
-    }
-    # Re-check login
-    $whoami = & npm whoami --registry $Registry 2>$null
-    if (-not $whoami) {
-        Write-Error "npm login failed. Please check your credentials and try again."
-        exit 1
-    }
+# Setup authentication by creating temporary .npmrc ONLY in api-client directory
+$TempNpmrc = $null
+if ($Credential) {
+    Write-Information "Configuring npm authentication for this session..."
+    $token = $Credential.GetNetworkCredential().Password
+    
+    # Create a temporary .npmrc in the api-client directory ONLY FOR PUBLISHING
+    $TempNpmrc = Join-Path $ClientPath ".npmrc.publish"
+    $registryHost = ($Registry -replace 'https?://', '').TrimEnd('/')
+    
+    @"
+@metanull:registry=$Registry
+//$registryHost/:_authToken=$token
+"@ | Out-File -FilePath $TempNpmrc -Encoding utf8 -NoNewline
+    
+    # Use this .npmrc for npm commands
+    $env:NPM_CONFIG_USERCONFIG = $TempNpmrc
+    
+    Write-Information "Authentication configured using temporary config file"
 }
+else {
+    Write-Information "No credentials provided, using existing npm authentication."
+}
+
+# Verify authentication
+$whoami = & npm whoami --registry $Registry 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "npm authentication failed. Please check your credentials."
+    Set-Location -Path $OriginalLocation
+    exit 1
+}
+
+Write-Information "Authenticated as: $whoami"
 
 # Prepare npm publish command
 $PublishArgs = @("publish", "--access", "public", "--registry", $Registry)
@@ -187,7 +205,17 @@ catch {
     exit 1
 }
 finally {
-    # Return to project root
-    Set-Location -Path $ProjectRoot
+    # Cleanup: Remove temporary .npmrc and clear environment
+    if ($TempNpmrc -and (Test-Path $TempNpmrc)) {
+        Remove-Item $TempNpmrc -Force -ErrorAction SilentlyContinue
+        Write-Information "Removed temporary authentication file"
+    }
+    if ($Credential) {
+        Remove-Item Env:\NPM_CONFIG_USERCONFIG -ErrorAction SilentlyContinue
+    }
+    
+    # Return to original directory
+    Set-Location -Path $OriginalLocation
+    Write-Information "Returned to original directory: $OriginalLocation"
 }
 
