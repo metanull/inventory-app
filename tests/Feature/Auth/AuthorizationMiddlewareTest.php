@@ -45,12 +45,7 @@ class AuthorizationMiddlewareTest extends TestCase
 
     public function test_it_denies_access_to_users_without_permission(): void
     {
-        // Create permission (needs to exist for middleware to check)
-        Permission::create([
-            'name' => PermissionEnum::VIEW_DATA->value,
-            'guard_name' => 'web',
-        ]);
-
+        // Permission already exists from TestCase::ensurePermissionsExist()
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $user = User::factory()->create();
@@ -63,11 +58,8 @@ class AuthorizationMiddlewareTest extends TestCase
 
     public function test_it_allows_access_to_users_with_permission(): void
     {
-        // Create permission and assign to user via role
-        $permission = Permission::create([
-            'name' => PermissionEnum::VIEW_DATA->value,
-            'guard_name' => 'web',
-        ]);
+        // Permission already exists from TestCase::ensurePermissionsExist()
+        $permission = Permission::findByName(PermissionEnum::VIEW_DATA->value);
 
         $role = Role::create(['name' => 'Test Role', 'guard_name' => 'web']);
         $role->givePermissionTo($permission);
@@ -113,10 +105,8 @@ class AuthorizationMiddlewareTest extends TestCase
     public function test_it_denies_access_to_users_with_direct_permissions_but_no_roles(): void
     {
         // Test that direct permissions ARE allowed (users don't need roles if they have direct permissions)
-        $permission = Permission::create([
-            'name' => PermissionEnum::VIEW_DATA->value,
-            'guard_name' => 'web',
-        ]);
+        // Permission already exists from TestCase::ensurePermissionsExist()
+        $permission = Permission::findByName(PermissionEnum::VIEW_DATA->value);
 
         $user = User::factory()->create();
         $user->givePermissionTo($permission);

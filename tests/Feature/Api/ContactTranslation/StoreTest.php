@@ -8,17 +8,18 @@ use App\Models\Language;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class StoreTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesUsersWithPermissions, RefreshDatabase;
 
     protected ?User $user = null;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = $this->createDataUser();
         $this->actingAs($this->user);
     }
 

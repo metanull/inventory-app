@@ -90,11 +90,8 @@ class SelfRegistrationToggleTest extends TestCase
 
     public function test_user_with_manage_settings_permission_can_toggle_self_registration(): void
     {
-        // Create permission and user with it
-        $permission = PermissionModel::create([
-            'name' => Permission::MANAGE_SETTINGS->value,
-            'guard_name' => 'web',
-        ]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $permission = PermissionModel::findByName(Permission::MANAGE_SETTINGS->value);
 
         $manager = User::factory()->create();
         $manager->givePermissionTo($permission);
@@ -120,15 +117,8 @@ class SelfRegistrationToggleTest extends TestCase
 
     public function test_user_with_view_data_permission_cannot_access_settings(): void
     {
-        // Create both permissions so the route can check them
-        PermissionModel::create([
-            'name' => Permission::MANAGE_SETTINGS->value,
-            'guard_name' => 'web',
-        ]);
-        $permission = PermissionModel::create([
-            'name' => Permission::VIEW_DATA->value,
-            'guard_name' => 'web',
-        ]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $permission = PermissionModel::findByName(Permission::VIEW_DATA->value);
 
         $user = User::factory()->create();
         $user->givePermissionTo($permission);
@@ -142,12 +132,7 @@ class SelfRegistrationToggleTest extends TestCase
 
     public function test_user_without_permissions_cannot_access_settings(): void
     {
-        // Create MANAGE_SETTINGS permission so the route can check it
-        PermissionModel::create([
-            'name' => Permission::MANAGE_SETTINGS->value,
-            'guard_name' => 'web',
-        ]);
-
+        // Permissions already exist from TestCase::ensurePermissionsExist()
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $user = User::factory()->create();

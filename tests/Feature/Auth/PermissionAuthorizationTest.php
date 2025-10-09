@@ -21,12 +21,7 @@ class PermissionAuthorizationTest extends TestCase
      */
     public function test_user_without_view_permission_cannot_access_data_routes(): void
     {
-        // Create permission (must exist for middleware to check)
-        PermissionModel::create([
-            'name' => Permission::VIEW_DATA->value,
-            'guard_name' => 'web',
-        ]);
-
+        // Permissions already exist from TestCase::ensurePermissionsExist()
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $user = User::factory()->create();
@@ -41,11 +36,8 @@ class PermissionAuthorizationTest extends TestCase
      */
     public function test_user_with_view_permission_can_access_data_routes(): void
     {
-        // Create permission
-        $permission = PermissionModel::create([
-            'name' => Permission::VIEW_DATA->value,
-            'guard_name' => 'web',
-        ]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $permission = PermissionModel::findByName(Permission::VIEW_DATA->value);
 
         // Create user and assign permission directly
         $user = User::factory()->create();
@@ -64,10 +56,8 @@ class PermissionAuthorizationTest extends TestCase
      */
     public function test_user_with_manage_users_permission_can_access_admin(): void
     {
-        $permission = PermissionModel::create([
-            'name' => Permission::MANAGE_USERS->value,
-            'guard_name' => 'web',
-        ]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $permission = PermissionModel::findByName(Permission::MANAGE_USERS->value);
 
         $user = User::factory()->create();
         $user->givePermissionTo($permission);
@@ -84,12 +74,7 @@ class PermissionAuthorizationTest extends TestCase
      */
     public function test_user_without_manage_users_permission_cannot_access_admin(): void
     {
-        // Create permission (must exist for middleware to check)
-        PermissionModel::create([
-            'name' => Permission::MANAGE_USERS->value,
-            'guard_name' => 'web',
-        ]);
-
+        // Permissions already exist from TestCase::ensurePermissionsExist()
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $user = User::factory()->create();
@@ -104,10 +89,8 @@ class PermissionAuthorizationTest extends TestCase
      */
     public function test_user_with_manage_settings_permission_can_access_settings(): void
     {
-        $permission = PermissionModel::create([
-            'name' => Permission::MANAGE_SETTINGS->value,
-            'guard_name' => 'web',
-        ]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $permission = PermissionModel::findByName(Permission::MANAGE_SETTINGS->value);
 
         $user = User::factory()->create();
         $user->givePermissionTo($permission);
@@ -124,13 +107,7 @@ class PermissionAuthorizationTest extends TestCase
      */
     public function test_user_without_manage_settings_permission_cannot_access_settings(): void
     {
-        // Create the permission (even though user won't have it)
-        // This is needed because Laravel checks if permission exists first
-        PermissionModel::create([
-            'name' => Permission::MANAGE_SETTINGS->value,
-            'guard_name' => 'web',
-        ]);
-
+        // Permissions already exist from TestCase::ensurePermissionsExist()
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->get(route('settings.index'));
@@ -143,15 +120,9 @@ class PermissionAuthorizationTest extends TestCase
      */
     public function test_permission_middleware_correctly_isolates_permissions(): void
     {
-        $viewPermission = PermissionModel::create([
-            'name' => Permission::VIEW_DATA->value,
-            'guard_name' => 'web',
-        ]);
-
-        $managePermission = PermissionModel::create([
-            'name' => Permission::MANAGE_USERS->value,
-            'guard_name' => 'web',
-        ]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $viewPermission = PermissionModel::findByName(Permission::VIEW_DATA->value);
+        $managePermission = PermissionModel::findByName(Permission::MANAGE_USERS->value);
 
         // User with only view permission
         $viewUser = User::factory()->create();
@@ -185,15 +156,9 @@ class PermissionAuthorizationTest extends TestCase
      */
     public function test_user_with_multiple_permissions_can_access_multiple_routes(): void
     {
-        $viewPermission = PermissionModel::create([
-            'name' => Permission::VIEW_DATA->value,
-            'guard_name' => 'web',
-        ]);
-
-        $managePermission = PermissionModel::create([
-            'name' => Permission::MANAGE_USERS->value,
-            'guard_name' => 'web',
-        ]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $viewPermission = PermissionModel::findByName(Permission::VIEW_DATA->value);
+        $managePermission = PermissionModel::findByName(Permission::MANAGE_USERS->value);
 
         $user = User::factory()->create();
         $user->givePermissionTo([$viewPermission, $managePermission]);

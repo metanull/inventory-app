@@ -9,9 +9,11 @@ use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class DropdownUnsetTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
 
     protected ?User $user = null;
@@ -19,7 +21,7 @@ class DropdownUnsetTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = $this->createDataUser();
         $this->actingAs($this->user);
     }
 

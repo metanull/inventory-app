@@ -16,10 +16,10 @@ class UserPermissionTest extends TestCase
 
     public function test_user_can_be_assigned_role_with_permissions(): void
     {
-        // Create permissions first
-        $viewPermission = Permission::create(['name' => PermissionEnum::VIEW_DATA->value]);
-        $createPermission = Permission::create(['name' => PermissionEnum::CREATE_DATA->value]);
-        $managePermission = Permission::create(['name' => PermissionEnum::MANAGE_USERS->value]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $viewPermission = Permission::findByName(PermissionEnum::VIEW_DATA->value);
+        $createPermission = Permission::findByName(PermissionEnum::CREATE_DATA->value);
+        $managePermission = Permission::findByName(PermissionEnum::MANAGE_USERS->value);
 
         // Create a role with specific permissions
         $role = Role::create(['name' => 'Test Role']);
@@ -44,7 +44,7 @@ class UserPermissionTest extends TestCase
     public function test_user_can_be_given_direct_permissions(): void
     {
         $user = User::factory()->create();
-        $permission = Permission::create(['name' => PermissionEnum::VIEW_DATA->value]);
+        $permission = Permission::findByName(PermissionEnum::VIEW_DATA->value);
 
         // Test: Give permission directly to user
         $user->givePermissionTo($permission);
@@ -56,11 +56,7 @@ class UserPermissionTest extends TestCase
 
     public function test_user_without_permissions_cannot_access_features(): void
     {
-        // Create permissions first (needed for the check)
-        Permission::create(['name' => PermissionEnum::VIEW_DATA->value]);
-        Permission::create(['name' => PermissionEnum::CREATE_DATA->value]);
-        Permission::create(['name' => PermissionEnum::MANAGE_USERS->value]);
-
+        // Permissions already exist from TestCase::ensurePermissionsExist()
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $user = User::factory()->create();

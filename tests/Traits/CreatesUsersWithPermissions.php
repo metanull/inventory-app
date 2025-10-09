@@ -28,6 +28,14 @@ trait CreatesUsersWithPermissions
     }
 
     /**
+     * Create user with visitor (read-only) permissions
+     */
+    protected function createVisitorUser(): User
+    {
+        return $this->createUserWithPermissions([PermissionEnum::VIEW_DATA->value]);
+    }
+
+    /**
      * Create user with data management permissions
      */
     protected function createDataUser(): User

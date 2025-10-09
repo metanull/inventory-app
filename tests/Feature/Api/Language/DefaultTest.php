@@ -6,9 +6,11 @@ use App\Models\Language;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class DefaultTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
 
     protected User $user;
@@ -16,7 +18,7 @@ class DefaultTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = $this->createDataUser();
     }
 
     public function test_set_default_language_successfully(): void
