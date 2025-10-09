@@ -171,11 +171,12 @@
         @endcan
         @endif
 
-        {{-- Administration Group (for Manager of Users only) --}}
-        @can(\App\Enums\Permission::MANAGE_USERS->value)
+        {{-- Administration Group --}}
+        @if(auth()->user()->can(\App\Enums\Permission::MANAGE_USERS->value) || auth()->user()->can(\App\Enums\Permission::MANAGE_ROLES->value))
         <section class="space-y-4">
             <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Administration</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @can(\App\Enums\Permission::MANAGE_USERS->value)
                 <a href="{{ route('admin.users.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-red-500/40">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
@@ -186,9 +187,26 @@
                         </div>
                         <x-heroicon-o-cog-6-tooth class="w-5 h-5 text-gray-400 group-hover:text-red-600" />
                     </div>
-                    <p class="text-sm text-gray-600 flex-1">Manage user accounts, roles, and permissions.</p>
+                    <p class="text-sm text-gray-600 flex-1">Manage user accounts and assign roles.</p>
                     <span class="mt-4 inline-flex items-center text-sm font-medium text-red-600 group-hover:underline">Manage &rarr;</span>
                 </a>
+                @endcan
+
+                @can(\App\Enums\Permission::MANAGE_ROLES->value)
+                <a href="{{ route('admin.roles.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-purple-500/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md bg-purple-50 text-purple-600 group-hover:opacity-90">
+                                <x-heroicon-o-shield-check class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Role Management</h3>
+                        </div>
+                        <x-heroicon-o-cog-6-tooth class="w-5 h-5 text-gray-400 group-hover:text-purple-600" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Create and manage roles and permissions.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium text-purple-600 group-hover:underline">Manage &rarr;</span>
+                </a>
+                @endcan
 
                 <a href="{{ route('web.profile.show') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-blue-500/40">
                     <div class="flex items-center justify-between mb-4">
@@ -205,7 +223,7 @@
                 </a>
             </div>
         </section>
-        @endcan
+        @endif
         @endauth
 
         {{-- Resources & Tools Group --}}

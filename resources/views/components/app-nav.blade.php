@@ -170,12 +170,17 @@
                 <a href="https://metanull.github.io/inventory-app" target="_blank" class="block px-2 py-1 rounded text-gray-600 hover:bg-gray-50 hover:text-gray-800">Project Docs</a>
             </div>
             @auth
-                @can(\App\Enums\Permission::MANAGE_USERS->value)
+                @if(auth()->user()->can(\App\Enums\Permission::MANAGE_USERS->value) || auth()->user()->can(\App\Enums\Permission::MANAGE_ROLES->value))
                     <div class="space-y-2">
                         <p class="text-[11px] font-semibold text-gray-400 uppercase">Administration</p>
+                        @can(\App\Enums\Permission::MANAGE_USERS->value)
                         <a href="{{ route('admin.users.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('admin.users.*') ? 'bg-red-50 text-red-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">User Management</a>
+                        @endcan
+                        @can(\App\Enums\Permission::MANAGE_ROLES->value)
+                        <a href="{{ route('admin.roles.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('admin.roles.*') ? 'bg-purple-50 text-purple-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Role Management</a>
+                        @endcan
                     </div>
-                @endcan
+                @endif
             @endauth
             <div class="pt-2 border-t border-gray-100">
                 @auth
