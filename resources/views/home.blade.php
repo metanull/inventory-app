@@ -172,7 +172,7 @@
         @endif
 
         {{-- Administration Group --}}
-        @if(auth()->user()->can(\App\Enums\Permission::MANAGE_USERS->value) || auth()->user()->can(\App\Enums\Permission::MANAGE_ROLES->value))
+        @if(auth()->user()->can(\App\Enums\Permission::MANAGE_USERS->value) || auth()->user()->can(\App\Enums\Permission::MANAGE_ROLES->value) || auth()->user()->can(\App\Enums\Permission::MANAGE_SETTINGS->value))
         <section class="space-y-4">
             <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Administration</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -205,6 +205,22 @@
                     </div>
                     <p class="text-sm text-gray-600 flex-1">Create and manage roles and permissions.</p>
                     <span class="mt-4 inline-flex items-center text-sm font-medium text-purple-600 group-hover:underline">Manage &rarr;</span>
+                </a>
+                @endcan
+
+                @can(\App\Enums\Permission::MANAGE_SETTINGS->value)
+                <a href="{{ route('settings.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-orange-500/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md bg-orange-50 text-orange-600 group-hover:opacity-90">
+                                <x-heroicon-o-cog-6-tooth class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Settings</h3>
+                        </div>
+                        <x-heroicon-o-cog-6-tooth class="w-5 h-5 text-gray-400 group-hover:text-orange-600" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Configure system-wide settings and preferences.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium text-orange-600 group-hover:underline">Configure &rarr;</span>
                 </a>
                 @endcan
 
