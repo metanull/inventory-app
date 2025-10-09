@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Backend (Administration)** - Role Management system
+    - **RoleManagementController**: Full CRUD operations for roles via web interface
+    - **Role Views**: Complete set of Blade views for managing roles (index, create, edit, show, permissions)
+    - **Permission Management**: Ability to attach/detach/sync permissions to roles
+    - **Navigation**: Added Role Management link in admin navigation for authorized users
+    - **Authorization**: Role management requires `manage roles` permission
+    - **User Safety**: Prevents deletion of roles that have users assigned
+    - **Web Routes**: Added routes under `admin.roles` namespace
+    - **Tests**: Comprehensive web interface tests for role management (14 test cases)
+    - Note: Role management is web-only (not exposed via API) for security and simplicity
+
+### Changed
+
+- **User Management**: Now uses dynamic role list from database instead of hardcoded roles
+- **Home Page**: Added Role Management card for users with appropriate permissions
+
 ## [5.4.1] - 2025-10-08
 
 ### Changed

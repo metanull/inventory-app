@@ -45,6 +45,13 @@ Route::prefix('web')->group(function () {
         Route::resource('users', \App\Http\Controllers\UserManagementController::class);
     });
 
+    // Admin routes - Role Management (requires role management permissions)
+    Route::prefix('admin')->name('admin.')->middleware(['auth', 'permission:'.Permission::MANAGE_ROLES->value])->group(function () {
+        Route::resource('roles', \App\Http\Controllers\RoleManagementController::class);
+        Route::get('roles/{role}/permissions', [\App\Http\Controllers\RoleManagementController::class, 'permissions'])->name('roles.permissions');
+        Route::put('roles/{role}/permissions', [\App\Http\Controllers\RoleManagementController::class, 'updatePermissions'])->name('roles.updatePermissions');
+    });
+
     // Settings routes (requires settings management permissions)
     Route::middleware(['auth', 'permission:'.Permission::MANAGE_SETTINGS->value])->group(function () {
         Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
