@@ -16,10 +16,8 @@ class UserPermissionsTest extends TestCase
     {
         parent::setUp();
 
-        // Create permissions in database
-        \Spatie\Permission\Models\Permission::create(['name' => Permission::VIEW_DATA->value, 'guard_name' => 'web']);
-        \Spatie\Permission\Models\Permission::create(['name' => Permission::CREATE_DATA->value, 'guard_name' => 'web']);
-        \Spatie\Permission\Models\Permission::create(['name' => Permission::MANAGE_USERS->value, 'guard_name' => 'web']);
+        // Permissions are already created by TestCase::ensurePermissionsExist()
+        // No need to create them again here
     }
 
     /**
