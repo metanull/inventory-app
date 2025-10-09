@@ -33,6 +33,9 @@ class RolePermissionSeeder extends Seeder
             // Role management permissions
             PermissionEnum::MANAGE_ROLES->value => 'Create, read, update roles and permissions',
             PermissionEnum::VIEW_ROLE_MANAGEMENT->value => 'Access role management interfaces',
+
+            // System settings permissions
+            PermissionEnum::MANAGE_SETTINGS->value => 'Manage system settings and configuration',
         ];
 
         foreach ($permissions as $name => $description) {
@@ -90,6 +93,9 @@ class RolePermissionSeeder extends Seeder
                 // Role management permissions
                 PermissionEnum::MANAGE_ROLES->value,
                 PermissionEnum::VIEW_ROLE_MANAGEMENT->value,
+
+                // System settings permissions
+                PermissionEnum::MANAGE_SETTINGS->value,
             ]);
         }
 

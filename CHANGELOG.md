@@ -25,6 +25,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **User Management**: Now uses dynamic role list from database instead of hardcoded roles
 - **Home Page**: Added Role Management card for users with appropriate permissions
 
+### Fixed
+
+- **Permission System**: Added missing `MANAGE_SETTINGS` permission to seeders
+    - Added `MANAGE_SETTINGS` permission creation in `RolePermissionSeeder` and `ProductionDataSeeder`
+    - Updated "Manager of Users" role to include `MANAGE_SETTINGS` permission
+    - Permission is now visible in role management interface and can be assigned to roles
+    - All 10 permissions from the `Permission` enum are now properly seeded and available
+
 ## [5.4.1] - 2025-10-08
 
 ### Changed
