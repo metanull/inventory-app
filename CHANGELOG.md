@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.4.5] - 2025-10-09
+
+### Added
+
+- **Navigation**: Role Management link in Administration dropdown menu for desktop navigation
+
+### Changed
+
+- **Administration Menu**: Updated visibility logic to show Administration dropdown for users with any administrative permission (manage users, manage roles, or manage settings)
+
+## [5.4.4] - 2025-10-09
+
 ### Added
 
 - **Backend (Administration)** - Role Management system

@@ -87,7 +87,7 @@
                 </div>
 
                 @auth
-                    @can(\App\Enums\Permission::MANAGE_USERS->value)
+                    @if(auth()->user()->can(\App\Enums\Permission::MANAGE_USERS->value) || auth()->user()->can(\App\Enums\Permission::MANAGE_ROLES->value) || auth()->user()->can(\App\Enums\Permission::MANAGE_SETTINGS->value))
                         <!-- Administration Dropdown -->
                         <div class="relative" @mouseenter="openMenu='admin'" @mouseleave="openMenu=null">
                             <button @click="openMenu = openMenu==='admin'? null : 'admin'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('admin.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
@@ -100,9 +100,16 @@
                                 <div class="px-3 py-2 text-xs font-medium text-gray-500 uppercase">
                                     System Management
                                 </div>
-                                <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('admin.users.*') ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                                    <x-heroicon-o-users class="w-4 h-4" /> User Management
-                                </a>
+                                @can(\App\Enums\Permission::MANAGE_USERS->value)
+                                    <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('admin.users.*') ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                                        <x-heroicon-o-users class="w-4 h-4" /> User Management
+                                    </a>
+                                @endcan
+                                @can(\App\Enums\Permission::MANAGE_ROLES->value)
+                                    <a href="{{ route('admin.roles.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('admin.roles.*') ? 'bg-purple-50 text-purple-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                                        <x-heroicon-o-shield-check class="w-4 h-4" /> Role Management
+                                    </a>
+                                @endcan
                                 @can(\App\Enums\Permission::MANAGE_SETTINGS->value)
                                     <a href="{{ route('settings.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('settings.*') ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-50' }}">
                                         <x-heroicon-o-cog-6-tooth class="w-4 h-4" /> Settings
@@ -110,7 +117,7 @@
                                 @endcan
                             </div>
                         </div>
-                    @endcan
+                    @endif
                 @endauth
             </div>
         </div>
