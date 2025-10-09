@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.4.6] - 2025-10-09
+
+### Added
+
+- **Landing Page**: Settings shortcut card in Administration section for users with `MANAGE_SETTINGS` permission
+
+### Changed
+
+- **Landing Page**: Updated Administration section visibility to include users with `MANAGE_SETTINGS` permission
+
 ## [5.4.5] - 2025-10-09
 
 ### Added
