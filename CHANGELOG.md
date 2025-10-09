@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.5.0] - 2025-10-10
+
+### Added
+
+- **Visitor Role**: New read-only role with `VIEW_DATA` permission only
+  - Provides secure API access for clients that only need to read data
+  - Can list and show all entities but cannot create, update, or delete
+- **Test Infrastructure**: CreatesUsersWithPermissions trait for permission-based test isolation
+  - `createVisitorUser()`: For read-only operations
+  - `createDataUser()`: For full CRUD operations
+  - `createUserWithPermissions()`: For custom permission sets
+
+### Changed
+
+- **API Security**: All API endpoints now enforce permission checks
+  - Index and Show endpoints require `VIEW_DATA` permission
+  - Create operations require `CREATE_DATA` permission
+  - Update operations require `UPDATE_DATA` permission
+  - Delete operations require `DELETE_DATA` permission
+- **Test Quality**: All 1,598 tests updated to work in complete isolation
+  - No auto-permission granting in TestCase
+  - Each test explicitly sets up required permissions
+  - No assumptions or workarounds
+- **Production Data Seeder**: Ensures all data permissions exist during seeding
+
+### Fixed
+
+- **Test Isolation**: Removed backward compatibility workaround that auto-granted permissions
+- **Permission Checks**: Fixed tests that relied on unstated permission assumptions
+
+### Security
+
+- API endpoints now properly enforce granular permission control
+- Tests verify actual permission enforcement rather than assuming access
+
 ## [5.4.6] - 2025-10-09
 
 ### Added
