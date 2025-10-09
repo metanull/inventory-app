@@ -57,33 +57,4 @@ abstract class TestCase extends BaseTestCase
             }
         }
     }
-
-    /**
-     * Override actingAs to automatically grant data permissions to test users.
-     * This maintains backward compatibility with existing tests while adding permission security.
-     *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
-     * @param  string|null  $guard
-     * @return $this
-     */
-    public function actingAs($user, $guard = null)
-    {
-        parent::actingAs($user, $guard);
-
-        // Automatically grant all data operation permissions to test users
-        // This prevents breaking existing tests while enforcing permission checks
-        if ($user instanceof \App\Models\User) {
-            $user->givePermissionTo([
-                Permission::VIEW_DATA->value,
-                Permission::CREATE_DATA->value,
-                Permission::UPDATE_DATA->value,
-                Permission::DELETE_DATA->value,
-            ]);
-
-            // Clear permission cache to ensure changes take effect
-            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-        }
-
-        return $this;
-    }
 }

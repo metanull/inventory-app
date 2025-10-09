@@ -53,12 +53,7 @@ class NonVerifiedUserAuthorizationTest extends TestCase
      */
     public function test_user_without_view_data_permission_cannot_access_items_page(): void
     {
-        // Create the permission (route needs it to exist, even for denial)
-        PermissionModel::create([
-            'name' => Permission::VIEW_DATA->value,
-            'guard_name' => 'web',
-        ]);
-
+        // Permissions already exist from TestCase::ensurePermissionsExist()
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $user = User::factory()->create(['email_verified_at' => now()]);
@@ -73,10 +68,8 @@ class NonVerifiedUserAuthorizationTest extends TestCase
      */
     public function test_user_with_view_data_permission_sees_inventory_content(): void
     {
-        $permission = PermissionModel::create([
-            'name' => Permission::VIEW_DATA->value,
-            'guard_name' => 'web',
-        ]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $permission = PermissionModel::findByName(Permission::VIEW_DATA->value);
 
         $user = User::factory()->create(['email_verified_at' => now()]);
         $user->givePermissionTo($permission);
@@ -99,10 +92,8 @@ class NonVerifiedUserAuthorizationTest extends TestCase
      */
     public function test_user_with_view_data_permission_can_access_items_page(): void
     {
-        $permission = PermissionModel::create([
-            'name' => Permission::VIEW_DATA->value,
-            'guard_name' => 'web',
-        ]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $permission = PermissionModel::findByName(Permission::VIEW_DATA->value);
 
         $user = User::factory()->create(['email_verified_at' => now()]);
         $user->givePermissionTo($permission);
@@ -119,10 +110,8 @@ class NonVerifiedUserAuthorizationTest extends TestCase
      */
     public function test_user_with_manage_users_permission_sees_administration_but_not_inventory(): void
     {
-        $permission = PermissionModel::create([
-            'name' => Permission::MANAGE_USERS->value,
-            'guard_name' => 'web',
-        ]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $permission = PermissionModel::findByName(Permission::MANAGE_USERS->value);
 
         $user = User::factory()->create(['email_verified_at' => now()]);
         $user->givePermissionTo($permission);
@@ -143,16 +132,8 @@ class NonVerifiedUserAuthorizationTest extends TestCase
      */
     public function test_user_with_manage_users_permission_cannot_access_items_page(): void
     {
-        // Create both permissions (items route requires VIEW_DATA to exist)
-        PermissionModel::create([
-            'name' => Permission::VIEW_DATA->value,
-            'guard_name' => 'web',
-        ]);
-
-        $permission = PermissionModel::create([
-            'name' => Permission::MANAGE_USERS->value,
-            'guard_name' => 'web',
-        ]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $permission = PermissionModel::findByName(Permission::MANAGE_USERS->value);
 
         $user = User::factory()->create(['email_verified_at' => now()]);
         $user->givePermissionTo($permission); // Give MANAGE_USERS but not VIEW_DATA
@@ -169,10 +150,8 @@ class NonVerifiedUserAuthorizationTest extends TestCase
      */
     public function test_user_with_manage_users_permission_can_access_user_management(): void
     {
-        $permission = PermissionModel::create([
-            'name' => Permission::MANAGE_USERS->value,
-            'guard_name' => 'web',
-        ]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $permission = PermissionModel::findByName(Permission::MANAGE_USERS->value);
 
         $user = User::factory()->create(['email_verified_at' => now()]);
         $user->givePermissionTo($permission);

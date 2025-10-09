@@ -7,17 +7,19 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class StoreTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use CreatesUsersWithPermissions, RefreshDatabase, WithFaker;
 
     protected ?User $user = null;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        // Create user with all data permissions for store operations
+        $this->user = $this->createDataUser();
         $this->actingAs($this->user);
     }
 

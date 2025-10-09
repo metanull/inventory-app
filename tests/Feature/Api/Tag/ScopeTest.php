@@ -8,9 +8,11 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class ScopeTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
     use WithFaker;
 
@@ -19,7 +21,7 @@ class ScopeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = $this->createVisitorUser();
         $this->actingAs($this->user);
     }
 

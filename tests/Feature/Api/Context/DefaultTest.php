@@ -6,17 +6,18 @@ use App\Models\Context;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class DefaultTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesUsersWithPermissions, RefreshDatabase;
 
     protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = $this->createDataUser();
     }
 
     public function test_set_default_context_successfully(): void

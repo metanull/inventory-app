@@ -8,17 +8,18 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class StoreTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use CreatesUsersWithPermissions, RefreshDatabase, WithFaker;
 
     protected ?User $user = null;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = $this->createDataUser();
         $this->actingAs($this->user);
         Language::factory()->count(3)->create();
     }

@@ -357,4 +357,64 @@ class ApiPermissionControlTest extends TestCase
         // Will fail validation but should not be 401
         $this->assertNotEquals(401, $response->status());
     }
+
+    /**
+     * Test that visitor role (VIEW_DATA only) can read but not modify data
+     */
+    public function test_visitor_role_can_read_but_not_modify_data(): void
+    {
+        // Create test data
+        $context = Context::factory()->create();
+        $tag = Tag::factory()->create();
+
+        // Give user only VIEW_DATA permission (Visitor role)
+        $this->user->givePermissionTo(Permission::VIEW_DATA->value);
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Authenticate the user
+        $this->authenticateWithoutAutoPermissions($this->user);
+
+        // Should be able to read (GET)
+        $response = $this->getJson(route('context.index'));
+        $response->assertStatus(200);
+
+        $response = $this->getJson(route('context.show', $context));
+        $response->assertStatus(200);
+
+        $response = $this->getJson(route('tag.index'));
+        $response->assertStatus(200);
+
+        $response = $this->getJson(route('tag.show', $tag));
+        $response->assertStatus(200);
+
+        // Should NOT be able to create (POST)
+        $response = $this->postJson(route('context.store'), [
+            'internal_name' => 'New Context',
+        ]);
+        $response->assertStatus(403);
+
+        $response = $this->postJson(route('tag.store'), [
+            'internal_name' => 'New Tag',
+        ]);
+        $response->assertStatus(403);
+
+        // Should NOT be able to update (PATCH/PUT)
+        $response = $this->patchJson(route('context.update', $context), [
+            'internal_name' => 'Updated Context',
+        ]);
+        $response->assertStatus(403);
+
+        $response = $this->putJson(route('tag.update', $tag), [
+            'internal_name' => $tag->internal_name,
+            'description' => 'Updated Description',
+        ]);
+        $response->assertStatus(403);
+
+        // Should NOT be able to delete (DELETE)
+        $response = $this->deleteJson(route('context.destroy', $context));
+        $response->assertStatus(403);
+
+        $response = $this->deleteJson(route('tag.destroy', $tag));
+        $response->assertStatus(403);
+    }
 }

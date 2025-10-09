@@ -12,17 +12,20 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class StoreTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use CreatesUsersWithPermissions;
+    use RefreshDatabase;
+    use WithFaker;
 
     protected ?User $user = null;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = $this->createDataUser();
         $this->actingAs($this->user);
 
         Storage::fake('local');

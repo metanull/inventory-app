@@ -20,15 +20,9 @@ class ProfileManagementTest extends TestCase
 
     public function test_profile_page_displays_user_permissions(): void
     {
-        // Create permission and assign to user
-        $viewPermission = PermissionModel::create([
-            'name' => Permission::VIEW_DATA->value,
-            'guard_name' => 'web',
-        ]);
-        $createPermission = PermissionModel::create([
-            'name' => Permission::CREATE_DATA->value,
-            'guard_name' => 'web',
-        ]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $viewPermission = PermissionModel::findByName(Permission::VIEW_DATA->value);
+        $createPermission = PermissionModel::findByName(Permission::CREATE_DATA->value);
 
         // Create role with permissions
         $role = Role::create(['name' => 'Test Role', 'guard_name' => 'web']);
@@ -63,15 +57,9 @@ class ProfileManagementTest extends TestCase
 
     public function test_user_role_information_livewire_component_displays_permissions(): void
     {
-        // Create permissions
-        $managePermission = PermissionModel::create([
-            'name' => Permission::MANAGE_USERS->value,
-            'guard_name' => 'web',
-        ]);
-        $assignPermission = PermissionModel::create([
-            'name' => Permission::ASSIGN_ROLES->value,
-            'guard_name' => 'web',
-        ]);
+        // Permissions already exist from TestCase::ensurePermissionsExist()
+        $managePermission = PermissionModel::findByName(Permission::MANAGE_USERS->value);
+        $assignPermission = PermissionModel::findByName(Permission::ASSIGN_ROLES->value);
 
         // Create role with permissions
         $role = Role::create(['name' => 'Test Manager Role', 'guard_name' => 'web']);

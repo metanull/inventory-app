@@ -70,6 +70,16 @@ class ProductionDataSeeder extends Seeder
         // Non-verified users get no permissions - they cannot do anything until verified
         $nonVerifiedRole->syncPermissions([]);
 
+        // Create "Visitor" role with read-only data access
+        $visitorRole = Role::firstOrCreate(
+            ['name' => 'Visitor'],
+            ['description' => 'Read-only access to data (list and show operations only)']
+        );
+
+        $visitorRole->syncPermissions([
+            PermissionEnum::VIEW_DATA->value,
+        ]);
+
         // Create "Regular User" role with data operation permissions
         $regularUserRole = Role::firstOrCreate(
             ['name' => 'Regular User'],
@@ -104,7 +114,7 @@ class ProductionDataSeeder extends Seeder
         ]);
 
         $this->command->info('Roles and permissions setup completed!');
-        $this->command->info('Roles: Non-verified users, Regular User, Manager of Users');
+        $this->command->info('Roles: Non-verified users, Visitor, Regular User, Manager of Users');
         $this->command->info('Permissions: '.count($permissions).' created/verified');
     }
 

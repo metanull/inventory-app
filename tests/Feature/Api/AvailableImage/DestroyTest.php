@@ -10,10 +10,11 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class DestroyTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use CreatesUsersWithPermissions, RefreshDatabase, WithFaker;
 
     protected ?User $user = null;
 
@@ -24,7 +25,7 @@ class DestroyTest extends TestCase
         Storage::fake('public');
         Event::fake();
         Http::fake();
-        $this->user = User::factory()->create();
+        $this->user = $this->createDataUser();
         $this->actingAs($this->user);
     }
 
