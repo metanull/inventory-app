@@ -58,6 +58,26 @@
                         </a>
                     </div>
                 </div>
+
+                <!-- Images Dropdown -->
+                <div class="relative" @mouseenter="openMenu='images'" @mouseleave="openMenu=null">
+                    <button @click="openMenu = openMenu==='images'? null : 'images'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('available-images.*') || request()->routeIs('images.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
+                        <x-heroicon-o-photo class="w-4 h-4" /> Images
+                        <span class="w-4 h-4 transition" x-bind:class="openMenu==='images' ? 'rotate-180' : ''">
+                            <x-heroicon-o-chevron-down class="w-4 h-4" />
+                        </span>
+                    </button>
+                    <div x-show="openMenu==='images'" x-transition @click.outside="openMenu=null" class="absolute z-30 mt-2 w-56 rounded-md border border-gray-200 bg-white shadow-lg py-2">
+                        <a href="{{ route('available-images.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('available-images.*') ? 'bg-pink-50 text-pink-700 font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <x-heroicon-o-photo class="w-4 h-4" /> Available Images
+                        </a>
+                        @can(\App\Enums\Permission::CREATE_DATA->value)
+                        <a href="{{ route('images.upload') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('images.upload') ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <x-heroicon-o-cloud-arrow-up class="w-4 h-4" /> Upload Images
+                        </a>
+                        @endcan
+                    </div>
+                </div>
                 @endcan
 
                 <!-- Resources Dropdown -->
@@ -165,6 +185,13 @@
                 <a href="{{ route('countries.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('countries.*') ? $cc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Countries</a>
                 <a href="{{ route('languages.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('languages.*') ? $lc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Languages</a>
                 <a href="{{ route('contexts.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('contexts.*') ? $xc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Contexts</a>
+            </div>
+            <div class="space-y-2">
+                <p class="text-[11px] font-semibold text-gray-400 uppercase">Images</p>
+                <a href="{{ route('available-images.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('available-images.*') ? 'bg-pink-50 text-pink-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Available Images</a>
+                @can(\App\Enums\Permission::CREATE_DATA->value)
+                <a href="{{ route('images.upload') }}" class="block px-2 py-1 rounded {{ request()->routeIs('images.upload') ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Upload Images</a>
+                @endcan
             </div>
             @endcan
             <div class="space-y-2">
