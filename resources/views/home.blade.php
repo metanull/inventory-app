@@ -169,6 +169,44 @@
             </div>
         </section>
         @endcan
+
+        {{-- Image Management Group --}}
+        @can(\App\Enums\Permission::VIEW_DATA->value)
+        <section class="space-y-4">
+            <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Image Management</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <a href="{{ route('available-images.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-pink-500/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md bg-pink-50 text-pink-600 group-hover:opacity-90">
+                                <x-heroicon-o-photo class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Available Images</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-pink-600" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">View processed and validated images ready for use in your collection.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium text-pink-600 group-hover:underline">View Images &rarr;</span>
+                </a>
+
+                @can(\App\Enums\Permission::CREATE_DATA->value)
+                <a href="{{ route('images.upload') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-indigo-500/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:opacity-90">
+                                <x-heroicon-o-cloud-arrow-up class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Upload Images</h3>
+                        </div>
+                        <x-heroicon-o-plus class="w-5 h-5 text-gray-400 group-hover:text-indigo-600" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Upload images for validation and processing into the collection.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:underline">Upload Images &rarr;</span>
+                </a>
+                @endcan
+            </div>
+        </section>
+        @endcan
         @endif
 
         {{-- Administration Group --}}

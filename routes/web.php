@@ -1,9 +1,11 @@
 <?php
 
 use App\Enums\Permission;
+use App\Http\Controllers\Web\AvailableImageController as WebAvailableImageController;
 use App\Http\Controllers\Web\CollectionController as WebCollectionController;
 use App\Http\Controllers\Web\ContextController as WebContextController;
 use App\Http\Controllers\Web\CountryController as WebCountryController;
+use App\Http\Controllers\Web\ImageUploadController as WebImageUploadController;
 use App\Http\Controllers\Web\ItemController as WebItemController;
 use App\Http\Controllers\Web\LanguageController as WebLanguageController;
 use App\Http\Controllers\Web\PartnerController as WebPartnerController;
@@ -38,6 +40,18 @@ Route::prefix('web')->group(function () {
         Route::resource('projects', WebProjectController::class);
         Route::resource('contexts', WebContextController::class);
         Route::resource('collections', WebCollectionController::class);
+
+        // Available Images
+        Route::get('available-images', [WebAvailableImageController::class, 'index'])->name('available-images.index');
+        Route::get('available-images/{availableImage}', [WebAvailableImageController::class, 'show'])->name('available-images.show');
+        Route::get('available-images/{availableImage}/view', [WebAvailableImageController::class, 'view'])->name('available-images.view');
+        Route::get('available-images/{availableImage}/download', [WebAvailableImageController::class, 'download'])->name('available-images.download');
+    });
+
+    // Image upload routes - require create permission
+    Route::middleware(['auth', 'permission:'.Permission::CREATE_DATA->value])->group(function () {
+        Route::get('images/upload', [WebImageUploadController::class, 'create'])->name('images.upload');
+        Route::post('images/upload', [WebImageUploadController::class, 'store'])->name('images.store');
     });
 
     // Admin routes - User Management (requires user management permissions)
