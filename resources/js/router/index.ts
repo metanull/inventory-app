@@ -8,6 +8,8 @@ import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
 import Items from '@/views/Items.vue'
 import ItemDetail from '@/views/ItemDetail.vue'
+import ItemTranslations from '@/views/ItemTranslations.vue'
+import ItemTranslationDetail from '@/views/ItemTranslationDetail.vue'
 
 import Languages from '@/views/Languages.vue'
 import LanguageDetail from '@/views/LanguageDetail.vue'
@@ -51,6 +53,24 @@ const router = createRouter({
       path: '/items/:id',
       name: 'item-detail',
       component: ItemDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/item-translations',
+      name: 'item-translations',
+      component: ItemTranslations,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/item-translations/new',
+      name: 'item-translation-new',
+      component: ItemTranslationDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/item-translations/:id',
+      name: 'item-translation-detail',
+      component: ItemTranslationDetail,
       meta: { requiresAuth: true },
     },
 
