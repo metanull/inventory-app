@@ -134,7 +134,9 @@
       <div class="fixed inset-0 bg-black bg-opacity-25" />
       <div class="fixed inset-0 overflow-y-auto">
         <div class="flex min-h-full items-center justify-center p-4">
-          <DialogPanel class="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
+          <DialogPanel
+            class="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all"
+          >
             <DialogTitle class="text-lg font-medium leading-6 text-gray-900 mb-4">
               Attach Image from Available Images
             </DialogTitle>
@@ -330,7 +332,7 @@
   }
 
   // Watch for attach dialog open
-  watch(showAttachDialog, (isOpen) => {
+  watch(showAttachDialog, isOpen => {
     if (isOpen) {
       loadAvailableImages()
     }
@@ -342,7 +344,10 @@
   })
 
   // Reload when itemId changes
-  watch(() => props.itemId, () => {
-    loadImages()
-  })
+  watch(
+    () => props.itemId,
+    () => {
+      loadImages()
+    }
+  )
 </script>

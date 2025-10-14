@@ -24,16 +24,22 @@ class UpdateThemeTranslationRequest extends FormRequest
     {
         $themeTranslation = $this->route('themeTranslation');
 
+        $uniqueRule = Rule::unique('theme_translations')->where(function ($query) use ($themeTranslation) {
+            return $query->where('language_id', $this->input('language_id', $themeTranslation?->language_id))
+                ->where('context_id', $this->input('context_id', $themeTranslation?->context_id));
+        });
+
+        if ($themeTranslation) {
+            $uniqueRule->ignore($themeTranslation->id);
+        }
+
         return [
             'theme_id' => [
                 'sometimes',
                 'required',
                 'uuid',
                 'exists:themes,id',
-                Rule::unique('theme_translations')->where(function ($query) use ($themeTranslation) {
-                    return $query->where('language_id', $this->input('language_id', $themeTranslation->language_id))
-                                 ->where('context_id', $this->input('context_id', $themeTranslation->context_id));
-                })->ignore($themeTranslation->id),
+                $uniqueRule,
             ],
             'language_id' => ['sometimes', 'required', 'string', 'exists:languages,id'],
             'context_id' => ['sometimes', 'required', 'uuid', 'exists:contexts,id'],

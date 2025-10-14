@@ -23,19 +23,19 @@ class UpdateItemTranslationRequest extends FormRequest
     public function rules(): array
     {
         $itemTranslation = $this->route('itemTranslation');
-        
+
         // Only apply uniqueness validation if updating the unique key fields
         $uniqueRule = Rule::unique('item_translations')->ignore($itemTranslation?->id);
-        
+
         // Build where clauses for unique constraint check
         // Use existing values if not being updated
         if ($this->has('language_id') || $this->has('context_id')) {
             $uniqueRule->where(function ($query) use ($itemTranslation) {
                 $query->where('language_id', $this->input('language_id', $itemTranslation?->language_id))
-                      ->where('context_id', $this->input('context_id', $itemTranslation?->context_id));
+                    ->where('context_id', $this->input('context_id', $itemTranslation?->context_id));
             });
         }
-        
+
         return [
             'id' => ['prohibited'],
             'item_id' => [

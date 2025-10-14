@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { type ItemImageResource, type StoreItemImageRequest, type UpdateItemImageRequest, type ItemAttachImageRequest } from '@metanull/inventory-app-api-client'
+import {
+  type ItemImageResource,
+  type StoreItemImageRequest,
+  type UpdateItemImageRequest,
+  type ItemAttachImageRequest,
+} from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
 import { ErrorHandler } from '@/utils/errorHandler'
 
@@ -64,10 +69,10 @@ export const useItemImageStore = defineStore('itemImage', () => {
     try {
       const apiClient = createApiClient()
       await apiClient.itemImagesStore(itemId, data)
-      
+
       // Refetch the list to get the new image
       await fetchItemImages(itemId)
-      
+
       return true
     } catch (err: unknown) {
       ErrorHandler.handleError(err, 'Failed to create item image')
@@ -89,10 +94,10 @@ export const useItemImageStore = defineStore('itemImage', () => {
         available_image_id: availableImageId,
       }
       await apiClient.itemAttachImage(itemId, request)
-      
+
       // Refetch the list to get the new image
       await fetchItemImages(itemId)
-      
+
       return true
     } catch (err: unknown) {
       ErrorHandler.handleError(err, 'Failed to attach image to item')
@@ -111,10 +116,10 @@ export const useItemImageStore = defineStore('itemImage', () => {
     try {
       const apiClient = createApiClient()
       await apiClient.itemImageUpdate(id, data)
-      
+
       // Refetch to get updated data
       await fetchItemImage(id)
-      
+
       // Update in local array if it exists
       const index = itemImages.value.findIndex(img => img.id === id)
       if (index !== -1 && currentItemImage.value) {
@@ -140,7 +145,7 @@ export const useItemImageStore = defineStore('itemImage', () => {
       const apiClient = createApiClient()
       const response = await apiClient.itemImageMoveUp(id)
       const updatedImage = response.data.data
-      
+
       // Refetch the list to get correct ordering
       if (updatedImage.item_id) {
         await fetchItemImages(updatedImage.item_id)
@@ -165,7 +170,7 @@ export const useItemImageStore = defineStore('itemImage', () => {
       const apiClient = createApiClient()
       const response = await apiClient.itemImageMoveDown(id)
       const updatedImage = response.data.data
-      
+
       // Refetch the list to get correct ordering
       if (updatedImage.item_id) {
         await fetchItemImages(updatedImage.item_id)
@@ -189,7 +194,7 @@ export const useItemImageStore = defineStore('itemImage', () => {
     try {
       const apiClient = createApiClient()
       await apiClient.itemImageTightenOrdering(id)
-      
+
       // Refetch to get updated ordering
       const itemImage = itemImages.value.find(img => img.id === id)
       if (itemImage?.item_id) {
@@ -212,10 +217,10 @@ export const useItemImageStore = defineStore('itemImage', () => {
     try {
       const apiClient = createApiClient()
       const response = await apiClient.itemImageDetach(id)
-      
+
       // Remove from local array
       itemImages.value = itemImages.value.filter(img => img.id !== id)
-      
+
       // Clear current if it's the one being detached
       if (currentItemImage.value?.id === id) {
         currentItemImage.value = null

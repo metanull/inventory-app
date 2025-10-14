@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\ContextController as WebContextController;
 use App\Http\Controllers\Web\CountryController as WebCountryController;
 use App\Http\Controllers\Web\ImageUploadController as WebImageUploadController;
 use App\Http\Controllers\Web\ItemController as WebItemController;
+use App\Http\Controllers\Web\ItemTranslationController as WebItemTranslationController;
 use App\Http\Controllers\Web\LanguageController as WebLanguageController;
 use App\Http\Controllers\Web\PartnerController as WebPartnerController;
 use App\Http\Controllers\Web\ProjectController as WebProjectController;
@@ -34,6 +35,7 @@ Route::prefix('web')->group(function () {
     // Authenticated resource management (requires data permissions)
     Route::middleware(['auth', 'permission:'.Permission::VIEW_DATA->value])->group(function () {
         Route::resource('items', WebItemController::class);
+        Route::resource('item-translations', WebItemTranslationController::class);
         Route::resource('partners', WebPartnerController::class);
         Route::resource('countries', WebCountryController::class);
         Route::resource('languages', WebLanguageController::class);

@@ -104,10 +104,10 @@ export const useItemTranslationStore = defineStore('itemTranslation', () => {
       const apiClient = createApiClient()
       // Note: API returns number due to Scramble limitation, we need to refetch
       await apiClient.itemTranslationStore(data)
-      
+
       // Refetch the list to get the new translation
       await fetchItemTranslations({ page: page.value, perPage: perPage.value })
-      
+
       // Return success (we can't return the object due to API limitation)
       return true
     } catch (err: unknown) {
@@ -128,10 +128,10 @@ export const useItemTranslationStore = defineStore('itemTranslation', () => {
       const apiClient = createApiClient()
       // Note: API returns number due to Scramble limitation, we need to refetch
       await apiClient.itemTranslationUpdate(id, data)
-      
+
       // Refetch to get updated data
       await fetchItemTranslation(id)
-      
+
       // Update in local array if it exists
       const index = itemTranslations.value.findIndex(t => t.id === id)
       if (index !== -1 && currentItemTranslation.value) {

@@ -261,7 +261,7 @@ describe('ItemTranslation Store', () => {
   describe('updateItemTranslation', () => {
     it('should update translation successfully', async () => {
       const store = useItemTranslationStore()
-      
+
       // Pre-populate via fetch
       mockItemTranslationApi.itemTranslationIndex.mockResolvedValue({
         data: mockItemTranslations,
@@ -313,13 +313,13 @@ describe('ItemTranslation Store', () => {
   describe('deleteItemTranslation', () => {
     it('should delete translation successfully', async () => {
       const store = useItemTranslationStore()
-      
+
       // Pre-populate via fetch
       mockItemTranslationApi.itemTranslationIndex.mockResolvedValue({
         data: mockItemTranslations,
       })
       await store.fetchItemTranslations()
-      
+
       // Set current
       mockItemTranslationApi.itemTranslationShow.mockResolvedValue({
         data: { data: mockItemTranslations[0] },
@@ -361,7 +361,7 @@ describe('ItemTranslation Store', () => {
         data: mockItemTranslations,
       })
       await store.fetchItemTranslations({ page: 2, perPage: 50 })
-      
+
       mockItemTranslationApi.itemTranslationShow.mockResolvedValue({
         data: { data: mockItemTranslations[0] },
       })

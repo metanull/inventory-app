@@ -361,7 +361,10 @@
         </DescriptionRow>
 
         <!-- Extra (JSON) -->
-        <DescriptionRow v-if="translation?.extra || mode === 'edit' || mode === 'create'" variant="white">
+        <DescriptionRow
+          v-if="translation?.extra || mode === 'edit' || mode === 'create'"
+          variant="white"
+        >
           <DescriptionTerm>Extra Data (JSON)</DescriptionTerm>
           <DescriptionDetail>
             <FormTextarea
@@ -486,7 +489,7 @@
 
   // Computed properties
   const translation = computed(() => translationStore.currentItemTranslation)
-  
+
   // Adapter for DetailView which expects internal_name but ItemTranslation has name
   const translationAsResource = computed(() => {
     if (!translation.value) return null
@@ -495,7 +498,7 @@
       internal_name: translation.value.name, // Map name to internal_name for DetailView
     }
   })
-  
+
   const colorClasses = useColors(computed(() => props.color))
 
   const editForm = ref<TranslationFormData>({
@@ -640,7 +643,9 @@
     if (mode.value === 'create') {
       const defaultValues = getDefaultFormValues()
       return Object.keys(editForm.value).some(
-        key => editForm.value[key as keyof TranslationFormData] !== defaultValues[key as keyof TranslationFormData]
+        key =>
+          editForm.value[key as keyof TranslationFormData] !==
+          defaultValues[key as keyof TranslationFormData]
       )
     }
 
@@ -710,7 +715,10 @@
         translator_id: translation.value.translator_id || '',
         translation_copy_editor_id: translation.value.translation_copy_editor_id || '',
         backward_compatibility: translation.value.backward_compatibility || '',
-        extra: typeof translation.value.extra === 'string' ? translation.value.extra : JSON.stringify(translation.value.extra) || '',
+        extra:
+          typeof translation.value.extra === 'string'
+            ? translation.value.extra
+            : JSON.stringify(translation.value.extra) || '',
       }
     }
   }
@@ -861,7 +869,11 @@
 
   // Navigation guard
   onBeforeRouteLeave(
-    async (_to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
+    async (
+      _to: RouteLocationNormalized,
+      _from: RouteLocationNormalized,
+      next: NavigationGuardNext
+    ) => {
       if (hasUnsavedChanges.value) {
         const result = await cancelChangesStore.trigger(
           'Discard Changes',
@@ -908,9 +920,15 @@
     try {
       // Load required data
       await Promise.all([
-        contextStore.contexts?.length ? Promise.resolve() : contextStore.fetchContexts({ page: 1, perPage: 100 }),
-        languageStore.languages?.length ? Promise.resolve() : languageStore.fetchLanguages({ page: 1, perPage: 100 }),
-        itemStore.items?.length ? Promise.resolve() : itemStore.fetchItems({ page: 1, perPage: 100 }),
+        contextStore.contexts?.length
+          ? Promise.resolve()
+          : contextStore.fetchContexts({ page: 1, perPage: 100 }),
+        languageStore.languages?.length
+          ? Promise.resolve()
+          : languageStore.fetchLanguages({ page: 1, perPage: 100 }),
+        itemStore.items?.length
+          ? Promise.resolve()
+          : itemStore.fetchItems({ page: 1, perPage: 100 }),
       ])
 
       // Determine mode and fetch data

@@ -160,9 +160,9 @@ describe('ItemImage Store', () => {
 
       mockItemImageApi.itemImageShow.mockRejectedValue(error)
 
-      await expect(
-        store.fetchItemImage('123e4567-e89b-12d3-a456-426614174000')
-      ).rejects.toThrow('Not found')
+      await expect(store.fetchItemImage('123e4567-e89b-12d3-a456-426614174000')).rejects.toThrow(
+        'Not found'
+      )
 
       expect(store.error).toBe('Failed to fetch item image')
     })
@@ -228,7 +228,7 @@ describe('ItemImage Store', () => {
       mockItemImageApi.itemImageUpdate.mockResolvedValue({
         data: { data: updatedItemImage },
       })
-      
+
       mockItemImageApi.itemImageShow.mockResolvedValue({
         data: { data: updatedItemImage },
       })
@@ -289,9 +289,9 @@ describe('ItemImage Store', () => {
 
       mockItemImageApi.itemImageDestroy.mockRejectedValue(error)
 
-      await expect(
-        store.deleteItemImage('123e4567-e89b-12d3-a456-426614174000')
-      ).rejects.toThrow('Delete failed')
+      await expect(store.deleteItemImage('123e4567-e89b-12d3-a456-426614174000')).rejects.toThrow(
+        'Delete failed'
+      )
 
       expect(store.error).toBe('Failed to delete item image')
     })
@@ -418,9 +418,9 @@ describe('ItemImage Store', () => {
 
       mockItemImageApi.itemImageMoveDown.mockRejectedValue(error)
 
-      await expect(
-        store.moveImageDown('123e4567-e89b-12d3-a456-426614174000')
-      ).rejects.toThrow('Move failed')
+      await expect(store.moveImageDown('123e4567-e89b-12d3-a456-426614174000')).rejects.toThrow(
+        'Move failed'
+      )
 
       expect(store.error).toBe('Failed to move image down')
     })
@@ -450,9 +450,9 @@ describe('ItemImage Store', () => {
 
       mockItemImageApi.itemImageTightenOrdering.mockRejectedValue(error)
 
-      await expect(
-        store.tightenOrdering('123e4567-e89b-12d3-a456-426614174000')
-      ).rejects.toThrow('Tighten failed')
+      await expect(store.tightenOrdering('123e4567-e89b-12d3-a456-426614174000')).rejects.toThrow(
+        'Tighten failed'
+      )
 
       expect(store.error).toBe('Failed to tighten image ordering')
     })

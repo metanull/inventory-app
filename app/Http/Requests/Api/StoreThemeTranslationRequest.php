@@ -29,7 +29,7 @@ class StoreThemeTranslationRequest extends FormRequest
                 'exists:themes,id',
                 Rule::unique('theme_translations')->where(function ($query) {
                     return $query->where('language_id', $this->input('language_id'))
-                                 ->where('context_id', $this->input('context_id'));
+                        ->where('context_id', $this->input('context_id'));
                 }),
             ],
             'language_id' => ['required', 'string', 'exists:languages,id'],
