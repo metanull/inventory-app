@@ -7,6 +7,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.6.0] - 2025-10-14
+
+### Added
+
+- **ItemTranslation CRUD (Vue.js SPA)**:
+  - Complete Pinia store with full CRUD operations
+  - ItemTranslations list view with search and pagination
+  - ItemTranslationDetail view with ALL 26 fields (name, alternate_name, description, type, holder, owner, dates, location, etc.)
+  - FormSelect and FormTextarea components for enhanced UX
+  - Router configuration and navigation
+  - 13 comprehensive unit tests (100% pass rate)
+
+- **ItemImage CRUD (Vue.js SPA)**:
+  - Complete Pinia store with attach/detach from AvailableImages
+  - ItemImageManager component integrated into ItemDetail
+  - Features: attach, detach, delete, drag-drop reordering, alt_text editing
+  - Display order management with move up/down
+  - 21 comprehensive unit tests (100% pass rate)
+
+- **ItemTranslation CRUD (Laravel/Blade Web)**:
+  - ItemTranslationController with full CRUD operations
+  - Form Requests with validation (Store/Update)
+  - Livewire ItemTranslationsTable with context filtering
+  - Blade views for all operations (index, create, edit, show)
+  - Form partial with ALL 26 fields
+  - 13 comprehensive feature tests (100% pass rate)
+
+- **ItemImage CRUD (Laravel/Blade Web)**:
+  - ItemImageController with 8 operations (create, store, edit, update, moveUp, moveDown, detach, destroy)
+  - Nested routes under items
+  - Form Requests with validation
+  - Blade views: attach form, edit form, images management partial
+  - Integration into Item show page
+  - 32 comprehensive feature tests (100% pass rate)
+
+### Changed
+
+- **ItemTranslation API Backend**: Refactored to use FormRequest classes with proper validation
+  - Moved try-catch blocks from controller to service layer
+  - Added uniqueness validation to FormRequests
+  - Added @return annotations for better IDE support
+  - Added theme_translation to AllowList
+
+### Fixed
+
+- **ItemImage Model**: Fixed DB::transaction issue in `attachFromAvailableImage` method
+  - Changed from `static::getConnection()->transaction()` to `DB::transaction()`
+  - Prevents "Call to undefined method on null" errors
+- **UpdateItemTranslationRequest**: Added null-safe operator for route model binding (`?->id`)
+- **UpdateThemeTranslationRequest**: Added null-safe operator for route model binding (`?->id`)
+- **ItemImage Tests**: Fixed auth middleware issue by removing `actAsRegularUser()` from setUp
+
+### Tests
+
+- **Vue.js Frontend**: ALL 1,373 tests pass (100 test files)
+  - 13 new itemTranslation store tests
+  - 21 new itemImage store tests
+  - ESLint passes with no warnings
+  - TypeScript type-check passes
+  - Build succeeds
+
+- **Laravel Backend**: ALL 1,673 tests pass (1 skipped)
+  - 13 new ItemTranslation feature tests
+  - 32 new ItemImage feature tests
+  - Pint passes (739 files)
+  - Composer ci-lint passes
+
 ## [5.5.0] - 2025-10-10
 
 ### Added
