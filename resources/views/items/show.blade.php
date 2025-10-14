@@ -34,5 +34,8 @@
                 <x-display.timestamp :datetime="$item->updated_at" />
             </x-display.field>
         </x-display.description-list>
+
+        <!-- Images Section -->
+        @include('items._images')
     </x-layout.show-page>
 @endsection

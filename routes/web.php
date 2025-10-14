@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\ContextController as WebContextController;
 use App\Http\Controllers\Web\CountryController as WebCountryController;
 use App\Http\Controllers\Web\ImageUploadController as WebImageUploadController;
 use App\Http\Controllers\Web\ItemController as WebItemController;
+use App\Http\Controllers\Web\ItemImageController as WebItemImageController;
 use App\Http\Controllers\Web\ItemTranslationController as WebItemTranslationController;
 use App\Http\Controllers\Web\LanguageController as WebLanguageController;
 use App\Http\Controllers\Web\PartnerController as WebPartnerController;
@@ -35,6 +36,19 @@ Route::prefix('web')->group(function () {
     // Authenticated resource management (requires data permissions)
     Route::middleware(['auth', 'permission:'.Permission::VIEW_DATA->value])->group(function () {
         Route::resource('items', WebItemController::class);
+
+        // Item Images - nested routes
+        Route::prefix('items/{item}/item-images')->name('items.item-images.')->group(function () {
+            Route::get('/create', [WebItemImageController::class, 'create'])->name('create');
+            Route::post('/', [WebItemImageController::class, 'store'])->name('store');
+            Route::get('/{item_image}/edit', [WebItemImageController::class, 'edit'])->name('edit');
+            Route::put('/{item_image}', [WebItemImageController::class, 'update'])->name('update');
+            Route::post('/{item_image}/move-up', [WebItemImageController::class, 'moveUp'])->name('move-up');
+            Route::post('/{item_image}/move-down', [WebItemImageController::class, 'moveDown'])->name('move-down');
+            Route::post('/{item_image}/detach', [WebItemImageController::class, 'detach'])->name('detach');
+            Route::delete('/{item_image}', [WebItemImageController::class, 'destroy'])->name('destroy');
+        });
+
         Route::resource('item-translations', WebItemTranslationController::class);
         Route::resource('partners', WebPartnerController::class);
         Route::resource('countries', WebCountryController::class);
