@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\IndexAddressRequest;
 use App\Http\Requests\Api\ShowAddressRequest;
+use App\Http\Requests\Api\StoreAddressRequest;
+use App\Http\Requests\Api\UpdateAddressRequest;
 use App\Http\Resources\AddressResource;
 use App\Models\Address;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class AddressController extends Controller
 {
@@ -41,31 +41,19 @@ class AddressController extends Controller
     /**
      * Store a newly created address.
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreAddressRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'id' => 'prohibited',
-            'internal_name' => 'required|string|unique:addresses,internal_name',
-            'country_id' => 'required|exists:countries,id',
-            'translations' => 'array|min:1',
-            'translations.*.language_id' => 'required|exists:languages,id',
-            'translations.*.address' => 'required|string',
-            'translations.*.description' => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        $validated = $request->validated();
 
         $address = Address::create([
-            'internal_name' => $request->internal_name,
-            'country_id' => $request->country_id,
-            'backward_compatibility' => $request->backward_compatibility,
+            'internal_name' => $validated['internal_name'],
+            'country_id' => $validated['country_id'],
+            'backward_compatibility' => $validated['backward_compatibility'] ?? null,
         ]);
 
         // Create translations if provided
-        if ($request->has('translations')) {
-            foreach ($request->translations as $translationData) {
+        if (isset($validated['translations'])) {
+            foreach ($validated['translations'] as $translationData) {
                 $address->translations()->create([
                     'language_id' => $translationData['language_id'],
                     'address' => $translationData['address'],
@@ -99,37 +87,25 @@ class AddressController extends Controller
     /**
      * Update the specified address.
      *
-     * @return \App\Http\Resources\AddressResource|\Illuminate\Http\JsonResponse
+     * @return \App\Http\Resources\AddressResource
      */
-    public function update(Request $request, Address $address)
+    public function update(UpdateAddressRequest $request, Address $address)
     {
-        $validator = Validator::make($request->all(), [
-            'id' => 'prohibited',
-            'internal_name' => 'required|string|unique:addresses,internal_name,'.$address->id,
-            'country_id' => 'required|exists:countries,id',
-            'translations' => 'array|min:1',
-            'translations.*.language_id' => 'required_with:translations|exists:languages,id',
-            'translations.*.address' => 'required_with:translations|string',
-            'translations.*.description' => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        $validated = $request->validated();
 
         $address->update([
-            'internal_name' => $request->internal_name,
-            'country_id' => $request->country_id,
-            'backward_compatibility' => $request->backward_compatibility,
+            'internal_name' => $validated['internal_name'],
+            'country_id' => $validated['country_id'],
+            'backward_compatibility' => $validated['backward_compatibility'] ?? null,
         ]);
 
         // Update translations if provided
-        if ($request->has('translations')) {
+        if (isset($validated['translations'])) {
             // Delete existing translations
             $address->translations()->delete();
 
             // Create new translations
-            foreach ($request->translations as $translationData) {
+            foreach ($validated['translations'] as $translationData) {
                 $address->translations()->create([
                     'language_id' => $translationData['language_id'],
                     'address' => $translationData['address'],

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\IndexLanguageRequest;
+use App\Http\Requests\Api\SetDefaultLanguageRequest;
 use App\Http\Requests\Api\ShowLanguageRequest;
+use App\Http\Requests\Api\StoreLanguageRequest;
+use App\Http\Requests\Api\UpdateLanguageRequest;
 use App\Http\Resources\LanguageResource;
 use App\Models\Language;
-use Illuminate\Http\Request;
 
 class LanguageController extends Controller
 {
@@ -30,15 +32,12 @@ class LanguageController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @return LanguageResource
      */
-    public function store(Request $request)
+    public function store(StoreLanguageRequest $request)
     {
-        $validated = $request->validate([
-            'id' => 'required|string|size:3|unique:languages,id',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string|size:2',
-            'is_default' => 'prohibited|boolean',
-        ]);
+        $validated = $request->validated();
         $language = Language::create($validated);
         $language->refresh();
 
@@ -55,16 +54,12 @@ class LanguageController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @return LanguageResource
      */
-    public function update(Request $request, Language $language)
+    public function update(UpdateLanguageRequest $request, Language $language)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string|size:2',
-            'is_default' => 'prohibited|boolean',
-        ]);
+        $validated = $request->validated();
         $language->update($validated);
         $language->refresh();
 
@@ -83,12 +78,12 @@ class LanguageController extends Controller
 
     /**
      * Set or unset a Language as the default one.
+     *
+     * @return LanguageResource
      */
-    public function setDefault(Request $request, Language $language)
+    public function setDefault(SetDefaultLanguageRequest $request, Language $language)
     {
-        $validated = $request->validate([
-            'is_default' => 'required|boolean',
-        ]);
+        $validated = $request->validated();
 
         if ($validated['is_default'] === true) {
             $language->setDefault();

@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\StoreAddressTranslationRequest;
+use App\Http\Requests\Api\UpdateAddressTranslationRequest;
 use App\Http\Resources\AddressTranslationResource;
 use App\Models\AddressTranslation;
-use Illuminate\Http\Request;
 
 class AddressTranslationController extends Controller
 {
@@ -18,15 +19,12 @@ class AddressTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @return AddressTranslationResource
      */
-    public function store(Request $request)
+    public function store(StoreAddressTranslationRequest $request)
     {
-        $data = $request->validate([
-            'address_id' => 'required|uuid|exists:addresses,id',
-            'language_id' => 'required|string|exists:languages,id',
-            'address' => 'required|string',
-            'description' => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         $translation = AddressTranslation::create($data);
 
@@ -43,15 +41,12 @@ class AddressTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @return AddressTranslationResource
      */
-    public function update(Request $request, AddressTranslation $addressTranslation)
+    public function update(UpdateAddressTranslationRequest $request, AddressTranslation $addressTranslation)
     {
-        $data = $request->validate([
-            'address_id' => 'sometimes|uuid|exists:addresses,id',
-            'language_id' => 'sometimes|string|exists:languages,id',
-            'address' => 'sometimes|string',
-            'description' => 'sometimes|nullable|string',
-        ]);
+        $data = $request->validated();
 
         $addressTranslation->update($data);
 

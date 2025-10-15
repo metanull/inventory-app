@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\StoreLocationTranslationRequest;
+use App\Http\Requests\Api\UpdateLocationTranslationRequest;
 use App\Http\Resources\LocationTranslationResource;
 use App\Models\LocationTranslation;
-use Illuminate\Http\Request;
 
 class LocationTranslationController extends Controller
 {
@@ -18,15 +19,12 @@ class LocationTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @return LocationTranslationResource
      */
-    public function store(Request $request)
+    public function store(StoreLocationTranslationRequest $request)
     {
-        $data = $request->validate([
-            'location_id' => 'required|uuid|exists:locations,id',
-            'language_id' => 'required|string|exists:languages,id',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         $translation = LocationTranslation::create($data);
 
@@ -43,15 +41,12 @@ class LocationTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @return LocationTranslationResource
      */
-    public function update(Request $request, LocationTranslation $locationTranslation)
+    public function update(UpdateLocationTranslationRequest $request, LocationTranslation $locationTranslation)
     {
-        $data = $request->validate([
-            'location_id' => 'sometimes|uuid|exists:locations,id',
-            'language_id' => 'sometimes|string|exists:languages,id',
-            'name' => 'sometimes|string|max:255',
-            'description' => 'sometimes|nullable|string',
-        ]);
+        $data = $request->validated();
 
         $locationTranslation->update($data);
 

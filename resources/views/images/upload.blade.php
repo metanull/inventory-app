@@ -97,4 +97,95 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropZone = document.querySelector('.border-dashed');
+    const fileInput = document.getElementById('file-upload');
+    const fileLabel = fileInput.closest('label');
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    // Highlight drop zone when file is dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight(e) {
+        dropZone.classList.add('border-{{ $c["border"] ?? "indigo-500" }}', 'bg-{{ $c["bg"] ?? "indigo-50" }}');
+    }
+
+    function unhighlight(e) {
+        dropZone.classList.remove('border-{{ $c["border"] ?? "indigo-500" }}', 'bg-{{ $c["bg"] ?? "indigo-50" }}');
+    }
+
+    // Handle dropped files
+    dropZone.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files.length > 0) {
+            // Only take the first file
+            const file = files[0];
+            
+            // Check if it's an image
+            if (file.type.startsWith('image/')) {
+                // Create a new FileList-like object
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+                
+                // Update label to show filename
+                const filenameDisplay = document.createElement('p');
+                filenameDisplay.className = 'text-sm {{ $c["text"] ?? "text-indigo-600" }} font-medium mt-2';
+                filenameDisplay.textContent = `Selected: ${file.name}`;
+                
+                // Remove any existing filename display
+                const existing = dropZone.querySelector('.text-sm.' + '{{ str_replace(" ", ".", $c["text"] ?? "text-indigo-600") }}'.split('.')[0]);
+                if (existing && existing.textContent.startsWith('Selected:')) {
+                    existing.remove();
+                }
+                
+                dropZone.querySelector('.space-y-1').appendChild(filenameDisplay);
+            } else {
+                alert('Please upload an image file (PNG, JPG, GIF)');
+            }
+        }
+    }
+
+    // Also handle regular file input change
+    fileInput.addEventListener('change', function(e) {
+        if (this.files.length > 0) {
+            const file = this.files[0];
+            const filenameDisplay = document.createElement('p');
+            filenameDisplay.className = 'text-sm {{ $c["text"] ?? "text-indigo-600" }} font-medium mt-2';
+            filenameDisplay.textContent = `Selected: ${file.name}`;
+            
+            // Remove any existing filename display
+            const existing = dropZone.querySelector('.text-sm.' + '{{ str_replace(" ", ".", $c["text"] ?? "text-indigo-600") }}'.split('.')[0]);
+            if (existing && existing.textContent.startsWith('Selected:')) {
+                existing.remove();
+            }
+            
+            dropZone.querySelector('.space-y-1').appendChild(filenameDisplay);
+        }
+    });
+});
+</script>
+
 @endsection

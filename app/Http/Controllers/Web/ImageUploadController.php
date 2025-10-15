@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Enums\Permission;
 use App\Events\ImageUploadEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\StoreImageUploadRequest;
@@ -14,6 +15,7 @@ class ImageUploadController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('permission:'.Permission::CREATE_DATA->value)->only(['create', 'store']);
     }
 
     /**

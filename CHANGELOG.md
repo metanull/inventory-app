@@ -7,6 +7,98 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Web UI - Image Upload Drag & Drop**: Added JavaScript-based drag-and-drop functionality to the image upload form, allowing users to drag image files directly onto the upload zone in addition to the file browser.
+
+- **Web UI - Permission-Based Access Control**: Implemented comprehensive permission checks across all Web interface views:
+  - Added `VIEW_DATA`, `CREATE_DATA`, `UPDATE_DATA`, and `DELETE_DATA` permission middleware to all 11 Web data controllers (Item, ItemTranslation, ItemImage, Collection, Context, Language, Country, Partner, Project, AvailableImage, ImageUpload)
+  - Edit and Delete buttons now hidden in show views for users without UPDATE_DATA/DELETE_DATA permissions
+  - Edit and Delete actions in table row actions hidden based on permissions
+  - Create buttons in index views hidden for users without CREATE_DATA permission
+  - Prevents unauthorized access attempts with proper HTTP 403 responses
+
+- **Web & API - FormRequest Standardization**: Created 68 new FormRequest classes for both Web and API controllers:
+  - API: 55 FormRequest classes for 27 API controllers (Tag, Context, Language, Country, Partner, Project, Theme, Address/Contact/Location/Province Translations, Address, Contact, Location, Province, Collection, AvailableImage, Item, ItemImage, MobileAppAuthentication, ImageUpload)
+  - Web: 13 FormRequest classes for Settings, UserManagement, RoleManagement controllers
+  - Refactored 90+ controller methods to use dedicated FormRequest classes
+  - Improved validation consistency, type safety, and code maintainability
+
+### Fixed
+
+- **ItemTranslation Form (Blade)**: Fixed blade template to properly handle array values in `old()` helper for the `extra` (JSON) field. This prevents `htmlspecialchars()` type errors when validation fails and the form is redisplayed.
+
+### Changed
+
+- All 1,673 backend tests pass successfully with permission middleware and FormRequest refactoring
+
+## [5.6.0] - 2025-10-14
+
+### Added
+
+- **ItemTranslation CRUD (Vue.js SPA)**:
+  - Complete Pinia store with full CRUD operations
+  - ItemTranslations list view with search and pagination
+  - ItemTranslationDetail view with ALL 26 fields (name, alternate_name, description, type, holder, owner, dates, location, etc.)
+  - FormSelect and FormTextarea components for enhanced UX
+  - Router configuration and navigation
+  - 13 comprehensive unit tests (100% pass rate)
+
+- **ItemImage CRUD (Vue.js SPA)**:
+  - Complete Pinia store with attach/detach from AvailableImages
+  - ItemImageManager component integrated into ItemDetail
+  - Features: attach, detach, delete, drag-drop reordering, alt_text editing
+  - Display order management with move up/down
+  - 21 comprehensive unit tests (100% pass rate)
+
+- **ItemTranslation CRUD (Laravel/Blade Web)**:
+  - ItemTranslationController with full CRUD operations
+  - Form Requests with validation (Store/Update)
+  - Livewire ItemTranslationsTable with context filtering
+  - Blade views for all operations (index, create, edit, show)
+  - Form partial with ALL 26 fields
+  - 13 comprehensive feature tests (100% pass rate)
+
+- **ItemImage CRUD (Laravel/Blade Web)**:
+  - ItemImageController with 8 operations (create, store, edit, update, moveUp, moveDown, detach, destroy)
+  - Nested routes under items
+  - Form Requests with validation
+  - Blade views: attach form, edit form, images management partial
+  - Integration into Item show page
+  - 32 comprehensive feature tests (100% pass rate)
+
+### Changed
+
+- **ItemTranslation API Backend**: Refactored to use FormRequest classes with proper validation
+  - Moved try-catch blocks from controller to service layer
+  - Added uniqueness validation to FormRequests
+  - Added @return annotations for better IDE support
+  - Added theme_translation to AllowList
+
+### Fixed
+
+- **ItemImage Model**: Fixed DB::transaction issue in `attachFromAvailableImage` method
+  - Changed from `static::getConnection()->transaction()` to `DB::transaction()`
+  - Prevents "Call to undefined method on null" errors
+- **UpdateItemTranslationRequest**: Added null-safe operator for route model binding (`?->id`)
+- **UpdateThemeTranslationRequest**: Added null-safe operator for route model binding (`?->id`)
+- **ItemImage Tests**: Fixed auth middleware issue by removing `actAsRegularUser()` from setUp
+
+### Tests
+
+- **Vue.js Frontend**: ALL 1,373 tests pass (100 test files)
+  - 13 new itemTranslation store tests
+  - 21 new itemImage store tests
+  - ESLint passes with no warnings
+  - TypeScript type-check passes
+  - Build succeeds
+
+- **Laravel Backend**: ALL 1,673 tests pass (1 skipped)
+  - 13 new ItemTranslation feature tests
+  - 32 new ItemImage feature tests
+  - Pint passes (739 files)
+  - Composer ci-lint passes
+
 ## [5.5.0] - 2025-10-10
 
 ### Added

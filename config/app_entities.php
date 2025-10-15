@@ -4,6 +4,7 @@ return [
     // Base tailwind color names used in SPA (see resources/js/composables/useColors.ts)
     'colors' => [
         'items' => 'teal',
+        'item_translations' => 'teal',
         'partners' => 'yellow',
         'countries' => 'indigo',
         'languages' => 'fuchsia',

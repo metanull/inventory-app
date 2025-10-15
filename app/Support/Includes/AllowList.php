@@ -25,6 +25,9 @@ class AllowList
             'itemImage' => [
                 'item',
             ],
+            'item_translation' => [
+                'item', 'language', 'context', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor',
+            ],
             'collection' => [
                 'language', 'context', 'translations', 'partners', 'items', 'attachedItems',
             ],
@@ -54,6 +57,9 @@ class AllowList
             ],
             'theme' => [
                 'translations', 'subthemes', 'subthemes.translations',
+            ],
+            'theme_translation' => [
+                'theme', 'language', 'context',
             ],
             'available_image' => [
                 // AvailableImage model has no relationships

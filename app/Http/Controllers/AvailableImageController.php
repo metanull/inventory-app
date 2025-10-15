@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\IndexAvailableImageRequest;
+use App\Http\Requests\Api\UpdateAvailableImageRequest;
 use App\Http\Resources\AvailableImageResource;
 use App\Models\AvailableImage;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class AvailableImageController extends Controller
@@ -30,16 +30,12 @@ class AvailableImageController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @return AvailableImageResource
      */
-    public function update(Request $request, AvailableImage $availableImage)
+    public function update(UpdateAvailableImageRequest $request, AvailableImage $availableImage)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            /** @ignoreParam */
-            'path' => 'prohibited',
-            'comment' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
         $availableImage->update($validated);
         $availableImage->refresh();
 

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Permission;
+use App\Http\Requests\Web\UpdateSettingsRequest;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class SettingsController extends Controller
@@ -30,15 +30,13 @@ class SettingsController extends Controller
         return view('settings.index', compact('settings'));
     }
 
-    public function update(Request $request): RedirectResponse
+    public function update(UpdateSettingsRequest $request): RedirectResponse
     {
-        $request->validate([
-            'self_registration_enabled' => 'required|boolean',
-        ]);
+        $validated = $request->validated();
 
         Setting::set(
             'self_registration_enabled',
-            $request->boolean('self_registration_enabled'),
+            $validated['self_registration_enabled'],
             'boolean',
             'Allow new users to register themselves (they will be assigned Non-verified users role)'
         );

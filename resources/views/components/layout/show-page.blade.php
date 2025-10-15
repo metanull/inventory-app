@@ -20,15 +20,19 @@
     
     <x-entity.header :entity="$entity" :title="$title">
         @if($editRoute)
-            <a href="{{ $editRoute }}" class="inline-flex items-center px-3 py-2 rounded-md {{ $c['button'] }} text-sm font-medium">Edit</a>
+            @can(\App\Enums\Permission::UPDATE_DATA->value)
+                <a href="{{ $editRoute }}" class="inline-flex items-center px-3 py-2 rounded-md {{ $c['button'] }} text-sm font-medium">Edit</a>
+            @endcan
         @endif
         
         @if($deleteRoute)
-            <button type="button" 
-                    onclick="openModal('delete-{{ $entity }}-modal')" 
-                    class="inline-flex items-center px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium">
-                Delete
-            </button>
+            @can(\App\Enums\Permission::DELETE_DATA->value)
+                <button type="button" 
+                        onclick="openModal('delete-{{ $entity }}-modal')" 
+                        class="inline-flex items-center px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium">
+                    Delete
+                </button>
+            @endcan
         @endif
         
         @if($backwardCompatibility)

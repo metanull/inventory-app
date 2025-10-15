@@ -2,8 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\AttachItemCollectionRequest;
+use App\Http\Requests\Api\AttachItemsCollectionRequest;
+use App\Http\Requests\Api\DetachItemCollectionRequest;
+use App\Http\Requests\Api\DetachItemsCollectionRequest;
 use App\Http\Requests\Api\IndexCollectionRequest;
 use App\Http\Requests\Api\ShowCollectionRequest;
+use App\Http\Requests\Api\StoreCollectionRequest;
+use App\Http\Requests\Api\UpdateCollectionRequest;
 use App\Http\Resources\CollectionResource;
 use App\Models\Collection;
 use App\Support\Includes\AllowList;
@@ -46,23 +52,11 @@ class CollectionController extends Controller
     /**
      * Store a newly created collection in storage.
      */
-    public function store(Request $request): CollectionResource
+    public function store(StoreCollectionRequest $request): CollectionResource
     {
-        $request->validate([
-            'internal_name' => 'required|string|max:255|unique:collections,internal_name',
-            'type' => 'required|in:collection,exhibition,gallery',
-            'language_id' => 'required|string|size:3|exists:languages,id',
-            'context_id' => 'required|string|exists:contexts,id',
-            'backward_compatibility' => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
-        $collection = Collection::create($request->only([
-            'internal_name',
-            'type',
-            'language_id',
-            'context_id',
-            'backward_compatibility',
-        ]));
+        $collection = Collection::create($validated);
 
         $requested = IncludeParser::fromRequest($request, AllowList::for('collection'));
         $defaults = ['language', 'context', 'translations', 'partners', 'items', 'attachedItems'];
@@ -87,23 +81,11 @@ class CollectionController extends Controller
     /**
      * Update the specified collection in storage.
      */
-    public function update(Request $request, Collection $collection): CollectionResource
+    public function update(UpdateCollectionRequest $request, Collection $collection): CollectionResource
     {
-        $request->validate([
-            'internal_name' => 'sometimes|required|string|max:255|unique:collections,internal_name,'.$collection->id,
-            'type' => 'sometimes|required|in:collection,exhibition,gallery',
-            'language_id' => 'sometimes|required|string|size:3|exists:languages,id',
-            'context_id' => 'sometimes|required|string|exists:contexts,id',
-            'backward_compatibility' => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
-        $collection->update($request->only([
-            'internal_name',
-            'type',
-            'language_id',
-            'context_id',
-            'backward_compatibility',
-        ]));
+        $collection->update($validated);
 
         $requested = IncludeParser::fromRequest($request, AllowList::for('collection'));
         $defaults = ['language', 'context', 'translations', 'partners', 'items', 'attachedItems'];
@@ -146,14 +128,14 @@ class CollectionController extends Controller
 
     /**
      * Attach an item to a collection via many-to-many relationship.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function attachItem(Request $request, Collection $collection)
+    public function attachItem(AttachItemCollectionRequest $request, Collection $collection)
     {
-        $request->validate([
-            'item_id' => 'required|uuid|exists:items,id',
-        ]);
+        $validated = $request->validated();
 
-        $item = \App\Models\Item::findOrFail($request->item_id);
+        $item = \App\Models\Item::findOrFail($validated['item_id']);
         $collection->attachItem($item);
 
         return response()->json([
@@ -164,14 +146,14 @@ class CollectionController extends Controller
 
     /**
      * Detach an item from a collection.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function detachItem(Request $request, Collection $collection)
+    public function detachItem(DetachItemCollectionRequest $request, Collection $collection)
     {
-        $request->validate([
-            'item_id' => 'required|uuid|exists:items,id',
-        ]);
+        $validated = $request->validated();
 
-        $item = \App\Models\Item::findOrFail($request->item_id);
+        $item = \App\Models\Item::findOrFail($validated['item_id']);
         $collection->detachItem($item);
 
         return response()->json([
@@ -182,15 +164,14 @@ class CollectionController extends Controller
 
     /**
      * Attach multiple items to a collection.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function attachItems(Request $request, Collection $collection)
+    public function attachItems(AttachItemsCollectionRequest $request, Collection $collection)
     {
-        $request->validate([
-            'item_ids' => 'required|array|min:1',
-            'item_ids.*' => 'required|uuid|exists:items,id',
-        ]);
+        $validated = $request->validated();
 
-        $collection->attachItems($request->item_ids);
+        $collection->attachItems($validated['item_ids']);
 
         return response()->json([
             'success' => true,
@@ -200,15 +181,14 @@ class CollectionController extends Controller
 
     /**
      * Detach multiple items from a collection.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function detachItems(Request $request, Collection $collection)
+    public function detachItems(DetachItemsCollectionRequest $request, Collection $collection)
     {
-        $request->validate([
-            'item_ids' => 'required|array|min:1',
-            'item_ids.*' => 'required|uuid|exists:items,id',
-        ]);
+        $validated = $request->validated();
 
-        $collection->detachItems($request->item_ids);
+        $collection->detachItems($validated['item_ids']);
 
         return response()->json([
             'success' => true,

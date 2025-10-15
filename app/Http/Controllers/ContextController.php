@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\IndexContextRequest;
+use App\Http\Requests\Api\SetDefaultContextRequest;
 use App\Http\Requests\Api\ShowContextRequest;
+use App\Http\Requests\Api\StoreContextRequest;
+use App\Http\Requests\Api\UpdateContextRequest;
 use App\Http\Resources\ContextResource;
 use App\Models\Context;
-use Illuminate\Http\Request;
 
 class ContextController extends Controller
 {
@@ -31,16 +33,12 @@ class ContextController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @return ContextResource
      */
-    public function store(Request $request)
+    public function store(StoreContextRequest $request)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
-            'is_default' => 'prohibited|boolean',
-        ]);
+        $validated = $request->validated();
         $context = Context::create($validated);
         $context->refresh();
 
@@ -62,16 +60,12 @@ class ContextController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @return ContextResource
      */
-    public function update(Request $request, Context $context)
+    public function update(UpdateContextRequest $request, Context $context)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
-            'is_default' => 'prohibited|boolean',
-        ]);
+        $validated = $request->validated();
         $context->update($validated);
         $context->refresh();
 
@@ -90,12 +84,12 @@ class ContextController extends Controller
 
     /**
      * Set or unset a context as the default one.
+     *
+     * @return ContextResource
      */
-    public function setDefault(Request $request, Context $context)
+    public function setDefault(SetDefaultContextRequest $request, Context $context)
     {
-        $validated = $request->validate([
-            'is_default' => 'required|boolean',
-        ]);
+        $validated = $request->validated();
 
         if ($validated['is_default'] === true) {
             $context->setDefault();

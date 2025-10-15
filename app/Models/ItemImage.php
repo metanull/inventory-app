@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class ItemImage extends Model
 {
@@ -151,7 +152,7 @@ class ItemImage extends Model
      */
     public static function attachFromAvailableImage(AvailableImage $availableImage, string $itemId): static
     {
-        return static::getConnection()->transaction(function () use ($availableImage, $itemId) {
+        return DB::transaction(function () use ($availableImage, $itemId) {
             $displayOrder = static::getNextDisplayOrderForItem($itemId);
 
             $itemImage = static::create([

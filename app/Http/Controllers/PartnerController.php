@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\IndexPartnerRequest;
 use App\Http\Requests\Api\ShowPartnerRequest;
+use App\Http\Requests\Api\StorePartnerRequest;
+use App\Http\Requests\Api\UpdatePartnerRequest;
 use App\Http\Resources\PartnerResource;
 use App\Models\Partner;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use Illuminate\Http\Request;
 
 class PartnerController extends Controller
 {
@@ -33,17 +34,12 @@ class PartnerController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @return PartnerResource
      */
-    public function store(Request $request)
+    public function store(StorePartnerRequest $request)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
-            'type' => 'required|in:museum,institution,individual',
-            'country_id' => 'nullable|string|size:3',
-        ]);
+        $validated = $request->validated();
         $partner = Partner::create($validated);
         $partner->refresh();
         $includes = IncludeParser::fromRequest($request, AllowList::for('partner'));
@@ -65,17 +61,12 @@ class PartnerController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @return PartnerResource
      */
-    public function update(Request $request, Partner $partner)
+    public function update(UpdatePartnerRequest $request, Partner $partner)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
-            'type' => 'required|in:museum,institution,individual',
-            'country_id' => 'nullable|string|size:3',
-        ]);
+        $validated = $request->validated();
         $partner->update($validated);
         $partner->refresh();
         $includes = IncludeParser::fromRequest($request, AllowList::for('partner'));

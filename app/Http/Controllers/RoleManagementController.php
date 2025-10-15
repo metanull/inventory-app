@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Permission as PermissionEnum;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use App\Http\Requests\Web\IndexRoleManagementRequest;
+use App\Http\Requests\Web\StoreRoleManagementRequest;
+use App\Http\Requests\Web\UpdatePermissionsRoleManagementRequest;
+use App\Http\Requests\Web\UpdateRoleManagementRequest;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -18,7 +20,7 @@ class RoleManagementController extends Controller
     /**
      * Display a listing of roles.
      */
-    public function index(Request $request)
+    public function index(IndexRoleManagementRequest $request)
     {
         $query = Role::with('permissions');
 
@@ -49,14 +51,9 @@ class RoleManagementController extends Controller
     /**
      * Store a newly created role.
      */
-    public function store(Request $request)
+    public function store(StoreRoleManagementRequest $request)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:roles'],
-            'description' => ['nullable', 'string', 'max:500'],
-            'permissions' => ['array'],
-            'permissions.*' => ['exists:permissions,id'],
-        ]);
+        $validated = $request->validated();
 
         $role = Role::create([
             'name' => $validated['name'],
@@ -97,14 +94,9 @@ class RoleManagementController extends Controller
     /**
      * Update the specified role.
      */
-    public function update(Request $request, Role $role)
+    public function update(UpdateRoleManagementRequest $request, Role $role)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', Rule::unique('roles')->ignore($role->id)],
-            'description' => ['nullable', 'string', 'max:500'],
-            'permissions' => ['array'],
-            'permissions.*' => ['exists:permissions,id'],
-        ]);
+        $validated = $request->validated();
 
         $role->update([
             'name' => $validated['name'],
@@ -154,14 +146,9 @@ class RoleManagementController extends Controller
     /**
      * Update the permissions for a role.
      */
-    public function updatePermissions(Request $request, Role $role)
+    public function updatePermissions(UpdatePermissionsRoleManagementRequest $request, Role $role)
     {
-        $validated = $request->validate([
-            'action' => ['required', 'in:add,remove,sync'],
-            'permission_id' => ['required_if:action,add,remove', 'exists:permissions,id'],
-            'permissions' => ['required_if:action,sync', 'array'],
-            'permissions.*' => ['exists:permissions,id'],
-        ]);
+        $validated = $request->validated();
 
         $action = $validated['action'];
 

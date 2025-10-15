@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Api\IndexTagForItemRequest;
 use App\Http\Requests\Api\IndexTagRequest;
 use App\Http\Requests\Api\ShowTagRequest;
+use App\Http\Requests\Api\StoreTagRequest;
+use App\Http\Requests\Api\UpdateTagRequest;
 use App\Http\Resources\TagResource;
 use App\Models\Item;
 use App\Models\Tag;
-use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
@@ -30,16 +31,12 @@ class TagController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @return TagResource
      */
-    public function store(Request $request)
+    public function store(StoreTagRequest $request)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string|unique:tags,internal_name',
-            'backward_compatibility' => 'nullable|string',
-            'description' => 'required|string',
-        ]);
+        $validated = $request->validated();
         $tag = Tag::create($validated);
         $tag->refresh();
 
@@ -56,16 +53,12 @@ class TagController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @return TagResource
      */
-    public function update(Request $request, Tag $tag)
+    public function update(UpdateTagRequest $request, Tag $tag)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string|unique:tags,internal_name,'.$tag->id,
-            'backward_compatibility' => 'nullable|string',
-            'description' => 'required|string',
-        ]);
+        $validated = $request->validated();
         $tag->update($validated);
         $tag->refresh();
 

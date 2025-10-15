@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\AttachFromAvailableItemImageRequest;
 use App\Http\Requests\Api\IndexItemImageRequest;
 use App\Http\Requests\Api\ShowItemImageRequest;
 use App\Http\Requests\Api\StoreItemImageRequest;
@@ -10,7 +11,6 @@ use App\Http\Resources\ItemImageResource;
 use App\Models\AvailableImage;
 use App\Models\Item;
 use App\Models\ItemImage;
-use Illuminate\Http\Request;
 
 class ItemImageController extends Controller
 {
@@ -114,15 +114,15 @@ class ItemImageController extends Controller
 
     /**
      * Attach an available image to an item.
+     *
+     * @return ItemImageResource
      */
-    public function attachFromAvailable(Request $request, Item $item)
+    public function attachFromAvailable(AttachFromAvailableItemImageRequest $request, Item $item)
     {
-        $validated = $request->validate([
-            'available_image_id' => 'required|uuid|exists:available_images,id',
-        ]);
+        $validated = $request->validated();
 
         $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
-        $itemImage = ItemImage::attachFromAvailableImage($availableImage, $item->id);
+        $itemImage = ItemImage::attachFromAvailableImage($availableImage, $item->id, $validated['alt_text'] ?? null);
 
         return new ItemImageResource($itemImage);
     }

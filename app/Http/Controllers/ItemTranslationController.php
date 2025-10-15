@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\IndexItemTranslationRequest;
+use App\Http\Requests\Api\ShowItemTranslationRequest;
+use App\Http\Requests\Api\StoreItemTranslationRequest;
+use App\Http\Requests\Api\UpdateItemTranslationRequest;
 use App\Http\Resources\ItemTranslationResource;
 use App\Models\ItemTranslation;
-use Illuminate\Database\QueryException;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 /**
  * @tags Item Translations
@@ -16,8 +16,6 @@ class ItemTranslationController extends Controller
 {
     /**
      * Display a listing of item translations
-     *
-     * @response ItemTranslationResource[]
      */
     public function index(IndexItemTranslationRequest $request)
     {
@@ -51,61 +49,27 @@ class ItemTranslationController extends Controller
     /**
      * Store a newly created item translation
      *
-     * @response 201 ItemTranslationResource
+     * @return ItemTranslationResource
      */
-    public function store(Request $request)
+    public function store(StoreItemTranslationRequest $request)
     {
-        $data = $request->validate([
-            'item_id' => 'required|uuid|exists:items,id',
-            'language_id' => 'required|string|size:3|exists:languages,id',
-            'context_id' => 'required|uuid|exists:contexts,id',
-            'name' => 'required|string|max:255',
-            'alternate_name' => 'nullable|string|max:255',
-            'description' => 'required|string',
-            'type' => 'nullable|string|max:255',
-            'holder' => 'nullable|string',
-            'owner' => 'nullable|string',
-            'initial_owner' => 'nullable|string',
-            'dates' => 'nullable|string',
-            'location' => 'nullable|string',
-            'dimensions' => 'nullable|string',
-            'place_of_production' => 'nullable|string',
-            'method_for_datation' => 'nullable|string',
-            'method_for_provenance' => 'nullable|string',
-            'obtention' => 'nullable|string',
-            'bibliography' => 'nullable|string',
-            'author_id' => 'nullable|uuid|exists:authors,id',
-            'text_copy_editor_id' => 'nullable|uuid|exists:authors,id',
-            'translator_id' => 'nullable|uuid|exists:authors,id',
-            'translation_copy_editor_id' => 'nullable|uuid|exists:authors,id',
-            'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|json',
-        ]);
+        $data = $request->validated();
+        $translation = ItemTranslation::create($data);
+        $translation->refresh();
+        $translation->load(['item', 'language', 'context', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor']);
 
-        try {
-            $translation = ItemTranslation::create($data);
-            $translation->load(['item', 'language', 'context', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor']);
-
-            return new ItemTranslationResource($translation);
-        } catch (QueryException $e) {
-            if ($e->getCode() === '23000') {
-                return response()->json([
-                    'message' => 'A translation for this item, language, and context combination already exists.',
-                ], Response::HTTP_UNPROCESSABLE_ENTITY);
-            }
-
-            throw $e;
-        }
+        return new ItemTranslationResource($translation);
     }
 
     /**
      * Display the specified item translation
-     *
-     * @response ItemTranslationResource
      */
-    public function show(ItemTranslation $itemTranslation)
+    public function show(ShowItemTranslationRequest $request, ItemTranslation $itemTranslation)
     {
-        $itemTranslation->load(['item', 'language', 'context', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor']);
+        $includes = $request->getIncludeParams();
+        if (! empty($includes)) {
+            $itemTranslation->load($includes);
+        }
 
         return new ItemTranslationResource($itemTranslation);
     }
@@ -113,57 +77,20 @@ class ItemTranslationController extends Controller
     /**
      * Update the specified item translation
      *
-     * @response ItemTranslationResource
+     * @return ItemTranslationResource
      */
-    public function update(Request $request, ItemTranslation $itemTranslation)
+    public function update(UpdateItemTranslationRequest $request, ItemTranslation $itemTranslation)
     {
-        $data = $request->validate([
-            'item_id' => 'sometimes|uuid|exists:items,id',
-            'language_id' => 'sometimes|string|size:3|exists:languages,id',
-            'context_id' => 'sometimes|uuid|exists:contexts,id',
-            'name' => 'sometimes|string|max:255',
-            'alternate_name' => 'nullable|string|max:255',
-            'description' => 'sometimes|string',
-            'type' => 'nullable|string|max:255',
-            'holder' => 'nullable|string',
-            'owner' => 'nullable|string',
-            'initial_owner' => 'nullable|string',
-            'dates' => 'nullable|string',
-            'location' => 'nullable|string',
-            'dimensions' => 'nullable|string',
-            'place_of_production' => 'nullable|string',
-            'method_for_datation' => 'nullable|string',
-            'method_for_provenance' => 'nullable|string',
-            'obtention' => 'nullable|string',
-            'bibliography' => 'nullable|string',
-            'author_id' => 'nullable|uuid|exists:authors,id',
-            'text_copy_editor_id' => 'nullable|uuid|exists:authors,id',
-            'translator_id' => 'nullable|uuid|exists:authors,id',
-            'translation_copy_editor_id' => 'nullable|uuid|exists:authors,id',
-            'backward_compatibility' => 'nullable|string|max:255',
-            'extra' => 'nullable|json',
-        ]);
+        $data = $request->validated();
+        $itemTranslation->update($data);
+        $itemTranslation->refresh();
+        $itemTranslation->load(['item', 'language', 'context', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor']);
 
-        try {
-            $itemTranslation->update($data);
-            $itemTranslation->load(['item', 'language', 'context', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor']);
-
-            return new ItemTranslationResource($itemTranslation);
-        } catch (QueryException $e) {
-            if ($e->getCode() === '23000') {
-                return response()->json([
-                    'message' => 'A translation for this item, language, and context combination already exists.',
-                ], Response::HTTP_UNPROCESSABLE_ENTITY);
-            }
-
-            throw $e;
-        }
+        return new ItemTranslationResource($itemTranslation);
     }
 
     /**
      * Remove the specified item translation
-     *
-     * @response 204
      */
     public function destroy(ItemTranslation $itemTranslation)
     {

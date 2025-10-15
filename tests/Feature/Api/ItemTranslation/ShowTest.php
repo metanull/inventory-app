@@ -74,7 +74,7 @@ class ShowTest extends TestCase
 
         $response = $this->getJson(route('item-translation.show', [
             'item_translation' => $translation->id,
-            'include' => 'item,language,context,author,text_copy_editor,translator,translation_copy_editor',
+            'include' => 'item,language,context,author,textCopyEditor,translator,translationCopyEditor',
         ]));
 
         $response->assertOk();

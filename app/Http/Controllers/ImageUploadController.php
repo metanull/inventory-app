@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Events\ImageUploadEvent;
+use App\Http\Requests\Api\StoreImageUploadRequest;
 use App\Http\Resources\ImageUploadResource;
 use App\Models\AvailableImage;
 use App\Models\ImageUpload;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ImageUploadController extends Controller
@@ -22,38 +22,9 @@ class ImageUploadController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreImageUploadRequest $request)
     {
-        // Validate the request, ensuring the 'file' is an image and other fields are not required.
-        // This first validation is essentially required for dedoc/scramble to properly detect that the 'file' parameter is a file upload.
-        $validated = $request->validate([
-            'file' => 'required|image',
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            /** @ignoreParam */
-            'path' => 'prohibited',
-            /** @ignoreParam */
-            'name' => 'prohibited',
-            /** @ignoreParam */
-            'extension' => 'prohibited',
-            /** @ignoreParam */
-            'mime_type' => 'prohibited',
-            /** @ignoreParam */
-            'size' => 'prohibited',
-        ]);
-
-        // Validate the image upload rules from the configuration.
-        // This second validation is necessary to ensure the image meets the specified criteria.
-        // As the rules are defined at the runtime, they are not accessible to the static analysis tool (dedoc/scramble).
-        // The rules are fetched from the configuration file, allowing for easy customization.
-        // The default values are set to 'jpeg,png,jpg' for mime types and 20480 (20 MB) for max size.
-        $imageUploadRules = [
-            'mime' => config('localstorage.uploads.images.mime', 'jpeg,png,jpg'),
-            'max_size' => config('localstorage.uploads.images.max_size', 20480),
-        ];
-        $request->validate([
-            'file' => "required|image|mimes:{$imageUploadRules['mime']}|max:{$imageUploadRules['max_size']}",
-        ]);
+        $validated = $request->validated();
 
         // Store the file in the local/private directory and disk.
         $file = $request->file('file');

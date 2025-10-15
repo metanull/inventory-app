@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\IndexLocationRequest;
 use App\Http\Requests\Api\ShowLocationRequest;
+use App\Http\Requests\Api\StoreLocationRequest;
+use App\Http\Requests\Api\UpdateLocationRequest;
 use App\Http\Resources\LocationResource;
 use App\Models\Location;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class LocationController extends Controller
 {
@@ -41,28 +41,18 @@ class LocationController extends Controller
     /**
      * Store a newly created location.
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreLocationRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'internal_name' => 'required|string|unique:locations,internal_name',
-            'country_id' => 'required|exists:countries,id',
-            'translations' => 'required|array|min:1',
-            'translations.*.language_id' => 'required|exists:languages,id',
-            'translations.*.name' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        $validated = $request->validated();
 
         $location = Location::create([
-            'internal_name' => $request->internal_name,
-            'country_id' => $request->country_id,
-            'backward_compatibility' => $request->backward_compatibility,
+            'internal_name' => $validated['internal_name'],
+            'country_id' => $validated['country_id'],
+            'backward_compatibility' => $validated['backward_compatibility'] ?? null,
         ]);
 
         // Create translations
-        foreach ($request->translations as $translationData) {
+        foreach ($validated['translations'] as $translationData) {
             $location->translations()->create([
                 'language_id' => $translationData['language_id'],
                 'name' => $translationData['name'],
@@ -94,35 +84,25 @@ class LocationController extends Controller
     /**
      * Update the specified location.
      *
-     * @return \App\Http\Resources\LocationResource|\Illuminate\Http\JsonResponse
+     * @return \App\Http\Resources\LocationResource
      */
-    public function update(Request $request, Location $location)
+    public function update(UpdateLocationRequest $request, Location $location)
     {
-        $validator = Validator::make($request->all(), [
-            'internal_name' => 'required|string|unique:locations,internal_name,'.$location->id,
-            'country_id' => 'required|exists:countries,id',
-            'translations' => 'array|min:1',
-            'translations.*.language_id' => 'required_with:translations|exists:languages,id',
-            'translations.*.name' => 'required_with:translations|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        $validated = $request->validated();
 
         $location->update([
-            'internal_name' => $request->internal_name,
-            'country_id' => $request->country_id,
-            'backward_compatibility' => $request->backward_compatibility,
+            'internal_name' => $validated['internal_name'],
+            'country_id' => $validated['country_id'],
+            'backward_compatibility' => $validated['backward_compatibility'] ?? null,
         ]);
 
         // Update translations if provided
-        if ($request->has('translations')) {
+        if (isset($validated['translations'])) {
             // Delete existing translations
             $location->translations()->delete();
 
             // Create new translations
-            foreach ($request->translations as $translationData) {
+            foreach ($validated['translations'] as $translationData) {
                 $location->translations()->create([
                     'language_id' => $translationData['language_id'],
                     'name' => $translationData['name'],

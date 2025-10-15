@@ -129,7 +129,10 @@
     </template>
   </DetailView>
 
-  <!-- Details Section (only show when viewing an existing item) -->
+  <!-- Item Images Section (only show when viewing an existing item) -->
+  <div v-if="mode === 'view' && item?.id" class="mt-8">
+    <ItemImageManager :item-id="item.id" color="indigo" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -148,6 +151,7 @@
   import DescriptionDetail from '@/components/format/description/DescriptionDetail.vue'
   import FormInput from '@/components/format/FormInput.vue'
   import DisplayText from '@/components/format/DisplayText.vue'
+  import ItemImageManager from '@/components/ItemImageManager.vue'
 
   import GenericDropdown from '@/components/format/GenericDropdown.vue'
   import {

@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\StoreProvinceTranslationRequest;
+use App\Http\Requests\Api\UpdateProvinceTranslationRequest;
 use App\Http\Resources\ProvinceTranslationResource;
 use App\Models\ProvinceTranslation;
-use Illuminate\Http\Request;
 
 class ProvinceTranslationController extends Controller
 {
@@ -18,15 +19,12 @@ class ProvinceTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @return ProvinceTranslationResource
      */
-    public function store(Request $request)
+    public function store(StoreProvinceTranslationRequest $request)
     {
-        $data = $request->validate([
-            'province_id' => 'required|uuid|exists:provinces,id',
-            'language_id' => 'required|string|exists:languages,id',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         $translation = ProvinceTranslation::create($data);
 
@@ -43,15 +41,12 @@ class ProvinceTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @return ProvinceTranslationResource
      */
-    public function update(Request $request, ProvinceTranslation $provinceTranslation)
+    public function update(UpdateProvinceTranslationRequest $request, ProvinceTranslation $provinceTranslation)
     {
-        $data = $request->validate([
-            'province_id' => 'sometimes|uuid|exists:provinces,id',
-            'language_id' => 'sometimes|string|exists:languages,id',
-            'name' => 'sometimes|string|max:255',
-            'description' => 'sometimes|nullable|string',
-        ]);
+        $data = $request->validated();
 
         $provinceTranslation->update($data);
 
