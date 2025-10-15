@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\StoreContactTranslationRequest;
+use App\Http\Requests\Api\UpdateContactTranslationRequest;
 use App\Http\Resources\ContactTranslationResource;
 use App\Models\ContactTranslation;
-use Illuminate\Http\Request;
 
 class ContactTranslationController extends Controller
 {
@@ -18,14 +19,12 @@ class ContactTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @return ContactTranslationResource
      */
-    public function store(Request $request)
+    public function store(StoreContactTranslationRequest $request)
     {
-        $data = $request->validate([
-            'contact_id' => 'required|uuid|exists:contacts,id',
-            'language_id' => 'required|string|exists:languages,id',
-            'label' => 'required|string|max:255',
-        ]);
+        $data = $request->validated();
 
         $translation = ContactTranslation::create($data);
 
@@ -42,14 +41,12 @@ class ContactTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @return ContactTranslationResource
      */
-    public function update(Request $request, ContactTranslation $contactTranslation)
+    public function update(UpdateContactTranslationRequest $request, ContactTranslation $contactTranslation)
     {
-        $data = $request->validate([
-            'contact_id' => 'sometimes|uuid|exists:contacts,id',
-            'language_id' => 'sometimes|string|exists:languages,id',
-            'label' => 'sometimes|string|max:255',
-        ]);
+        $data = $request->validated();
 
         $contactTranslation->update($data);
 

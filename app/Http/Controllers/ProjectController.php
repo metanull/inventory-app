@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\IndexProjectRequest;
+use App\Http\Requests\Api\SetEnabledProjectRequest;
+use App\Http\Requests\Api\SetLaunchedProjectRequest;
 use App\Http\Requests\Api\ShowProjectRequest;
+use App\Http\Requests\Api\StoreProjectRequest;
+use App\Http\Requests\Api\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use App\Support\Includes\AllowList;
@@ -32,20 +36,12 @@ class ProjectController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @return ProjectResource
      */
-    public function store(Request $request)
+    public function store(StoreProjectRequest $request)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
-            'launch_date' => 'nullable|date',
-            'is_launched' => 'boolean',
-            'is_enabled' => 'boolean',
-            'context_id' => 'nullable|uuid',
-            'language_id' => 'nullable|string|size:3',
-        ]);
+        $validated = $request->validated();
         $project = Project::create($validated);
         $project->refresh();
         // By default include context and language for store response; also honor requested includes
@@ -70,20 +66,12 @@ class ProjectController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @return ProjectResource
      */
-    public function update(Request $request, Project $project)
+    public function update(UpdateProjectRequest $request, Project $project)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string',
-            'launch_date' => 'nullable|date',
-            'is_launched' => 'boolean',
-            'is_enabled' => 'boolean',
-            'context_id' => 'nullable|uuid',
-            'language_id' => 'nullable|string|size:3',
-        ]);
+        $validated = $request->validated();
         $project->update($validated);
         $project->refresh();
         // By default include context and language for update response; also honor requested includes
@@ -105,12 +93,12 @@ class ProjectController extends Controller
 
     /**
      * Toggle Enable/disable on a project.
+     *
+     * @return ProjectResource
      */
-    public function setEnabled(Request $request, Project $project)
+    public function setEnabled(SetEnabledProjectRequest $request, Project $project)
     {
-        $validated = $request->validate([
-            'is_enabled' => 'required|boolean',
-        ]);
+        $validated = $request->validated();
 
         $project->update($validated);
         $project->refresh();
@@ -122,12 +110,12 @@ class ProjectController extends Controller
      * Toggle Launched/not-launched on a project.
      * Important: It is independant from the `launch_date` value. It is an idicator showing that
      * the project is to be considered 'laucnhed' as soon as the launch date it reached.
+     *
+     * @return ProjectResource
      */
-    public function setLaunched(Request $request, Project $project)
+    public function setLaunched(SetLaunchedProjectRequest $request, Project $project)
     {
-        $validated = $request->validate([
-            'is_launched' => 'required|boolean',
-        ]);
+        $validated = $request->validated();
 
         $project->update($validated);
         $project->refresh();

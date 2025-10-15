@@ -2,16 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\ByTypeItemRequest;
+use App\Http\Requests\Api\ChildrenItemRequest;
+use App\Http\Requests\Api\ForTagItemRequest;
 use App\Http\Requests\Api\IndexItemRequest;
+use App\Http\Requests\Api\ParentsItemRequest;
 use App\Http\Requests\Api\ShowItemRequest;
 use App\Http\Requests\Api\StoreItemRequest;
 use App\Http\Requests\Api\UpdateItemRequest;
+use App\Http\Requests\Api\UpdateTagsItemRequest;
+use App\Http\Requests\Api\WithAllTagsItemRequest;
+use App\Http\Requests\Api\WithAnyTagsItemRequest;
 use App\Http\Resources\ItemResource;
 use App\Models\Item;
 use App\Models\Tag;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use Illuminate\Http\Request;
 
 class ItemController extends Controller
 {
@@ -113,24 +119,18 @@ class ItemController extends Controller
     }
 
     /**
-     * Update tags for the specified item without modifying other item properties.
-     *
-     * This endpoint allows quick editing of tag associations by specifying which tags
-     * to attach or detach from the item. It provides fine-grained control over tag
+     * Update the tags associated with an item.
+     * This endpoint handles attaching and/or detaching tags from an item using a single operation.
+     * Designed for granular tag management, allowing callers to perform specific tag attach/detach
      * operations without requiring a full item update.
      *
-     * @param  Request  $request  - Contains 'attach' and/or 'detach' arrays of tag UUIDs
+     * @param  UpdateTagsItemRequest  $request  - Contains 'attach' and/or 'detach' arrays of tag UUIDs
      * @param  Item  $item  - The item to update tags for
      * @return ItemResource - Updated item with current tag associations
      */
-    public function updateTags(Request $request, Item $item)
+    public function updateTags(UpdateTagsItemRequest $request, Item $item)
     {
-        $validated = $request->validate([
-            'attach' => 'sometimes|array',
-            'attach.*' => 'required|uuid|exists:tags,id',
-            'detach' => 'sometimes|array',
-            'detach.*' => 'required|uuid|exists:tags,id',
-        ]);
+        $validated = $request->validated();
 
         // Attach new tags (if any)
         if (isset($validated['attach'])) {
@@ -158,10 +158,12 @@ class ItemController extends Controller
 
     /**
      * Get items for a specific tag.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function forTag(Request $request, Tag $tag)
+    public function forTag(ForTagItemRequest $request, Tag $tag)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $includes = $request->getIncludeParams();
         $with = $this->expandIncludes($includes);
         $items = Item::forTag($tag)->with($with)->get();
 
@@ -170,15 +172,14 @@ class ItemController extends Controller
 
     /**
      * Get items that have ALL of the specified tags (AND condition).
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function withAllTags(Request $request)
+    public function withAllTags(WithAllTagsItemRequest $request)
     {
-        $validated = $request->validate([
-            'tags' => 'required|array|min:1',
-            'tags.*' => 'required|uuid|exists:tags,id',
-        ]);
+        $validated = $request->validated();
 
-        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $includes = $request->getIncludeParams();
         $with = $this->expandIncludes($includes);
         $items = Item::withAllTags($validated['tags'])->with($with)->get();
 
@@ -187,15 +188,14 @@ class ItemController extends Controller
 
     /**
      * Get items that have ANY of the specified tags (OR condition).
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function withAnyTags(Request $request)
+    public function withAnyTags(WithAnyTagsItemRequest $request)
     {
-        $validated = $request->validate([
-            'tags' => 'required|array|min:1',
-            'tags.*' => 'required|uuid|exists:tags,id',
-        ]);
+        $validated = $request->validated();
 
-        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $includes = $request->getIncludeParams();
         $with = $this->expandIncludes($includes);
         $items = Item::withAnyTags($validated['tags'])->with($with)->get();
 
@@ -204,14 +204,14 @@ class ItemController extends Controller
 
     /**
      * Get items by type.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function byType(Request $request, string $type)
+    public function byType(ByTypeItemRequest $request, string $type)
     {
-        $validated = $request->validate([
-            'type' => 'required|in:object,monument,detail,picture',
-        ]);
+        $request->validated();
 
-        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $includes = $request->getIncludeParams();
         $with = $this->expandIncludes($includes);
 
         $query = Item::query()->with($with);
@@ -238,10 +238,12 @@ class ItemController extends Controller
 
     /**
      * Get parent items (items with no parent).
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function parents(Request $request)
+    public function parents(ParentsItemRequest $request)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $includes = $request->getIncludeParams();
         $with = $this->expandIncludes($includes);
         $items = Item::parents()->with($with)->get();
 
@@ -250,10 +252,12 @@ class ItemController extends Controller
 
     /**
      * Get child items (items with a parent).
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function children(Request $request)
+    public function children(ChildrenItemRequest $request)
     {
-        $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
+        $includes = $request->getIncludeParams();
         $with = $this->expandIncludes($includes);
         $items = Item::children()->with($with)->get();
 

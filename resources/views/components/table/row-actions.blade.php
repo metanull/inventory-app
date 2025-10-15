@@ -19,25 +19,31 @@
 
 <div class="flex items-center justify-end gap-2">
     @if($view)
-        <a href="{{ $view }}" class="inline-flex items-center px-2.5 py-1.5 rounded-md border border-gray-200 bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50 text-xs font-medium">
-            <x-heroicon-o-eye class="w-4 h-4 mr-1" />
-            <span>View</span>
-        </a>
+        @can(\App\Enums\Permission::VIEW_DATA->value)
+            <a href="{{ $view }}" class="inline-flex items-center px-2.5 py-1.5 rounded-md border border-gray-200 bg-white text-gray-600 hover:text-gray-800 hover:bg-gray-50 text-xs font-medium">
+                <x-heroicon-o-eye class="w-4 h-4 mr-1" />
+                <span>View</span>
+            </a>
+        @endcan
     @endif
 
     @if($edit)
-        <a href="{{ $edit }}" class="{{ $editClasses }}">
-            <x-heroicon-o-pencil-square class="w-4 h-4 mr-1" />
-            <span>Edit</span>
-        </a>
+        @can(\App\Enums\Permission::UPDATE_DATA->value)
+            <a href="{{ $edit }}" class="{{ $editClasses }}">
+                <x-heroicon-o-pencil-square class="w-4 h-4 mr-1" />
+                <span>Edit</span>
+            </a>
+        @endcan
     @endif
 
     @if($delete)
-        <x-table.delete-button 
-            :id="$entity . '-' . $recordId"
-            :entity="$entity ?: 'item'"
-            :name="$recordName ?: ''"
-            :action="$delete"
-            :label="$deleteLabel" />
+        @can(\App\Enums\Permission::DELETE_DATA->value)
+            <x-table.delete-button 
+                :id="$entity . '-' . $recordId"
+                :entity="$entity ?: 'item'"
+                :name="$recordName ?: ''"
+                :action="$delete"
+                :label="$deleteLabel" />
+        @endcan
     @endif
 </div>

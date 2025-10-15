@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\AvailableImage;
 use App\Support\Web\SearchAndPaginate;
@@ -15,6 +16,9 @@ class AvailableImageController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('permission:'.Permission::VIEW_DATA->value)->only(['index', 'show', 'view']);
+        $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update']);
+        $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
     /**

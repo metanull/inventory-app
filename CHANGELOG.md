@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Web UI - Image Upload Drag & Drop**: Added JavaScript-based drag-and-drop functionality to the image upload form, allowing users to drag image files directly onto the upload zone in addition to the file browser.
+
+- **Web UI - Permission-Based Access Control**: Implemented comprehensive permission checks across all Web interface views:
+  - Added `VIEW_DATA`, `CREATE_DATA`, `UPDATE_DATA`, and `DELETE_DATA` permission middleware to all 11 Web data controllers (Item, ItemTranslation, ItemImage, Collection, Context, Language, Country, Partner, Project, AvailableImage, ImageUpload)
+  - Edit and Delete buttons now hidden in show views for users without UPDATE_DATA/DELETE_DATA permissions
+  - Edit and Delete actions in table row actions hidden based on permissions
+  - Create buttons in index views hidden for users without CREATE_DATA permission
+  - Prevents unauthorized access attempts with proper HTTP 403 responses
+
+- **Web & API - FormRequest Standardization**: Created 68 new FormRequest classes for both Web and API controllers:
+  - API: 55 FormRequest classes for 27 API controllers (Tag, Context, Language, Country, Partner, Project, Theme, Address/Contact/Location/Province Translations, Address, Contact, Location, Province, Collection, AvailableImage, Item, ItemImage, MobileAppAuthentication, ImageUpload)
+  - Web: 13 FormRequest classes for Settings, UserManagement, RoleManagement controllers
+  - Refactored 90+ controller methods to use dedicated FormRequest classes
+  - Improved validation consistency, type safety, and code maintainability
+
+### Fixed
+
+- **ItemTranslation Form (Blade)**: Fixed blade template to properly handle array values in `old()` helper for the `extra` (JSON) field. This prevents `htmlspecialchars()` type errors when validation fails and the form is redisplayed.
+
+### Changed
+
+- All 1,673 backend tests pass successfully with permission middleware and FormRequest refactoring
+
 ## [5.6.0] - 2025-10-14
 
 ### Added

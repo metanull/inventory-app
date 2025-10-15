@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\StoreItemTranslationRequest;
 use App\Http\Requests\Web\UpdateItemTranslationRequest;
@@ -21,6 +22,10 @@ class ItemTranslationController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('permission:'.Permission::VIEW_DATA->value)->only(['index', 'show']);
+        $this->middleware('permission:'.Permission::CREATE_DATA->value)->only(['create', 'store']);
+        $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update']);
+        $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
     /**

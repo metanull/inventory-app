@@ -226,7 +226,7 @@
                     rows="4"
                     class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 font-mono text-sm"
                     placeholder='{"custom": "data"}'
-                >{{ old('extra', $itemTranslation->extra ?? '') }}</textarea>
+                >{{ is_array(old('extra')) ? json_encode(old('extra')) : old('extra', $itemTranslation->extra ?? '') }}</textarea>
                 <p class="mt-1 text-xs text-gray-500">Must be valid JSON format</p>
             </x-form.field>
 

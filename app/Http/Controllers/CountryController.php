@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\IndexCountryRequest;
 use App\Http\Requests\Api\ShowCountryRequest;
+use App\Http\Requests\Api\StoreCountryRequest;
+use App\Http\Requests\Api\UpdateCountryRequest;
 use App\Http\Resources\CountryResource;
 use App\Models\Country;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use Illuminate\Http\Request;
 
 class CountryController extends Controller
 {
@@ -33,14 +34,12 @@ class CountryController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @return CountryResource
      */
-    public function store(Request $request)
+    public function store(StoreCountryRequest $request)
     {
-        $validated = $request->validate([
-            'id' => 'required|string|size:3|unique:countries,id',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string|size:2',
-        ]);
+        $validated = $request->validated();
         $country = Country::create($validated);
         $country->refresh();
         $includes = IncludeParser::fromRequest($request, AllowList::for('country'));
@@ -62,15 +61,12 @@ class CountryController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @return CountryResource
      */
-    public function update(Request $request, Country $country)
+    public function update(UpdateCountryRequest $request, Country $country)
     {
-        $validated = $request->validate([
-            /** @ignoreParam */
-            'id' => 'prohibited',
-            'internal_name' => 'required|string',
-            'backward_compatibility' => 'nullable|string|size:2',
-        ]);
+        $validated = $request->validated();
         $country->update($validated);
         $country->refresh();
         $includes = IncludeParser::fromRequest($request, AllowList::for('country'));

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\StoreItemImageRequest;
 use App\Http\Requests\Web\UpdateItemImageRequest;
@@ -15,6 +16,9 @@ class ItemImageController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('permission:'.Permission::CREATE_DATA->value)->only(['create', 'store']);
+        $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update', 'move_up', 'move_down']);
+        $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy', 'detach']);
     }
 
     /**

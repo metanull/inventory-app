@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Permission;
+use App\Http\Requests\Web\IndexUserManagementRequest;
+use App\Http\Requests\Web\StoreUserManagementRequest;
+use App\Http\Requests\Web\UpdateUserManagementRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 
 class UserManagementController extends Controller
@@ -20,7 +21,7 @@ class UserManagementController extends Controller
     /**
      * Display a listing of users.
      */
-    public function index(Request $request)
+    public function index(IndexUserManagementRequest $request)
     {
         $query = User::with('roles');
 
@@ -59,14 +60,9 @@ class UserManagementController extends Controller
     /**
      * Store a newly created user.
      */
-    public function store(Request $request)
+    public function store(StoreUserManagementRequest $request)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'roles' => ['array'],
-            'roles.*' => ['exists:roles,id'],
-        ]);
+        $validated = $request->validated();
 
         // Generate a secure password
         $generatedPassword = $this->generateSecurePassword();
@@ -117,17 +113,9 @@ class UserManagementController extends Controller
     /**
      * Update the specified user.
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserManagementRequest $request, User $user)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'roles' => ['array'],
-            'roles.*' => ['exists:roles,id'],
-            'verify_email' => ['nullable', 'boolean'],
-            'unverify_email' => ['nullable', 'boolean'],
-            'generate_new_password' => ['nullable', 'boolean'],
-        ]);
+        $validated = $request->validated();
 
         $user->update([
             'name' => $validated['name'],

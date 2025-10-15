@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\IndexThemeRequest;
 use App\Http\Requests\Api\ShowThemeRequest;
+use App\Http\Requests\Api\StoreThemeRequest;
+use App\Http\Requests\Api\UpdateThemeRequest;
 use App\Http\Resources\ThemeResource;
 use App\Models\Theme;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class ThemeController extends Controller
 {
@@ -28,15 +28,12 @@ class ThemeController extends Controller
 
     /**
      * Store a newly created theme in storage.
+     *
+     * @return ThemeResource
      */
-    public function store(Request $request)
+    public function store(StoreThemeRequest $request)
     {
-        $validated = $request->validate([
-            'exhibition_id' => ['required', 'uuid', 'exists:exhibitions,id'],
-            'parent_id' => ['nullable', 'uuid', 'exists:themes,id'],
-            'internal_name' => ['required', 'string'],
-            'backward_compatibility' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
         $theme = Theme::create($validated);
         $requested = IncludeParser::fromRequest($request, AllowList::for('theme'));
         if (! empty($requested)) {
@@ -59,13 +56,12 @@ class ThemeController extends Controller
 
     /**
      * Update the specified theme in storage.
+     *
+     * @return ThemeResource
      */
-    public function update(Request $request, Theme $theme)
+    public function update(UpdateThemeRequest $request, Theme $theme)
     {
-        $validated = $request->validate([
-            'internal_name' => ['sometimes', 'string', Rule::unique('themes', 'internal_name')->ignore($theme->id, 'id')],
-            'backward_compatibility' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
         $theme->update($validated);
         $requested = IncludeParser::fromRequest($request, AllowList::for('theme'));
         if (! empty($requested)) {
