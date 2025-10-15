@@ -11,6 +11,7 @@ use App\Http\Resources\ItemImageResource;
 use App\Models\AvailableImage;
 use App\Models\Item;
 use App\Models\ItemImage;
+use Illuminate\Support\Facades\Storage;
 
 class ItemImageController extends Controller
 {
@@ -149,5 +150,45 @@ class ItemImageController extends Controller
         $itemImage->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * Returns the file to the caller.
+     */
+    public function download(ItemImage $itemImage)
+    {
+        $disk = config('localstorage.available.images.disk');
+        $path = $itemImage->path;
+
+        if (! Storage::disk($disk)->exists($path)) {
+            abort(404, 'Image not found');
+        }
+
+        $fullPath = Storage::disk($disk)->path($path);
+        $filename = $itemImage->original_name ?: basename($path);
+
+        return response()->download($fullPath, $filename);
+    }
+
+    /**
+     * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
+     */
+    public function view(ItemImage $itemImage)
+    {
+        $disk = config('localstorage.available.images.disk');
+        $path = $itemImage->path;
+
+        if (! Storage::disk($disk)->exists($path)) {
+            abort(404, 'Image not found');
+        }
+
+        $fullPath = Storage::disk($disk)->path($path);
+        $mimeType = $itemImage->mime_type ?: mime_content_type($fullPath);
+
+        return response()->file($fullPath, [
+            'Content-Type' => $mimeType,
+            'Cache-Control' => 'public, max-age=3600',
+            'Content-Disposition' => 'inline',
+        ]);
     }
 }

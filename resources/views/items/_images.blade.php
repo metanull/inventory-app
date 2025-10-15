@@ -38,7 +38,7 @@
                         <div class="bg-gray-50 dark:bg-gray-900 rounded-lg overflow-hidden">
                             <!-- Image -->
                             <div class="aspect-square bg-gray-200 dark:bg-gray-700">
-                                <img src="{{ asset('storage/' . $image->path) }}" 
+                                <img src="{{ route('items.item-images.view', [$item, $image]) }}" 
                                      alt="{{ $image->alt_text ?? 'Item image' }}"
                                      class="w-full h-full object-cover">
                             </div>

@@ -41,6 +41,8 @@ Route::prefix('web')->group(function () {
         Route::prefix('items/{item}/item-images')->name('items.item-images.')->group(function () {
             Route::get('/create', [WebItemImageController::class, 'create'])->name('create');
             Route::post('/', [WebItemImageController::class, 'store'])->name('store');
+            Route::get('/{item_image}/view', [WebItemImageController::class, 'view'])->name('view');
+            Route::get('/{item_image}/download', [WebItemImageController::class, 'download'])->name('download');
             Route::get('/{item_image}/edit', [WebItemImageController::class, 'edit'])->name('edit');
             Route::put('/{item_image}', [WebItemImageController::class, 'update'])->name('update');
             Route::post('/{item_image}/move-up', [WebItemImageController::class, 'moveUp'])->name('move-up');

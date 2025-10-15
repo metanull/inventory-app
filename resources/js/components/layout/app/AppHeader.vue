@@ -79,6 +79,17 @@
                 <RectangleStackIcon class="w-4 h-4" :class="collectionsColors.icon" />
                 Collections
               </RouterLink>
+              <RouterLink
+                to="/item-translations"
+                :class="[
+                  getThemeClass('dropdownItemColor'),
+                  'px-4 py-2 text-sm flex items-center gap-2',
+                ]"
+                @click="closeInventoryDropdown"
+              >
+                <LanguageIcon class="w-4 h-4" :class="itemTranslationsColors.icon" />
+                Item Translations
+              </RouterLink>
             </div>
           </div>
 
@@ -351,6 +362,17 @@
                 <RectangleStackIcon class="w-4 h-4" :class="collectionsColors.icon" />
                 Collections
               </RouterLink>
+              <RouterLink
+                to="/item-translations"
+                :class="[
+                  getThemeClass('mobileNavLinkColor'),
+                  'py-2 text-sm flex items-center gap-2',
+                ]"
+                @click="closeMobileMenu"
+              >
+                <LanguageIcon class="w-4 h-4" :class="itemTranslationsColors.icon" />
+                Item Translations
+              </RouterLink>
             </div>
           </div>
 
@@ -557,6 +579,7 @@
   const itemsColors = useThemeColors('items')
   const partnersColors = useThemeColors('partners')
   const collectionsColors = useThemeColors('collections')
+  const itemTranslationsColors = useThemeColors('blue')
   const imagesColors = useThemeColors('tools') // Using red for images for now
   const languagesColors = useThemeColors('languages')
   const countriesColors = useThemeColors('countries')

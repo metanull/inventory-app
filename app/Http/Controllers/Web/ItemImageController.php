@@ -10,6 +10,7 @@ use App\Models\AvailableImage;
 use App\Models\Item;
 use App\Models\ItemImage;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 
 class ItemImageController extends Controller
 {
@@ -136,5 +137,55 @@ class ItemImageController extends Controller
 
         return redirect()->route('items.show', $item)
             ->with('success', 'Image deleted permanently');
+    }
+
+    /**
+     * Returns the file to the caller.
+     */
+    public function download(Item $item, ItemImage $itemImage)
+    {
+        // Ensure the image belongs to the item
+        if ($itemImage->item_id !== $item->id) {
+            abort(404);
+        }
+
+        $disk = config('localstorage.available.images.disk');
+        $path = $itemImage->path;
+
+        if (! Storage::disk($disk)->exists($path)) {
+            abort(404, 'Image not found');
+        }
+
+        $fullPath = Storage::disk($disk)->path($path);
+        $filename = $itemImage->original_name ?: basename($path);
+
+        return response()->download($fullPath, $filename);
+    }
+
+    /**
+     * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
+     */
+    public function view(Item $item, ItemImage $itemImage)
+    {
+        // Ensure the image belongs to the item
+        if ($itemImage->item_id !== $item->id) {
+            abort(404);
+        }
+
+        $disk = config('localstorage.available.images.disk');
+        $path = $itemImage->path;
+
+        if (! Storage::disk($disk)->exists($path)) {
+            abort(404, 'Image not found');
+        }
+
+        $fullPath = Storage::disk($disk)->path($path);
+        $mimeType = $itemImage->mime_type ?: mime_content_type($fullPath);
+
+        return response()->file($fullPath, [
+            'Content-Type' => $mimeType,
+            'Cache-Control' => 'public, max-age=3600',
+            'Content-Disposition' => 'inline',
+        ]);
     }
 }
