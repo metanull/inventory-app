@@ -65,7 +65,7 @@ class ImageUploadController extends Controller
         // First check if the ImageUpload still exists (processing not complete)
         $imageUpload = ImageUpload::find($id);
         if ($imageUpload) {
-            return response()->json([
+            return new \App\Http\Resources\ImageUploadStatusResource((object) [
                 'status' => 'processing',
                 'available_image' => null,
             ]);
@@ -74,17 +74,29 @@ class ImageUploadController extends Controller
         // Check if an AvailableImage exists with this ID (processing complete)
         $availableImage = AvailableImage::find($id);
         if ($availableImage) {
-            return response()->json([
+            return new \App\Http\Resources\ImageUploadStatusResource((object) [
                 'status' => 'processed',
                 'available_image' => new \App\Http\Resources\AvailableImageResource($availableImage),
             ]);
         }
 
+        // Check if an ItemImage exists with this ID (image was attached to an item)
+        $itemImage = \App\Models\ItemImage::find($id);
+        if ($itemImage) {
+            return new \App\Http\Resources\ImageUploadStatusResource((object) [
+                'status' => 'attached',
+                'available_image' => null,
+            ]);
+        }
+
         // Neither exists - this could be an error state or the resource was never created
-        return response()->json([
-            'status' => 'not_found',
-            'available_image' => null,
-        ], 404);
+        return response()->json(
+            (new \App\Http\Resources\ImageUploadStatusResource((object) [
+                'status' => 'not_found',
+                'available_image' => null,
+            ]))->toArray(request()),
+            404
+        );
     }
 
     /**

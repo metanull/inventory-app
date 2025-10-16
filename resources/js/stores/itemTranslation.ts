@@ -2,8 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import {
   type ItemTranslationResource,
-  type ItemTranslationStoreRequest,
-  type ItemTranslationUpdateRequest,
+  type StoreItemTranslationRequest,
+  type UpdateItemTranslationRequest,
 } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
 import { ErrorHandler } from '@/utils/errorHandler'
@@ -96,7 +96,7 @@ export const useItemTranslationStore = defineStore('itemTranslation', () => {
   }
 
   // Create a new item translation
-  const createItemTranslation = async (data: ItemTranslationStoreRequest) => {
+  const createItemTranslation = async (data: StoreItemTranslationRequest) => {
     loading.value = true
     error.value = null
 
@@ -120,7 +120,7 @@ export const useItemTranslationStore = defineStore('itemTranslation', () => {
   }
 
   // Update an existing item translation
-  const updateItemTranslation = async (id: string, data: ItemTranslationUpdateRequest) => {
+  const updateItemTranslation = async (id: string, data: UpdateItemTranslationRequest) => {
     loading.value = true
     error.value = null
 

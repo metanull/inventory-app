@@ -1,6 +1,6 @@
 # ContextApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -11,7 +11,8 @@ All URIs are relative to *http://localhost/api*
 |[**contextSetDefault**](#contextsetdefault) | **PATCH** /context/{context}/default | Set or unset a context as the default one|
 |[**contextShow**](#contextshow) | **GET** /context/{context} | Display the specified resource|
 |[**contextStore**](#contextstore) | **POST** /context | Store a newly created resource in storage|
-|[**contextUpdate**](#contextupdate) | **PUT** /context/{context} | Update the specified resource in storage|
+|[**contextUpdate**](#contextupdate) | **PATCH** /context/{context} | Update the specified resource in storage|
+|[**contextUpdate2**](#contextupdate2) | **PUT** /context/{context} | Update the specified resource in storage|
 
 # **contextClearDefault**
 > ContextClearDefault200Response contextClearDefault()
@@ -52,7 +53,7 @@ This endpoint does not have any parameters.
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**200** | &#x60;MessageResource&#x60; |  -  |
 |**401** | Unauthenticated |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -110,7 +111,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **contextGetDefault**
-> ContextSetDefault200Response contextGetDefault()
+> ContextGetDefault200Response contextGetDefault()
 
 
 ### Example
@@ -133,7 +134,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**ContextSetDefault200Response**
+**ContextGetDefault200Response**
 
 ### Authorization
 
@@ -214,7 +215,7 @@ const { status, data } = await apiInstance.contextIndex(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **contextSetDefault**
-> ContextSetDefault200Response contextSetDefault(contextSetDefaultRequest)
+> ContextGetDefault200Response contextSetDefault(setDefaultContextRequest)
 
 
 ### Example
@@ -223,18 +224,18 @@ const { status, data } = await apiInstance.contextIndex(
 import {
     ContextApi,
     Configuration,
-    ContextSetDefaultRequest
+    SetDefaultContextRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ContextApi(configuration);
 
 let context: string; //The context ID (default to undefined)
-let contextSetDefaultRequest: ContextSetDefaultRequest; //
+let setDefaultContextRequest: SetDefaultContextRequest; //
 
 const { status, data } = await apiInstance.contextSetDefault(
     context,
-    contextSetDefaultRequest
+    setDefaultContextRequest
 );
 ```
 
@@ -242,13 +243,13 @@ const { status, data } = await apiInstance.contextSetDefault(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **contextSetDefaultRequest** | **ContextSetDefaultRequest**|  | |
+| **setDefaultContextRequest** | **SetDefaultContextRequest**|  | |
 | **context** | [**string**] | The context ID | defaults to undefined|
 
 
 ### Return type
 
-**ContextSetDefault200Response**
+**ContextGetDefault200Response**
 
 ### Authorization
 
@@ -264,14 +265,15 @@ const { status, data } = await apiInstance.contextSetDefault(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ContextResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **contextShow**
-> ContextSetDefault200Response contextShow()
+> ContextGetDefault200Response contextShow()
 
 
 ### Example
@@ -304,7 +306,7 @@ const { status, data } = await apiInstance.contextShow(
 
 ### Return type
 
-**ContextSetDefault200Response**
+**ContextGetDefault200Response**
 
 ### Authorization
 
@@ -328,7 +330,7 @@ const { status, data } = await apiInstance.contextShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **contextStore**
-> ContextSetDefault200Response contextStore(contextStoreRequest)
+> ContextGetDefault200Response contextStore(storeContextRequest)
 
 
 ### Example
@@ -337,16 +339,16 @@ const { status, data } = await apiInstance.contextShow(
 import {
     ContextApi,
     Configuration,
-    ContextStoreRequest
+    StoreContextRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ContextApi(configuration);
 
-let contextStoreRequest: ContextStoreRequest; //
+let storeContextRequest: StoreContextRequest; //
 
 const { status, data } = await apiInstance.contextStore(
-    contextStoreRequest
+    storeContextRequest
 );
 ```
 
@@ -354,12 +356,12 @@ const { status, data } = await apiInstance.contextStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **contextStoreRequest** | **ContextStoreRequest**|  | |
+| **storeContextRequest** | **StoreContextRequest**|  | |
 
 
 ### Return type
 
-**ContextSetDefault200Response**
+**ContextGetDefault200Response**
 
 ### Authorization
 
@@ -375,13 +377,14 @@ const { status, data } = await apiInstance.contextStore(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ContextResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **contextUpdate**
-> ContextSetDefault200Response contextUpdate(contextStoreRequest)
+> ContextGetDefault200Response contextUpdate(updateContextRequest)
 
 
 ### Example
@@ -390,18 +393,18 @@ const { status, data } = await apiInstance.contextStore(
 import {
     ContextApi,
     Configuration,
-    ContextStoreRequest
+    UpdateContextRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ContextApi(configuration);
 
 let context: string; //The context ID (default to undefined)
-let contextStoreRequest: ContextStoreRequest; //
+let updateContextRequest: UpdateContextRequest; //
 
 const { status, data } = await apiInstance.contextUpdate(
     context,
-    contextStoreRequest
+    updateContextRequest
 );
 ```
 
@@ -409,13 +412,13 @@ const { status, data } = await apiInstance.contextUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **contextStoreRequest** | **ContextStoreRequest**|  | |
+| **updateContextRequest** | **UpdateContextRequest**|  | |
 | **context** | [**string**] | The context ID | defaults to undefined|
 
 
 ### Return type
 
-**ContextSetDefault200Response**
+**ContextGetDefault200Response**
 
 ### Authorization
 
@@ -431,9 +434,68 @@ const { status, data } = await apiInstance.contextUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ContextResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **contextUpdate2**
+> ContextGetDefault200Response contextUpdate2(updateContextRequest)
+
+
+### Example
+
+```typescript
+import {
+    ContextApi,
+    Configuration,
+    UpdateContextRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ContextApi(configuration);
+
+let context: string; //The context ID (default to undefined)
+let updateContextRequest: UpdateContextRequest; //
+
+const { status, data } = await apiInstance.contextUpdate2(
+    context,
+    updateContextRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateContextRequest** | **UpdateContextRequest**|  | |
+| **context** | [**string**] | The context ID | defaults to undefined|
+
+
+### Return type
+
+**ContextGetDefault200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ContextResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

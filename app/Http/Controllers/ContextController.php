@@ -108,7 +108,7 @@ class ContextController extends Controller
     {
         Context::clearDefault();
 
-        return response()->json(['message' => 'Default context cleared']);
+        return new \App\Http\Resources\MessageResource(['message' => 'Default context cleared']);
     }
 
     /**
@@ -118,7 +118,10 @@ class ContextController extends Controller
     {
         $context = Context::default()->first();
         if (! $context) {
-            return response()->json(['message' => 'No default context found'], 404);
+            return response()->json(
+                (new \App\Http\Resources\MessageResource(['message' => 'No default context found']))->toArray(request()),
+                404
+            );
         }
 
         return new ContextResource($context);

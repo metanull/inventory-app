@@ -2,8 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import {
   type LanguageResource,
-  type LanguageStoreRequest,
-  type LanguageUpdateRequest,
+  type StoreLanguageRequest,
+  type UpdateLanguageRequest,
 } from '@metanull/inventory-app-api-client'
 import { ErrorHandler, isAuthRedirect } from '@/utils/errorHandler'
 import { useApiClient } from '@/composables/useApiClient'
@@ -83,7 +83,7 @@ export const useLanguageStore = defineStore('language', () => {
   }
 
   // Create a new language
-  const createLanguage = async (languageData: LanguageStoreRequest) => {
+  const createLanguage = async (languageData: StoreLanguageRequest) => {
     loading.value = true
     error.value = null
 
@@ -106,7 +106,7 @@ export const useLanguageStore = defineStore('language', () => {
   }
 
   // Update an existing language
-  const updateLanguage = async (id: string, languageData: LanguageUpdateRequest) => {
+  const updateLanguage = async (id: string, languageData: UpdateLanguageRequest) => {
     loading.value = true
     error.value = null
 

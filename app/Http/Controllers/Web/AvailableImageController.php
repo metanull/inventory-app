@@ -54,20 +54,11 @@ class AvailableImageController extends Controller
     public function view(AvailableImage $availableImage)
     {
         $disk = config('localstorage.available.images.disk');
-        $path = $availableImage->path;
 
-        if (! \Illuminate\Support\Facades\Storage::disk($disk)->exists($path)) {
-            abort(404, 'Image not found');
-        }
-
-        $fullPath = \Illuminate\Support\Facades\Storage::disk($disk)->path($path);
-        $mimeType = mime_content_type($fullPath);
-
-        return response()->file($fullPath, [
-            'Content-Type' => $mimeType,
-            'Cache-Control' => 'public, max-age=3600',
-            'Content-Disposition' => 'inline',
-        ]);
+        return \App\Http\Responses\FileResponse::view(
+            $disk,
+            $availableImage->path
+        );
     }
 
     /**
@@ -76,15 +67,12 @@ class AvailableImageController extends Controller
     public function download(AvailableImage $availableImage)
     {
         $disk = config('localstorage.available.images.disk');
-        $path = $availableImage->path;
+        $filename = basename($availableImage->path);
 
-        if (! \Illuminate\Support\Facades\Storage::disk($disk)->exists($path)) {
-            abort(404, 'Image not found');
-        }
-
-        $fullPath = \Illuminate\Support\Facades\Storage::disk($disk)->path($path);
-        $filename = basename($path);
-
-        return response()->download($fullPath, $filename);
+        return \App\Http\Responses\FileResponse::download(
+            $disk,
+            $availableImage->path,
+            $filename
+        );
     }
 }

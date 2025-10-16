@@ -1,6 +1,6 @@
 # ProjectApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -11,7 +11,8 @@ All URIs are relative to *http://localhost/api*
 |[**projectSetLaunched**](#projectsetlaunched) | **PATCH** /project/{project}/launched | Toggle Launched/not-launched on a project. Important: It is independant from the &#x60;launch_date&#x60; value. It is an idicator showing that the project is to be considered \&#39;laucnhed\&#39; as soon as the launch date it reached|
 |[**projectShow**](#projectshow) | **GET** /project/{project} | Display the specified resource|
 |[**projectStore**](#projectstore) | **POST** /project | Store a newly created resource in storage|
-|[**projectUpdate**](#projectupdate) | **PUT** /project/{project} | Update the specified resource in storage|
+|[**projectUpdate**](#projectupdate) | **PATCH** /project/{project} | Update the specified resource in storage|
+|[**projectUpdate2**](#projectupdate2) | **PUT** /project/{project} | Update the specified resource in storage|
 
 # **projectDestroy**
 > projectDestroy()
@@ -170,7 +171,7 @@ const { status, data } = await apiInstance.projectIndex(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **projectSetEnabled**
-> ProjectSetLaunched200Response projectSetEnabled(projectSetEnabledRequest)
+> ProjectShow200Response projectSetEnabled(setEnabledProjectRequest)
 
 
 ### Example
@@ -179,18 +180,18 @@ const { status, data } = await apiInstance.projectIndex(
 import {
     ProjectApi,
     Configuration,
-    ProjectSetEnabledRequest
+    SetEnabledProjectRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
 
 let project: string; //The project ID (default to undefined)
-let projectSetEnabledRequest: ProjectSetEnabledRequest; //
+let setEnabledProjectRequest: SetEnabledProjectRequest; //
 
 const { status, data } = await apiInstance.projectSetEnabled(
     project,
-    projectSetEnabledRequest
+    setEnabledProjectRequest
 );
 ```
 
@@ -198,13 +199,13 @@ const { status, data } = await apiInstance.projectSetEnabled(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **projectSetEnabledRequest** | **ProjectSetEnabledRequest**|  | |
+| **setEnabledProjectRequest** | **SetEnabledProjectRequest**|  | |
 | **project** | [**string**] | The project ID | defaults to undefined|
 
 
 ### Return type
 
-**ProjectSetLaunched200Response**
+**ProjectShow200Response**
 
 ### Authorization
 
@@ -220,14 +221,15 @@ const { status, data } = await apiInstance.projectSetEnabled(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ProjectResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **projectSetLaunched**
-> ProjectSetLaunched200Response projectSetLaunched(projectSetLaunchedRequest)
+> ProjectShow200Response projectSetLaunched(setLaunchedProjectRequest)
 
 
 ### Example
@@ -236,18 +238,18 @@ const { status, data } = await apiInstance.projectSetEnabled(
 import {
     ProjectApi,
     Configuration,
-    ProjectSetLaunchedRequest
+    SetLaunchedProjectRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
 
 let project: string; //The project ID (default to undefined)
-let projectSetLaunchedRequest: ProjectSetLaunchedRequest; //
+let setLaunchedProjectRequest: SetLaunchedProjectRequest; //
 
 const { status, data } = await apiInstance.projectSetLaunched(
     project,
-    projectSetLaunchedRequest
+    setLaunchedProjectRequest
 );
 ```
 
@@ -255,13 +257,13 @@ const { status, data } = await apiInstance.projectSetLaunched(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **projectSetLaunchedRequest** | **ProjectSetLaunchedRequest**|  | |
+| **setLaunchedProjectRequest** | **SetLaunchedProjectRequest**|  | |
 | **project** | [**string**] | The project ID | defaults to undefined|
 
 
 ### Return type
 
-**ProjectSetLaunched200Response**
+**ProjectShow200Response**
 
 ### Authorization
 
@@ -277,14 +279,15 @@ const { status, data } = await apiInstance.projectSetLaunched(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ProjectResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **projectShow**
-> ProjectSetLaunched200Response projectShow()
+> ProjectShow200Response projectShow()
 
 
 ### Example
@@ -317,7 +320,7 @@ const { status, data } = await apiInstance.projectShow(
 
 ### Return type
 
-**ProjectSetLaunched200Response**
+**ProjectShow200Response**
 
 ### Authorization
 
@@ -341,7 +344,7 @@ const { status, data } = await apiInstance.projectShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **projectStore**
-> ProjectSetLaunched200Response projectStore(projectStoreRequest)
+> ProjectShow200Response projectStore(storeProjectRequest)
 
 
 ### Example
@@ -350,16 +353,16 @@ const { status, data } = await apiInstance.projectShow(
 import {
     ProjectApi,
     Configuration,
-    ProjectStoreRequest
+    StoreProjectRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
 
-let projectStoreRequest: ProjectStoreRequest; //
+let storeProjectRequest: StoreProjectRequest; //
 
 const { status, data } = await apiInstance.projectStore(
-    projectStoreRequest
+    storeProjectRequest
 );
 ```
 
@@ -367,12 +370,12 @@ const { status, data } = await apiInstance.projectStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **projectStoreRequest** | **ProjectStoreRequest**|  | |
+| **storeProjectRequest** | **StoreProjectRequest**|  | |
 
 
 ### Return type
 
-**ProjectSetLaunched200Response**
+**ProjectShow200Response**
 
 ### Authorization
 
@@ -390,11 +393,12 @@ const { status, data } = await apiInstance.projectStore(
 |**200** | &#x60;ProjectResource&#x60; |  -  |
 |**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **projectUpdate**
-> ProjectSetLaunched200Response projectUpdate(projectStoreRequest)
+> ProjectShow200Response projectUpdate(updateProjectRequest)
 
 
 ### Example
@@ -403,18 +407,18 @@ const { status, data } = await apiInstance.projectStore(
 import {
     ProjectApi,
     Configuration,
-    ProjectStoreRequest
+    UpdateProjectRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
 
 let project: string; //The project ID (default to undefined)
-let projectStoreRequest: ProjectStoreRequest; //
+let updateProjectRequest: UpdateProjectRequest; //
 
 const { status, data } = await apiInstance.projectUpdate(
     project,
-    projectStoreRequest
+    updateProjectRequest
 );
 ```
 
@@ -422,13 +426,13 @@ const { status, data } = await apiInstance.projectUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **projectStoreRequest** | **ProjectStoreRequest**|  | |
+| **updateProjectRequest** | **UpdateProjectRequest**|  | |
 | **project** | [**string**] | The project ID | defaults to undefined|
 
 
 ### Return type
 
-**ProjectSetLaunched200Response**
+**ProjectShow200Response**
 
 ### Authorization
 
@@ -444,9 +448,68 @@ const { status, data } = await apiInstance.projectUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ProjectResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **projectUpdate2**
+> ProjectShow200Response projectUpdate2(updateProjectRequest)
+
+
+### Example
+
+```typescript
+import {
+    ProjectApi,
+    Configuration,
+    UpdateProjectRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ProjectApi(configuration);
+
+let project: string; //The project ID (default to undefined)
+let updateProjectRequest: UpdateProjectRequest; //
+
+const { status, data } = await apiInstance.projectUpdate2(
+    project,
+    updateProjectRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateProjectRequest** | **UpdateProjectRequest**|  | |
+| **project** | [**string**] | The project ID | defaults to undefined|
+
+
+### Return type
+
+**ProjectShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ProjectResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -579,7 +579,7 @@
   const itemsColors = useThemeColors('items')
   const partnersColors = useThemeColors('partners')
   const collectionsColors = useThemeColors('collections')
-  const itemTranslationsColors = useThemeColors('blue')
+  const itemTranslationsColors = useThemeColors('items')
   const imagesColors = useThemeColors('tools') // Using red for images for now
   const languagesColors = useThemeColors('languages')
   const countriesColors = useThemeColors('countries')

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\IndexUserPermissionsRequest;
-use Illuminate\Http\JsonResponse;
 
 class UserPermissionsController extends Controller
 {
@@ -14,7 +13,7 @@ class UserPermissionsController extends Controller
      * This is a read-only endpoint for UI clients to determine what features
      * to show to the user.
      */
-    public function index(IndexUserPermissionsRequest $request): JsonResponse
+    public function index(IndexUserPermissionsRequest $request)
     {
         $permissions = $request->user()
             ->getAllPermissions()
@@ -22,8 +21,8 @@ class UserPermissionsController extends Controller
             ->values()
             ->toArray();
 
-        return response()->json([
-            'data' => $permissions,
+        return new \App\Http\Resources\UserPermissionsResource([
+            'permissions' => $permissions,
         ]);
     }
 }

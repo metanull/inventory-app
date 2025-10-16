@@ -29,15 +29,21 @@ export const usePermissionsStore = defineStore('permissions', () => {
     try {
       const apiClient = useApiClient().createUserPermissionsApi()
       const response = await apiClient.userPermissions()
+      console.log('[permissionsStore] Raw response:', response.data)
 
-      const data = response.data.data
-      permissions.value = Array.isArray(data) ? data : []
+      // The API returns { permissions: string[] }
+      const responseData = response.data as { permissions?: string[] } | { data?: { permissions?: string[] } }
+      const perms = ('permissions' in responseData && responseData.permissions) || 
+                    ('data' in responseData && responseData.data?.permissions) || 
+                    []
+      permissions.value = Array.isArray(perms) ? perms : []
+      console.log('[permissionsStore] Loaded permissions:', permissions.value)
       lastFetch.value = new Date()
     } catch (err: unknown) {
       const errorMessage =
         (err as { message?: string })?.message || 'Failed to fetch user permissions'
       error.value = errorMessage
-      console.error('Failed to fetch permissions:', err)
+      console.error('[permissionsStore] Failed to fetch permissions:', err)
       // Don't throw - allow app to continue with empty permissions
       permissions.value = []
     } finally {

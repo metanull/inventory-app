@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { type PartnerResource, type PartnerStoreRequest } from '@metanull/inventory-app-api-client'
+import { type PartnerResource, type StorePartnerRequest } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
 import {
   type IndexQueryOptions,
@@ -73,7 +73,7 @@ export const usePartnerStore = defineStore('partner', () => {
 
   // Create a new partner
   const createPartner = async (
-    partnerData: PartnerStoreRequest,
+    partnerData: StorePartnerRequest,
     options: ShowQueryOptions = { include: ['country'] }
   ): Promise<PartnerResource> => {
     try {
@@ -97,7 +97,7 @@ export const usePartnerStore = defineStore('partner', () => {
   // Update an existing partner
   const updatePartner = async (
     partnerId: string,
-    partnerData: PartnerStoreRequest,
+    partnerData: StorePartnerRequest,
     options: ShowQueryOptions = { include: ['country'] }
   ): Promise<PartnerResource> => {
     try {

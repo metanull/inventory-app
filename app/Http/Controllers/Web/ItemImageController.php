@@ -10,7 +10,6 @@ use App\Models\AvailableImage;
 use App\Models\Item;
 use App\Models\ItemImage;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
 
 class ItemImageController extends Controller
 {
@@ -150,16 +149,14 @@ class ItemImageController extends Controller
         }
 
         $disk = config('localstorage.available.images.disk');
-        $path = $itemImage->path;
+        $filename = $itemImage->original_name ?: basename($itemImage->path);
 
-        if (! Storage::disk($disk)->exists($path)) {
-            abort(404, 'Image not found');
-        }
-
-        $fullPath = Storage::disk($disk)->path($path);
-        $filename = $itemImage->original_name ?: basename($path);
-
-        return response()->download($fullPath, $filename);
+        return \App\Http\Responses\FileResponse::download(
+            $disk,
+            $itemImage->path,
+            $filename,
+            $itemImage->mime_type
+        );
     }
 
     /**
@@ -173,19 +170,11 @@ class ItemImageController extends Controller
         }
 
         $disk = config('localstorage.available.images.disk');
-        $path = $itemImage->path;
 
-        if (! Storage::disk($disk)->exists($path)) {
-            abort(404, 'Image not found');
-        }
-
-        $fullPath = Storage::disk($disk)->path($path);
-        $mimeType = $itemImage->mime_type ?: mime_content_type($fullPath);
-
-        return response()->file($fullPath, [
-            'Content-Type' => $mimeType,
-            'Cache-Control' => 'public, max-age=3600',
-            'Content-Disposition' => 'inline',
-        ]);
+        return \App\Http\Responses\FileResponse::view(
+            $disk,
+            $itemImage->path,
+            $itemImage->mime_type
+        );
     }
 }

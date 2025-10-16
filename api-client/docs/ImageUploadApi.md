@@ -1,6 +1,6 @@
 # ImageUploadApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -107,7 +107,7 @@ This endpoint does not have any parameters.
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **imageUploadShow**
-> ImageUploadStore200Response imageUploadShow()
+> ImageUploadShow200Response imageUploadShow()
 
 
 ### Example
@@ -137,7 +137,7 @@ const { status, data } = await apiInstance.imageUploadShow(
 
 ### Return type
 
-**ImageUploadStore200Response**
+**ImageUploadShow200Response**
 
 ### Authorization
 
@@ -206,13 +206,13 @@ const { status, data } = await apiInstance.imageUploadStatus(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**404** | Neither exists - this could be an error state or the resource was never created |  -  |
-|**200** |  |  -  |
+|**200** | &#x60;ImageUploadStatusResource&#x60; |  -  |
 |**401** | Unauthenticated |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **imageUploadStore**
-> ImageUploadStore200Response imageUploadStore()
+> ImageUploadShow200Response imageUploadStore()
 
 
 ### Example
@@ -242,7 +242,7 @@ const { status, data } = await apiInstance.imageUploadStore(
 
 ### Return type
 
-**ImageUploadStore200Response**
+**ImageUploadShow200Response**
 
 ### Authorization
 
@@ -258,8 +258,8 @@ const { status, data } = await apiInstance.imageUploadStore(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ImageUploadResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

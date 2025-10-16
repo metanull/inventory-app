@@ -26,8 +26,6 @@ class IndexDetailTranslationRequest extends FormRequest
 
     /**
      * Get validated pagination parameters.
-     *
-     * @return array{page:int, per_page:int}
      */
     public function getPaginationParams(): array
     {

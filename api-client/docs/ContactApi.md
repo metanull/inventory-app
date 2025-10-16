@@ -1,6 +1,6 @@
 # ContactApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -8,7 +8,8 @@ All URIs are relative to *http://localhost/api*
 |[**contactIndex**](#contactindex) | **GET** /contact | Display a listing of contacts|
 |[**contactShow**](#contactshow) | **GET** /contact/{contact} | Display the specified contact|
 |[**contactStore**](#contactstore) | **POST** /contact | Store a newly created contact|
-|[**contactUpdate**](#contactupdate) | **PUT** /contact/{contact} | Update the specified contact|
+|[**contactUpdate**](#contactupdate) | **PATCH** /contact/{contact} | Update the specified contact|
+|[**contactUpdate2**](#contactupdate2) | **PUT** /contact/{contact} | Update the specified contact|
 
 # **contactDestroy**
 > contactDestroy()
@@ -122,7 +123,7 @@ const { status, data } = await apiInstance.contactIndex(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **contactShow**
-> ContactStore201Response contactShow()
+> ContactShow200Response contactShow()
 
 
 ### Example
@@ -155,7 +156,7 @@ const { status, data } = await apiInstance.contactShow(
 
 ### Return type
 
-**ContactStore201Response**
+**ContactShow200Response**
 
 ### Authorization
 
@@ -179,7 +180,7 @@ const { status, data } = await apiInstance.contactShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **contactStore**
-> ContactStore201Response contactStore(contactStoreRequest)
+> ContactShow200Response contactStore(storeContactRequest)
 
 
 ### Example
@@ -188,16 +189,16 @@ const { status, data } = await apiInstance.contactShow(
 import {
     ContactApi,
     Configuration,
-    ContactStoreRequest
+    StoreContactRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ContactApi(configuration);
 
-let contactStoreRequest: ContactStoreRequest; //
+let storeContactRequest: StoreContactRequest; //
 
 const { status, data } = await apiInstance.contactStore(
-    contactStoreRequest
+    storeContactRequest
 );
 ```
 
@@ -205,12 +206,12 @@ const { status, data } = await apiInstance.contactStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **contactStoreRequest** | **ContactStoreRequest**|  | |
+| **storeContactRequest** | **StoreContactRequest**|  | |
 
 
 ### Return type
 
-**ContactStore201Response**
+**ContactShow200Response**
 
 ### Authorization
 
@@ -228,11 +229,12 @@ const { status, data } = await apiInstance.contactStore(
 |**201** | &#x60;ContactResource&#x60; |  -  |
 |**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **contactUpdate**
-> ContactStore201Response contactUpdate(contactUpdateRequest)
+> ContactShow200Response contactUpdate(updateContactRequest)
 
 
 ### Example
@@ -241,18 +243,18 @@ const { status, data } = await apiInstance.contactStore(
 import {
     ContactApi,
     Configuration,
-    ContactUpdateRequest
+    UpdateContactRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ContactApi(configuration);
 
 let contact: string; //The contact ID (default to undefined)
-let contactUpdateRequest: ContactUpdateRequest; //
+let updateContactRequest: UpdateContactRequest; //
 
 const { status, data } = await apiInstance.contactUpdate(
     contact,
-    contactUpdateRequest
+    updateContactRequest
 );
 ```
 
@@ -260,13 +262,13 @@ const { status, data } = await apiInstance.contactUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **contactUpdateRequest** | **ContactUpdateRequest**|  | |
+| **updateContactRequest** | **UpdateContactRequest**|  | |
 | **contact** | [**string**] | The contact ID | defaults to undefined|
 
 
 ### Return type
 
-**ContactStore201Response**
+**ContactShow200Response**
 
 ### Authorization
 
@@ -282,9 +284,68 @@ const { status, data } = await apiInstance.contactUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ContactResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **contactUpdate2**
+> ContactShow200Response contactUpdate2(updateContactRequest)
+
+
+### Example
+
+```typescript
+import {
+    ContactApi,
+    Configuration,
+    UpdateContactRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ContactApi(configuration);
+
+let contact: string; //The contact ID (default to undefined)
+let updateContactRequest: UpdateContactRequest; //
+
+const { status, data } = await apiInstance.contactUpdate2(
+    contact,
+    updateContactRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateContactRequest** | **UpdateContactRequest**|  | |
+| **contact** | [**string**] | The contact ID | defaults to undefined|
+
+
+### Return type
+
+**ContactShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ContactResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

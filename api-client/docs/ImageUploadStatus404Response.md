@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **status** | **string** |  | [default to undefined]
-**available_image** | **any** |  | [default to undefined]
+**available_image** | **string** |  | [default to undefined]
 
 ## Example
 

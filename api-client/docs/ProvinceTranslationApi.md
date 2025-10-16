@@ -1,6 +1,6 @@
 # ProvinceTranslationApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -8,7 +8,8 @@ All URIs are relative to *http://localhost/api*
 |[**provinceTranslationIndex**](#provincetranslationindex) | **GET** /province-translation | Display a listing of the resource|
 |[**provinceTranslationShow**](#provincetranslationshow) | **GET** /province-translation/{provinceTranslation} | Display the specified resource|
 |[**provinceTranslationStore**](#provincetranslationstore) | **POST** /province-translation | Store a newly created resource in storage|
-|[**provinceTranslationUpdate**](#provincetranslationupdate) | **PUT** /province-translation/{provinceTranslation} | Update the specified resource in storage|
+|[**provinceTranslationUpdate**](#provincetranslationupdate) | **PATCH** /province-translation/{provinceTranslation} | Update the specified resource in storage|
+|[**provinceTranslationUpdate2**](#provincetranslationupdate2) | **PUT** /province-translation/{provinceTranslation} | Update the specified resource in storage|
 
 # **provinceTranslationDestroy**
 > provinceTranslationDestroy()
@@ -107,7 +108,7 @@ This endpoint does not have any parameters.
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **provinceTranslationShow**
-> ProvinceTranslationStore200Response provinceTranslationShow()
+> ProvinceTranslationShow200Response provinceTranslationShow()
 
 
 ### Example
@@ -137,7 +138,7 @@ const { status, data } = await apiInstance.provinceTranslationShow(
 
 ### Return type
 
-**ProvinceTranslationStore200Response**
+**ProvinceTranslationShow200Response**
 
 ### Authorization
 
@@ -159,7 +160,7 @@ const { status, data } = await apiInstance.provinceTranslationShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **provinceTranslationStore**
-> ProvinceTranslationStore200Response provinceTranslationStore(provinceTranslationStoreRequest)
+> ProvinceTranslationShow200Response provinceTranslationStore(storeProvinceTranslationRequest)
 
 
 ### Example
@@ -168,16 +169,16 @@ const { status, data } = await apiInstance.provinceTranslationShow(
 import {
     ProvinceTranslationApi,
     Configuration,
-    ProvinceTranslationStoreRequest
+    StoreProvinceTranslationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProvinceTranslationApi(configuration);
 
-let provinceTranslationStoreRequest: ProvinceTranslationStoreRequest; //
+let storeProvinceTranslationRequest: StoreProvinceTranslationRequest; //
 
 const { status, data } = await apiInstance.provinceTranslationStore(
-    provinceTranslationStoreRequest
+    storeProvinceTranslationRequest
 );
 ```
 
@@ -185,12 +186,12 @@ const { status, data } = await apiInstance.provinceTranslationStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **provinceTranslationStoreRequest** | **ProvinceTranslationStoreRequest**|  | |
+| **storeProvinceTranslationRequest** | **StoreProvinceTranslationRequest**|  | |
 
 
 ### Return type
 
-**ProvinceTranslationStore200Response**
+**ProvinceTranslationShow200Response**
 
 ### Authorization
 
@@ -206,13 +207,14 @@ const { status, data } = await apiInstance.provinceTranslationStore(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ProvinceTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **provinceTranslationUpdate**
-> ProvinceTranslationStore200Response provinceTranslationUpdate()
+> ProvinceTranslationShow200Response provinceTranslationUpdate()
 
 
 ### Example
@@ -221,18 +223,18 @@ const { status, data } = await apiInstance.provinceTranslationStore(
 import {
     ProvinceTranslationApi,
     Configuration,
-    ProvinceTranslationUpdateRequest
+    UpdateProvinceTranslationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProvinceTranslationApi(configuration);
 
 let provinceTranslation: string; //The province translation ID (default to undefined)
-let provinceTranslationUpdateRequest: ProvinceTranslationUpdateRequest; // (optional)
+let updateProvinceTranslationRequest: UpdateProvinceTranslationRequest; // (optional)
 
 const { status, data } = await apiInstance.provinceTranslationUpdate(
     provinceTranslation,
-    provinceTranslationUpdateRequest
+    updateProvinceTranslationRequest
 );
 ```
 
@@ -240,13 +242,13 @@ const { status, data } = await apiInstance.provinceTranslationUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **provinceTranslationUpdateRequest** | **ProvinceTranslationUpdateRequest**|  | |
+| **updateProvinceTranslationRequest** | **UpdateProvinceTranslationRequest**|  | |
 | **provinceTranslation** | [**string**] | The province translation ID | defaults to undefined|
 
 
 ### Return type
 
-**ProvinceTranslationStore200Response**
+**ProvinceTranslationShow200Response**
 
 ### Authorization
 
@@ -262,9 +264,68 @@ const { status, data } = await apiInstance.provinceTranslationUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ProvinceTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **provinceTranslationUpdate2**
+> ProvinceTranslationShow200Response provinceTranslationUpdate2()
+
+
+### Example
+
+```typescript
+import {
+    ProvinceTranslationApi,
+    Configuration,
+    UpdateProvinceTranslationRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ProvinceTranslationApi(configuration);
+
+let provinceTranslation: string; //The province translation ID (default to undefined)
+let updateProvinceTranslationRequest: UpdateProvinceTranslationRequest; // (optional)
+
+const { status, data } = await apiInstance.provinceTranslationUpdate2(
+    provinceTranslation,
+    updateProvinceTranslationRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateProvinceTranslationRequest** | **UpdateProvinceTranslationRequest**|  | |
+| **provinceTranslation** | [**string**] | The province translation ID | defaults to undefined|
+
+
+### Return type
+
+**ProvinceTranslationShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ProvinceTranslationResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

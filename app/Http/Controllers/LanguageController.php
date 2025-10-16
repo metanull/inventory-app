@@ -102,7 +102,7 @@ class LanguageController extends Controller
     {
         Language::clearDefault();
 
-        return response()->json(['message' => 'Default language cleared']);
+        return new \App\Http\Resources\MessageResource(['message' => 'Default language cleared']);
     }
 
     /**
@@ -112,7 +112,10 @@ class LanguageController extends Controller
     {
         $language = Language::default()->first();
         if (! $language) {
-            return response()->json(['message' => 'No default language found'], 404);
+            return response()->json(
+                (new \App\Http\Resources\MessageResource(['message' => 'No default language found']))->toArray(request()),
+                404
+            );
         }
 
         return new LanguageResource($language);
@@ -125,7 +128,10 @@ class LanguageController extends Controller
     {
         $language = Language::english()->first();
         if (! $language) {
-            return response()->json(['message' => 'No English language found'], 404);
+            return response()->json(
+                (new \App\Http\Resources\MessageResource(['message' => 'No English language found']))->toArray(request()),
+                404
+            );
         }
 
         return new LanguageResource($language);

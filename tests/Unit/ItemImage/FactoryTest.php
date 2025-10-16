@@ -116,10 +116,13 @@ class FactoryTest extends TestCase
         }
     }
 
-    public function test_factory_path_is_valid_url(): void
+    public function test_factory_path_is_valid_storage_path(): void
     {
         $itemImage = ItemImage::factory()->make();
-        $this->assertTrue(filter_var($itemImage->path, FILTER_VALIDATE_URL) !== false);
+        // Path should be a relative storage path, not a URL
+        $this->assertIsString($itemImage->path);
+        $this->assertStringStartsWith('images/', $itemImage->path);
+        $this->assertStringContainsString('.', $itemImage->path); // Has extension
     }
 
     public function test_factory_original_name_has_extension(): void

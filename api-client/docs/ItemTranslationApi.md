@@ -1,6 +1,6 @@
 # ItemTranslationApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -8,10 +8,11 @@ All URIs are relative to *http://localhost/api*
 |[**itemTranslationIndex**](#itemtranslationindex) | **GET** /item-translation | Display a listing of item translations|
 |[**itemTranslationShow**](#itemtranslationshow) | **GET** /item-translation/{itemTranslation} | Display the specified item translation|
 |[**itemTranslationStore**](#itemtranslationstore) | **POST** /item-translation | Store a newly created item translation|
-|[**itemTranslationUpdate**](#itemtranslationupdate) | **PUT** /item-translation/{itemTranslation} | Update the specified item translation|
+|[**itemTranslationUpdate**](#itemtranslationupdate) | **PATCH** /item-translation/{itemTranslation} | Update the specified item translation|
+|[**itemTranslationUpdate2**](#itemtranslationupdate2) | **PUT** /item-translation/{itemTranslation} | Update the specified item translation|
 
 # **itemTranslationDestroy**
-> number itemTranslationDestroy()
+> itemTranslationDestroy()
 
 
 ### Example
@@ -41,7 +42,7 @@ const { status, data } = await apiInstance.itemTranslationDestroy(
 
 ### Return type
 
-**number**
+void (empty response body)
 
 ### Authorization
 
@@ -56,14 +57,14 @@ const { status, data } = await apiInstance.itemTranslationDestroy(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**204** | No content |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemTranslationIndex**
-> Array<ItemTranslationResource> itemTranslationIndex()
+> ItemTranslationIndex200Response itemTranslationIndex()
 
 
 ### Example
@@ -108,7 +109,7 @@ const { status, data } = await apiInstance.itemTranslationIndex(
 
 ### Return type
 
-**Array<ItemTranslationResource>**
+**ItemTranslationIndex200Response**
 
 ### Authorization
 
@@ -123,7 +124,7 @@ const { status, data } = await apiInstance.itemTranslationIndex(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**200** | Paginated set of &#x60;ItemTranslationResource&#x60; |  -  |
 |**401** | Unauthenticated |  -  |
 |**422** | Validation error |  -  |
 |**403** | Authorization error |  -  |
@@ -146,9 +147,11 @@ const configuration = new Configuration();
 const apiInstance = new ItemTranslationApi(configuration);
 
 let itemTranslation: string; //The item translation ID (default to undefined)
+let include: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemTranslationShow(
-    itemTranslation
+    itemTranslation,
+    include
 );
 ```
 
@@ -157,6 +160,7 @@ const { status, data } = await apiInstance.itemTranslationShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **itemTranslation** | [**string**] | The item translation ID | defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -179,11 +183,13 @@ const { status, data } = await apiInstance.itemTranslationShow(
 |**200** | &#x60;ItemTranslationResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemTranslationStore**
-> number itemTranslationStore(itemTranslationStoreRequest)
+> ItemTranslationShow200Response itemTranslationStore(storeItemTranslationRequest)
 
 
 ### Example
@@ -192,16 +198,16 @@ const { status, data } = await apiInstance.itemTranslationShow(
 import {
     ItemTranslationApi,
     Configuration,
-    ItemTranslationStoreRequest
+    StoreItemTranslationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ItemTranslationApi(configuration);
 
-let itemTranslationStoreRequest: ItemTranslationStoreRequest; //
+let storeItemTranslationRequest: StoreItemTranslationRequest; //
 
 const { status, data } = await apiInstance.itemTranslationStore(
-    itemTranslationStoreRequest
+    storeItemTranslationRequest
 );
 ```
 
@@ -209,12 +215,12 @@ const { status, data } = await apiInstance.itemTranslationStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **itemTranslationStoreRequest** | **ItemTranslationStoreRequest**|  | |
+| **storeItemTranslationRequest** | **StoreItemTranslationRequest**|  | |
 
 
 ### Return type
 
-**number**
+**ItemTranslationShow200Response**
 
 ### Authorization
 
@@ -229,9 +235,10 @@ const { status, data } = await apiInstance.itemTranslationStore(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
-|**422** | Validation error |  -  |
+|**200** | &#x60;ItemTranslationResource&#x60; |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -245,18 +252,18 @@ const { status, data } = await apiInstance.itemTranslationStore(
 import {
     ItemTranslationApi,
     Configuration,
-    ItemTranslationUpdateRequest
+    UpdateItemTranslationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ItemTranslationApi(configuration);
 
 let itemTranslation: string; //The item translation ID (default to undefined)
-let itemTranslationUpdateRequest: ItemTranslationUpdateRequest; // (optional)
+let updateItemTranslationRequest: UpdateItemTranslationRequest; // (optional)
 
 const { status, data } = await apiInstance.itemTranslationUpdate(
     itemTranslation,
-    itemTranslationUpdateRequest
+    updateItemTranslationRequest
 );
 ```
 
@@ -264,7 +271,7 @@ const { status, data } = await apiInstance.itemTranslationUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **itemTranslationUpdateRequest** | **ItemTranslationUpdateRequest**|  | |
+| **updateItemTranslationRequest** | **UpdateItemTranslationRequest**|  | |
 | **itemTranslation** | [**string**] | The item translation ID | defaults to undefined|
 
 
@@ -286,9 +293,68 @@ const { status, data } = await apiInstance.itemTranslationUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ItemTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **itemTranslationUpdate2**
+> ItemTranslationShow200Response itemTranslationUpdate2()
+
+
+### Example
+
+```typescript
+import {
+    ItemTranslationApi,
+    Configuration,
+    UpdateItemTranslationRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ItemTranslationApi(configuration);
+
+let itemTranslation: string; //The item translation ID (default to undefined)
+let updateItemTranslationRequest: UpdateItemTranslationRequest; // (optional)
+
+const { status, data } = await apiInstance.itemTranslationUpdate2(
+    itemTranslation,
+    updateItemTranslationRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateItemTranslationRequest** | **UpdateItemTranslationRequest**|  | |
+| **itemTranslation** | [**string**] | The item translation ID | defaults to undefined|
+
+
+### Return type
+
+**ItemTranslationShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ItemTranslationResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

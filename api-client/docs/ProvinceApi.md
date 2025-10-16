@@ -1,6 +1,6 @@
 # ProvinceApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -8,7 +8,8 @@ All URIs are relative to *http://localhost/api*
 |[**provinceIndex**](#provinceindex) | **GET** /province | Display a listing of provinces|
 |[**provinceShow**](#provinceshow) | **GET** /province/{province} | Display the specified province|
 |[**provinceStore**](#provincestore) | **POST** /province | Store a newly created province|
-|[**provinceUpdate**](#provinceupdate) | **PUT** /province/{province} | Update the specified province|
+|[**provinceUpdate**](#provinceupdate) | **PATCH** /province/{province} | Update the specified province|
+|[**provinceUpdate2**](#provinceupdate2) | **PUT** /province/{province} | Update the specified province|
 
 # **provinceDestroy**
 > provinceDestroy()
@@ -122,7 +123,7 @@ const { status, data } = await apiInstance.provinceIndex(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **provinceShow**
-> ProvinceStore201Response provinceShow()
+> ProvinceShow200Response provinceShow()
 
 
 ### Example
@@ -155,7 +156,7 @@ const { status, data } = await apiInstance.provinceShow(
 
 ### Return type
 
-**ProvinceStore201Response**
+**ProvinceShow200Response**
 
 ### Authorization
 
@@ -179,7 +180,7 @@ const { status, data } = await apiInstance.provinceShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **provinceStore**
-> ProvinceStore201Response provinceStore(locationStoreRequest)
+> ProvinceShow200Response provinceStore(storeProvinceRequest)
 
 
 ### Example
@@ -188,16 +189,16 @@ const { status, data } = await apiInstance.provinceShow(
 import {
     ProvinceApi,
     Configuration,
-    LocationStoreRequest
+    StoreProvinceRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProvinceApi(configuration);
 
-let locationStoreRequest: LocationStoreRequest; //
+let storeProvinceRequest: StoreProvinceRequest; //
 
 const { status, data } = await apiInstance.provinceStore(
-    locationStoreRequest
+    storeProvinceRequest
 );
 ```
 
@@ -205,12 +206,12 @@ const { status, data } = await apiInstance.provinceStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **locationStoreRequest** | **LocationStoreRequest**|  | |
+| **storeProvinceRequest** | **StoreProvinceRequest**|  | |
 
 
 ### Return type
 
-**ProvinceStore201Response**
+**ProvinceShow200Response**
 
 ### Authorization
 
@@ -228,11 +229,12 @@ const { status, data } = await apiInstance.provinceStore(
 |**201** | &#x60;ProvinceResource&#x60; |  -  |
 |**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **provinceUpdate**
-> ProvinceStore201Response provinceUpdate(locationUpdateRequest)
+> ProvinceShow200Response provinceUpdate(updateProvinceRequest)
 
 
 ### Example
@@ -241,18 +243,18 @@ const { status, data } = await apiInstance.provinceStore(
 import {
     ProvinceApi,
     Configuration,
-    LocationUpdateRequest
+    UpdateProvinceRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ProvinceApi(configuration);
 
 let province: string; //The province ID (default to undefined)
-let locationUpdateRequest: LocationUpdateRequest; //
+let updateProvinceRequest: UpdateProvinceRequest; //
 
 const { status, data } = await apiInstance.provinceUpdate(
     province,
-    locationUpdateRequest
+    updateProvinceRequest
 );
 ```
 
@@ -260,13 +262,13 @@ const { status, data } = await apiInstance.provinceUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **locationUpdateRequest** | **LocationUpdateRequest**|  | |
+| **updateProvinceRequest** | **UpdateProvinceRequest**|  | |
 | **province** | [**string**] | The province ID | defaults to undefined|
 
 
 ### Return type
 
-**ProvinceStore201Response**
+**ProvinceShow200Response**
 
 ### Authorization
 
@@ -282,9 +284,68 @@ const { status, data } = await apiInstance.provinceUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ProvinceResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **provinceUpdate2**
+> ProvinceShow200Response provinceUpdate2(updateProvinceRequest)
+
+
+### Example
+
+```typescript
+import {
+    ProvinceApi,
+    Configuration,
+    UpdateProvinceRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ProvinceApi(configuration);
+
+let province: string; //The province ID (default to undefined)
+let updateProvinceRequest: UpdateProvinceRequest; //
+
+const { status, data } = await apiInstance.provinceUpdate2(
+    province,
+    updateProvinceRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateProvinceRequest** | **UpdateProvinceRequest**|  | |
+| **province** | [**string**] | The province ID | defaults to undefined|
+
+
+### Return type
+
+**ProvinceShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ProvinceResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -4,7 +4,7 @@ import {
   type ItemImageResource,
   type StoreItemImageRequest,
   type UpdateItemImageRequest,
-  type ItemAttachImageRequest,
+  type AttachFromAvailableItemImageRequest,
 } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
 import { ErrorHandler } from '@/utils/errorHandler'
@@ -29,10 +29,20 @@ export const useItemImageStore = defineStore('itemImage', () => {
       const apiClient = createApiClient()
       const includeParam = includes?.join(',')
       const response = await apiClient.itemImagesIndex(itemId, includeParam)
-      // Response.data is the array directly
-      const data = Array.isArray(response.data) ? response.data : []
+      console.log('[itemImageStore] Raw response:', response.data)
+
+      // ResourceCollection returns { data: [...] }
+      const responseData = response.data as { data?: unknown } | unknown[]
+      const data = Array.isArray(responseData)
+        ? responseData
+        : responseData && typeof responseData === 'object' && 'data' in responseData && Array.isArray(responseData.data)
+          ? responseData.data
+          : []
+
+      console.log('[itemImageStore] Parsed images:', data.length, data)
       itemImages.value = data
     } catch (err: unknown) {
+      console.error('[itemImageStore] Error fetching images:', err)
       ErrorHandler.handleError(err, 'Failed to fetch item images')
       error.value = 'Failed to fetch item images'
       throw err
@@ -90,16 +100,20 @@ export const useItemImageStore = defineStore('itemImage', () => {
 
     try {
       const apiClient = createApiClient()
-      const request: ItemAttachImageRequest = {
+      const request: AttachFromAvailableItemImageRequest = {
         available_image_id: availableImageId,
       }
-      await apiClient.itemAttachImage(itemId, request)
+      console.log('[itemImageStore] Attaching image:', { itemId, availableImageId })
+      const response = await apiClient.itemAttachImage(itemId, request)
+      console.log('[itemImageStore] Attach response:', response.data)
 
       // Refetch the list to get the new image
       await fetchItemImages(itemId)
+      console.log('[itemImageStore] Images after attach:', itemImages.value.length)
 
       return true
     } catch (err: unknown) {
+      console.error('[itemImageStore] Error attaching image:', err)
       ErrorHandler.handleError(err, 'Failed to attach image to item')
       error.value = 'Failed to attach image to item'
       throw err

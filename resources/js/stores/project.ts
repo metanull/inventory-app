@@ -2,9 +2,9 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import {
   type ProjectResource,
-  type ProjectStoreRequest,
-  type ProjectSetEnabledRequest,
-  type ProjectSetLaunchedRequest,
+  type StoreProjectRequest,
+  type SetEnabledProjectRequest,
+  type SetLaunchedProjectRequest,
 } from '@metanull/inventory-app-api-client'
 import { ErrorHandler } from '@/utils/errorHandler'
 import { useApiClient } from '@/composables/useApiClient'
@@ -121,7 +121,7 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   // Create a new project
-  const createProject = async (projectData: ProjectStoreRequest) => {
+  const createProject = async (projectData: StoreProjectRequest) => {
     loading.value = true
     error.value = null
 
@@ -145,7 +145,7 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   // Update an existing project
-  const updateProject = async (id: string, projectData: ProjectStoreRequest) => {
+  const updateProject = async (id: string, projectData: StoreProjectRequest) => {
     loading.value = true
     error.value = null
 
@@ -204,7 +204,7 @@ export const useProjectStore = defineStore('project', () => {
 
     try {
       const apiClient = createApiClient()
-      const requestData: ProjectSetEnabledRequest = { is_enabled: isEnabled }
+      const requestData: SetEnabledProjectRequest = { is_enabled: isEnabled }
       const response = await apiClient.projectSetEnabled(id, requestData)
       const updatedProject = response.data.data
 
@@ -235,7 +235,7 @@ export const useProjectStore = defineStore('project', () => {
 
     try {
       const apiClient = createApiClient()
-      const requestData: ProjectSetLaunchedRequest = {
+      const requestData: SetLaunchedProjectRequest = {
         is_launched: isLaunched,
       }
       const response = await apiClient.projectSetLaunched(id, requestData)

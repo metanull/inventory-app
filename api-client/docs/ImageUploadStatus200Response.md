@@ -5,8 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**status** | **string** |  | [default to undefined]
-**available_image** | **any** |  | [default to undefined]
+**data** | [**ImageUploadStatusResource**](ImageUploadStatusResource.md) |  | [default to undefined]
 
 ## Example
 
@@ -14,8 +13,7 @@ Name | Type | Description | Notes
 import { ImageUploadStatus200Response } from './api';
 
 const instance: ImageUploadStatus200Response = {
-    status,
-    available_image,
+    data,
 };
 ```
 

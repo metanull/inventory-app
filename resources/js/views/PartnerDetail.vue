@@ -119,7 +119,7 @@
   import { useErrorDisplayStore } from '@/stores/errorDisplay'
   import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
   import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
-  import type { PartnerStoreRequestTypeEnum } from '@metanull/inventory-app-api-client'
+  import type { StorePartnerRequestTypeEnum } from '@metanull/inventory-app-api-client'
   import { useColors, type ColorName } from '@/composables/useColors'
 
   // Types
@@ -128,7 +128,7 @@
   interface PartnerFormData {
     id?: string
     internal_name: string
-    type: PartnerStoreRequestTypeEnum
+    type: StorePartnerRequestTypeEnum
     country_id: string
     backward_compatibility: string
   }
@@ -164,7 +164,7 @@
   const editForm = ref<PartnerFormData>({
     id: '',
     internal_name: '',
-    type: 'museum' as PartnerStoreRequestTypeEnum,
+    type: 'museum' as StorePartnerRequestTypeEnum,
     country_id: '',
     backward_compatibility: '',
   })
@@ -238,7 +238,7 @@
   const getDefaultFormValues = (): PartnerFormData => ({
     id: '',
     internal_name: '',
-    type: 'museum' as PartnerStoreRequestTypeEnum,
+    type: 'museum' as StorePartnerRequestTypeEnum,
     country_id: '',
     backward_compatibility: '',
   })
@@ -249,7 +249,7 @@
     return {
       id: partner.value.id,
       internal_name: partner.value.internal_name,
-      type: partner.value.type as PartnerStoreRequestTypeEnum,
+      type: partner.value.type as StorePartnerRequestTypeEnum,
       country_id: partner.value.country?.id || '',
       backward_compatibility: partner.value.backward_compatibility || '',
     }

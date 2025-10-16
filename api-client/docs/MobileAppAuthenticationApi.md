@@ -1,6 +1,6 @@
 # MobileAppAuthenticationApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -11,7 +11,7 @@ All URIs are relative to *http://localhost/api*
 |[**tokenWipe**](#tokenwipe) | **GET** /mobile/wipe | Revoke all the token for the current user|
 
 # **tokenAcquire**
-> TokenAcquire201Response tokenAcquire(tokenAcquireRequest)
+> TokenAcquire201Response tokenAcquire(acquireTokenMobileAppAuthenticationRequest)
 
 
 ### Example
@@ -20,16 +20,16 @@ All URIs are relative to *http://localhost/api*
 import {
     MobileAppAuthenticationApi,
     Configuration,
-    TokenAcquireRequest
+    AcquireTokenMobileAppAuthenticationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new MobileAppAuthenticationApi(configuration);
 
-let tokenAcquireRequest: TokenAcquireRequest; //
+let acquireTokenMobileAppAuthenticationRequest: AcquireTokenMobileAppAuthenticationRequest; //
 
 const { status, data } = await apiInstance.tokenAcquire(
-    tokenAcquireRequest
+    acquireTokenMobileAppAuthenticationRequest
 );
 ```
 
@@ -37,7 +37,7 @@ const { status, data } = await apiInstance.tokenAcquire(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **tokenAcquireRequest** | **TokenAcquireRequest**|  | |
+| **acquireTokenMobileAppAuthenticationRequest** | **AcquireTokenMobileAppAuthenticationRequest**|  | |
 
 
 ### Return type
@@ -64,7 +64,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **tokenRequestEmailCode**
-> TokenRequestEmailCode200Response tokenRequestEmailCode(tokenRequestEmailCodeRequest)
+> TokenRequestEmailCode200Response tokenRequestEmailCode(requestEmailCodeMobileAppAuthenticationRequest)
 
 
 ### Example
@@ -73,16 +73,16 @@ No authorization required
 import {
     MobileAppAuthenticationApi,
     Configuration,
-    TokenRequestEmailCodeRequest
+    RequestEmailCodeMobileAppAuthenticationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new MobileAppAuthenticationApi(configuration);
 
-let tokenRequestEmailCodeRequest: TokenRequestEmailCodeRequest; //
+let requestEmailCodeMobileAppAuthenticationRequest: RequestEmailCodeMobileAppAuthenticationRequest; //
 
 const { status, data } = await apiInstance.tokenRequestEmailCode(
-    tokenRequestEmailCodeRequest
+    requestEmailCodeMobileAppAuthenticationRequest
 );
 ```
 
@@ -90,7 +90,7 @@ const { status, data } = await apiInstance.tokenRequestEmailCode(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **tokenRequestEmailCodeRequest** | **TokenRequestEmailCodeRequest**|  | |
+| **requestEmailCodeMobileAppAuthenticationRequest** | **RequestEmailCodeMobileAppAuthenticationRequest**|  | |
 
 
 ### Return type
@@ -110,13 +110,13 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**200** | &#x60;EmailCodeRequestResource&#x60; |  -  |
 |**422** | Validation error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **tokenTwoFactorStatus**
-> TokenTwoFactorStatus200Response tokenTwoFactorStatus(tokenRequestEmailCodeRequest)
+> TokenTwoFactorStatus200Response tokenTwoFactorStatus(twoFactorStatusMobileAppAuthenticationRequest)
 
 
 ### Example
@@ -125,16 +125,16 @@ No authorization required
 import {
     MobileAppAuthenticationApi,
     Configuration,
-    TokenRequestEmailCodeRequest
+    TwoFactorStatusMobileAppAuthenticationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new MobileAppAuthenticationApi(configuration);
 
-let tokenRequestEmailCodeRequest: TokenRequestEmailCodeRequest; //
+let twoFactorStatusMobileAppAuthenticationRequest: TwoFactorStatusMobileAppAuthenticationRequest; //
 
 const { status, data } = await apiInstance.tokenTwoFactorStatus(
-    tokenRequestEmailCodeRequest
+    twoFactorStatusMobileAppAuthenticationRequest
 );
 ```
 
@@ -142,7 +142,7 @@ const { status, data } = await apiInstance.tokenTwoFactorStatus(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **tokenRequestEmailCodeRequest** | **TokenRequestEmailCodeRequest**|  | |
+| **twoFactorStatusMobileAppAuthenticationRequest** | **TwoFactorStatusMobileAppAuthenticationRequest**|  | |
 
 
 ### Return type
@@ -162,13 +162,13 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**200** | &#x60;TwoFactorStatusResource&#x60; |  -  |
 |**422** | Validation error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **tokenVerifyTwoFactor**
-> TokenVerifyTwoFactor201Response tokenVerifyTwoFactor(tokenVerifyTwoFactorRequest)
+> TokenAcquire201Response tokenVerifyTwoFactor(verifyTwoFactorMobileAppAuthenticationRequest)
 
 
 ### Example
@@ -177,16 +177,16 @@ No authorization required
 import {
     MobileAppAuthenticationApi,
     Configuration,
-    TokenVerifyTwoFactorRequest
+    VerifyTwoFactorMobileAppAuthenticationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new MobileAppAuthenticationApi(configuration);
 
-let tokenVerifyTwoFactorRequest: TokenVerifyTwoFactorRequest; //
+let verifyTwoFactorMobileAppAuthenticationRequest: VerifyTwoFactorMobileAppAuthenticationRequest; //
 
 const { status, data } = await apiInstance.tokenVerifyTwoFactor(
-    tokenVerifyTwoFactorRequest
+    verifyTwoFactorMobileAppAuthenticationRequest
 );
 ```
 
@@ -194,12 +194,12 @@ const { status, data } = await apiInstance.tokenVerifyTwoFactor(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **tokenVerifyTwoFactorRequest** | **TokenVerifyTwoFactorRequest**|  | |
+| **verifyTwoFactorMobileAppAuthenticationRequest** | **VerifyTwoFactorMobileAppAuthenticationRequest**|  | |
 
 
 ### Return type
 
-**TokenVerifyTwoFactor201Response**
+**TokenAcquire201Response**
 
 ### Authorization
 

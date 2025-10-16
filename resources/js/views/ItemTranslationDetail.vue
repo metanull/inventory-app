@@ -428,8 +428,8 @@
   import { useColors, type ColorName } from '@/composables/useColors'
   import type {
     ItemTranslationResource,
-    ItemTranslationStoreRequest,
-    ItemTranslationUpdateRequest,
+    StoreItemTranslationRequest,
+    UpdateItemTranslationRequest,
   } from '@metanull/inventory-app-api-client'
 
   // Props
@@ -823,14 +823,14 @@
       }
 
       if (mode.value === 'create') {
-        await translationStore.createItemTranslation(prepareData() as ItemTranslationStoreRequest)
+        await translationStore.createItemTranslation(prepareData() as StoreItemTranslationRequest)
         errorStore.addMessage('info', 'Translation created successfully')
         router.push('/item-translations')
       } else {
         const id = route.params.id as string
         await translationStore.updateItemTranslation(
           id,
-          prepareData() as ItemTranslationUpdateRequest
+          prepareData() as UpdateItemTranslationRequest
         )
         errorStore.addMessage('info', 'Translation updated successfully')
         mode.value = 'view'

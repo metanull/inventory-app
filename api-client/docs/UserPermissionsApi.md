@@ -1,14 +1,15 @@
 # UserPermissionsApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**userPermissions**](#userpermissions) | **GET** /user/permissions | Get the authenticated user\&#39;s permissions.    Returns a list of permission names that the authenticated user has.  This is a read-only endpoint for UI clients to determine what features  to show to the user|
+|[**userPermissions**](#userpermissions) | **GET** /user/permissions | Get the authenticated user\&#39;s permissions|
 
 # **userPermissions**
 > UserPermissions200Response userPermissions()
 
+Returns a list of permission names that the authenticated user has. This is a read-only endpoint for UI clients to determine what features to show to the user.
 
 ### Example
 
@@ -45,7 +46,7 @@ This endpoint does not have any parameters.
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**200** | &#x60;UserPermissionsResource&#x60; |  -  |
 |**401** | Unauthenticated |  -  |
 |**422** | Validation error |  -  |
 |**403** | Authorization error |  -  |

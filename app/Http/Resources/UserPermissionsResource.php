@@ -6,19 +6,19 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property array<string> $resource
+ * Resource for user permissions information.
  */
 class UserPermissionsResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @return array<string, array<int, string>>
+     * @return array<string, mixed>
      */
     public function toArray(Request $request): array
     {
         return [
-            'data' => $this->resource,
+            'permissions' => $this->resource['permissions'] ?? [],
         ];
     }
 }

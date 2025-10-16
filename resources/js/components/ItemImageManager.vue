@@ -279,7 +279,9 @@
     if (props.itemId) {
       try {
         await itemImageStore.fetchItemImages(props.itemId)
-      } catch {
+        console.log('[ItemImageManager] Loaded images:', itemImageStore.itemImages.length)
+      } catch (error) {
+        console.error('[ItemImageManager] Failed to load images:', error)
         errorStore.addMessage('error', 'Failed to load images')
       }
     }

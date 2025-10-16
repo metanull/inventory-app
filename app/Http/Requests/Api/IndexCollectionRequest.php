@@ -2,13 +2,13 @@
 
 namespace App\Http\Requests\Api;
 
-use App\Support\Includes\AllowList;
-use App\Support\Includes\IncludeParser;
-use App\Support\Pagination\PaginationParams;
+use App\Http\Requests\Api\Concerns\HasPaginationAndIncludes;
 use Illuminate\Foundation\Http\FormRequest;
 
 class IndexCollectionRequest extends FormRequest
 {
+    use HasPaginationAndIncludes;
+
     public function authorize(): bool
     {
         return $this->user() !== null;
@@ -23,23 +23,8 @@ class IndexCollectionRequest extends FormRequest
         ];
     }
 
-    /**
-     * Get validated pagination parameters.
-     *
-     * @return array{page:int, per_page:int}
-     */
-    public function getPaginationParams(): array
+    protected function getIncludeAllowlistKey(): string
     {
-        return PaginationParams::fromRequest($this);
-    }
-
-    /**
-     * Get validated include parameters.
-     *
-     * @return array<int, string>
-     */
-    public function getIncludeParams(): array
-    {
-        return IncludeParser::fromRequest($this, AllowList::for('collection'));
+        return 'collection';
     }
 }

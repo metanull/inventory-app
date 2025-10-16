@@ -169,8 +169,8 @@
   import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
   import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
   import type {
-    CollectionStoreRequest,
-    CollectionStoreRequestTypeEnum,
+    StoreCollectionRequest,
+    StoreCollectionRequestTypeEnum,
   } from '@metanull/inventory-app-api-client'
   import { useColors, type ColorName } from '@/composables/useColors'
 
@@ -339,12 +339,12 @@
     try {
       loadingStore.show(mode.value === 'create' ? 'Creating...' : 'Saving...')
 
-      const collectionData: CollectionStoreRequest = {
+      const collectionData: StoreCollectionRequest = {
         internal_name: editForm.value.internal_name,
         language_id: editForm.value.language_id,
         context_id: editForm.value.context_id,
         backward_compatibility: editForm.value.backward_compatibility || undefined,
-        type: editForm.value.type as CollectionStoreRequestTypeEnum,
+        type: editForm.value.type as StoreCollectionRequestTypeEnum,
       }
 
       if (mode.value === 'create') {

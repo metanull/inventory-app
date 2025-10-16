@@ -119,7 +119,12 @@ export const useImageUploadStore = defineStore('imageUpload', () => {
       const apiClient = createApiClient()
       const response = await apiClient.imageUploadStatus(uploadId)
       console.debug(`Upload status for ${uploadId}:`, response.data)
-      return response.data
+      // The API returns { data: ImageUploadStatusResource } so we need to extract data
+      const statusData = response.data.data
+      return {
+        status: statusData.status,
+        available_image: statusData.available_image,
+      }
     } catch (error) {
       console.error(`Error checking upload status for ${uploadId}:`, error)
       // Return a status indicating the check failed, not null

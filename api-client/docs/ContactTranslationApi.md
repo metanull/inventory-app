@@ -1,6 +1,6 @@
 # ContactTranslationApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -8,7 +8,8 @@ All URIs are relative to *http://localhost/api*
 |[**contactTranslationIndex**](#contacttranslationindex) | **GET** /contact-translation | Display a listing of the resource|
 |[**contactTranslationShow**](#contacttranslationshow) | **GET** /contact-translation/{contactTranslation} | Display the specified resource|
 |[**contactTranslationStore**](#contacttranslationstore) | **POST** /contact-translation | Store a newly created resource in storage|
-|[**contactTranslationUpdate**](#contacttranslationupdate) | **PUT** /contact-translation/{contactTranslation} | Update the specified resource in storage|
+|[**contactTranslationUpdate**](#contacttranslationupdate) | **PATCH** /contact-translation/{contactTranslation} | Update the specified resource in storage|
+|[**contactTranslationUpdate2**](#contacttranslationupdate2) | **PUT** /contact-translation/{contactTranslation} | Update the specified resource in storage|
 
 # **contactTranslationDestroy**
 > contactTranslationDestroy()
@@ -107,7 +108,7 @@ This endpoint does not have any parameters.
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **contactTranslationShow**
-> ContactTranslationStore200Response contactTranslationShow()
+> ContactTranslationShow200Response contactTranslationShow()
 
 
 ### Example
@@ -137,7 +138,7 @@ const { status, data } = await apiInstance.contactTranslationShow(
 
 ### Return type
 
-**ContactTranslationStore200Response**
+**ContactTranslationShow200Response**
 
 ### Authorization
 
@@ -159,7 +160,7 @@ const { status, data } = await apiInstance.contactTranslationShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **contactTranslationStore**
-> ContactTranslationStore200Response contactTranslationStore(contactTranslationStoreRequest)
+> ContactTranslationShow200Response contactTranslationStore(storeContactTranslationRequest)
 
 
 ### Example
@@ -168,16 +169,16 @@ const { status, data } = await apiInstance.contactTranslationShow(
 import {
     ContactTranslationApi,
     Configuration,
-    ContactTranslationStoreRequest
+    StoreContactTranslationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ContactTranslationApi(configuration);
 
-let contactTranslationStoreRequest: ContactTranslationStoreRequest; //
+let storeContactTranslationRequest: StoreContactTranslationRequest; //
 
 const { status, data } = await apiInstance.contactTranslationStore(
-    contactTranslationStoreRequest
+    storeContactTranslationRequest
 );
 ```
 
@@ -185,12 +186,12 @@ const { status, data } = await apiInstance.contactTranslationStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **contactTranslationStoreRequest** | **ContactTranslationStoreRequest**|  | |
+| **storeContactTranslationRequest** | **StoreContactTranslationRequest**|  | |
 
 
 ### Return type
 
-**ContactTranslationStore200Response**
+**ContactTranslationShow200Response**
 
 ### Authorization
 
@@ -206,13 +207,14 @@ const { status, data } = await apiInstance.contactTranslationStore(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ContactTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **contactTranslationUpdate**
-> ContactTranslationStore200Response contactTranslationUpdate()
+> ContactTranslationShow200Response contactTranslationUpdate()
 
 
 ### Example
@@ -221,18 +223,18 @@ const { status, data } = await apiInstance.contactTranslationStore(
 import {
     ContactTranslationApi,
     Configuration,
-    ContactTranslationUpdateRequest
+    UpdateContactTranslationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ContactTranslationApi(configuration);
 
 let contactTranslation: string; //The contact translation ID (default to undefined)
-let contactTranslationUpdateRequest: ContactTranslationUpdateRequest; // (optional)
+let updateContactTranslationRequest: UpdateContactTranslationRequest; // (optional)
 
 const { status, data } = await apiInstance.contactTranslationUpdate(
     contactTranslation,
-    contactTranslationUpdateRequest
+    updateContactTranslationRequest
 );
 ```
 
@@ -240,13 +242,13 @@ const { status, data } = await apiInstance.contactTranslationUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **contactTranslationUpdateRequest** | **ContactTranslationUpdateRequest**|  | |
+| **updateContactTranslationRequest** | **UpdateContactTranslationRequest**|  | |
 | **contactTranslation** | [**string**] | The contact translation ID | defaults to undefined|
 
 
 ### Return type
 
-**ContactTranslationStore200Response**
+**ContactTranslationShow200Response**
 
 ### Authorization
 
@@ -262,9 +264,68 @@ const { status, data } = await apiInstance.contactTranslationUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ContactTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **contactTranslationUpdate2**
+> ContactTranslationShow200Response contactTranslationUpdate2()
+
+
+### Example
+
+```typescript
+import {
+    ContactTranslationApi,
+    Configuration,
+    UpdateContactTranslationRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ContactTranslationApi(configuration);
+
+let contactTranslation: string; //The contact translation ID (default to undefined)
+let updateContactTranslationRequest: UpdateContactTranslationRequest; // (optional)
+
+const { status, data } = await apiInstance.contactTranslationUpdate2(
+    contactTranslation,
+    updateContactTranslationRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateContactTranslationRequest** | **UpdateContactTranslationRequest**|  | |
+| **contactTranslation** | [**string**] | The contact translation ID | defaults to undefined|
+
+
+### Return type
+
+**ContactTranslationShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ContactTranslationResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

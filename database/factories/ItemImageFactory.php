@@ -16,9 +16,14 @@ class ItemImageFactory extends Factory
      */
     public function definition(): array
     {
+        // Generate a local path for testing - this creates a path that would exist
+        // in the storage/app/images directory. For tests, we'll create actual placeholder files.
+        $filename = fake()->uuid().'.jpg';
+        $path = 'images/items/'.$filename;
+
         return [
             'item_id' => \App\Models\Item::factory(),
-            'path' => fake()->imageUrl(800, 600, 'objects', true),
+            'path' => $path,
             'original_name' => fake()->word().'_'.fake()->randomNumber(4).'.jpg',
             'mime_type' => fake()->randomElement(['image/jpeg', 'image/png', 'image/webp']),
             'size' => fake()->numberBetween(50000, 2000000), // 50KB to 2MB
