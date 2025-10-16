@@ -1,6 +1,6 @@
 # AddressTranslationApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -8,7 +8,8 @@ All URIs are relative to *http://localhost/api*
 |[**addressTranslationIndex**](#addresstranslationindex) | **GET** /address-translation | Display a listing of the resource|
 |[**addressTranslationShow**](#addresstranslationshow) | **GET** /address-translation/{addressTranslation} | Display the specified resource|
 |[**addressTranslationStore**](#addresstranslationstore) | **POST** /address-translation | Store a newly created resource in storage|
-|[**addressTranslationUpdate**](#addresstranslationupdate) | **PUT** /address-translation/{addressTranslation} | Update the specified resource in storage|
+|[**addressTranslationUpdate**](#addresstranslationupdate) | **PATCH** /address-translation/{addressTranslation} | Update the specified resource in storage|
+|[**addressTranslationUpdate2**](#addresstranslationupdate2) | **PUT** /address-translation/{addressTranslation} | Update the specified resource in storage|
 
 # **addressTranslationDestroy**
 > addressTranslationDestroy()
@@ -107,7 +108,7 @@ This endpoint does not have any parameters.
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **addressTranslationShow**
-> AddressTranslationStore200Response addressTranslationShow()
+> AddressTranslationShow200Response addressTranslationShow()
 
 
 ### Example
@@ -137,7 +138,7 @@ const { status, data } = await apiInstance.addressTranslationShow(
 
 ### Return type
 
-**AddressTranslationStore200Response**
+**AddressTranslationShow200Response**
 
 ### Authorization
 
@@ -159,7 +160,7 @@ const { status, data } = await apiInstance.addressTranslationShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **addressTranslationStore**
-> AddressTranslationStore200Response addressTranslationStore(addressTranslationStoreRequest)
+> AddressTranslationShow200Response addressTranslationStore(storeAddressTranslationRequest)
 
 
 ### Example
@@ -168,16 +169,16 @@ const { status, data } = await apiInstance.addressTranslationShow(
 import {
     AddressTranslationApi,
     Configuration,
-    AddressTranslationStoreRequest
+    StoreAddressTranslationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AddressTranslationApi(configuration);
 
-let addressTranslationStoreRequest: AddressTranslationStoreRequest; //
+let storeAddressTranslationRequest: StoreAddressTranslationRequest; //
 
 const { status, data } = await apiInstance.addressTranslationStore(
-    addressTranslationStoreRequest
+    storeAddressTranslationRequest
 );
 ```
 
@@ -185,12 +186,12 @@ const { status, data } = await apiInstance.addressTranslationStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **addressTranslationStoreRequest** | **AddressTranslationStoreRequest**|  | |
+| **storeAddressTranslationRequest** | **StoreAddressTranslationRequest**|  | |
 
 
 ### Return type
 
-**AddressTranslationStore200Response**
+**AddressTranslationShow200Response**
 
 ### Authorization
 
@@ -206,13 +207,14 @@ const { status, data } = await apiInstance.addressTranslationStore(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;AddressTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **addressTranslationUpdate**
-> AddressTranslationStore200Response addressTranslationUpdate()
+> AddressTranslationShow200Response addressTranslationUpdate()
 
 
 ### Example
@@ -221,18 +223,18 @@ const { status, data } = await apiInstance.addressTranslationStore(
 import {
     AddressTranslationApi,
     Configuration,
-    AddressTranslationUpdateRequest
+    UpdateAddressTranslationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AddressTranslationApi(configuration);
 
 let addressTranslation: string; //The address translation ID (default to undefined)
-let addressTranslationUpdateRequest: AddressTranslationUpdateRequest; // (optional)
+let updateAddressTranslationRequest: UpdateAddressTranslationRequest; // (optional)
 
 const { status, data } = await apiInstance.addressTranslationUpdate(
     addressTranslation,
-    addressTranslationUpdateRequest
+    updateAddressTranslationRequest
 );
 ```
 
@@ -240,13 +242,13 @@ const { status, data } = await apiInstance.addressTranslationUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **addressTranslationUpdateRequest** | **AddressTranslationUpdateRequest**|  | |
+| **updateAddressTranslationRequest** | **UpdateAddressTranslationRequest**|  | |
 | **addressTranslation** | [**string**] | The address translation ID | defaults to undefined|
 
 
 ### Return type
 
-**AddressTranslationStore200Response**
+**AddressTranslationShow200Response**
 
 ### Authorization
 
@@ -262,9 +264,68 @@ const { status, data } = await apiInstance.addressTranslationUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;AddressTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **addressTranslationUpdate2**
+> AddressTranslationShow200Response addressTranslationUpdate2()
+
+
+### Example
+
+```typescript
+import {
+    AddressTranslationApi,
+    Configuration,
+    UpdateAddressTranslationRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AddressTranslationApi(configuration);
+
+let addressTranslation: string; //The address translation ID (default to undefined)
+let updateAddressTranslationRequest: UpdateAddressTranslationRequest; // (optional)
+
+const { status, data } = await apiInstance.addressTranslationUpdate2(
+    addressTranslation,
+    updateAddressTranslationRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateAddressTranslationRequest** | **UpdateAddressTranslationRequest**|  | |
+| **addressTranslation** | [**string**] | The address translation ID | defaults to undefined|
+
+
+### Return type
+
+**AddressTranslationShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;AddressTranslationResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

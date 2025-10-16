@@ -73,16 +73,18 @@ class VersionTest extends TestCase
 
         $response->assertOk()
             ->assertJsonStructure([
-                'repository',
-                'build_timestamp' => [
-                    'value',
-                    'DisplayHint',
-                    'DateTime',
+                'data' => [
+                    'repository',
+                    'build_timestamp' => [
+                        'value',
+                        'DisplayHint',
+                        'DateTime',
+                    ],
+                    'repository_url',
+                    'api_client_version',
+                    'app_version',
+                    'commit_sha',
                 ],
-                'repository_url',
-                'api_client_version',
-                'app_version',
-                'commit_sha',
             ]);
     }
 
@@ -101,16 +103,18 @@ class VersionTest extends TestCase
 
         $response->assertOk()
             ->assertJsonStructure([
-                'repository',
-                'build_timestamp' => [
-                    'value',
-                    'DisplayHint',
-                    'DateTime',
+                'data' => [
+                    'repository',
+                    'build_timestamp' => [
+                        'value',
+                        'DisplayHint',
+                        'DateTime',
+                    ],
+                    'repository_url',
+                    'api_client_version',
+                    'app_version',
+                    'commit_sha',
                 ],
-                'repository_url',
-                'api_client_version',
-                'app_version',
-                'commit_sha',
             ]);
     }
 
@@ -124,8 +128,8 @@ class VersionTest extends TestCase
         $response = $this->getJson(route('info.version'));
 
         $response->assertOk()
-            ->assertJsonPath('repository', 'metanull/inventory-app')
-            ->assertJsonPath('repository_url', 'https://github.com/metanull/inventory-app');
+            ->assertJsonPath('data.repository', 'metanull/inventory-app')
+            ->assertJsonPath('data.repository_url', 'https://github.com/metanull/inventory-app');
     }
 
     /**
@@ -139,7 +143,7 @@ class VersionTest extends TestCase
 
         $response->assertOk();
 
-        $data = $response->json();
+        $data = $response->json('data');
         $this->assertIsString($data['app_version']);
         $this->assertNotEmpty($data['app_version']);
 
@@ -159,7 +163,7 @@ class VersionTest extends TestCase
 
         $response->assertOk();
 
-        $data = $response->json();
+        $data = $response->json('data');
         $this->assertIsArray($data['build_timestamp']);
         $this->assertArrayHasKey('DateTime', $data['build_timestamp']);
         $this->assertArrayHasKey('value', $data['build_timestamp']);
@@ -180,7 +184,7 @@ class VersionTest extends TestCase
 
         $response->assertOk();
 
-        $data = $response->json();
+        $data = $response->json('data');
         $version = $data['app_version'];
 
         // Version should be either a semantic version, git hash, or development version
@@ -206,8 +210,8 @@ class VersionTest extends TestCase
         $response1->assertOk();
         $response2->assertOk();
 
-        $data1 = $response1->json();
-        $data2 = $response2->json();
+        $data1 = $response1->json('data');
+        $data2 = $response2->json('data');
 
         $this->assertEquals($data1['app_version'], $data2['app_version']);
         $this->assertEquals($data1['repository'], $data2['repository']);
@@ -225,7 +229,7 @@ class VersionTest extends TestCase
 
         $response->assertOk();
 
-        $data = $response->json();
+        $data = $response->json('data');
         $this->assertArrayHasKey('api_client_version', $data);
         $this->assertIsString($data['api_client_version']);
         $this->assertNotEmpty($data['api_client_version']);
@@ -243,16 +247,18 @@ class VersionTest extends TestCase
 
         $response->assertOk()
             ->assertJsonStructure([
-                'repository',
-                'build_timestamp' => [
-                    'value',
-                    'DisplayHint',
-                    'DateTime',
+                'data' => [
+                    'repository',
+                    'build_timestamp' => [
+                        'value',
+                        'DisplayHint',
+                        'DateTime',
+                    ],
+                    'repository_url',
+                    'api_client_version',
+                    'app_version',
+                    'commit_sha',
                 ],
-                'repository_url',
-                'api_client_version',
-                'app_version',
-                'commit_sha',
             ]);
     }
 }

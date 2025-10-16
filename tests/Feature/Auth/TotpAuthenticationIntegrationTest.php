@@ -208,10 +208,12 @@ class TotpAuthenticationIntegrationTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'two_factor_enabled' => true,
-            'available_methods' => ['totp'],
-            'primary_method' => 'totp',
-            'requires_two_factor' => true,
+            'data' => [
+                'two_factor_enabled' => true,
+                'available_methods' => ['totp'],
+                'primary_method' => 'totp',
+                'requires_two_factor' => true,
+            ],
         ]);
     }
 

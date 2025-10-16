@@ -1,6 +1,6 @@
 # LanguageApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -12,10 +12,11 @@ All URIs are relative to *http://localhost/api*
 |[**languageSetDefault**](#languagesetdefault) | **PATCH** /language/{language}/default | Set or unset a Language as the default one|
 |[**languageShow**](#languageshow) | **GET** /language/{language} | Display the specified resource|
 |[**languageStore**](#languagestore) | **POST** /language | Store a newly created resource in storage|
-|[**languageUpdate**](#languageupdate) | **PUT** /language/{language} | Update the specified resource in storage|
+|[**languageUpdate**](#languageupdate) | **PATCH** /language/{language} | Update the specified resource in storage|
+|[**languageUpdate2**](#languageupdate2) | **PUT** /language/{language} | Update the specified resource in storage|
 
 # **languageClearDefault**
-> LanguageClearDefault200Response languageClearDefault()
+> ContextClearDefault200Response languageClearDefault()
 
 
 ### Example
@@ -38,7 +39,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**LanguageClearDefault200Response**
+**ContextClearDefault200Response**
 
 ### Authorization
 
@@ -53,7 +54,7 @@ This endpoint does not have any parameters.
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**200** | &#x60;MessageResource&#x60; |  -  |
 |**401** | Unauthenticated |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -111,7 +112,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **languageGetDefault**
-> LanguageSetDefault200Response languageGetDefault()
+> LanguageGetDefault200Response languageGetDefault()
 
 
 ### Example
@@ -134,7 +135,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**LanguageSetDefault200Response**
+**LanguageGetDefault200Response**
 
 ### Authorization
 
@@ -156,7 +157,7 @@ This endpoint does not have any parameters.
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **languageGetEnglish**
-> LanguageSetDefault200Response languageGetEnglish()
+> LanguageGetDefault200Response languageGetEnglish()
 
 
 ### Example
@@ -179,7 +180,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**LanguageSetDefault200Response**
+**LanguageGetDefault200Response**
 
 ### Authorization
 
@@ -257,7 +258,7 @@ const { status, data } = await apiInstance.languageIndex(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **languageSetDefault**
-> LanguageSetDefault200Response languageSetDefault(contextSetDefaultRequest)
+> LanguageGetDefault200Response languageSetDefault(setDefaultLanguageRequest)
 
 
 ### Example
@@ -266,18 +267,18 @@ const { status, data } = await apiInstance.languageIndex(
 import {
     LanguageApi,
     Configuration,
-    ContextSetDefaultRequest
+    SetDefaultLanguageRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LanguageApi(configuration);
 
 let language: string; //The language ID (default to undefined)
-let contextSetDefaultRequest: ContextSetDefaultRequest; //
+let setDefaultLanguageRequest: SetDefaultLanguageRequest; //
 
 const { status, data } = await apiInstance.languageSetDefault(
     language,
-    contextSetDefaultRequest
+    setDefaultLanguageRequest
 );
 ```
 
@@ -285,13 +286,13 @@ const { status, data } = await apiInstance.languageSetDefault(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **contextSetDefaultRequest** | **ContextSetDefaultRequest**|  | |
+| **setDefaultLanguageRequest** | **SetDefaultLanguageRequest**|  | |
 | **language** | [**string**] | The language ID | defaults to undefined|
 
 
 ### Return type
 
-**LanguageSetDefault200Response**
+**LanguageGetDefault200Response**
 
 ### Authorization
 
@@ -307,14 +308,15 @@ const { status, data } = await apiInstance.languageSetDefault(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;LanguageResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **languageShow**
-> LanguageSetDefault200Response languageShow()
+> LanguageGetDefault200Response languageShow()
 
 
 ### Example
@@ -344,7 +346,7 @@ const { status, data } = await apiInstance.languageShow(
 
 ### Return type
 
-**LanguageSetDefault200Response**
+**LanguageGetDefault200Response**
 
 ### Authorization
 
@@ -368,7 +370,7 @@ const { status, data } = await apiInstance.languageShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **languageStore**
-> LanguageSetDefault200Response languageStore(languageStoreRequest)
+> LanguageGetDefault200Response languageStore(storeLanguageRequest)
 
 
 ### Example
@@ -377,16 +379,16 @@ const { status, data } = await apiInstance.languageShow(
 import {
     LanguageApi,
     Configuration,
-    LanguageStoreRequest
+    StoreLanguageRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LanguageApi(configuration);
 
-let languageStoreRequest: LanguageStoreRequest; //
+let storeLanguageRequest: StoreLanguageRequest; //
 
 const { status, data } = await apiInstance.languageStore(
-    languageStoreRequest
+    storeLanguageRequest
 );
 ```
 
@@ -394,12 +396,12 @@ const { status, data } = await apiInstance.languageStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **languageStoreRequest** | **LanguageStoreRequest**|  | |
+| **storeLanguageRequest** | **StoreLanguageRequest**|  | |
 
 
 ### Return type
 
-**LanguageSetDefault200Response**
+**LanguageGetDefault200Response**
 
 ### Authorization
 
@@ -415,13 +417,14 @@ const { status, data } = await apiInstance.languageStore(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;LanguageResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **languageUpdate**
-> LanguageSetDefault200Response languageUpdate(languageUpdateRequest)
+> LanguageGetDefault200Response languageUpdate(updateLanguageRequest)
 
 
 ### Example
@@ -430,18 +433,18 @@ const { status, data } = await apiInstance.languageStore(
 import {
     LanguageApi,
     Configuration,
-    LanguageUpdateRequest
+    UpdateLanguageRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LanguageApi(configuration);
 
 let language: string; //The language ID (default to undefined)
-let languageUpdateRequest: LanguageUpdateRequest; //
+let updateLanguageRequest: UpdateLanguageRequest; //
 
 const { status, data } = await apiInstance.languageUpdate(
     language,
-    languageUpdateRequest
+    updateLanguageRequest
 );
 ```
 
@@ -449,13 +452,13 @@ const { status, data } = await apiInstance.languageUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **languageUpdateRequest** | **LanguageUpdateRequest**|  | |
+| **updateLanguageRequest** | **UpdateLanguageRequest**|  | |
 | **language** | [**string**] | The language ID | defaults to undefined|
 
 
 ### Return type
 
-**LanguageSetDefault200Response**
+**LanguageGetDefault200Response**
 
 ### Authorization
 
@@ -471,9 +474,68 @@ const { status, data } = await apiInstance.languageUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;LanguageResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **languageUpdate2**
+> LanguageGetDefault200Response languageUpdate2(updateLanguageRequest)
+
+
+### Example
+
+```typescript
+import {
+    LanguageApi,
+    Configuration,
+    UpdateLanguageRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new LanguageApi(configuration);
+
+let language: string; //The language ID (default to undefined)
+let updateLanguageRequest: UpdateLanguageRequest; //
+
+const { status, data } = await apiInstance.languageUpdate2(
+    language,
+    updateLanguageRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateLanguageRequest** | **UpdateLanguageRequest**|  | |
+| **language** | [**string**] | The language ID | defaults to undefined|
+
+
+### Return type
+
+**LanguageGetDefault200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;LanguageResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

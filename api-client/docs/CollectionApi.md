@@ -1,6 +1,6 @@
 # CollectionApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -13,10 +13,11 @@ All URIs are relative to *http://localhost/api*
 |[**collectionIndex**](#collectionindex) | **GET** /collection | Display a listing of the collections|
 |[**collectionShow**](#collectionshow) | **GET** /collection/{collection} | Display the specified collection|
 |[**collectionStore**](#collectionstore) | **POST** /collection | Store a newly created collection in storage|
-|[**collectionUpdate**](#collectionupdate) | **PUT** /collection/{collection} | Update the specified collection in storage|
+|[**collectionUpdate**](#collectionupdate) | **PATCH** /collection/{collection} | Update the specified collection in storage|
+|[**collectionUpdate2**](#collectionupdate2) | **PUT** /collection/{collection} | Update the specified collection in storage|
 
 # **collectionAttachItem**
-> CollectionAttachItem200Response collectionAttachItem(collectionAttachItemRequest)
+> CollectionAttachItem200Response collectionAttachItem(attachItemCollectionRequest)
 
 
 ### Example
@@ -25,18 +26,18 @@ All URIs are relative to *http://localhost/api*
 import {
     CollectionApi,
     Configuration,
-    CollectionAttachItemRequest
+    AttachItemCollectionRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CollectionApi(configuration);
 
 let collection: string; //The collection ID (default to undefined)
-let collectionAttachItemRequest: CollectionAttachItemRequest; //
+let attachItemCollectionRequest: AttachItemCollectionRequest; //
 
 const { status, data } = await apiInstance.collectionAttachItem(
     collection,
-    collectionAttachItemRequest
+    attachItemCollectionRequest
 );
 ```
 
@@ -44,7 +45,7 @@ const { status, data } = await apiInstance.collectionAttachItem(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **collectionAttachItemRequest** | **CollectionAttachItemRequest**|  | |
+| **attachItemCollectionRequest** | **AttachItemCollectionRequest**|  | |
 | **collection** | [**string**] | The collection ID | defaults to undefined|
 
 
@@ -65,15 +66,16 @@ const { status, data } = await apiInstance.collectionAttachItem(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
-|**422** | Validation error |  -  |
+|**200** | &#x60;OperationSuccessResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **collectionAttachItems**
-> CollectionAttachItems200Response collectionAttachItems(collectionAttachItemsRequest)
+> CollectionAttachItem200Response collectionAttachItems(attachItemsCollectionRequest)
 
 
 ### Example
@@ -82,18 +84,18 @@ const { status, data } = await apiInstance.collectionAttachItem(
 import {
     CollectionApi,
     Configuration,
-    CollectionAttachItemsRequest
+    AttachItemsCollectionRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CollectionApi(configuration);
 
 let collection: string; //The collection ID (default to undefined)
-let collectionAttachItemsRequest: CollectionAttachItemsRequest; //
+let attachItemsCollectionRequest: AttachItemsCollectionRequest; //
 
 const { status, data } = await apiInstance.collectionAttachItems(
     collection,
-    collectionAttachItemsRequest
+    attachItemsCollectionRequest
 );
 ```
 
@@ -101,13 +103,13 @@ const { status, data } = await apiInstance.collectionAttachItems(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **collectionAttachItemsRequest** | **CollectionAttachItemsRequest**|  | |
+| **attachItemsCollectionRequest** | **AttachItemsCollectionRequest**|  | |
 | **collection** | [**string**] | The collection ID | defaults to undefined|
 
 
 ### Return type
 
-**CollectionAttachItems200Response**
+**CollectionAttachItem200Response**
 
 ### Authorization
 
@@ -122,10 +124,11 @@ const { status, data } = await apiInstance.collectionAttachItems(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
-|**422** | Validation error |  -  |
+|**200** | &#x60;OperationSuccessResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -237,7 +240,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **collectionDetachItem**
-> CollectionDetachItem200Response collectionDetachItem()
+> CollectionAttachItem200Response collectionDetachItem()
 
 
 ### Example
@@ -270,7 +273,7 @@ const { status, data } = await apiInstance.collectionDetachItem(
 
 ### Return type
 
-**CollectionDetachItem200Response**
+**CollectionAttachItem200Response**
 
 ### Authorization
 
@@ -285,15 +288,16 @@ const { status, data } = await apiInstance.collectionDetachItem(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
-|**422** | Validation error |  -  |
+|**200** | &#x60;OperationSuccessResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **collectionDetachItems**
-> CollectionDetachItems200Response collectionDetachItems()
+> CollectionAttachItem200Response collectionDetachItems()
 
 
 ### Example
@@ -326,7 +330,7 @@ const { status, data } = await apiInstance.collectionDetachItems(
 
 ### Return type
 
-**CollectionDetachItems200Response**
+**CollectionAttachItem200Response**
 
 ### Authorization
 
@@ -341,10 +345,11 @@ const { status, data } = await apiInstance.collectionDetachItems(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
-|**422** | Validation error |  -  |
+|**200** | &#x60;OperationSuccessResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -408,7 +413,7 @@ const { status, data } = await apiInstance.collectionIndex(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **collectionShow**
-> CollectionStore200Response collectionShow()
+> CollectionShow200Response collectionShow()
 
 
 ### Example
@@ -441,7 +446,7 @@ const { status, data } = await apiInstance.collectionShow(
 
 ### Return type
 
-**CollectionStore200Response**
+**CollectionShow200Response**
 
 ### Authorization
 
@@ -465,7 +470,7 @@ const { status, data } = await apiInstance.collectionShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **collectionStore**
-> CollectionStore200Response collectionStore(collectionStoreRequest)
+> CollectionShow200Response collectionStore(storeCollectionRequest)
 
 
 ### Example
@@ -474,16 +479,16 @@ const { status, data } = await apiInstance.collectionShow(
 import {
     CollectionApi,
     Configuration,
-    CollectionStoreRequest
+    StoreCollectionRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CollectionApi(configuration);
 
-let collectionStoreRequest: CollectionStoreRequest; //
+let storeCollectionRequest: StoreCollectionRequest; //
 
 const { status, data } = await apiInstance.collectionStore(
-    collectionStoreRequest
+    storeCollectionRequest
 );
 ```
 
@@ -491,12 +496,12 @@ const { status, data } = await apiInstance.collectionStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **collectionStoreRequest** | **CollectionStoreRequest**|  | |
+| **storeCollectionRequest** | **StoreCollectionRequest**|  | |
 
 
 ### Return type
 
-**CollectionStore200Response**
+**CollectionShow200Response**
 
 ### Authorization
 
@@ -514,11 +519,12 @@ const { status, data } = await apiInstance.collectionStore(
 |**200** | &#x60;CollectionResource&#x60; |  -  |
 |**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **collectionUpdate**
-> CollectionStore200Response collectionUpdate()
+> CollectionShow200Response collectionUpdate()
 
 
 ### Example
@@ -527,18 +533,18 @@ const { status, data } = await apiInstance.collectionStore(
 import {
     CollectionApi,
     Configuration,
-    CollectionUpdateRequest
+    UpdateCollectionRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CollectionApi(configuration);
 
 let collection: string; //The collection ID (default to undefined)
-let collectionUpdateRequest: CollectionUpdateRequest; // (optional)
+let updateCollectionRequest: UpdateCollectionRequest; // (optional)
 
 const { status, data } = await apiInstance.collectionUpdate(
     collection,
-    collectionUpdateRequest
+    updateCollectionRequest
 );
 ```
 
@@ -546,13 +552,13 @@ const { status, data } = await apiInstance.collectionUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **collectionUpdateRequest** | **CollectionUpdateRequest**|  | |
+| **updateCollectionRequest** | **UpdateCollectionRequest**|  | |
 | **collection** | [**string**] | The collection ID | defaults to undefined|
 
 
 ### Return type
 
-**CollectionStore200Response**
+**CollectionShow200Response**
 
 ### Authorization
 
@@ -568,9 +574,68 @@ const { status, data } = await apiInstance.collectionUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;CollectionResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **collectionUpdate2**
+> CollectionShow200Response collectionUpdate2()
+
+
+### Example
+
+```typescript
+import {
+    CollectionApi,
+    Configuration,
+    UpdateCollectionRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new CollectionApi(configuration);
+
+let collection: string; //The collection ID (default to undefined)
+let updateCollectionRequest: UpdateCollectionRequest; // (optional)
+
+const { status, data } = await apiInstance.collectionUpdate2(
+    collection,
+    updateCollectionRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateCollectionRequest** | **UpdateCollectionRequest**|  | |
+| **collection** | [**string**] | The collection ID | defaults to undefined|
+
+
+### Return type
+
+**CollectionShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;CollectionResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

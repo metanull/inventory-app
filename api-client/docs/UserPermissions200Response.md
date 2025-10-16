@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**data** | **string** |  | [default to undefined]
+**data** | [**UserPermissionsResource**](UserPermissionsResource.md) |  | [default to undefined]
 
 ## Example
 

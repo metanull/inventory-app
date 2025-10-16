@@ -137,4 +137,44 @@ class ItemImageController extends Controller
         return redirect()->route('items.show', $item)
             ->with('success', 'Image deleted permanently');
     }
+
+    /**
+     * Returns the file to the caller.
+     */
+    public function download(Item $item, ItemImage $itemImage)
+    {
+        // Ensure the image belongs to the item
+        if ($itemImage->item_id !== $item->id) {
+            abort(404);
+        }
+
+        $disk = config('localstorage.pictures.disk');
+        $filename = $itemImage->original_name ?: basename($itemImage->path);
+
+        return \App\Http\Responses\FileResponse::download(
+            $disk,
+            $itemImage->path,
+            $filename,
+            $itemImage->mime_type
+        );
+    }
+
+    /**
+     * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
+     */
+    public function view(Item $item, ItemImage $itemImage)
+    {
+        // Ensure the image belongs to the item
+        if ($itemImage->item_id !== $item->id) {
+            abort(404);
+        }
+
+        $disk = config('localstorage.pictures.disk');
+
+        return \App\Http\Responses\FileResponse::view(
+            $disk,
+            $itemImage->path,
+            $itemImage->mime_type
+        );
+    }
 }

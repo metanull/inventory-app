@@ -5,8 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**success** | **boolean** |  | [default to undefined]
-**message** | **string** |  | [default to undefined]
+**data** | [**OperationSuccessResource**](OperationSuccessResource.md) |  | [default to undefined]
 
 ## Example
 
@@ -14,8 +13,7 @@ Name | Type | Description | Notes
 import { CollectionAttachItem200Response } from './api';
 
 const instance: CollectionAttachItem200Response = {
-    success,
-    message,
+    data,
 };
 ```
 

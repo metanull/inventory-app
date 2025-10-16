@@ -1,6 +1,6 @@
 # TagApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -9,7 +9,8 @@ All URIs are relative to *http://localhost/api*
 |[**tagIndex**](#tagindex) | **GET** /tag | Display a listing of the resource|
 |[**tagShow**](#tagshow) | **GET** /tag/{tag} | Display the specified resource|
 |[**tagStore**](#tagstore) | **POST** /tag | Store a newly created resource in storage|
-|[**tagUpdate**](#tagupdate) | **PUT** /tag/{tag} | Update the specified resource in storage|
+|[**tagUpdate**](#tagupdate) | **PATCH** /tag/{tag} | Update the specified resource in storage|
+|[**tagUpdate2**](#tagupdate2) | **PUT** /tag/{tag} | Update the specified resource in storage|
 
 # **tagDestroy**
 > tagDestroy()
@@ -64,7 +65,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **tagForItem**
-> TagIndex200Response tagForItem()
+> TagForItem200Response tagForItem()
 
 
 ### Example
@@ -100,7 +101,7 @@ const { status, data } = await apiInstance.tagForItem(
 
 ### Return type
 
-**TagIndex200Response**
+**TagForItem200Response**
 
 ### Authorization
 
@@ -124,7 +125,7 @@ const { status, data } = await apiInstance.tagForItem(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **tagIndex**
-> TagIndex200Response tagIndex()
+> TagForItem200Response tagIndex()
 
 
 ### Example
@@ -157,7 +158,7 @@ const { status, data } = await apiInstance.tagIndex(
 
 ### Return type
 
-**TagIndex200Response**
+**TagForItem200Response**
 
 ### Authorization
 
@@ -180,7 +181,7 @@ const { status, data } = await apiInstance.tagIndex(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **tagShow**
-> TagStore200Response tagShow()
+> TagShow200Response tagShow()
 
 
 ### Example
@@ -210,7 +211,7 @@ const { status, data } = await apiInstance.tagShow(
 
 ### Return type
 
-**TagStore200Response**
+**TagShow200Response**
 
 ### Authorization
 
@@ -234,7 +235,7 @@ const { status, data } = await apiInstance.tagShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **tagStore**
-> TagStore200Response tagStore(tagStoreRequest)
+> TagShow200Response tagStore(storeTagRequest)
 
 
 ### Example
@@ -243,16 +244,16 @@ const { status, data } = await apiInstance.tagShow(
 import {
     TagApi,
     Configuration,
-    TagStoreRequest
+    StoreTagRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new TagApi(configuration);
 
-let tagStoreRequest: TagStoreRequest; //
+let storeTagRequest: StoreTagRequest; //
 
 const { status, data } = await apiInstance.tagStore(
-    tagStoreRequest
+    storeTagRequest
 );
 ```
 
@@ -260,12 +261,12 @@ const { status, data } = await apiInstance.tagStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **tagStoreRequest** | **TagStoreRequest**|  | |
+| **storeTagRequest** | **StoreTagRequest**|  | |
 
 
 ### Return type
 
-**TagStore200Response**
+**TagShow200Response**
 
 ### Authorization
 
@@ -281,13 +282,14 @@ const { status, data } = await apiInstance.tagStore(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;TagResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **tagUpdate**
-> TagStore200Response tagUpdate(tagStoreRequest)
+> TagShow200Response tagUpdate(updateTagRequest)
 
 
 ### Example
@@ -296,18 +298,18 @@ const { status, data } = await apiInstance.tagStore(
 import {
     TagApi,
     Configuration,
-    TagStoreRequest
+    UpdateTagRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new TagApi(configuration);
 
 let tag: string; //The tag ID (default to undefined)
-let tagStoreRequest: TagStoreRequest; //
+let updateTagRequest: UpdateTagRequest; //
 
 const { status, data } = await apiInstance.tagUpdate(
     tag,
-    tagStoreRequest
+    updateTagRequest
 );
 ```
 
@@ -315,13 +317,13 @@ const { status, data } = await apiInstance.tagUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **tagStoreRequest** | **TagStoreRequest**|  | |
+| **updateTagRequest** | **UpdateTagRequest**|  | |
 | **tag** | [**string**] | The tag ID | defaults to undefined|
 
 
 ### Return type
 
-**TagStore200Response**
+**TagShow200Response**
 
 ### Authorization
 
@@ -337,9 +339,68 @@ const { status, data } = await apiInstance.tagUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;TagResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **tagUpdate2**
+> TagShow200Response tagUpdate2(updateTagRequest)
+
+
+### Example
+
+```typescript
+import {
+    TagApi,
+    Configuration,
+    UpdateTagRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new TagApi(configuration);
+
+let tag: string; //The tag ID (default to undefined)
+let updateTagRequest: UpdateTagRequest; //
+
+const { status, data } = await apiInstance.tagUpdate2(
+    tag,
+    updateTagRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateTagRequest** | **UpdateTagRequest**|  | |
+| **tag** | [**string**] | The tag ID | defaults to undefined|
+
+
+### Return type
+
+**TagShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;TagResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

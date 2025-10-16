@@ -1,6 +1,6 @@
 # PartnerApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -8,7 +8,8 @@ All URIs are relative to *http://localhost/api*
 |[**partnerIndex**](#partnerindex) | **GET** /partner | Display a listing of the resource|
 |[**partnerShow**](#partnershow) | **GET** /partner/{partner} | Display the specified resource|
 |[**partnerStore**](#partnerstore) | **POST** /partner | Store a newly created resource in storage|
-|[**partnerUpdate**](#partnerupdate) | **PUT** /partner/{partner} | Update the specified resource in storage|
+|[**partnerUpdate**](#partnerupdate) | **PATCH** /partner/{partner} | Update the specified resource in storage|
+|[**partnerUpdate2**](#partnerupdate2) | **PUT** /partner/{partner} | Update the specified resource in storage|
 
 # **partnerDestroy**
 > partnerDestroy()
@@ -122,7 +123,7 @@ const { status, data } = await apiInstance.partnerIndex(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **partnerShow**
-> PartnerStore200Response partnerShow()
+> PartnerShow200Response partnerShow()
 
 
 ### Example
@@ -155,7 +156,7 @@ const { status, data } = await apiInstance.partnerShow(
 
 ### Return type
 
-**PartnerStore200Response**
+**PartnerShow200Response**
 
 ### Authorization
 
@@ -179,7 +180,7 @@ const { status, data } = await apiInstance.partnerShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **partnerStore**
-> PartnerStore200Response partnerStore(partnerStoreRequest)
+> PartnerShow200Response partnerStore(storePartnerRequest)
 
 
 ### Example
@@ -188,16 +189,16 @@ const { status, data } = await apiInstance.partnerShow(
 import {
     PartnerApi,
     Configuration,
-    PartnerStoreRequest
+    StorePartnerRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new PartnerApi(configuration);
 
-let partnerStoreRequest: PartnerStoreRequest; //
+let storePartnerRequest: StorePartnerRequest; //
 
 const { status, data } = await apiInstance.partnerStore(
-    partnerStoreRequest
+    storePartnerRequest
 );
 ```
 
@@ -205,12 +206,12 @@ const { status, data } = await apiInstance.partnerStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **partnerStoreRequest** | **PartnerStoreRequest**|  | |
+| **storePartnerRequest** | **StorePartnerRequest**|  | |
 
 
 ### Return type
 
-**PartnerStore200Response**
+**PartnerShow200Response**
 
 ### Authorization
 
@@ -228,11 +229,12 @@ const { status, data } = await apiInstance.partnerStore(
 |**200** | &#x60;PartnerResource&#x60; |  -  |
 |**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **partnerUpdate**
-> PartnerStore200Response partnerUpdate(partnerStoreRequest)
+> PartnerShow200Response partnerUpdate(updatePartnerRequest)
 
 
 ### Example
@@ -241,18 +243,18 @@ const { status, data } = await apiInstance.partnerStore(
 import {
     PartnerApi,
     Configuration,
-    PartnerStoreRequest
+    UpdatePartnerRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new PartnerApi(configuration);
 
 let partner: string; //The partner ID (default to undefined)
-let partnerStoreRequest: PartnerStoreRequest; //
+let updatePartnerRequest: UpdatePartnerRequest; //
 
 const { status, data } = await apiInstance.partnerUpdate(
     partner,
-    partnerStoreRequest
+    updatePartnerRequest
 );
 ```
 
@@ -260,13 +262,13 @@ const { status, data } = await apiInstance.partnerUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **partnerStoreRequest** | **PartnerStoreRequest**|  | |
+| **updatePartnerRequest** | **UpdatePartnerRequest**|  | |
 | **partner** | [**string**] | The partner ID | defaults to undefined|
 
 
 ### Return type
 
-**PartnerStore200Response**
+**PartnerShow200Response**
 
 ### Authorization
 
@@ -282,9 +284,68 @@ const { status, data } = await apiInstance.partnerUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;PartnerResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **partnerUpdate2**
+> PartnerShow200Response partnerUpdate2(updatePartnerRequest)
+
+
+### Example
+
+```typescript
+import {
+    PartnerApi,
+    Configuration,
+    UpdatePartnerRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new PartnerApi(configuration);
+
+let partner: string; //The partner ID (default to undefined)
+let updatePartnerRequest: UpdatePartnerRequest; //
+
+const { status, data } = await apiInstance.partnerUpdate2(
+    partner,
+    updatePartnerRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updatePartnerRequest** | **UpdatePartnerRequest**|  | |
+| **partner** | [**string**] | The partner ID | defaults to undefined|
+
+
+### Return type
+
+**PartnerShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;PartnerResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

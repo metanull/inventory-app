@@ -5,8 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**requires_two_factor** | **boolean** |  | [default to undefined]
-**available_methods** | **Array&lt;any&gt;** |  | [default to undefined]
+**requires_two_factor** | **string** |  | [default to undefined]
+**available_methods** | **string** |  | [default to undefined]
 **primary_method** | **string** |  | [default to undefined]
 **message** | **string** |  | [default to undefined]
 

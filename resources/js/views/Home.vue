@@ -245,6 +245,19 @@
           icon: CollectionIcon,
           requiredPermission: 'view data',
         },
+        {
+          title: 'Item Translations',
+          component: NavigationCard,
+          props: {
+            title: 'Item Translations',
+            description: 'Manage translations for items across different languages and contexts',
+            mainColor: 'blue',
+            buttonText: 'Manage Translations',
+            buttonRoute: '/item-translations',
+          },
+          icon: LanguageIcon,
+          requiredPermission: 'view data',
+        },
       ],
     },
     {

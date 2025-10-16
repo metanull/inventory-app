@@ -168,7 +168,16 @@ MAIL_PASSWORD=your-password
 MAIL_ENCRYPTION=tls
 
 # Security
+# IMPORTANT: SANCTUM_STATEFUL_DOMAINS must include all domains that will access the API
+# For example: inventory.museumwnf.org (without protocol, without trailing slash)
+# Multiple domains: inventory.museumwnf.org,app.museumwnf.org
 SANCTUM_STATEFUL_DOMAINS=your-frontend-domain.com
+
+# SESSION_DOMAIN: Set to .yourdomain.com (with leading dot) for subdomain cookie sharing
+# Leave as null if you don't need subdomain support
+# SESSION_DOMAIN=.museumwnf.org
+SESSION_DOMAIN=null
+
 SESSION_SECURE_COOKIE=true
 SESSION_SAME_SITE=strict
 
@@ -401,22 +410,52 @@ LoadModule expires_module modules/mod_expires.so
 
 ### Common Issues
 
-1. **500 Internal Server Error**
+1. **419 CSRF Token Mismatch / Session Errors**
+
+   **Symptoms**: Users get 419 errors after logging in or when making requests
+
+   **Solution**:
+
+   ```bash
+   # In your production .env file:
+
+   # Add your production domain (without https://, without trailing slash)
+   SANCTUM_STATEFUL_DOMAINS=inventory.museumwnf.org
+
+   # For subdomain support (e.g., api.domain.com + app.domain.com):
+   SESSION_DOMAIN=.museumwnf.org  # Note the leading dot
+
+   # For single domain deployments:
+   SESSION_DOMAIN=null
+
+   # Ensure these are also set:
+   SESSION_SECURE_COOKIE=true
+   SESSION_SAME_SITE=lax
+   ```
+
+   After changing `.env`:
+
+   ```powershell
+   php artisan config:clear
+   php artisan cache:clear
+   ```
+
+2. **500 Internal Server Error**
    - Check PHP error logs
    - Verify file permissions
    - Ensure `.env` file is properly configured
 
-2. **Database Connection Failed**
+3. **Database Connection Failed**
    - Verify database credentials
    - Check database server status
    - Confirm firewall settings
 
-3. **Static Assets Not Loading**
+4. **Static Assets Not Loading**
    - Verify `npm run build` was executed
    - Check file permissions on `public/build/`
    - Confirm web server static file handling
 
-4. **SSL Certificate Issues**
+5. **SSL Certificate Issues**
    - Verify certificate installation
    - Check certificate expiration
    - Confirm intermediate certificates

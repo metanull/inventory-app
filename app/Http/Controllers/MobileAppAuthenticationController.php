@@ -50,15 +50,18 @@ class MobileAppAuthenticationController extends Controller
                         $user->tokens()->delete();
                     }
 
-                    return response()->json([
-                        'token' => $user->createToken($validated['device_name'])->plainTextToken,
-                        'user' => [
-                            'id' => $user->id,
-                            'name' => $user->name,
-                            'email' => $user->email,
-                            'two_factor_enabled' => true,
-                        ],
-                    ], 201);
+                    return response()->json(
+                        (new \App\Http\Resources\AuthTokenResource([
+                            'token' => $user->createToken($validated['device_name'])->plainTextToken,
+                            'user' => [
+                                'id' => $user->id,
+                                'name' => $user->name,
+                                'email' => $user->email,
+                                'two_factor_enabled' => true,
+                            ],
+                        ]))->toArray(request()),
+                        201
+                    );
                 } else {
                     // 2FA verification failed
                     $fieldName = $isRecovery ? 'recovery_code' : 'two_factor_code';
@@ -77,15 +80,18 @@ class MobileAppAuthenticationController extends Controller
             $user->tokens()->delete();
         }
 
-        return response()->json([
-            'token' => $user->createToken($validated['device_name'])->plainTextToken,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'two_factor_enabled' => false,
-            ],
-        ], 201);
+        return response()->json(
+            (new \App\Http\Resources\AuthTokenResource([
+                'token' => $user->createToken($validated['device_name'])->plainTextToken,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'two_factor_enabled' => false,
+                ],
+            ]))->toArray(request()),
+            201
+        );
     }
 
     /**
@@ -168,16 +174,19 @@ class MobileAppAuthenticationController extends Controller
             $user->tokens()->delete();
         }
 
-        return response()->json([
-            'token' => $user->createToken($validated['device_name'])->plainTextToken,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'two_factor_enabled' => true,
-                'two_factor_method' => $method,
-            ],
-        ], 201);
+        return response()->json(
+            (new \App\Http\Resources\AuthTokenResource([
+                'token' => $user->createToken($validated['device_name'])->plainTextToken,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'two_factor_enabled' => true,
+                    'two_factor_method' => $method,
+                ],
+            ]))->toArray(request()),
+            201
+        );
     }
 
     /**
@@ -205,7 +214,7 @@ class MobileAppAuthenticationController extends Controller
         try {
             $user->generateEmailTwoFactorCode();
 
-            return response()->json([
+            return new \App\Http\Resources\EmailCodeRequestResource([
                 'message' => 'Email verification code sent successfully.',
                 'expires_in' => config('auth.email_2fa.expiry_minutes', 5) * 60, // in seconds
             ]);
@@ -232,7 +241,7 @@ class MobileAppAuthenticationController extends Controller
             ]);
         }
 
-        return response()->json([
+        return new \App\Http\Resources\TwoFactorStatusResource([
             'two_factor_enabled' => $user->hasTwoFactorEnabled(),
             'available_methods' => $user->getAvailable2faMethods(),
             'primary_method' => $user->getPrimary2faMethod(),
@@ -248,12 +257,15 @@ class MobileAppAuthenticationController extends Controller
         $availableMethods = $user->getAvailable2faMethods();
         $primaryMethod = $user->getPrimary2faMethod();
 
-        return response()->json([
-            'requires_two_factor' => true,
-            'available_methods' => $availableMethods,
-            'primary_method' => $primaryMethod,
-            'message' => 'Two-factor authentication required. Please provide a verification code.',
-        ], 202); // 202 Accepted - request received but requires additional action
+        return response()->json(
+            (new \App\Http\Resources\TwoFactorChallengeResource([
+                'requires_two_factor' => true,
+                'available_methods' => $availableMethods,
+                'primary_method' => $primaryMethod,
+                'message' => 'Two-factor authentication required. Please provide a verification code.',
+            ]))->toArray(request()),
+            202
+        ); // 202 Accepted - request received but requires additional action
     }
 
     /**
@@ -262,7 +274,10 @@ class MobileAppAuthenticationController extends Controller
     public function wipe_tokens(Request $request)
     {
         if (! $request->user()) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+            return response()->json(
+                (new \App\Http\Resources\MessageResource(['message' => 'Unauthenticated.']))->toArray(request()),
+                401
+            );
         }
         $request->user()->tokens()->delete();
 

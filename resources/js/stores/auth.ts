@@ -1,19 +1,19 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import {
-  type TokenAcquireRequest,
+  type AcquireTokenMobileAppAuthenticationRequest,
   type TokenAcquire202Response,
-  type TokenVerifyTwoFactorRequest,
-  type TokenRequestEmailCodeRequest,
-  type TokenVerifyTwoFactorRequestMethodEnum,
+  type VerifyTwoFactorMobileAppAuthenticationRequest,
+  type RequestEmailCodeMobileAppAuthenticationRequest,
+  type VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum,
 } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
 import { usePermissionsStore } from './permissions'
 
 export interface TwoFactorChallenge {
-  requires_two_factor: boolean
-  available_methods: string[]
-  primary_method: string | null
+  requires_two_factor: string
+  available_methods: string
+  primary_method: string
   message: string
 }
 
@@ -50,7 +50,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const apiClient = createApiClient()
-      const tokenRequest: TokenAcquireRequest = {
+      const tokenRequest: AcquireTokenMobileAppAuthenticationRequest = {
         email,
         password,
         device_name: 'Inventory Management UI',
@@ -111,12 +111,12 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const apiClient = createApiClient()
-      const verifyRequest: TokenVerifyTwoFactorRequest = {
+      const verifyRequest: VerifyTwoFactorMobileAppAuthenticationRequest = {
         email: pendingCredentials.value.email,
         password: pendingCredentials.value.password,
         device_name: pendingCredentials.value.device_name,
         code,
-        method: method as TokenVerifyTwoFactorRequestMethodEnum,
+        method: method as VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum,
       }
 
       const response = await apiClient.tokenVerifyTwoFactor(verifyRequest)
@@ -145,13 +145,13 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const apiClient = createApiClient()
-      const emailCodeRequest: TokenRequestEmailCodeRequest = {
+      const emailCodeRequest: RequestEmailCodeMobileAppAuthenticationRequest = {
         email: pendingCredentials.value.email,
         password: pendingCredentials.value.password,
       }
 
       const response = await apiClient.tokenRequestEmailCode(emailCodeRequest)
-      return response.data
+      return response.data.data
     } catch (err: unknown) {
       const errorMessage = (err as { message?: string })?.message || 'Failed to send email code'
       error.value = errorMessage
@@ -164,13 +164,13 @@ export const useAuthStore = defineStore('auth', () => {
   const getTwoFactorStatus = async (email: string, password: string): Promise<TwoFactorStatus> => {
     try {
       const apiClient = createApiClient()
-      const statusRequest: TokenRequestEmailCodeRequest = {
+      const statusRequest: RequestEmailCodeMobileAppAuthenticationRequest = {
         email,
         password,
       }
 
       const response = await apiClient.tokenTwoFactorStatus(statusRequest)
-      return response.data
+      return response.data.data as TwoFactorStatus
     } catch (err: unknown) {
       const errorMessage = (err as { message?: string })?.message || 'Failed to get 2FA status'
       error.value = errorMessage
@@ -229,6 +229,24 @@ export const useAuthStore = defineStore('auth', () => {
       // Clear user permissions on logout
       const permissionsStore = usePermissionsStore()
       permissionsStore.clearPermissions()
+
+      // Clear all pinia stores by resetting the entire pinia instance state
+      // This ensures no stale data remains after logout
+      try {
+        const pinia = (
+          this as unknown as { _p?: { _s?: Map<string, { $id: string; $reset?: () => void }> } }
+        )._p
+        if (pinia && pinia._s) {
+          pinia._s.forEach((store: { $id: string; $reset?: () => void }) => {
+            if (store.$id !== 'auth' && typeof store.$reset === 'function') {
+              store.$reset()
+            }
+          })
+        }
+      } catch (e) {
+        // Ignore errors in test environment where pinia instance may not be available
+        console.debug('Could not reset pinia stores:', e)
+      }
 
       loading.value = false
     }

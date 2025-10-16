@@ -30,7 +30,7 @@
                     <!-- Image Preview -->
                     <div class="flex justify-center">
                         <div class="w-64 h-64 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
-                            <img src="{{ asset('storage/' . $itemImage->path) }}" 
+                            <img src="{{ route('items.item-images.view', [$item, $itemImage]) }}" 
                                  alt="{{ $itemImage->alt_text ?? 'Item image' }}"
                                  class="w-full h-full object-contain">
                         </div>

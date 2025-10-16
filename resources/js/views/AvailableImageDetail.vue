@@ -113,7 +113,7 @@
   import { useImageFallback } from '@/composables/useImageFallback'
   import type {
     AvailableImageResource,
-    AvailableImageUpdateRequest,
+    UpdateAvailableImageRequest,
   } from '@metanull/inventory-app-api-client'
 
   // Types
@@ -249,7 +249,7 @@
     try {
       loadingStore.show('Saving...')
 
-      const requestData: AvailableImageUpdateRequest = {
+      const requestData: UpdateAvailableImageRequest = {
         comment: editForm.value.comment.trim() || null,
       }
 

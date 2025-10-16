@@ -36,7 +36,7 @@ describe('Permissions Store', () => {
     it('should fetch and store permissions successfully', async () => {
       const mockPermissions = ['view data', 'create data', 'update data']
       mockUserPermissionsApi.userPermissions.mockResolvedValue({
-        data: { data: mockPermissions },
+        data: { permissions: mockPermissions },
       })
 
       const store = usePermissionsStore()
@@ -51,7 +51,7 @@ describe('Permissions Store', () => {
 
     it('should handle empty permissions response', async () => {
       mockUserPermissionsApi.userPermissions.mockResolvedValue({
-        data: { data: [] },
+        data: { permissions: [] },
       })
 
       const store = usePermissionsStore()
@@ -90,7 +90,7 @@ describe('Permissions Store', () => {
     it('should return true when permission exists', async () => {
       const mockPermissions = ['view data', 'create data']
       mockUserPermissionsApi.userPermissions.mockResolvedValue({
-        data: { data: mockPermissions },
+        data: { permissions: mockPermissions },
       })
 
       const store = usePermissionsStore()
@@ -103,7 +103,7 @@ describe('Permissions Store', () => {
     it('should return false when permission does not exist', async () => {
       const mockPermissions = ['view data']
       mockUserPermissionsApi.userPermissions.mockResolvedValue({
-        data: { data: mockPermissions },
+        data: { permissions: mockPermissions },
       })
 
       const store = usePermissionsStore()
@@ -124,7 +124,7 @@ describe('Permissions Store', () => {
     it('should return true when user has all required permissions', async () => {
       const mockPermissions = ['view data', 'create data', 'update data']
       mockUserPermissionsApi.userPermissions.mockResolvedValue({
-        data: { data: mockPermissions },
+        data: { permissions: mockPermissions },
       })
 
       const store = usePermissionsStore()
@@ -137,7 +137,7 @@ describe('Permissions Store', () => {
     it('should return false when user is missing any required permission', async () => {
       const mockPermissions = ['view data', 'create data']
       mockUserPermissionsApi.userPermissions.mockResolvedValue({
-        data: { data: mockPermissions },
+        data: { permissions: mockPermissions },
       })
 
       const store = usePermissionsStore()
@@ -150,7 +150,7 @@ describe('Permissions Store', () => {
     it('should return true for empty array', async () => {
       const mockPermissions = ['view data']
       mockUserPermissionsApi.userPermissions.mockResolvedValue({
-        data: { data: mockPermissions },
+        data: { permissions: mockPermissions },
       })
 
       const store = usePermissionsStore()
@@ -164,7 +164,7 @@ describe('Permissions Store', () => {
     it('should return true when user has at least one required permission', async () => {
       const mockPermissions = ['view data', 'create data']
       mockUserPermissionsApi.userPermissions.mockResolvedValue({
-        data: { data: mockPermissions },
+        data: { permissions: mockPermissions },
       })
 
       const store = usePermissionsStore()
@@ -177,7 +177,7 @@ describe('Permissions Store', () => {
     it('should return false when user has none of the required permissions', async () => {
       const mockPermissions = ['view data']
       mockUserPermissionsApi.userPermissions.mockResolvedValue({
-        data: { data: mockPermissions },
+        data: { permissions: mockPermissions },
       })
 
       const store = usePermissionsStore()
@@ -189,7 +189,7 @@ describe('Permissions Store', () => {
     it('should return false for empty array', async () => {
       const mockPermissions = ['view data']
       mockUserPermissionsApi.userPermissions.mockResolvedValue({
-        data: { data: mockPermissions },
+        data: { permissions: mockPermissions },
       })
 
       const store = usePermissionsStore()
@@ -203,7 +203,7 @@ describe('Permissions Store', () => {
     it('should clear all permissions and state', async () => {
       const mockPermissions = ['view data', 'create data']
       mockUserPermissionsApi.userPermissions.mockResolvedValue({
-        data: { data: mockPermissions },
+        data: { permissions: mockPermissions },
       })
 
       const store = usePermissionsStore()
@@ -224,7 +224,7 @@ describe('Permissions Store', () => {
     it('should refetch permissions', async () => {
       const mockPermissions = ['view data']
       mockUserPermissionsApi.userPermissions.mockResolvedValue({
-        data: { data: mockPermissions },
+        data: { permissions: mockPermissions },
       })
 
       const store = usePermissionsStore()
@@ -239,7 +239,7 @@ describe('Permissions Store', () => {
     it('should return true when permissions exist', async () => {
       const mockPermissions = ['view data']
       mockUserPermissionsApi.userPermissions.mockResolvedValue({
-        data: { data: mockPermissions },
+        data: { permissions: mockPermissions },
       })
 
       const store = usePermissionsStore()

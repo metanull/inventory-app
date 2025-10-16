@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import {
   type AvailableImageResource,
-  type AvailableImageUpdateRequest,
+  type UpdateAvailableImageRequest,
 } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
 import {
@@ -83,7 +83,7 @@ export const useAvailableImageStore = defineStore('availableImage', () => {
   // Update an existing available image
   const updateAvailableImage = async (
     availableImageId: string,
-    availableImageData: AvailableImageUpdateRequest,
+    availableImageData: UpdateAvailableImageRequest,
     options: ShowQueryOptions = {}
   ): Promise<AvailableImageResource> => {
     try {
@@ -146,7 +146,7 @@ export const useAvailableImageStore = defineStore('availableImage', () => {
       })
 
       // Create a blob URL
-      const blob = new Blob([response.data], { type: 'image/jpeg' }) // Adjust content type as needed
+      const blob = new Blob([response.data as Blob], { type: 'image/jpeg' }) // Adjust content type as needed
       const blobUrl = URL.createObjectURL(blob)
 
       // Cache the blob URL

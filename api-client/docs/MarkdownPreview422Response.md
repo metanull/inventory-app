@@ -5,8 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**success** | **boolean** |  | [default to undefined]
+**success** | **string** |  | [default to undefined]
 **message** | **string** |  | [default to undefined]
+**data** | **string** |  | [default to undefined]
+**error** | **string** |  | [default to undefined]
 **errors** | **string** |  | [default to undefined]
 
 ## Example
@@ -17,6 +19,8 @@ import { MarkdownPreview422Response } from './api';
 const instance: MarkdownPreview422Response = {
     success,
     message,
+    data,
+    error,
     errors,
 };
 ```

@@ -87,6 +87,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // ItemImage routes (read)
         Route::get('item/{item}/images', [ItemImageController::class, 'index'])->name('item.images.index');
+        Route::get('item-image/{itemImage}/download', [ItemImageController::class, 'download'])->name('item-image.download');
+        Route::get('item-image/{itemImage}/view', [ItemImageController::class, 'view'])->name('item-image.view');
         Route::get('item-image/{itemImage}', [ItemImageController::class, 'show'])->name('item-image.show');
 
         // Image upload routes (read)

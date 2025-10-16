@@ -2,8 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import {
   type CountryResource,
-  type CountryStoreRequest,
-  type CountryUpdateRequest,
+  type StoreCountryRequest,
+  type UpdateCountryRequest,
 } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
 import { ErrorHandler } from '@/utils/errorHandler'
@@ -90,7 +90,7 @@ export const useCountryStore = defineStore('country', () => {
   }
 
   const createCountry = async (
-    countryData: CountryStoreRequest
+    countryData: StoreCountryRequest
   ): Promise<CountryResource | null> => {
     loading.value = true
     error.value = null
@@ -117,7 +117,7 @@ export const useCountryStore = defineStore('country', () => {
 
   const updateCountry = async (
     id: string,
-    countryData: CountryUpdateRequest
+    countryData: UpdateCountryRequest
   ): Promise<CountryResource | null> => {
     loading.value = true
     error.value = null

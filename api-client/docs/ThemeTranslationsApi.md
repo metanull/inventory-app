@@ -1,6 +1,6 @@
 # ThemeTranslationsApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -8,7 +8,8 @@ All URIs are relative to *http://localhost/api*
 |[**themeTranslationIndex**](#themetranslationindex) | **GET** /theme-translation | Display a listing of theme translations|
 |[**themeTranslationShow**](#themetranslationshow) | **GET** /theme-translation/{themeTranslation} | Display the specified theme translation|
 |[**themeTranslationStore**](#themetranslationstore) | **POST** /theme-translation | Store a newly created theme translation|
-|[**themeTranslationUpdate**](#themetranslationupdate) | **PUT** /theme-translation/{themeTranslation} | Update the specified theme translation|
+|[**themeTranslationUpdate**](#themetranslationupdate) | **PATCH** /theme-translation/{themeTranslation} | Update the specified theme translation|
+|[**themeTranslationUpdate2**](#themetranslationupdate2) | **PUT** /theme-translation/{themeTranslation} | Update the specified theme translation|
 
 # **themeTranslationDestroy**
 > number themeTranslationDestroy()
@@ -125,7 +126,7 @@ const { status, data } = await apiInstance.themeTranslationIndex(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **themeTranslationShow**
-> ThemeTranslationStore200Response themeTranslationShow()
+> ThemeTranslationShow200Response themeTranslationShow()
 
 
 ### Example
@@ -155,7 +156,7 @@ const { status, data } = await apiInstance.themeTranslationShow(
 
 ### Return type
 
-**ThemeTranslationStore200Response**
+**ThemeTranslationShow200Response**
 
 ### Authorization
 
@@ -173,11 +174,13 @@ const { status, data } = await apiInstance.themeTranslationShow(
 |**200** | &#x60;ThemeTranslationResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **themeTranslationStore**
-> ThemeTranslationStore200Response themeTranslationStore(themeTranslationStoreRequest)
+> ThemeTranslationShow200Response themeTranslationStore(storeThemeTranslationRequest)
 
 
 ### Example
@@ -186,16 +189,16 @@ const { status, data } = await apiInstance.themeTranslationShow(
 import {
     ThemeTranslationsApi,
     Configuration,
-    ThemeTranslationStoreRequest
+    StoreThemeTranslationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ThemeTranslationsApi(configuration);
 
-let themeTranslationStoreRequest: ThemeTranslationStoreRequest; //
+let storeThemeTranslationRequest: StoreThemeTranslationRequest; //
 
 const { status, data } = await apiInstance.themeTranslationStore(
-    themeTranslationStoreRequest
+    storeThemeTranslationRequest
 );
 ```
 
@@ -203,12 +206,12 @@ const { status, data } = await apiInstance.themeTranslationStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **themeTranslationStoreRequest** | **ThemeTranslationStoreRequest**|  | |
+| **storeThemeTranslationRequest** | **StoreThemeTranslationRequest**|  | |
 
 
 ### Return type
 
-**ThemeTranslationStore200Response**
+**ThemeTranslationShow200Response**
 
 ### Authorization
 
@@ -224,13 +227,14 @@ const { status, data } = await apiInstance.themeTranslationStore(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ThemeTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **themeTranslationUpdate**
-> ThemeTranslationStore200Response themeTranslationUpdate()
+> ThemeTranslationShow200Response themeTranslationUpdate()
 
 
 ### Example
@@ -239,18 +243,18 @@ const { status, data } = await apiInstance.themeTranslationStore(
 import {
     ThemeTranslationsApi,
     Configuration,
-    ThemeTranslationUpdateRequest
+    UpdateThemeTranslationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ThemeTranslationsApi(configuration);
 
 let themeTranslation: string; //The theme translation ID (default to undefined)
-let themeTranslationUpdateRequest: ThemeTranslationUpdateRequest; // (optional)
+let updateThemeTranslationRequest: UpdateThemeTranslationRequest; // (optional)
 
 const { status, data } = await apiInstance.themeTranslationUpdate(
     themeTranslation,
-    themeTranslationUpdateRequest
+    updateThemeTranslationRequest
 );
 ```
 
@@ -258,13 +262,13 @@ const { status, data } = await apiInstance.themeTranslationUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **themeTranslationUpdateRequest** | **ThemeTranslationUpdateRequest**|  | |
+| **updateThemeTranslationRequest** | **UpdateThemeTranslationRequest**|  | |
 | **themeTranslation** | [**string**] | The theme translation ID | defaults to undefined|
 
 
 ### Return type
 
-**ThemeTranslationStore200Response**
+**ThemeTranslationShow200Response**
 
 ### Authorization
 
@@ -280,9 +284,68 @@ const { status, data } = await apiInstance.themeTranslationUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ThemeTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **themeTranslationUpdate2**
+> ThemeTranslationShow200Response themeTranslationUpdate2()
+
+
+### Example
+
+```typescript
+import {
+    ThemeTranslationsApi,
+    Configuration,
+    UpdateThemeTranslationRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ThemeTranslationsApi(configuration);
+
+let themeTranslation: string; //The theme translation ID (default to undefined)
+let updateThemeTranslationRequest: UpdateThemeTranslationRequest; // (optional)
+
+const { status, data } = await apiInstance.themeTranslationUpdate2(
+    themeTranslation,
+    updateThemeTranslationRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateThemeTranslationRequest** | **UpdateThemeTranslationRequest**|  | |
+| **themeTranslation** | [**string**] | The theme translation ID | defaults to undefined|
+
+
+### Return type
+
+**ThemeTranslationShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ThemeTranslationResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

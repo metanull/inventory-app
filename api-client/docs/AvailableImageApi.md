@@ -1,14 +1,15 @@
 # AvailableImageApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**availableImageDestroy**](#availableimagedestroy) | **DELETE** /available-image/{availableImage} | Remove the specified resource from storage|
-|[**availableImageDownload**](#availableimagedownload) | **GET** /available-image/{availableImage}/download | Returns the file to the caller|
+|[**availableImageDownload**](#availableimagedownload) | **GET** /available-image/{availableImage}/download | Download the file to the caller|
 |[**availableImageIndex**](#availableimageindex) | **GET** /available-image | Display a listing of the resource|
 |[**availableImageShow**](#availableimageshow) | **GET** /available-image/{availableImage} | Display the specified resource|
-|[**availableImageUpdate**](#availableimageupdate) | **PUT** /available-image/{availableImage} | Update the specified resource in storage|
+|[**availableImageUpdate**](#availableimageupdate) | **PATCH** /available-image/{availableImage} | Update the specified resource in storage|
+|[**availableImageUpdate3**](#availableimageupdate3) | **PUT** /available-image/{availableImage} | Update the specified resource in storage|
 |[**availableImageView**](#availableimageview) | **GET** /available-image/{availableImage}/view | Returns the image file for direct viewing (e.g., for use in &lt;img&gt; src attribute)|
 
 # **availableImageDestroy**
@@ -64,7 +65,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **availableImageDownload**
-> File availableImageDownload()
+> object availableImageDownload()
 
 
 ### Example
@@ -94,7 +95,7 @@ const { status, data } = await apiInstance.availableImageDownload(
 
 ### Return type
 
-**File**
+**object**
 
 ### Authorization
 
@@ -103,13 +104,13 @@ const { status, data } = await apiInstance.availableImageDownload(
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/octet-stream, application/json
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  * Content-Disposition -  <br>  |
+|**200** |  |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
 
@@ -236,18 +237,18 @@ const { status, data } = await apiInstance.availableImageShow(
 import {
     AvailableImageApi,
     Configuration,
-    AvailableImageUpdateRequest
+    UpdateAvailableImageRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AvailableImageApi(configuration);
 
 let availableImage: string; //The available image ID (default to undefined)
-let availableImageUpdateRequest: AvailableImageUpdateRequest; // (optional)
+let updateAvailableImageRequest: UpdateAvailableImageRequest; // (optional)
 
 const { status, data } = await apiInstance.availableImageUpdate(
     availableImage,
-    availableImageUpdateRequest
+    updateAvailableImageRequest
 );
 ```
 
@@ -255,7 +256,7 @@ const { status, data } = await apiInstance.availableImageUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **availableImageUpdateRequest** | **AvailableImageUpdateRequest**|  | |
+| **updateAvailableImageRequest** | **UpdateAvailableImageRequest**|  | |
 | **availableImage** | [**string**] | The available image ID | defaults to undefined|
 
 
@@ -277,14 +278,73 @@ const { status, data } = await apiInstance.availableImageUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;AvailableImageResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **availableImageUpdate3**
+> AvailableImageShow200Response availableImageUpdate3()
+
+
+### Example
+
+```typescript
+import {
+    AvailableImageApi,
+    Configuration,
+    UpdateAvailableImageRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AvailableImageApi(configuration);
+
+let availableImage: string; //The available image ID (default to undefined)
+let updateAvailableImageRequest: UpdateAvailableImageRequest; // (optional)
+
+const { status, data } = await apiInstance.availableImageUpdate3(
+    availableImage,
+    updateAvailableImageRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateAvailableImageRequest** | **UpdateAvailableImageRequest**|  | |
+| **availableImage** | [**string**] | The available image ID | defaults to undefined|
+
+
+### Return type
+
+**AvailableImageShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;AvailableImageResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **availableImageView**
-> File availableImageView()
+> object availableImageView()
 
 
 ### Example
@@ -314,7 +374,7 @@ const { status, data } = await apiInstance.availableImageView(
 
 ### Return type
 
-**File**
+**object**
 
 ### Authorization
 
@@ -323,7 +383,7 @@ const { status, data } = await apiInstance.availableImageView(
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/octet-stream, application/json
+ - **Accept**: application/json
 
 
 ### HTTP response details

@@ -1,6 +1,6 @@
 # AddressApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -8,7 +8,8 @@ All URIs are relative to *http://localhost/api*
 |[**addressIndex**](#addressindex) | **GET** /address | Display a listing of addresses|
 |[**addressShow**](#addressshow) | **GET** /address/{address} | Display the specified address|
 |[**addressStore**](#addressstore) | **POST** /address | Store a newly created address|
-|[**addressUpdate**](#addressupdate) | **PUT** /address/{address} | Update the specified address|
+|[**addressUpdate**](#addressupdate) | **PATCH** /address/{address} | Update the specified address|
+|[**addressUpdate2**](#addressupdate2) | **PUT** /address/{address} | Update the specified address|
 
 # **addressDestroy**
 > addressDestroy()
@@ -122,7 +123,7 @@ const { status, data } = await apiInstance.addressIndex(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **addressShow**
-> AddressStore201Response addressShow()
+> AddressShow200Response addressShow()
 
 
 ### Example
@@ -155,7 +156,7 @@ const { status, data } = await apiInstance.addressShow(
 
 ### Return type
 
-**AddressStore201Response**
+**AddressShow200Response**
 
 ### Authorization
 
@@ -179,7 +180,7 @@ const { status, data } = await apiInstance.addressShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **addressStore**
-> AddressStore201Response addressStore(addressStoreRequest)
+> AddressShow200Response addressStore(storeAddressRequest)
 
 
 ### Example
@@ -188,16 +189,16 @@ const { status, data } = await apiInstance.addressShow(
 import {
     AddressApi,
     Configuration,
-    AddressStoreRequest
+    StoreAddressRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AddressApi(configuration);
 
-let addressStoreRequest: AddressStoreRequest; //
+let storeAddressRequest: StoreAddressRequest; //
 
 const { status, data } = await apiInstance.addressStore(
-    addressStoreRequest
+    storeAddressRequest
 );
 ```
 
@@ -205,12 +206,12 @@ const { status, data } = await apiInstance.addressStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **addressStoreRequest** | **AddressStoreRequest**|  | |
+| **storeAddressRequest** | **StoreAddressRequest**|  | |
 
 
 ### Return type
 
-**AddressStore201Response**
+**AddressShow200Response**
 
 ### Authorization
 
@@ -228,11 +229,12 @@ const { status, data } = await apiInstance.addressStore(
 |**201** | &#x60;AddressResource&#x60; |  -  |
 |**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **addressUpdate**
-> AddressStore201Response addressUpdate(addressUpdateRequest)
+> AddressShow200Response addressUpdate(updateAddressRequest)
 
 
 ### Example
@@ -241,18 +243,18 @@ const { status, data } = await apiInstance.addressStore(
 import {
     AddressApi,
     Configuration,
-    AddressUpdateRequest
+    UpdateAddressRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AddressApi(configuration);
 
 let address: string; //The address ID (default to undefined)
-let addressUpdateRequest: AddressUpdateRequest; //
+let updateAddressRequest: UpdateAddressRequest; //
 
 const { status, data } = await apiInstance.addressUpdate(
     address,
-    addressUpdateRequest
+    updateAddressRequest
 );
 ```
 
@@ -260,13 +262,13 @@ const { status, data } = await apiInstance.addressUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **addressUpdateRequest** | **AddressUpdateRequest**|  | |
+| **updateAddressRequest** | **UpdateAddressRequest**|  | |
 | **address** | [**string**] | The address ID | defaults to undefined|
 
 
 ### Return type
 
-**AddressStore201Response**
+**AddressShow200Response**
 
 ### Authorization
 
@@ -282,9 +284,68 @@ const { status, data } = await apiInstance.addressUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;AddressResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **addressUpdate2**
+> AddressShow200Response addressUpdate2(updateAddressRequest)
+
+
+### Example
+
+```typescript
+import {
+    AddressApi,
+    Configuration,
+    UpdateAddressRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AddressApi(configuration);
+
+let address: string; //The address ID (default to undefined)
+let updateAddressRequest: UpdateAddressRequest; //
+
+const { status, data } = await apiInstance.addressUpdate2(
+    address,
+    updateAddressRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateAddressRequest** | **UpdateAddressRequest**|  | |
+| **address** | [**string**] | The address ID | defaults to undefined|
+
+
+### Return type
+
+**AddressShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;AddressResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

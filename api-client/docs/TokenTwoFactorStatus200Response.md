@@ -5,10 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**two_factor_enabled** | **string** |  | [default to undefined]
-**available_methods** | **string** |  | [default to undefined]
-**primary_method** | **string** |  | [default to undefined]
-**requires_two_factor** | **string** |  | [default to undefined]
+**data** | [**TwoFactorStatusResource**](TwoFactorStatusResource.md) |  | [default to undefined]
 
 ## Example
 
@@ -16,10 +13,7 @@ Name | Type | Description | Notes
 import { TokenTwoFactorStatus200Response } from './api';
 
 const instance: TokenTwoFactorStatus200Response = {
-    two_factor_enabled,
-    available_methods,
-    primary_method,
-    requires_two_factor,
+    data,
 };
 ```
 

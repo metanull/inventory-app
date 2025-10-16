@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**message** | **string** |  | [default to undefined]
+**data** | [**MessageResource**](MessageResource.md) |  | [default to undefined]
 
 ## Example
 
@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 import { ContextClearDefault200Response } from './api';
 
 const instance: ContextClearDefault200Response = {
-    message,
+    data,
 };
 ```
 

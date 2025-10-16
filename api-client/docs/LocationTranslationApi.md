@@ -1,6 +1,6 @@
 # LocationTranslationApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -8,7 +8,8 @@ All URIs are relative to *http://localhost/api*
 |[**locationTranslationIndex**](#locationtranslationindex) | **GET** /location-translation | Display a listing of the resource|
 |[**locationTranslationShow**](#locationtranslationshow) | **GET** /location-translation/{locationTranslation} | Display the specified resource|
 |[**locationTranslationStore**](#locationtranslationstore) | **POST** /location-translation | Store a newly created resource in storage|
-|[**locationTranslationUpdate**](#locationtranslationupdate) | **PUT** /location-translation/{locationTranslation} | Update the specified resource in storage|
+|[**locationTranslationUpdate**](#locationtranslationupdate) | **PATCH** /location-translation/{locationTranslation} | Update the specified resource in storage|
+|[**locationTranslationUpdate2**](#locationtranslationupdate2) | **PUT** /location-translation/{locationTranslation} | Update the specified resource in storage|
 
 # **locationTranslationDestroy**
 > locationTranslationDestroy()
@@ -107,7 +108,7 @@ This endpoint does not have any parameters.
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **locationTranslationShow**
-> LocationTranslationStore200Response locationTranslationShow()
+> LocationTranslationShow200Response locationTranslationShow()
 
 
 ### Example
@@ -137,7 +138,7 @@ const { status, data } = await apiInstance.locationTranslationShow(
 
 ### Return type
 
-**LocationTranslationStore200Response**
+**LocationTranslationShow200Response**
 
 ### Authorization
 
@@ -159,7 +160,7 @@ const { status, data } = await apiInstance.locationTranslationShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **locationTranslationStore**
-> LocationTranslationStore200Response locationTranslationStore(locationTranslationStoreRequest)
+> LocationTranslationShow200Response locationTranslationStore(storeLocationTranslationRequest)
 
 
 ### Example
@@ -168,16 +169,16 @@ const { status, data } = await apiInstance.locationTranslationShow(
 import {
     LocationTranslationApi,
     Configuration,
-    LocationTranslationStoreRequest
+    StoreLocationTranslationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LocationTranslationApi(configuration);
 
-let locationTranslationStoreRequest: LocationTranslationStoreRequest; //
+let storeLocationTranslationRequest: StoreLocationTranslationRequest; //
 
 const { status, data } = await apiInstance.locationTranslationStore(
-    locationTranslationStoreRequest
+    storeLocationTranslationRequest
 );
 ```
 
@@ -185,12 +186,12 @@ const { status, data } = await apiInstance.locationTranslationStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **locationTranslationStoreRequest** | **LocationTranslationStoreRequest**|  | |
+| **storeLocationTranslationRequest** | **StoreLocationTranslationRequest**|  | |
 
 
 ### Return type
 
-**LocationTranslationStore200Response**
+**LocationTranslationShow200Response**
 
 ### Authorization
 
@@ -206,13 +207,14 @@ const { status, data } = await apiInstance.locationTranslationStore(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;LocationTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **locationTranslationUpdate**
-> LocationTranslationStore200Response locationTranslationUpdate()
+> LocationTranslationShow200Response locationTranslationUpdate()
 
 
 ### Example
@@ -221,18 +223,18 @@ const { status, data } = await apiInstance.locationTranslationStore(
 import {
     LocationTranslationApi,
     Configuration,
-    LocationTranslationUpdateRequest
+    UpdateLocationTranslationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new LocationTranslationApi(configuration);
 
 let locationTranslation: string; //The location translation ID (default to undefined)
-let locationTranslationUpdateRequest: LocationTranslationUpdateRequest; // (optional)
+let updateLocationTranslationRequest: UpdateLocationTranslationRequest; // (optional)
 
 const { status, data } = await apiInstance.locationTranslationUpdate(
     locationTranslation,
-    locationTranslationUpdateRequest
+    updateLocationTranslationRequest
 );
 ```
 
@@ -240,13 +242,13 @@ const { status, data } = await apiInstance.locationTranslationUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **locationTranslationUpdateRequest** | **LocationTranslationUpdateRequest**|  | |
+| **updateLocationTranslationRequest** | **UpdateLocationTranslationRequest**|  | |
 | **locationTranslation** | [**string**] | The location translation ID | defaults to undefined|
 
 
 ### Return type
 
-**LocationTranslationStore200Response**
+**LocationTranslationShow200Response**
 
 ### Authorization
 
@@ -262,9 +264,68 @@ const { status, data } = await apiInstance.locationTranslationUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;LocationTranslationResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **locationTranslationUpdate2**
+> LocationTranslationShow200Response locationTranslationUpdate2()
+
+
+### Example
+
+```typescript
+import {
+    LocationTranslationApi,
+    Configuration,
+    UpdateLocationTranslationRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new LocationTranslationApi(configuration);
+
+let locationTranslation: string; //The location translation ID (default to undefined)
+let updateLocationTranslationRequest: UpdateLocationTranslationRequest; // (optional)
+
+const { status, data } = await apiInstance.locationTranslationUpdate2(
+    locationTranslation,
+    updateLocationTranslationRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateLocationTranslationRequest** | **UpdateLocationTranslationRequest**|  | |
+| **locationTranslation** | [**string**] | The location translation ID | defaults to undefined|
+
+
+### Return type
+
+**LocationTranslationShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;LocationTranslationResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

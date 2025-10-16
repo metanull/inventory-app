@@ -1,6 +1,6 @@
 # ItemApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -12,8 +12,9 @@ All URIs are relative to *http://localhost/api*
 |[**itemParents**](#itemparents) | **GET** /item/parents | Get parent items (items with no parent)|
 |[**itemShow**](#itemshow) | **GET** /item/{item} | Display the specified resource|
 |[**itemStore**](#itemstore) | **POST** /item | Store a newly created resource in storage|
-|[**itemUpdate**](#itemupdate) | **PUT** /item/{item} | Update the specified resource in storage|
-|[**itemUpdateTags**](#itemupdatetags) | **PATCH** /item/{item}/tags | Update tags for the specified item without modifying other item properties|
+|[**itemUpdate**](#itemupdate) | **PATCH** /item/{item} | Update the specified resource in storage|
+|[**itemUpdate2**](#itemupdate2) | **PUT** /item/{item} | Update the specified resource in storage|
+|[**itemUpdateTags**](#itemupdatetags) | **PATCH** /item/{item}/tags | Update the tags associated with an item. This endpoint handles attaching and/or detaching tags from an item using a single operation. Designed for granular tag management, allowing callers to perform specific tag attach/detach operations without requiring a full item update|
 |[**itemWithAllTags**](#itemwithalltags) | **POST** /item/with-all-tags | Get items that have ALL of the specified tags (AND condition)|
 |[**itemWithAnyTags**](#itemwithanytags) | **POST** /item/with-any-tags | Get items that have ANY of the specified tags (OR condition)|
 
@@ -34,10 +35,12 @@ const apiInstance = new ItemApi(configuration);
 
 let type: string; // (default to undefined)
 let type2: 'object' | 'monument' | 'detail' | 'picture'; // (default to undefined)
+let include: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemByType(
     type,
-    type2
+    type2,
+    include
 );
 ```
 
@@ -47,6 +50,7 @@ const { status, data } = await apiInstance.itemByType(
 |------------- | ------------- | ------------- | -------------|
 | **type** | [**string**] |  | defaults to undefined|
 | **type2** | [**&#39;object&#39; | &#39;monument&#39; | &#39;detail&#39; | &#39;picture&#39;**]**Array<&#39;object&#39; &#124; &#39;monument&#39; &#124; &#39;detail&#39; &#124; &#39;picture&#39;>** |  | defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -67,8 +71,9 @@ const { status, data } = await apiInstance.itemByType(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Array of &#x60;ItemResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -87,11 +92,18 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ItemApi(configuration);
 
-const { status, data } = await apiInstance.itemChildren();
+let include: string; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.itemChildren(
+    include
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -112,8 +124,9 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Array of &#x60;ItemResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -185,9 +198,11 @@ const configuration = new Configuration();
 const apiInstance = new ItemApi(configuration);
 
 let tag: string; //The tag ID (default to undefined)
+let include: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemForTag(
-    tag
+    tag,
+    include
 );
 ```
 
@@ -196,6 +211,7 @@ const { status, data } = await apiInstance.itemForTag(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **tag** | [**string**] | The tag ID | defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -216,9 +232,10 @@ const { status, data } = await apiInstance.itemForTag(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Array of &#x60;ItemResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -296,11 +313,18 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ItemApi(configuration);
 
-const { status, data } = await apiInstance.itemParents();
+let include: string; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.itemParents(
+    include
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -321,13 +345,14 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Array of &#x60;ItemResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemShow**
-> ItemStore200Response itemShow()
+> ItemShow200Response itemShow()
 
 
 ### Example
@@ -360,7 +385,7 @@ const { status, data } = await apiInstance.itemShow(
 
 ### Return type
 
-**ItemStore200Response**
+**ItemShow200Response**
 
 ### Authorization
 
@@ -384,7 +409,7 @@ const { status, data } = await apiInstance.itemShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemStore**
-> ItemStore200Response itemStore(storeItemRequest)
+> ItemShow200Response itemStore(storeItemRequest)
 
 
 ### Example
@@ -415,7 +440,7 @@ const { status, data } = await apiInstance.itemStore(
 
 ### Return type
 
-**ItemStore200Response**
+**ItemShow200Response**
 
 ### Authorization
 
@@ -438,7 +463,7 @@ const { status, data } = await apiInstance.itemStore(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemUpdate**
-> ItemStore200Response itemUpdate()
+> ItemShow200Response itemUpdate()
 
 
 ### Example
@@ -472,7 +497,65 @@ const { status, data } = await apiInstance.itemUpdate(
 
 ### Return type
 
-**ItemStore200Response**
+**ItemShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ItemResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **itemUpdate2**
+> ItemShow200Response itemUpdate2()
+
+
+### Example
+
+```typescript
+import {
+    ItemApi,
+    Configuration,
+    UpdateItemRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ItemApi(configuration);
+
+let item: string; //The item ID (default to undefined)
+let updateItemRequest: UpdateItemRequest; // (optional)
+
+const { status, data } = await apiInstance.itemUpdate2(
+    item,
+    updateItemRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateItemRequest** | **UpdateItemRequest**|  | |
+| **item** | [**string**] | The item ID | defaults to undefined|
+
+
+### Return type
+
+**ItemShow200Response**
 
 ### Authorization
 
@@ -496,9 +579,8 @@ const { status, data } = await apiInstance.itemUpdate(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemUpdateTags**
-> ItemStore200Response itemUpdateTags()
+> ItemShow200Response itemUpdateTags()
 
-This endpoint allows quick editing of tag associations by specifying which tags to attach or detach from the item. It provides fine-grained control over tag operations without requiring a full item update.
 
 ### Example
 
@@ -506,18 +588,18 @@ This endpoint allows quick editing of tag associations by specifying which tags 
 import {
     ItemApi,
     Configuration,
-    ItemUpdateTagsRequest
+    UpdateTagsItemRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ItemApi(configuration);
 
 let item: string; //- The item to update tags for (default to undefined)
-let itemUpdateTagsRequest: ItemUpdateTagsRequest; // (optional)
+let updateTagsItemRequest: UpdateTagsItemRequest; // (optional)
 
 const { status, data } = await apiInstance.itemUpdateTags(
     item,
-    itemUpdateTagsRequest
+    updateTagsItemRequest
 );
 ```
 
@@ -525,13 +607,13 @@ const { status, data } = await apiInstance.itemUpdateTags(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **itemUpdateTagsRequest** | **ItemUpdateTagsRequest**|  | |
+| **updateTagsItemRequest** | **UpdateTagsItemRequest**|  | |
 | **item** | [**string**] | - The item to update tags for | defaults to undefined|
 
 
 ### Return type
 
-**ItemStore200Response**
+**ItemShow200Response**
 
 ### Authorization
 
@@ -547,14 +629,15 @@ const { status, data } = await apiInstance.itemUpdateTags(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ItemResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemWithAllTags**
-> ItemForTag200Response itemWithAllTags(itemWithAllTagsRequest)
+> ItemForTag200Response itemWithAllTags(withAllTagsItemRequest)
 
 
 ### Example
@@ -563,16 +646,16 @@ const { status, data } = await apiInstance.itemUpdateTags(
 import {
     ItemApi,
     Configuration,
-    ItemWithAllTagsRequest
+    WithAllTagsItemRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ItemApi(configuration);
 
-let itemWithAllTagsRequest: ItemWithAllTagsRequest; //
+let withAllTagsItemRequest: WithAllTagsItemRequest; //
 
 const { status, data } = await apiInstance.itemWithAllTags(
-    itemWithAllTagsRequest
+    withAllTagsItemRequest
 );
 ```
 
@@ -580,7 +663,7 @@ const { status, data } = await apiInstance.itemWithAllTags(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **itemWithAllTagsRequest** | **ItemWithAllTagsRequest**|  | |
+| **withAllTagsItemRequest** | **WithAllTagsItemRequest**|  | |
 
 
 ### Return type
@@ -601,13 +684,14 @@ const { status, data } = await apiInstance.itemWithAllTags(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Array of &#x60;ItemResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemWithAnyTags**
-> ItemForTag200Response itemWithAnyTags(itemWithAllTagsRequest)
+> ItemForTag200Response itemWithAnyTags(withAnyTagsItemRequest)
 
 
 ### Example
@@ -616,16 +700,16 @@ const { status, data } = await apiInstance.itemWithAllTags(
 import {
     ItemApi,
     Configuration,
-    ItemWithAllTagsRequest
+    WithAnyTagsItemRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ItemApi(configuration);
 
-let itemWithAllTagsRequest: ItemWithAllTagsRequest; //
+let withAnyTagsItemRequest: WithAnyTagsItemRequest; //
 
 const { status, data } = await apiInstance.itemWithAnyTags(
-    itemWithAllTagsRequest
+    withAnyTagsItemRequest
 );
 ```
 
@@ -633,7 +717,7 @@ const { status, data } = await apiInstance.itemWithAnyTags(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **itemWithAllTagsRequest** | **ItemWithAllTagsRequest**|  | |
+| **withAnyTagsItemRequest** | **WithAnyTagsItemRequest**|  | |
 
 
 ### Return type
@@ -654,8 +738,9 @@ const { status, data } = await apiInstance.itemWithAnyTags(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Array of &#x60;ItemResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

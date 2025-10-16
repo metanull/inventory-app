@@ -1,22 +1,25 @@
 # ItemImageApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**itemAttachImage**](#itemattachimage) | **POST** /item/{item}/attach-image | Attach an available image to an item|
 |[**itemImageDestroy**](#itemimagedestroy) | **DELETE** /item-image/{itemImage} | Remove the specified item image|
 |[**itemImageDetach**](#itemimagedetach) | **POST** /item-image/{itemImage}/detach | Detach an item image and convert it back to available image|
+|[**itemImageDownload**](#itemimagedownload) | **GET** /item-image/{itemImage}/download | Returns the file to the caller|
 |[**itemImageMoveDown**](#itemimagemovedown) | **PATCH** /item-image/{itemImage}/move-down | Move item image down in display order|
 |[**itemImageMoveUp**](#itemimagemoveup) | **PATCH** /item-image/{itemImage}/move-up | Move item image up in display order|
 |[**itemImageShow**](#itemimageshow) | **GET** /item-image/{itemImage} | Display the specified item image|
 |[**itemImageTightenOrdering**](#itemimagetightenordering) | **PATCH** /item-image/{itemImage}/tighten-ordering | Tighten ordering for all images of the item|
 |[**itemImageUpdate**](#itemimageupdate) | **PATCH** /item-image/{itemImage} | Update the specified item image|
+|[**itemImageUpdate2**](#itemimageupdate2) | **PUT** /item-image/{itemImage} | Update the specified item image|
+|[**itemImageView**](#itemimageview) | **GET** /item-image/{itemImage}/view | Returns the image file for direct viewing (e.g., for use in &lt;img&gt; src attribute)|
 |[**itemImagesIndex**](#itemimagesindex) | **GET** /item/{item}/images | Display a listing of item images for a specific item|
 |[**itemImagesStore**](#itemimagesstore) | **POST** /item/{item}/images | Store a newly created item image|
 
 # **itemAttachImage**
-> ItemImagesStore200Response itemAttachImage(itemAttachImageRequest)
+> ItemImagesStore200Response itemAttachImage(attachFromAvailableItemImageRequest)
 
 
 ### Example
@@ -25,18 +28,18 @@ All URIs are relative to *http://localhost/api*
 import {
     ItemImageApi,
     Configuration,
-    ItemAttachImageRequest
+    AttachFromAvailableItemImageRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ItemImageApi(configuration);
 
 let item: string; //The item ID (default to undefined)
-let itemAttachImageRequest: ItemAttachImageRequest; //
+let attachFromAvailableItemImageRequest: AttachFromAvailableItemImageRequest; //
 
 const { status, data } = await apiInstance.itemAttachImage(
     item,
-    itemAttachImageRequest
+    attachFromAvailableItemImageRequest
 );
 ```
 
@@ -44,7 +47,7 @@ const { status, data } = await apiInstance.itemAttachImage(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **itemAttachImageRequest** | **ItemAttachImageRequest**|  | |
+| **attachFromAvailableItemImageRequest** | **AttachFromAvailableItemImageRequest**|  | |
 | **item** | [**string**] | The item ID | defaults to undefined|
 
 
@@ -66,9 +69,10 @@ const { status, data } = await apiInstance.itemAttachImage(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;ItemImageResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -125,7 +129,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemImageDetach**
-> ItemImageDetach200Response itemImageDetach()
+> CollectionAttachItem200Response itemImageDetach()
 
 
 ### Example
@@ -155,7 +159,59 @@ const { status, data } = await apiInstance.itemImageDetach(
 
 ### Return type
 
-**ItemImageDetach200Response**
+**CollectionAttachItem200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;OperationSuccessResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **itemImageDownload**
+> object itemImageDownload()
+
+
+### Example
+
+```typescript
+import {
+    ItemImageApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ItemImageApi(configuration);
+
+let itemImage: string; //The item image ID (default to undefined)
+
+const { status, data } = await apiInstance.itemImageDownload(
+    itemImage
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **itemImage** | [**string**] | The item image ID | defaults to undefined|
+
+
+### Return type
+
+**object**
 
 ### Authorization
 
@@ -338,7 +394,7 @@ const { status, data } = await apiInstance.itemImageShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemImageTightenOrdering**
-> ItemImageTightenOrdering200Response itemImageTightenOrdering()
+> CollectionAttachItem200Response itemImageTightenOrdering()
 
 
 ### Example
@@ -368,7 +424,7 @@ const { status, data } = await apiInstance.itemImageTightenOrdering(
 
 ### Return type
 
-**ItemImageTightenOrdering200Response**
+**CollectionAttachItem200Response**
 
 ### Authorization
 
@@ -383,7 +439,7 @@ const { status, data } = await apiInstance.itemImageTightenOrdering(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**200** | &#x60;OperationSuccessResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
 
@@ -444,6 +500,116 @@ const { status, data } = await apiInstance.itemImageUpdate(
 |**401** | Unauthenticated |  -  |
 |**422** | Validation error |  -  |
 |**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **itemImageUpdate2**
+> ItemImagesStore200Response itemImageUpdate2()
+
+
+### Example
+
+```typescript
+import {
+    ItemImageApi,
+    Configuration,
+    UpdateItemImageRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ItemImageApi(configuration);
+
+let itemImage: string; //The item image ID (default to undefined)
+let updateItemImageRequest: UpdateItemImageRequest; // (optional)
+
+const { status, data } = await apiInstance.itemImageUpdate2(
+    itemImage,
+    updateItemImageRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateItemImageRequest** | **UpdateItemImageRequest**|  | |
+| **itemImage** | [**string**] | The item image ID | defaults to undefined|
+
+
+### Return type
+
+**ItemImagesStore200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ItemImageResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **itemImageView**
+> object itemImageView()
+
+
+### Example
+
+```typescript
+import {
+    ItemImageApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ItemImageApi(configuration);
+
+let itemImage: string; //The item image ID (default to undefined)
+
+const { status, data } = await apiInstance.itemImageView(
+    itemImage
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **itemImage** | [**string**] | The item image ID | defaults to undefined|
+
+
+### Return type
+
+**object**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

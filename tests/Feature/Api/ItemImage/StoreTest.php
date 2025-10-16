@@ -108,11 +108,11 @@ class StoreTest extends TestCase
         $response->assertJsonValidationErrors(['path', 'original_name', 'mime_type', 'size']);
     }
 
-    public function test_store_validates_path_format(): void
+    public function test_store_validates_path_length(): void
     {
         $item = Item::factory()->create();
         $data = ItemImage::factory()->make()->toArray();
-        $data['path'] = 'invalid-url';
+        $data['path'] = str_repeat('a', 501); // Max is 500
 
         $response = $this->postJson(route('item.images.store', $item->id), $data);
 

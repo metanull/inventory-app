@@ -56,9 +56,10 @@
         <!-- Image -->
         <div class="aspect-w-16 aspect-h-9 bg-gray-100">
           <img
-            :src="`/storage/${image.path}`"
+            :src="getItemImageUrl(image)"
             :alt="image.alt_text || `Image ${index + 1}`"
             class="object-cover w-full h-48"
+            @error="handleImageError"
           />
         </div>
 
@@ -155,9 +156,10 @@
                 >
                   <div class="aspect-w-1 aspect-h-1 bg-gray-100 rounded-lg overflow-hidden">
                     <img
-                      :src="`/storage/${availImage.path}`"
+                      :src="getAvailableImageUrl(availImage)"
                       :alt="availImage.comment || 'Available image'"
                       class="object-cover w-full h-32 group-hover:opacity-75"
+                      @error="handleImageError"
                     />
                   </div>
                   <div class="mt-1 text-xs text-gray-500 truncate">
@@ -217,6 +219,10 @@
   const loading = computed(() => itemImageStore.loading)
   const availableImages = computed(() => availableImageStore.availableImages || [])
 
+  // Image URL cache
+  const availableImageUrls = ref<Record<string, string>>({})
+  const loadingImageUrls = ref<Record<string, boolean>>({})
+
   // Format file size
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return `${bytes} B`
@@ -224,12 +230,58 @@
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   }
 
+  // Get image URL via API
+  const getAvailableImageUrl = (image: any): string => {
+    // Return cached URL if available
+    if (availableImageUrls.value[image.id]) {
+      return availableImageUrls.value[image.id]!
+    }
+
+    // If not already loading, start loading
+    if (!loadingImageUrls.value[image.id]) {
+      loadingImageUrls.value[image.id] = true
+      availableImageStore
+        .getImageUrl(image)
+        .then(url => {
+          availableImageUrls.value[image.id] = url
+          loadingImageUrls.value[image.id] = false
+        })
+        .catch(error => {
+          console.error('Failed to load image URL:', error)
+          loadingImageUrls.value[image.id] = false
+          // Use fallback placeholder
+          availableImageUrls.value[image.id] =
+            'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMyAxNlY4QzMgNi4zNDMxNSA0LjM0MzE1IDUgNiA1SDE4QzE5LjY1NjkgNSAyMSA2LjM0MzE1IDIxIDhWMTZDMjEgMTcuNjU2OSAxOS42NTY5IDE5IDE4IDE5SDZDNC4zNDMxNSAxOSAzIDE3LjY1NjkgMyAxNloiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTkgMTBDMTAuMTA0NiAxMCAxMSA5LjEwNDU3IDExIDhDMTEgNi44OTU0MyAxMC4xMDQ2IDYgOSA2QzcuODk1NDMgNiA3IDYuODk1NDMgNyA4QzcgOS4xMDQ1NyA3Ljg5NTQzIDEwIDkgMTBaIiBmaWxsPSIjOUNBM0FGIi8+PHBhdGggZD0ibTIxIDE1LTMuNS0zLjUtMi41IDIuNS0zLTMtNCA0LjUiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4='
+        })
+    }
+
+    // Return placeholder while loading
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMyAxNlY4QzMgNi4zNDMxNSA0LjM0MzE1IDUgNiA1SDE4QzE5LjY1NjkgNSAyMSA2LjM0MzE1IDIxIDhWMTZDMjEgMTcuNjU2OSAxOS42NTY5IDE5IDE4IDE5SDZDNC4zNDMxNSAxOSAzIDE3LjY1NjkgMyAxNloiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTkgMTBDMTAuMTA0NiAxMCAxMSA5LjEwNDU3IDExIDhDMTEgNi44OTU0MyAxMC4xMDQ2IDYgOSA2QzcuODk1NDMgNiA3IDYuODk1NDMgNyA4QzcgOS4xMDQ1NyA3Ljg5NTQzIDEwIDkgMTBaIiBmaWxsPSIjOUNBM0FGIi8+PHBhdGggZD0ibTIxIDE1LTMuNS0zLjUtMi41IDIuNS0zLTMtNCA0LjUiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4='
+  }
+
+  // Handle image load error
+  const handleImageError = (event: Event) => {
+    const img = event.target as HTMLImageElement
+    img.src =
+      'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMyAxNlY4QzMgNi4zNDMxNSA0LjM0MzE1IDUgNiA1SDE4QzE5LjY1NjkgNSAyMSA2LjM0MzE1IDIxIDhWMTZDMjEgMTcuNjU2OSAxOS42NTY5IDE5IDE4IDE5SDZDNC4zNDMxNSAxOSAzIDE3LjY1NjkgMyAxNloiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTkgMTBDMTAuMTA0NiAxMCAxMSA5LjEwNDU3IDExIDhDMTEgNi44OTU0MyAxMC4xMDQ2IDYgOSA2QzcuODk1NDMgNiA3IDYuODk1NDMgNyA4QzcgOS4xMDQ1NyA3Ljg5NTQzIDEwIDkgMTBaIiBmaWxsPSIjOUNBM0FGIi8+PHBhdGggZD0ibTIxIDE1LTMuNS0zLjUtMi41IDIuNS0zLTMtNCA0LjUiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4='
+  }
+
+  // Get item image URL via API (ItemImage shares ID with AvailableImage, so use available-image endpoint)
+  const getItemImageUrl = (image: ItemImageResource): string => {
+    // ItemImage uses the same ID as the original AvailableImage
+    // So we can use the available-image/view endpoint
+    const baseUrl = window.location.origin
+    return `${baseUrl}/api/item-image/${image.id}/view`
+  }
+
   // Load images when component mounts or itemId changes
   const loadImages = async () => {
     if (props.itemId) {
       try {
         await itemImageStore.fetchItemImages(props.itemId)
-      } catch {
+        console.log('[ItemImageManager] Loaded images:', itemImageStore.itemImages.length)
+      } catch (error) {
+        console.error('[ItemImageManager] Failed to load images:', error)
         errorStore.addMessage('error', 'Failed to load images')
       }
     }
@@ -251,8 +303,12 @@
       await itemImageStore.attachImageToItem(props.itemId, availableImageId)
       showAttachDialog.value = false
       errorStore.addMessage('info', 'Image attached successfully')
-      // Refresh available images
-      await loadAvailableImages()
+
+      // Explicitly reload both lists to ensure UI updates
+      await Promise.all([
+        loadImages(), // Reload item images
+        loadAvailableImages(), // Reload available images (will show the image is gone)
+      ])
     } catch {
       errorStore.addMessage('error', 'Failed to attach image')
     } finally {
@@ -301,8 +357,12 @@
         loadingStore.show('Detaching image...')
         await itemImageStore.detachImageFromItem(image.id)
         errorStore.addMessage('info', 'Image detached successfully')
-        // Refresh available images
-        await loadAvailableImages()
+
+        // Explicitly reload both lists to ensure UI updates
+        await Promise.all([
+          loadImages(), // Reload item images
+          loadAvailableImages(), // Reload available images (will show the detached image)
+        ])
       } catch {
         errorStore.addMessage('error', 'Failed to detach image')
       } finally {

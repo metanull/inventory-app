@@ -5,8 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**message** | **string** |  | [default to undefined]
-**expires_in** | **string** |  | [default to undefined]
+**data** | [**EmailCodeRequestResource**](EmailCodeRequestResource.md) |  | [default to undefined]
 
 ## Example
 
@@ -14,8 +13,7 @@ Name | Type | Description | Notes
 import { TokenRequestEmailCode200Response } from './api';
 
 const instance: TokenRequestEmailCode200Response = {
-    message,
-    expires_in,
+    data,
 };
 ```
 

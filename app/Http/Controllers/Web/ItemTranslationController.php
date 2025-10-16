@@ -85,6 +85,7 @@ class ItemTranslationController extends Controller
     public function edit(ItemTranslation $itemTranslation): View
     {
         $itemTranslation->load(['item', 'language', 'context']);
+
         $items = Item::orderBy('internal_name')->get();
         $languages = Language::orderBy('internal_name')->get();
         $contexts = Context::orderBy('internal_name')->get();

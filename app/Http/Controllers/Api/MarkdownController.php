@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Rules\MarkdownRule;
 use App\Services\MarkdownService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -30,11 +29,12 @@ class MarkdownController extends Controller
      * Converts Markdown formatted text to HTML for display purposes.
      * The input is validated to ensure it contains safe Markdown content.
      *
+     * @unauthenticated
      *
      * @response 200 {
      *   "success": true,
      *   "data": {
-     *     "html": "<p><strong>Bold text</strong> and <em>italic text</em></p>"
+     *     "html": "<p>Converted HTML</p>"
      *   }
      * }
      * @response 422 {
@@ -45,35 +45,41 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function markdownToHtml(Request $request): JsonResponse
+    public function markdownToHtml(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'markdown' => ['required', 'string', new MarkdownRule],
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return response()->json(
+                (new \App\Http\Resources\ConversionResource([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ]))->toArray(request()),
+                422
+            );
         }
 
         try {
             $html = $this->markdownService->markdownToHtml($request->input('markdown'));
 
-            return response()->json([
+            return new \App\Http\Resources\ConversionResource([
                 'success' => true,
                 'data' => [
                     'html' => $html,
                 ],
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to convert markdown to HTML',
-                'error' => $e->getMessage(),
-            ], 500);
+            return response()->json(
+                (new \App\Http\Resources\ConversionResource([
+                    'success' => false,
+                    'message' => 'Failed to convert markdown to HTML',
+                    'error' => $e->getMessage(),
+                ]))->toArray(request()),
+                422
+            );
         }
     }
 
@@ -98,7 +104,7 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function htmlToMarkdown(Request $request): JsonResponse
+    public function htmlToMarkdown(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'html' => [
@@ -119,28 +125,34 @@ class MarkdownController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return response()->json(
+                (new \App\Http\Resources\ConversionResource([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ]))->toArray(request()),
+                422
+            );
         }
 
         try {
             $markdown = $this->markdownService->htmlToMarkdown($request->input('html'));
 
-            return response()->json([
+            return new \App\Http\Resources\ConversionResource([
                 'success' => true,
                 'data' => [
                     'markdown' => $markdown,
                 ],
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to convert HTML to markdown',
-                'error' => $e->getMessage(),
-            ], 500);
+            return response()->json(
+                (new \App\Http\Resources\ConversionResource([
+                    'success' => false,
+                    'message' => 'Failed to convert HTML to markdown',
+                    'error' => $e->getMessage(),
+                ]))->toArray(request()),
+                422
+            );
         }
     }
 
@@ -165,21 +177,24 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function validateMarkdown(Request $request): JsonResponse
+    public function validateMarkdown(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'markdown' => ['required', 'string', new MarkdownRule],
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return response()->json(
+                (new \App\Http\Resources\ConversionResource([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ]))->toArray(request()),
+                422
+            );
         }
 
-        return response()->json([
+        return new \App\Http\Resources\ConversionResource([
             'success' => true,
             'data' => [
                 'valid' => true,
@@ -202,9 +217,9 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function getAllowedElements(): JsonResponse
+    public function getAllowedElements()
     {
-        return response()->json([
+        return new \App\Http\Resources\ConversionResource([
             'success' => true,
             'data' => [
                 'allowed_html_tags' => $this->markdownService->getAllowedHtmlTags(),
@@ -219,7 +234,7 @@ class MarkdownController extends Controller
      * Generates an HTML preview of Markdown content for display purposes.
      * This is essentially the same as markdownToHtml but with a different semantic meaning.
      */
-    public function previewMarkdown(Request $request): JsonResponse
+    public function previewMarkdown(Request $request)
     {
         return $this->markdownToHtml($request);
     }
@@ -239,24 +254,27 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function isMarkdown(Request $request): JsonResponse
+    public function isMarkdown(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'content' => ['required', 'string'],
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return response()->json(
+                (new \App\Http\Resources\ConversionResource([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ]))->toArray(request()),
+                422
+            );
         }
 
         $content = $request->input('content');
         $isMarkdown = $this->markdownService->isMarkdown($content);
 
-        return response()->json([
+        return new \App\Http\Resources\ConversionResource([
             'success' => true,
             'data' => [
                 'is_markdown' => $isMarkdown,

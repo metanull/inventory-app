@@ -166,6 +166,21 @@
                     <p class="text-sm text-gray-600 flex-1">Maintain supported languages and default flag.</p>
                     <span class="mt-4 inline-flex items-center text-sm font-medium text-fuchsia-600 group-hover:underline">Open &rarr;</span>
                 </a>
+
+                @php($itc = $entityColor('item_translations'))
+                <a href="{{ route('item-translations.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $itc['base'] }}/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md {{ $itc['bg'] ?? 'bg-blue-50' }} {{ $itc['text'] ?? 'text-blue-600' }} group-hover:opacity-90">
+                                <x-heroicon-o-language class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Item Translations</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $itc['text'] ?? 'text-blue-600' }}" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Manage translations for items across different languages and contexts.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $itc['text'] ?? 'text-blue-600' }} group-hover:underline">Open &rarr;</span>
+                </a>
             </div>
         </section>
         @endcan

@@ -1,6 +1,6 @@
 # MarkdownAPIEndpointsForMarkdownProcessingAndConversionApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -161,7 +161,7 @@ const { status, data } = await apiInstance.markdownIsMarkdown(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **markdownPreview**
-> MarkdownPreview200Response markdownPreview()
+> ConversionResource markdownPreview()
 
 Generates an HTML preview of Markdown content for display purposes. This is essentially the same as markdownToHtml but with a different semantic meaning.
 
@@ -185,7 +185,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**MarkdownPreview200Response**
+**ConversionResource**
 
 ### Authorization
 
@@ -200,9 +200,8 @@ This endpoint does not have any parameters.
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**500** |  |  -  |
-|**200** |  |  -  |
 |**422** |  |  -  |
+|**200** | &#x60;ConversionResource&#x60; |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -243,7 +242,7 @@ const { status, data } = await apiInstance.markdownToHtml(
 
 ### Authorization
 
-[http](../README.md#http)
+No authorization required
 
 ### HTTP request headers
 

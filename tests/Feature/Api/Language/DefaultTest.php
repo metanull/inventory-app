@@ -89,7 +89,7 @@ class DefaultTest extends TestCase
             ->deleteJson(route('language.clearDefault'));
 
         $response->assertOk()
-            ->assertJsonPath('message', 'Default language cleared');
+            ->assertJsonPath('data.message', 'Default language cleared');
 
         $this->assertDatabaseMissing('languages', [
             'is_default' => true,
@@ -104,7 +104,7 @@ class DefaultTest extends TestCase
             ->deleteJson(route('language.clearDefault'));
 
         $response->assertOk()
-            ->assertJsonPath('message', 'Default language cleared');
+            ->assertJsonPath('data.message', 'Default language cleared');
     }
 
     public function test_get_default_language_successfully(): void

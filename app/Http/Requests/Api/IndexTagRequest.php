@@ -2,11 +2,13 @@
 
 namespace App\Http\Requests\Api;
 
-use App\Support\Pagination\PaginationParams;
+use App\Http\Requests\Api\Concerns\HasPagination;
 use Illuminate\Foundation\Http\FormRequest;
 
 class IndexTagRequest extends FormRequest
 {
+    use HasPagination;
+
     public function authorize(): bool
     {
         return $this->user() !== null;
@@ -18,15 +20,5 @@ class IndexTagRequest extends FormRequest
             'page' => 'sometimes|integer|min:1',
             'per_page' => 'sometimes|integer|min:1|max:100',
         ];
-    }
-
-    /**
-     * Get validated pagination parameters.
-     *
-     * @return array{page:int, per_page:int}
-     */
-    public function getPaginationParams(): array
-    {
-        return PaginationParams::fromRequest($this);
     }
 }

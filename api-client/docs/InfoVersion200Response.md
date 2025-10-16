@@ -5,12 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**repository** | **any** |  | [default to undefined]
-**build_timestamp** | [**InfoVersion200ResponseAnyOfBuildTimestamp**](InfoVersion200ResponseAnyOfBuildTimestamp.md) |  | [default to undefined]
-**repository_url** | **any** |  | [default to undefined]
-**api_client_version** | **any** |  | [default to undefined]
-**app_version** | **string** |  | [default to undefined]
-**commit_sha** | **any** |  | [default to undefined]
+**data** | [**VersionResource**](VersionResource.md) |  | [default to undefined]
 
 ## Example
 
@@ -18,12 +13,7 @@ Name | Type | Description | Notes
 import { InfoVersion200Response } from './api';
 
 const instance: InfoVersion200Response = {
-    repository,
-    build_timestamp,
-    repository_url,
-    api_client_version,
-    app_version,
-    commit_sha,
+    data,
 };
 ```
 

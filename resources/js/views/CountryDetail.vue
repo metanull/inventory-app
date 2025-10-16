@@ -76,8 +76,8 @@
     type RouteLocationNormalized,
   } from 'vue-router'
   import type {
-    CountryStoreRequest,
-    CountryUpdateRequest,
+    StoreCountryRequest,
+    UpdateCountryRequest,
   } from '@metanull/inventory-app-api-client'
   import { useCountryStore } from '@/stores/country'
   import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
@@ -229,7 +229,7 @@
     try {
       loadingStore.show('Saving...')
       if (mode.value === 'create') {
-        const createData: CountryStoreRequest = {
+        const createData: StoreCountryRequest = {
           id: editForm.value.id,
           internal_name: editForm.value.internal_name,
           backward_compatibility: editForm.value.backward_compatibility || undefined,
@@ -241,7 +241,7 @@
           mode.value = 'view'
         }
       } else if (mode.value === 'edit' && country.value) {
-        const updateData: CountryUpdateRequest = {
+        const updateData: UpdateCountryRequest = {
           internal_name: editForm.value.internal_name,
           backward_compatibility: editForm.value.backward_compatibility || undefined,
         }

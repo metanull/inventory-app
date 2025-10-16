@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import {
   type CollectionResource,
-  type CollectionStoreRequest,
+  type StoreCollectionRequest,
 } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
 import {
@@ -76,7 +76,7 @@ export const useCollectionStore = defineStore('collection', () => {
 
   // Create new collection
   const createCollection = async (
-    collectionData: CollectionStoreRequest
+    collectionData: StoreCollectionRequest
   ): Promise<CollectionResource> => {
     try {
       loading.value = true
@@ -105,7 +105,7 @@ export const useCollectionStore = defineStore('collection', () => {
   // Update existing collection
   const updateCollection = async (
     collectionId: string,
-    collectionData: CollectionStoreRequest
+    collectionData: StoreCollectionRequest
   ): Promise<CollectionResource> => {
     try {
       loading.value = true

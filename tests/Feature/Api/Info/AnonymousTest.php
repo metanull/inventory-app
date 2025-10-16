@@ -109,16 +109,18 @@ class AnonymousTest extends TestCase
 
         $response->assertOk()
             ->assertJsonStructure([
-                'repository',
-                'build_timestamp' => [
-                    'value',
-                    'DisplayHint',
-                    'DateTime',
+                'data' => [
+                    'repository',
+                    'build_timestamp' => [
+                        'value',
+                        'DisplayHint',
+                        'DateTime',
+                    ],
+                    'repository_url',
+                    'api_client_version',
+                    'app_version',
+                    'commit_sha',
                 ],
-                'repository_url',
-                'api_client_version',
-                'app_version',
-                'commit_sha',
             ]);
     }
 
@@ -158,7 +160,7 @@ class AnonymousTest extends TestCase
 
         $response->assertOk();
 
-        $data = $response->json();
+        $data = $response->json('data');
         $this->assertIsString($data['app_version']);
         $this->assertNotEmpty($data['app_version']);
     }

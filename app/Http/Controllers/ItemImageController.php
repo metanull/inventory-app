@@ -106,7 +106,7 @@ class ItemImageController extends Controller
     {
         $itemImage->tightenOrderingForItem();
 
-        return response()->json([
+        return new \App\Http\Resources\OperationSuccessResource([
             'success' => true,
             'message' => 'Image ordering tightened successfully',
         ]);
@@ -134,7 +134,7 @@ class ItemImageController extends Controller
     {
         $availableImage = $itemImage->detachToAvailableImage();
 
-        return response()->json([
+        return new \App\Http\Resources\OperationSuccessResource([
             'success' => true,
             'message' => 'Image detached successfully',
             'available_image_id' => $availableImage->id,
@@ -149,5 +149,35 @@ class ItemImageController extends Controller
         $itemImage->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * Returns the file to the caller.
+     */
+    public function download(ItemImage $itemImage)
+    {
+        $disk = config('localstorage.pictures.disk');
+        $filename = $itemImage->original_name ?: basename($itemImage->path);
+
+        return \App\Http\Responses\FileResponse::download(
+            $disk,
+            $itemImage->path,
+            $filename,
+            $itemImage->mime_type
+        );
+    }
+
+    /**
+     * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
+     */
+    public function view(ItemImage $itemImage)
+    {
+        $disk = config('localstorage.pictures.disk');
+
+        return \App\Http\Responses\FileResponse::view(
+            $disk,
+            $itemImage->path,
+            $itemImage->mime_type
+        );
     }
 }

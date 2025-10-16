@@ -1,6 +1,6 @@
 # CountryApi
 
-All URIs are relative to *http://localhost/api*
+All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -8,7 +8,8 @@ All URIs are relative to *http://localhost/api*
 |[**countryIndex**](#countryindex) | **GET** /country | Display a listing of the resource|
 |[**countryShow**](#countryshow) | **GET** /country/{country} | Display the specified resource|
 |[**countryStore**](#countrystore) | **POST** /country | Store a newly created resource in storage|
-|[**countryUpdate**](#countryupdate) | **PUT** /country/{country} | Update the specified resource in storage|
+|[**countryUpdate**](#countryupdate) | **PATCH** /country/{country} | Update the specified resource in storage|
+|[**countryUpdate2**](#countryupdate2) | **PUT** /country/{country} | Update the specified resource in storage|
 
 # **countryDestroy**
 > countryDestroy()
@@ -122,7 +123,7 @@ const { status, data } = await apiInstance.countryIndex(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **countryShow**
-> CountryStore200Response countryShow()
+> CountryShow200Response countryShow()
 
 
 ### Example
@@ -155,7 +156,7 @@ const { status, data } = await apiInstance.countryShow(
 
 ### Return type
 
-**CountryStore200Response**
+**CountryShow200Response**
 
 ### Authorization
 
@@ -179,7 +180,7 @@ const { status, data } = await apiInstance.countryShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **countryStore**
-> CountryStore200Response countryStore(countryStoreRequest)
+> CountryShow200Response countryStore(storeCountryRequest)
 
 
 ### Example
@@ -188,16 +189,16 @@ const { status, data } = await apiInstance.countryShow(
 import {
     CountryApi,
     Configuration,
-    CountryStoreRequest
+    StoreCountryRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CountryApi(configuration);
 
-let countryStoreRequest: CountryStoreRequest; //
+let storeCountryRequest: StoreCountryRequest; //
 
 const { status, data } = await apiInstance.countryStore(
-    countryStoreRequest
+    storeCountryRequest
 );
 ```
 
@@ -205,12 +206,12 @@ const { status, data } = await apiInstance.countryStore(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **countryStoreRequest** | **CountryStoreRequest**|  | |
+| **storeCountryRequest** | **StoreCountryRequest**|  | |
 
 
 ### Return type
 
-**CountryStore200Response**
+**CountryShow200Response**
 
 ### Authorization
 
@@ -228,11 +229,12 @@ const { status, data } = await apiInstance.countryStore(
 |**200** | &#x60;CountryResource&#x60; |  -  |
 |**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **countryUpdate**
-> CountryStore200Response countryUpdate(countryUpdateRequest)
+> CountryShow200Response countryUpdate(updateCountryRequest)
 
 
 ### Example
@@ -241,18 +243,18 @@ const { status, data } = await apiInstance.countryStore(
 import {
     CountryApi,
     Configuration,
-    CountryUpdateRequest
+    UpdateCountryRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CountryApi(configuration);
 
 let country: string; //The country ID (default to undefined)
-let countryUpdateRequest: CountryUpdateRequest; //
+let updateCountryRequest: UpdateCountryRequest; //
 
 const { status, data } = await apiInstance.countryUpdate(
     country,
-    countryUpdateRequest
+    updateCountryRequest
 );
 ```
 
@@ -260,13 +262,13 @@ const { status, data } = await apiInstance.countryUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **countryUpdateRequest** | **CountryUpdateRequest**|  | |
+| **updateCountryRequest** | **UpdateCountryRequest**|  | |
 | **country** | [**string**] | The country ID | defaults to undefined|
 
 
 ### Return type
 
-**CountryStore200Response**
+**CountryShow200Response**
 
 ### Authorization
 
@@ -282,9 +284,68 @@ const { status, data } = await apiInstance.countryUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;CountryResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **countryUpdate2**
+> CountryShow200Response countryUpdate2(updateCountryRequest)
+
+
+### Example
+
+```typescript
+import {
+    CountryApi,
+    Configuration,
+    UpdateCountryRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new CountryApi(configuration);
+
+let country: string; //The country ID (default to undefined)
+let updateCountryRequest: UpdateCountryRequest; //
+
+const { status, data } = await apiInstance.countryUpdate2(
+    country,
+    updateCountryRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateCountryRequest** | **UpdateCountryRequest**|  | |
+| **country** | [**string**] | The country ID | defaults to undefined|
+
+
+### Return type
+
+**CountryShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;CountryResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

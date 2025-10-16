@@ -32,7 +32,7 @@ class InfoController extends Controller
         $info = [
             'application' => [
                 'name' => config('app.name'),
-                'version' => $this->version()->getData()->app_version ?? '1.0.0-dev',
+                'version' => $this->version()->resource['app_version'] ?? '1.0.0-dev',
                 'environment' => config('app.env'),
             ],
             'health' => [
@@ -44,7 +44,7 @@ class InfoController extends Controller
 
         $statusCode = $healthChecks['overall_status'] === 'healthy' ? 200 : 503;
 
-        return response()->json($info, $statusCode);
+        return response()->json((new \App\Http\Resources\AppInfoResource($info))->toArray(request()), $statusCode);
     }
 
     /**
@@ -65,9 +65,9 @@ class InfoController extends Controller
             'timestamp' => now()->toISOString(),
         ];
 
-        $statusCode = $healthChecks['overall_status'] === 'healthy' ? 200 : 503;
+        $statusCode = $health['status'] === 'healthy' ? 200 : 503;
 
-        return response()->json($health, $statusCode);
+        return response()->json((new \App\Http\Resources\HealthResource($health))->toArray(request()), $statusCode);
     }
 
     /**
@@ -78,7 +78,7 @@ class InfoController extends Controller
      *
      * @return JsonResponse Version information
      */
-    public function version(): JsonResponse
+    public function version()
     {
         // If a deployment has produced a VERSION file at repo root, return its content as-is.
         $versionPath = base_path('VERSION');
@@ -87,7 +87,7 @@ class InfoController extends Controller
                 $raw = @file_get_contents($versionPath);
                 $decoded = @json_decode($raw, true);
                 if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                    return response()->json($decoded);
+                    return new \App\Http\Resources\VersionResource($decoded);
                 }
             } catch (\Exception $e) {
                 // fallthrough to default behaviour below
@@ -95,7 +95,7 @@ class InfoController extends Controller
         }
 
         // Fallback to CI/CD structure with default/null values
-        return response()->json([
+        return new \App\Http\Resources\VersionResource([
             'repository' => null,
             'build_timestamp' => [
                 'value' => '/Date('.(now()->timestamp * 1000).')/',
