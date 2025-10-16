@@ -220,14 +220,14 @@
         <h3 class="text-lg font-medium text-gray-900 mb-4">Additional Information</h3>
         
         <div class="space-y-6">
-            <x-form.field label="Extra Data (JSON)" name="extra" variant="gray">
+                        <x-form.field label="Remarks" name="extra[remarks]" variant="gray">
                 <textarea 
-                    name="extra" 
+                    name="extra[remarks]" 
                     rows="4"
-                    class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 font-mono text-sm"
-                    placeholder='{"custom": "data"}'
-                >{{ is_array(old('extra')) ? json_encode(old('extra')) : old('extra', $itemTranslation->extra ?? '') }}</textarea>
-                <p class="mt-1 text-xs text-gray-500">Must be valid JSON format</p>
+                    class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="Additional notes or comments..."
+                >{{ old('extra.remarks', $itemTranslation->extra->remarks ?? '') }}</textarea>
+                <p class="mt-1 text-xs text-gray-500">Additional notes or comments for this translation</p>
             </x-form.field>
 
             <x-form.field label="Legacy ID" name="backward_compatibility" variant="gray">
