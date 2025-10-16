@@ -233,7 +233,9 @@ export const useAuthStore = defineStore('auth', () => {
       // Clear all pinia stores by resetting the entire pinia instance state
       // This ensures no stale data remains after logout
       try {
-        const pinia = (this as unknown as { _p?: { _s?: Map<string, { $id: string; $reset?: () => void }> } })._p
+        const pinia = (
+          this as unknown as { _p?: { _s?: Map<string, { $id: string; $reset?: () => void }> } }
+        )._p
         if (pinia && pinia._s) {
           pinia._s.forEach((store: { $id: string; $reset?: () => void }) => {
             if (store.$id !== 'auth' && typeof store.$reset === 'function') {

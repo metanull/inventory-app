@@ -21,6 +21,7 @@ class ViewTest extends TestCase
 
         // Set up a fake storage disk for testing
         Storage::fake('local');
+        config(['localstorage.pictures.disk' => 'local']);
     }
 
     public function test_view_returns_image_file(): void

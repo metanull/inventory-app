@@ -56,11 +56,13 @@ class ImageUploadStatusPollingIntegrationTest extends TestCase
         $statusResponse = $this->getJson(route('image-upload.status', $uploadId));
         $statusResponse->assertOk();
         $statusResponse->assertJsonStructure([
-            'status',
-            'available_image',
+            'data' => [
+                'status',
+                'available_image',
+            ],
         ]);
-        $statusResponse->assertJsonPath('status', 'processing');
-        $statusResponse->assertJsonPath('available_image', null);
+        $statusResponse->assertJsonPath('data.status', 'processing');
+        $statusResponse->assertJsonPath('data.available_image', null);
 
         // Step 3: Simulate processing by triggering the listener
         $listener = new ImageUploadListener;
@@ -79,19 +81,21 @@ class ImageUploadStatusPollingIntegrationTest extends TestCase
         // Step 5: Check status after processing (should return 'processed' with AvailableImage details)
         $statusResponse = $this->getJson(route('image-upload.status', $uploadId));
         $statusResponse->assertOk();
-        $statusResponse->assertJsonPath('status', 'processed');
+        $statusResponse->assertJsonPath('data.status', 'processed');
         $statusResponse->assertJsonStructure([
-            'status',
-            'available_image' => [
-                'id',
-                'path',
-                'comment',
-                'created_at',
-                'updated_at',
+            'data' => [
+                'status',
+                'available_image' => [
+                    'id',
+                    'path',
+                    'comment',
+                    'created_at',
+                    'updated_at',
+                ],
             ],
         ]);
 
-        $availableImageData = $statusResponse->json('available_image');
+        $availableImageData = $statusResponse->json('data.available_image');
         $this->assertEquals($uploadId, $availableImageData['id']);
         $this->assertNotNull($availableImageData['path']);
 
@@ -133,7 +137,7 @@ class ImageUploadStatusPollingIntegrationTest extends TestCase
         // Check initial status
         $statusResponse = $this->getJson(route('image-upload.status', $uploadId));
         $statusResponse->assertOk();
-        $statusResponse->assertJsonPath('status', 'processing');
+        $statusResponse->assertJsonPath('data.status', 'processing');
 
         // Process the image
         $imageUpload = ImageUpload::find($uploadId);
@@ -146,9 +150,9 @@ class ImageUploadStatusPollingIntegrationTest extends TestCase
         // Check final status
         $statusResponse = $this->getJson(route('image-upload.status', $uploadId));
         $statusResponse->assertOk();
-        $statusResponse->assertJsonPath('status', 'processed');
+        $statusResponse->assertJsonPath('data.status', 'processed');
 
-        $availableImageData = $statusResponse->json('available_image');
+        $availableImageData = $statusResponse->json('data.available_image');
         $this->assertNotNull($availableImageData);
         $this->assertEquals($uploadId, $availableImageData['id']);
 
@@ -178,7 +182,7 @@ class ImageUploadStatusPollingIntegrationTest extends TestCase
         // Get status
         $statusResponse = $this->getJson(route('image-upload.status', $uploadId));
         $statusResponse->assertOk();
-        $statusResponse->assertJsonPath('status', 'processed');
+        $statusResponse->assertJsonPath('data.status', 'processed');
 
         // Verify we can access the image through the available-image endpoints
         $downloadResponse = $this->getJson(route('available-image.download', $uploadId));

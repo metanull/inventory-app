@@ -22,7 +22,7 @@ class StoreItemImageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'path' => ['required', 'string', 'max:500', 'url'],
+            'path' => ['required', 'string', 'max:500'],
             'original_name' => ['required', 'string', 'max:255'],
             'mime_type' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z0-9][a-zA-Z0-9!#$&\-\^_]*\/[a-zA-Z0-9][a-zA-Z0-9!#$&\-\^_.]*$/'],
             'size' => ['required', 'integer', 'min:1'],

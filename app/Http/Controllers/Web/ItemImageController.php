@@ -148,7 +148,7 @@ class ItemImageController extends Controller
             abort(404);
         }
 
-        $disk = config('localstorage.available.images.disk');
+        $disk = config('localstorage.pictures.disk');
         $filename = $itemImage->original_name ?: basename($itemImage->path);
 
         return \App\Http\Responses\FileResponse::download(
@@ -169,7 +169,7 @@ class ItemImageController extends Controller
             abort(404);
         }
 
-        $disk = config('localstorage.available.images.disk');
+        $disk = config('localstorage.pictures.disk');
 
         return \App\Http\Responses\FileResponse::view(
             $disk,

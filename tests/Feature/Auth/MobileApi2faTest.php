@@ -172,8 +172,10 @@ test('mobile api can request email 2fa code', function () {
 
     $response->assertOk();
     $response->assertJson([
-        'message' => 'Email verification code sent successfully.',
-        'expires_in' => 300, // 5 minutes in seconds
+        'data' => [
+            'message' => 'Email verification code sent successfully.',
+            'expires_in' => 300, // 5 minutes in seconds
+        ],
     ]);
 
     Notification::assertSentTo($user, \App\Notifications\EmailTwoFactorCode::class);
@@ -198,10 +200,12 @@ test('mobile api returns 2fa status', function () {
 
     $response->assertOk();
     $response->assertJson([
-        'two_factor_enabled' => true,
-        'available_methods' => ['totp', 'email'],
-        'primary_method' => 'totp', // Should prefer TOTP when both are available
-        'requires_two_factor' => true,
+        'data' => [
+            'two_factor_enabled' => true,
+            'available_methods' => ['totp', 'email'],
+            'primary_method' => 'totp', // Should prefer TOTP when both are available
+            'requires_two_factor' => true,
+        ],
     ]);
 });
 

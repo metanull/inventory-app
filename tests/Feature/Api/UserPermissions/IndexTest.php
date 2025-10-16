@@ -51,8 +51,10 @@ class IndexTest extends TestCase
         $response->assertOk();
         $response->assertJson([
             'data' => [
-                Permission::VIEW_DATA->value,
-                Permission::CREATE_DATA->value,
+                'permissions' => [
+                    Permission::VIEW_DATA->value,
+                    Permission::CREATE_DATA->value,
+                ],
             ],
         ]);
     }
@@ -73,8 +75,10 @@ class IndexTest extends TestCase
         $response->assertOk();
         $response->assertJson([
             'data' => [
-                Permission::VIEW_DATA->value,
-                Permission::MANAGE_USERS->value,
+                'permissions' => [
+                    Permission::VIEW_DATA->value,
+                    Permission::MANAGE_USERS->value,
+                ],
             ],
         ]);
     }
@@ -93,7 +97,7 @@ class IndexTest extends TestCase
             ->getJson(route('user.permissions'));
 
         $response->assertOk();
-        $json = $response->json('data');
+        $json = $response->json('data.permissions');
 
         $this->assertContains(Permission::VIEW_DATA->value, $json);
         $this->assertContains(Permission::MANAGE_USERS->value, $json);
@@ -126,12 +130,14 @@ class IndexTest extends TestCase
         $response->assertOk();
         $response->assertJson([
             'data' => [
-                Permission::VIEW_DATA->value,
+                'permissions' => [
+                    Permission::VIEW_DATA->value,
+                ],
             ],
         ]);
 
         // Should NOT include other user's permissions
-        $json = $response->json('data');
+        $json = $response->json('data.permissions');
         $this->assertNotContains(Permission::MANAGE_USERS->value, $json);
         $this->assertNotContains(Permission::MANAGE_SETTINGS->value, $json);
     }

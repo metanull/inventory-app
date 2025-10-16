@@ -88,7 +88,7 @@ class DefaultTest extends TestCase
             ->deleteJson(route('context.clearDefault'));
 
         $response->assertOk()
-            ->assertJsonPath('message', 'Default context cleared');
+            ->assertJsonPath('data.message', 'Default context cleared');
 
         $this->assertDatabaseMissing('contexts', [
             'is_default' => true,
@@ -103,7 +103,7 @@ class DefaultTest extends TestCase
             ->deleteJson(route('context.clearDefault'));
 
         $response->assertOk()
-            ->assertJsonPath('message', 'Default context cleared');
+            ->assertJsonPath('data.message', 'Default context cleared');
     }
 
     public function test_get_default_context_successfully(): void

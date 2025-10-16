@@ -34,11 +34,13 @@ class UserPermissionsTest extends TestCase
         $response = $this->actingAs($user)->getJson(route('user.permissions'));
 
         $response->assertOk()
-            ->assertJsonStructure(['data'])
+            ->assertJsonStructure(['data' => ['permissions']])
             ->assertJson([
                 'data' => [
-                    Permission::VIEW_DATA->value,
-                    Permission::CREATE_DATA->value,
+                    'permissions' => [
+                        Permission::VIEW_DATA->value,
+                        Permission::CREATE_DATA->value,
+                    ],
                 ],
             ]);
     }
@@ -74,11 +76,13 @@ class UserPermissionsTest extends TestCase
         $response = $this->actingAs($user)->getJson(route('user.permissions'));
 
         $response->assertOk()
-            ->assertJsonCount(2, 'data')
-            ->assertJsonFragment(['data' => [
-                Permission::VIEW_DATA->value,
-                Permission::MANAGE_USERS->value,
-            ]]);
+            ->assertJsonCount(2, 'data.permissions')
+            ->assertJsonFragment([
+                'permissions' => [
+                    Permission::VIEW_DATA->value,
+                    Permission::MANAGE_USERS->value,
+                ],
+            ]);
     }
 
     /**
@@ -97,9 +101,9 @@ class UserPermissionsTest extends TestCase
         $response = $this->actingAs($user)->getJson(route('user.permissions'));
 
         $response->assertOk()
-            ->assertJsonCount(2, 'data');
+            ->assertJsonCount(2, 'data.permissions');
 
-        $permissions = $response->json('data');
+        $permissions = $response->json('data.permissions');
         $this->assertContains(Permission::VIEW_DATA->value, $permissions);
         $this->assertContains(Permission::CREATE_DATA->value, $permissions);
     }
@@ -133,7 +137,7 @@ class UserPermissionsTest extends TestCase
         $response = $this->actingAs($user)->getJson(route('user.permissions'));
 
         $response->assertOk();
-        $permissions = $response->json('data');
+        $permissions = $response->json('data.permissions');
 
         // Should only have one instance of VIEW_DATA
         $this->assertEquals(1, count($permissions));
@@ -151,7 +155,7 @@ class UserPermissionsTest extends TestCase
         $response = $this->actingAs($user)->getJson(route('user.permissions'));
 
         $response->assertOk();
-        $permissions = $response->json('data');
+        $permissions = $response->json('data.permissions');
 
         // Should be array of strings
         $this->assertIsArray($permissions);

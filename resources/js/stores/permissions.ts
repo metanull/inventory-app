@@ -32,10 +32,13 @@ export const usePermissionsStore = defineStore('permissions', () => {
       console.log('[permissionsStore] Raw response:', response.data)
 
       // The API returns { permissions: string[] }
-      const responseData = response.data as { permissions?: string[] } | { data?: { permissions?: string[] } }
-      const perms = ('permissions' in responseData && responseData.permissions) || 
-                    ('data' in responseData && responseData.data?.permissions) || 
-                    []
+      const responseData = response.data as
+        | { permissions?: string[] }
+        | { data?: { permissions?: string[] } }
+      const perms =
+        ('permissions' in responseData && responseData.permissions) ||
+        ('data' in responseData && responseData.data?.permissions) ||
+        []
       permissions.value = Array.isArray(perms) ? perms : []
       console.log('[permissionsStore] Loaded permissions:', permissions.value)
       lastFetch.value = new Date()

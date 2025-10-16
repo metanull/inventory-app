@@ -35,7 +35,10 @@ export const useItemImageStore = defineStore('itemImage', () => {
       const responseData = response.data as { data?: unknown } | unknown[]
       const data = Array.isArray(responseData)
         ? responseData
-        : responseData && typeof responseData === 'object' && 'data' in responseData && Array.isArray(responseData.data)
+        : responseData &&
+            typeof responseData === 'object' &&
+            'data' in responseData &&
+            Array.isArray(responseData.data)
           ? responseData.data
           : []
 

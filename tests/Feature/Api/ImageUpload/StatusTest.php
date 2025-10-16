@@ -41,11 +41,13 @@ class StatusTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonStructure([
-            'status',
-            'available_image',
+            'data' => [
+                'status',
+                'available_image',
+            ],
         ]);
-        $response->assertJsonPath('status', 'processing');
-        $response->assertJsonPath('available_image', null);
+        $response->assertJsonPath('data.status', 'processing');
+        $response->assertJsonPath('data.available_image', null);
     }
 
     public function test_status_returns_processed_for_available_image(): void
@@ -57,18 +59,20 @@ class StatusTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonStructure([
-            'status',
-            'available_image' => [
-                'id',
-                'path',
-                'comment',
-                'created_at',
-                'updated_at',
+            'data' => [
+                'status',
+                'available_image' => [
+                    'id',
+                    'path',
+                    'comment',
+                    'created_at',
+                    'updated_at',
+                ],
             ],
         ]);
-        $response->assertJsonPath('status', 'processed');
-        $response->assertJsonPath('available_image.id', $uploadId);
-        $response->assertJsonPath('available_image.path', $availableImage->path);
+        $response->assertJsonPath('data.status', 'processed');
+        $response->assertJsonPath('data.available_image.id', $uploadId);
+        $response->assertJsonPath('data.available_image.path', $availableImage->path);
     }
 
     public function test_status_returns_not_found_for_nonexistent_resource(): void
@@ -105,6 +109,6 @@ class StatusTest extends TestCase
         $response = $this->getJson(route('image-upload.status', $imageUpload->id));
 
         $response->assertOk();
-        $response->assertJsonPath('status', 'processing');
+        $response->assertJsonPath('data.status', 'processing');
     }
 }
