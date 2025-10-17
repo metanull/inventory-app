@@ -26,6 +26,7 @@ import CollectionDetail from '@/views/CollectionDetail.vue'
 import ImageUpload from '@/views/ImageUpload.vue'
 import AvailableImages from '@/views/AvailableImages.vue'
 import AvailableImageDetail from '@/views/AvailableImageDetail.vue'
+import NotFound from '@/views/NotFound.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
@@ -192,6 +193,13 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login,
+      meta: { requiresAuth: false },
+    },
+    // Catch-all 404 route - MUST be last
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: NotFound,
       meta: { requiresAuth: false },
     },
   ],

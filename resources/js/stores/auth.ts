@@ -245,7 +245,7 @@ export const useAuthStore = defineStore('auth', () => {
         }
       } catch (e) {
         // Ignore errors in test environment where pinia instance may not be available
-        console.debug('Could not reset pinia stores:', e)
+        console.warn('Could not reset pinia stores:', e)
       }
 
       loading.value = false

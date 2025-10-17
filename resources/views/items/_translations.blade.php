@@ -47,24 +47,22 @@
                     @foreach($translations as $translation)
                         <div class="bg-gray-50 dark:bg-gray-900 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                             <div class="p-4">
-                                <!-- Header with Language and Context -->
-                                <div class="flex items-start justify-between mb-3">
-                                    <div class="flex items-center space-x-2">
-                                        <x-heroicon-o-language class="h-5 w-5 {{ $c['text'] }}" />
-                                        <div class="flex flex-wrap gap-2">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                                {{ $translation->language->internal_name ?? $translation->language_id }}
-                                            </span>
-                                            @if($translation->context)
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
-                                                    {{ $translation->context->internal_name }}
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Translation Name -->
+                <!-- Header with Language and Context -->
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center space-x-2">
+                        <x-heroicon-o-language class="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                        <div class="flex flex-wrap gap-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                {{ $translation->language->internal_name ?? $translation->language_id }}
+                            </span>
+                            @if($translation->context)
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
+                                    {{ $translation->context->internal_name }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                </div>                                <!-- Translation Name -->
                                 <div class="mb-2">
                                     <h4 class="text-base font-semibold text-gray-900 dark:text-white">
                                         {{ $translation->name }}
