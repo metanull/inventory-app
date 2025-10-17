@@ -118,7 +118,6 @@ export const useImageUploadStore = defineStore('imageUpload', () => {
     try {
       const apiClient = createApiClient()
       const response = await apiClient.imageUploadStatus(uploadId)
-      console.debug(`Upload status for ${uploadId}:`, response.data)
       // The API returns { data: ImageUploadStatusResource } so we need to extract data
       const statusData = response.data.data
       return {
@@ -271,19 +270,12 @@ export const useImageUploadStore = defineStore('imageUpload', () => {
     const hasProcessingUploads = processingUploads.value.length > 0
 
     if (hasProcessingUploads && !processingMonitorInterval) {
-      console.debug('Starting processing monitor')
       processingMonitorInterval = setInterval(async () => {
         const processingIds = processingUploads.value
           .map(upload => upload.uploadedResource?.id)
           .filter(Boolean)
 
-        console.debug('Processing monitor check:', {
-          processingCount: processingIds.length,
-          ids: processingIds,
-        })
-
         if (processingIds.length === 0) {
-          console.debug('No processing uploads found, stopping monitor')
           if (processingMonitorInterval) {
             clearInterval(processingMonitorInterval)
             processingMonitorInterval = null
@@ -298,17 +290,10 @@ export const useImageUploadStore = defineStore('imageUpload', () => {
               // Find the corresponding upload in our tracking
               for (const [uploadId, upload] of activeUploads.value.entries()) {
                 if (upload.uploadedResource?.id === id) {
-                  console.debug(`Updating status for upload ${uploadId}:`, {
-                    previousStatus: upload.status,
-                    newStatusResponse: status,
-                  })
-
                   if (status.status === 'processing') {
                     // Still processing, no change needed
-                    console.debug(`Upload ${uploadId} still processing`)
                   } else if (status.status === 'processed' && status.available_image) {
                     // Processing completed successfully
-                    console.debug(`Upload ${uploadId} completed successfully`)
                     upload.status = 'completed'
                     activeUploads.value.set(uploadId, { ...upload })
                   } else if (status.status === 'check_failed') {
@@ -338,7 +323,6 @@ export const useImageUploadStore = defineStore('imageUpload', () => {
         }
       }, 2000) // Check every 2 seconds
     } else if (!hasProcessingUploads && processingMonitorInterval) {
-      console.debug('No processing uploads, stopping monitor')
       clearInterval(processingMonitorInterval)
       processingMonitorInterval = null
     }
@@ -350,7 +334,6 @@ export const useImageUploadStore = defineStore('imageUpload', () => {
 
     // Return cleanup function
     return () => {
-      console.debug('Stopping processing monitor via cleanup')
       if (processingMonitorInterval) {
         clearInterval(processingMonitorInterval)
         processingMonitorInterval = null

@@ -158,10 +158,6 @@
         await translationStore.fetchItemTranslations({
           filters: { item_id: props.itemId },
         })
-        console.log(
-          '[ItemTranslationManager] Loaded translations:',
-          translationStore.itemTranslations.length
-        )
       } catch (error) {
         console.error('[ItemTranslationManager] Failed to load translations:', error)
         errorStore.addMessage('error', 'Failed to load translations')

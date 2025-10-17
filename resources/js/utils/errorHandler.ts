@@ -290,9 +290,9 @@ export class ErrorHandler {
           if (tokenRef && typeof tokenRef === 'object' && 'value' in tokenRef) {
             tokenRef.value = null
           }
-        } catch (e) {
+        } catch {
           // ignore if store is not available (e.g., during some tests)
-          console.debug('Auth store not available while handling 401:', e)
+          // Auth store not available - silently continue
         }
 
         // Redirect to named route to respect router base (e.g., '/cli/')

@@ -102,14 +102,20 @@ export const useItemTranslationStore = defineStore('itemTranslation', () => {
 
     try {
       const apiClient = createApiClient()
-      // Note: API returns number due to Scramble limitation, we need to refetch
-      await apiClient.itemTranslationStore(data)
+      const response = await apiClient.itemTranslationStore(data)
 
-      // Refetch the list to get the new translation
-      await fetchItemTranslations({ page: page.value, perPage: perPage.value })
+      // Extract the created resource from response
+      const createdTranslation = response.data.data as ItemTranslationResource
 
-      // Return success (we can't return the object due to API limitation)
-      return true
+      // Update current translation
+      currentItemTranslation.value = createdTranslation
+
+      // Add to list if we have one
+      if (itemTranslations.value) {
+        itemTranslations.value.unshift(createdTranslation)
+      }
+
+      return createdTranslation
     } catch (err: unknown) {
       ErrorHandler.handleError(err, 'Failed to create item translation')
       error.value = 'Failed to create item translation'
@@ -126,19 +132,21 @@ export const useItemTranslationStore = defineStore('itemTranslation', () => {
 
     try {
       const apiClient = createApiClient()
-      // Note: API returns number due to Scramble limitation, we need to refetch
-      await apiClient.itemTranslationUpdate(id, data)
+      const response = await apiClient.itemTranslationUpdate(id, data)
 
-      // Refetch to get updated data
-      await fetchItemTranslation(id)
+      // Extract the updated resource from response
+      const updatedTranslation = response.data.data as ItemTranslationResource
+
+      // Update current translation
+      currentItemTranslation.value = updatedTranslation
 
       // Update in local array if it exists
       const index = itemTranslations.value.findIndex(t => t.id === id)
-      if (index !== -1 && currentItemTranslation.value) {
-        itemTranslations.value[index] = currentItemTranslation.value
+      if (index !== -1) {
+        itemTranslations.value[index] = updatedTranslation
       }
 
-      return currentItemTranslation.value
+      return updatedTranslation
     } catch (err: unknown) {
       ErrorHandler.handleError(err, 'Failed to update item translation')
       error.value = 'Failed to update item translation'

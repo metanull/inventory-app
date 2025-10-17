@@ -660,7 +660,7 @@
 
   // Default form values
   const getDefaultFormValues = (): TranslationFormData => ({
-    item_id: '',
+    item_id: (route.query.item_id as string) || '',
     language_id: '',
     context_id: contextStore.defaultContext?.id || '',
     name: '',
@@ -823,9 +823,19 @@
       }
 
       if (mode.value === 'create') {
-        await translationStore.createItemTranslation(prepareData() as StoreItemTranslationRequest)
+        const savedTranslation = await translationStore.createItemTranslation(
+          prepareData() as StoreItemTranslationRequest
+        )
         errorStore.addMessage('info', 'Translation created successfully')
-        router.push('/item-translations')
+
+        // Reset changes tracking before navigation to prevent the "unsaved changes" dialog
+        cancelChangesStore.resetChanges()
+
+        // Navigate to the created translation in view mode
+        router.push({
+          name: 'item-translation-detail',
+          params: { id: savedTranslation.id },
+        })
       } else {
         const id = route.params.id as string
         await translationStore.updateItemTranslation(
@@ -833,6 +843,9 @@
           prepareData() as UpdateItemTranslationRequest
         )
         errorStore.addMessage('info', 'Translation updated successfully')
+
+        // Fetch updated data and enter view mode
+        await fetchTranslation()
         mode.value = 'view'
       }
     } catch (err: unknown) {
@@ -933,7 +946,8 @@
 
       // Determine mode and fetch data
       const id = route.params.id as string
-      if (id === 'new') {
+      // Check if we're on the /new route (route name) or if id === 'new' (legacy)
+      if (route.name === 'item-translation-new' || id === 'new') {
         mode.value = 'create'
         initializeForm()
       } else {

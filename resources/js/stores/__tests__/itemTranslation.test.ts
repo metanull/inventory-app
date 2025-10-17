@@ -221,21 +221,22 @@ describe('ItemTranslation Store', () => {
         description: 'New item description',
       }
 
-      mockItemTranslationApi.itemTranslationStore.mockResolvedValue({
-        data: 201,
-      })
+      const newTranslation = {
+        ...createData,
+        id: '123e4567-e89b-12d3-a456-426614174099',
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
+      }
 
-      // Mock fetchItemTranslations to simulate refetch
-      mockItemTranslationApi.itemTranslationIndex.mockResolvedValue({
-        data: [...mockItemTranslations],
+      mockItemTranslationApi.itemTranslationStore.mockResolvedValue({
+        data: { data: newTranslation },
       })
 
       const result = await store.createItemTranslation(createData)
 
       expect(mockItemTranslationApi.itemTranslationStore).toHaveBeenCalledWith(createData)
-      // Should refetch the list
-      expect(mockItemTranslationApi.itemTranslationIndex).toHaveBeenCalled()
-      expect(result).toBe(true)
+      // Should return the created translation
+      expect(result).toEqual(newTranslation)
     })
 
     it('should handle create error', async () => {
@@ -274,10 +275,6 @@ describe('ItemTranslation Store', () => {
       }
 
       mockItemTranslationApi.itemTranslationUpdate.mockResolvedValue({
-        data: 200,
-      })
-
-      mockItemTranslationApi.itemTranslationShow.mockResolvedValue({
         data: { data: updatedTranslation },
       })
 
@@ -289,8 +286,7 @@ describe('ItemTranslation Store', () => {
         '123e4567-e89b-12d3-a456-426614174000',
         { name: 'Updated Test Item' }
       )
-      // Should refetch the single item
-      expect(mockItemTranslationApi.itemTranslationShow).toHaveBeenCalled()
+      // Should return the updated translation
       expect(result).toEqual(updatedTranslation)
     })
 

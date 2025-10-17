@@ -1,11 +1,9 @@
 {{-- Item Translations Section --}}
 <div class="mt-8">
-    @php($c = $entityColor('item-translations'))
-    
     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         <div class="px-4 py-5 sm:px-6 flex items-center justify-between">
             <div class="flex items-center">
-                <x-heroicon-o-language class="h-6 w-6 mr-2 {{ $c['text'] }}" />
+                <x-heroicon-o-language class="h-6 w-6 mr-2 text-blue-600 dark:text-blue-400" />
                 <div>
                     <h3 class="text-lg font-medium text-gray-900 dark:text-white">Item Translations</h3>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -23,10 +21,6 @@
         </div>
 
         <div class="p-6">
-            @php
-                $translations = $item->translations()->with(['language', 'context'])->get();
-            @endphp
-
             @if($translations->isEmpty())
                 <div class="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,24 +41,22 @@
                     @foreach($translations as $translation)
                         <div class="bg-gray-50 dark:bg-gray-900 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                             <div class="p-4">
-                                <!-- Header with Language and Context -->
-                                <div class="flex items-start justify-between mb-3">
-                                    <div class="flex items-center space-x-2">
-                                        <x-heroicon-o-language class="h-5 w-5 {{ $c['text'] }}" />
-                                        <div class="flex flex-wrap gap-2">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                                {{ $translation->language->internal_name ?? $translation->language_id }}
-                                            </span>
-                                            @if($translation->context)
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
-                                                    {{ $translation->context->internal_name }}
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Translation Name -->
+                <!-- Header with Language and Context -->
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center space-x-2">
+                        <x-heroicon-o-language class="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                        <div class="flex flex-wrap gap-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                {{ $translation->language->internal_name ?? $translation->language_id }}
+                            </span>
+                            @if($translation->context)
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
+                                    {{ $translation->context->internal_name }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                </div>                                <!-- Translation Name -->
                                 <div class="mb-2">
                                     <h4 class="text-base font-semibold text-gray-900 dark:text-white">
                                         {{ $translation->name }}

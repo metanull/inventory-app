@@ -29,7 +29,6 @@ export const usePermissionsStore = defineStore('permissions', () => {
     try {
       const apiClient = useApiClient().createUserPermissionsApi()
       const response = await apiClient.userPermissions()
-      console.log('[permissionsStore] Raw response:', response.data)
 
       // The API returns { permissions: string[] }
       const responseData = response.data as
@@ -40,7 +39,6 @@ export const usePermissionsStore = defineStore('permissions', () => {
         ('data' in responseData && responseData.data?.permissions) ||
         []
       permissions.value = Array.isArray(perms) ? perms : []
-      console.log('[permissionsStore] Loaded permissions:', permissions.value)
       lastFetch.value = new Date()
     } catch (err: unknown) {
       const errorMessage =
