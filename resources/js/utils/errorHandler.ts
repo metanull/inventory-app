@@ -327,7 +327,7 @@ export class ErrorHandler {
         }
         const target: RouteLocationRaw =
           Object.keys(query).length > 0 ? { name: 'login', query } : { name: 'login' }
-        
+
         try {
           await router.push(target)
         } catch (err) {

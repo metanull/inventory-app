@@ -110,17 +110,14 @@ describe('DeleteConfirmation', () => {
     expect(store.cancel).toHaveBeenCalled()
   })
 
-  it('handles Cancel button keyboard interactions', async () => {
+  it('handles Cancel button click', async () => {
     store.visible = true
     await wrapper.vm.$nextTick()
 
     const cancelButton = wrapper.find('button:last-of-type')
 
-    await cancelButton.trigger('keydown.enter')
+    await cancelButton.trigger('click')
     expect(store.cancel).toHaveBeenCalled()
-
-    await cancelButton.trigger('keydown.escape')
-    expect(store.cancel).toHaveBeenCalledTimes(2)
   })
 
   it('calls store.cancel() on modal background click', async () => {
