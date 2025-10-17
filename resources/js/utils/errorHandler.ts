@@ -298,8 +298,13 @@ export class ErrorHandler {
         // Redirect to named route to respect router base (e.g., '/cli/')
         const router = injectedRouter
         if (!router) {
-          // Fallback if router not ready
-          window.location.href = '/login'
+          // Router not available - this should not happen in normal operation
+          // Log error and do nothing (letting the user see the error state)
+          console.error('Router not available during 401 handling - cannot redirect to login')
+          ErrorHandler.addError({
+            message: 'Authentication required. Please refresh the page and log in.',
+            status: 401,
+          })
           return
         }
         const current = router.currentRoute?.value
@@ -322,10 +327,23 @@ export class ErrorHandler {
         }
         const target: RouteLocationRaw =
           Object.keys(query).length > 0 ? { name: 'login', query } : { name: 'login' }
-        await router.push(target)
-      } catch {
-        // Fallback if router not ready
-        window.location.href = '/login'
+        
+        try {
+          await router.push(target)
+        } catch (err) {
+          console.error('Failed to navigate to login:', err)
+          ErrorHandler.addError({
+            message: 'Authentication required. Please navigate to login manually.',
+            status: 401,
+          })
+        }
+      } catch (err) {
+        // Unexpected error during authentication handling
+        console.error('Unexpected error during 401 handling:', err)
+        ErrorHandler.addError({
+          message: 'Authentication error. Please refresh the page.',
+          status: 401,
+        })
       } finally {
         authHandlingState.inProgress = false
       }

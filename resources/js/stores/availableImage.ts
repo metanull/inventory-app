@@ -5,6 +5,7 @@ import {
   type UpdateAvailableImageRequest,
 } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
+import { useApiBaseUrl } from '@/composables/useApiBaseUrl'
 import {
   type IndexQueryOptions,
   type ShowQueryOptions,
@@ -162,8 +163,10 @@ export const useAvailableImageStore = defineStore('availableImage', () => {
 
   // Get image download URL
   const getImageDownloadUrl = (availableImage: AvailableImageResource): string => {
-    const baseUrl = window.location.origin
-    return `${baseUrl}/api/available-image/${availableImage.id}/download`
+    // Use the API base URL from configuration (not window.location.origin)
+    // This ensures /cli app uses the correct API URL
+    const apiBaseUrl = useApiBaseUrl()
+    return `${apiBaseUrl}/available-image/${availableImage.id}/download`
   }
 
   return {

@@ -219,7 +219,9 @@
   const loading = computed(() => itemImageStore.loading)
   const availableImages = computed(() => availableImageStore.availableImages || [])
 
-  // Image URL cache
+  // Image URL caches
+  const itemImageUrls = ref<Record<string, string>>({})
+  const loadingItemImageUrls = ref<Record<string, boolean>>({})
   const availableImageUrls = ref<Record<string, string>>({})
   const loadingImageUrls = ref<Record<string, boolean>>({})
 
@@ -266,12 +268,33 @@
       'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMyAxNlY4QzMgNi4zNDMxNSA0LjM0MzE1IDUgNiA1SDE4QzE5LjY1NjkgNSAyMSA2LjM0MzE1IDIxIDhWMTZDMjEgMTcuNjU2OSAxOS42NTY5IDE5IDE4IDE5SDZDNC4zNDMxNSAxOSAzIDE3LjY1NjkgMyAxNloiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTkgMTBDMTAuMTA0NiAxMCAxMSA5LjEwNDU3IDExIDhDMTEgNi44OTU0MyAxMC4xMDQ2IDYgOSA2QzcuODk1NDMgNiA3IDYuODk1NDMgNyA4QzcgOS4xMDQ1NyA3Ljg5NTQzIDEwIDkgMTBaIiBmaWxsPSIjOUNBM0FGIi8+PHBhdGggZD0ibTIxIDE1LTMuNS0zLjUtMi41IDIuNS0zLTMtNCA0LjUiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4='
   }
 
-  // Get item image URL via API (ItemImage shares ID with AvailableImage, so use available-image endpoint)
+  // Get item image URL via API (fetches as blob to support authentication)
   const getItemImageUrl = (image: ItemImageResource): string => {
-    // ItemImage uses the same ID as the original AvailableImage
-    // So we can use the available-image/view endpoint
-    const baseUrl = window.location.origin
-    return `${baseUrl}/api/item-image/${image.id}/view`
+    // Return cached URL if available
+    if (itemImageUrls.value[image.id]) {
+      return itemImageUrls.value[image.id]!
+    }
+
+    // If not already loading, start loading
+    if (!loadingItemImageUrls.value[image.id]) {
+      loadingItemImageUrls.value[image.id] = true
+      itemImageStore
+        .getImageUrl(image)
+        .then(url => {
+          itemImageUrls.value[image.id] = url
+          loadingItemImageUrls.value[image.id] = false
+        })
+        .catch(error => {
+          console.error('Failed to load item image URL:', error)
+          loadingItemImageUrls.value[image.id] = false
+          // Use fallback placeholder
+          itemImageUrls.value[image.id] =
+            'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMyAxNlY4QzMgNi4zNDMxNSA0LjM0MzE1IDUgNiA1SDE4QzE5LjY1NjkgNSAyMSA2LjM0MzE1IDIxIDhWMTZDMjEgMTcuNjU2OSAxOS42NTY5IDE5IDE4IDE5SDZDNC4zNDMxNSAxOSAzIDE3LjY1NjkgMyAxNloiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTkgMTBDMTAuMTA0NiAxMCAxMSA5LjEwNDU3IDExIDhDMTEgNi44OTU0MyAxMC4xMDQ2IDYgOSA2QzcuODk1NDMgNiA3IDYuODk1NDMgNyA4QzcgOS4xMDQ1NyA3Ljg5NTQzIDEwIDkgMTBaIiBmaWxsPSIjOUNBM0FGIi8+PHBhdGggZD0ibTIxIDE1LTMuNS0zLjUtMi41IDIuNS0zLTMtNCA0LjUiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4='
+        })
+    }
+
+    // Return placeholder while loading
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMyAxNlY4QzMgNi4zNDMxNSA0LjM0MzE1IDUgNiA1SDE4QzE5LjY1NjkgNSAyMSA2LjM0MzE1IDIxIDhWMTZDMjEgMTcuNjU2OSAxOS42NTY5IDE5IDE4IDE5SDZDNC4zNDMxNSAxOSAzIDE3LjY1NjkgMyAxNloiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTkgMTBDMTAuMTA0NiAxMCAxMSA5LjEwNDU3IDExIDhDMTEgNi44OTU0MyAxMC4xMDQ2IDYgOSA2QzcuODk1NDMgNiA3IDYuODk1NDMgNyA4QzcgOS4xMDQ1NyA3Ljg5NTQzIDEwIDkgMTBaIiBmaWxsPSIjOUNBM0FGIi8+PHBhdGggZD0ibTIxIDE1LTMuNS0zLjUtMi41IDIuNS0zLTMtNCA0LjUiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4='
   }
 
   // Load images when component mounts or itemId changes
@@ -373,9 +396,10 @@
 
   // Delete image permanently
   const handleDelete = async (image: ItemImageResource) => {
+    const imageName = image.original_name || image.alt_text || 'this image'
     const result = await deleteStore.trigger(
       'Delete Image',
-      `Are you sure you want to permanently delete "${image.original_name}"? This action cannot be undone.`
+      `Are you sure you want to permanently delete "${imageName}"? This action cannot be undone.`
     )
 
     if (result === 'delete') {
