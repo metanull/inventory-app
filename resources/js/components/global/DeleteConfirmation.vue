@@ -42,7 +42,7 @@
   const deleteStore = useDeleteConfirmationStore()
   // Use storeToRefs to properly unwrap reactive refs for use in props
   const { visible, title, description } = storeToRefs(deleteStore)
-  
+
   const cancelButton = ref<HTMLElement>()
   // Danger color classes (used for modal icon and icon background)
   const dangerClasses = useColors('red')

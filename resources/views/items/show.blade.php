@@ -37,5 +37,8 @@
 
         <!-- Images Section -->
         @include('items._images')
+
+        <!-- Translations Section -->
+        @include('items._translations')
     </x-layout.show-page>
 @endsection

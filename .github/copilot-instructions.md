@@ -1,6 +1,7 @@
 # Copilot Coding Agent Instructions (concise)
 
 **CRITICAL**: Always use VS Code tools instead of terminal when possible (e.g. to list files, search in files, replace in files, interact with github, interact with tests...)
+**CRITICAL**: Always use VS Code tools to run tests
 
 This repo is a Laravel 12 (PHP 8.2+) backend and Vue 3 + TypeScript SPA frontend monorepo. The guidance below focuses on project-specific rules, commands, and locations an automated coding agent needs to be productive.
 

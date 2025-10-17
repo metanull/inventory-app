@@ -34,7 +34,11 @@ class ItemController extends Controller
 
     public function show(Item $item): View
     {
-        return view('items.show', compact('item'));
+        // Load translations for this item
+        $item->load('translations');
+        $translations = $item->translations;
+        
+        return view('items.show', compact('item', 'translations'));
     }
 
     public function create(): View
