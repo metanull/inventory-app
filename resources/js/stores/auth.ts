@@ -256,6 +256,28 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
   }
 
+  /**
+   * Validate the current session is still valid
+   * Called after app rebuild or when session state needs verification
+   * 
+   * @throws {Error} If session is invalid
+   */
+  const validateSession = async () => {
+    if (!token.value) {
+      throw new Error('No token found')
+    }
+    
+    try {
+      // Try to load permissions as a simple auth check
+      const permissionsStore = usePermissionsStore()
+      await permissionsStore.fetchPermissions()
+    } catch (err) {
+      // If permissions fetch fails, session is invalid
+      console.error('[Auth] Session validation failed:', err)
+      throw new Error('Session is invalid')
+    }
+  }
+
   return {
     token,
     loading,
@@ -270,5 +292,6 @@ export const useAuthStore = defineStore('auth', () => {
     requestEmailCode,
     getTwoFactorStatus,
     cancel2FA,
+    validateSession,
   }
 })
