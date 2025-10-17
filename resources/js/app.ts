@@ -44,7 +44,7 @@ if (import.meta.hot) {
 ;(async () => {
   if (sessionStorage.getItem('revalidate-session') === 'true') {
     sessionStorage.removeItem('revalidate-session')
-    
+
     try {
       const authStore = useAuthStore()
       if (authStore.token) {

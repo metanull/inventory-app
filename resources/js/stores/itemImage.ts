@@ -32,7 +32,6 @@ export const useItemImageStore = defineStore('itemImage', () => {
       const apiClient = createApiClient()
       const includeParam = includes?.join(',')
       const response = await apiClient.itemImagesIndex(itemId, includeParam)
-      console.log('[itemImageStore] Raw response:', response.data)
 
       // ResourceCollection returns { data: [...] }
       const responseData = response.data as { data?: unknown } | unknown[]
@@ -45,7 +44,6 @@ export const useItemImageStore = defineStore('itemImage', () => {
           ? responseData.data
           : []
 
-      console.log('[itemImageStore] Parsed images:', data.length, data)
       itemImages.value = data
     } catch (err: unknown) {
       console.error('[itemImageStore] Error fetching images:', err)
@@ -109,13 +107,10 @@ export const useItemImageStore = defineStore('itemImage', () => {
       const request: AttachFromAvailableItemImageRequest = {
         available_image_id: availableImageId,
       }
-      console.log('[itemImageStore] Attaching image:', { itemId, availableImageId })
-      const response = await apiClient.itemAttachImage(itemId, request)
-      console.log('[itemImageStore] Attach response:', response.data)
+      await apiClient.itemAttachImage(itemId, request)
 
       // Refetch the list to get the new image
       await fetchItemImages(itemId)
-      console.log('[itemImageStore] Images after attach:', itemImages.value.length)
 
       return true
     } catch (err: unknown) {

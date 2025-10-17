@@ -13023,7 +13023,6 @@
                 "properties": {
                     "path": {
                         "type": "string",
-                        "format": "uri",
                         "maxLength": 500
                     },
                     "original_name": {

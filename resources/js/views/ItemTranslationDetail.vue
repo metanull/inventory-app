@@ -660,7 +660,7 @@
 
   // Default form values
   const getDefaultFormValues = (): TranslationFormData => ({
-    item_id: '',
+    item_id: (route.query.item_id as string) || '',
     language_id: '',
     context_id: contextStore.defaultContext?.id || '',
     name: '',
@@ -933,7 +933,8 @@
 
       // Determine mode and fetch data
       const id = route.params.id as string
-      if (id === 'new') {
+      // Check if we're on the /new route (route name) or if id === 'new' (legacy)
+      if (route.name === 'item-translation-new' || id === 'new') {
         mode.value = 'create'
         initializeForm()
       } else {

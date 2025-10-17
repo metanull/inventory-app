@@ -41,11 +41,64 @@
       />
     </template>
 
+    <!-- Additional Filters -->
+    <template #additional-filters>
+      <div class="flex flex-wrap gap-4 mt-4">
+        <!-- Language Filter -->
+        <div class="flex-1 min-w-[200px]">
+          <label for="language-filter" class="block text-sm font-medium text-gray-700 mb-1">
+            Language
+          </label>
+          <select
+            id="language-filter"
+            v-model="selectedLanguage"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+          >
+            <option value="">All Languages</option>
+            <option v-for="lang in availableLanguages" :key="lang.id" :value="lang.id">
+              {{ lang.internal_name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Context Filter -->
+        <div class="flex-1 min-w-[200px]">
+          <label for="context-filter" class="block text-sm font-medium text-gray-700 mb-1">
+            Context
+          </label>
+          <select
+            id="context-filter"
+            v-model="selectedContext"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+          >
+            <option value="">All Contexts</option>
+            <option v-for="ctx in availableContexts" :key="ctx.id" :value="ctx.id">
+              {{ ctx.internal_name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Item Filter -->
+        <div class="flex-1 min-w-[200px]">
+          <label for="item-filter" class="block text-sm font-medium text-gray-700 mb-1">
+            Item ID or Name
+          </label>
+          <input
+            id="item-filter"
+            v-model="itemSearchQuery"
+            type="text"
+            placeholder="Search by item ID or name..."
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+          />
+        </div>
+      </div>
+    </template>
+
     <!-- Search Slot -->
     <template #search>
       <SearchControl
         v-model="searchQuery"
-        placeholder="Search translations by name..."
+        placeholder="Search translations by name, alternate name, or description..."
         :color="color"
       />
     </template>
@@ -154,6 +207,8 @@
   import { useRouter } from 'vue-router'
   import { useItemTranslationStore } from '@/stores/itemTranslation'
   import { useContextStore } from '@/stores/context'
+  import { useLanguageStore } from '@/stores/language'
+  import { useItemStore } from '@/stores/item'
   import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
   import { useErrorDisplayStore } from '@/stores/errorDisplay'
   import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
@@ -185,12 +240,17 @@
 
   const translationStore = useItemTranslationStore()
   const contextStore = useContextStore()
+  const languageStore = useLanguageStore()
+  const itemStore = useItemStore()
   const loadingStore = useLoadingOverlayStore()
   const errorStore = useErrorDisplayStore()
   const deleteStore = useDeleteConfirmationStore()
 
   // Filter state
   const filterMode = ref<'all' | 'default'>('all')
+  const selectedLanguage = ref<string>('')
+  const selectedContext = ref<string>('')
+  const itemSearchQuery = ref<string>('')
 
   // Sorting state
   const sortKey = ref<string>('name')
@@ -201,6 +261,10 @@
 
   // Color classes from centralized system
   const colorClasses = useColors(computed(() => props.color))
+
+  // Available options for filters
+  const availableLanguages = computed(() => languageStore.languages || [])
+  const availableContexts = computed(() => contextStore.contexts || [])
 
   // Computed
   const itemTranslations = computed(() => translationStore.itemTranslations || [])
@@ -222,7 +286,34 @@
       }
     }
 
-    // Apply search
+    // Apply language filter
+    if (selectedLanguage.value) {
+      filtered = filtered.filter(t => t.language_id === selectedLanguage.value)
+    }
+
+    // Apply context filter
+    if (selectedContext.value) {
+      filtered = filtered.filter(t => t.context_id === selectedContext.value)
+    }
+
+    // Apply item search (by ID or name)
+    if (itemSearchQuery.value.trim()) {
+      const query = itemSearchQuery.value.trim().toLowerCase()
+      filtered = filtered.filter(t => {
+        // Search by item ID
+        if (t.item_id && t.item_id.toLowerCase().includes(query)) {
+          return true
+        }
+        // Search by item internal_name if available
+        const item = itemStore.items.find(i => i.id === t.item_id)
+        if (item && item.internal_name.toLowerCase().includes(query)) {
+          return true
+        }
+        return false
+      })
+    }
+
+    // Apply general search
     if (searchQuery.value.trim()) {
       const query = searchQuery.value.toLowerCase()
       filtered = filtered.filter(
@@ -330,10 +421,18 @@
       loadingStore.show()
     }
     try {
-      // Load contexts for filtering
-      if (!contextStore.contexts || contextStore.contexts.length === 0) {
-        await contextStore.fetchContexts({ page: 1, perPage: 100 })
-      }
+      // Load data for filtering
+      await Promise.all([
+        contextStore.contexts?.length
+          ? Promise.resolve()
+          : contextStore.fetchContexts({ page: 1, perPage: 100 }),
+        languageStore.languages?.length
+          ? Promise.resolve()
+          : languageStore.fetchLanguages({ page: 1, perPage: 100 }),
+        itemStore.items?.length
+          ? Promise.resolve()
+          : itemStore.fetchItems({ page: 1, perPage: 100 }),
+      ])
 
       // Always refresh translations in background
       await translationStore.fetchItemTranslations({

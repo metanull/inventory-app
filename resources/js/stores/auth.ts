@@ -259,14 +259,14 @@ export const useAuthStore = defineStore('auth', () => {
   /**
    * Validate the current session is still valid
    * Called after app rebuild or when session state needs verification
-   * 
+   *
    * @throws {Error} If session is invalid
    */
   const validateSession = async () => {
     if (!token.value) {
       throw new Error('No token found')
     }
-    
+
     try {
       // Try to load permissions as a simple auth check
       const permissionsStore = usePermissionsStore()

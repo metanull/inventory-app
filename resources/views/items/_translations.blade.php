@@ -1,11 +1,9 @@
 {{-- Item Translations Section --}}
 <div class="mt-8">
-    @php($c = $entityColor('item-translations'))
-    
     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         <div class="px-4 py-5 sm:px-6 flex items-center justify-between">
             <div class="flex items-center">
-                <x-heroicon-o-language class="h-6 w-6 mr-2 {{ $c['text'] }}" />
+                <x-heroicon-o-language class="h-6 w-6 mr-2 text-blue-600 dark:text-blue-400" />
                 <div>
                     <h3 class="text-lg font-medium text-gray-900 dark:text-white">Item Translations</h3>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -23,10 +21,6 @@
         </div>
 
         <div class="p-6">
-            @php
-                $translations = $item->translations()->with(['language', 'context'])->get();
-            @endphp
-
             @if($translations->isEmpty())
                 <div class="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
