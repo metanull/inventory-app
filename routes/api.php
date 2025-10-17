@@ -6,6 +6,7 @@ use App\Http\Controllers\AddressTranslationController;
 use App\Http\Controllers\Api\MarkdownController;
 use App\Http\Controllers\AvailableImageController;
 use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\CollectionImageController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ContactTranslationController;
 use App\Http\Controllers\ContextController;
@@ -129,6 +130,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('collection/{collection}', [CollectionController::class, 'show'])->name('collection.show');
         Route::get('collection', [CollectionController::class, 'index'])->name('collection.index');
 
+        // CollectionImage routes (read)
+        Route::get('collection/{collection}/images', [CollectionImageController::class, 'index'])->name('collection.images.index');
+        Route::get('collection-image/{collectionImage}/download', [CollectionImageController::class, 'download'])->name('collection-image.download');
+        Route::get('collection-image/{collectionImage}/view', [CollectionImageController::class, 'view'])->name('collection-image.view');
+        Route::get('collection-image/{collectionImage}', [CollectionImageController::class, 'show'])->name('collection-image.show');
+
         // Theme routes (read)
         Route::get('theme/{theme}', [ThemeController::class, 'show'])->name('theme.show');
         Route::get('theme', [ThemeController::class, 'index'])->name('theme.index');
@@ -160,6 +167,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('collection', [CollectionController::class, 'store'])->name('collection.store');
         Route::post('collection/{collection}/attach-item', [CollectionController::class, 'attachItem'])->name('collection.attachItem');
         Route::post('collection/{collection}/attach-items', [CollectionController::class, 'attachItems'])->name('collection.attachItems');
+        Route::post('collection/{collection}/images', [CollectionImageController::class, 'store'])->name('collection.images.store');
+        Route::post('collection/{collection}/attach-image', [CollectionImageController::class, 'attachFromAvailable'])->name('collection.attachImage');
         Route::post('theme', [ThemeController::class, 'store'])->name('theme.store');
         Route::post('theme-translation', [ThemeTranslationController::class, 'store'])->name('theme-translation.store');
     });
@@ -199,6 +208,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::patch('item-image/{itemImage}/move-up', [ItemImageController::class, 'moveUp'])->name('item-image.moveUp');
         Route::patch('item-image/{itemImage}/move-down', [ItemImageController::class, 'moveDown'])->name('item-image.moveDown');
         Route::patch('item-image/{itemImage}/tighten-ordering', [ItemImageController::class, 'tightenOrdering'])->name('item-image.tightenOrdering');
+
+        Route::patch('collection-image/{collectionImage}', [CollectionImageController::class, 'update'])->name('collection-image.update');
+        Route::put('collection-image/{collectionImage}', [CollectionImageController::class, 'update']);
+        Route::patch('collection-image/{collectionImage}/move-up', [CollectionImageController::class, 'moveUp'])->name('collection-image.moveUp');
+        Route::patch('collection-image/{collectionImage}/move-down', [CollectionImageController::class, 'moveDown'])->name('collection-image.moveDown');
+        Route::patch('collection-image/{collectionImage}/tighten-ordering', [CollectionImageController::class, 'tightenOrdering'])->name('collection-image.tightenOrdering');
 
         Route::patch('contact/{contact}', [ContactController::class, 'update'])->name('contact.update');
         Route::put('contact/{contact}', [ContactController::class, 'update']);
@@ -247,6 +262,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('item/{item}', [ItemController::class, 'destroy'])->name('item.destroy');
         Route::delete('item-image/{itemImage}', [ItemImageController::class, 'destroy'])->name('item-image.destroy');
         Route::post('item-image/{itemImage}/detach', [ItemImageController::class, 'detachToAvailable'])->name('item-image.detach');
+        Route::delete('collection-image/{collectionImage}', [CollectionImageController::class, 'destroy'])->name('collection-image.destroy');
+        Route::post('collection-image/{collectionImage}/detach', [CollectionImageController::class, 'detachToAvailable'])->name('collection-image.detach');
         Route::delete('project/{project}', [ProjectController::class, 'destroy'])->name('project.destroy');
         Route::delete('image-upload/{image_upload}', [ImageUploadController::class, 'destroy'])->name('image-upload.destroy');
         Route::delete('available-image/{available_image}', [AvailableImageController::class, 'destroy'])->name('available-image.destroy');

@@ -100,6 +100,14 @@ class Collection extends Model
     }
 
     /**
+     * Get all images belonging to this collection.
+     */
+    public function collectionImages(): HasMany
+    {
+        return $this->hasMany(CollectionImage::class);
+    }
+
+    /**
      * Scope to get only collection type collections.
      */
     public function scopeCollections(Builder $query): Builder

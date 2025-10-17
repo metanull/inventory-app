@@ -3,6 +3,7 @@
 use App\Enums\Permission;
 use App\Http\Controllers\Web\AvailableImageController as WebAvailableImageController;
 use App\Http\Controllers\Web\CollectionController as WebCollectionController;
+use App\Http\Controllers\Web\CollectionImageController as WebCollectionImageController;
 use App\Http\Controllers\Web\ContextController as WebContextController;
 use App\Http\Controllers\Web\CountryController as WebCountryController;
 use App\Http\Controllers\Web\ImageUploadController as WebImageUploadController;
@@ -58,6 +59,20 @@ Route::prefix('web')->group(function () {
         Route::resource('projects', WebProjectController::class);
         Route::resource('contexts', WebContextController::class);
         Route::resource('collections', WebCollectionController::class);
+
+        // Collection Images - nested routes
+        Route::prefix('collections/{collection}/collection-images')->name('collections.collection-images.')->group(function () {
+            Route::get('/create', [WebCollectionImageController::class, 'create'])->name('create');
+            Route::post('/', [WebCollectionImageController::class, 'store'])->name('store');
+            Route::get('/{collection_image}/view', [WebCollectionImageController::class, 'view'])->name('view');
+            Route::get('/{collection_image}/download', [WebCollectionImageController::class, 'download'])->name('download');
+            Route::get('/{collection_image}/edit', [WebCollectionImageController::class, 'edit'])->name('edit');
+            Route::put('/{collection_image}', [WebCollectionImageController::class, 'update'])->name('update');
+            Route::post('/{collection_image}/move-up', [WebCollectionImageController::class, 'moveUp'])->name('move-up');
+            Route::post('/{collection_image}/move-down', [WebCollectionImageController::class, 'moveDown'])->name('move-down');
+            Route::post('/{collection_image}/detach', [WebCollectionImageController::class, 'detach'])->name('detach');
+            Route::delete('/{collection_image}', [WebCollectionImageController::class, 'destroy'])->name('destroy');
+        });
 
         // Available Images
         Route::get('available-images', [WebAvailableImageController::class, 'index'])->name('available-images.index');
