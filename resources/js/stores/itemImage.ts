@@ -15,6 +15,9 @@ export const useItemImageStore = defineStore('itemImage', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
+  // Blob URL cache for images (to avoid re-fetching)
+  const imageBlobUrls = ref<Map<string, string>>(new Map())
+
   // Create API client instance with session-aware configuration
   const createApiClient = () => {
     return useApiClient().createItemImageApi()
@@ -127,23 +130,25 @@ export const useItemImageStore = defineStore('itemImage', () => {
 
   // Update an existing item image (mainly for alt_text)
   const updateItemImage = async (id: string, data: UpdateItemImageRequest) => {
-    loading.value = true
+    loading.value = false // Don't show global loading for inline edits
     error.value = null
 
     try {
       const apiClient = createApiClient()
       await apiClient.itemImageUpdate(id, data)
 
-      // Refetch to get updated data
-      await fetchItemImage(id)
-
-      // Update in local array if it exists
+      // Update in local array directly (optimistic update for better UX)
       const index = itemImages.value.findIndex(img => img.id === id)
-      if (index !== -1 && currentItemImage.value) {
-        itemImages.value[index] = currentItemImage.value
+      if (index !== -1) {
+        // Update only the changed fields, keeping the rest of the object
+        const existingImage = itemImages.value[index]
+        itemImages.value[index] = {
+          ...existingImage,
+          ...data,
+        } as ItemImageResource
       }
 
-      return currentItemImage.value
+      return itemImages.value[index]
     } catch (err: unknown) {
       ErrorHandler.handleError(err, 'Failed to update item image')
       error.value = 'Failed to update item image'
@@ -284,6 +289,40 @@ export const useItemImageStore = defineStore('itemImage', () => {
     currentItemImage.value = null
     loading.value = false
     error.value = null
+    // Clean up blob URLs to avoid memory leaks
+    imageBlobUrls.value.forEach(url => URL.revokeObjectURL(url))
+    imageBlobUrls.value.clear()
+  }
+
+  // Get image URL for display (fetches as blob to support authentication)
+  const getImageUrl = async (itemImage: ItemImageResource): Promise<string> => {
+    // Check if we already have a blob URL cached
+    const cached = imageBlobUrls.value.get(itemImage.id)
+    if (cached) {
+      return cached
+    }
+
+    try {
+      const apiClient = createApiClient()
+      // Fetch the image data as a blob using the view endpoint
+      // This sends authentication headers which <img> tags cannot do
+      const response = await apiClient.itemImageView(itemImage.id, {
+        responseType: 'blob',
+      })
+
+      // Create a blob URL
+      const blob = new Blob([response.data as Blob], { type: itemImage.mime_type || 'image/jpeg' })
+      const blobUrl = URL.createObjectURL(blob)
+
+      // Cache the blob URL
+      imageBlobUrls.value.set(itemImage.id, blobUrl)
+
+      return blobUrl
+    } catch (error) {
+      console.error('Failed to load item image:', error)
+      // Return a fallback/placeholder image URL
+      return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMgMTZWOEMzIDYuMzQzMTUgNC4zNDMxNSA1IDYgNUgxOEMxOS42NTY5IDUgMjEgNi4zNDMxNSAyMSA4VjE2QzIxIDE3LjY1NjkgMTkuNjU2OSAxOSAxOCAxOUg2QzQuMzQzMTUgMTkgMyAxNy42NTY5IDMgMTZaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNOSAxMEMxMC4xMDQ2IDEwIDExIDkuMTA0NTcgMTEgOEMxMSA2Ljg5NTQzIDEwLjEMDQ2IDYgOSA2QzcuODk1NDMgNiA3IDYuODk1NDMgNyA4QzcgOS4xMDQ1NyA3Ljg5NTQzIDEwIDkgMTBaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Im0yMSAxNS0zLjUtMy41LTIuNSAyLjUtMy0zLTQgNC41IiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo='
+    }
   }
 
   return {
@@ -304,6 +343,7 @@ export const useItemImageStore = defineStore('itemImage', () => {
     tightenOrdering,
     detachImageFromItem,
     deleteItemImage,
+    getImageUrl,
     reset,
   }
 })

@@ -51,7 +51,7 @@
                                                {{ old('available_image_id') == $availableImage->id ? 'checked' : '' }}>
                                         
                                         <div class="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden border-2 border-transparent peer-checked:border-blue-500 transition-all">
-                                            <img src="{{ asset('storage/' . $availableImage->path) }}" 
+                                            <img src="{{ route('available-images.view', $availableImage) }}" 
                                                  alt="{{ $availableImage->comment ?? 'Available image' }}"
                                                  class="w-full h-full object-cover">
                                         </div>

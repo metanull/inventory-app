@@ -156,7 +156,8 @@ class ItemImageController extends Controller
      */
     public function download(ItemImage $itemImage)
     {
-        $disk = config('localstorage.pictures.disk');
+        // ItemImages share files with AvailableImages (same disk/path), so use the available images disk
+        $disk = config('localstorage.available.images.disk');
         $filename = $itemImage->original_name ?: basename($itemImage->path);
 
         return \App\Http\Responses\FileResponse::download(
@@ -172,7 +173,8 @@ class ItemImageController extends Controller
      */
     public function view(ItemImage $itemImage)
     {
-        $disk = config('localstorage.pictures.disk');
+        // ItemImages share files with AvailableImages (same disk/path), so use the available images disk
+        $disk = config('localstorage.available.images.disk');
 
         return \App\Http\Responses\FileResponse::view(
             $disk,

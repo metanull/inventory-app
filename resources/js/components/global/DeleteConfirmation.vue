@@ -1,9 +1,9 @@
 <template>
   <ModalOverlay
-    :visible="deleteStore.visible"
+    :visible="visible"
     variant="dialog"
-    :title="deleteStore.title"
-    :description="deleteStore.description"
+    :title="title"
+    :description="description"
     :icon-bg-class="iconBgClass"
     @background-click="deleteStore.cancel()"
   >
@@ -24,8 +24,6 @@
         type="button"
         :class="[getThemeClass('secondaryButton'), getThemeClass('formBorder')]"
         @click="deleteStore.cancel()"
-        @keydown.enter="deleteStore.cancel()"
-        @keydown.escape="deleteStore.cancel()"
       >
         Cancel
       </button>
@@ -39,8 +37,12 @@
   import ModalOverlay from '@/components/global/ModalOverlay.vue'
   import { ref, watch, nextTick, computed } from 'vue'
   import { getThemeClass, useColors } from '@/composables/useColors'
+  import { storeToRefs } from 'pinia'
 
   const deleteStore = useDeleteConfirmationStore()
+  // Use storeToRefs to properly unwrap reactive refs for use in props
+  const { visible, title, description } = storeToRefs(deleteStore)
+
   const cancelButton = ref<HTMLElement>()
   // Danger color classes (used for modal icon and icon background)
   const dangerClasses = useColors('red')
@@ -48,14 +50,11 @@
   const iconClass = computed(() => dangerClasses.value.icon)
 
   // Focus the cancel button when the modal becomes visible
-  watch(
-    () => deleteStore.visible,
-    (visible: boolean) => {
-      if (visible) {
-        nextTick(() => {
-          cancelButton.value?.focus()
-        })
-      }
+  watch(visible, (isVisible: boolean) => {
+    if (isVisible) {
+      nextTick(() => {
+        cancelButton.value?.focus()
+      })
     }
-  )
+  })
 </script>

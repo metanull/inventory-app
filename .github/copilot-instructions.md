@@ -1,5 +1,7 @@
 # Copilot Coding Agent Instructions (concise)
 
+**CRITICAL**: Always use VS Code tools instead of terminal when possible (e.g. to list files, search in files, replace in files, interact with github, interact with tests...)
+
 This repo is a Laravel 12 (PHP 8.2+) backend and Vue 3 + TypeScript SPA frontend monorepo. The guidance below focuses on project-specific rules, commands, and locations an automated coding agent needs to be productive.
 
 - Workspace layout: key folders are `app/` (Laravel code), `routes/api.php` (REST surface), `resources/js/` (Vue app + Pinia stores and `resources/js/**/__tests__` for Vitest tests), `database/` (migrations, factories, seeders), `docs/` (Jekyll site - Ruby, built via WSL), `docs/_openapi/api.json` (generated API specification), `docs/_docs`(generated commit history) and `api-client/` (generated TypeScript client).
