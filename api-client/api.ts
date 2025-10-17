@@ -187,6 +187,10 @@ export interface ArtistResource {
      */
     'items'?: Array<ItemResource>;
 }
+export interface AttachFromAvailableCollectionImageRequest {
+    'available_image_id': string;
+    'alt_text'?: string | null;
+}
 export interface AttachFromAvailableItemImageRequest {
     'available_image_id': string;
     'alt_text'?: string | null;
@@ -258,6 +262,58 @@ export interface CollectionAttachItem200Response {
 }
 export interface CollectionByType200Response {
     'data': Array<CollectionResource>;
+}
+export interface CollectionImageResource {
+    /**
+     * The unique identifier (GUID)
+     */
+    'id': string;
+    /**
+     * The collection this image belongs to
+     */
+    'collection_id': string;
+    /**
+     * The path to the image file
+     */
+    'path': string;
+    /**
+     * The original filename when uploaded
+     */
+    'original_name': string;
+    /**
+     * The MIME type of the image
+     */
+    'mime_type': string;
+    /**
+     * The file size in bytes
+     */
+    'size': number;
+    /**
+     * Alternative text for accessibility
+     */
+    'alt_text': string | null;
+    /**
+     * Display order for sorting images
+     */
+    'display_order': number;
+    /**
+     * The collection this image belongs to (CollectionResource)
+     */
+    'collection'?: CollectionResource;
+    /**
+     * The date of creation of the resource (managed by the system)
+     */
+    'created_at': string | null;
+    /**
+     * The date of last modification of the resource (managed by the system)
+     */
+    'updated_at': string | null;
+}
+export interface CollectionImagesIndex200Response {
+    'data': Array<CollectionImageResource>;
+}
+export interface CollectionImagesStore200Response {
+    'data': CollectionImageResource;
 }
 export interface CollectionIndex200Response {
     'data': Array<CollectionResource>;
@@ -1236,6 +1292,14 @@ export interface StoreAddressTranslationRequest {
     'address': string;
     'description'?: string | null;
 }
+export interface StoreCollectionImageRequest {
+    'path': string;
+    'original_name': string;
+    'mime_type': string;
+    'size': number;
+    'alt_text'?: string | null;
+    'display_order'?: number;
+}
 export interface StoreCollectionRequest {
     'internal_name': string;
     'type': StoreCollectionRequestTypeEnum;
@@ -1597,6 +1661,17 @@ export interface UpdateAvailableImageRequest {
     'id'?: string;
     'path'?: string;
     'comment'?: string | null;
+}
+export interface UpdateCollectionImageRequest {
+    /**
+     * Path and collection_id are immutable - not allowed in updates
+     */
+    'original_name'?: string;
+    'mime_type'?: string;
+    'size'?: number;
+    'alt_text'?: string | null;
+    'display_order'?: number;
+    'include'?: string;
 }
 export interface UpdateCollectionRequest {
     'internal_name'?: string;
@@ -4326,6 +4401,1023 @@ export const CollectionByTypeTypeEnum = {
     Gallery: 'gallery'
 } as const;
 export type CollectionByTypeTypeEnum = typeof CollectionByTypeTypeEnum[keyof typeof CollectionByTypeTypeEnum];
+
+
+/**
+ * CollectionImageApi - axios parameter creator
+ */
+export const CollectionImageApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Attach an available image to a collection
+         * @param {string} collection The collection ID
+         * @param {AttachFromAvailableCollectionImageRequest} attachFromAvailableCollectionImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionAttachImage: async (collection: string, attachFromAvailableCollectionImageRequest: AttachFromAvailableCollectionImageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collection' is not null or undefined
+            assertParamExists('collectionAttachImage', 'collection', collection)
+            // verify required parameter 'attachFromAvailableCollectionImageRequest' is not null or undefined
+            assertParamExists('collectionAttachImage', 'attachFromAvailableCollectionImageRequest', attachFromAvailableCollectionImageRequest)
+            const localVarPath = `/collection/{collection}/attach-image`
+                .replace(`{${"collection"}}`, encodeURIComponent(String(collection)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(attachFromAvailableCollectionImageRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Remove the specified collection image
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageDestroy: async (collectionImage: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionImage' is not null or undefined
+            assertParamExists('collectionImageDestroy', 'collectionImage', collectionImage)
+            const localVarPath = `/collection-image/{collectionImage}`
+                .replace(`{${"collectionImage"}}`, encodeURIComponent(String(collectionImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Detach a collection image and convert it back to available image
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageDetach: async (collectionImage: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionImage' is not null or undefined
+            assertParamExists('collectionImageDetach', 'collectionImage', collectionImage)
+            const localVarPath = `/collection-image/{collectionImage}/detach`
+                .replace(`{${"collectionImage"}}`, encodeURIComponent(String(collectionImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Returns the file to the caller
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageDownload: async (collectionImage: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionImage' is not null or undefined
+            assertParamExists('collectionImageDownload', 'collectionImage', collectionImage)
+            const localVarPath = `/collection-image/{collectionImage}/download`
+                .replace(`{${"collectionImage"}}`, encodeURIComponent(String(collectionImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Move collection image down in display order
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageMoveDown: async (collectionImage: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionImage' is not null or undefined
+            assertParamExists('collectionImageMoveDown', 'collectionImage', collectionImage)
+            const localVarPath = `/collection-image/{collectionImage}/move-down`
+                .replace(`{${"collectionImage"}}`, encodeURIComponent(String(collectionImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Move collection image up in display order
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageMoveUp: async (collectionImage: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionImage' is not null or undefined
+            assertParamExists('collectionImageMoveUp', 'collectionImage', collectionImage)
+            const localVarPath = `/collection-image/{collectionImage}/move-up`
+                .replace(`{${"collectionImage"}}`, encodeURIComponent(String(collectionImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified collection image
+         * @param {string} collectionImage The collection image ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageShow: async (collectionImage: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionImage' is not null or undefined
+            assertParamExists('collectionImageShow', 'collectionImage', collectionImage)
+            const localVarPath = `/collection-image/{collectionImage}`
+                .replace(`{${"collectionImage"}}`, encodeURIComponent(String(collectionImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Tighten ordering for all images of the collection
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageTightenOrdering: async (collectionImage: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionImage' is not null or undefined
+            assertParamExists('collectionImageTightenOrdering', 'collectionImage', collectionImage)
+            const localVarPath = `/collection-image/{collectionImage}/tighten-ordering`
+                .replace(`{${"collectionImage"}}`, encodeURIComponent(String(collectionImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified collection image
+         * @param {string} collectionImage The collection image ID
+         * @param {UpdateCollectionImageRequest} [updateCollectionImageRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageUpdate: async (collectionImage: string, updateCollectionImageRequest?: UpdateCollectionImageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionImage' is not null or undefined
+            assertParamExists('collectionImageUpdate', 'collectionImage', collectionImage)
+            const localVarPath = `/collection-image/{collectionImage}`
+                .replace(`{${"collectionImage"}}`, encodeURIComponent(String(collectionImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateCollectionImageRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified collection image
+         * @param {string} collectionImage The collection image ID
+         * @param {UpdateCollectionImageRequest} [updateCollectionImageRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageUpdate2: async (collectionImage: string, updateCollectionImageRequest?: UpdateCollectionImageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionImage' is not null or undefined
+            assertParamExists('collectionImageUpdate2', 'collectionImage', collectionImage)
+            const localVarPath = `/collection-image/{collectionImage}`
+                .replace(`{${"collectionImage"}}`, encodeURIComponent(String(collectionImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateCollectionImageRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Returns the image file for direct viewing (e.g., for use in <img> src attribute)
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageView: async (collectionImage: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionImage' is not null or undefined
+            assertParamExists('collectionImageView', 'collectionImage', collectionImage)
+            const localVarPath = `/collection-image/{collectionImage}/view`
+                .replace(`{${"collectionImage"}}`, encodeURIComponent(String(collectionImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of collection images for a specific collection
+         * @param {string} collection The collection ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImagesIndex: async (collection: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collection' is not null or undefined
+            assertParamExists('collectionImagesIndex', 'collection', collection)
+            const localVarPath = `/collection/{collection}/images`
+                .replace(`{${"collection"}}`, encodeURIComponent(String(collection)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created collection image
+         * @param {string} collection The collection ID
+         * @param {StoreCollectionImageRequest} storeCollectionImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImagesStore: async (collection: string, storeCollectionImageRequest: StoreCollectionImageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collection' is not null or undefined
+            assertParamExists('collectionImagesStore', 'collection', collection)
+            // verify required parameter 'storeCollectionImageRequest' is not null or undefined
+            assertParamExists('collectionImagesStore', 'storeCollectionImageRequest', storeCollectionImageRequest)
+            const localVarPath = `/collection/{collection}/images`
+                .replace(`{${"collection"}}`, encodeURIComponent(String(collection)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storeCollectionImageRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * CollectionImageApi - functional programming interface
+ */
+export const CollectionImageApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = CollectionImageApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Attach an available image to a collection
+         * @param {string} collection The collection ID
+         * @param {AttachFromAvailableCollectionImageRequest} attachFromAvailableCollectionImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionAttachImage(collection: string, attachFromAvailableCollectionImageRequest: AttachFromAvailableCollectionImageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImagesStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionAttachImage(collection, attachFromAvailableCollectionImageRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionAttachImage']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Remove the specified collection image
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionImageDestroy(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageDestroy(collectionImage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Detach a collection image and convert it back to available image
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageDetach(collectionImage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageDetach']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Returns the file to the caller
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionImageDownload(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageDownload(collectionImage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageDownload']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Move collection image down in display order
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionImageMoveDown(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImagesStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageMoveDown(collectionImage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageMoveDown']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Move collection image up in display order
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionImageMoveUp(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImagesStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageMoveUp(collectionImage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageMoveUp']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified collection image
+         * @param {string} collectionImage The collection image ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionImageShow(collectionImage: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImagesStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageShow(collectionImage, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Tighten ordering for all images of the collection
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageTightenOrdering(collectionImage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageTightenOrdering']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified collection image
+         * @param {string} collectionImage The collection image ID
+         * @param {UpdateCollectionImageRequest} [updateCollectionImageRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionImageUpdate(collectionImage: string, updateCollectionImageRequest?: UpdateCollectionImageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImagesStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageUpdate(collectionImage, updateCollectionImageRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified collection image
+         * @param {string} collectionImage The collection image ID
+         * @param {UpdateCollectionImageRequest} [updateCollectionImageRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionImageUpdate2(collectionImage: string, updateCollectionImageRequest?: UpdateCollectionImageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImagesStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageUpdate2(collectionImage, updateCollectionImageRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Returns the image file for direct viewing (e.g., for use in <img> src attribute)
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionImageView(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageView(collectionImage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageView']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of collection images for a specific collection
+         * @param {string} collection The collection ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionImagesIndex(collection: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImagesIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImagesIndex(collection, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImagesIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created collection image
+         * @param {string} collection The collection ID
+         * @param {StoreCollectionImageRequest} storeCollectionImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionImagesStore(collection: string, storeCollectionImageRequest: StoreCollectionImageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImagesStore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImagesStore(collection, storeCollectionImageRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImagesStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * CollectionImageApi - factory interface
+ */
+export const CollectionImageApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = CollectionImageApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Attach an available image to a collection
+         * @param {string} collection The collection ID
+         * @param {AttachFromAvailableCollectionImageRequest} attachFromAvailableCollectionImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionAttachImage(collection: string, attachFromAvailableCollectionImageRequest: AttachFromAvailableCollectionImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImagesStore200Response> {
+            return localVarFp.collectionAttachImage(collection, attachFromAvailableCollectionImageRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Remove the specified collection image
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageDestroy(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.collectionImageDestroy(collectionImage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Detach a collection image and convert it back to available image
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+            return localVarFp.collectionImageDetach(collectionImage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Returns the file to the caller
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageDownload(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<object> {
+            return localVarFp.collectionImageDownload(collectionImage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Move collection image down in display order
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageMoveDown(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImagesStore200Response> {
+            return localVarFp.collectionImageMoveDown(collectionImage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Move collection image up in display order
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageMoveUp(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImagesStore200Response> {
+            return localVarFp.collectionImageMoveUp(collectionImage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified collection image
+         * @param {string} collectionImage The collection image ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageShow(collectionImage: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImagesStore200Response> {
+            return localVarFp.collectionImageShow(collectionImage, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Tighten ordering for all images of the collection
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+            return localVarFp.collectionImageTightenOrdering(collectionImage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified collection image
+         * @param {string} collectionImage The collection image ID
+         * @param {UpdateCollectionImageRequest} [updateCollectionImageRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageUpdate(collectionImage: string, updateCollectionImageRequest?: UpdateCollectionImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImagesStore200Response> {
+            return localVarFp.collectionImageUpdate(collectionImage, updateCollectionImageRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified collection image
+         * @param {string} collectionImage The collection image ID
+         * @param {UpdateCollectionImageRequest} [updateCollectionImageRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageUpdate2(collectionImage: string, updateCollectionImageRequest?: UpdateCollectionImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImagesStore200Response> {
+            return localVarFp.collectionImageUpdate2(collectionImage, updateCollectionImageRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Returns the image file for direct viewing (e.g., for use in <img> src attribute)
+         * @param {string} collectionImage The collection image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImageView(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<object> {
+            return localVarFp.collectionImageView(collectionImage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of collection images for a specific collection
+         * @param {string} collection The collection ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImagesIndex(collection: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImagesIndex200Response> {
+            return localVarFp.collectionImagesIndex(collection, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created collection image
+         * @param {string} collection The collection ID
+         * @param {StoreCollectionImageRequest} storeCollectionImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionImagesStore(collection: string, storeCollectionImageRequest: StoreCollectionImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImagesStore200Response> {
+            return localVarFp.collectionImagesStore(collection, storeCollectionImageRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * CollectionImageApi - object-oriented interface
+ */
+export class CollectionImageApi extends BaseAPI {
+    /**
+     * 
+     * @summary Attach an available image to a collection
+     * @param {string} collection The collection ID
+     * @param {AttachFromAvailableCollectionImageRequest} attachFromAvailableCollectionImageRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionAttachImage(collection: string, attachFromAvailableCollectionImageRequest: AttachFromAvailableCollectionImageRequest, options?: RawAxiosRequestConfig) {
+        return CollectionImageApiFp(this.configuration).collectionAttachImage(collection, attachFromAvailableCollectionImageRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Remove the specified collection image
+     * @param {string} collectionImage The collection image ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionImageDestroy(collectionImage: string, options?: RawAxiosRequestConfig) {
+        return CollectionImageApiFp(this.configuration).collectionImageDestroy(collectionImage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Detach a collection image and convert it back to available image
+     * @param {string} collectionImage The collection image ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig) {
+        return CollectionImageApiFp(this.configuration).collectionImageDetach(collectionImage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Returns the file to the caller
+     * @param {string} collectionImage The collection image ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionImageDownload(collectionImage: string, options?: RawAxiosRequestConfig) {
+        return CollectionImageApiFp(this.configuration).collectionImageDownload(collectionImage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Move collection image down in display order
+     * @param {string} collectionImage The collection image ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionImageMoveDown(collectionImage: string, options?: RawAxiosRequestConfig) {
+        return CollectionImageApiFp(this.configuration).collectionImageMoveDown(collectionImage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Move collection image up in display order
+     * @param {string} collectionImage The collection image ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionImageMoveUp(collectionImage: string, options?: RawAxiosRequestConfig) {
+        return CollectionImageApiFp(this.configuration).collectionImageMoveUp(collectionImage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified collection image
+     * @param {string} collectionImage The collection image ID
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionImageShow(collectionImage: string, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionImageApiFp(this.configuration).collectionImageShow(collectionImage, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Tighten ordering for all images of the collection
+     * @param {string} collectionImage The collection image ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig) {
+        return CollectionImageApiFp(this.configuration).collectionImageTightenOrdering(collectionImage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified collection image
+     * @param {string} collectionImage The collection image ID
+     * @param {UpdateCollectionImageRequest} [updateCollectionImageRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionImageUpdate(collectionImage: string, updateCollectionImageRequest?: UpdateCollectionImageRequest, options?: RawAxiosRequestConfig) {
+        return CollectionImageApiFp(this.configuration).collectionImageUpdate(collectionImage, updateCollectionImageRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified collection image
+     * @param {string} collectionImage The collection image ID
+     * @param {UpdateCollectionImageRequest} [updateCollectionImageRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionImageUpdate2(collectionImage: string, updateCollectionImageRequest?: UpdateCollectionImageRequest, options?: RawAxiosRequestConfig) {
+        return CollectionImageApiFp(this.configuration).collectionImageUpdate2(collectionImage, updateCollectionImageRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Returns the image file for direct viewing (e.g., for use in <img> src attribute)
+     * @param {string} collectionImage The collection image ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionImageView(collectionImage: string, options?: RawAxiosRequestConfig) {
+        return CollectionImageApiFp(this.configuration).collectionImageView(collectionImage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of collection images for a specific collection
+     * @param {string} collection The collection ID
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionImagesIndex(collection: string, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionImageApiFp(this.configuration).collectionImagesIndex(collection, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created collection image
+     * @param {string} collection The collection ID
+     * @param {StoreCollectionImageRequest} storeCollectionImageRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionImagesStore(collection: string, storeCollectionImageRequest: StoreCollectionImageRequest, options?: RawAxiosRequestConfig) {
+        return CollectionImageApiFp(this.configuration).collectionImagesStore(collection, storeCollectionImageRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
 
 
 /**

@@ -8,6 +8,7 @@ import {
   AddressTranslationApi,
   AvailableImageApi,
   CollectionApi,
+  CollectionImageApi,
   ContactApi,
   ContactTranslationApi,
   ContextApi,
@@ -81,6 +82,9 @@ export const useApiClient = () => {
 
   const createCollectionApi = () =>
     new CollectionApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createCollectionImageApi = () =>
+    new CollectionImageApi(configuration.value, configuration.value.basePath, sessionAxios)
 
   const createContactApi = () =>
     new ContactApi(configuration.value, configuration.value.basePath, sessionAxios)
@@ -161,6 +165,7 @@ export const useApiClient = () => {
     createAddressTranslationApi,
     createAvailableImageApi,
     createCollectionApi,
+    createCollectionImageApi,
     createContactApi,
     createContactTranslationApi,
     createContextApi,

@@ -1933,6 +1933,669 @@
                 }
             }
         },
+        "/collection/{collection}/images": {
+            "get": {
+                "operationId": "collection.images.index",
+                "summary": "Display a listing of collection images for a specific collection",
+                "tags": [
+                    "CollectionImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "collection",
+                        "in": "path",
+                        "required": true,
+                        "description": "The collection ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `CollectionImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CollectionImageResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "collection.images.store",
+                "summary": "Store a newly created collection image",
+                "tags": [
+                    "CollectionImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "collection",
+                        "in": "path",
+                        "required": true,
+                        "description": "The collection ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreCollectionImageRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`CollectionImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/CollectionImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
+        "/collection-image/{collectionImage}/download": {
+            "get": {
+                "operationId": "collection-image.download",
+                "summary": "Returns the file to the caller",
+                "tags": [
+                    "CollectionImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "collectionImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The collection image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/collection-image/{collectionImage}/view": {
+            "get": {
+                "operationId": "collection-image.view",
+                "summary": "Returns the image file for direct viewing (e.g., for use in <img> src attribute)",
+                "tags": [
+                    "CollectionImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "collectionImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The collection image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/collection-image/{collectionImage}": {
+            "get": {
+                "operationId": "collection-image.show",
+                "summary": "Display the specified collection image",
+                "tags": [
+                    "CollectionImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "collectionImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The collection image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`CollectionImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/CollectionImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "collection-image.update",
+                "summary": "Update the specified collection image",
+                "tags": [
+                    "CollectionImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "collectionImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The collection image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCollectionImageRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`CollectionImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/CollectionImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "collectionImage.update_2",
+                "summary": "Update the specified collection image",
+                "tags": [
+                    "CollectionImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "collectionImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The collection image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCollectionImageRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`CollectionImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/CollectionImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "collection-image.destroy",
+                "summary": "Remove the specified collection image",
+                "tags": [
+                    "CollectionImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "collectionImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The collection image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/collection/{collection}/attach-image": {
+            "post": {
+                "operationId": "collection.attachImage",
+                "summary": "Attach an available image to a collection",
+                "tags": [
+                    "CollectionImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "collection",
+                        "in": "path",
+                        "required": true,
+                        "description": "The collection ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AttachFromAvailableCollectionImageRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`CollectionImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/CollectionImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
+        "/collection-image/{collectionImage}/move-up": {
+            "patch": {
+                "operationId": "collection-image.moveUp",
+                "summary": "Move collection image up in display order",
+                "tags": [
+                    "CollectionImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "collectionImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The collection image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`CollectionImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/CollectionImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/collection-image/{collectionImage}/move-down": {
+            "patch": {
+                "operationId": "collection-image.moveDown",
+                "summary": "Move collection image down in display order",
+                "tags": [
+                    "CollectionImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "collectionImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The collection image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`CollectionImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/CollectionImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/collection-image/{collectionImage}/tighten-ordering": {
+            "patch": {
+                "operationId": "collection-image.tightenOrdering",
+                "summary": "Tighten ordering for all images of the collection",
+                "tags": [
+                    "CollectionImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "collectionImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The collection image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`OperationSuccessResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/OperationSuccessResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/collection-image/{collectionImage}/detach": {
+            "post": {
+                "operationId": "collection-image.detach",
+                "summary": "Detach a collection image and convert it back to available image",
+                "tags": [
+                    "CollectionImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "collectionImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The collection image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`OperationSuccessResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/OperationSuccessResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/contact/{contact}": {
             "get": {
                 "operationId": "contact.show",
@@ -11143,6 +11806,25 @@
                 ],
                 "title": "ArtistResource"
             },
+            "AttachFromAvailableCollectionImageRequest": {
+                "type": "object",
+                "properties": {
+                    "available_image_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "alt_text": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "available_image_id"
+                ],
+                "title": "AttachFromAvailableCollectionImageRequest"
+            },
             "AttachFromAvailableItemImageRequest": {
                 "type": "object",
                 "properties": {
@@ -11290,6 +11972,79 @@
                     "updated_at"
                 ],
                 "title": "AvailableImageResource"
+            },
+            "CollectionImageResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier (GUID)"
+                    },
+                    "collection_id": {
+                        "type": "string",
+                        "description": "The collection this image belongs to"
+                    },
+                    "path": {
+                        "type": "string",
+                        "description": "The path to the image file"
+                    },
+                    "original_name": {
+                        "type": "string",
+                        "description": "The original filename when uploaded"
+                    },
+                    "mime_type": {
+                        "type": "string",
+                        "description": "The MIME type of the image"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "description": "The file size in bytes"
+                    },
+                    "alt_text": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Alternative text for accessibility"
+                    },
+                    "display_order": {
+                        "type": "integer",
+                        "description": "Display order for sorting images"
+                    },
+                    "collection": {
+                        "description": "The collection this image belongs to (CollectionResource)",
+                        "$ref": "#/components/schemas/CollectionResource"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "The date of creation of the resource (managed by the system)"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "The date of last modification of the resource (managed by the system)"
+                    }
+                },
+                "required": [
+                    "id",
+                    "collection_id",
+                    "path",
+                    "original_name",
+                    "mime_type",
+                    "size",
+                    "alt_text",
+                    "display_order",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "CollectionImageResource"
             },
             "CollectionResource": {
                 "type": "object",
@@ -12835,6 +13590,45 @@
                 ],
                 "title": "StoreAddressTranslationRequest"
             },
+            "StoreCollectionImageRequest": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "original_name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "mime_type": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "size": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "alt_text": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 500
+                    },
+                    "display_order": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                },
+                "required": [
+                    "path",
+                    "original_name",
+                    "mime_type",
+                    "size"
+                ],
+                "title": "StoreCollectionImageRequest"
+            },
             "StoreCollectionRequest": {
                 "type": "object",
                 "properties": {
@@ -13979,6 +14773,39 @@
                     }
                 },
                 "title": "UpdateAvailableImageRequest"
+            },
+            "UpdateCollectionImageRequest": {
+                "type": "object",
+                "properties": {
+                    "original_name": {
+                        "type": "string",
+                        "description": "Path and collection_id are immutable - not allowed in updates",
+                        "maxLength": 255
+                    },
+                    "mime_type": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "size": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "alt_text": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 500
+                    },
+                    "display_order": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "include": {
+                        "type": "string"
+                    }
+                },
+                "title": "UpdateCollectionImageRequest"
             },
             "UpdateCollectionRequest": {
                 "type": "object",

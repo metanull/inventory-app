@@ -29,7 +29,10 @@ class AllowList
                 'item', 'language', 'context', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor',
             ],
             'collection' => [
-                'language', 'context', 'translations', 'partners', 'items', 'attachedItems',
+                'language', 'context', 'translations', 'partners', 'items', 'attachedItems', 'collectionImages',
+            ],
+            'collectionImage' => [
+                'collection',
             ],
             'partner' => [
                 'country', 'items', 'pictures',
