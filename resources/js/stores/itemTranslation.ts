@@ -106,7 +106,7 @@ export const useItemTranslationStore = defineStore('itemTranslation', () => {
 
       // Extract the created resource from response
       const createdTranslation = response.data.data as ItemTranslationResource
-      
+
       // Update current translation
       currentItemTranslation.value = createdTranslation
 
@@ -136,7 +136,7 @@ export const useItemTranslationStore = defineStore('itemTranslation', () => {
 
       // Extract the updated resource from response
       const updatedTranslation = response.data.data as ItemTranslationResource
-      
+
       // Update current translation
       currentItemTranslation.value = updatedTranslation
 

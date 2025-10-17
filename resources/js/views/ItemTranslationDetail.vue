@@ -823,8 +823,9 @@
       }
 
       if (mode.value === 'create') {
-        const savedTranslation =
-          await translationStore.createItemTranslation(prepareData() as StoreItemTranslationRequest)
+        const savedTranslation = await translationStore.createItemTranslation(
+          prepareData() as StoreItemTranslationRequest
+        )
         errorStore.addMessage('info', 'Translation created successfully')
 
         // Reset changes tracking before navigation to prevent the "unsaved changes" dialog
@@ -842,7 +843,7 @@
           prepareData() as UpdateItemTranslationRequest
         )
         errorStore.addMessage('info', 'Translation updated successfully')
-        
+
         // Fetch updated data and enter view mode
         await fetchTranslation()
         mode.value = 'view'
