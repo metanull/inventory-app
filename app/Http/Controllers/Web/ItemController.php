@@ -37,7 +37,7 @@ class ItemController extends Controller
         // Load translations for this item
         $item->load('translations');
         $translations = $item->translations;
-        
+
         return view('items.show', compact('item', 'translations'));
     }
 

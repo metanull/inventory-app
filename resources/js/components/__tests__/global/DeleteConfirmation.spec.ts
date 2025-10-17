@@ -115,7 +115,7 @@ describe('DeleteConfirmation', () => {
     await wrapper.vm.$nextTick()
 
     const cancelButton = wrapper.find('button:last-of-type')
-    
+
     await cancelButton.trigger('click')
     expect(store.cancel).toHaveBeenCalled()
   })
