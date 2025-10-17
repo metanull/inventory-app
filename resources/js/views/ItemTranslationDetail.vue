@@ -823,9 +823,18 @@
       }
 
       if (mode.value === 'create') {
-        await translationStore.createItemTranslation(prepareData() as StoreItemTranslationRequest)
+        const savedTranslation =
+          await translationStore.createItemTranslation(prepareData() as StoreItemTranslationRequest)
         errorStore.addMessage('info', 'Translation created successfully')
-        router.push('/item-translations')
+
+        // Reset changes tracking before navigation to prevent the "unsaved changes" dialog
+        cancelChangesStore.resetChanges()
+
+        // Navigate to the created translation in view mode
+        router.push({
+          name: 'item-translation-detail',
+          params: { id: savedTranslation.id },
+        })
       } else {
         const id = route.params.id as string
         await translationStore.updateItemTranslation(
@@ -833,6 +842,9 @@
           prepareData() as UpdateItemTranslationRequest
         )
         errorStore.addMessage('info', 'Translation updated successfully')
+        
+        // Fetch updated data and enter view mode
+        await fetchTranslation()
         mode.value = 'view'
       }
     } catch (err: unknown) {
