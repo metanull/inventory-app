@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **CollectionImage Visibility (Vue.js SPA & Web UI)**:
+  - Created CollectionImageManager.vue component for managing collection images in SPA
+  - Integrated CollectionImageManager into CollectionDetail.vue (visible in view mode)
+  - Added _images.blade.php partial for collections in Web UI
+  - Features: attach/detach images, reorder, update alt text, delete
+  - Consistent UX with ItemImageManager component
+
+- **Password Reset Links**:
+  - Added "Forgot your password?" link to Login.vue (SPA login page)
+  - Link directs to existing Laravel password reset flow (/forgot-password)
+  - Web login already had password reset link
+
+- **Enhanced Store Cache Management**:
+  - Updated clearCacheAndReload() in storeUtils.ts to clear all recent stores
+  - Now clears: collectionImage, itemImage, itemTranslation, collection, item, partner, availableImage, imageUpload
+  - Ensures comprehensive cache clearing for better data consistency
+
 - **Web UI - Image Upload Drag & Drop**: Added JavaScript-based drag-and-drop functionality to the image upload form, allowing users to drag image files directly onto the upload zone in addition to the file browser.
 
 - **Web UI - Permission-Based Access Control**: Implemented comprehensive permission checks across all Web interface views:

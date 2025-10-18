@@ -141,6 +141,11 @@
       </DescriptionList>
     </template>
   </DetailView>
+
+  <!-- Collection Images Section (only show when viewing an existing collection) -->
+  <div v-if="mode === 'view' && collection?.id" class="mt-8">
+    <CollectionImageManager :collection-id="collection.id" color="indigo" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -159,6 +164,7 @@
   import DescriptionDetail from '@/components/format/description/DescriptionDetail.vue'
   import FormInput from '@/components/format/FormInput.vue'
   import DisplayText from '@/components/format/DisplayText.vue'
+  import CollectionImageManager from '@/components/CollectionImageManager.vue'
   import GenericDropdown from '@/components/format/GenericDropdown.vue'
   import { RectangleStackIcon as CollectionIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline'
   import { useCollectionStore } from '@/stores/collection'
