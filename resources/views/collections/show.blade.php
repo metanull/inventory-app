@@ -31,5 +31,7 @@
                 <x-display.timestamp :datetime="$collection->updated_at" />
             </x-display.field>
         </x-display.description-list>
+
+        @include('collections._images')
     </x-layout.show-page>
 @endsection

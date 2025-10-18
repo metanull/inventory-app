@@ -61,6 +61,17 @@
           </div>
         </div>
 
+        <div class="flex items-center justify-between">
+          <div class="text-sm">
+            <a
+              href="/forgot-password"
+              class="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              Forgot your password?
+            </a>
+          </div>
+        </div>
+
         <div>
           <button
             type="submit"

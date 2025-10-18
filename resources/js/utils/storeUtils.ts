@@ -2,6 +2,14 @@ import { useContextStore } from '@/stores/context'
 import { useCountryStore } from '@/stores/country'
 import { useLanguageStore } from '@/stores/language'
 import { useProjectStore } from '@/stores/project'
+import { useCollectionStore } from '@/stores/collection'
+import { useItemStore } from '@/stores/item'
+import { usePartnerStore } from '@/stores/partner'
+import { useCollectionImageStore } from '@/stores/collectionImage'
+import { useItemImageStore } from '@/stores/itemImage'
+import { useItemTranslationStore } from '@/stores/itemTranslation'
+import { useAvailableImageStore } from '@/stores/availableImage'
+import { useImageUploadStore } from '@/stores/imageUpload'
 import { useErrorDisplayStore } from '@/stores/errorDisplay'
 import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
 
@@ -19,6 +27,14 @@ export const clearCacheAndReload = async (reload = true): Promise<void> => {
     const countryStore = useCountryStore()
     const languageStore = useLanguageStore()
     const projectStore = useProjectStore()
+    const collectionStore = useCollectionStore()
+    const itemStore = useItemStore()
+    const partnerStore = usePartnerStore()
+    const collectionImageStore = useCollectionImageStore()
+    const itemImageStore = useItemImageStore()
+    const itemTranslationStore = useItemTranslationStore()
+    const availableImageStore = useAvailableImageStore()
+    const imageUploadStore = useImageUploadStore()
     const errorDisplayStore = useErrorDisplayStore()
     const loadingOverlayStore = useLoadingOverlayStore()
 
@@ -45,6 +61,23 @@ export const clearCacheAndReload = async (reload = true): Promise<void> => {
       projectStore.clearProjects()
     }
     projectStore.clearError()
+
+    // Clear collection and item stores
+    collectionStore.collections = []
+    collectionStore.clearCurrentCollection()
+    itemStore.items = []
+    itemStore.clearCurrentItem()
+    partnerStore.partners = []
+    partnerStore.clearCurrentPartner()
+
+    // Clear image-related stores (these have reset methods)
+    collectionImageStore.reset()
+    itemImageStore.reset()
+    itemTranslationStore.reset()
+
+    // Clear available image and upload stores (no reset method)
+    availableImageStore.availableImages = []
+    imageUploadStore.uploads = []
 
     // Clear UI stores
     errorDisplayStore.clearAll()
