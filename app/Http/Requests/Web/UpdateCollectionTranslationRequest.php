@@ -18,29 +18,11 @@ class UpdateCollectionTranslationRequest extends FormRequest
             'collection_id' => ['required', 'uuid', 'exists:collections,id'],
             'language_id' => ['required', 'string', 'max:10', 'exists:languages,id'],
             'context_id' => ['required', 'uuid', 'exists:contexts,id'],
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
+            'title' => ['required', 'string', 'max:255'],
 
             // Optional string fields
-            'alternate_name' => ['nullable', 'string', 'max:255'],
-            'type' => ['nullable', 'string', 'max:255'],
-            'holder' => ['nullable', 'string'],
-            'owner' => ['nullable', 'string'],
-            'initial_owner' => ['nullable', 'string'],
-            'dates' => ['nullable', 'string'],
-            'location' => ['nullable', 'string'],
-            'dimensions' => ['nullable', 'string'],
-            'place_of_production' => ['nullable', 'string'],
-            'method_for_datation' => ['nullable', 'string'],
-            'method_for_provenance' => ['nullable', 'string'],
-            'obtention' => ['nullable', 'string'],
-            'bibliography' => ['nullable', 'string'],
-
-            // Author references
-            'author_id' => ['nullable', 'uuid', 'exists:authors,id'],
-            'text_copy_editor_id' => ['nullable', 'uuid', 'exists:authors,id'],
-            'translator_id' => ['nullable', 'uuid', 'exists:authors,id'],
-            'translation_copy_editor_id' => ['nullable', 'uuid', 'exists:authors,id'],
+            'description' => ['nullable', 'string'],
+            'url' => ['nullable', 'string', 'max:255'],
 
             // Legacy and extra
             'backward_compatibility' => ['nullable', 'string', 'max:255'],
