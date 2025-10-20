@@ -9,6 +9,7 @@ import {
 } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
 import { usePermissionsStore } from './permissions'
+import { clearAuthCookies } from '@/utils/cookies'
 
 export interface TwoFactorChallenge {
   requires_two_factor: string
@@ -47,6 +48,10 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     error.value = null
     twoFactorChallenge.value = null
+
+    // Clear any stale CSRF/XSRF cookies that might cause 419 errors
+    // This is critical for mobile browsers with saved credentials
+    clearAuthCookies()
 
     try {
       const apiClient = createApiClient()
