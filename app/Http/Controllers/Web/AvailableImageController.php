@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\UpdateAvailableImageRequest;
 use App\Models\AvailableImage;
 use App\Support\Web\SearchAndPaginate;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AvailableImageController extends Controller
 {
@@ -74,5 +77,42 @@ class AvailableImageController extends Controller
             $availableImage->path,
             $filename
         );
+    }
+
+    /**
+     * Show the form for editing the specified available image.
+     */
+    public function edit(AvailableImage $availableImage): View
+    {
+        return view('available-images.edit', compact('availableImage'));
+    }
+
+    /**
+     * Update the specified available image in storage.
+     */
+    public function update(UpdateAvailableImageRequest $request, AvailableImage $availableImage): RedirectResponse
+    {
+        $availableImage->update($request->validated());
+
+        return redirect()->route('available-images.show', $availableImage)
+            ->with('success', 'Image comment updated successfully');
+    }
+
+    /**
+     * Remove the specified available image from storage.
+     */
+    public function destroy(AvailableImage $availableImage): RedirectResponse
+    {
+        // Delete the physical file from storage
+        $disk = Storage::disk(config('localstorage.available.images.disk'));
+        if ($disk->exists($availableImage->path)) {
+            $disk->delete($availableImage->path);
+        }
+
+        // Delete the database record
+        $availableImage->delete();
+
+        return redirect()->route('available-images.index')
+            ->with('success', 'Image deleted successfully');
     }
 }

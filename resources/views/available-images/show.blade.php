@@ -47,7 +47,26 @@
                         <x-heroicon-o-arrow-down-tray class="h-4 w-4 mr-2" />
                         Download
                     </a>
+                    @can(\App\Enums\Permission::UPDATE_DATA->value)
+                    <a 
+                        href="{{ route('available-images.edit', $availableImage) }}" 
+                        class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 {{ $c['focus'] }}"
+                    >
+                        <x-heroicon-o-pencil class="h-4 w-4 mr-2" />
+                        Edit
+                    </a>
+                    @endcan
                 </div>
+                @can(\App\Enums\Permission::DELETE_DATA->value)
+                <form method="POST" action="{{ route('available-images.destroy', $availableImage) }}" onsubmit="return confirm('Are you sure you want to permanently delete this image? This action cannot be undone.');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        <x-heroicon-o-trash class="h-4 w-4 mr-2" />
+                        Delete
+                    </button>
+                </form>
+                @endcan
             </div>
         </div>
     </div>

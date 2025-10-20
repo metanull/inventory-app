@@ -79,6 +79,9 @@ Route::prefix('web')->group(function () {
         Route::get('available-images/{availableImage}', [WebAvailableImageController::class, 'show'])->name('available-images.show');
         Route::get('available-images/{availableImage}/view', [WebAvailableImageController::class, 'view'])->name('available-images.view');
         Route::get('available-images/{availableImage}/download', [WebAvailableImageController::class, 'download'])->name('available-images.download');
+        Route::get('available-images/{availableImage}/edit', [WebAvailableImageController::class, 'edit'])->name('available-images.edit');
+        Route::put('available-images/{availableImage}', [WebAvailableImageController::class, 'update'])->name('available-images.update');
+        Route::delete('available-images/{availableImage}', [WebAvailableImageController::class, 'destroy'])->name('available-images.destroy');
     });
 
     // Image upload routes - require create permission

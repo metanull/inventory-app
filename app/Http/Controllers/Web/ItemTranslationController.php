@@ -35,11 +35,22 @@ class ItemTranslationController extends Controller
     {
         $query = ItemTranslation::with(['item', 'language', 'context']);
 
-        [$itemTranslations, $search] = $this->searchAndPaginate(
-            $query,
-            $request,
-            ['name', 'alternate_name', 'description']
-        );
+        // Apply search if provided
+        $search = $request->input('q');
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('alternate_name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('item', function ($itemQuery) use ($search) {
+                        $itemQuery->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $perPage = $request->input('perPage', 15);
+        $itemTranslations = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
 
         return view('item-translations.index', compact('itemTranslations', 'search'));
     }
@@ -47,14 +58,17 @@ class ItemTranslationController extends Controller
     /**
      * Show the form for creating a new item translation.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
         $items = Item::orderBy('internal_name')->get();
         $languages = Language::orderBy('internal_name')->get();
         $contexts = Context::orderBy('internal_name')->get();
         $defaultContext = Context::where('is_default', true)->first();
 
-        return view('item-translations.create', compact('items', 'languages', 'contexts', 'defaultContext'));
+        // Get item_id from query parameter if provided (from item show page)
+        $selectedItemId = $request->input('item_id');
+
+        return view('item-translations.create', compact('items', 'languages', 'contexts', 'defaultContext', 'selectedItemId'));
     }
 
     /**

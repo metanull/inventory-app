@@ -17,6 +17,17 @@
                 @endforeach
             </select>
         </div>
+
+        <div class="flex items-center gap-2">
+            <label for="languageFilter" class="text-sm text-gray-700">Language:</label>
+            <select wire:model.live="languageFilter" id="languageFilter" class="rounded-md border-gray-300 {{ $c['focus'] ?? '' }} text-sm">
+                <option value="">All Languages</option>
+                <option value="default">Default Language Only</option>
+                @foreach($languages as $language)
+                    <option value="{{ $language->id }}">{{ $language->name }}</option>
+                @endforeach
+            </select>
+        </div>
     </div>
 
     <div class="bg-white shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg overflow-hidden">
