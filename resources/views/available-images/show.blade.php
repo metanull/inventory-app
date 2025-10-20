@@ -78,13 +78,6 @@
             
             <dl class="divide-y divide-gray-200">
                 <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-gray-500">ID</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 font-mono">
-                        {{ $availableImage->id }}
-                    </dd>
-                </div>
-
-                <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
                     <dt class="text-sm font-medium text-gray-500">Comment</dt>
                     <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
                         {{ $availableImage->comment ?: '—' }}
@@ -97,23 +90,16 @@
                         {{ $availableImage->path }}
                     </dd>
                 </div>
-
-                <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-gray-500">Created</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                        {{ $availableImage->created_at->format('F d, Y \a\t H:i:s') }}
-                    </dd>
-                </div>
-
-                <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-gray-500">Updated</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                        {{ $availableImage->updated_at->format('F d, Y \a\t H:i:s') }}
-                    </dd>
-                </div>
             </dl>
         </div>
     </div>
+
+    <!-- System Properties -->
+    <x-system-properties 
+        :id="$availableImage->id"
+        :created-at="$availableImage->created_at"
+        :updated-at="$availableImage->updated_at"
+    />
 
     <!-- Back Button -->
     <div class="mt-6 flex justify-end">

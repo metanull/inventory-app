@@ -23,15 +23,16 @@
             <x-display.field label="Context">
                 <x-display.context-reference :context="$collection->context" />
             </x-display.field>
-            <x-display.field label="Backward Compatibility" :value="$collection->backward_compatibility" />
-            <x-display.field label="Created At">
-                <x-display.timestamp :datetime="$collection->created_at" />
-            </x-display.field>
-            <x-display.field label="Updated At">
-                <x-display.timestamp :datetime="$collection->updated_at" />
-            </x-display.field>
         </x-display.description-list>
 
         @include('collections._images')
+
+        <!-- System Properties -->
+        <x-system-properties 
+            :id="$collection->id"
+            :backward-compatibility-id="$collection->backward_compatibility"
+            :created-at="$collection->created_at"
+            :updated-at="$collection->updated_at"
+        />
     </x-layout.show-page>
 @endsection

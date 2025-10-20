@@ -18,14 +18,15 @@
         <x-display.description-list>
             <x-display.field label="ID (ISO 639-3)" :value="$language->id" />
             <x-display.field label="Internal Name" :value="$language->internal_name" />
-            <x-display.field label="Backward Compatibility" :value="$language->backward_compatibility" />
             <x-display.field label="Default" :value="$language->is_default ? 'Yes' : 'No'" />
-            <x-display.field label="Created At">
-                <x-display.timestamp :datetime="$language->created_at" />
-            </x-display.field>
-            <x-display.field label="Updated At">
-                <x-display.timestamp :datetime="$language->updated_at" />
-            </x-display.field>
         </x-display.description-list>
+
+        <!-- System Properties -->
+        <x-system-properties 
+            :id="$language->id"
+            :backward-compatibility-id="$language->backward_compatibility"
+            :created-at="$language->created_at"
+            :updated-at="$language->updated_at"
+        />
     </x-layout.show-page>
 @endsection

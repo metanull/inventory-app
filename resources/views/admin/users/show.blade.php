@@ -51,15 +51,6 @@
                                 </dd>
                             </div>
                             
-                            <div>
-                                <dt class="text-sm font-medium text-gray-500">{{ __('Created') }}</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ $user->created_at->format('M j, Y H:i') }}</dd>
-                            </div>
-                            
-                            <div>
-                                <dt class="text-sm font-medium text-gray-500">{{ __('Last Updated') }}</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ $user->updated_at->format('M j, Y H:i') }}</dd>
-                            </div>
                         </dl>
                     </div>
                 </div>
@@ -117,6 +108,15 @@
                         @endif
                     </div>
                 </div>
+            </div>
+
+            <!-- System Properties -->
+            <div class="mt-6">
+                <x-system-properties 
+                    :id="$user->id"
+                    :created-at="$user->created_at"
+                    :updated-at="$user->updated_at"
+                />
             </div>
         </div>
     </div>
