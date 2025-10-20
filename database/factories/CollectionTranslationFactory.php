@@ -37,8 +37,8 @@ class CollectionTranslationFactory extends Factory
             'backward_compatibility' => $this->faker->optional()->uuid(),
             'extra' => $this->faker->optional()->randomElement([
                 null,
-                ['notes' => $this->faker->sentence()],
-                ['metadata' => ['author' => $this->faker->name()]],
+                json_encode(['notes' => $this->faker->sentence()]),
+                json_encode(['metadata' => ['author' => $this->faker->name()]]),
             ]),
         ];
     }
