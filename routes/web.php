@@ -4,6 +4,7 @@ use App\Enums\Permission;
 use App\Http\Controllers\Web\AvailableImageController as WebAvailableImageController;
 use App\Http\Controllers\Web\CollectionController as WebCollectionController;
 use App\Http\Controllers\Web\CollectionImageController as WebCollectionImageController;
+use App\Http\Controllers\Web\CollectionTranslationController as WebCollectionTranslationController;
 use App\Http\Controllers\Web\ContextController as WebContextController;
 use App\Http\Controllers\Web\CountryController as WebCountryController;
 use App\Http\Controllers\Web\ImageUploadController as WebImageUploadController;
@@ -53,6 +54,7 @@ Route::prefix('web')->group(function () {
         });
 
         Route::resource('item-translations', WebItemTranslationController::class);
+        Route::resource('collection-translations', WebCollectionTranslationController::class);
         Route::resource('partners', WebPartnerController::class);
         Route::resource('countries', WebCountryController::class);
         Route::resource('languages', WebLanguageController::class);

@@ -12,14 +12,14 @@
                 @can(\App\Enums\Permission::VIEW_DATA->value)
                 <!-- Inventory Dropdown -->
                 <div class="relative" @mouseenter="openMenu='inventory'" @mouseleave="openMenu=null">
-                    <button @click="openMenu = openMenu==='inventory'? null : 'inventory'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('items.*') || request()->routeIs('partners.*') || request()->routeIs('projects.*') || request()->routeIs('collections.*') || request()->routeIs('item-translations.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
+                    <button @click="openMenu = openMenu==='inventory'? null : 'inventory'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('items.*') || request()->routeIs('partners.*') || request()->routeIs('projects.*') || request()->routeIs('collections.*') || request()->routeIs('item-translations.*') || request()->routeIs('collection-translations.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
                         <x-heroicon-o-squares-2x2 class="w-4 h-4" />
                         Inventory
                         <span class="w-4 h-4 transition" x-bind:class="openMenu==='inventory' ? 'rotate-180' : ''">
                             <x-heroicon-o-chevron-down class="w-4 h-4" />
                         </span>
                     </button>
-                    <div x-show="openMenu==='inventory'" x-transition @click.outside="openMenu=null" class="absolute z-30 mt-2 w-52 rounded-md border border-gray-200 bg-white shadow-lg py-2">
+                    <div x-show="openMenu==='inventory'" x-transition @click.outside="openMenu=null" class="absolute z-30 mt-2 w-56 rounded-md border border-gray-200 bg-white shadow-lg py-2">
                         <a href="{{ route('items.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('items.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-archive-box class="w-4 h-4" /> Items
                         </a>
@@ -34,6 +34,9 @@
                         </a>
                         <a href="{{ route('collections.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('collections.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-rectangle-stack class="w-4 h-4" /> Collections
+                        </a>
+                        <a href="{{ route('collection-translations.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('collection-translations.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <x-heroicon-o-language class="w-4 h-4" /> Collection Translations
                         </a>
                     </div>
                 </div>
@@ -180,6 +183,7 @@
                 <a href="{{ route('partners.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('partners.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Partners</a>
                 <a href="{{ route('projects.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('projects.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Projects</a>
                 <a href="{{ route('collections.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('collections.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Collections</a>
+                <a href="{{ route('collection-translations.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('collection-translations.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Collection Translations</a>
             </div>
             <div class="space-y-2">
                 <p class="text-[11px] font-semibold text-gray-400 uppercase">Reference</p>

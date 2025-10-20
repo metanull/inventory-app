@@ -27,6 +27,9 @@
 
         @include('collections._images')
 
+        <!-- Translations Section -->
+        @include('collections._translations')
+
         <!-- System Properties -->
         <x-system-properties 
             :id="$collection->id"
