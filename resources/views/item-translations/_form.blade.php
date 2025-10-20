@@ -10,7 +10,7 @@
                 <select name="item_id" required class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
                     <option value="">Select an item...</option>
                     @foreach($items as $item)
-                        <option value="{{ $item->id }}" @selected(old('item_id', $itemTranslation->item_id ?? '') === $item->id)>
+                        <option value="{{ $item->id }}" @selected(old('item_id', $itemTranslation->item_id ?? $selectedItemId ?? '') === $item->id)>
                             {{ $item->internal_name }}
                         </option>
                     @endforeach

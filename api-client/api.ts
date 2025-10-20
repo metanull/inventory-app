@@ -388,6 +388,11 @@ export interface CollectionResource {
 export interface CollectionShow200Response {
     'data': CollectionResource;
 }
+export interface CollectionTranslationIndex200Response {
+    'data': Array<CollectionTranslationResource>;
+    'links': AddressIndex200ResponseLinks;
+    'meta': AddressIndex200ResponseMeta;
+}
 export interface CollectionTranslationResource {
     /**
      * The unique identifier (GUID)
@@ -445,6 +450,9 @@ export interface CollectionTranslationResource {
      * The context relationship (ContextResource)
      */
     'context'?: ContextResource;
+}
+export interface CollectionTranslationShow200Response {
+    'data': CollectionTranslationResource;
 }
 export interface ContactIndex200Response {
     'data': Array<ContactResource>;
@@ -1316,6 +1324,17 @@ export const StoreCollectionRequestTypeEnum = {
 
 export type StoreCollectionRequestTypeEnum = typeof StoreCollectionRequestTypeEnum[keyof typeof StoreCollectionRequestTypeEnum];
 
+export interface StoreCollectionTranslationRequest {
+    'id'?: string;
+    'collection_id': string;
+    'language_id': string;
+    'context_id': string;
+    'title': string;
+    'description'?: string | null;
+    'url'?: string | null;
+    'backward_compatibility'?: string | null;
+    'extra'?: string | null;
+}
 export interface StoreContactRequest {
     'internal_name': string;
     'phone_number'?: string | null;
@@ -1689,6 +1708,17 @@ export const UpdateCollectionRequestTypeEnum = {
 
 export type UpdateCollectionRequestTypeEnum = typeof UpdateCollectionRequestTypeEnum[keyof typeof UpdateCollectionRequestTypeEnum];
 
+export interface UpdateCollectionTranslationRequest {
+    'id'?: string;
+    'collection_id'?: string;
+    'language_id'?: string;
+    'context_id'?: string;
+    'title'?: string;
+    'description'?: string | null;
+    'url'?: string | null;
+    'backward_compatibility'?: string | null;
+    'extra'?: string | null;
+}
 export interface UpdateContactRequest {
     'internal_name': string;
     'phone_number'?: string | null;
@@ -5415,6 +5445,1066 @@ export class CollectionImageApi extends BaseAPI {
      */
     public collectionImagesStore(collection: string, storeCollectionImageRequest: StoreCollectionImageRequest, options?: RawAxiosRequestConfig) {
         return CollectionImageApiFp(this.configuration).collectionImagesStore(collection, storeCollectionImageRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * CollectionTranslationApi - axios parameter creator
+ */
+export const CollectionTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationDestroy: async (collectionTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionTranslation' is not null or undefined
+            assertParamExists('collectionTranslationDestroy', 'collectionTranslation', collectionTranslation)
+            const localVarPath = `/collection-translation/{collectionTranslation}`
+                .replace(`{${"collectionTranslation"}}`, encodeURIComponent(String(collectionTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of collection translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [collectionId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationIndex: async (page?: number, perPage?: number, collectionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/collection-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (collectionId !== undefined) {
+                localVarQueryParameter['collection_id'] = collectionId;
+            }
+
+            if (languageId !== undefined) {
+                localVarQueryParameter['language_id'] = languageId;
+            }
+
+            if (contextId !== undefined) {
+                localVarQueryParameter['context_id'] = contextId;
+            }
+
+            if (defaultContext !== undefined) {
+                localVarQueryParameter['default_context'] = defaultContext;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationShow: async (collectionTranslation: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionTranslation' is not null or undefined
+            assertParamExists('collectionTranslationShow', 'collectionTranslation', collectionTranslation)
+            const localVarPath = `/collection-translation/{collectionTranslation}`
+                .replace(`{${"collectionTranslation"}}`, encodeURIComponent(String(collectionTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created collection translation
+         * @param {StoreCollectionTranslationRequest} storeCollectionTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationStore: async (storeCollectionTranslationRequest: StoreCollectionTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storeCollectionTranslationRequest' is not null or undefined
+            assertParamExists('collectionTranslationStore', 'storeCollectionTranslationRequest', storeCollectionTranslationRequest)
+            const localVarPath = `/collection-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storeCollectionTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationUpdate: async (collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionTranslation' is not null or undefined
+            assertParamExists('collectionTranslationUpdate', 'collectionTranslation', collectionTranslation)
+            const localVarPath = `/collection-translation/{collectionTranslation}`
+                .replace(`{${"collectionTranslation"}}`, encodeURIComponent(String(collectionTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateCollectionTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationUpdate2: async (collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionTranslation' is not null or undefined
+            assertParamExists('collectionTranslationUpdate2', 'collectionTranslation', collectionTranslation)
+            const localVarPath = `/collection-translation/{collectionTranslation}`
+                .replace(`{${"collectionTranslation"}}`, encodeURIComponent(String(collectionTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateCollectionTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * CollectionTranslationApi - functional programming interface
+ */
+export const CollectionTranslationApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = CollectionTranslationApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionTranslationDestroy(collectionTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionTranslationDestroy(collectionTranslation, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionTranslationApi.collectionTranslationDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of collection translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [collectionId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionTranslationIndex(page?: number, perPage?: number, collectionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionTranslationIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionTranslationIndex(page, perPage, collectionId, languageId, contextId, defaultContext, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionTranslationApi.collectionTranslationIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionTranslationShow(collectionTranslation: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionTranslationShow(collectionTranslation, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionTranslationApi.collectionTranslationShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created collection translation
+         * @param {StoreCollectionTranslationRequest} storeCollectionTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionTranslationStore(storeCollectionTranslationRequest: StoreCollectionTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionTranslationStore(storeCollectionTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionTranslationApi.collectionTranslationStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionTranslationUpdate(collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionTranslationUpdate(collectionTranslation, updateCollectionTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionTranslationApi.collectionTranslationUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionTranslationUpdate2(collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionTranslationUpdate2(collectionTranslation, updateCollectionTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionTranslationApi.collectionTranslationUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * CollectionTranslationApi - factory interface
+ */
+export const CollectionTranslationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = CollectionTranslationApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationDestroy(collectionTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.collectionTranslationDestroy(collectionTranslation, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of collection translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [collectionId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationIndex(page?: number, perPage?: number, collectionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<CollectionTranslationIndex200Response> {
+            return localVarFp.collectionTranslationIndex(page, perPage, collectionId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationShow(collectionTranslation: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionTranslationShow200Response> {
+            return localVarFp.collectionTranslationShow(collectionTranslation, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created collection translation
+         * @param {StoreCollectionTranslationRequest} storeCollectionTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationStore(storeCollectionTranslationRequest: StoreCollectionTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionTranslationShow200Response> {
+            return localVarFp.collectionTranslationStore(storeCollectionTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationUpdate(collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionTranslationShow200Response> {
+            return localVarFp.collectionTranslationUpdate(collectionTranslation, updateCollectionTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationUpdate2(collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionTranslationShow200Response> {
+            return localVarFp.collectionTranslationUpdate2(collectionTranslation, updateCollectionTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * CollectionTranslationApi - object-oriented interface
+ */
+export class CollectionTranslationApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified collection translation
+     * @param {string} collectionTranslation The collection translation ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionTranslationDestroy(collectionTranslation: string, options?: RawAxiosRequestConfig) {
+        return CollectionTranslationApiFp(this.configuration).collectionTranslationDestroy(collectionTranslation, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of collection translations
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [collectionId] 
+     * @param {string} [languageId] 
+     * @param {string} [contextId] 
+     * @param {boolean} [defaultContext] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionTranslationIndex(page?: number, perPage?: number, collectionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
+        return CollectionTranslationApiFp(this.configuration).collectionTranslationIndex(page, perPage, collectionId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified collection translation
+     * @param {string} collectionTranslation The collection translation ID
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionTranslationShow(collectionTranslation: string, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionTranslationApiFp(this.configuration).collectionTranslationShow(collectionTranslation, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created collection translation
+     * @param {StoreCollectionTranslationRequest} storeCollectionTranslationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionTranslationStore(storeCollectionTranslationRequest: StoreCollectionTranslationRequest, options?: RawAxiosRequestConfig) {
+        return CollectionTranslationApiFp(this.configuration).collectionTranslationStore(storeCollectionTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified collection translation
+     * @param {string} collectionTranslation The collection translation ID
+     * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionTranslationUpdate(collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options?: RawAxiosRequestConfig) {
+        return CollectionTranslationApiFp(this.configuration).collectionTranslationUpdate(collectionTranslation, updateCollectionTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified collection translation
+     * @param {string} collectionTranslation The collection translation ID
+     * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionTranslationUpdate2(collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options?: RawAxiosRequestConfig) {
+        return CollectionTranslationApiFp(this.configuration).collectionTranslationUpdate2(collectionTranslation, updateCollectionTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * CollectionTranslationsApi - axios parameter creator
+ */
+export const CollectionTranslationsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationDestroy: async (collectionTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionTranslation' is not null or undefined
+            assertParamExists('collectionTranslationDestroy', 'collectionTranslation', collectionTranslation)
+            const localVarPath = `/collection-translation/{collectionTranslation}`
+                .replace(`{${"collectionTranslation"}}`, encodeURIComponent(String(collectionTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of collection translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [collectionId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationIndex: async (page?: number, perPage?: number, collectionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/collection-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (collectionId !== undefined) {
+                localVarQueryParameter['collection_id'] = collectionId;
+            }
+
+            if (languageId !== undefined) {
+                localVarQueryParameter['language_id'] = languageId;
+            }
+
+            if (contextId !== undefined) {
+                localVarQueryParameter['context_id'] = contextId;
+            }
+
+            if (defaultContext !== undefined) {
+                localVarQueryParameter['default_context'] = defaultContext;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationShow: async (collectionTranslation: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionTranslation' is not null or undefined
+            assertParamExists('collectionTranslationShow', 'collectionTranslation', collectionTranslation)
+            const localVarPath = `/collection-translation/{collectionTranslation}`
+                .replace(`{${"collectionTranslation"}}`, encodeURIComponent(String(collectionTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created collection translation
+         * @param {StoreCollectionTranslationRequest} storeCollectionTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationStore: async (storeCollectionTranslationRequest: StoreCollectionTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storeCollectionTranslationRequest' is not null or undefined
+            assertParamExists('collectionTranslationStore', 'storeCollectionTranslationRequest', storeCollectionTranslationRequest)
+            const localVarPath = `/collection-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storeCollectionTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationUpdate: async (collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionTranslation' is not null or undefined
+            assertParamExists('collectionTranslationUpdate', 'collectionTranslation', collectionTranslation)
+            const localVarPath = `/collection-translation/{collectionTranslation}`
+                .replace(`{${"collectionTranslation"}}`, encodeURIComponent(String(collectionTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateCollectionTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationUpdate2: async (collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'collectionTranslation' is not null or undefined
+            assertParamExists('collectionTranslationUpdate2', 'collectionTranslation', collectionTranslation)
+            const localVarPath = `/collection-translation/{collectionTranslation}`
+                .replace(`{${"collectionTranslation"}}`, encodeURIComponent(String(collectionTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateCollectionTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * CollectionTranslationsApi - functional programming interface
+ */
+export const CollectionTranslationsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = CollectionTranslationsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionTranslationDestroy(collectionTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionTranslationDestroy(collectionTranslation, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionTranslationsApi.collectionTranslationDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of collection translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [collectionId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionTranslationIndex(page?: number, perPage?: number, collectionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionTranslationIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionTranslationIndex(page, perPage, collectionId, languageId, contextId, defaultContext, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionTranslationsApi.collectionTranslationIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionTranslationShow(collectionTranslation: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionTranslationShow(collectionTranslation, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionTranslationsApi.collectionTranslationShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created collection translation
+         * @param {StoreCollectionTranslationRequest} storeCollectionTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionTranslationStore(storeCollectionTranslationRequest: StoreCollectionTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionTranslationStore(storeCollectionTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionTranslationsApi.collectionTranslationStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionTranslationUpdate(collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionTranslationUpdate(collectionTranslation, updateCollectionTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionTranslationsApi.collectionTranslationUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async collectionTranslationUpdate2(collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionTranslationUpdate2(collectionTranslation, updateCollectionTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CollectionTranslationsApi.collectionTranslationUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * CollectionTranslationsApi - factory interface
+ */
+export const CollectionTranslationsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = CollectionTranslationsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationDestroy(collectionTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.collectionTranslationDestroy(collectionTranslation, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of collection translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [collectionId] 
+         * @param {string} [languageId] 
+         * @param {string} [contextId] 
+         * @param {boolean} [defaultContext] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationIndex(page?: number, perPage?: number, collectionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<CollectionTranslationIndex200Response> {
+            return localVarFp.collectionTranslationIndex(page, perPage, collectionId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationShow(collectionTranslation: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionTranslationShow200Response> {
+            return localVarFp.collectionTranslationShow(collectionTranslation, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created collection translation
+         * @param {StoreCollectionTranslationRequest} storeCollectionTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationStore(storeCollectionTranslationRequest: StoreCollectionTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionTranslationShow200Response> {
+            return localVarFp.collectionTranslationStore(storeCollectionTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationUpdate(collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionTranslationShow200Response> {
+            return localVarFp.collectionTranslationUpdate(collectionTranslation, updateCollectionTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified collection translation
+         * @param {string} collectionTranslation The collection translation ID
+         * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        collectionTranslationUpdate2(collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionTranslationShow200Response> {
+            return localVarFp.collectionTranslationUpdate2(collectionTranslation, updateCollectionTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * CollectionTranslationsApi - object-oriented interface
+ */
+export class CollectionTranslationsApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified collection translation
+     * @param {string} collectionTranslation The collection translation ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionTranslationDestroy(collectionTranslation: string, options?: RawAxiosRequestConfig) {
+        return CollectionTranslationsApiFp(this.configuration).collectionTranslationDestroy(collectionTranslation, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of collection translations
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [collectionId] 
+     * @param {string} [languageId] 
+     * @param {string} [contextId] 
+     * @param {boolean} [defaultContext] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionTranslationIndex(page?: number, perPage?: number, collectionId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
+        return CollectionTranslationsApiFp(this.configuration).collectionTranslationIndex(page, perPage, collectionId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified collection translation
+     * @param {string} collectionTranslation The collection translation ID
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionTranslationShow(collectionTranslation: string, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionTranslationsApiFp(this.configuration).collectionTranslationShow(collectionTranslation, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created collection translation
+     * @param {StoreCollectionTranslationRequest} storeCollectionTranslationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionTranslationStore(storeCollectionTranslationRequest: StoreCollectionTranslationRequest, options?: RawAxiosRequestConfig) {
+        return CollectionTranslationsApiFp(this.configuration).collectionTranslationStore(storeCollectionTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified collection translation
+     * @param {string} collectionTranslation The collection translation ID
+     * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionTranslationUpdate(collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options?: RawAxiosRequestConfig) {
+        return CollectionTranslationsApiFp(this.configuration).collectionTranslationUpdate(collectionTranslation, updateCollectionTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified collection translation
+     * @param {string} collectionTranslation The collection translation ID
+     * @param {UpdateCollectionTranslationRequest} [updateCollectionTranslationRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public collectionTranslationUpdate2(collectionTranslation: string, updateCollectionTranslationRequest?: UpdateCollectionTranslationRequest, options?: RawAxiosRequestConfig) {
+        return CollectionTranslationsApiFp(this.configuration).collectionTranslationUpdate2(collectionTranslation, updateCollectionTranslationRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

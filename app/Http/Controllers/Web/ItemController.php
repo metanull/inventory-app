@@ -34,11 +34,36 @@ class ItemController extends Controller
 
     public function show(Item $item): View
     {
-        // Load translations for this item
-        $item->load('translations');
-        $translations = $item->translations;
+        // Load translations with their relationships
+        $item->load(['translations.context', 'translations.language']);
 
-        return view('items.show', compact('item', 'translations'));
+        // Get default context and language IDs
+        $defaultContextId = \App\Models\Context::where('is_default', true)->value('id');
+        $defaultLanguageId = \App\Models\Language::where('is_default', true)->value('id');
+
+        // Group translations by context, with default context first
+        // Within each group, order by language with default language first
+        $translationsByContext = $item->translations
+            ->sortBy(function ($translation) use ($defaultLanguageId) {
+                // Default language first (0), then others (1)
+                return $translation->language_id === $defaultLanguageId ? 0 : 1;
+            })
+            ->groupBy('context_id')
+            ->sortBy(function ($group, $contextId) use ($defaultContextId) {
+                // Null context last
+                if ($contextId === null) {
+                    return PHP_INT_MAX;
+                }
+                // Default context first
+                if ($contextId === $defaultContextId) {
+                    return 0;
+                }
+
+                // Others sorted by ID
+                return $contextId;
+            });
+
+        return view('items.show', compact('item', 'translationsByContext'));
     }
 
     public function create(): View

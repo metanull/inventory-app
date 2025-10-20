@@ -4,6 +4,7 @@ use App\Enums\Permission;
 use App\Http\Controllers\Web\AvailableImageController as WebAvailableImageController;
 use App\Http\Controllers\Web\CollectionController as WebCollectionController;
 use App\Http\Controllers\Web\CollectionImageController as WebCollectionImageController;
+use App\Http\Controllers\Web\CollectionTranslationController as WebCollectionTranslationController;
 use App\Http\Controllers\Web\ContextController as WebContextController;
 use App\Http\Controllers\Web\CountryController as WebCountryController;
 use App\Http\Controllers\Web\ImageUploadController as WebImageUploadController;
@@ -53,6 +54,7 @@ Route::prefix('web')->group(function () {
         });
 
         Route::resource('item-translations', WebItemTranslationController::class);
+        Route::resource('collection-translations', WebCollectionTranslationController::class);
         Route::resource('partners', WebPartnerController::class);
         Route::resource('countries', WebCountryController::class);
         Route::resource('languages', WebLanguageController::class);
@@ -79,6 +81,9 @@ Route::prefix('web')->group(function () {
         Route::get('available-images/{availableImage}', [WebAvailableImageController::class, 'show'])->name('available-images.show');
         Route::get('available-images/{availableImage}/view', [WebAvailableImageController::class, 'view'])->name('available-images.view');
         Route::get('available-images/{availableImage}/download', [WebAvailableImageController::class, 'download'])->name('available-images.download');
+        Route::get('available-images/{availableImage}/edit', [WebAvailableImageController::class, 'edit'])->name('available-images.edit');
+        Route::put('available-images/{availableImage}', [WebAvailableImageController::class, 'update'])->name('available-images.update');
+        Route::delete('available-images/{availableImage}', [WebAvailableImageController::class, 'destroy'])->name('available-images.destroy');
     });
 
     // Image upload routes - require create permission

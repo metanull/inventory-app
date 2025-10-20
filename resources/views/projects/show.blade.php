@@ -31,13 +31,14 @@
             <x-display.field label="Language">
                 <x-display.language-reference :language="$project->language" />
             </x-display.field>
-            <x-display.field label="Backward Compatibility" :value="$project->backward_compatibility" />
-            <x-display.field label="Created At">
-                <x-display.timestamp :datetime="$project->created_at" />
-            </x-display.field>
-            <x-display.field label="Updated At">
-                <x-display.timestamp :datetime="$project->updated_at" />
-            </x-display.field>
         </x-display.description-list>
+
+        <!-- System Properties -->
+        <x-system-properties 
+            :id="$project->id"
+            :backward-compatibility-id="$project->backward_compatibility"
+            :created-at="$project->created_at"
+            :updated-at="$project->updated_at"
+        />
     </x-layout.show-page>
 @endsection

@@ -26,6 +26,11 @@ return Application::configure(basePath: dirname(__DIR__))
             );
         }
 
+        // Use custom CSRF verification middleware that excludes API routes
+        $middleware->validateCsrfTokens(
+            except: ['api/*']
+        );
+
         // Register authorization middleware
         $middleware->alias([
             'permission' => \App\Http\Middleware\RequirePermission::class,
