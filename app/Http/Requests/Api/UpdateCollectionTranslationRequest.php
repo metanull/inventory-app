@@ -47,7 +47,7 @@ class UpdateCollectionTranslationRequest extends FormRequest
             'language_id' => ['sometimes', 'string', 'size:3', 'exists:languages,id'],
             'context_id' => ['sometimes', 'uuid', 'exists:contexts,id'],
             'title' => ['sometimes', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'description' => ['sometimes', 'string'],
             'url' => ['nullable', 'url', 'max:2048'],
             'backward_compatibility' => ['nullable', 'string', 'max:255'],
             'extra' => ['nullable', 'json'],

@@ -36,7 +36,7 @@ class StoreCollectionTranslationRequest extends FormRequest
             'language_id' => ['required', 'string', 'size:3', 'exists:languages,id'],
             'context_id' => ['required', 'uuid', 'exists:contexts,id'],
             'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'description' => ['required', 'string'],
             'url' => ['nullable', 'url', 'max:2048'],
             'backward_compatibility' => ['nullable', 'string', 'max:255'],
             'extra' => ['nullable', 'json'],

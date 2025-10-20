@@ -85,7 +85,7 @@ class IndexTest extends TestCase
     public function test_index_can_filter_by_language_id(): void
     {
         $translation1 = CollectionTranslation::factory()->create();
-        $translation2 = CollectionTranslation::factory()->forLanguage($translation1->language_id)->create();
+        $translation2 = CollectionTranslation::factory()->withLanguage($translation1->language_id)->create();
         $translation3 = CollectionTranslation::factory()->create(); // Different language
 
         $response = $this->getJson(route('collection-translation.index', ['language_id' => $translation1->language_id]));
@@ -103,7 +103,7 @@ class IndexTest extends TestCase
     public function test_index_can_filter_by_context_id(): void
     {
         $translation1 = CollectionTranslation::factory()->create();
-        $translation2 = CollectionTranslation::factory()->forContext($translation1->context_id)->create();
+        $translation2 = CollectionTranslation::factory()->withContext($translation1->context_id)->create();
         $translation3 = CollectionTranslation::factory()->create(); // Different context
 
         $response = $this->getJson(route('collection-translation.index', ['context_id' => $translation1->context_id]));

@@ -38,7 +38,7 @@ class StoreTest extends TestCase
             'context_id' => $context->id,
         ])->toArray();
 
-        // Convert extra field to JSON string for API request
+        // Convert extra field to JSON string for API request if it's an array
         if (isset($data['extra']) && is_array($data['extra'])) {
             $data['extra'] = json_encode($data['extra']);
         }
@@ -130,6 +130,23 @@ class StoreTest extends TestCase
             ->assertJsonValidationErrors(['title']);
     }
 
+    public function test_store_requires_description(): void
+    {
+        $collection = Collection::factory()->create();
+        $language = Language::factory()->create();
+        $context = Context::factory()->create();
+        $data = CollectionTranslation::factory()->make([
+            'collection_id' => $collection->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+        ])->except(['description']);
+
+        $response = $this->postJson(route('collection-translation.store'), $data);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['description']);
+    }
+
     public function test_store_validates_unique_constraint(): void
     {
         $collection = Collection::factory()->create();
@@ -166,7 +183,7 @@ class StoreTest extends TestCase
             'language_id' => $language->id,
             'context_id' => $context->id,
             'title' => $this->faker->words(3, true),
-            'description' => null,
+            'description' => $this->faker->paragraph,
             'url' => null,
             'backward_compatibility' => null,
             'extra' => null,
@@ -180,7 +197,7 @@ class StoreTest extends TestCase
             'language_id' => $data['language_id'],
             'context_id' => $data['context_id'],
             'title' => $data['title'],
-            'description' => null,
+            'description' => $data['description'],
             'url' => null,
         ]);
     }
@@ -216,6 +233,11 @@ class StoreTest extends TestCase
             'context_id' => $context->id,
             'url' => 'https://example.com/collection',
         ])->toArray();
+
+        // Convert extra field to JSON string for API request if it's an array
+        if (isset($data['extra']) && is_array($data['extra'])) {
+            $data['extra'] = json_encode($data['extra']);
+        }
 
         $response = $this->postJson(route('collection-translation.store'), $data);
 

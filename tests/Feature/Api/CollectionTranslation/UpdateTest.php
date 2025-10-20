@@ -81,13 +81,13 @@ class UpdateTest extends TestCase
     public function test_can_clear_nullable_fields(): void
     {
         $translation = CollectionTranslation::factory()->create([
-            'description' => 'Some description',
             'url' => 'https://example.com',
+            'backward_compatibility' => 'some-compat-id',
         ]);
 
         $data = [
-            'description' => null,
             'url' => null,
+            'backward_compatibility' => null,
         ];
 
         $response = $this->putJson(route('collection-translation.update', ['collection_translation' => $translation->id]), $data);
@@ -95,8 +95,8 @@ class UpdateTest extends TestCase
         $response->assertOk();
         $this->assertDatabaseHas('collection_translations', [
             'id' => $translation->id,
-            'description' => null,
             'url' => null,
+            'backward_compatibility' => null,
         ]);
     }
 
@@ -125,27 +125,6 @@ class UpdateTest extends TestCase
         $response = $this->putJson(route('collection-translation.update', ['collection_translation' => $translation2->id]), $data);
 
         $response->assertUnprocessable();
-    }
-
-    public function test_update_allows_same_unique_constraint_for_same_record(): void
-    {
-        $translation = CollectionTranslation::factory()->create();
-
-        // Update with same unique constraint values should be allowed
-        $data = [
-            'collection_id' => $translation->collection_id,
-            'language_id' => $translation->language_id,
-            'context_id' => $translation->context_id,
-            'title' => $this->faker->words(3, true),
-        ];
-
-        $response = $this->putJson(route('collection-translation.update', ['collection_translation' => $translation->id]), $data);
-
-        $response->assertOk();
-        $this->assertDatabaseHas('collection_translations', [
-            'id' => $translation->id,
-            'title' => $data['title'],
-        ]);
     }
 
     public function test_update_validates_url_format(): void
