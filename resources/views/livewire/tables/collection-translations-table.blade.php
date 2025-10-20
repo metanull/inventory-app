@@ -34,7 +34,7 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <x-table.sortable-header field="name" label="Name" :sort-by="$sortBy" :sort-direction="$sortDirection" />
+                    <x-table.sortable-header field="title" label="Title" :sort-by="$sortBy" :sort-direction="$sortDirection" />
                     <th class="hidden md:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Collection</th>
                     <th class="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Language</th>
                     <th class="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Context</th>
@@ -64,9 +64,9 @@
                 @forelse($collectionTranslations as $translation)
                     <tr class="hover:bg-gray-50 cursor-pointer" wire:key="translation-{{ $translation->id }}" onclick="window.location='{{ route('collection-translations.show', $translation) }}'">
                         <td class="px-4 py-3 text-sm font-medium text-gray-900">
-                            {{ $translation->name }}
-                            @if($translation->alternate_name)
-                                <div class="text-xs text-gray-500 mt-0.5">{{ $translation->alternate_name }}</div>
+                            {{ $translation->title }}
+                            @if($translation->description)
+                                <div class="text-xs text-gray-500 mt-0.5 line-clamp-1">{{ Str::limit($translation->description, 60) }}</div>
                             @endif
                         </td>
                         <td class="hidden md:table-cell px-4 py-3 text-sm text-gray-700">
@@ -90,7 +90,7 @@
                                 delete-confirm="Delete this translation?"
                                 entity="collection-translations"
                                 :record-id="$translation->id"
-                                :record-name="$translation->name"
+                                :record-name="$translation->title"
                             />
                         </td>
                     </tr>

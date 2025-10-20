@@ -99,8 +99,7 @@ class CollectionTranslationsTable extends Component
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%")
-                    ->orWhere('alternate_name', 'LIKE', "%{$search}%")
+                $q->where('title', 'LIKE', "%{$search}%")
                     ->orWhere('description', 'LIKE', "%{$search}%")
                     // Search in parent collection's internal_name and ID
                     ->orWhereHas('collection', function ($collectionQuery) use ($search) {
@@ -131,7 +130,7 @@ class CollectionTranslationsTable extends Component
         }
 
         // Apply sorting
-        $validSortFields = ['name', 'created_at', 'updated_at'];
+        $validSortFields = ['title', 'created_at', 'updated_at'];
         $sortField = in_array($this->sortBy, $validSortFields) ? $this->sortBy : 'created_at';
         $sortDirection = in_array(strtolower($this->sortDirection), ['asc', 'desc']) ? $this->sortDirection : 'desc';
 

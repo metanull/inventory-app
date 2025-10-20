@@ -152,6 +152,21 @@
                     <span class="mt-4 inline-flex items-center text-sm font-medium {{ $cc2['text'] ?? 'text-yellow-600' }} group-hover:underline">Open &rarr;</span>
                 </a>
 
+                @php($ctc = $entityColor('collection_translations'))
+                <a href="{{ route('collection-translations.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $ctc['base'] }}/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md {{ $ctc['bg'] ?? 'bg-purple-50' }} {{ $ctc['text'] ?? 'text-purple-600' }} group-hover:opacity-90">
+                                <x-heroicon-o-language class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Collection Translations</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $ctc['text'] ?? 'text-purple-600' }}" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Manage translations for collections across different languages and contexts.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $ctc['text'] ?? 'text-purple-600' }} group-hover:underline">Open &rarr;</span>
+                </a>
+
                 @php($cc = $entityColor('countries'))
                 <a href="{{ route('countries.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $cc['base'] }}/40">
                     <div class="flex items-center justify-between mb-4">
