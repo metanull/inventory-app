@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\MarkdownController;
 use App\Http\Controllers\AvailableImageController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CollectionImageController;
+use App\Http\Controllers\CollectionTranslationController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ContactTranslationController;
 use App\Http\Controllers\ContextController;
@@ -124,6 +125,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('address-translation', [AddressTranslationController::class, 'index'])->name('address-translation.index');
         Route::get('item-translation/{item_translation}', [ItemTranslationController::class, 'show'])->name('item-translation.show');
         Route::get('item-translation', [ItemTranslationController::class, 'index'])->name('item-translation.index');
+        Route::get('collection-translation/{collection_translation}', [CollectionTranslationController::class, 'show'])->name('collection-translation.show');
+        Route::get('collection-translation', [CollectionTranslationController::class, 'index'])->name('collection-translation.index');
 
         // Collection routes (read)
         Route::get('collection/type/{type}', [CollectionController::class, 'byType'])->name('collection.byType');
@@ -164,6 +167,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('location-translation', [LocationTranslationController::class, 'store'])->name('location-translation.store');
         Route::post('address-translation', [AddressTranslationController::class, 'store'])->name('address-translation.store');
         Route::post('item-translation', [ItemTranslationController::class, 'store'])->name('item-translation.store');
+        Route::post('collection-translation', [CollectionTranslationController::class, 'store'])->name('collection-translation.store');
         Route::post('collection', [CollectionController::class, 'store'])->name('collection.store');
         Route::post('collection/{collection}/attach-item', [CollectionController::class, 'attachItem'])->name('collection.attachItem');
         Route::post('collection/{collection}/attach-items', [CollectionController::class, 'attachItems'])->name('collection.attachItems');
@@ -242,6 +246,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::patch('item-translation/{item_translation}', [ItemTranslationController::class, 'update'])->name('item-translation.update');
         Route::put('item-translation/{item_translation}', [ItemTranslationController::class, 'update']);
 
+        Route::patch('collection-translation/{collection_translation}', [CollectionTranslationController::class, 'update'])->name('collection-translation.update');
+        Route::put('collection-translation/{collection_translation}', [CollectionTranslationController::class, 'update']);
+
         Route::patch('collection/{collection}', [CollectionController::class, 'update'])->name('collection.update');
         Route::put('collection/{collection}', [CollectionController::class, 'update']);
 
@@ -278,6 +285,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('location-translation/{location_translation}', [LocationTranslationController::class, 'destroy'])->name('location-translation.destroy');
         Route::delete('address-translation/{address_translation}', [AddressTranslationController::class, 'destroy'])->name('address-translation.destroy');
         Route::delete('item-translation/{item_translation}', [ItemTranslationController::class, 'destroy'])->name('item-translation.destroy');
+        Route::delete('collection-translation/{collection_translation}', [CollectionTranslationController::class, 'destroy'])->name('collection-translation.destroy');
         Route::delete('collection/{collection}', [CollectionController::class, 'destroy'])->name('collection.destroy');
         Route::delete('collection/{collection}/detach-item', [CollectionController::class, 'detachItem'])->name('collection.detachItem');
         Route::delete('collection/{collection}/detach-items', [CollectionController::class, 'detachItems'])->name('collection.detachItems');

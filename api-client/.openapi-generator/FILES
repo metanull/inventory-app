@@ -37,7 +37,11 @@ docs/CollectionImagesStore200Response.md
 docs/CollectionIndex200Response.md
 docs/CollectionResource.md
 docs/CollectionShow200Response.md
+docs/CollectionTranslationApi.md
+docs/CollectionTranslationIndex200Response.md
 docs/CollectionTranslationResource.md
+docs/CollectionTranslationShow200Response.md
+docs/CollectionTranslationsApi.md
 docs/ContactApi.md
 docs/ContactIndex200Response.md
 docs/ContactResource.md
@@ -131,6 +135,7 @@ docs/StoreAddressRequestTranslationsInner.md
 docs/StoreAddressTranslationRequest.md
 docs/StoreCollectionImageRequest.md
 docs/StoreCollectionRequest.md
+docs/StoreCollectionTranslationRequest.md
 docs/StoreContactRequest.md
 docs/StoreContactRequestTranslationsInner.md
 docs/StoreContactTranslationRequest.md
@@ -174,6 +179,7 @@ docs/UpdateAddressTranslationRequest.md
 docs/UpdateAvailableImageRequest.md
 docs/UpdateCollectionImageRequest.md
 docs/UpdateCollectionRequest.md
+docs/UpdateCollectionTranslationRequest.md
 docs/UpdateContactRequest.md
 docs/UpdateContactRequestTranslationsInner.md
 docs/UpdateContactTranslationRequest.md

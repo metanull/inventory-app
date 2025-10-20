@@ -39,11 +39,6 @@ class StoreTest extends TestCase
             'context_id' => $context->id,
         ])->toArray();
 
-        // Convert extra field to JSON string for API request
-        if (isset($data['extra']) && is_array($data['extra'])) {
-            $data['extra'] = json_encode($data['extra']);
-        }
-
         $response = $this->postJson(route('item-translation.store'), $data);
 
         $response->assertCreated()
@@ -238,11 +233,6 @@ class StoreTest extends TestCase
             'translator_id' => $translator->id,
             'translation_copy_editor_id' => $translationCopyEditor->id,
         ])->toArray();
-
-        // Convert extra field to JSON string for API request
-        if (isset($data['extra']) && is_array($data['extra'])) {
-            $data['extra'] = json_encode($data['extra']);
-        }
 
         $response = $this->postJson(route('item-translation.store'), $data);
 

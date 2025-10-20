@@ -11,7 +11,7 @@
           Sign in to your account
         </h2>
       </div>
-      <form class="mt-6 space-y-6" @submit.prevent="handleSubmit">
+      <form class="mt-6 space-y-6" autocomplete="off" @submit.prevent="handleSubmit">
         <div v-if="authStore.error" :class="['rounded-md p-4', getThemeClass('messageError')]">
           <div :class="['text-sm', getThemeClass('messageErrorText')]">
             {{ authStore.error }}
@@ -26,7 +26,7 @@
               v-model="form.email"
               name="email"
               type="email"
-              autocomplete="email"
+              autocomplete="username"
               required
               :class="[
                 'relative block w-full px-3 py-2',
@@ -63,10 +63,7 @@
 
         <div class="flex items-center justify-between">
           <div class="text-sm">
-            <a
-              href="/forgot-password"
-              class="font-medium text-indigo-600 hover:text-indigo-500"
-            >
+            <a href="/forgot-password" class="font-medium text-indigo-600 hover:text-indigo-500">
               Forgot your password?
             </a>
           </div>

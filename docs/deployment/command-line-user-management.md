@@ -152,7 +152,10 @@ php artisan permission:cache-reset
 ### Permission System Maintenance
 
 ```powershell
-# Rebuild permissions and role assignments
+# Sync permissions and roles (RECOMMENDED for production - idempotent, safe)
+php artisan permissions:sync --production
+
+# Rebuild permissions and role assignments (DESTRUCTIVE - requires confirmation)
 php artisan permissions:rebuild
 
 # Clear permission cache
@@ -161,10 +164,16 @@ php artisan config:clear
 php artisan permission:cache-reset
 ```
 
+{: .important }
+
+> **Use `permissions:sync` for production deployments**. This command is idempotent and safe to run multiple times. It creates missing permissions and roles without destroying existing data. The `--production` flag includes the "Visitor" role.
+>
+> **Use `permissions:rebuild` only for development/troubleshooting**. This command destroys all existing roles and permissions before recreating them.
+
 ### Database Seeding
 
 ```powershell
-# Seed roles and permissions
+# Seed roles and permissions (idempotent - safe for production)
 php artisan db:seed --class=RolePermissionSeeder
 
 # Full database reset and seed (CAUTION: Deletes all data)
@@ -179,10 +188,10 @@ After a fresh deployment:
 
 ```powershell
 # 1. Run migrations
-php artisan migrate
+php artisan migrate --force
 
-# 2. Seed roles and permissions
-php artisan db:seed --class=RolePermissionSeeder
+# 2. Sync roles and permissions
+php artisan permissions:sync --production
 
 # 3. Create initial admin user
 php artisan user:create "System Administrator" admin@company.com
@@ -222,7 +231,10 @@ php artisan user:show user@company.com
 # Check user's current roles and permissions
 php artisan user:show user@company.com
 
-# Rebuild permission system
+# Sync permissions and roles (safe, idempotent)
+php artisan permissions:sync --production
+
+# Rebuild permission system (destructive, use with caution)
 php artisan permissions:rebuild
 
 # Clear caches
@@ -261,14 +273,20 @@ php artisan permission:cache-reset
 **"Role does not exist" Error**
 
 ```powershell
-# Ensure roles are seeded
+# Sync roles and permissions (safe, idempotent)
+php artisan permissions:sync --production
+
+# Alternative: Seed roles and permissions
 php artisan db:seed --class=RolePermissionSeeder
 ```
 
 **"Permission denied" Error**
 
 ```powershell
-# Rebuild permissions
+# Sync permissions (recommended - safe)
+php artisan permissions:sync --production
+
+# Alternative: Rebuild permissions (destructive)
 php artisan permissions:rebuild
 
 # Clear caches
@@ -283,6 +301,9 @@ php artisan user:show user@company.com
 
 # View permission matrix
 php artisan permission:show
+
+# Ensure permissions are up to date
+php artisan permissions:sync --production
 ```
 
 ### Getting Help
@@ -291,6 +312,7 @@ php artisan permission:show
 # Get help for specific commands
 php artisan help user:create
 php artisan help user:assign-role
+php artisan help permissions:sync
 php artisan help permissions:rebuild
 
 # List all available commands

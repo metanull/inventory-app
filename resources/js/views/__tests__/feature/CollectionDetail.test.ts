@@ -52,6 +52,9 @@ vi.mock('@heroicons/vue/24/outline', () => ({
   PencilIcon: { name: 'PencilIcon', render: () => null },
   EyeIcon: { name: 'EyeIcon', render: () => null },
   RectangleStackIcon: { name: 'RectangleStackIcon', render: () => null },
+  PhotoIcon: { name: 'PhotoIcon', render: () => null },
+  ChevronUpIcon: { name: 'ChevronUpIcon', render: () => null },
+  ChevronDownIcon: { name: 'ChevronDownIcon', render: () => null },
 }))
 
 // Mock stores

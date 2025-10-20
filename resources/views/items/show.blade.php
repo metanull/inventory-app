@@ -26,13 +26,6 @@
             <x-display.field label="Project">
                 <x-display.project-reference :project="$item->project" />
             </x-display.field>
-            <x-display.field label="Backward Compatibility" :value="$item->backward_compatibility" />
-            <x-display.field label="Created At">
-                <x-display.timestamp :datetime="$item->created_at" />
-            </x-display.field>
-            <x-display.field label="Updated At">
-                <x-display.timestamp :datetime="$item->updated_at" />
-            </x-display.field>
         </x-display.description-list>
 
         <!-- Images Section -->
@@ -40,5 +33,13 @@
 
         <!-- Translations Section -->
         @include('items._translations')
+
+        <!-- System Properties -->
+        <x-system-properties 
+            :id="$item->id"
+            :backward-compatibility-id="$item->backward_compatibility"
+            :created-at="$item->created_at"
+            :updated-at="$item->updated_at"
+        />
     </x-layout.show-page>
 @endsection

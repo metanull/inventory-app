@@ -47,7 +47,26 @@
                         <x-heroicon-o-arrow-down-tray class="h-4 w-4 mr-2" />
                         Download
                     </a>
+                    @can(\App\Enums\Permission::UPDATE_DATA->value)
+                    <a 
+                        href="{{ route('available-images.edit', $availableImage) }}" 
+                        class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 {{ $c['focus'] }}"
+                    >
+                        <x-heroicon-o-pencil class="h-4 w-4 mr-2" />
+                        Edit
+                    </a>
+                    @endcan
                 </div>
+                @can(\App\Enums\Permission::DELETE_DATA->value)
+                <form method="POST" action="{{ route('available-images.destroy', $availableImage) }}" onsubmit="return confirm('Are you sure you want to permanently delete this image? This action cannot be undone.');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        <x-heroicon-o-trash class="h-4 w-4 mr-2" />
+                        Delete
+                    </button>
+                </form>
+                @endcan
             </div>
         </div>
     </div>
@@ -58,13 +77,6 @@
             <h2 class="text-lg font-medium text-gray-900 mb-4">Information</h2>
             
             <dl class="divide-y divide-gray-200">
-                <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-gray-500">ID</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 font-mono">
-                        {{ $availableImage->id }}
-                    </dd>
-                </div>
-
                 <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
                     <dt class="text-sm font-medium text-gray-500">Comment</dt>
                     <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
@@ -78,23 +90,16 @@
                         {{ $availableImage->path }}
                     </dd>
                 </div>
-
-                <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-gray-500">Created</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                        {{ $availableImage->created_at->format('F d, Y \a\t H:i:s') }}
-                    </dd>
-                </div>
-
-                <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-gray-500">Updated</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                        {{ $availableImage->updated_at->format('F d, Y \a\t H:i:s') }}
-                    </dd>
-                </div>
             </dl>
         </div>
     </div>
+
+    <!-- System Properties -->
+    <x-system-properties 
+        :id="$availableImage->id"
+        :created-at="$availableImage->created_at"
+        :updated-at="$availableImage->updated_at"
+    />
 
     <!-- Back Button -->
     <div class="mt-6 flex justify-end">

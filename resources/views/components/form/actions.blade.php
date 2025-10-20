@@ -14,7 +14,7 @@
     <button type="submit" 
             class="inline-flex items-center px-4 py-2 rounded-md {{ $c['button'] ?? 'bg-indigo-600 hover:bg-indigo-700 text-white' }} text-sm font-medium shadow-sm disabled:opacity-75 disabled:cursor-not-allowed">
         <!-- Loading spinner (hidden by default) -->
-        <x-ui.loading size="sm" color="white" class="mr-2" style="display: none;" />
+        <x-ui.loading size="sm" color="white" class="mr-2 submit-spinner" style="display: none;" />
         <span class="submit-text">{{ $saveLabel }}</span>
     </button>
 </div>
@@ -27,12 +27,14 @@ document.addEventListener('DOMContentLoaded', function() {
     forms.forEach(form => {
         form.addEventListener('submit', function(e) {
             const submitButton = form.querySelector('button[type="submit"]');
-            const spinnerContainer = submitButton.querySelector('.flex.items-center.justify-center');
+            if (!submitButton) return;
+            
+            const spinner = submitButton.querySelector('.submit-spinner');
             const text = submitButton.querySelector('.submit-text');
             
-            if (submitButton && spinnerContainer && text) {
+            if (spinner && text) {
                 submitButton.disabled = true;
-                spinnerContainer.style.display = 'block';
+                spinner.style.display = 'flex';
                 text.textContent = 'Saving...';
             }
         });

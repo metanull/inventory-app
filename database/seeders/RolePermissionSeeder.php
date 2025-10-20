@@ -52,6 +52,17 @@ class RolePermissionSeeder extends Seeder
         );
 
         // Non-verified users get no permissions - they cannot do anything until verified
+        $nonVerifiedRole->syncPermissions([]);
+
+        // Create "Visitor" role with read-only data access
+        $visitorRole = Role::firstOrCreate(
+            ['name' => 'Visitor'],
+            ['description' => 'Read-only access to data (list and show operations only)']
+        );
+
+        $visitorRole->syncPermissions([
+            PermissionEnum::VIEW_DATA->value,
+        ]);
 
         // Create "Regular User" role with data operation permissions
         $regularUserRole = Role::firstOrCreate(
@@ -59,19 +70,12 @@ class RolePermissionSeeder extends Seeder
             ['description' => 'Standard user with data operation access']
         );
 
-        if (! $regularUserRole->hasAnyPermission([
+        $regularUserRole->syncPermissions([
             PermissionEnum::VIEW_DATA->value,
             PermissionEnum::CREATE_DATA->value,
             PermissionEnum::UPDATE_DATA->value,
             PermissionEnum::DELETE_DATA->value,
-        ])) {
-            $regularUserRole->givePermissionTo([
-                PermissionEnum::VIEW_DATA->value,
-                PermissionEnum::CREATE_DATA->value,
-                PermissionEnum::UPDATE_DATA->value,
-                PermissionEnum::DELETE_DATA->value,
-            ]);
-        }
+        ]);
 
         // Create "Manager of Users" role with only user/role management permissions
         $managerRole = Role::firstOrCreate(
@@ -79,28 +83,22 @@ class RolePermissionSeeder extends Seeder
             ['description' => 'User and role management access only (no data operations)']
         );
 
-        if (! $managerRole->hasAnyPermission([
+        $managerRole->syncPermissions([
+            // User management permissions
             PermissionEnum::MANAGE_USERS->value,
             PermissionEnum::ASSIGN_ROLES->value,
             PermissionEnum::VIEW_USER_MANAGEMENT->value,
-        ])) {
-            $managerRole->givePermissionTo([
-                // User management permissions
-                PermissionEnum::MANAGE_USERS->value,
-                PermissionEnum::ASSIGN_ROLES->value,
-                PermissionEnum::VIEW_USER_MANAGEMENT->value,
 
-                // Role management permissions
-                PermissionEnum::MANAGE_ROLES->value,
-                PermissionEnum::VIEW_ROLE_MANAGEMENT->value,
+            // Role management permissions
+            PermissionEnum::MANAGE_ROLES->value,
+            PermissionEnum::VIEW_ROLE_MANAGEMENT->value,
 
-                // System settings permissions
-                PermissionEnum::MANAGE_SETTINGS->value,
-            ]);
-        }
+            // System settings permissions
+            PermissionEnum::MANAGE_SETTINGS->value,
+        ]);
 
         $this->command->info('Roles and permissions created successfully!');
-        $this->command->info('Created roles: Non-verified users, Regular User, Manager of Users');
+        $this->command->info('Created roles: Non-verified users, Visitor, Regular User, Manager of Users');
         $this->command->info('Created '.count($permissions).' permissions');
     }
 }

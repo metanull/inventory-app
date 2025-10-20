@@ -41,15 +41,6 @@
                             <p class="mt-1 text-sm text-gray-900">{{ $role->description ?? __('No description provided') }}</p>
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500">{{ __('Created') }}</label>
-                            <p class="mt-1 text-sm text-gray-900">{{ $role->created_at->format('M d, Y H:i:s') }}</p>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500">{{ __('Last Updated') }}</label>
-                            <p class="mt-1 text-sm text-gray-900">{{ $role->updated_at->format('M d, Y H:i:s') }}</p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -152,6 +143,13 @@
                     </div>
                 </div>
             </div>
+
+            <!-- System Properties -->
+            <x-system-properties 
+                :id="$role->id"
+                :created-at="$role->created_at"
+                :updated-at="$role->updated_at"
+            />
         </div>
     </div>
 </x-app-layout>

@@ -82,14 +82,14 @@
                     <pre class="text-xs bg-gray-50 p-2 rounded">{{ json_encode($itemTranslation->extra, JSON_PRETTY_PRINT) }}</pre>
                 </x-display.field>
             @endif
-            
-            <x-display.field label="Backward Compatibility" :value="$itemTranslation->backward_compatibility" />
-            <x-display.field label="Created At">
-                <x-display.timestamp :datetime="$itemTranslation->created_at" />
-            </x-display.field>
-            <x-display.field label="Updated At">
-                <x-display.timestamp :datetime="$itemTranslation->updated_at" />
-            </x-display.field>
         </x-display.description-list>
+
+        <!-- System Properties -->
+        <x-system-properties 
+            :id="$itemTranslation->id"
+            :backward-compatibility-id="$itemTranslation->backward_compatibility"
+            :created-at="$itemTranslation->created_at"
+            :updated-at="$itemTranslation->updated_at"
+        />
     </x-layout.show-page>
 @endsection

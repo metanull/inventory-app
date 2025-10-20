@@ -20,12 +20,15 @@ class ItemTranslationsTable extends Component
 
     public string $contextFilter = '';
 
+    public string $languageFilter = '';
+
     protected $queryString = [
         'q' => ['except' => ''],
         'perPage' => ['except' => 10],
         'sortBy' => ['except' => 'created_at'],
         'sortDirection' => ['except' => 'desc'],
         'contextFilter' => ['except' => ''],
+        'languageFilter' => ['except' => ''],
     ];
 
     public function mount(): void
@@ -50,6 +53,11 @@ class ItemTranslationsTable extends Component
     }
 
     public function updatingContextFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingLanguageFilter(): void
     {
         $this->resetPage();
     }
@@ -93,7 +101,12 @@ class ItemTranslationsTable extends Component
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
                     ->orWhere('alternate_name', 'LIKE', "%{$search}%")
-                    ->orWhere('description', 'LIKE', "%{$search}%");
+                    ->orWhere('description', 'LIKE', "%{$search}%")
+                    // Search in parent item's internal_name and ID
+                    ->orWhereHas('item', function ($itemQuery) use ($search) {
+                        $itemQuery->where('internal_name', 'LIKE', "%{$search}%")
+                            ->orWhere('id', 'LIKE', "%{$search}%");
+                    });
             });
         }
 
@@ -105,6 +118,16 @@ class ItemTranslationsTable extends Component
             }
         } elseif ($this->contextFilter !== '' && $this->contextFilter !== 'all') {
             $query->where('context_id', $this->contextFilter);
+        }
+
+        // Filter by language if specified
+        if ($this->languageFilter === 'default') {
+            $defaultLanguage = \App\Models\Language::where('is_default', true)->first();
+            if ($defaultLanguage) {
+                $query->where('language_id', $defaultLanguage->id);
+            }
+        } elseif ($this->languageFilter !== '' && $this->languageFilter !== 'all') {
+            $query->where('language_id', $this->languageFilter);
         }
 
         // Apply sorting
@@ -121,10 +144,12 @@ class ItemTranslationsTable extends Component
     {
         $c = config('app_entities.item_translations.colors', []);
         $contexts = \App\Models\Context::orderBy('internal_name')->get();
+        $languages = \App\Models\Language::orderBy('internal_name')->get();
 
         return view('livewire.tables.item-translations-table', [
             'itemTranslations' => $this->itemTranslations,
             'contexts' => $contexts,
+            'languages' => $languages,
             'c' => $c,
         ]);
     }

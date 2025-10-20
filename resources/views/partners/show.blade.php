@@ -20,13 +20,14 @@
             <x-display.field label="Country">
                 <x-display.country-reference :country="$partner->country" />
             </x-display.field>
-            <x-display.field label="Backward Compatibility" :value="$partner->backward_compatibility" />
-            <x-display.field label="Created At">
-                <x-display.timestamp :datetime="$partner->created_at" />
-            </x-display.field>
-            <x-display.field label="Updated At">
-                <x-display.timestamp :datetime="$partner->updated_at" />
-            </x-display.field>
         </x-display.description-list>
+
+        <!-- System Properties -->
+        <x-system-properties 
+            :id="$partner->id"
+            :backward-compatibility-id="$partner->backward_compatibility"
+            :created-at="$partner->created_at"
+            :updated-at="$partner->updated_at"
+        />
     </x-layout.show-page>
 @endsection

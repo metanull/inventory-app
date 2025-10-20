@@ -38,7 +38,33 @@ class CollectionController extends Controller
     {
         $collection->load(['context', 'language']);
 
-        return view('collections.show', compact('collection'));
+        // Get default context and language IDs
+        $defaultContextId = \App\Models\Context::where('is_default', true)->value('id');
+        $defaultLanguageId = \App\Models\Language::where('is_default', true)->value('id');
+
+        // Group translations by context, with default context first
+        // Within each group, order by language with default language first
+        $translationsByContext = $collection->translations
+            ->sortBy(function ($translation) use ($defaultLanguageId) {
+                // Default language first (0), then others (1)
+                return $translation->language_id === $defaultLanguageId ? 0 : 1;
+            })
+            ->groupBy('context_id')
+            ->sortBy(function ($group, $contextId) use ($defaultContextId) {
+                // Null context last
+                if ($contextId === null) {
+                    return PHP_INT_MAX;
+                }
+                // Default context first
+                if ($contextId === $defaultContextId) {
+                    return 0;
+                }
+
+                // Others sorted by ID
+                return $contextId;
+            });
+
+        return view('collections.show', compact('collection', 'translationsByContext'));
     }
 
     public function create(): View

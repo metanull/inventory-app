@@ -665,6 +665,24 @@ jobs:
           Write-Host "Database migrations completed successfully."
         shell: powershell
 
+      - name: Sync permissions and roles
+        run: |
+          # Sync permissions and roles from application definitions
+
+          Write-Host "::group::Syncing permissions and roles"
+          Push-Location $env:WEBSERVER_PATH
+          try {
+            & "$env:PHP_PATH" artisan permissions:sync --production
+          } catch {
+            Write-Host "::error::Failed to sync permissions and roles: $_"
+            exit 1
+          } finally {
+            Pop-Location
+          }
+          Write-Host "::endgroup::"
+          Write-Host "Permissions and roles synced successfully."
+        shell: powershell
+
       - name: Cache Laravel configuration
         run: |
           # Cache Laravel configuration, routes, and views for performance
