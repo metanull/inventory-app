@@ -80,18 +80,13 @@ class UpdateTest extends TestCase
             'method_for_provenance' => 'New Provenance Method',
             'obtention' => 'New Obtention',
             'bibliography' => 'New Bibliography',
-            'extra' => ['new_field' => 'new_value'],
+            'extra' => json_encode(['new_field' => 'new_value']),
             'author_id' => $author->id,
             'text_copy_editor_id' => $author->id,
             'translator_id' => $author->id,
             'translation_copy_editor_id' => $author->id,
             'backward_compatibility' => 'new-compatibility-id',
         ];
-
-        // Convert extra field to JSON string for API request
-        if (isset($updateData['extra']) && is_array($updateData['extra'])) {
-            $updateData['extra'] = json_encode($updateData['extra']);
-        }
 
         $response = $this->putJson(route('item-translation.update', $translation->id), $updateData);
 
