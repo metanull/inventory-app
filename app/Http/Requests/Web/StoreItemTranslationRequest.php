@@ -19,9 +19,9 @@ class StoreItemTranslationRequest extends FormRequest
             'language_id' => ['required', 'string', 'max:10', 'exists:languages,id'],
             'context_id' => ['required', 'uuid', 'exists:contexts,id'],
             'name' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
 
             // Optional string fields
+            'description' => ['nullable', 'string'],
             'alternate_name' => ['nullable', 'string', 'max:255'],
             'type' => ['nullable', 'string', 'max:255'],
             'holder' => ['nullable', 'string'],

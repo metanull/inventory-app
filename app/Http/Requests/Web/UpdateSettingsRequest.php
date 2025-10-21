@@ -22,7 +22,20 @@ class UpdateSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'self_registration_enabled' => 'required|boolean',
+            'self_registration_enabled' => 'nullable|boolean',
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        // If checkbox is unchecked, it won't be sent - treat as false
+        if (! $this->has('self_registration_enabled')) {
+            $this->merge([
+                'self_registration_enabled' => false,
+            ]);
+        }
     }
 }

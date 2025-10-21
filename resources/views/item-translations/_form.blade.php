@@ -55,11 +55,10 @@
                 />
             </x-form.field>
 
-            <x-form.field label="Description" name="description" variant="gray" required>
+            <x-form.field label="Description" name="description" variant="gray">
                 <textarea 
                     name="description" 
-                    rows="4" 
-                    required
+                    rows="4"
                     class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                 >{{ old('description', $itemTranslation->description ?? '') }}</textarea>
             </x-form.field>
@@ -186,31 +185,38 @@
     {{-- Contributors --}}
     <div class="border-b border-gray-200 pb-6">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Contributors</h3>
-        <p class="text-sm text-gray-600 mb-4">Note: Author management will be implemented in a future update. These fields are currently unavailable.</p>
         
-        <div class="space-y-6 opacity-50">
+        <div class="space-y-6">
             <x-form.field label="Author" name="author_id" variant="gray">
-                <select name="author_id" disabled class="w-full rounded-md border-gray-300 bg-gray-100">
-                    <option value="">Select an author...</option>
-                </select>
+                <x-form.author-select 
+                    name="author_id"
+                    :selected="old('author_id', $itemTranslation->author_id ?? '')"
+                    placeholder="Select or search for an author..."
+                />
             </x-form.field>
 
             <x-form.field label="Text Copy Editor" name="text_copy_editor_id" variant="gray">
-                <select name="text_copy_editor_id" disabled class="w-full rounded-md border-gray-300 bg-gray-100">
-                    <option value="">Select a copy editor...</option>
-                </select>
+                <x-form.author-select 
+                    name="text_copy_editor_id"
+                    :selected="old('text_copy_editor_id', $itemTranslation->text_copy_editor_id ?? '')"
+                    placeholder="Select or search for a copy editor..."
+                />
             </x-form.field>
 
             <x-form.field label="Translator" name="translator_id" variant="gray">
-                <select name="translator_id" disabled class="w-full rounded-md border-gray-300 bg-gray-100">
-                    <option value="">Select a translator...</option>
-                </select>
+                <x-form.author-select 
+                    name="translator_id"
+                    :selected="old('translator_id', $itemTranslation->translator_id ?? '')"
+                    placeholder="Select or search for a translator..."
+                />
             </x-form.field>
 
             <x-form.field label="Translation Copy Editor" name="translation_copy_editor_id" variant="gray">
-                <select name="translation_copy_editor_id" disabled class="w-full rounded-md border-gray-300 bg-gray-100">
-                    <option value="">Select a copy editor...</option>
-                </select>
+                <x-form.author-select 
+                    name="translation_copy_editor_id"
+                    :selected="old('translation_copy_editor_id', $itemTranslation->translation_copy_editor_id ?? '')"
+                    placeholder="Select or search for a translation copy editor..."
+                />
             </x-form.field>
         </div>
     </div>

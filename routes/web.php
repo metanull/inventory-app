@@ -61,6 +61,9 @@ Route::prefix('web')->group(function () {
         Route::resource('projects', WebProjectController::class);
         Route::resource('contexts', WebContextController::class);
         Route::resource('collections', WebCollectionController::class);
+        Route::resource('authors', \App\Http\Controllers\Web\AuthorController::class);
+        Route::resource('contacts', \App\Http\Controllers\Web\ContactController::class);
+        Route::resource('addresses', \App\Http\Controllers\Web\AddressController::class);
 
         // Collection Images - nested routes
         Route::prefix('collections/{collection}/collection-images')->name('collections.collection-images.')->group(function () {
