@@ -55,11 +55,10 @@
                 />
             </x-form.field>
 
-            <x-form.field label="Description" name="description" variant="gray" required>
+            <x-form.field label="Description" name="description" variant="gray">
                 <textarea 
                     name="description" 
-                    rows="4" 
-                    required
+                    rows="4"
                     class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                 >{{ old('description', $itemTranslation->description ?? '') }}</textarea>
             </x-form.field>

@@ -69,9 +69,8 @@ class UpdateTest extends TestCase
 
         $response = $this->put(route('item-translations.update', $translation), [
             'name' => '',
-            'description' => '',
         ]);
 
-        $response->assertSessionHasErrors(['item_id', 'language_id', 'context_id', 'name', 'description']);
+        $response->assertSessionHasErrors(['item_id', 'language_id', 'context_id', 'name']);
     }
 }
