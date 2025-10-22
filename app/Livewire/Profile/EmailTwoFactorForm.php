@@ -54,7 +54,9 @@ class EmailTwoFactorForm extends Component
      */
     public function enableEmailTwoFactor()
     {
-        $this->ensurePasswordIsConfirmed();
+        if (\Laravel\Fortify\Features::optionEnabled(\Laravel\Fortify\Features::twoFactorAuthentication(), 'confirmPassword')) {
+            $this->ensurePasswordIsConfirmed();
+        }
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
@@ -72,7 +74,9 @@ class EmailTwoFactorForm extends Component
      */
     public function disableEmailTwoFactor()
     {
-        $this->ensurePasswordIsConfirmed();
+        if (\Laravel\Fortify\Features::optionEnabled(\Laravel\Fortify\Features::twoFactorAuthentication(), 'confirmPassword')) {
+            $this->ensurePasswordIsConfirmed();
+        }
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
@@ -98,7 +102,9 @@ class EmailTwoFactorForm extends Component
      */
     public function sendTestEmailCode()
     {
-        $this->ensurePasswordIsConfirmed();
+        if (\Laravel\Fortify\Features::optionEnabled(\Laravel\Fortify\Features::twoFactorAuthentication(), 'confirmPassword')) {
+            $this->ensurePasswordIsConfirmed();
+        }
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
@@ -142,7 +148,9 @@ class EmailTwoFactorForm extends Component
      */
     public function updatePreference()
     {
-        $this->ensurePasswordIsConfirmed();
+        if (\Laravel\Fortify\Features::optionEnabled(\Laravel\Fortify\Features::twoFactorAuthentication(), 'confirmPassword')) {
+            $this->ensurePasswordIsConfirmed();
+        }
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
