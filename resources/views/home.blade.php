@@ -197,6 +197,21 @@
                     <span class="mt-4 inline-flex items-center text-sm font-medium text-fuchsia-600 group-hover:underline">Open &rarr;</span>
                 </a>
 
+                @php($gc = $entityColor('glossaries'))
+                <a href="{{ route('glossaries.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $gc['base'] }}/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md {{ $gc['bg'] ?? 'bg-emerald-50' }} {{ $gc['text'] ?? 'text-emerald-600' }} group-hover:opacity-90">
+                                <x-heroicon-o-book-open class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Glossary</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $gc['text'] ?? 'text-emerald-600' }}" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Specialized terms, definitions, and spelling variations.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $gc['text'] ?? 'text-emerald-600' }} group-hover:underline">Open &rarr;</span>
+                </a>
+
                 @php($ac = $entityColor('authors'))
                 <a href="{{ route('authors.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $ac['base'] }}/40">
                     <div class="flex items-center justify-between mb-4">

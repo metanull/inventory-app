@@ -58,6 +58,15 @@ class AllowList
             'context' => [
                 // Context model has no specific relationships
             ],
+            'glossary' => [
+                'translations', 'spellings', 'synonyms',
+            ],
+            'glossary_translation' => [
+                'glossary', 'language',
+            ],
+            'glossary_spelling' => [
+                'glossary', 'language', 'itemTranslations',
+            ],
             'theme' => [
                 'translations', 'subthemes', 'subthemes.translations',
             ],

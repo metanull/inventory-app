@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\CollectionImageController as WebCollectionImageCont
 use App\Http\Controllers\Web\CollectionTranslationController as WebCollectionTranslationController;
 use App\Http\Controllers\Web\ContextController as WebContextController;
 use App\Http\Controllers\Web\CountryController as WebCountryController;
+use App\Http\Controllers\Web\GlossaryController as WebGlossaryController;
 use App\Http\Controllers\Web\ImageUploadController as WebImageUploadController;
 use App\Http\Controllers\Web\ItemController as WebItemController;
 use App\Http\Controllers\Web\ItemImageController as WebItemImageController;
@@ -60,6 +61,7 @@ Route::prefix('web')->group(function () {
         Route::resource('languages', WebLanguageController::class);
         Route::resource('projects', WebProjectController::class);
         Route::resource('contexts', WebContextController::class);
+        Route::resource('glossaries', WebGlossaryController::class);
         Route::resource('collections', WebCollectionController::class);
         Route::resource('authors', \App\Http\Controllers\Web\AuthorController::class);
         Route::resource('contacts', \App\Http\Controllers\Web\ContactController::class);
