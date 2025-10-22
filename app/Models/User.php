@@ -312,4 +312,20 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
         return json_decode(decrypt($this->two_factor_recovery_codes), true) ?? [];
     }
+
+    /**
+     * Check if the user has any sensitive permissions that require MFA.
+     */
+    public function hasSensitivePermissions(): bool
+    {
+        $sensitivePermissions = \App\Enums\Permission::sensitivePermissions();
+
+        foreach ($sensitivePermissions as $permission) {
+            if ($this->hasPermissionTo($permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

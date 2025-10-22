@@ -188,6 +188,10 @@ class EditUserPasswordGenerationTest extends TestCase
 
         $targetUser = User::factory()->create(['email_verified_at' => now()]);
         $targetUser->assignRole('Regular User');
+        // Enable MFA for the target user
+        $targetUser->forceFill([
+            'email_2fa_enabled' => true,
+        ])->save();
 
         $managerRole = Role::where('name', 'Manager of Users')->first();
 

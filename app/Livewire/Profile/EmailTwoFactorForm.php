@@ -4,10 +4,13 @@ namespace App\Livewire\Profile;
 
 use App\Services\EmailTwoFactorService;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Jetstream\ConfirmsPasswords;
 use Livewire\Component;
 
 class EmailTwoFactorForm extends Component
 {
+    use ConfirmsPasswords;
+
     /**
      * Whether email 2FA is enabled.
      */
@@ -73,6 +76,14 @@ class EmailTwoFactorForm extends Component
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
+
+        // Check if user has sensitive permissions
+        if ($user->hasSensitivePermissions()) {
+            $this->addError('email', __('You cannot disable two-factor authentication while you have sensitive permissions (manage users, manage roles, assign roles, or manage settings).'));
+
+            return;
+        }
+
         $this->emailService->disableEmailTwoFactor($user);
 
         $this->emailTwoFactorEnabled = false;
@@ -171,19 +182,6 @@ class EmailTwoFactorForm extends Component
         }
 
         return $preferences;
-    }
-
-    /**
-     * Ensure that the user has confirmed their password.
-     */
-    protected function ensurePasswordIsConfirmed(): void
-    {
-        $route = request()->route();
-        $currentRoute = $route ? $route->getName() : null;
-
-        if ($currentRoute !== 'password.confirm' && config('auth.password_timeout') > 0) {
-            $this->redirect(route('password.confirm'));
-        }
     }
 
     public function render()
