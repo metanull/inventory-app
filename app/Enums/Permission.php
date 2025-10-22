@@ -81,4 +81,17 @@ enum Permission: string
             [self::MANAGE_SETTINGS->value]
         );
     }
+
+    /**
+     * Get sensitive permissions that require MFA
+     */
+    public static function sensitivePermissions(): array
+    {
+        return [
+            self::MANAGE_USERS->value,
+            self::MANAGE_ROLES->value,
+            self::ASSIGN_ROLES->value,
+            self::MANAGE_SETTINGS->value,
+        ];
+    }
 }

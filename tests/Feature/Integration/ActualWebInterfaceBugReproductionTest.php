@@ -95,6 +95,10 @@ class ActualWebInterfaceBugReproductionTest extends TestCase
         $admin->assignRole('Manager of Users');
 
         $targetUser = User::factory()->create();
+        // Enable MFA for the target user
+        $targetUser->forceFill([
+            'email_2fa_enabled' => true,
+        ])->save();
 
         // Get multiple roles
         $regularUserRole = Role::where('name', 'Regular User')->first();

@@ -25,13 +25,13 @@ class RoleAssignmentBugFixVerificationTest extends TestCase
         $admin->assignRole('Manager of Users');
 
         $regularUserRole = Role::where('name', 'Regular User')->first();
-        $managerRole = Role::where('name', 'Manager of Users')->first();
+        $visitorRole = Role::where('name', 'Visitor')->first(); // Use non-sensitive role
 
         // This should NOT throw "There is no role named `X` for guard `web`" error
         $response = $this->actingAs($admin)->post(route('admin.users.store'), [
             'name' => 'Bug Fix Test User',
             'email' => 'bugfix@example.com',
-            'roles' => [$regularUserRole->id, $managerRole->id],
+            'roles' => [$regularUserRole->id, $visitorRole->id],
         ]);
 
         $response->assertRedirect(route('admin.users.index'));
@@ -42,7 +42,7 @@ class RoleAssignmentBugFixVerificationTest extends TestCase
         $user = User::where('email', 'bugfix@example.com')->first();
         $this->assertNotNull($user);
         $this->assertTrue($user->hasRole('Regular User'));
-        $this->assertTrue($user->hasRole('Manager of Users'));
+        $this->assertTrue($user->hasRole('Visitor'));
     }
 
     public function test_edit_user_with_roles_does_not_throw_role_does_not_exist_error(): void
@@ -52,6 +52,10 @@ class RoleAssignmentBugFixVerificationTest extends TestCase
 
         $targetUser = User::factory()->create(['email_verified_at' => now()]);
         $targetUser->assignRole('Regular User');
+        // Enable MFA for the target user
+        $targetUser->forceFill([
+            'email_2fa_enabled' => true,
+        ])->save();
 
         $managerRole = Role::where('name', 'Manager of Users')->first();
 
@@ -158,13 +162,13 @@ class RoleAssignmentBugFixVerificationTest extends TestCase
         $admin->assignRole('Manager of Users');
 
         $regularUserRole = Role::where('name', 'Regular User')->first();
-        $managerRole = Role::where('name', 'Manager of Users')->first();
+        $visitorRole = Role::where('name', 'Visitor')->first(); // Use non-sensitive role
 
         // Create user with roles and password generation
         $response = $this->actingAs($admin)->post(route('admin.users.store'), [
             'name' => 'Combined Test User',
             'email' => 'combined@example.com',
-            'roles' => [$regularUserRole->id, $managerRole->id],
+            'roles' => [$regularUserRole->id, $visitorRole->id],
         ]);
 
         $response->assertRedirect(route('admin.users.index'));
@@ -175,7 +179,7 @@ class RoleAssignmentBugFixVerificationTest extends TestCase
         $user = User::where('email', 'combined@example.com')->first();
         $this->assertNotNull($user);
         $this->assertTrue($user->hasRole('Regular User'));
-        $this->assertTrue($user->hasRole('Manager of Users'));
+        $this->assertTrue($user->hasRole('Visitor'));
 
         $generatedPassword = session('generated_password');
         $this->assertGreaterThanOrEqual(16, strlen($generatedPassword));

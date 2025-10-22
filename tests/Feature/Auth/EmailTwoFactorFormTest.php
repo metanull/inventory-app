@@ -22,6 +22,8 @@ test('email two factor form can enable email 2fa', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
 
+    $this->withSession(['auth.password_confirmed_at' => time()]);
+
     $component = Livewire::test(EmailTwoFactorForm::class)
         ->call('enableEmailTwoFactor');
 
@@ -36,6 +38,8 @@ test('email two factor form can disable email 2fa', function () {
     ]);
 
     $this->actingAs($user);
+
+    $this->withSession(['auth.password_confirmed_at' => time()]);
 
     $component = Livewire::test(EmailTwoFactorForm::class)
         ->call('disableEmailTwoFactor');
@@ -57,6 +61,8 @@ test('email two factor form can update preferences', function () {
     ])->save();
 
     $this->actingAs($user);
+
+    $this->withSession(['auth.password_confirmed_at' => time()]);
 
     $component = Livewire::test(EmailTwoFactorForm::class)
         ->set('preferred2faMethod', 'both')
@@ -95,6 +101,8 @@ test('email two factor form can send test code', function () {
     ]);
 
     $this->actingAs($user);
+
+    $this->withSession(['auth.password_confirmed_at' => time()]);
 
     $component = Livewire::test(EmailTwoFactorForm::class)
         ->call('sendTestEmailCode');

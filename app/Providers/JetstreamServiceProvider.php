@@ -53,6 +53,9 @@ class JetstreamServiceProvider extends ServiceProvider
 
         Jetstream::deleteUsersUsing(DeleteUser::class);
 
+        // Override Jetstream's TwoFactorAuthenticationForm with our custom implementation
+        \Livewire\Livewire::component('profile.two-factor-authentication-form', \App\Livewire\Profile\TwoFactorAuthenticationForm::class);
+
         Vite::prefetch(concurrency: 3);
     }
 
