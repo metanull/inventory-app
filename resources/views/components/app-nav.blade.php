@@ -43,7 +43,7 @@
 
                 <!-- Reference Dropdown -->
                 <div class="relative" @mouseenter="openMenu='reference'" @mouseleave="openMenu=null">
-                    <button @click="openMenu = openMenu==='reference'? null : 'reference'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('countries.*') || request()->routeIs('languages.*') || request()->routeIs('contexts.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
+                    <button @click="openMenu = openMenu==='reference'? null : 'reference'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('countries.*') || request()->routeIs('languages.*') || request()->routeIs('contexts.*') || request()->routeIs('glossaries.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
                         <x-heroicon-o-book-open class="w-4 h-4" /> Reference
                         <span class="w-4 h-4 transition" x-bind:class="openMenu==='reference' ? 'rotate-180' : ''">
                             <x-heroicon-o-chevron-down class="w-4 h-4" />
@@ -53,6 +53,7 @@
                         @php($cc = $entityColor('countries'))
                         @php($lc = $entityColor('languages'))
                         @php($xc = $entityColor('contexts'))
+                        @php($gc = $entityColor('glossaries'))
                         <a href="{{ route('countries.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('countries.*') ? $cc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-globe-europe-africa class="w-4 h-4" /> Countries
                         </a>
@@ -61,6 +62,9 @@
                         </a>
                         <a href="{{ route('contexts.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('contexts.*') ? $xc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-adjustments-horizontal class="w-4 h-4" /> Contexts
+                        </a>
+                        <a href="{{ route('glossaries.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('glossaries.*') ? $gc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <x-heroicon-o-book-open class="w-4 h-4" /> Glossary
                         </a>
                     </div>
                 </div>

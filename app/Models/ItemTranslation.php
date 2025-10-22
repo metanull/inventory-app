@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * ItemTranslation Model
@@ -129,6 +130,15 @@ class ItemTranslation extends Model
     public function translationCopyEditor(): BelongsTo
     {
         return $this->belongsTo(Author::class, 'translation_copy_editor_id');
+    }
+
+    /**
+     * Get the glossary spellings linked to this item translation.
+     */
+    public function spellings(): BelongsToMany
+    {
+        return $this->belongsToMany(GlossarySpelling::class, 'item_translation_spelling', 'item_translation_id', 'spelling_id')
+            ->withTimestamps();
     }
 
     /**

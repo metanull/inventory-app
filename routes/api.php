@@ -12,6 +12,9 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ContactTranslationController;
 use App\Http\Controllers\ContextController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\GlossaryController;
+use App\Http\Controllers\GlossarySpellingController;
+use App\Http\Controllers\GlossaryTranslationController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\InfoController;
 use App\Http\Controllers\ItemController;
@@ -58,6 +61,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('language/english', [LanguageController::class, 'getEnglish'])->name('language.getEnglish');
         Route::get('language/{language}', [LanguageController::class, 'show'])->name('language.show');
         Route::get('language', [LanguageController::class, 'index'])->name('language.index');
+
+        // Glossary routes (read)
+        Route::get('glossary/{glossary}', [GlossaryController::class, 'show'])->name('glossary.show');
+        Route::get('glossary', [GlossaryController::class, 'index'])->name('glossary.index');
+        Route::get('glossary-translation/{glossaryTranslation}', [GlossaryTranslationController::class, 'show'])->name('glossary-translation.show');
+        Route::get('glossary-translation', [GlossaryTranslationController::class, 'index'])->name('glossary-translation.index');
+        Route::get('glossary-spelling/{glossarySpelling}', [GlossarySpellingController::class, 'show'])->name('glossary-spelling.show');
+        Route::get('glossary-spelling', [GlossarySpellingController::class, 'index'])->name('glossary-spelling.index');
 
         // Project routes (read)
         Route::get('project/enabled', [ProjectController::class, 'enabled'])->name('project.enabled');
@@ -150,6 +161,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware(['permission:'.Permission::CREATE_DATA->value])->group(function () {
         Route::post('context', [ContextController::class, 'store'])->name('context.store');
         Route::post('language', [LanguageController::class, 'store'])->name('language.store');
+        Route::post('glossary', [GlossaryController::class, 'store'])->name('glossary.store');
+        Route::post('glossary-translation', [GlossaryTranslationController::class, 'store'])->name('glossary-translation.store');
+        Route::post('glossary-spelling', [GlossarySpellingController::class, 'store'])->name('glossary-spelling.store');
         Route::post('country', [CountryController::class, 'store'])->name('country.store');
         Route::post('tag', [TagController::class, 'store'])->name('tag.store');
         Route::post('partner', [PartnerController::class, 'store'])->name('partner.store');
@@ -188,6 +202,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('language/default', [LanguageController::class, 'clearDefault'])->name('language.clearDefault');
         Route::patch('language/{language}', [LanguageController::class, 'update'])->name('language.update');
         Route::put('language/{language}', [LanguageController::class, 'update']);
+
+        Route::patch('glossary/{glossary}', [GlossaryController::class, 'update'])->name('glossary.update');
+        Route::put('glossary/{glossary}', [GlossaryController::class, 'update']);
+        Route::post('glossary/{glossary}/attach-synonym', [GlossaryController::class, 'attachSynonym'])->name('glossary.attachSynonym');
+        Route::delete('glossary/{glossary}/detach-synonym', [GlossaryController::class, 'detachSynonym'])->name('glossary.detachSynonym');
+
+        Route::patch('glossary-translation/{glossaryTranslation}', [GlossaryTranslationController::class, 'update'])->name('glossary-translation.update');
+        Route::put('glossary-translation/{glossaryTranslation}', [GlossaryTranslationController::class, 'update']);
+
+        Route::patch('glossary-spelling/{glossarySpelling}', [GlossarySpellingController::class, 'update'])->name('glossary-spelling.update');
+        Route::put('glossary-spelling/{glossarySpelling}', [GlossarySpellingController::class, 'update']);
 
         Route::patch('project/{project}/launched', [ProjectController::class, 'setLaunched'])->name('project.setLaunched');
         Route::patch('project/{project}/enabled', [ProjectController::class, 'setEnabled'])->name('project.setEnabled');
@@ -263,6 +288,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware(['permission:'.Permission::DELETE_DATA->value])->group(function () {
         Route::delete('context/{context}', [ContextController::class, 'destroy'])->name('context.destroy');
         Route::delete('language/{language}', [LanguageController::class, 'destroy'])->name('language.destroy');
+        Route::delete('glossary/{glossary}', [GlossaryController::class, 'destroy'])->name('glossary.destroy');
+        Route::delete('glossary-translation/{glossaryTranslation}', [GlossaryTranslationController::class, 'destroy'])->name('glossary-translation.destroy');
+        Route::delete('glossary-spelling/{glossarySpelling}', [GlossarySpellingController::class, 'destroy'])->name('glossary-spelling.destroy');
         Route::delete('country/{country}', [CountryController::class, 'destroy'])->name('country.destroy');
         Route::delete('tag/{tag}', [TagController::class, 'destroy'])->name('tag.destroy');
         Route::delete('partner/{partner}', [PartnerController::class, 'destroy'])->name('partner.destroy');
