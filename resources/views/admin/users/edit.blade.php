@@ -65,26 +65,58 @@
                             <div class="space-y-4">
                                 <h3 class="text-lg font-medium text-gray-900">{{ __('Role Assignment') }}</h3>
                                 
-                                <div class="space-y-2">
-                                    @foreach($roles as $role)
-                                        <label class="flex items-center">
-                                            <input type="checkbox" 
-                                                   name="roles[]" 
-                                                   value="{{ $role->id }}"
-                                                   {{ in_array($role->id, old('roles', $user->roles->pluck('id')->toArray())) ? 'checked' : '' }}
-                                                   class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                            <span class="ml-2 text-sm text-gray-700">{{ $role->name }}</span>
-                                            @if($role->permissions->count() > 0)
-                                                <span class="ml-2 text-xs text-gray-500">
-                                                    ({{ $role->permissions->pluck('name')->implode(', ') }})
-                                                </span>
-                                            @endif
-                                        </label>
-                                    @endforeach
-                                    @error('roles')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
+                                @if($isEditingSelf)
+                                    <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                                        <div class="flex">
+                                            <div class="shrink-0">
+                                                <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                                </svg>
+                                            </div>
+                                            <div class="ml-3">
+                                                <h3 class="text-sm font-medium text-yellow-800">
+                                                    {{ __('Cannot Edit Own Roles') }}
+                                                </h3>
+                                                <div class="mt-2 text-sm text-yellow-700">
+                                                    <p>{{ __('You cannot modify your own role assignments for security reasons. Please ask another administrator to make changes to your roles.') }}</p>
+                                                </div>
+                                                <div class="mt-3">
+                                                    <p class="text-sm font-medium text-yellow-800">{{ __('Your Current Roles:') }}</p>
+                                                    <div class="mt-2 flex flex-wrap gap-2">
+                                                        @forelse($user->roles as $role)
+                                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 border border-yellow-300">
+                                                                {{ $role->name }}
+                                                            </span>
+                                                        @empty
+                                                            <span class="text-sm text-yellow-700">{{ __('No roles assigned') }}</span>
+                                                        @endforelse
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="space-y-2">
+                                        @foreach($roles as $role)
+                                            <label class="flex items-center">
+                                                <input type="checkbox" 
+                                                       name="roles[]" 
+                                                       value="{{ $role->id }}"
+                                                       {{ in_array($role->id, old('roles', $user->roles->pluck('id')->toArray())) ? 'checked' : '' }}
+                                                       class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                                <span class="ml-2 text-sm text-gray-700">{{ $role->name }}</span>
+                                                @if($role->permissions->count() > 0)
+                                                    <span class="ml-2 text-xs text-gray-500">
+                                                        ({{ $role->permissions->pluck('name')->implode(', ') }})
+                                                    </span>
+                                                @endif
+                                            </label>
+                                        @endforeach
+                                        @error('roles')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                @endif
 
                                 <!-- Email Verification Management -->
                                 <div class="mt-6 pt-6 border-t border-gray-200">
