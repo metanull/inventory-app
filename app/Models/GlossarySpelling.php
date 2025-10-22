@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Events\SpellingSaved;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 
 /**
  * GlossarySpelling Model
@@ -16,6 +18,58 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class GlossarySpelling extends Model
 {
     use HasFactory, HasUuids;
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::saved(function ($spelling) {
+            event(new SpellingSaved($spelling));
+        });
+    }
+
+    /**
+     * Delete the model from the database.
+     * Ensures atomic deletion of the GlossarySpelling and its ItemTranslation links.
+     *
+     * @return bool|null
+     *
+     * @throws \LogicException
+     */
+    public function delete()
+    {
+        if (is_null($this->getKeyName())) {
+            throw new \LogicException('No primary key defined on model.');
+        }
+
+        // If the model doesn't exist, nothing to delete
+        if (! $this->exists) {
+            return false;
+        }
+
+        // Fire the deleting event (for other listeners)
+        if ($this->fireModelEvent('deleting') === false) {
+            return false;
+        }
+
+        // Perform atomic deletion: detach item translations AND delete the model in one transaction
+        return DB::transaction(function () {
+            // First, detach all item translation links
+            $this->itemTranslations()->detach();
+
+            // Then perform the actual deletion
+            $this->performDeleteOnModel();
+
+            // Mark the model as non-existing
+            $this->exists = false;
+
+            // Fire the deleted event
+            $this->fireModelEvent('deleted', false);
+
+            return true;
+        });
+    }
 
     /**
      * The table associated with the model.

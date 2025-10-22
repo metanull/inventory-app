@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Facades\DB;
 
 class Item extends Model
 {
@@ -26,6 +27,65 @@ class Item extends Model
     public const TYPE_DETAIL = 'detail';
 
     public const TYPE_PICTURE = 'picture';
+
+    /**
+     * Delete the model from the database.
+     * Ensures atomic deletion of the Item, its translations,
+     * and all spelling links from those translations.
+     *
+     * @return bool|null
+     *
+     * @throws \LogicException
+     */
+    public function delete()
+    {
+        if (is_null($this->getKeyName())) {
+            throw new \LogicException('No primary key defined on model.');
+        }
+
+        // If the model doesn't exist, nothing to delete
+        if (! $this->exists) {
+            return false;
+        }
+
+        // Fire the deleting event
+        if ($this->fireModelEvent('deleting') === false) {
+            return false;
+        }
+
+        // Perform atomic deletion in a transaction
+        return DB::transaction(function () {
+            // 1. For each translation, detach all spelling links
+            foreach ($this->translations as $translation) {
+                $translation->spellings()->detach();
+            }
+
+            // 2. Delete all translations
+            $this->translations()->delete();
+
+            // 3. Delete all item images
+            $this->itemImages()->delete();
+
+            // 4. Detach all many-to-many relationships
+            $this->tags()->detach();
+            $this->workshops()->detach();
+            $this->attachedToCollections()->detach();
+
+            // 5. Delete gallery relationships (commented out - Gallery model doesn't exist yet)
+            // $this->galleries()->detach();
+
+            // 6. Finally, delete the item itself
+            $this->performDeleteOnModel();
+
+            // Mark the model as non-existing
+            $this->exists = false;
+
+            // Fire the deleted event
+            $this->fireModelEvent('deleted', false);
+
+            return true;
+        });
+    }
 
     protected $fillable = [
         // 'id',
