@@ -433,13 +433,13 @@ const UPDATED_AT = 'updated_at';
 
 ### 🗄️ Database Table
 
-| Property         | Value                            |
-| ---------------- | -------------------------------- |
-| **Table Name**   | `collection_partner`             |
+| Property         | Value                                                       |
+| ---------------- | ----------------------------------------------------------- |
+| **Table Name**   | `collection_partner`                                        |
 | **Primary Key**  | Composite: `collection_id`, `collection_type`, `partner_id` |
-| **Key Type**     | String (UUID)                    |
-| **Incrementing** | No                               |
-| **Timestamps**   | Yes (`created_at`, `updated_at`) |
+| **Key Type**     | String (UUID)                                               |
+| **Incrementing** | No                                                          |
+| **Timestamps**   | Yes (`created_at`, `updated_at`)                            |
 
 ### 🏗️ Database Schema
 
@@ -1849,11 +1849,11 @@ The following pivot tables manage many-to-many relationships in the system. Thes
 
 ### 🗄️ Database Table
 
-| Property         | Value                            |
-| ---------------- | -------------------------------- |
-| **Table Name**   | `artist_item`                    |
-| **Primary Key**  | Composite: `artist_id`, `item_id` |
-| **Timestamps**   | Yes (`created_at`, `updated_at`) |
+| Property        | Value                             |
+| --------------- | --------------------------------- |
+| **Table Name**  | `artist_item`                     |
+| **Primary Key** | Composite: `artist_id`, `item_id` |
+| **Timestamps**  | Yes (`created_at`, `updated_at`)  |
 
 ### 🏗️ Database Schema
 
@@ -1880,11 +1880,11 @@ The following pivot tables manage many-to-many relationships in the system. Thes
 
 ### 🗄️ Database Table
 
-| Property         | Value                                  |
-| ---------------- | -------------------------------------- |
-| **Table Name**   | `collection_item`                      |
-| **Primary Key**  | Composite: `collection_id`, `item_id`  |
-| **Timestamps**   | Yes (`created_at`, `updated_at`)       |
+| Property        | Value                                 |
+| --------------- | ------------------------------------- |
+| **Table Name**  | `collection_item`                     |
+| **Primary Key** | Composite: `collection_id`, `item_id` |
+| **Timestamps**  | Yes (`created_at`, `updated_at`)      |
 
 ### 🏗️ Database Schema
 
@@ -1911,11 +1911,11 @@ The following pivot tables manage many-to-many relationships in the system. Thes
 
 ### 🗄️ Database Table
 
-| Property         | Value                                  |
-| ---------------- | -------------------------------------- |
-| **Table Name**   | `glossary_synonyms`                    |
-| **Primary Key**  | Composite: `glossary_id`, `synonym_id` |
-| **Timestamps**   | Yes (`created_at`, `updated_at`)       |
+| Property        | Value                                  |
+| --------------- | -------------------------------------- |
+| **Table Name**  | `glossary_synonyms`                    |
+| **Primary Key** | Composite: `glossary_id`, `synonym_id` |
+| **Timestamps**  | Yes (`created_at`, `updated_at`)       |
 
 ### 🏗️ Database Schema
 
@@ -1941,11 +1941,11 @@ The following pivot tables manage many-to-many relationships in the system. Thes
 
 ### 🗄️ Database Table
 
-| Property         | Value                            |
-| ---------------- | -------------------------------- |
-| **Table Name**   | `item_tag`                       |
-| **Primary Key**  | Composite: `item_id`, `tag_id`   |
-| **Timestamps**   | Yes (`created_at`, `updated_at`) |
+| Property        | Value                            |
+| --------------- | -------------------------------- |
+| **Table Name**  | `item_tag`                       |
+| **Primary Key** | Composite: `item_id`, `tag_id`   |
+| **Timestamps**  | Yes (`created_at`, `updated_at`) |
 
 ### 🏗️ Database Schema
 
@@ -1972,20 +1972,20 @@ The following pivot tables manage many-to-many relationships in the system. Thes
 
 ### 🗄️ Database Table
 
-| Property         | Value                                                |
-| ---------------- | ---------------------------------------------------- |
-| **Table Name**   | `item_translation_spelling`                          |
-| **Primary Key**  | Composite: `item_translation_id`, `spelling_id`      |
-| **Timestamps**   | Yes (`created_at`, `updated_at`)                     |
+| Property        | Value                                           |
+| --------------- | ----------------------------------------------- |
+| **Table Name**  | `item_translation_spelling`                     |
+| **Primary Key** | Composite: `item_translation_id`, `spelling_id` |
+| **Timestamps**  | Yes (`created_at`, `updated_at`)                |
 
 ### 🏗️ Database Schema
 
-| Column                 | Type     | Nullable | Default | Extra |
-| ---------------------- | -------- | -------- | ------- | ----- |
-| `item_translation_id`  | uuid     | No       |         |       |
-| `spelling_id`          | uuid     | No       |         |       |
-| `created_at`           | datetime | Yes      |         |       |
-| `updated_at`           | datetime | Yes      |         |       |
+| Column                | Type     | Nullable | Default | Extra |
+| --------------------- | -------- | -------- | ------- | ----- |
+| `item_translation_id` | uuid     | No       |         |       |
+| `spelling_id`         | uuid     | No       |         |       |
+| `created_at`          | datetime | Yes      |         |       |
+| `updated_at`          | datetime | Yes      |         |       |
 
 ### 🔗 Foreign Keys
 
@@ -2003,11 +2003,11 @@ The following pivot tables manage many-to-many relationships in the system. Thes
 
 ### 🗄️ Database Table
 
-| Property         | Value                                |
-| ---------------- | ------------------------------------ |
-| **Table Name**   | `item_workshop`                      |
-| **Primary Key**  | Composite: `item_id`, `workshop_id`  |
-| **Timestamps**   | Yes (`created_at`, `updated_at`)     |
+| Property        | Value                               |
+| --------------- | ----------------------------------- |
+| **Table Name**  | `item_workshop`                     |
+| **Primary Key** | Composite: `item_id`, `workshop_id` |
+| **Timestamps**  | Yes (`created_at`, `updated_at`)    |
 
 ### 🏗️ Database Schema
 

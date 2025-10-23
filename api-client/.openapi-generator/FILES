@@ -1,5 +1,6 @@
 .gitignore
 .npmignore
+.openapi-generator-ignore
 api.ts
 base.ts
 common.ts
@@ -22,6 +23,8 @@ docs/AttachFromAvailableItemImageRequest.md
 docs/AttachGlossarySynonymRequest.md
 docs/AttachItemCollectionRequest.md
 docs/AttachItemsCollectionRequest.md
+docs/AttachTagItemRequest.md
+docs/AttachTagsItemRequest.md
 docs/AuthorResource.md
 docs/AvailableImageApi.md
 docs/AvailableImageIndex200Response.md
