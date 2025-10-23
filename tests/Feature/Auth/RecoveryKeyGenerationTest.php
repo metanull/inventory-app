@@ -146,27 +146,4 @@ class RecoveryKeyGenerationTest extends TestCase
         $this->assertIsArray($codes);
         $this->assertGreaterThan(0, count($codes));
     }
-
-    public function test_recovery_codes_generation_with_email_2fa_enabled(): void
-    {
-        $user = $this->createUserWithEmailTwoFactor();
-        $this->actingAs($user);
-
-        // Confirm password first (required by Fortify)
-        $this->post(route('password.confirm'), [
-            'password' => 'password',
-        ]);
-
-        $response = $this->post(route('two-factor.regenerate-recovery-codes'));
-
-        // Fortify redirects after generation (standard behavior)
-        $response->assertStatus(302);
-
-        // Recovery codes should be generated even with email 2FA
-        $user->refresh();
-        $this->assertNotNull($user->two_factor_recovery_codes);
-
-        $codes = json_decode(decrypt($user->two_factor_recovery_codes), true);
-        $this->assertGreaterThan(0, count($codes));
-    }
 }

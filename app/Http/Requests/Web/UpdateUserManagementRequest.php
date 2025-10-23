@@ -57,7 +57,7 @@ class UpdateUserManagementRequest extends FormRequest
                     foreach ($sensitivePermissions as $permission) {
                         if ($role->hasPermissionTo($permission)) {
                             // User must have MFA enabled to receive this role
-                            if (! $user->hasTwoFactorEnabled()) {
+                            if (! $user->hasEnabledTwoFactorAuthentication()) {
                                 $validator->errors()->add(
                                     'roles',
                                     __('The user must have multi-factor authentication (MFA) enabled before being assigned roles with sensitive permissions (manage users, manage roles, assign roles, or manage settings).')

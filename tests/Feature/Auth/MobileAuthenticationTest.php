@@ -3,11 +3,9 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use App\Services\EmailTwoFactorService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
-use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
 use Tests\Traits\AuthenticationTestHelpers;
@@ -121,25 +119,6 @@ class MobileAuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_mobile_user_with_email_2fa_requires_two_factor_code(): void
-    {
-        $user = $this->createUserWithEmailTwoFactor();
-
-        $response = $this->postJson($this->mobileTokenEndpoint, [
-            'email' => $user->email,
-            'password' => 'password',
-            'device_name' => 'Test Mobile Device',
-        ]);
-
-        $response->assertStatus(202);
-        $response->assertJsonStructure([
-            'message',
-            'requires_two_factor',
-            'primary_method',
-            'available_methods',
-        ]);
-    }
-
     public function test_mobile_user_can_acquire_token_with_valid_totp_code(): void
     {
         $this->mockTotpProvider(true);
@@ -169,29 +148,6 @@ class MobileAuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_mobile_user_can_acquire_token_with_valid_email_2fa_code(): void
-    {
-        $this->mockEmailTwoFactorService(true);
-        $user = $this->createUserWithEmailTwoFactor();
-
-        $response = $this->postJson($this->mobileTokenEndpoint, [
-            'email' => $user->email,
-            'password' => 'password',
-            'device_name' => 'Test Mobile Device',
-            'two_factor_code' => $this->getValidEmailTwoFactorCode(),
-        ]);
-
-        $response->assertStatus(201);
-        $response->assertJsonStructure([
-            'token',
-            'user' => [
-                'id',
-                'name',
-                'email',
-            ],
-        ]);
-    }
-
     public function test_mobile_user_cannot_acquire_token_with_invalid_totp_code(): void
     {
         $this->mockTotpProvider(false);
@@ -211,66 +167,6 @@ class MobileAuthenticationTest extends TestCase
         $this->assertDatabaseMissing('personal_access_tokens', [
             'tokenable_id' => $user->id,
         ]);
-    }
-
-    public function test_mobile_user_cannot_acquire_token_with_invalid_email_2fa_code(): void
-    {
-        $this->mockEmailTwoFactorService(false);
-        $user = $this->createUserWithEmailTwoFactor();
-
-        $response = $this->postJson($this->mobileTokenEndpoint, [
-            'email' => $user->email,
-            'password' => 'password',
-            'device_name' => 'Test Mobile Device',
-            'two_factor_code' => $this->getInvalidEmailTwoFactorCode(),
-        ]);
-
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['two_factor_code']);
-    }
-
-    public function test_mobile_user_with_both_2fa_methods_can_use_totp(): void
-    {
-        $this->mockTotpProvider(true);
-
-        // Email 2FA should not be called since TOTP succeeds
-        $this->mock(EmailTwoFactorService::class, function ($mock) {
-            $mock->shouldNotReceive('verifyCode');
-        });
-
-        $user = $this->createUserWithBothTwoFactor();
-
-        $response = $this->postJson($this->mobileTokenEndpoint, [
-            'email' => $user->email,
-            'password' => 'password',
-            'device_name' => 'Test Mobile Device',
-            'two_factor_code' => $this->getValidTotpCode(),
-        ]);
-
-        $response->assertStatus(201);
-    }
-
-    public function test_mobile_user_with_both_2fa_methods_falls_back_to_email(): void
-    {
-        // Mock TOTP to fail, email 2FA to succeed
-        $this->mock(TwoFactorAuthenticationProvider::class, function ($mock) {
-            $mock->shouldReceive('verify')->once()->andReturn(false);
-        });
-
-        $this->mock(EmailTwoFactorService::class, function ($mock) {
-            $mock->shouldReceive('verifyCode')->once()->andReturn(true);
-        });
-
-        $user = $this->createUserWithBothTwoFactor();
-
-        $response = $this->postJson($this->mobileTokenEndpoint, [
-            'email' => $user->email,
-            'password' => 'password',
-            'device_name' => 'Test Mobile Device',
-            'two_factor_code' => $this->getValidEmailTwoFactorCode(),
-        ]);
-
-        $response->assertStatus(201);
     }
 
     public function test_mobile_user_can_use_recovery_code_for_token_acquisition(): void
@@ -367,7 +263,6 @@ class MobileAuthenticationTest extends TestCase
             'password' => Hash::make('password'),
             'two_factor_secret' => encrypt('INVALID0TOTP1SECRET'), // Contains invalid Base32 chars
             'two_factor_confirmed_at' => now(),
-            'email_2fa_enabled' => false,
         ]);
 
         $response = $this->postJson($this->mobileTokenEndpoint, [

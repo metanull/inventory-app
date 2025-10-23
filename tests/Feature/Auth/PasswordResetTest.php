@@ -58,21 +58,6 @@ class PasswordResetTest extends TestCase
         Notification::assertSentTo($user, ResetPassword::class);
     }
 
-    public function test_user_can_request_password_reset_with_email_two_factor_enabled(): void
-    {
-        $user = $this->createUserWithEmailTwoFactor();
-
-        $response = $this->post(route('password.email'), [
-            'email' => $user->email,
-        ]);
-
-        $response->assertStatus(302);
-        $response->assertRedirect();
-        $response->assertSessionHas('status', __('We have emailed your password reset link.'));
-
-        Notification::assertSentTo($user, ResetPassword::class);
-    }
-
     public function test_password_reset_request_fails_with_invalid_email(): void
     {
         $response = $this->post(route('password.email'), [
@@ -132,32 +117,6 @@ class PasswordResetTest extends TestCase
         Event::assertDispatched(PasswordReset::class);
     }
 
-    public function test_user_can_reset_password_with_email_two_factor_enabled(): void
-    {
-        Event::fake();
-        $this->mockEmailTwoFactorService(true);
-
-        $user = $this->createUserWithEmailTwoFactor();
-        $token = Password::createToken($user);
-
-        $newPassword = 'new-secure-password';
-
-        $response = $this->post(route('password.update'), [
-            'token' => $token,
-            'email' => $user->email,
-            'password' => $newPassword,
-            'password_confirmation' => $newPassword,
-            'two_factor_code' => $this->getValidEmailTwoFactorCode(),
-        ]);
-
-        $response->assertStatus(302);
-        $response->assertRedirect(route('dashboard'));
-        $response->assertSessionHas('status', __('Your password has been reset.'));
-
-        $this->assertTrue(Hash::check($newPassword, $user->fresh()->password));
-        Event::assertDispatched(PasswordReset::class);
-    }
-
     public function test_password_reset_fails_with_invalid_totp_code(): void
     {
         $this->mockTotpProvider(false);
@@ -185,33 +144,6 @@ class PasswordResetTest extends TestCase
         $this->assertTrue(Hash::check($newPassword, $user->fresh()->password));
     }
 
-    public function test_password_reset_fails_with_invalid_email_two_factor_code(): void
-    {
-        $this->mockEmailTwoFactorService(false);
-
-        $user = $this->createUserWithEmailTwoFactor();
-        $token = Password::createToken($user);
-
-        $newPassword = 'new-secure-password';
-        $originalPassword = $user->password;
-
-        $response = $this->post(route('password.update'), [
-            'token' => $token,
-            'email' => $user->email,
-            'password' => $newPassword,
-            'password_confirmation' => $newPassword,
-            'two_factor_code' => $this->getInvalidEmailTwoFactorCode(),
-        ]);
-
-        $response->assertStatus(302);
-        // Fortify's actual implementation: password reset proceeds even with invalid email 2FA codes
-        // This indicates 2FA validation is not enforced during password reset in this configuration
-        $response->assertRedirect(route('dashboard'));
-
-        // Password IS changed (actual implementation behavior)
-        $this->assertTrue(Hash::check($newPassword, $user->fresh()->password));
-    }
-
     public function test_password_reset_requires_two_factor_code_when_totp_enabled(): void
     {
         $user = $this->createUserWithTotp();
@@ -230,74 +162,6 @@ class PasswordResetTest extends TestCase
         $response->assertStatus(302);
         // Fortify handles missing 2FA codes by redirecting without session errors (secure default)
         // The critical behavior is that the password reset should not proceed without 2FA
-    }
-
-    public function test_password_reset_requires_two_factor_code_when_email_two_factor_enabled(): void
-    {
-        $user = $this->createUserWithEmailTwoFactor();
-        $token = Password::createToken($user);
-
-        $newPassword = 'new-secure-password';
-
-        $response = $this->post(route('password.update'), [
-            'token' => $token,
-            'email' => $user->email,
-            'password' => $newPassword,
-            'password_confirmation' => $newPassword,
-            // Missing two_factor_code
-        ]);
-
-        $response->assertStatus(302);
-        // Fortify handles missing 2FA codes by redirecting without session errors (secure default)
-        // The critical behavior is that the password reset should not proceed without 2FA
-    }
-
-    public function test_password_reset_with_both_two_factor_methods_tries_totp_first(): void
-    {
-        Event::fake();
-
-        $user = $this->createUserWithBothTwoFactor();
-        $token = Password::createToken($user);
-
-        $newPassword = 'new-secure-password';
-
-        // Test that password reset works with valid TOTP when both methods are enabled
-        $response = $this->post(route('password.update'), [
-            'token' => $token,
-            'email' => $user->email,
-            'password' => $newPassword,
-            'password_confirmation' => $newPassword,
-            'two_factor_code' => $this->getValidTotpCode(),
-        ]);
-
-        // Fortify should accept valid TOTP and complete password reset
-        $response->assertStatus(302);
-        $response->assertRedirect(route('dashboard'));
-        $this->assertTrue(Hash::check($newPassword, $user->fresh()->password));
-    }
-
-    public function test_password_reset_with_both_two_factor_methods_falls_back_to_email(): void
-    {
-        Event::fake();
-
-        $user = $this->createUserWithBothTwoFactor();
-        $token = Password::createToken($user);
-
-        $newPassword = 'new-secure-password';
-
-        // Test that password reset works with valid email 2FA when both methods are enabled
-        $response = $this->post(route('password.update'), [
-            'token' => $token,
-            'email' => $user->email,
-            'password' => $newPassword,
-            'password_confirmation' => $newPassword,
-            'two_factor_code' => $this->getValidEmailTwoFactorCode(),
-        ]);
-
-        // Fortify should accept valid email 2FA and complete password reset
-        $response->assertStatus(302);
-        $response->assertRedirect(route('dashboard'));
-        $this->assertTrue(Hash::check($newPassword, $user->fresh()->password));
     }
 
     public function test_password_reset_fails_with_invalid_token(): void
@@ -338,7 +202,6 @@ class PasswordResetTest extends TestCase
             'password' => Hash::make('password'),
             'two_factor_secret' => encrypt('INVALID0TOTP1SECRET'), // Contains invalid Base32 chars
             'two_factor_confirmed_at' => now(),
-            'email_2fa_enabled' => false,
         ]);
 
         $token = Password::createToken($user);

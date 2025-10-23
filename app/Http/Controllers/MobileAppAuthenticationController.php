@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\AcquireTokenMobileAppAuthenticationRequest;
-use App\Http\Requests\Api\RequestEmailCodeMobileAppAuthenticationRequest;
 use App\Http\Requests\Api\TwoFactorStatusMobileAppAuthenticationRequest;
 use App\Http\Requests\Api\VerifyTwoFactorMobileAppAuthenticationRequest;
 use App\Models\User;
@@ -38,7 +37,7 @@ class MobileAppAuthenticationController extends Controller
         }
 
         // Check if user has 2FA enabled
-        if ($user->hasTwoFactorEnabled()) {
+        if ($user->hasEnabledTwoFactorAuthentication()) {
             // If 2FA code or recovery code provided, verify it
             if (! empty($validated['two_factor_code']) || ! empty($validated['recovery_code'])) {
                 $code = $validated['two_factor_code'] ?? $validated['recovery_code'];
@@ -110,57 +109,23 @@ class MobileAppAuthenticationController extends Controller
             ]);
         }
 
-        if (! $user->hasTwoFactorEnabled()) {
+        if (! $user->hasEnabledTwoFactorAuthentication()) {
             throw ValidationException::withMessages([
                 'code' => ['Two-factor authentication is not enabled for this account.'],
             ]);
         }
 
-        $method = $validated['method'] ?? $user->getPrimary2faMethod();
+        // Verify TOTP code
         $verified = false;
-
-        // Verify based on method
-        switch ($method) {
-            case 'totp':
-                if ($user->canUseTotpFor2fa()) {
-                    try {
-                        $decryptedSecret = decrypt($user->two_factor_secret);
-                        $verified = app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $validated['code']);
-                    } catch (\PragmaRX\Google2FA\Exceptions\InvalidCharactersException $e) {
-                        // Invalid TOTP secret in database - treat as invalid code
-                        $verified = false;
-                    } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
-                        // Invalid encrypted secret in database - treat as invalid code
-                        $verified = false;
-                    }
-                }
-                break;
-
-            case 'email':
-                if ($user->canUseEmailFor2fa()) {
-                    $verified = $user->verifyEmailTwoFactorCode($validated['code']);
-                }
-                break;
-
-            default:
-                // Try both methods if no specific method requested
-                if ($user->canUseTotpFor2fa()) {
-                    try {
-                        $decryptedSecret = decrypt($user->two_factor_secret);
-                        $verified = app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $validated['code']);
-                    } catch (\PragmaRX\Google2FA\Exceptions\InvalidCharactersException $e) {
-                        // Invalid TOTP secret in database - treat as invalid code
-                        $verified = false;
-                    } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
-                        // Invalid encrypted secret in database - treat as invalid code
-                        $verified = false;
-                    }
-                }
-
-                if (! $verified && $user->canUseEmailFor2fa()) {
-                    $verified = $user->verifyEmailTwoFactorCode($validated['code']);
-                }
-                break;
+        try {
+            $decryptedSecret = decrypt($user->two_factor_secret);
+            $verified = app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $validated['code']);
+        } catch (\PragmaRX\Google2FA\Exceptions\InvalidCharactersException $e) {
+            // Invalid TOTP secret in database - treat as invalid code
+            $verified = false;
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            // Invalid encrypted secret in database - treat as invalid code
+            $verified = false;
         }
 
         if (! $verified) {
@@ -182,7 +147,7 @@ class MobileAppAuthenticationController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'two_factor_enabled' => true,
-                    'two_factor_method' => $method,
+                    'two_factor_method' => 'totp',
                 ],
             ]))->toArray(request()),
             201
@@ -190,43 +155,7 @@ class MobileAppAuthenticationController extends Controller
     }
 
     /**
-     * Request an email 2FA code for mobile authentication.
-     *
-     * @unauthenticated
-     */
-    public function request_email_code(RequestEmailCodeMobileAppAuthenticationRequest $request)
-    {
-        $validated = $request->validated();
-
-        $user = User::where('email', $validated['email'])->first();
-        if (! $user || ! Hash::check($validated['password'], $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
-        }
-
-        if (! $user->canUseEmailFor2fa()) {
-            throw ValidationException::withMessages([
-                'email' => ['Email two-factor authentication is not available for this account.'],
-            ]);
-        }
-
-        try {
-            $user->generateEmailTwoFactorCode();
-
-            return new \App\Http\Resources\EmailCodeRequestResource([
-                'message' => 'Email verification code sent successfully.',
-                'expires_in' => config('auth.email_2fa.expiry_minutes', 5) * 60, // in seconds
-            ]);
-        } catch (\Exception $e) {
-            throw ValidationException::withMessages([
-                'email' => [$e->getMessage()],
-            ]);
-        }
-    }
-
-    /**
-     * Get user's 2FA status and available methods.
+     * Get user's 2FA status.
      *
      * @unauthenticated
      */
@@ -241,11 +170,13 @@ class MobileAppAuthenticationController extends Controller
             ]);
         }
 
+        $has2FA = $user->hasEnabledTwoFactorAuthentication();
+
         return new \App\Http\Resources\TwoFactorStatusResource([
-            'two_factor_enabled' => $user->hasTwoFactorEnabled(),
-            'available_methods' => $user->getAvailable2faMethods(),
-            'primary_method' => $user->getPrimary2faMethod(),
-            'requires_two_factor' => $user->needs2faVerification(),
+            'two_factor_enabled' => $has2FA,
+            'available_methods' => $has2FA ? ['totp'] : [],
+            'primary_method' => $has2FA ? 'totp' : null,
+            'requires_two_factor' => $has2FA,
         ]);
     }
 
@@ -254,14 +185,11 @@ class MobileAppAuthenticationController extends Controller
      */
     protected function requireTwoFactorAuthentication(User $user)
     {
-        $availableMethods = $user->getAvailable2faMethods();
-        $primaryMethod = $user->getPrimary2faMethod();
-
         return response()->json(
             (new \App\Http\Resources\TwoFactorChallengeResource([
                 'requires_two_factor' => true,
-                'available_methods' => $availableMethods,
-                'primary_method' => $primaryMethod,
+                'available_methods' => ['totp'],
+                'primary_method' => 'totp',
                 'message' => 'Two-factor authentication required. Please provide a verification code.',
             ]))->toArray(request()),
             202
@@ -293,23 +221,16 @@ class MobileAppAuthenticationController extends Controller
             return $user->validateAndConsumeRecoveryCode($code);
         }
 
-        // Try TOTP first if enabled
-        if ($user->canUseTotpFor2fa()) {
-            try {
-                $decryptedSecret = decrypt($user->two_factor_secret);
-                if (app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $code)) {
-                    return true;
-                }
-            } catch (\PragmaRX\Google2FA\Exceptions\InvalidCharactersException $e) {
-                // Invalid TOTP secret in database - treat as invalid
-            } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
-                // Invalid encrypted secret in database - treat as invalid
+        // Verify TOTP
+        try {
+            $decryptedSecret = decrypt($user->two_factor_secret);
+            if (app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $code)) {
+                return true;
             }
-        }
-
-        // Try email 2FA if TOTP failed and email 2FA is enabled
-        if ($user->canUseEmailFor2fa()) {
-            return $user->verifyEmailTwoFactorCode($code);
+        } catch (\PragmaRX\Google2FA\Exceptions\InvalidCharactersException $e) {
+            // Invalid TOTP secret in database - treat as invalid
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            // Invalid encrypted secret in database - treat as invalid
         }
 
         return false;

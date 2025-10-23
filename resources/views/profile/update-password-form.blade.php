@@ -26,13 +26,13 @@
             <x-input-error for="password_confirmation" class="mt-2" />
         </div>
 
-        @if(auth()->user()->hasAnyTwoFactorEnabled())
+        @if(auth()->user()->hasEnabledTwoFactorAuthentication())
             <div class="col-span-6 sm:col-span-4">
                 <x-label for="two_factor_code" value="{{ __('Two-Factor Authentication Code') }}" />
                 <x-input id="two_factor_code" type="text" class="mt-1 block w-full" wire:model="state.two_factor_code" autocomplete="off" />
                 <x-input-error for="two_factor_code" class="mt-2" />
                 <div class="mt-2 text-sm text-gray-600">
-                    {{ __('Enter your authenticator app code or email verification code to confirm the password change.') }}
+                    {{ __('Enter your authenticator app code to confirm the password change.') }}
                 </div>
             </div>
         @endif

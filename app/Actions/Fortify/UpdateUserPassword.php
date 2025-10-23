@@ -3,7 +3,6 @@
 namespace App\Actions\Fortify;
 
 use App\Models\User;
-use App\Services\EmailTwoFactorService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -30,8 +29,8 @@ class UpdateUserPassword implements UpdatesUserPasswords
             'current_password.current_password' => __('The provided password does not match your current password.'),
         ];
 
-        // If user has any form of 2FA enabled, require 2FA verification
-        if ($user->hasAnyTwoFactorEnabled()) {
+        // If user has TOTP 2FA enabled, require 2FA verification
+        if ($user->hasEnabledTwoFactorAuthentication()) {
             $rules['two_factor_code'] = ['required', 'string'];
             $messages['two_factor_code.required'] = __('Two-factor authentication code is required when changing password.');
         }
@@ -39,7 +38,7 @@ class UpdateUserPassword implements UpdatesUserPasswords
         Validator::make($input, $rules, $messages)->validateWithBag('updatePassword');
 
         // Verify 2FA if enabled
-        if ($user->hasAnyTwoFactorEnabled()) {
+        if ($user->hasEnabledTwoFactorAuthentication()) {
             $this->verifyTwoFactorCode($user, $input['two_factor_code']);
         }
 
@@ -55,25 +54,17 @@ class UpdateUserPassword implements UpdatesUserPasswords
     {
         $isValid = false;
 
-        // Try TOTP first if enabled
-        if ($user->hasEnabledTwoFactorAuthentication()) {
-            try {
-                $totpProvider = app(TwoFactorAuthenticationProvider::class);
-                $decryptedSecret = decrypt($user->two_factor_secret);
-                $isValid = $totpProvider->verify($decryptedSecret, $code);
-            } catch (\PragmaRX\Google2FA\Exceptions\InvalidCharactersException $e) {
-                // Invalid TOTP secret in database - treat as invalid code
-                $isValid = false;
-            } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
-                // Invalid encrypted secret in database - treat as invalid code
-                $isValid = false;
-            }
-        }
-
-        // Try email 2FA if TOTP failed and email 2FA is enabled
-        if (! $isValid && $user->email_2fa_enabled) {
-            $emailTwoFactorService = app(EmailTwoFactorService::class);
-            $isValid = $emailTwoFactorService->verifyCode($user, $code);
+        // Verify TOTP
+        try {
+            $totpProvider = app(TwoFactorAuthenticationProvider::class);
+            $decryptedSecret = decrypt($user->two_factor_secret);
+            $isValid = $totpProvider->verify($decryptedSecret, $code);
+        } catch (\PragmaRX\Google2FA\Exceptions\InvalidCharactersException $e) {
+            // Invalid TOTP secret in database - treat as invalid code
+            $isValid = false;
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            // Invalid encrypted secret in database - treat as invalid code
+            $isValid = false;
         }
 
         if (! $isValid) {

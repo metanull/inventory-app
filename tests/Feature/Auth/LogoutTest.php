@@ -41,34 +41,6 @@ class LogoutTest extends TestCase
         Event::assertDispatched(Logout::class);
     }
 
-    public function test_user_can_logout_with_email_two_factor_enabled(): void
-    {
-        Event::fake();
-        $user = $this->createUserWithEmailTwoFactor();
-        $this->actingAs($user);
-
-        $response = $this->post(route('logout'));
-
-        $response->assertStatus(302);
-        $response->assertRedirect(route('root'));
-        $this->assertGuest();
-        Event::assertDispatched(Logout::class);
-    }
-
-    public function test_user_can_logout_with_both_two_factor_methods_enabled(): void
-    {
-        Event::fake();
-        $user = $this->createUserWithBothTwoFactor();
-        $this->actingAs($user);
-
-        $response = $this->post(route('logout'));
-
-        $response->assertStatus(302);
-        $response->assertRedirect(route('root'));
-        $this->assertGuest();
-        Event::assertDispatched(Logout::class);
-    }
-
     public function test_guest_cannot_logout(): void
     {
         $response = $this->post(route('logout'));

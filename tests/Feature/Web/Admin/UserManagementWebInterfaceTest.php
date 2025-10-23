@@ -47,9 +47,10 @@ class UserManagementWebInterfaceTest extends TestCase
         $admin->assignRole('Manager of Users');
 
         $targetUser = User::factory()->create();
-        // Enable MFA for the target user so they can receive sensitive roles
+        // Enable TOTP for the target user so they can receive sensitive roles
         $targetUser->forceFill([
-            'email_2fa_enabled' => true,
+            'two_factor_secret' => encrypt('test-secret'),
+            'two_factor_confirmed_at' => now(),
         ])->save();
 
         $regularUserRole = Role::where('name', 'Regular User')->first();
