@@ -428,9 +428,11 @@ class RegistrationTest extends TestCase
         $getResponse->assertRedirect(route('login'));
 
         // Attempt to submit registration form
+        // ValidationException redirects back to the form with errors
         $postResponse = $this->post(route('register.store'), $userData);
         $postResponse->assertStatus(302);
-        $postResponse->assertRedirect(route('login'));
+        $postResponse->assertRedirect(route('register'));
+        $postResponse->assertSessionHasErrors(['registration']);
 
         // Verify user was NOT created
         $this->assertNull(User::where('email', 'blocked@example.com')->first());
