@@ -1,86 +1,82 @@
-<div>
-    <x-ui.table.search-and-pagination 
-        entity="tags"
-        wire:model.live.debounce.300ms="q"
-        :per-page="$perPage"
-        :paginator="$tags"
-    />
+<div class="space-y-4">
+    <div class="flex items-center gap-3">
+        <div class="relative">
+            <input wire:model.live.debounce.300ms="q" type="text" placeholder="Search tags..." class="w-64 rounded-md border-gray-300 {{ $c['focus'] ?? '' }}" />
+        </div>
+        @if($q)
+            <button wire:click="$set('q','')" type="button" class="text-sm text-gray-600 hover:underline">Clear</button>
+        @endif
+    </div>
 
-    <div class="overflow-x-auto">
+    <div class="bg-white shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
-            <x-ui.table.header entity="tags">
-                <x-ui.table.th 
-                    field="internal_name" 
-                    :current-sort="$sortBy" 
-                    :direction="$sortDirection"
-                    wire:click="sortBy('internal_name')"
-                >
-                    Internal Name
-                </x-ui.table.th>
-                <x-ui.table.th 
-                    field="description" 
-                    :current-sort="$sortBy" 
-                    :direction="$sortDirection"
-                    wire:click="sortBy('description')"
-                >
-                    Description
-                </x-ui.table.th>
-                <x-ui.table.th 
-                    field="backward_compatibility" 
-                    :current-sort="$sortBy" 
-                    :direction="$sortDirection"
-                    wire:click="sortBy('backward_compatibility')"
-                >
-                    Legacy ID
-                </x-ui.table.th>
-                <x-ui.table.th 
-                    field="created_at" 
-                    :current-sort="$sortBy" 
-                    :direction="$sortDirection"
-                    wire:click="sortBy('created_at')"
-                >
-                    Created
-                </x-ui.table.th>
-                <x-ui.table.th 
-                    field="updated_at" 
-                    :current-sort="$sortBy" 
-                    :direction="$sortDirection"
-                    wire:click="sortBy('updated_at')"
-                >
-                    Updated
-                </x-ui.table.th>
-            </x-ui.table.header>
+            <thead class="bg-gray-50">
+                <tr>
+                    <x-table.sortable-header field="internal_name" label="Internal Name" :sort-by="$sortBy" :sort-direction="$sortDirection" />
+                    <th class="hidden md:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Description
+                    </th>
+                    <th class="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Legacy ID
+                    </th>
+                    <th class="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <button wire:click="sortBy('created_at')" 
+                                class="group flex items-center space-x-1 hover:text-gray-700 transition-colors duration-200">
+                            <span>Created</span>
+                            <span class="flex flex-col">
+                                @if($sortBy === 'created_at')
+                                    @if($sortDirection === 'asc')
+                                        <x-heroicon-s-chevron-up class="w-3 h-3 text-gray-600" />
+                                    @else
+                                        <x-heroicon-s-chevron-down class="w-3 h-3 text-gray-600" />
+                                    @endif
+                                @else
+                                    <x-heroicon-s-chevron-up class="w-3 h-3 text-gray-300 group-hover:text-gray-400" />
+                                @endif
+                            </span>
+                        </button>
+                    </th>
+                    <th class="hidden sm:table-cell px-4 py-3">
+                        <span class="sr-only">Actions</span>
+                    </th>
+                </tr>
+            </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($tags as $tag)
-                    <tr class="hover:bg-gray-50">
-                        <x-ui.table.td>
-                            <a href="{{ route('tags.show', $tag) }}" class="font-medium {{ $c['link'] ?? 'text-indigo-600 hover:text-indigo-900' }}">
-                                {{ $tag->internal_name }}
-                            </a>
-                        </x-ui.table.td>
-                        <x-ui.table.td>
-                            {{ Str::limit($tag->description, 100) }}
-                        </x-ui.table.td>
-                        <x-ui.table.td>
-                            {{ $tag->backward_compatibility }}
-                        </x-ui.table.td>
-                        <x-ui.table.td>
-                            {{ $tag->created_at->format('Y-m-d H:i') }}
-                        </x-ui.table.td>
-                        <x-ui.table.td>
-                            {{ $tag->updated_at->format('Y-m-d H:i') }}
-                        </x-ui.table.td>
+                    <tr class="hover:bg-gray-50 cursor-pointer" wire:key="tag-{{ $tag->id }}" onclick="window.location='{{ route('tags.show', $tag) }}'">
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $tag->internal_name }}</td>
+                        <td class="hidden md:table-cell px-4 py-3 text-sm text-gray-500">{{ Str::limit($tag->description, 100) }}</td>
+                        <td class="hidden lg:table-cell px-4 py-3 text-sm text-gray-500">{{ $tag->backward_compatibility ?? '—' }}</td>
+                        <td class="hidden lg:table-cell px-4 py-3 text-xs text-gray-400">{{ optional($tag->created_at)->format('Y-m-d H:i') }}</td>
+                        <td class="hidden sm:table-cell px-4 py-3 text-right text-sm" onclick="event.stopPropagation()">
+                            <x-table.row-actions
+                                :view="route('tags.show', $tag)"
+                                :edit="route('tags.edit', $tag)"
+                                :delete="route('tags.destroy', $tag)"
+                                delete-confirm="Delete this tag?"
+                                entity="tag"
+                                :record-id="$tag->id"
+                                :record-name="$tag->internal_name"
+                            />
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
-                            No tags found
-                        </td>
+                        <td colspan="5" class="px-4 py-8 text-center text-sm text-gray-500">No tags found.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 
-    <x-ui.table.pagination :paginator="$tags" />
+    <div>
+        <x-layout.pagination 
+            :paginator="$tags" 
+            entity="tag"
+            param-page="page"
+        />
+    </div>
+    
+    <!-- Delete confirmation modal -->
+    <x-table.delete-modal />
 </div>

@@ -10,12 +10,12 @@
     </x-form.field>
 
     <x-form.field label="Description" name="description" variant="gray" required>
-        <x-form.textarea 
+        <textarea 
             name="description" 
-            :value="old('description', $tag->description ?? '')" 
             rows="4"
             required 
-        />
+            class="block w-full px-3 py-2 rounded-md shadow-sm sm:text-sm border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+        >{{ old('description', $tag->description ?? '') }}</textarea>
     </x-form.field>
 
     <x-form.field label="Legacy ID" name="backward_compatibility">
@@ -28,6 +28,6 @@
 </div>
 
 <x-form.actions 
+    entity="tag" 
     :cancel-route="$tag ? route('tags.show', $tag) : route('tags.index')"
-    entity="tags"
 />
