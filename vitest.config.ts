@@ -21,11 +21,17 @@ export default defineConfig({
     // Tests in integration/ and resource_integration/ folders use mocks and can run in CI
     exclude: [
       '**/node_modules/**',
+      'node_modules/**',
       '**/dist/**',
       '**/vendor/**',
+      'vendor/**',
       '**/storage/**',
       '**/bootstrap/cache/**',
       '**/*.integration.test.ts', // Only exclude real API integration tests
+    ],
+    // Explicitly include only our test files
+    include: [
+      'resources/js/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
     ],
     coverage: {
       provider: 'v8',

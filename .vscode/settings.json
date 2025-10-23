@@ -28,5 +28,12 @@
     },
     "css.validate": false,
     "less.validate": false,
-    "scss.validate": false
+    "scss.validate": false,
+    "vitest.exclude": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/vendor/**",
+        "**/storage/**",
+        "**/bootstrap/cache/**"
+    ]
 }
