@@ -33,27 +33,6 @@
       </div>
     </div>
 
-    <!-- Email Code Request (for email method) -->
-    <div v-if="isEmailMethod && !emailCodeSent" class="text-center">
-      <button
-        type="button"
-        :disabled="loading"
-        :class="[
-          'px-4 py-2 rounded-md text-sm font-medium',
-          getThemeClass('primaryButton'),
-          { 'opacity-50 cursor-not-allowed': loading },
-        ]"
-        @click="sendEmailCode"
-      >
-        <span v-if="loading">Sending...</span>
-        <span v-else>Send Email Code</span>
-      </button>
-    </div>
-
-    <div v-if="emailCodeSent" :class="['text-sm text-center', getThemeClass('messageInfo')]">
-      Verification code sent to your email. Code expires in {{ emailCodeExpiry }} minutes.
-    </div>
-
     <!-- Code Input -->
     <div v-if="showCodeInput" class="space-y-4">
       <div>
@@ -138,15 +117,9 @@
   const code = ref('')
   const loading = ref(false)
   const error = ref<string | null>(null)
-  const emailCodeSent = ref(false)
-  const emailCodeExpiry = ref(5) // minutes
 
   const availableMethods = computed(() => props.challenge.available_methods)
-  const isEmailMethod = computed(() => selectedMethod.value === 'email')
   const showCodeInput = computed(() => {
-    if (selectedMethod.value === 'email') {
-      return emailCodeSent.value
-    }
     return selectedMethod.value === 'totp'
   })
 
@@ -171,15 +144,12 @@
     selectedMethod.value = method
     code.value = ''
     error.value = null
-    emailCodeSent.value = false
   }
 
   const getMethodLabel = (method: string): string => {
     switch (method) {
       case 'totp':
         return 'Authenticator App'
-      case 'email':
-        return 'Email Code'
       default:
         return method
     }
@@ -188,8 +158,6 @@
   const getCodePlaceholder = (method: string): string => {
     switch (method) {
       case 'totp':
-        return '000000'
-      case 'email':
         return '000000'
       default:
         return 'Enter code'
@@ -200,8 +168,6 @@
     switch (method) {
       case 'totp':
         return 'Enter the 6-digit code from your authenticator app'
-      case 'email':
-        return 'Enter the 6-digit code sent to your email address'
       default:
         return ''
     }
@@ -212,23 +178,6 @@
     // Remove non-digits and limit length
     let value = input.value.replace(/\D/g, '').slice(0, codeMaxLength.value)
     code.value = value
-  }
-
-  const sendEmailCode = async () => {
-    if (selectedMethod.value !== 'email') return
-
-    loading.value = true
-    error.value = null
-
-    try {
-      const result = await authStore.requestEmailCode()
-      emailCodeSent.value = true
-      emailCodeExpiry.value = Math.ceil(parseInt(result.expires_in) / 60) // Convert seconds to minutes
-    } catch (err) {
-      error.value = (err as Error).message
-    } finally {
-      loading.value = false
-    }
   }
 
   const verifyCode = async () => {
