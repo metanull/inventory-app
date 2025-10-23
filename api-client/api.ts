@@ -190,18 +190,22 @@ export interface ArtistResource {
 export interface AttachFromAvailableCollectionImageRequest {
     'available_image_id': string;
     'alt_text'?: string | null;
+    'include'?: string;
 }
 export interface AttachFromAvailableItemImageRequest {
     'available_image_id': string;
     'alt_text'?: string | null;
+    'include'?: string;
 }
 export interface AttachGlossarySynonymRequest {
     'synonym_id': string;
 }
 export interface AttachItemCollectionRequest {
     'item_id': string;
+    'include'?: string;
 }
 export interface AttachItemsCollectionRequest {
+    'include'?: string;
     'item_ids': Array<string>;
 }
 export interface AttachTagItemRequest {
@@ -268,9 +272,6 @@ export interface AvailableImageResource {
 export interface AvailableImageShow200Response {
     'data': AvailableImageResource;
 }
-export interface CollectionAttachItem200Response {
-    'data': OperationSuccessResource;
-}
 export interface CollectionByType200Response {
     'data': Array<CollectionResource>;
 }
@@ -319,6 +320,9 @@ export interface CollectionImageResource {
      * The date of last modification of the resource (managed by the system)
      */
     'updated_at': string | null;
+}
+export interface CollectionImageTightenOrdering200Response {
+    'data': OperationSuccessResource;
 }
 export interface CollectionImagesIndex200Response {
     'data': Array<CollectionImageResource>;
@@ -3843,10 +3847,11 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItem: async (collection: string, itemId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionDetachItem: async (collection: string, itemId: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'collection' is not null or undefined
             assertParamExists('collectionDetachItem', 'collection', collection)
             // verify required parameter 'itemId' is not null or undefined
@@ -3872,6 +3877,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
                 localVarQueryParameter['item_id'] = itemId;
             }
 
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -3888,10 +3897,11 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItems: async (collection: string, itemIds: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionDetachItems: async (collection: string, itemIds: Array<string>, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'collection' is not null or undefined
             assertParamExists('collectionDetachItems', 'collection', collection)
             // verify required parameter 'itemIds' is not null or undefined
@@ -3915,6 +3925,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
 
             if (itemIds) {
                 localVarQueryParameter['item_ids[]'] = itemIds;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
             }
 
 
@@ -4161,7 +4175,7 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionAttachItem(collection: string, attachItemCollectionRequest: AttachItemCollectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async collectionAttachItem(collection: string, attachItemCollectionRequest: AttachItemCollectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.collectionAttachItem(collection, attachItemCollectionRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionAttachItem']?.[localVarOperationServerIndex]?.url;
@@ -4175,7 +4189,7 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionAttachItems(collection: string, attachItemsCollectionRequest: AttachItemsCollectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async collectionAttachItems(collection: string, attachItemsCollectionRequest: AttachItemsCollectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.collectionAttachItems(collection, attachItemsCollectionRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionAttachItems']?.[localVarOperationServerIndex]?.url;
@@ -4213,11 +4227,12 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItem(collection, itemId, options);
+        async collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItem(collection, itemId, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionDetachItem']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4227,11 +4242,12 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItems(collection, itemIds, options);
+        async collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItems(collection, itemIds, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionDetachItems']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4323,7 +4339,7 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionAttachItem(collection: string, attachItemCollectionRequest: AttachItemCollectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        collectionAttachItem(collection: string, attachItemCollectionRequest: AttachItemCollectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
             return localVarFp.collectionAttachItem(collection, attachItemCollectionRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -4334,7 +4350,7 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionAttachItems(collection: string, attachItemsCollectionRequest: AttachItemsCollectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        collectionAttachItems(collection: string, attachItemsCollectionRequest: AttachItemsCollectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
             return localVarFp.collectionAttachItems(collection, attachItemsCollectionRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -4363,22 +4379,24 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
-            return localVarFp.collectionDetachItem(collection, itemId, options).then((request) => request(axios, basePath));
+        collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
+            return localVarFp.collectionDetachItem(collection, itemId, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
-            return localVarFp.collectionDetachItems(collection, itemIds, options).then((request) => request(axios, basePath));
+        collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
+            return localVarFp.collectionDetachItems(collection, itemIds, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4494,11 +4512,12 @@ export class CollectionApi extends BaseAPI {
      * @summary Detach an item from a collection
      * @param {string} collection The collection ID
      * @param {string} itemId 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionDetachItem(collection, itemId, options).then((request) => request(this.axios, this.basePath));
+    public collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionDetachItem(collection, itemId, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4506,11 +4525,12 @@ export class CollectionApi extends BaseAPI {
      * @summary Detach multiple items from a collection
      * @param {string} collection The collection ID
      * @param {Array<string>} itemIds 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionDetachItems(collection, itemIds, options).then((request) => request(this.axios, this.basePath));
+    public collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionDetachItems(collection, itemIds, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -5154,7 +5174,7 @@ export const CollectionImageApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImageTightenOrdering200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageDetach(collectionImage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageDetach']?.[localVarOperationServerIndex]?.url;
@@ -5220,7 +5240,7 @@ export const CollectionImageApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImageTightenOrdering200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageTightenOrdering(collectionImage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageTightenOrdering']?.[localVarOperationServerIndex]?.url;
@@ -5332,7 +5352,7 @@ export const CollectionImageApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImageTightenOrdering200Response> {
             return localVarFp.collectionImageDetach(collectionImage, options).then((request) => request(axios, basePath));
         },
         /**
@@ -5383,7 +5403,7 @@ export const CollectionImageApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImageTightenOrdering200Response> {
             return localVarFp.collectionImageTightenOrdering(collectionImage, options).then((request) => request(axios, basePath));
         },
         /**
@@ -13148,7 +13168,7 @@ export const ItemImageApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImageTightenOrdering200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.itemImageDetach(itemImage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImageDetach']?.[localVarOperationServerIndex]?.url;
@@ -13214,7 +13234,7 @@ export const ItemImageApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImageTightenOrdering200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.itemImageTightenOrdering(itemImage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImageTightenOrdering']?.[localVarOperationServerIndex]?.url;
@@ -13326,7 +13346,7 @@ export const ItemImageApiFactory = function (configuration?: Configuration, base
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImageTightenOrdering200Response> {
             return localVarFp.itemImageDetach(itemImage, options).then((request) => request(axios, basePath));
         },
         /**
@@ -13377,7 +13397,7 @@ export const ItemImageApiFactory = function (configuration?: Configuration, base
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImageTightenOrdering200Response> {
             return localVarFp.itemImageTightenOrdering(itemImage, options).then((request) => request(axios, basePath));
         },
         /**

@@ -31,10 +31,10 @@ docs/AvailableImageIndex200Response.md
 docs/AvailableImageResource.md
 docs/AvailableImageShow200Response.md
 docs/CollectionApi.md
-docs/CollectionAttachItem200Response.md
 docs/CollectionByType200Response.md
 docs/CollectionImageApi.md
 docs/CollectionImageResource.md
+docs/CollectionImageTightenOrdering200Response.md
 docs/CollectionImagesIndex200Response.md
 docs/CollectionImagesStore200Response.md
 docs/CollectionIndex200Response.md

@@ -71,4 +71,60 @@ class AnonymousTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    /**
+     * Test that anonymous users cannot attach item to collection.
+     */
+    public function test_anonymous_cannot_attach_item(): void
+    {
+        $collection = Collection::factory()->create();
+
+        $response = $this->postJson(route('collection.attachItem', $collection), [
+            'item_id' => 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    /**
+     * Test that anonymous users cannot attach items to collection.
+     */
+    public function test_anonymous_cannot_attach_items(): void
+    {
+        $collection = Collection::factory()->create();
+
+        $response = $this->postJson(route('collection.attachItems', $collection), [
+            'item_ids' => ['f47ac10b-58cc-4372-a567-0e02b2c3d479'],
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    /**
+     * Test that anonymous users cannot detach item from collection.
+     */
+    public function test_anonymous_cannot_detach_item(): void
+    {
+        $collection = Collection::factory()->create();
+
+        $response = $this->deleteJson(route('collection.detachItem', $collection), [
+            'item_id' => 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    /**
+     * Test that anonymous users cannot detach items from collection.
+     */
+    public function test_anonymous_cannot_detach_items(): void
+    {
+        $collection = Collection::factory()->create();
+
+        $response = $this->deleteJson(route('collection.detachItems', $collection), [
+            'item_ids' => ['f47ac10b-58cc-4372-a567-0e02b2c3d479'],
+        ]);
+
+        $response->assertStatus(401);
+    }
 }

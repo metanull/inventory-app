@@ -1711,14 +1711,14 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "`OperationSuccessResource`",
+                        "description": "`CollectionResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/components/schemas/OperationSuccessResource"
+                                            "$ref": "#/components/schemas/CollectionResource"
                                         }
                                     },
                                     "required": [
@@ -1774,14 +1774,14 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "`OperationSuccessResource`",
+                        "description": "`CollectionResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/components/schemas/OperationSuccessResource"
+                                            "$ref": "#/components/schemas/CollectionResource"
                                         }
                                     },
                                     "required": [
@@ -1832,18 +1832,25 @@
                             "type": "string",
                             "format": "uuid"
                         }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "`OperationSuccessResource`",
+                        "description": "`CollectionResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/components/schemas/OperationSuccessResource"
+                                            "$ref": "#/components/schemas/CollectionResource"
                                         }
                                     },
                                     "required": [
@@ -1897,18 +1904,25 @@
                                 "format": "uuid"
                             }
                         }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "`OperationSuccessResource`",
+                        "description": "`CollectionResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/components/schemas/OperationSuccessResource"
+                                            "$ref": "#/components/schemas/CollectionResource"
                                         }
                                     },
                                     "required": [
@@ -13939,6 +13953,9 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "include": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -13958,6 +13975,9 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "include": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -13984,6 +14004,9 @@
                     "item_id": {
                         "type": "string",
                         "format": "uuid"
+                    },
+                    "include": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -13994,6 +14017,9 @@
             "AttachItemsCollectionRequest": {
                 "type": "object",
                 "properties": {
+                    "include": {
+                        "type": "string"
+                    },
                     "item_ids": {
                         "type": "array",
                         "items": {
