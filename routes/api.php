@@ -162,6 +162,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('context', [ContextController::class, 'store'])->name('context.store');
         Route::post('language', [LanguageController::class, 'store'])->name('language.store');
         Route::post('glossary', [GlossaryController::class, 'store'])->name('glossary.store');
+        Route::post('glossary/{glossary}/attach-synonym', [GlossaryController::class, 'attachSynonym'])->name('glossary.attachSynonym');
         Route::post('glossary-translation', [GlossaryTranslationController::class, 'store'])->name('glossary-translation.store');
         Route::post('glossary-spelling', [GlossarySpellingController::class, 'store'])->name('glossary-spelling.store');
         Route::post('country', [CountryController::class, 'store'])->name('country.store');
@@ -170,6 +171,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('item', [ItemController::class, 'store'])->name('item.store');
         Route::post('item/{item}/images', [ItemImageController::class, 'store'])->name('item.images.store');
         Route::post('item/{item}/attach-image', [ItemImageController::class, 'attachFromAvailable'])->name('item.attachImage');
+        Route::post('item/{item}/attach-tag', [ItemController::class, 'attachTag'])->name('item.attachTag');
+        Route::post('item/{item}/attach-tags', [ItemController::class, 'attachTags'])->name('item.attachTags');
         Route::post('project', [ProjectController::class, 'store'])->name('project.store');
         Route::post('image-upload', [ImageUploadController::class, 'store'])->name('image-upload.store');
         Route::post('contact', [ContactController::class, 'store'])->name('contact.store');
@@ -205,8 +208,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::patch('glossary/{glossary}', [GlossaryController::class, 'update'])->name('glossary.update');
         Route::put('glossary/{glossary}', [GlossaryController::class, 'update']);
-        Route::post('glossary/{glossary}/attach-synonym', [GlossaryController::class, 'attachSynonym'])->name('glossary.attachSynonym');
-        Route::delete('glossary/{glossary}/detach-synonym', [GlossaryController::class, 'detachSynonym'])->name('glossary.detachSynonym');
 
         Route::patch('glossary-translation/{glossaryTranslation}', [GlossaryTranslationController::class, 'update'])->name('glossary-translation.update');
         Route::put('glossary-translation/{glossaryTranslation}', [GlossaryTranslationController::class, 'update']);
@@ -289,12 +290,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('context/{context}', [ContextController::class, 'destroy'])->name('context.destroy');
         Route::delete('language/{language}', [LanguageController::class, 'destroy'])->name('language.destroy');
         Route::delete('glossary/{glossary}', [GlossaryController::class, 'destroy'])->name('glossary.destroy');
+        Route::delete('glossary/{glossary}/detach-synonym', [GlossaryController::class, 'detachSynonym'])->name('glossary.detachSynonym');
         Route::delete('glossary-translation/{glossaryTranslation}', [GlossaryTranslationController::class, 'destroy'])->name('glossary-translation.destroy');
         Route::delete('glossary-spelling/{glossarySpelling}', [GlossarySpellingController::class, 'destroy'])->name('glossary-spelling.destroy');
         Route::delete('country/{country}', [CountryController::class, 'destroy'])->name('country.destroy');
         Route::delete('tag/{tag}', [TagController::class, 'destroy'])->name('tag.destroy');
         Route::delete('partner/{partner}', [PartnerController::class, 'destroy'])->name('partner.destroy');
         Route::delete('item/{item}', [ItemController::class, 'destroy'])->name('item.destroy');
+        Route::delete('item/{item}/detach-tag', [ItemController::class, 'detachTag'])->name('item.detachTag');
+        Route::delete('item/{item}/detach-tags', [ItemController::class, 'detachTags'])->name('item.detachTags');
         Route::delete('item-image/{itemImage}', [ItemImageController::class, 'destroy'])->name('item-image.destroy');
         Route::post('item-image/{itemImage}/detach', [ItemImageController::class, 'detachToAvailable'])->name('item-image.detach');
         Route::delete('collection-image/{collectionImage}', [CollectionImageController::class, 'destroy'])->name('collection-image.destroy');

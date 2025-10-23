@@ -54,13 +54,44 @@ class AnonymousTest extends TestCase
     }
 
     /**
-     * Authentication: destroy rejects anonymous users.
+     * Test that anonymous users cannot delete glossaries.
      */
-    public function test_destroy_rejects_anonymous_users()
+    public function test_anonymous_cannot_delete_glossary(): void
     {
         $glossary = Glossary::factory()->create();
 
         $response = $this->deleteJson(route('glossary.destroy', $glossary));
-        $response->assertUnauthorized();
+
+        $response->assertStatus(401);
+    }
+
+    /**
+     * Test that anonymous users cannot attach synonyms.
+     */
+    public function test_anonymous_cannot_attach_synonym(): void
+    {
+        $glossary = Glossary::factory()->create();
+        $synonym = Glossary::factory()->create();
+
+        $response = $this->postJson(route('glossary.attachSynonym', $glossary), [
+            'synonym_id' => $synonym->id,
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    /**
+     * Test that anonymous users cannot detach synonyms.
+     */
+    public function test_anonymous_cannot_detach_synonym(): void
+    {
+        $glossary = Glossary::factory()->create();
+        $synonym = Glossary::factory()->create();
+
+        $response = $this->deleteJson(route('glossary.detachSynonym', $glossary), [
+            'synonym_id' => $synonym->id,
+        ]);
+
+        $response->assertStatus(401);
     }
 }

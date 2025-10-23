@@ -6,6 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **item_id** | **string** |  | [default to undefined]
+**include** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -14,6 +15,7 @@ import { AttachItemCollectionRequest } from './api';
 
 const instance: AttachItemCollectionRequest = {
     item_id,
+    include,
 };
 ```
 

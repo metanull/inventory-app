@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AttachFromAvailableCollectionImageRequest extends FormRequest
@@ -24,6 +26,17 @@ class AttachFromAvailableCollectionImageRequest extends FormRequest
         return [
             'available_image_id' => ['required', 'uuid', 'exists:available_images,id'],
             'alt_text' => ['nullable', 'string'],
+            'include' => ['sometimes', 'string'],
         ];
+    }
+
+    /**
+     * Get validated include parameters.
+     *
+     * @return array<int, string>
+     */
+    public function getIncludeParams(): array
+    {
+        return IncludeParser::fromRequest($this, AllowList::for('collectionImage'));
     }
 }

@@ -124,6 +124,11 @@ class CollectionImageController extends Controller
         $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
         $collectionImage = CollectionImage::attachFromAvailableImage($availableImage, $collection->id, $validated['alt_text'] ?? null);
 
+        $includes = $request->getIncludeParams();
+        if (! empty($includes)) {
+            $collectionImage->load($includes);
+        }
+
         return new CollectionImageResource($collectionImage);
     }
 

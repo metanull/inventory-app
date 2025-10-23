@@ -190,19 +190,31 @@ export interface ArtistResource {
 export interface AttachFromAvailableCollectionImageRequest {
     'available_image_id': string;
     'alt_text'?: string | null;
+    'include'?: string;
 }
 export interface AttachFromAvailableItemImageRequest {
     'available_image_id': string;
     'alt_text'?: string | null;
+    'include'?: string;
 }
 export interface AttachGlossarySynonymRequest {
     'synonym_id': string;
 }
 export interface AttachItemCollectionRequest {
     'item_id': string;
+    'include'?: string;
 }
 export interface AttachItemsCollectionRequest {
+    'include'?: string;
     'item_ids': Array<string>;
+}
+export interface AttachTagItemRequest {
+    'tag_id': string;
+    'include'?: string;
+}
+export interface AttachTagsItemRequest {
+    'include'?: string;
+    'tag_ids': Array<string>;
 }
 export interface AuthorResource {
     /**
@@ -260,9 +272,6 @@ export interface AvailableImageResource {
 export interface AvailableImageShow200Response {
     'data': AvailableImageResource;
 }
-export interface CollectionAttachItem200Response {
-    'data': OperationSuccessResource;
-}
 export interface CollectionByType200Response {
     'data': Array<CollectionResource>;
 }
@@ -311,6 +320,9 @@ export interface CollectionImageResource {
      * The date of last modification of the resource (managed by the system)
      */
     'updated_at': string | null;
+}
+export interface CollectionImageTightenOrdering200Response {
+    'data': OperationSuccessResource;
 }
 export interface CollectionImagesIndex200Response {
     'data': Array<CollectionImageResource>;
@@ -615,10 +627,6 @@ export interface CountryResource {
 }
 export interface CountryShow200Response {
     'data': CountryResource;
-}
-export interface EmailCodeRequestResource {
-    'message': string;
-    'expires_in': string;
 }
 export interface GlossaryIndex200Response {
     'data': Array<GlossaryResource>;
@@ -1384,10 +1392,6 @@ export interface ProvinceTranslationResource {
 export interface ProvinceTranslationShow200Response {
     'data': ProvinceTranslationResource;
 }
-export interface RequestEmailCodeMobileAppAuthenticationRequest {
-    'email': string;
-    'password': string;
-}
 export interface SetDefaultContextRequest {
     'is_default': boolean;
 }
@@ -1776,9 +1780,6 @@ export interface TokenAcquire202Response {
     'available_methods': string;
     'primary_method': string;
     'message': string;
-}
-export interface TokenRequestEmailCode200Response {
-    'data': EmailCodeRequestResource;
 }
 export interface TokenTwoFactorStatus200Response {
     'data': TwoFactorStatusResource;
@@ -3846,10 +3847,11 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItem: async (collection: string, itemId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionDetachItem: async (collection: string, itemId: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'collection' is not null or undefined
             assertParamExists('collectionDetachItem', 'collection', collection)
             // verify required parameter 'itemId' is not null or undefined
@@ -3875,6 +3877,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
                 localVarQueryParameter['item_id'] = itemId;
             }
 
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -3891,10 +3897,11 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItems: async (collection: string, itemIds: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionDetachItems: async (collection: string, itemIds: Array<string>, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'collection' is not null or undefined
             assertParamExists('collectionDetachItems', 'collection', collection)
             // verify required parameter 'itemIds' is not null or undefined
@@ -3918,6 +3925,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
 
             if (itemIds) {
                 localVarQueryParameter['item_ids[]'] = itemIds;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
             }
 
 
@@ -4164,7 +4175,7 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionAttachItem(collection: string, attachItemCollectionRequest: AttachItemCollectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async collectionAttachItem(collection: string, attachItemCollectionRequest: AttachItemCollectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.collectionAttachItem(collection, attachItemCollectionRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionAttachItem']?.[localVarOperationServerIndex]?.url;
@@ -4178,7 +4189,7 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionAttachItems(collection: string, attachItemsCollectionRequest: AttachItemsCollectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async collectionAttachItems(collection: string, attachItemsCollectionRequest: AttachItemsCollectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.collectionAttachItems(collection, attachItemsCollectionRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionAttachItems']?.[localVarOperationServerIndex]?.url;
@@ -4216,11 +4227,12 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItem(collection, itemId, options);
+        async collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItem(collection, itemId, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionDetachItem']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4230,11 +4242,12 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItems(collection, itemIds, options);
+        async collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItems(collection, itemIds, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionDetachItems']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4326,7 +4339,7 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionAttachItem(collection: string, attachItemCollectionRequest: AttachItemCollectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        collectionAttachItem(collection: string, attachItemCollectionRequest: AttachItemCollectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
             return localVarFp.collectionAttachItem(collection, attachItemCollectionRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -4337,7 +4350,7 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionAttachItems(collection: string, attachItemsCollectionRequest: AttachItemsCollectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        collectionAttachItems(collection: string, attachItemsCollectionRequest: AttachItemsCollectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
             return localVarFp.collectionAttachItems(collection, attachItemsCollectionRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -4366,22 +4379,24 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
-            return localVarFp.collectionDetachItem(collection, itemId, options).then((request) => request(axios, basePath));
+        collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
+            return localVarFp.collectionDetachItem(collection, itemId, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
-            return localVarFp.collectionDetachItems(collection, itemIds, options).then((request) => request(axios, basePath));
+        collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
+            return localVarFp.collectionDetachItems(collection, itemIds, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4497,11 +4512,12 @@ export class CollectionApi extends BaseAPI {
      * @summary Detach an item from a collection
      * @param {string} collection The collection ID
      * @param {string} itemId 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionDetachItem(collection, itemId, options).then((request) => request(this.axios, this.basePath));
+    public collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionDetachItem(collection, itemId, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4509,11 +4525,12 @@ export class CollectionApi extends BaseAPI {
      * @summary Detach multiple items from a collection
      * @param {string} collection The collection ID
      * @param {Array<string>} itemIds 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionDetachItems(collection, itemIds, options).then((request) => request(this.axios, this.basePath));
+    public collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionDetachItems(collection, itemIds, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -5157,7 +5174,7 @@ export const CollectionImageApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImageTightenOrdering200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageDetach(collectionImage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageDetach']?.[localVarOperationServerIndex]?.url;
@@ -5223,7 +5240,7 @@ export const CollectionImageApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImageTightenOrdering200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageTightenOrdering(collectionImage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageTightenOrdering']?.[localVarOperationServerIndex]?.url;
@@ -5335,7 +5352,7 @@ export const CollectionImageApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImageTightenOrdering200Response> {
             return localVarFp.collectionImageDetach(collectionImage, options).then((request) => request(axios, basePath));
         },
         /**
@@ -5386,7 +5403,7 @@ export const CollectionImageApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImageTightenOrdering200Response> {
             return localVarFp.collectionImageTightenOrdering(collectionImage, options).then((request) => request(axios, basePath));
         },
         /**
@@ -11190,6 +11207,94 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
     return {
         /**
          * 
+         * @summary Attach a single tag to an item
+         * @param {string} item The item ID
+         * @param {AttachTagItemRequest} attachTagItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemAttachTag: async (item: string, attachTagItemRequest: AttachTagItemRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'item' is not null or undefined
+            assertParamExists('itemAttachTag', 'item', item)
+            // verify required parameter 'attachTagItemRequest' is not null or undefined
+            assertParamExists('itemAttachTag', 'attachTagItemRequest', attachTagItemRequest)
+            const localVarPath = `/item/{item}/attach-tag`
+                .replace(`{${"item"}}`, encodeURIComponent(String(item)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(attachTagItemRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Attach multiple tags to an item
+         * @param {string} item The item ID
+         * @param {AttachTagsItemRequest} attachTagsItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemAttachTags: async (item: string, attachTagsItemRequest: AttachTagsItemRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'item' is not null or undefined
+            assertParamExists('itemAttachTags', 'item', item)
+            // verify required parameter 'attachTagsItemRequest' is not null or undefined
+            assertParamExists('itemAttachTags', 'attachTagsItemRequest', attachTagsItemRequest)
+            const localVarPath = `/item/{item}/attach-tags`
+                .replace(`{${"item"}}`, encodeURIComponent(String(item)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(attachTagsItemRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Get items by type
          * @param {string} type 
          * @param {ItemByTypeTypeEnum} type2 
@@ -11303,6 +11408,104 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Detach a single tag from an item
+         * @param {string} item The item ID
+         * @param {string} tagId 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemDetachTag: async (item: string, tagId: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'item' is not null or undefined
+            assertParamExists('itemDetachTag', 'item', item)
+            // verify required parameter 'tagId' is not null or undefined
+            assertParamExists('itemDetachTag', 'tagId', tagId)
+            const localVarPath = `/item/{item}/detach-tag`
+                .replace(`{${"item"}}`, encodeURIComponent(String(item)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (tagId !== undefined) {
+                localVarQueryParameter['tag_id'] = tagId;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Detach multiple tags from an item
+         * @param {string} item The item ID
+         * @param {Array<string>} [tagIds] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemDetachTags: async (item: string, tagIds?: Array<string>, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'item' is not null or undefined
+            assertParamExists('itemDetachTags', 'item', item)
+            const localVarPath = `/item/{item}/detach-tags`
+                .replace(`{${"item"}}`, encodeURIComponent(String(item)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (tagIds) {
+                localVarQueryParameter['tag_ids[]'] = tagIds;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -11746,6 +11949,34 @@ export const ItemApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Attach a single tag to an item
+         * @param {string} item The item ID
+         * @param {AttachTagItemRequest} attachTagItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemAttachTag(item: string, attachTagItemRequest: AttachTagItemRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemAttachTag(item, attachTagItemRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemApi.itemAttachTag']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Attach multiple tags to an item
+         * @param {string} item The item ID
+         * @param {AttachTagsItemRequest} attachTagsItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemAttachTags(item: string, attachTagsItemRequest: AttachTagsItemRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemAttachTags(item, attachTagsItemRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemApi.itemAttachTags']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Get items by type
          * @param {string} type 
          * @param {ItemByTypeTypeEnum} type2 
@@ -11783,6 +12014,36 @@ export const ItemApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.itemDestroy(item, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemApi.itemDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Detach a single tag from an item
+         * @param {string} item The item ID
+         * @param {string} tagId 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemDetachTag(item: string, tagId: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemDetachTag(item, tagId, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemApi.itemDetachTag']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Detach multiple tags from an item
+         * @param {string} item The item ID
+         * @param {Array<string>} [tagIds] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemDetachTags(item: string, tagIds?: Array<string>, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemDetachTags(item, tagIds, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemApi.itemDetachTags']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -11933,6 +12194,28 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
     return {
         /**
          * 
+         * @summary Attach a single tag to an item
+         * @param {string} item The item ID
+         * @param {AttachTagItemRequest} attachTagItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemAttachTag(item: string, attachTagItemRequest: AttachTagItemRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemShow200Response> {
+            return localVarFp.itemAttachTag(item, attachTagItemRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Attach multiple tags to an item
+         * @param {string} item The item ID
+         * @param {AttachTagsItemRequest} attachTagsItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemAttachTags(item: string, attachTagsItemRequest: AttachTagsItemRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemShow200Response> {
+            return localVarFp.itemAttachTags(item, attachTagsItemRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Get items by type
          * @param {string} type 
          * @param {ItemByTypeTypeEnum} type2 
@@ -11962,6 +12245,30 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
          */
         itemDestroy(item: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.itemDestroy(item, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Detach a single tag from an item
+         * @param {string} item The item ID
+         * @param {string} tagId 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemDetachTag(item: string, tagId: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemShow200Response> {
+            return localVarFp.itemDetachTag(item, tagId, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Detach multiple tags from an item
+         * @param {string} item The item ID
+         * @param {Array<string>} [tagIds] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemDetachTags(item: string, tagIds?: Array<string>, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemShow200Response> {
+            return localVarFp.itemDetachTags(item, tagIds, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -12079,6 +12386,30 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
 export class ItemApi extends BaseAPI {
     /**
      * 
+     * @summary Attach a single tag to an item
+     * @param {string} item The item ID
+     * @param {AttachTagItemRequest} attachTagItemRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemAttachTag(item: string, attachTagItemRequest: AttachTagItemRequest, options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemAttachTag(item, attachTagItemRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Attach multiple tags to an item
+     * @param {string} item The item ID
+     * @param {AttachTagsItemRequest} attachTagsItemRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemAttachTags(item: string, attachTagsItemRequest: AttachTagsItemRequest, options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemAttachTags(item, attachTagsItemRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Get items by type
      * @param {string} type 
      * @param {ItemByTypeTypeEnum} type2 
@@ -12110,6 +12441,32 @@ export class ItemApi extends BaseAPI {
      */
     public itemDestroy(item: string, options?: RawAxiosRequestConfig) {
         return ItemApiFp(this.configuration).itemDestroy(item, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Detach a single tag from an item
+     * @param {string} item The item ID
+     * @param {string} tagId 
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemDetachTag(item: string, tagId: string, include?: string, options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemDetachTag(item, tagId, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Detach multiple tags from an item
+     * @param {string} item The item ID
+     * @param {Array<string>} [tagIds] 
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemDetachTags(item: string, tagIds?: Array<string>, include?: string, options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemDetachTags(item, tagIds, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -12811,7 +13168,7 @@ export const ItemImageApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImageTightenOrdering200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.itemImageDetach(itemImage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImageDetach']?.[localVarOperationServerIndex]?.url;
@@ -12877,7 +13234,7 @@ export const ItemImageApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImageTightenOrdering200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.itemImageTightenOrdering(itemImage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImageTightenOrdering']?.[localVarOperationServerIndex]?.url;
@@ -12989,7 +13346,7 @@ export const ItemImageApiFactory = function (configuration?: Configuration, base
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImageTightenOrdering200Response> {
             return localVarFp.itemImageDetach(itemImage, options).then((request) => request(axios, basePath));
         },
         /**
@@ -13040,7 +13397,7 @@ export const ItemImageApiFactory = function (configuration?: Configuration, base
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImageTightenOrdering200Response> {
             return localVarFp.itemImageTightenOrdering(itemImage, options).then((request) => request(axios, basePath));
         },
         /**
@@ -17023,43 +17380,7 @@ export const MobileAppAuthenticationApiAxiosParamCreator = function (configurati
         },
         /**
          * 
-         * @summary Request an email 2FA code for mobile authentication
-         * @param {RequestEmailCodeMobileAppAuthenticationRequest} requestEmailCodeMobileAppAuthenticationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        tokenRequestEmailCode: async (requestEmailCodeMobileAppAuthenticationRequest: RequestEmailCodeMobileAppAuthenticationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'requestEmailCodeMobileAppAuthenticationRequest' is not null or undefined
-            assertParamExists('tokenRequestEmailCode', 'requestEmailCodeMobileAppAuthenticationRequest', requestEmailCodeMobileAppAuthenticationRequest)
-            const localVarPath = `/mobile/request-email-code`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(requestEmailCodeMobileAppAuthenticationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Get user\'s 2FA status and available methods
+         * @summary Get user\'s 2FA status
          * @param {TwoFactorStatusMobileAppAuthenticationRequest} twoFactorStatusMobileAppAuthenticationRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -17187,20 +17508,7 @@ export const MobileAppAuthenticationApiFp = function(configuration?: Configurati
         },
         /**
          * 
-         * @summary Request an email 2FA code for mobile authentication
-         * @param {RequestEmailCodeMobileAppAuthenticationRequest} requestEmailCodeMobileAppAuthenticationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async tokenRequestEmailCode(requestEmailCodeMobileAppAuthenticationRequest: RequestEmailCodeMobileAppAuthenticationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TokenRequestEmailCode200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.tokenRequestEmailCode(requestEmailCodeMobileAppAuthenticationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['MobileAppAuthenticationApi.tokenRequestEmailCode']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Get user\'s 2FA status and available methods
+         * @summary Get user\'s 2FA status
          * @param {TwoFactorStatusMobileAppAuthenticationRequest} twoFactorStatusMobileAppAuthenticationRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -17257,17 +17565,7 @@ export const MobileAppAuthenticationApiFactory = function (configuration?: Confi
         },
         /**
          * 
-         * @summary Request an email 2FA code for mobile authentication
-         * @param {RequestEmailCodeMobileAppAuthenticationRequest} requestEmailCodeMobileAppAuthenticationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        tokenRequestEmailCode(requestEmailCodeMobileAppAuthenticationRequest: RequestEmailCodeMobileAppAuthenticationRequest, options?: RawAxiosRequestConfig): AxiosPromise<TokenRequestEmailCode200Response> {
-            return localVarFp.tokenRequestEmailCode(requestEmailCodeMobileAppAuthenticationRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Get user\'s 2FA status and available methods
+         * @summary Get user\'s 2FA status
          * @param {TwoFactorStatusMobileAppAuthenticationRequest} twoFactorStatusMobileAppAuthenticationRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -17314,18 +17612,7 @@ export class MobileAppAuthenticationApi extends BaseAPI {
 
     /**
      * 
-     * @summary Request an email 2FA code for mobile authentication
-     * @param {RequestEmailCodeMobileAppAuthenticationRequest} requestEmailCodeMobileAppAuthenticationRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public tokenRequestEmailCode(requestEmailCodeMobileAppAuthenticationRequest: RequestEmailCodeMobileAppAuthenticationRequest, options?: RawAxiosRequestConfig) {
-        return MobileAppAuthenticationApiFp(this.configuration).tokenRequestEmailCode(requestEmailCodeMobileAppAuthenticationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Get user\'s 2FA status and available methods
+     * @summary Get user\'s 2FA status
      * @param {TwoFactorStatusMobileAppAuthenticationRequest} twoFactorStatusMobileAppAuthenticationRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

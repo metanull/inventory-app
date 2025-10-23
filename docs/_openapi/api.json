@@ -1711,14 +1711,14 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "`OperationSuccessResource`",
+                        "description": "`CollectionResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/components/schemas/OperationSuccessResource"
+                                            "$ref": "#/components/schemas/CollectionResource"
                                         }
                                     },
                                     "required": [
@@ -1774,14 +1774,14 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "`OperationSuccessResource`",
+                        "description": "`CollectionResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/components/schemas/OperationSuccessResource"
+                                            "$ref": "#/components/schemas/CollectionResource"
                                         }
                                     },
                                     "required": [
@@ -1832,18 +1832,25 @@
                             "type": "string",
                             "format": "uuid"
                         }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "`OperationSuccessResource`",
+                        "description": "`CollectionResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/components/schemas/OperationSuccessResource"
+                                            "$ref": "#/components/schemas/CollectionResource"
                                         }
                                     },
                                     "required": [
@@ -1897,18 +1904,25 @@
                                 "format": "uuid"
                             }
                         }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "`OperationSuccessResource`",
+                        "description": "`CollectionResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/components/schemas/OperationSuccessResource"
+                                            "$ref": "#/components/schemas/CollectionResource"
                                         }
                                     },
                                     "required": [
@@ -7288,6 +7302,132 @@
                 }
             }
         },
+        "/item/{item}/attach-tag": {
+            "post": {
+                "operationId": "item.attachTag",
+                "summary": "Attach a single tag to an item",
+                "tags": [
+                    "Item"
+                ],
+                "parameters": [
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AttachTagItemRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
+        "/item/{item}/attach-tags": {
+            "post": {
+                "operationId": "item.attachTags",
+                "summary": "Attach multiple tags to an item",
+                "tags": [
+                    "Item"
+                ],
+                "parameters": [
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AttachTagsItemRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
         "/item/{item}/tags": {
             "patch": {
                 "operationId": "item.updateTags",
@@ -7343,6 +7483,146 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
+        "/item/{item}/detach-tag": {
+            "delete": {
+                "operationId": "item.detachTag",
+                "summary": "Detach a single tag from an item",
+                "tags": [
+                    "Item"
+                ],
+                "parameters": [
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "tag_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
+        "/item/{item}/detach-tags": {
+            "delete": {
+                "operationId": "item.detachTags",
+                "summary": "Detach multiple tags from an item",
+                "tags": [
+                    "Item"
+                ],
+                "parameters": [
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "tag_ids[]",
+                        "in": "query",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "format": "uuid"
+                            }
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ItemResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     },
                     "403": {
                         "$ref": "#/components/responses/AuthorizationException"
@@ -10196,53 +10476,10 @@
                 "security": []
             }
         },
-        "/mobile/request-email-code": {
-            "post": {
-                "operationId": "token.request_email_code",
-                "summary": "Request an email 2FA code for mobile authentication",
-                "tags": [
-                    "MobileAppAuthentication"
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RequestEmailCodeMobileAppAuthenticationRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "`EmailCodeRequestResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/EmailCodeRequestResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    }
-                },
-                "security": []
-            }
-        },
         "/mobile/two-factor-status": {
             "post": {
                 "operationId": "token.two_factor_status",
-                "summary": "Get user's 2FA status and available methods",
+                "summary": "Get user's 2FA status",
                 "tags": [
                     "MobileAppAuthentication"
                 ],
@@ -13716,6 +13953,9 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "include": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -13735,6 +13975,9 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "include": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -13761,6 +14004,9 @@
                     "item_id": {
                         "type": "string",
                         "format": "uuid"
+                    },
+                    "include": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -13771,6 +14017,9 @@
             "AttachItemsCollectionRequest": {
                 "type": "object",
                 "properties": {
+                    "include": {
+                        "type": "string"
+                    },
                     "item_ids": {
                         "type": "array",
                         "items": {
@@ -13784,6 +14033,42 @@
                     "item_ids"
                 ],
                 "title": "AttachItemsCollectionRequest"
+            },
+            "AttachTagItemRequest": {
+                "type": "object",
+                "properties": {
+                    "tag_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "include": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "tag_id"
+                ],
+                "title": "AttachTagItemRequest"
+            },
+            "AttachTagsItemRequest": {
+                "type": "object",
+                "properties": {
+                    "include": {
+                        "type": "string"
+                    },
+                    "tag_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "minItems": 1
+                    }
+                },
+                "required": [
+                    "tag_ids"
+                ],
+                "title": "AttachTagsItemRequest"
             },
             "AuthorResource": {
                 "type": "object",
@@ -14406,22 +14691,6 @@
                     "updated_at"
                 ],
                 "title": "CountryResource"
-            },
-            "EmailCodeRequestResource": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    },
-                    "expires_in": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "message",
-                    "expires_in"
-                ],
-                "title": "EmailCodeRequestResource"
             },
             "GlossaryResource": {
                 "type": "object",
@@ -15536,23 +15805,6 @@
                     "updated_at"
                 ],
                 "title": "ProvinceTranslationResource"
-            },
-            "RequestEmailCodeMobileAppAuthenticationRequest": {
-                "type": "object",
-                "properties": {
-                    "email": {
-                        "type": "string",
-                        "format": "email"
-                    },
-                    "password": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "email",
-                    "password"
-                ],
-                "title": "RequestEmailCodeMobileAppAuthenticationRequest"
             },
             "SetDefaultContextRequest": {
                 "type": "object",

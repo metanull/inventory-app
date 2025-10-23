@@ -129,7 +129,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **collectionImageDetach**
-> CollectionAttachItem200Response collectionImageDetach()
+> CollectionImageTightenOrdering200Response collectionImageDetach()
 
 
 ### Example
@@ -159,7 +159,7 @@ const { status, data } = await apiInstance.collectionImageDetach(
 
 ### Return type
 
-**CollectionAttachItem200Response**
+**CollectionImageTightenOrdering200Response**
 
 ### Authorization
 
@@ -394,7 +394,7 @@ const { status, data } = await apiInstance.collectionImageShow(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **collectionImageTightenOrdering**
-> CollectionAttachItem200Response collectionImageTightenOrdering()
+> CollectionImageTightenOrdering200Response collectionImageTightenOrdering()
 
 
 ### Example
@@ -424,7 +424,7 @@ const { status, data } = await apiInstance.collectionImageTightenOrdering(
 
 ### Return type
 
-**CollectionAttachItem200Response**
+**CollectionImageTightenOrdering200Response**
 
 ### Authorization
 

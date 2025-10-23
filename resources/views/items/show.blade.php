@@ -34,6 +34,9 @@
         <!-- Translations Section -->
         @include('items._translations')
 
+        <!-- Tags Section -->
+        @include('items._tags')
+
         <!-- System Properties -->
         <x-system-properties 
             :id="$item->id"

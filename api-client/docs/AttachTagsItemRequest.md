@@ -1,21 +1,21 @@
-# EmailCodeRequestResource
+# AttachTagsItemRequest
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**message** | **string** |  | [default to undefined]
-**expires_in** | **string** |  | [default to undefined]
+**include** | **string** |  | [optional] [default to undefined]
+**tag_ids** | **Array&lt;string&gt;** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { EmailCodeRequestResource } from './api';
+import { AttachTagsItemRequest } from './api';
 
-const instance: EmailCodeRequestResource = {
-    message,
-    expires_in,
+const instance: AttachTagsItemRequest = {
+    include,
+    tag_ids,
 };
 ```
 

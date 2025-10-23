@@ -23,16 +23,18 @@ docs/AttachFromAvailableItemImageRequest.md
 docs/AttachGlossarySynonymRequest.md
 docs/AttachItemCollectionRequest.md
 docs/AttachItemsCollectionRequest.md
+docs/AttachTagItemRequest.md
+docs/AttachTagsItemRequest.md
 docs/AuthorResource.md
 docs/AvailableImageApi.md
 docs/AvailableImageIndex200Response.md
 docs/AvailableImageResource.md
 docs/AvailableImageShow200Response.md
 docs/CollectionApi.md
-docs/CollectionAttachItem200Response.md
 docs/CollectionByType200Response.md
 docs/CollectionImageApi.md
 docs/CollectionImageResource.md
+docs/CollectionImageTightenOrdering200Response.md
 docs/CollectionImagesIndex200Response.md
 docs/CollectionImagesStore200Response.md
 docs/CollectionIndex200Response.md
@@ -62,7 +64,6 @@ docs/CountryApi.md
 docs/CountryIndex200Response.md
 docs/CountryResource.md
 docs/CountryShow200Response.md
-docs/EmailCodeRequestResource.md
 docs/GlossaryApi.md
 docs/GlossaryIndex200Response.md
 docs/GlossaryResource.md
@@ -138,7 +139,6 @@ docs/ProvinceTranslationApi.md
 docs/ProvinceTranslationIndex200Response.md
 docs/ProvinceTranslationResource.md
 docs/ProvinceTranslationShow200Response.md
-docs/RequestEmailCodeMobileAppAuthenticationRequest.md
 docs/SetDefaultContextRequest.md
 docs/SetDefaultLanguageRequest.md
 docs/SetEnabledProjectRequest.md
@@ -185,7 +185,6 @@ docs/ThemeTranslationShow200Response.md
 docs/ThemeTranslationsApi.md
 docs/TokenAcquire201Response.md
 docs/TokenAcquire202Response.md
-docs/TokenRequestEmailCode200Response.md
 docs/TokenTwoFactorStatus200Response.md
 docs/TwoFactorStatusMobileAppAuthenticationRequest.md
 docs/TwoFactorStatusResource.md

@@ -66,6 +66,10 @@
                         <a href="{{ route('glossaries.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('glossaries.*') || request()->routeIs('glossaries.translations.*') || request()->routeIs('glossaries.spellings.*') ? $gc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-book-open class="w-4 h-4" /> Glossary
                         </a>
+                        @php($tc = $entityColor('tags'))
+                        <a href="{{ route('tags.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('tags.*') ? $tc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <x-heroicon-o-tag class="w-4 h-4" /> Tags
+                        </a>
                     </div>
                 </div>
 

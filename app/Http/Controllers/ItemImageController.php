@@ -124,6 +124,11 @@ class ItemImageController extends Controller
         $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
         $itemImage = ItemImage::attachFromAvailableImage($availableImage, $item->id, $validated['alt_text'] ?? null);
 
+        $includes = $request->getIncludeParams();
+        if (! empty($includes)) {
+            $itemImage->load($includes);
+        }
+
         return new ItemImageResource($itemImage);
     }
 

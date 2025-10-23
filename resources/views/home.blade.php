@@ -212,6 +212,21 @@
                     <span class="mt-4 inline-flex items-center text-sm font-medium {{ $gc['text'] ?? 'text-emerald-600' }} group-hover:underline">Open &rarr;</span>
                 </a>
 
+                @php($tc = $entityColor('tags'))
+                <a href="{{ route('tags.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $tc['base'] }}/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md {{ $tc['bg'] ?? 'bg-violet-50' }} {{ $tc['text'] ?? 'text-violet-600' }} group-hover:opacity-90">
+                                <x-heroicon-o-tag class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Tags</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $tc['text'] ?? 'text-violet-600' }}" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Classify and categorize items with flexible tags.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $tc['text'] ?? 'text-violet-600' }} group-hover:underline">Open &rarr;</span>
+                </a>
+
                 @php($ac = $entityColor('authors'))
                 <a href="{{ route('authors.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $ac['base'] }}/40">
                     <div class="flex items-center justify-between mb-4">

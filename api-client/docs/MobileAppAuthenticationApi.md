@@ -5,8 +5,7 @@ All URIs are relative to *http://127.0.0.1:8000/api*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**tokenAcquire**](#tokenacquire) | **POST** /mobile/acquire-token | Acquire a token for the user|
-|[**tokenRequestEmailCode**](#tokenrequestemailcode) | **POST** /mobile/request-email-code | Request an email 2FA code for mobile authentication|
-|[**tokenTwoFactorStatus**](#tokentwofactorstatus) | **POST** /mobile/two-factor-status | Get user\&#39;s 2FA status and available methods|
+|[**tokenTwoFactorStatus**](#tokentwofactorstatus) | **POST** /mobile/two-factor-status | Get user\&#39;s 2FA status|
 |[**tokenVerifyTwoFactor**](#tokenverifytwofactor) | **POST** /mobile/verify-two-factor | Verify two-factor authentication and acquire token|
 |[**tokenWipe**](#tokenwipe) | **GET** /mobile/wipe | Revoke all the token for the current user|
 
@@ -59,58 +58,6 @@ No authorization required
 |-------------|-------------|------------------|
 |**201** |  |  -  |
 |**202** | No 2FA code provided, require 2FA |  -  |
-|**422** | Validation error |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **tokenRequestEmailCode**
-> TokenRequestEmailCode200Response tokenRequestEmailCode(requestEmailCodeMobileAppAuthenticationRequest)
-
-
-### Example
-
-```typescript
-import {
-    MobileAppAuthenticationApi,
-    Configuration,
-    RequestEmailCodeMobileAppAuthenticationRequest
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new MobileAppAuthenticationApi(configuration);
-
-let requestEmailCodeMobileAppAuthenticationRequest: RequestEmailCodeMobileAppAuthenticationRequest; //
-
-const { status, data } = await apiInstance.tokenRequestEmailCode(
-    requestEmailCodeMobileAppAuthenticationRequest
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **requestEmailCodeMobileAppAuthenticationRequest** | **RequestEmailCodeMobileAppAuthenticationRequest**|  | |
-
-
-### Return type
-
-**TokenRequestEmailCode200Response**
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: application/json
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | &#x60;EmailCodeRequestResource&#x60; |  -  |
 |**422** | Validation error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

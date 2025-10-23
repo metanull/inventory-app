@@ -7,6 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **available_image_id** | **string** |  | [default to undefined]
 **alt_text** | **string** |  | [optional] [default to undefined]
+**include** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -16,6 +17,7 @@ import { AttachFromAvailableCollectionImageRequest } from './api';
 const instance: AttachFromAvailableCollectionImageRequest = {
     available_image_id,
     alt_text,
+    include,
 };
 ```
 

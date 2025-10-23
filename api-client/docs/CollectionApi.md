@@ -17,7 +17,7 @@ All URIs are relative to *http://127.0.0.1:8000/api*
 |[**collectionUpdate2**](#collectionupdate2) | **PUT** /collection/{collection} | Update the specified collection in storage|
 
 # **collectionAttachItem**
-> CollectionAttachItem200Response collectionAttachItem(attachItemCollectionRequest)
+> CollectionShow200Response collectionAttachItem(attachItemCollectionRequest)
 
 
 ### Example
@@ -51,7 +51,7 @@ const { status, data } = await apiInstance.collectionAttachItem(
 
 ### Return type
 
-**CollectionAttachItem200Response**
+**CollectionShow200Response**
 
 ### Authorization
 
@@ -66,7 +66,7 @@ const { status, data } = await apiInstance.collectionAttachItem(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | &#x60;OperationSuccessResource&#x60; |  -  |
+|**200** | &#x60;CollectionResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
 |**422** | Validation error |  -  |
@@ -75,7 +75,7 @@ const { status, data } = await apiInstance.collectionAttachItem(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **collectionAttachItems**
-> CollectionAttachItem200Response collectionAttachItems(attachItemsCollectionRequest)
+> CollectionShow200Response collectionAttachItems(attachItemsCollectionRequest)
 
 
 ### Example
@@ -109,7 +109,7 @@ const { status, data } = await apiInstance.collectionAttachItems(
 
 ### Return type
 
-**CollectionAttachItem200Response**
+**CollectionShow200Response**
 
 ### Authorization
 
@@ -124,7 +124,7 @@ const { status, data } = await apiInstance.collectionAttachItems(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | &#x60;OperationSuccessResource&#x60; |  -  |
+|**200** | &#x60;CollectionResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
 |**422** | Validation error |  -  |
@@ -240,7 +240,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **collectionDetachItem**
-> CollectionAttachItem200Response collectionDetachItem()
+> CollectionShow200Response collectionDetachItem()
 
 
 ### Example
@@ -256,10 +256,12 @@ const apiInstance = new CollectionApi(configuration);
 
 let collection: string; //The collection ID (default to undefined)
 let itemId: string; // (default to undefined)
+let include: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.collectionDetachItem(
     collection,
-    itemId
+    itemId,
+    include
 );
 ```
 
@@ -269,11 +271,12 @@ const { status, data } = await apiInstance.collectionDetachItem(
 |------------- | ------------- | ------------- | -------------|
 | **collection** | [**string**] | The collection ID | defaults to undefined|
 | **itemId** | [**string**] |  | defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
 
-**CollectionAttachItem200Response**
+**CollectionShow200Response**
 
 ### Authorization
 
@@ -288,7 +291,7 @@ const { status, data } = await apiInstance.collectionDetachItem(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | &#x60;OperationSuccessResource&#x60; |  -  |
+|**200** | &#x60;CollectionResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
 |**422** | Validation error |  -  |
@@ -297,7 +300,7 @@ const { status, data } = await apiInstance.collectionDetachItem(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **collectionDetachItems**
-> CollectionAttachItem200Response collectionDetachItems()
+> CollectionShow200Response collectionDetachItems()
 
 
 ### Example
@@ -313,10 +316,12 @@ const apiInstance = new CollectionApi(configuration);
 
 let collection: string; //The collection ID (default to undefined)
 let itemIds: Array<string>; // (default to undefined)
+let include: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.collectionDetachItems(
     collection,
-    itemIds
+    itemIds,
+    include
 );
 ```
 
@@ -326,11 +331,12 @@ const { status, data } = await apiInstance.collectionDetachItems(
 |------------- | ------------- | ------------- | -------------|
 | **collection** | [**string**] | The collection ID | defaults to undefined|
 | **itemIds** | **Array&lt;string&gt;** |  | defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
 
-**CollectionAttachItem200Response**
+**CollectionShow200Response**
 
 ### Authorization
 
@@ -345,7 +351,7 @@ const { status, data } = await apiInstance.collectionDetachItems(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | &#x60;OperationSuccessResource&#x60; |  -  |
+|**200** | &#x60;CollectionResource&#x60; |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
 |**422** | Validation error |  -  |

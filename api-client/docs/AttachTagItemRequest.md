@@ -1,19 +1,21 @@
-# TokenRequestEmailCode200Response
+# AttachTagItemRequest
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**data** | [**EmailCodeRequestResource**](EmailCodeRequestResource.md) |  | [default to undefined]
+**tag_id** | **string** |  | [default to undefined]
+**include** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { TokenRequestEmailCode200Response } from './api';
+import { AttachTagItemRequest } from './api';
 
-const instance: TokenRequestEmailCode200Response = {
-    data,
+const instance: AttachTagItemRequest = {
+    tag_id,
+    include,
 };
 ```
 

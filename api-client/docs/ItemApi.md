@@ -4,9 +4,13 @@ All URIs are relative to *http://127.0.0.1:8000/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**itemAttachTag**](#itemattachtag) | **POST** /item/{item}/attach-tag | Attach a single tag to an item|
+|[**itemAttachTags**](#itemattachtags) | **POST** /item/{item}/attach-tags | Attach multiple tags to an item|
 |[**itemByType**](#itembytype) | **GET** /item/type/{type} | Get items by type|
 |[**itemChildren**](#itemchildren) | **GET** /item/children | Get child items (items with a parent)|
 |[**itemDestroy**](#itemdestroy) | **DELETE** /item/{item} | Remove the specified resource from storage|
+|[**itemDetachTag**](#itemdetachtag) | **DELETE** /item/{item}/detach-tag | Detach a single tag from an item|
+|[**itemDetachTags**](#itemdetachtags) | **DELETE** /item/{item}/detach-tags | Detach multiple tags from an item|
 |[**itemForTag**](#itemfortag) | **GET** /item/for-tag/{tag} | Get items for a specific tag|
 |[**itemIndex**](#itemindex) | **GET** /item | Display a listing of the resource|
 |[**itemParents**](#itemparents) | **GET** /item/parents | Get parent items (items with no parent)|
@@ -17,6 +21,122 @@ All URIs are relative to *http://127.0.0.1:8000/api*
 |[**itemUpdateTags**](#itemupdatetags) | **PATCH** /item/{item}/tags | Update the tags associated with an item. This endpoint handles attaching and/or detaching tags from an item using a single operation. Designed for granular tag management, allowing callers to perform specific tag attach/detach operations without requiring a full item update|
 |[**itemWithAllTags**](#itemwithalltags) | **POST** /item/with-all-tags | Get items that have ALL of the specified tags (AND condition)|
 |[**itemWithAnyTags**](#itemwithanytags) | **POST** /item/with-any-tags | Get items that have ANY of the specified tags (OR condition)|
+
+# **itemAttachTag**
+> ItemShow200Response itemAttachTag(attachTagItemRequest)
+
+
+### Example
+
+```typescript
+import {
+    ItemApi,
+    Configuration,
+    AttachTagItemRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ItemApi(configuration);
+
+let item: string; //The item ID (default to undefined)
+let attachTagItemRequest: AttachTagItemRequest; //
+
+const { status, data } = await apiInstance.itemAttachTag(
+    item,
+    attachTagItemRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **attachTagItemRequest** | **AttachTagItemRequest**|  | |
+| **item** | [**string**] | The item ID | defaults to undefined|
+
+
+### Return type
+
+**ItemShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ItemResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **itemAttachTags**
+> ItemShow200Response itemAttachTags(attachTagsItemRequest)
+
+
+### Example
+
+```typescript
+import {
+    ItemApi,
+    Configuration,
+    AttachTagsItemRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ItemApi(configuration);
+
+let item: string; //The item ID (default to undefined)
+let attachTagsItemRequest: AttachTagsItemRequest; //
+
+const { status, data } = await apiInstance.itemAttachTags(
+    item,
+    attachTagsItemRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **attachTagsItemRequest** | **AttachTagsItemRequest**|  | |
+| **item** | [**string**] | The item ID | defaults to undefined|
+
+
+### Return type
+
+**ItemShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ItemResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **itemByType**
 > ItemForTag200Response itemByType()
@@ -179,6 +299,126 @@ void (empty response body)
 |**204** | No content |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthenticated |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **itemDetachTag**
+> ItemShow200Response itemDetachTag()
+
+
+### Example
+
+```typescript
+import {
+    ItemApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ItemApi(configuration);
+
+let item: string; //The item ID (default to undefined)
+let tagId: string; // (default to undefined)
+let include: string; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.itemDetachTag(
+    item,
+    tagId,
+    include
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **item** | [**string**] | The item ID | defaults to undefined|
+| **tagId** | [**string**] |  | defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
+
+
+### Return type
+
+**ItemShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ItemResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **itemDetachTags**
+> ItemShow200Response itemDetachTags()
+
+
+### Example
+
+```typescript
+import {
+    ItemApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ItemApi(configuration);
+
+let item: string; //The item ID (default to undefined)
+let tagIds: Array<string>; // (optional) (default to undefined)
+let include: string; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.itemDetachTags(
+    item,
+    tagIds,
+    include
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **item** | [**string**] | The item ID | defaults to undefined|
+| **tagIds** | **Array&lt;string&gt;** |  | (optional) defaults to undefined|
+| **include** | [**string**] |  | (optional) defaults to undefined|
+
+
+### Return type
+
+**ItemShow200Response**
+
+### Authorization
+
+[http](../README.md#http)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | &#x60;ItemResource&#x60; |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
+|**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -1,4 +1,4 @@
-# CollectionAttachItem200Response
+# CollectionImageTightenOrdering200Response
 
 
 ## Properties
@@ -10,9 +10,9 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { CollectionAttachItem200Response } from './api';
+import { CollectionImageTightenOrdering200Response } from './api';
 
-const instance: CollectionAttachItem200Response = {
+const instance: CollectionImageTightenOrdering200Response = {
     data,
 };
 ```
