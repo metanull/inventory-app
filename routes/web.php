@@ -57,6 +57,10 @@ Route::prefix('web')->group(function () {
             Route::delete('/{item_image}', [WebItemImageController::class, 'destroy'])->name('destroy');
         });
 
+        // Item Tags - nested routes for attaching/detaching tags
+        Route::post('items/{item}/tags', [WebItemController::class, 'attachTag'])->name('items.tags.attach');
+        Route::delete('items/{item}/tags/{tag}', [WebItemController::class, 'detachTag'])->name('items.tags.detach');
+
         Route::resource('item-translations', WebItemTranslationController::class);
         Route::resource('collection-translations', WebCollectionTranslationController::class);
         Route::resource('partners', WebPartnerController::class);
