@@ -21,12 +21,15 @@ class ItemsTable extends Component
 
     public string $sortDirection = 'desc';
 
+    public array $selectedTags = [];
+
     protected $queryString = [
         'q' => ['except' => ''],
         // Keep in sync with config('interface.pagination.default_per_page')
         'perPage' => ['except' => 10],
         'sortBy' => ['except' => 'created_at'],
         'sortDirection' => ['except' => 'desc'],
+        'selectedTags' => ['except' => []],
     ];
 
     public function mount(): void
@@ -48,6 +51,23 @@ class ItemsTable extends Component
     public function updatedPerPage(): void
     {
         $this->normalizePerPage();
+    }
+
+    public function updatingSelectedTags(): void
+    {
+        $this->resetPage();
+    }
+
+    public function removeTag(string $tagId): void
+    {
+        $this->selectedTags = array_values(array_filter($this->selectedTags, fn ($id) => $id !== $tagId));
+        $this->resetPage();
+    }
+
+    public function clearTags(): void
+    {
+        $this->selectedTags = [];
+        $this->resetPage();
     }
 
     public function sortBy(string $field): void
@@ -94,7 +114,21 @@ class ItemsTable extends Component
             $query->where('internal_name', 'LIKE', "%{$search}%");
         }
 
+        // Filter by tags if selected (items must have ALL selected tags)
+        if (! empty($this->selectedTags)) {
+            foreach ($this->selectedTags as $tagId) {
+                $query->whereHas('tags', function ($q) use ($tagId) {
+                    $q->where('tags.id', $tagId);
+                });
+            }
+        }
+
         return $query->orderBy($this->sortBy, $this->sortDirection)->paginate($this->perPage)->withQueryString();
+    }
+
+    public function getAvailableTagsProperty()
+    {
+        return \App\Models\Tag::orderBy('internal_name')->get();
     }
 
     public function render()
@@ -103,6 +137,7 @@ class ItemsTable extends Component
 
         return view('livewire.tables.items-table', [
             'items' => $this->items,
+            'availableTags' => $this->availableTags,
             'c' => $c,
         ]);
     }

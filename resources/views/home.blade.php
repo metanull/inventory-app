@@ -156,15 +156,15 @@
                 <a href="{{ route('collection-translations.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $ctc['base'] }}/40">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md {{ $ctc['bg'] ?? 'bg-purple-50' }} {{ $ctc['text'] ?? 'text-purple-600' }} group-hover:opacity-90">
+                            <span class="p-2 rounded-md {{ $ctc['bg'] ?? 'bg-yellow-50' }} {{ $ctc['text'] ?? 'text-yellow-600' }} group-hover:opacity-90">
                                 <x-heroicon-o-language class="w-6 h-6" />
                             </span>
                             <h3 class="text-lg font-semibold text-gray-900">Collection Translations</h3>
                         </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $ctc['text'] ?? 'text-purple-600' }}" />
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $ctc['text'] ?? 'text-yellow-600' }}" />
                     </div>
                     <p class="text-sm text-gray-600 flex-1">Manage translations for collections across different languages and contexts.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $ctc['text'] ?? 'text-purple-600' }} group-hover:underline">Open &rarr;</span>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $ctc['text'] ?? 'text-yellow-600' }} group-hover:underline">Open &rarr;</span>
                 </a>
 
                 @php($cc = $entityColor('countries'))
@@ -195,6 +195,81 @@
                     </div>
                     <p class="text-sm text-gray-600 flex-1">Maintain supported languages and default flag.</p>
                     <span class="mt-4 inline-flex items-center text-sm font-medium text-fuchsia-600 group-hover:underline">Open &rarr;</span>
+                </a>
+
+                @php($gc = $entityColor('glossaries'))
+                <a href="{{ route('glossaries.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $gc['base'] }}/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md {{ $gc['bg'] ?? 'bg-emerald-50' }} {{ $gc['text'] ?? 'text-emerald-600' }} group-hover:opacity-90">
+                                <x-heroicon-o-book-open class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Glossary</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $gc['text'] ?? 'text-emerald-600' }}" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Specialized terms, definitions, and spelling variations.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $gc['text'] ?? 'text-emerald-600' }} group-hover:underline">Open &rarr;</span>
+                </a>
+
+                @php($tc = $entityColor('tags'))
+                <a href="{{ route('tags.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $tc['base'] }}/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md {{ $tc['bg'] ?? 'bg-violet-50' }} {{ $tc['text'] ?? 'text-violet-600' }} group-hover:opacity-90">
+                                <x-heroicon-o-tag class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Tags</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $tc['text'] ?? 'text-violet-600' }}" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Classify and categorize items with flexible tags.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $tc['text'] ?? 'text-violet-600' }} group-hover:underline">Open &rarr;</span>
+                </a>
+
+                @php($ac = $entityColor('authors'))
+                <a href="{{ route('authors.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $ac['base'] }}/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md {{ $ac['bg'] ?? 'bg-amber-50' }} {{ $ac['text'] ?? 'text-amber-600' }} group-hover:opacity-90">
+                                <x-heroicon-o-user-circle class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Authors</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $ac['text'] ?? 'text-amber-600' }}" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Manage content authors and contributors.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $ac['text'] ?? 'text-amber-600' }} group-hover:underline">Open &rarr;</span>
+                </a>
+
+                @php($conc = $entityColor('contacts'))
+                <a href="{{ route('contacts.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $conc['base'] }}/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md {{ $conc['bg'] ?? 'bg-sky-50' }} {{ $conc['text'] ?? 'text-sky-600' }} group-hover:opacity-90">
+                                <x-heroicon-o-phone class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Contacts</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $conc['text'] ?? 'text-sky-600' }}" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Manage contact information and labels.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $conc['text'] ?? 'text-sky-600' }} group-hover:underline">Open &rarr;</span>
+                </a>
+
+                @php($addc = $entityColor('addresses'))
+                <a href="{{ route('addresses.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $addc['base'] }}/40">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-md {{ $addc['bg'] ?? 'bg-lime-50' }} {{ $addc['text'] ?? 'text-lime-600' }} group-hover:opacity-90">
+                                <x-heroicon-o-map-pin class="w-6 h-6" />
+                            </span>
+                            <h3 class="text-lg font-semibold text-gray-900">Addresses</h3>
+                        </div>
+                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $addc['text'] ?? 'text-lime-600' }}" />
+                    </div>
+                    <p class="text-sm text-gray-600 flex-1">Manage physical addresses with translations.</p>
+                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $addc['text'] ?? 'text-lime-600' }} group-hover:underline">Open &rarr;</span>
                 </a>
             </div>
         </section>

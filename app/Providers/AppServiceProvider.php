@@ -2,9 +2,14 @@
 
 namespace App\Providers;
 
+use App\Events\ItemTranslationSaved;
+use App\Events\SpellingSaved;
+use App\Listeners\DispatchSyncItemTranslationSpellings;
+use App\Listeners\DispatchSyncSpellingToItemTranslations;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -24,6 +29,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register glossary link maintenance event listeners
+        Event::listen(ItemTranslationSaved::class, DispatchSyncItemTranslationSpellings::class);
+        Event::listen(SpellingSaved::class, DispatchSyncSpellingToItemTranslations::class);
+
         // Share entity color config helper across views
         View::share('entityColor', function (string $entity): array {
             $map = config('app_entities.colors', []);

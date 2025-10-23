@@ -8,15 +8,17 @@ nav_order: 7
 
 {: .highlight }
 
-> This documentation is automatically generated from the Laravel models and database schema. Last updated: 2025-09-29 16:41:35 UTC
+> This documentation is automatically generated from the Laravel models and database schema. Last updated: 2025-10-24 UTC
 
 ## 📊 Overview
 
-- **📈 Total Models:** 28
+- **📈 Total Models:** 33
 - **🗄️ Database Connection:** sqlite
 - **🔧 Laravel Version:** 12.31.1
 
 ## 📚 Table of Contents
+
+### Models
 
 - [Address](#address)
 - [AddressTranslation](#addresstranslation)
@@ -24,12 +26,16 @@ nav_order: 7
 - [Author](#author)
 - [AvailableImage](#availableimage)
 - [Collection](#collection)
+- [CollectionImage](#collectionimage)
 - [CollectionPartner](#collectionpartner)
 - [CollectionTranslation](#collectiontranslation)
 - [Contact](#contact)
 - [ContactTranslation](#contacttranslation)
 - [Context](#context)
 - [Country](#country)
+- [Glossary](#glossary)
+- [GlossarySpelling](#glossaryspelling)
+- [GlossaryTranslation](#glossarytranslation)
 - [ImageUpload](#imageupload)
 - [Item](#item)
 - [ItemImage](#itemimage)
@@ -41,11 +47,21 @@ nav_order: 7
 - [Project](#project)
 - [Province](#province)
 - [ProvinceTranslation](#provincetranslation)
+- [Setting](#setting)
 - [Tag](#tag)
 - [Theme](#theme)
 - [ThemeTranslation](#themetranslation)
 - [User](#user)
 - [Workshop](#workshop)
+
+### Pivot Tables
+
+- [artist_item](#artist_item)
+- [collection_item](#collection_item)
+- [glossary_synonyms](#glossary_synonyms)
+- [item_tag](#item_tag)
+- [item_translation_spelling](#item_translation_spelling)
+- [item_workshop](#item_workshop)
 
 ## Address {#address}
 
@@ -263,11 +279,11 @@ const UPDATED_AT = 'updated_at';
 
 | Column       | Type     | Nullable | Default | Extra |
 | ------------ | -------- | -------- | ------- | ----- |
-| `id`         | varchar  | Unknown  | Unknown |       |
-| `path`       | varchar  | Unknown  | Unknown |       |
-| `comment`    | varchar  | Unknown  | Unknown |       |
-| `created_at` | datetime | Unknown  | Unknown |       |
-| `updated_at` | datetime | Unknown  | Unknown |       |
+| `id`         | uuid     | No       |         |       |
+| `path`       | varchar  | Yes      | null    |       |
+| `comment`    | varchar  | Yes      | null    |       |
+| `created_at` | datetime | Yes      |         |       |
+| `updated_at` | datetime | Yes      |         |       |
 
 ### ✏️ Fillable Fields
 
@@ -283,6 +299,8 @@ const UPDATED_AT = 'updated_at';
 ```
 
 ### 🔗 Relationships
+
+_No relationships defined_
 
 ## Collection {#collection}
 
@@ -302,14 +320,14 @@ const UPDATED_AT = 'updated_at';
 
 | Column                   | Type     | Nullable | Default | Extra |
 | ------------------------ | -------- | -------- | ------- | ----- |
-| `id`                     | varchar  | Unknown  | Unknown |       |
-| `internal_name`          | varchar  | Unknown  | Unknown |       |
-| `language_id`            | varchar  | Unknown  | Unknown |       |
-| `context_id`             | varchar  | Unknown  | Unknown |       |
-| `backward_compatibility` | varchar  | Unknown  | Unknown |       |
-| `created_at`             | datetime | Unknown  | Unknown |       |
-| `updated_at`             | datetime | Unknown  | Unknown |       |
-| `type`                   | varchar  | Unknown  | Unknown |       |
+| `id`                     | uuid     | No       |         |       |
+| `internal_name`          | varchar  | No       |         |       |
+| `language_id`            | varchar  | No       |         |       |
+| `context_id`             | uuid     | No       |         |       |
+| `backward_compatibility` | varchar  | Yes      | null    |       |
+| `type`                   | varchar  | No       |         |       |
+| `created_at`             | datetime | Yes      |         |       |
+| `updated_at`             | datetime | Yes      |         |       |
 
 ### ✏️ Fillable Fields
 
@@ -338,6 +356,7 @@ const UPDATED_AT = 'updated_at';
 
 - **`translations()`**: HasMany [CollectionTranslation](#collectiontranslation)
 - **`items()`**: HasMany [Item](#item)
+- **`collectionImages()`**: HasMany [CollectionImage](#collectionimage)
 
 #### Belongs To Many
 
@@ -353,17 +372,111 @@ const UPDATED_AT = 'updated_at';
 - **`exhibitions()`**
 - **`galleries()`**
 
+## CollectionImage {#collectionimage}
+
+**Namespace:** `App\Models\CollectionImage`
+
+### 🗄️ Database Table
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `collection_images`              |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
+
+### 🏗️ Database Schema
+
+| Column          | Type     | Nullable | Default | Extra |
+| --------------- | -------- | -------- | ------- | ----- |
+| `id`            | uuid     | No       |         |       |
+| `collection_id` | uuid     | No       |         |       |
+| `path`          | varchar  | No       |         |       |
+| `original_name` | varchar  | No       |         |       |
+| `mime_type`     | varchar  | No       |         |       |
+| `size`          | bigint   | No       |         |       |
+| `alt_text`      | varchar  | Yes      | null    |       |
+| `display_order` | integer  | No       | 0       |       |
+| `created_at`    | datetime | Yes      |         |       |
+| `updated_at`    | datetime | Yes      |         |       |
+
+### ✏️ Fillable Fields
+
+```php
+['collection_id', 'path', 'original_name', 'mime_type', 'size', 'alt_text', 'display_order']
+```
+
+### 🔄 Attribute Casting
+
+| Attribute       | Cast Type |
+| --------------- | --------- |
+| `size`          | `integer` |
+| `display_order` | `integer` |
+
+### 📋 Model Constants
+
+```php
+const CREATED_AT = 'created_at';
+const UPDATED_AT = 'updated_at';
+```
+
+### 🔗 Relationships
+
+#### Belongs To
+
+- **`collection()`**: BelongsTo [Collection](#collection)
+
 ## CollectionPartner {#collectionpartner}
 
 **Namespace:** `App\Models\CollectionPartner`
 
 ### 🗄️ Database Table
 
-| Property       | Value                |
-| -------------- | -------------------- |
-| **Table Name** | `collection_partner` |
+| Property         | Value                                                       |
+| ---------------- | ----------------------------------------------------------- |
+| **Table Name**   | `collection_partner`                                        |
+| **Primary Key**  | Composite: `collection_id`, `collection_type`, `partner_id` |
+| **Key Type**     | String (UUID)                                               |
+| **Incrementing** | No                                                          |
+| **Timestamps**   | Yes (`created_at`, `updated_at`)                            |
 
-⚠️ **Error generating documentation for this model:** Array to string conversion
+### 🏗️ Database Schema
+
+| Column            | Type     | Nullable | Default | Extra |
+| ----------------- | -------- | -------- | ------- | ----- |
+| `collection_id`   | uuid     | No       |         |       |
+| `collection_type` | varchar  | No       |         |       |
+| `partner_id`      | uuid     | No       |         |       |
+| `level`           | varchar  | No       |         |       |
+| `created_at`      | datetime | Yes      |         |       |
+| `updated_at`      | datetime | Yes      |         |       |
+
+### ✏️ Fillable Fields
+
+```php
+['collection_id', 'collection_type', 'partner_id', 'level']
+```
+
+### 🔄 Attribute Casting
+
+| Attribute | Cast Type |
+| --------- | --------- |
+| `level`   | `string`  |
+
+### 📋 Model Constants
+
+```php
+const CREATED_AT = 'created_at';
+const UPDATED_AT = 'updated_at';
+```
+
+### 🔗 Relationships
+
+#### Belongs To
+
+- **`collection()`**: BelongsTo [Collection](#collection)
+- **`partner()`**: BelongsTo [Partner](#partner)
 
 ## CollectionTranslation {#collectiontranslation}
 
@@ -613,6 +726,158 @@ const UPDATED_AT = 'updated_at';
 
 - **`items()`**: HasMany [Item](#item)
 - **`partners()`**: HasMany [Partner](#partner)
+
+## Glossary {#glossary}
+
+**Namespace:** `App\Models\Glossary`
+
+### 🗄️ Database Table
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `glossaries`                     |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
+
+### 🏗️ Database Schema
+
+| Column                   | Type     | Nullable | Default | Extra |
+| ------------------------ | -------- | -------- | ------- | ----- |
+| `id`                     | uuid     | No       |         |       |
+| `internal_name`          | varchar  | No       |         |       |
+| `backward_compatibility` | varchar  | Yes      | null    |       |
+| `created_at`             | datetime | Yes      |         |       |
+| `updated_at`             | datetime | Yes      |         |       |
+
+### ✏️ Fillable Fields
+
+```php
+['internal_name', 'backward_compatibility']
+```
+
+### 📋 Model Constants
+
+```php
+const CREATED_AT = 'created_at';
+const UPDATED_AT = 'updated_at';
+```
+
+### 🔗 Relationships
+
+#### Has Many
+
+- **`translations()`**: HasMany [GlossaryTranslation](#glossarytranslation)
+- **`spellings()`**: HasMany [GlossarySpelling](#glossaryspelling)
+
+#### Belongs To Many
+
+- **`synonyms()`**: BelongsToMany [Glossary](#glossary)
+- **`reverseSynonyms()`**: BelongsToMany [Glossary](#glossary)
+
+## GlossarySpelling {#glossaryspelling}
+
+**Namespace:** `App\Models\GlossarySpelling`
+
+### 🗄️ Database Table
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `glossary_spellings`             |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
+
+### 🏗️ Database Schema
+
+| Column        | Type     | Nullable | Default | Extra |
+| ------------- | -------- | -------- | ------- | ----- |
+| `id`          | uuid     | No       |         |       |
+| `glossary_id` | uuid     | No       |         |       |
+| `language_id` | varchar  | No       |         |       |
+| `spelling`    | varchar  | No       |         |       |
+| `created_at`  | datetime | Yes      |         |       |
+| `updated_at`  | datetime | Yes      |         |       |
+
+### ✏️ Fillable Fields
+
+```php
+['glossary_id', 'language_id', 'spelling']
+```
+
+### 📋 Model Constants
+
+```php
+const CREATED_AT = 'created_at';
+const UPDATED_AT = 'updated_at';
+```
+
+### 🔗 Relationships
+
+#### Belongs To
+
+- **`glossary()`**: BelongsTo [Glossary](#glossary)
+- **`language()`**: BelongsTo [Language](#language)
+
+#### Belongs To Many
+
+- **`itemTranslations()`**: BelongsToMany [ItemTranslation](#itemtranslation)
+
+### 🔍 Query Scopes
+
+- **`forLanguage()`**
+- **`forSpelling()`**
+
+## GlossaryTranslation {#glossarytranslation}
+
+**Namespace:** `App\Models\GlossaryTranslation`
+
+### 🗄️ Database Table
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `glossary_translations`          |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
+
+### 🏗️ Database Schema
+
+| Column        | Type     | Nullable | Default | Extra |
+| ------------- | -------- | -------- | ------- | ----- |
+| `id`          | uuid     | No       |         |       |
+| `glossary_id` | uuid     | No       |         |       |
+| `language_id` | varchar  | No       |         |       |
+| `definition`  | text     | No       |         |       |
+| `created_at`  | datetime | Yes      |         |       |
+| `updated_at`  | datetime | Yes      |         |       |
+
+### ✏️ Fillable Fields
+
+```php
+['glossary_id', 'language_id', 'definition']
+```
+
+### 📋 Model Constants
+
+```php
+const CREATED_AT = 'created_at';
+const UPDATED_AT = 'updated_at';
+```
+
+### 🔗 Relationships
+
+#### Belongs To
+
+- **`glossary()`**: BelongsTo [Glossary](#glossary)
+- **`language()`**: BelongsTo [Language](#language)
+
+### 🔍 Query Scopes
+
+- **`forLanguage()`**
 
 ## ImageUpload {#imageupload}
 
@@ -871,6 +1136,10 @@ const UPDATED_AT = 'updated_at';
 - **`textCopyEditor()`**: BelongsTo [Author](#author)
 - **`translator()`**: BelongsTo [Author](#author)
 - **`translationCopyEditor()`**: BelongsTo [Author](#author)
+
+#### Belongs To Many
+
+- **`spellings()`**: BelongsToMany [GlossarySpelling](#glossaryspelling)
 
 ### 🔍 Query Scopes
 
@@ -1233,6 +1502,54 @@ const UPDATED_AT = 'updated_at';
 - **`province()`**: BelongsTo [Province](#province)
 - **`language()`**: BelongsTo [Language](#language)
 
+## Setting {#setting}
+
+**Namespace:** `App\Models\Setting`
+
+### 🗄️ Database Table
+
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `settings`                       |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | Auto-incrementing Integer        |
+| **Incrementing** | Yes                              |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
+
+### 🏗️ Database Schema
+
+| Column        | Type     | Nullable | Default  | Extra |
+| ------------- | -------- | -------- | -------- | ----- |
+| `id`          | integer  | No       |          |       |
+| `key`         | varchar  | No       |          |       |
+| `value`       | text     | Yes      | null     |       |
+| `type`        | varchar  | No       | 'string' |       |
+| `description` | text     | Yes      | null     |       |
+| `created_at`  | datetime | Yes      |          |       |
+| `updated_at`  | datetime | Yes      |          |       |
+
+### ✏️ Fillable Fields
+
+```php
+['key', 'value', 'type', 'description']
+```
+
+### 📋 Model Constants
+
+```php
+const CREATED_AT = 'created_at';
+const UPDATED_AT = 'updated_at';
+```
+
+### 🔗 Relationships
+
+_No relationships defined_
+
+### 📝 Static Methods
+
+- **`get(string $key, mixed $default = null): mixed`** - Get a setting value by key
+- **`set(string $key, mixed $value, string $type = 'string', ?string $description = null): void`** - Set a setting value by key
+
 ## Tag {#tag}
 
 **Namespace:** `App\Models\Tag`
@@ -1413,19 +1730,19 @@ const UPDATED_AT = 'updated_at';
 
 | Column                      | Type     | Nullable | Default | Extra |
 | --------------------------- | -------- | -------- | ------- | ----- |
-| `id`                        | integer  | Unknown  | Unknown |       |
-| `name`                      | varchar  | Unknown  | Unknown |       |
-| `email`                     | varchar  | Unknown  | Unknown |       |
-| `email_verified_at`         | datetime | Unknown  | Unknown |       |
-| `password`                  | varchar  | Unknown  | Unknown |       |
-| `remember_token`            | varchar  | Unknown  | Unknown |       |
-| `current_team_id`           | integer  | Unknown  | Unknown |       |
-| `profile_photo_path`        | varchar  | Unknown  | Unknown |       |
-| `created_at`                | datetime | Unknown  | Unknown |       |
-| `updated_at`                | datetime | Unknown  | Unknown |       |
-| `two_factor_secret`         | text     | Unknown  | Unknown |       |
-| `two_factor_recovery_codes` | text     | Unknown  | Unknown |       |
-| `two_factor_confirmed_at`   | datetime | Unknown  | Unknown |       |
+| `id`                        | integer  | No       |         |       |
+| `name`                      | varchar  | No       |         |       |
+| `email`                     | varchar  | No       |         |       |
+| `email_verified_at`         | datetime | Yes      | null    |       |
+| `password`                  | varchar  | No       |         |       |
+| `remember_token`            | varchar  | Yes      | null    |       |
+| `current_team_id`           | integer  | Yes      | null    |       |
+| `profile_photo_path`        | varchar  | Yes      | null    |       |
+| `two_factor_secret`         | text     | Yes      | null    |       |
+| `two_factor_recovery_codes` | text     | Yes      | null    |       |
+| `two_factor_confirmed_at`   | datetime | Yes      | null    |       |
+| `created_at`                | datetime | Yes      |         |       |
+| `updated_at`                | datetime | Yes      |         |       |
 
 ### ✏️ Fillable Fields
 
@@ -1437,7 +1754,6 @@ const UPDATED_AT = 'updated_at';
 
 | Attribute           | Cast Type  |
 | ------------------- | ---------- |
-| `id`                | `int`      |
 | `email_verified_at` | `datetime` |
 | `password`          | `hashed`   |
 
@@ -1450,12 +1766,25 @@ const UPDATED_AT = 'updated_at';
 
 ### 🔗 Relationships
 
-#### Morph Many
+_No relationships defined in model (uses traits for API tokens and notifications)_
 
-- **`tokens()`**: MorphMany [PersonalAccessToken](#personalaccesstoken)
-- **`notifications()`**: MorphMany [DatabaseNotification](#databasenotification)
-- **`readNotifications()`**: MorphMany [DatabaseNotification](#databasenotification)
-- **`unreadNotifications()`**: MorphMany [DatabaseNotification](#databasenotification)
+### 📝 Special Methods
+
+- **`validateAndConsumeRecoveryCode(string $code): bool`** - Validate and consume a 2FA recovery code
+- **`recoveryCodes(): array`** - Get the user's 2FA recovery codes
+- **`hasSensitivePermissions(): bool`** - Check if user has sensitive permissions requiring MFA
+
+### 🔌 Traits
+
+- `Authenticatable`
+- `Authorizable`
+- `CanResetPassword`
+- `HasApiTokens` (Laravel Sanctum)
+- `HasProfilePhoto` (Laravel Jetstream)
+- `HasRoles` (Spatie Permission)
+- `MustVerifyEmail`
+- `Notifiable`
+- `TwoFactorAuthenticatable` (Laravel Fortify)
 
 ## Workshop {#workshop}
 
@@ -1507,6 +1836,197 @@ const UPDATED_AT = 'updated_at';
 #### Belongs To Many
 
 - **`items()`**: BelongsToMany [Item](#item)
+
+---
+
+## 🔗 Pivot Tables
+
+The following pivot tables manage many-to-many relationships in the system. These tables don't have dedicated Model classes but are used through Eloquent's `belongsToMany` relationships.
+
+## artist_item {#artist_item}
+
+**Purpose:** Links Artists to Items (many-to-many relationship)
+
+### 🗄️ Database Table
+
+| Property        | Value                             |
+| --------------- | --------------------------------- |
+| **Table Name**  | `artist_item`                     |
+| **Primary Key** | Composite: `artist_id`, `item_id` |
+| **Timestamps**  | Yes (`created_at`, `updated_at`)  |
+
+### 🏗️ Database Schema
+
+| Column       | Type     | Nullable | Default | Extra |
+| ------------ | -------- | -------- | ------- | ----- |
+| `artist_id`  | uuid     | No       |         |       |
+| `item_id`    | uuid     | No       |         |       |
+| `created_at` | datetime | Yes      |         |       |
+| `updated_at` | datetime | Yes      |         |       |
+
+### 🔗 Foreign Keys
+
+- `artist_id` → `artists.id` (cascade on delete)
+- `item_id` → `items.id` (cascade on delete)
+
+### 📝 Related Models
+
+- [Artist](#artist) → `items()` relationship
+- [Item](#item) → `artists()` relationship
+
+## collection_item {#collection_item}
+
+**Purpose:** Links Collections to Items through a many-to-many relationship (for attached items)
+
+### 🗄️ Database Table
+
+| Property        | Value                                 |
+| --------------- | ------------------------------------- |
+| **Table Name**  | `collection_item`                     |
+| **Primary Key** | Composite: `collection_id`, `item_id` |
+| **Timestamps**  | Yes (`created_at`, `updated_at`)      |
+
+### 🏗️ Database Schema
+
+| Column          | Type     | Nullable | Default | Extra |
+| --------------- | -------- | -------- | ------- | ----- |
+| `collection_id` | uuid     | No       |         |       |
+| `item_id`       | uuid     | No       |         |       |
+| `created_at`    | datetime | Yes      |         |       |
+| `updated_at`    | datetime | Yes      |         |       |
+
+### 🔗 Foreign Keys
+
+- `collection_id` → `collections.id` (cascade on delete)
+- `item_id` → `items.id` (cascade on delete)
+
+### 📝 Related Models
+
+- [Collection](#collection) → `attachedItems()` relationship
+- [Item](#item) → `attachedToCollections()` relationship
+
+## glossary_synonyms {#glossary_synonyms}
+
+**Purpose:** Links Glossary entries to their synonyms (self-referential many-to-many relationship)
+
+### 🗄️ Database Table
+
+| Property        | Value                                  |
+| --------------- | -------------------------------------- |
+| **Table Name**  | `glossary_synonyms`                    |
+| **Primary Key** | Composite: `glossary_id`, `synonym_id` |
+| **Timestamps**  | Yes (`created_at`, `updated_at`)       |
+
+### 🏗️ Database Schema
+
+| Column        | Type     | Nullable | Default | Extra |
+| ------------- | -------- | -------- | ------- | ----- |
+| `glossary_id` | uuid     | No       |         |       |
+| `synonym_id`  | uuid     | No       |         |       |
+| `created_at`  | datetime | Yes      |         |       |
+| `updated_at`  | datetime | Yes      |         |       |
+
+### 🔗 Foreign Keys
+
+- `glossary_id` → `glossaries.id` (cascade on delete)
+- `synonym_id` → `glossaries.id` (cascade on delete)
+
+### 📝 Related Models
+
+- [Glossary](#glossary) → `synonyms()` and `reverseSynonyms()` relationships
+
+## item_tag {#item_tag}
+
+**Purpose:** Links Items to Tags (many-to-many relationship for categorization)
+
+### 🗄️ Database Table
+
+| Property        | Value                            |
+| --------------- | -------------------------------- |
+| **Table Name**  | `item_tag`                       |
+| **Primary Key** | Composite: `item_id`, `tag_id`   |
+| **Timestamps**  | Yes (`created_at`, `updated_at`) |
+
+### 🏗️ Database Schema
+
+| Column       | Type     | Nullable | Default | Extra |
+| ------------ | -------- | -------- | ------- | ----- |
+| `item_id`    | uuid     | No       |         |       |
+| `tag_id`     | uuid     | No       |         |       |
+| `created_at` | datetime | Yes      |         |       |
+| `updated_at` | datetime | Yes      |         |       |
+
+### 🔗 Foreign Keys
+
+- `item_id` → `items.id` (cascade on delete)
+- `tag_id` → `tags.id` (cascade on delete)
+
+### 📝 Related Models
+
+- [Item](#item) → `tags()` relationship
+- [Tag](#tag) → `items()` relationship
+
+## item_translation_spelling {#item_translation_spelling}
+
+**Purpose:** Links ItemTranslations to GlossarySpellings (many-to-many relationship for glossary term usage)
+
+### 🗄️ Database Table
+
+| Property        | Value                                           |
+| --------------- | ----------------------------------------------- |
+| **Table Name**  | `item_translation_spelling`                     |
+| **Primary Key** | Composite: `item_translation_id`, `spelling_id` |
+| **Timestamps**  | Yes (`created_at`, `updated_at`)                |
+
+### 🏗️ Database Schema
+
+| Column                | Type     | Nullable | Default | Extra |
+| --------------------- | -------- | -------- | ------- | ----- |
+| `item_translation_id` | uuid     | No       |         |       |
+| `spelling_id`         | uuid     | No       |         |       |
+| `created_at`          | datetime | Yes      |         |       |
+| `updated_at`          | datetime | Yes      |         |       |
+
+### 🔗 Foreign Keys
+
+- `item_translation_id` → `item_translations.id` (cascade on delete)
+- `spelling_id` → `glossary_spellings.id` (cascade on delete)
+
+### 📝 Related Models
+
+- [ItemTranslation](#itemtranslation) → `spellings()` relationship
+- [GlossarySpelling](#glossaryspelling) → `itemTranslations()` relationship
+
+## item_workshop {#item_workshop}
+
+**Purpose:** Links Items to Workshops (many-to-many relationship)
+
+### 🗄️ Database Table
+
+| Property        | Value                               |
+| --------------- | ----------------------------------- |
+| **Table Name**  | `item_workshop`                     |
+| **Primary Key** | Composite: `item_id`, `workshop_id` |
+| **Timestamps**  | Yes (`created_at`, `updated_at`)    |
+
+### 🏗️ Database Schema
+
+| Column        | Type     | Nullable | Default | Extra |
+| ------------- | -------- | -------- | ------- | ----- |
+| `item_id`     | uuid     | No       |         |       |
+| `workshop_id` | uuid     | No       |         |       |
+| `created_at`  | datetime | Yes      |         |       |
+| `updated_at`  | datetime | Yes      |         |       |
+
+### 🔗 Foreign Keys
+
+- `item_id` → `items.id` (cascade on delete)
+- `workshop_id` → `workshops.id` (cascade on delete)
+
+### 📝 Related Models
+
+- [Item](#item) → `workshops()` relationship
+- [Workshop](#workshop) → `items()` relationship
 
 ---
 

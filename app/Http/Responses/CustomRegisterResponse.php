@@ -21,11 +21,6 @@ class CustomRegisterResponse implements RegisterResponseContract
             if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail()) {
                 return redirect()->route('verification.notice');
             }
-
-            // Then check 2FA (though newly registered users typically won't have 2FA enabled yet)
-            if (($user->hasEmailTwoFactorEnabled() || $user->hasTotpEnabled()) && ! session()->has('auth.password_confirmed_at')) {
-                return redirect()->intended(route('two-factor.login'));
-            }
         }
 
         // Default redirect to dashboard

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Events\ItemTranslationSaved;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 
 /**
  * ItemTranslation Model
@@ -16,6 +19,58 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ItemTranslation extends Model
 {
     use HasFactory, HasUuids;
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::saved(function ($itemTranslation) {
+            event(new ItemTranslationSaved($itemTranslation));
+        });
+    }
+
+    /**
+     * Delete the model from the database.
+     * Ensures atomic deletion of the ItemTranslation and its spelling links.
+     *
+     * @return bool|null
+     *
+     * @throws \LogicException
+     */
+    public function delete()
+    {
+        if (is_null($this->getKeyName())) {
+            throw new \LogicException('No primary key defined on model.');
+        }
+
+        // If the model doesn't exist, nothing to delete
+        if (! $this->exists) {
+            return false;
+        }
+
+        // Fire the deleting event (for other listeners, not for spelling detachment)
+        if ($this->fireModelEvent('deleting') === false) {
+            return false;
+        }
+
+        // Perform atomic deletion: detach spellings AND delete the model in one transaction
+        return DB::transaction(function () {
+            // First, detach all spelling links
+            $this->spellings()->detach();
+
+            // Then perform the actual deletion
+            $this->performDeleteOnModel();
+
+            // Mark the model as non-existing
+            $this->exists = false;
+
+            // Fire the deleted event
+            $this->fireModelEvent('deleted', false);
+
+            return true;
+        });
+    }
 
     /**
      * The table associated with the model.
@@ -129,6 +184,15 @@ class ItemTranslation extends Model
     public function translationCopyEditor(): BelongsTo
     {
         return $this->belongsTo(Author::class, 'translation_copy_editor_id');
+    }
+
+    /**
+     * Get the glossary spellings linked to this item translation.
+     */
+    public function spellings(): BelongsToMany
+    {
+        return $this->belongsToMany(GlossarySpelling::class, 'item_translation_spelling', 'item_translation_id', 'spelling_id')
+            ->withTimestamps();
     }
 
     /**

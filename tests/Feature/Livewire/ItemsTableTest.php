@@ -87,4 +87,83 @@ class ItemsTableTest extends TestCase
             ->set('q', 'Partner')
             ->assertSeeText('Partner Item');
     }
+
+    public function test_filter_by_single_tag(): void
+    {
+        $tag = \App\Models\Tag::factory()->create(['internal_name' => 'artifact']);
+        $item1 = Item::factory()->create(['internal_name' => 'Tagged Item']);
+        $item2 = Item::factory()->create(['internal_name' => 'Untagged Item']);
+
+        $item1->tags()->attach($tag->id);
+
+        Livewire::test(ItemsTable::class)
+            ->set('selectedTags', [$tag->id])
+            ->assertSeeText('Tagged Item')
+            ->assertDontSeeText('Untagged Item');
+    }
+
+    public function test_filter_by_multiple_tags_shows_only_items_with_all_tags(): void
+    {
+        $tag1 = \App\Models\Tag::factory()->create(['internal_name' => 'artifact']);
+        $tag2 = \App\Models\Tag::factory()->create(['internal_name' => 'ancient']);
+
+        $item1 = Item::factory()->create(['internal_name' => 'Both Tags Item']);
+        $item2 = Item::factory()->create(['internal_name' => 'Single Tag Item']);
+        $item3 = Item::factory()->create(['internal_name' => 'No Tags Item']);
+
+        $item1->tags()->attach([$tag1->id, $tag2->id]);
+        $item2->tags()->attach([$tag1->id]);
+
+        Livewire::test(ItemsTable::class)
+            ->set('selectedTags', [$tag1->id, $tag2->id])
+            ->assertSeeText('Both Tags Item')
+            ->assertDontSeeText('Single Tag Item')
+            ->assertDontSeeText('No Tags Item');
+    }
+
+    public function test_remove_tag_filter(): void
+    {
+        $tag = \App\Models\Tag::factory()->create(['internal_name' => 'artifact']);
+        $item = Item::factory()->create(['internal_name' => 'Tagged Item']);
+        $item->tags()->attach($tag->id);
+
+        Livewire::test(ItemsTable::class)
+            ->set('selectedTags', [$tag->id])
+            ->assertSeeText('Tagged Item')
+            ->call('removeTag', $tag->id)
+            ->assertSet('selectedTags', []);
+    }
+
+    public function test_clear_all_tags(): void
+    {
+        $tag1 = \App\Models\Tag::factory()->create(['internal_name' => 'artifact']);
+        $tag2 = \App\Models\Tag::factory()->create(['internal_name' => 'ancient']);
+
+        Livewire::test(ItemsTable::class)
+            ->set('selectedTags', [$tag1->id, $tag2->id])
+            ->call('clearTags')
+            ->assertSet('selectedTags', []);
+    }
+
+    public function test_tag_filter_persists_in_query_string(): void
+    {
+        $tag = \App\Models\Tag::factory()->create(['internal_name' => 'artifact']);
+
+        Livewire::test(ItemsTable::class)
+            ->set('selectedTags', [$tag->id])
+            ->assertSet('selectedTags', [$tag->id]);
+    }
+
+    public function test_available_tags_property_returns_all_tags(): void
+    {
+        $tag1 = \App\Models\Tag::factory()->create(['internal_name' => 'artifact']);
+        $tag2 = \App\Models\Tag::factory()->create(['internal_name' => 'monument']);
+
+        $component = Livewire::test(ItemsTable::class);
+
+        $availableTags = $component->viewData('availableTags');
+        $this->assertCount(2, $availableTags);
+        $this->assertTrue($availableTags->contains('id', $tag1->id));
+        $this->assertTrue($availableTags->contains('id', $tag2->id));
+    }
 }

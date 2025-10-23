@@ -188,6 +188,11 @@ class EditUserPasswordGenerationTest extends TestCase
 
         $targetUser = User::factory()->create(['email_verified_at' => now()]);
         $targetUser->assignRole('Regular User');
+        // Enable TOTP for the target user
+        $targetUser->forceFill([
+            'two_factor_secret' => encrypt('test-secret'),
+            'two_factor_confirmed_at' => now(),
+        ])->save();
 
         $managerRole = Role::where('name', 'Manager of Users')->first();
 

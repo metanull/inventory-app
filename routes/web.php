@@ -7,6 +7,9 @@ use App\Http\Controllers\Web\CollectionImageController as WebCollectionImageCont
 use App\Http\Controllers\Web\CollectionTranslationController as WebCollectionTranslationController;
 use App\Http\Controllers\Web\ContextController as WebContextController;
 use App\Http\Controllers\Web\CountryController as WebCountryController;
+use App\Http\Controllers\Web\GlossaryController as WebGlossaryController;
+use App\Http\Controllers\Web\GlossarySpellingController as WebGlossarySpellingController;
+use App\Http\Controllers\Web\GlossaryTranslationController as WebGlossaryTranslationController;
 use App\Http\Controllers\Web\ImageUploadController as WebImageUploadController;
 use App\Http\Controllers\Web\ItemController as WebItemController;
 use App\Http\Controllers\Web\ItemImageController as WebItemImageController;
@@ -14,6 +17,7 @@ use App\Http\Controllers\Web\ItemTranslationController as WebItemTranslationCont
 use App\Http\Controllers\Web\LanguageController as WebLanguageController;
 use App\Http\Controllers\Web\PartnerController as WebPartnerController;
 use App\Http\Controllers\Web\ProjectController as WebProjectController;
+use App\Http\Controllers\Web\TagController as WebTagController;
 use Dedoc\Scramble\Generator;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +57,10 @@ Route::prefix('web')->group(function () {
             Route::delete('/{item_image}', [WebItemImageController::class, 'destroy'])->name('destroy');
         });
 
+        // Item Tags - nested routes for attaching/detaching tags
+        Route::post('items/{item}/tags', [WebItemController::class, 'attachTag'])->name('items.tags.attach');
+        Route::delete('items/{item}/tags/{tag}', [WebItemController::class, 'detachTag'])->name('items.tags.detach');
+
         Route::resource('item-translations', WebItemTranslationController::class);
         Route::resource('collection-translations', WebCollectionTranslationController::class);
         Route::resource('partners', WebPartnerController::class);
@@ -60,7 +68,35 @@ Route::prefix('web')->group(function () {
         Route::resource('languages', WebLanguageController::class);
         Route::resource('projects', WebProjectController::class);
         Route::resource('contexts', WebContextController::class);
+        Route::resource('tags', WebTagController::class);
+        Route::resource('glossaries', WebGlossaryController::class);
+
+        // Glossary Translations - nested routes
+        Route::prefix('glossaries/{glossary}/translations')->name('glossaries.translations.')->group(function () {
+            Route::get('/', [WebGlossaryTranslationController::class, 'index'])->name('index');
+            Route::get('/create', [WebGlossaryTranslationController::class, 'create'])->name('create');
+            Route::post('/', [WebGlossaryTranslationController::class, 'store'])->name('store');
+            Route::get('/{translation}', [WebGlossaryTranslationController::class, 'show'])->name('show');
+            Route::get('/{translation}/edit', [WebGlossaryTranslationController::class, 'edit'])->name('edit');
+            Route::put('/{translation}', [WebGlossaryTranslationController::class, 'update'])->name('update');
+            Route::delete('/{translation}', [WebGlossaryTranslationController::class, 'destroy'])->name('destroy');
+        });
+
+        // Glossary Spellings - nested routes
+        Route::prefix('glossaries/{glossary}/spellings')->name('glossaries.spellings.')->group(function () {
+            Route::get('/', [WebGlossarySpellingController::class, 'index'])->name('index');
+            Route::get('/create', [WebGlossarySpellingController::class, 'create'])->name('create');
+            Route::post('/', [WebGlossarySpellingController::class, 'store'])->name('store');
+            Route::get('/{spelling}', [WebGlossarySpellingController::class, 'show'])->name('show');
+            Route::get('/{spelling}/edit', [WebGlossarySpellingController::class, 'edit'])->name('edit');
+            Route::put('/{spelling}', [WebGlossarySpellingController::class, 'update'])->name('update');
+            Route::delete('/{spelling}', [WebGlossarySpellingController::class, 'destroy'])->name('destroy');
+        });
+
         Route::resource('collections', WebCollectionController::class);
+        Route::resource('authors', \App\Http\Controllers\Web\AuthorController::class);
+        Route::resource('contacts', \App\Http\Controllers\Web\ContactController::class);
+        Route::resource('addresses', \App\Http\Controllers\Web\AddressController::class);
 
         // Collection Images - nested routes
         Route::prefix('collections/{collection}/collection-images')->name('collections.collection-images.')->group(function () {

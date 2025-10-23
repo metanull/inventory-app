@@ -129,7 +129,7 @@ class CollectionController extends Controller
     /**
      * Attach an item to a collection via many-to-many relationship.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return CollectionResource
      */
     public function attachItem(AttachItemCollectionRequest $request, Collection $collection)
     {
@@ -138,14 +138,17 @@ class CollectionController extends Controller
         $item = \App\Models\Item::findOrFail($validated['item_id']);
         $collection->attachItem($item);
 
-        return new \App\Http\Resources\OperationSuccessResource([
-            'success' => true,
-            'message' => 'Item attached to collection successfully',
-        ]);
+        $collection->refresh();
+        $includes = $request->getIncludeParams();
+        $collection->load($includes);
+
+        return new CollectionResource($collection);
     }
 
     /**
      * Detach an item from a collection.
+     *
+     * @return CollectionResource
      */
     public function detachItem(DetachItemCollectionRequest $request, Collection $collection)
     {
@@ -154,14 +157,17 @@ class CollectionController extends Controller
         $item = \App\Models\Item::findOrFail($validated['item_id']);
         $collection->detachItem($item);
 
-        return new \App\Http\Resources\OperationSuccessResource([
-            'success' => true,
-            'message' => 'Item detached from collection successfully',
-        ]);
+        $collection->refresh();
+        $includes = $request->getIncludeParams();
+        $collection->load($includes);
+
+        return new CollectionResource($collection);
     }
 
     /**
      * Attach multiple items to a collection.
+     *
+     * @return CollectionResource
      */
     public function attachItems(AttachItemsCollectionRequest $request, Collection $collection)
     {
@@ -169,14 +175,17 @@ class CollectionController extends Controller
 
         $collection->attachItems($validated['item_ids']);
 
-        return new \App\Http\Resources\OperationSuccessResource([
-            'success' => true,
-            'message' => 'Items attached to collection successfully',
-        ]);
+        $collection->refresh();
+        $includes = $request->getIncludeParams();
+        $collection->load($includes);
+
+        return new CollectionResource($collection);
     }
 
     /**
      * Detach multiple items from a collection.
+     *
+     * @return CollectionResource
      */
     public function detachItems(DetachItemsCollectionRequest $request, Collection $collection)
     {
@@ -184,10 +193,11 @@ class CollectionController extends Controller
 
         $collection->detachItems($validated['item_ids']);
 
-        return new \App\Http\Resources\OperationSuccessResource([
-            'success' => true,
-            'message' => 'Items detached from collection successfully',
-        ]);
+        $collection->refresh();
+        $includes = $request->getIncludeParams();
+        $collection->load($includes);
+
+        return new CollectionResource($collection);
     }
 
     /**

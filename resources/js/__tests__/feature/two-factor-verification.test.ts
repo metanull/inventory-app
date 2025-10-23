@@ -16,7 +16,7 @@ describe('TwoFactorVerification', () => {
 
   const mockChallenge = {
     requires_two_factor: true,
-    available_methods: ['totp', 'email'],
+    available_methods: ['totp'],
     primary_method: 'totp',
     message: 'Two-factor authentication required.',
   }
@@ -32,27 +32,10 @@ describe('TwoFactorVerification', () => {
     expect(wrapper.text()).toContain(mockChallenge.message)
   })
 
-  it('shows method selection when multiple methods available', () => {
+  it('auto-selects method when only one available', async () => {
     const wrapper = mount(TwoFactorVerification, {
       props: {
         challenge: mockChallenge,
-      },
-    })
-
-    expect(wrapper.text()).toContain('Choose verification method')
-    expect(wrapper.text()).toContain('Authenticator App')
-    expect(wrapper.text()).toContain('Email Code')
-  })
-
-  it('auto-selects method when only one available', async () => {
-    const singleMethodChallenge = {
-      ...mockChallenge,
-      available_methods: ['totp'],
-    }
-
-    const wrapper = mount(TwoFactorVerification, {
-      props: {
-        challenge: singleMethodChallenge,
       },
     })
 
@@ -60,20 +43,6 @@ describe('TwoFactorVerification', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.selectedMethod).toBe('totp')
-  })
-
-  it('shows email code request for email method', async () => {
-    const wrapper = mount(TwoFactorVerification, {
-      props: {
-        challenge: mockChallenge,
-      },
-    })
-
-    // Select email method
-    await wrapper.vm.selectMethod('email')
-
-    expect(wrapper.text()).toContain('Send Email Code')
-    expect(wrapper.vm.selectedMethod).toBe('email')
   })
 
   it('shows code input for TOTP method', async () => {
@@ -93,10 +62,7 @@ describe('TwoFactorVerification', () => {
   it('formats code input correctly', async () => {
     const wrapper = mount(TwoFactorVerification, {
       props: {
-        challenge: {
-          ...mockChallenge,
-          available_methods: ['totp'],
-        },
+        challenge: mockChallenge,
       },
     })
 
@@ -113,27 +79,6 @@ describe('TwoFactorVerification', () => {
 
     wrapper.vm.formatCode(mockEvent)
     expect(wrapper.vm.code).toBe('123456')
-  })
-
-  it('handles email code request', async () => {
-    const authStore = useAuthStore()
-    const requestEmailCodeSpy = vi.spyOn(authStore, 'requestEmailCode').mockResolvedValue({
-      message: 'Code sent',
-      expires_in: 300,
-    })
-
-    const wrapper = mount(TwoFactorVerification, {
-      props: {
-        challenge: mockChallenge,
-      },
-    })
-
-    // Select email method and request code
-    await wrapper.vm.selectMethod('email')
-    await wrapper.vm.sendEmailCode()
-
-    expect(requestEmailCodeSpy).toHaveBeenCalled()
-    expect(wrapper.vm.emailCodeSent).toBe(true)
   })
 
   it('handles 2FA verification', async () => {

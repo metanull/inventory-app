@@ -20,7 +20,7 @@
                     @if(session('generated_password'))
                         <div class="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
                             <div class="flex">
-                                <div class="flex-shrink-0">
+                                <div class="shrink-0">
                                     <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                     </svg>
@@ -37,7 +37,7 @@
                                         <p class="mt-2 text-xs">{{ __('Please copy this password and share it securely with the user. This password will not be shown again.') }}</p>
                                     </div>
                                 </div>
-                                <div class="ml-4 flex-shrink-0">
+                                <div class="ml-4 shrink-0">
                                     <button type="button" class="bg-green-100 rounded-md inline-flex text-green-400 hover:text-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" onclick="copyToClipboard('{{ session('generated_password') }}')">
                                         <span class="sr-only">{{ __('Copy password') }}</span>
                                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -90,6 +90,9 @@
                                         {{ __('Roles') }}
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        {{ __('MFA Status') }}
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         {{ __('Email Verified') }}
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -120,6 +123,22 @@
                                                         {{ __('No Role') }}
                                                     </span>
                                                 @endforelse
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center gap-2">
+                                                @if($user->hasEnabledTwoFactorAuthentication())
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" title="{{ __('TOTP 2FA Enabled') }}">
+                                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/>
+                                                        </svg>
+                                                        {{ __('Enabled') }}
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                        {{ __('Disabled') }}
+                                                    </span>
+                                                @endif
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
@@ -161,7 +180,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                                             {{ __('No users found.') }}
                                         </td>
                                     </tr>

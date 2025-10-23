@@ -4,8 +4,8 @@ import {
   type AcquireTokenMobileAppAuthenticationRequest,
   type TokenAcquire202Response,
   type VerifyTwoFactorMobileAppAuthenticationRequest,
-  type RequestEmailCodeMobileAppAuthenticationRequest,
   type VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum,
+  type TwoFactorStatusMobileAppAuthenticationRequest,
 } from '@metanull/inventory-app-api-client'
 import { useApiClient } from '@/composables/useApiClient'
 import { usePermissionsStore } from './permissions'
@@ -140,36 +140,10 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const requestEmailCode = async () => {
-    if (!pendingCredentials.value) {
-      throw new Error('No pending authentication')
-    }
-
-    loading.value = true
-    error.value = null
-
-    try {
-      const apiClient = createApiClient()
-      const emailCodeRequest: RequestEmailCodeMobileAppAuthenticationRequest = {
-        email: pendingCredentials.value.email,
-        password: pendingCredentials.value.password,
-      }
-
-      const response = await apiClient.tokenRequestEmailCode(emailCodeRequest)
-      return response.data.data
-    } catch (err: unknown) {
-      const errorMessage = (err as { message?: string })?.message || 'Failed to send email code'
-      error.value = errorMessage
-      throw err
-    } finally {
-      loading.value = false
-    }
-  }
-
   const getTwoFactorStatus = async (email: string, password: string): Promise<TwoFactorStatus> => {
     try {
       const apiClient = createApiClient()
-      const statusRequest: RequestEmailCodeMobileAppAuthenticationRequest = {
+      const statusRequest: TwoFactorStatusMobileAppAuthenticationRequest = {
         email,
         password,
       }
@@ -294,7 +268,6 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     clearError,
     verifyTwoFactor,
-    requestEmailCode,
     getTwoFactorStatus,
     cancel2FA,
     validateSession,

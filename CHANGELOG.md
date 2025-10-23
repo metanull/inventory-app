@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Tag System**: Complete tag classification system for Items:
+  - Database schema: item_tag pivot table for N-to-N relationship between Items and Tags
+  - Models: Tag with UUID primary keys, internal_name, description, backward_compatibility fields
+  - API: Full CRUD endpoints (/api/tag) with authentication and pagination
+  - Resources: TagResource for consistent API responses
+  - FormRequests: StoreTagRequest, UpdateTagRequest for Web operations
+  - Web UI: TagController with SearchAndPaginate, Blade views (index, create, edit, show)
+  - Web Routes: Resource routes at /web/tags with permission-based access control
+  - Frontend: TagsTable Livewire component for listing tags
+  - Tests: 7 comprehensive web feature tests (Index, Show, Create, Store, Edit, Update, Destroy)
+  - Navigation: Added Tag tile to home page Primary Domains section with violet color scheme
+  - API Client: Regenerated TypeScript client with Tag endpoints
+  - All 1491 tests passing with full test coverage
+
+- **Glossary System**: Complete glossary management system for specialized terminology:
+  - Database schema: glossaries, glossary_translations, glossary_spellings, glossary_synonyms, item_translation_spelling pivot
+  - Models: Glossary, GlossaryTranslation, GlossarySpelling with UUID primary keys, factories, and seeders
+  - API: Full CRUD endpoints with authentication, pagination, and include support
+  - Resources: GlossaryResource, GlossaryTranslationResource, GlossarySpellingResource
+  - FormRequests: 17 validation classes for API and Web operations
+  - Web UI: Controllers, Blade views, and routes for glossary management
+  - Frontend: TypeScript API client, Pinia stores, Vue 3 components
+  - Tests: 135 new tests (86 API + 41 link maintenance + 8 atomic deletion = 1,989 total passing)
+  - Automatic Link Maintenance: Events, Jobs, Listeners for ItemTranslation<->Spelling sync with queue-based processing
+  - Atomic Deletion: Transaction-wrapped deletion for Glossary, GlossarySpelling, ItemTranslation, and Item models
+  - Navigation: Added glossary to Reference dropdown with emerald color scheme
+
 - **CollectionImage Visibility (Vue.js SPA & Web UI)**:
   - Created CollectionImageManager.vue component for managing collection images in SPA
   - Integrated CollectionImageManager into CollectionDetail.vue (visible in view mode)
@@ -43,11 +70,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Email 2FA Authorization**: Fixed EmailTwoFactorForm to always require password confirmation (removed conditional Fortify feature check that was causing 403 errors in production)
+
 - **ItemTranslation Form (Blade)**: Fixed blade template to properly handle array values in `old()` helper for the `extra` (JSON) field. This prevents `htmlspecialchars()` type errors when validation fails and the form is redisplayed.
 
 ### Changed
 
-- All 1,673 backend tests pass successfully with permission middleware and FormRequest refactoring
+- All 1,989 backend tests pass successfully (added 135 glossary system tests including atomic deletion)
 
 ## [5.6.0] - 2025-10-14
 

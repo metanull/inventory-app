@@ -126,49 +126,19 @@ class RecoveryKeyLoginTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_recovery_code_login_works_with_both_totp_and_email_2fa_enabled(): void
-    {
-        Event::fake();
-        $user = $this->createUserWithBothTwoFactor();
-
-        // Add recovery codes
-        $recoveryCodes = [
-            'recovery-code-1',
-            'recovery-code-2',
-        ];
-
-        $user->forceFill([
-            'two_factor_recovery_codes' => encrypt(json_encode($recoveryCodes)),
-        ])->save();
-
-        // Login to get to 2FA challenge
-        $this->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        // Use recovery code
-        $response = $this->post(route('two-factor.login.store'), [
-            'recovery_code' => 'recovery-code-1',
-        ]);
-
-        $response->assertStatus(302);
-        $response->assertRedirect(route('dashboard'));
-        $this->assertAuthenticatedAs($user);
-        Event::assertDispatched(Login::class);
-    }
-
     public function test_recovery_code_login_without_2fa_challenge_fails(): void
     {
         $user = $this->createUserWithRecoveryCodes();
 
-        // Try to use recovery code without being in 2FA challenge
+        // Try to use recovery code without being in 2FA challenge (no session)
         $response = $this->post(route('two-factor.login.store'), [
             'recovery_code' => $this->getUnusedRecoveryCode(),
         ]);
 
+        // Fortify redirects back to 2FA challenge page with error when session is missing
         $response->assertStatus(302);
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('two-factor.login'));
+        $response->assertSessionHasErrors(['recovery_code']);
         $this->assertGuest();
     }
 
@@ -315,8 +285,10 @@ class RecoveryKeyLoginTest extends TestCase
             'recovery_code' => $this->getUnusedRecoveryCode(),
         ]);
 
+        // Fortify redirects back to 2FA challenge page with error when session is expired
         $response->assertStatus(302);
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('two-factor.login'));
+        $response->assertSessionHasErrors(['recovery_code']);
         $this->assertGuest();
     }
 }

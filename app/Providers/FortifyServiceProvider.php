@@ -34,16 +34,10 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
-        // Register custom login response to enforce 2FA challenge for email 2FA users
+        // Register custom login response to check email verification
         $this->app->singleton(
             \Laravel\Fortify\Contracts\LoginResponse::class,
             \App\Actions\Fortify\CustomLoginResponse::class
-        );
-
-        // Register custom failed two-factor login response to handle email 2FA validation
-        $this->app->singleton(
-            \Laravel\Fortify\Contracts\FailedTwoFactorLoginResponse::class,
-            \App\Http\Responses\CustomFailedTwoFactorLoginResponse::class
         );
 
         // Register safe two-factor authentication provider to handle invalid base32 secrets

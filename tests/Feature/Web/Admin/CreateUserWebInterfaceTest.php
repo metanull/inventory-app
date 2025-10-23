@@ -71,19 +71,19 @@ class CreateUserWebInterfaceTest extends TestCase
         $admin->assignRole('Manager of Users');
 
         $regularUserRole = Role::where('name', 'Regular User')->first();
-        $managerRole = Role::where('name', 'Manager of Users')->first();
+        $visitorRole = Role::where('name', 'Visitor')->first(); // Use non-sensitive role
 
         $response = $this->actingAs($admin)->post(route('admin.users.store'), [
             'name' => 'Multi Role User',
             'email' => 'multirole@example.com',
-            'roles' => [$regularUserRole->id, $managerRole->id],
+            'roles' => [$regularUserRole->id, $visitorRole->id],
         ]);
 
         $response->assertRedirect(route('admin.users.index'));
 
         $user = User::where('email', 'multirole@example.com')->first();
         $this->assertTrue($user->hasRole('Regular User'));
-        $this->assertTrue($user->hasRole('Manager of Users'));
+        $this->assertTrue($user->hasRole('Visitor'));
     }
 
     public function test_create_user_form_validation_works(): void
@@ -204,5 +204,31 @@ class CreateUserWebInterfaceTest extends TestCase
         $response->assertSee('Notification Test User');
         $response->assertSee('notification@example.com');
         $response->assertSee('Generated Password:');
+    }
+
+    public function test_cannot_create_user_with_sensitive_permissions_without_mfa(): void
+    {
+        $admin = User::factory()->create(['email_verified_at' => now()]);
+        $admin->assignRole('Manager of Users');
+
+        $managerRole = Role::where('name', 'Manager of Users')->first();
+
+        $response = $this->actingAs($admin)->post(route('admin.users.store'), [
+            'name' => 'Test Manager',
+            'email' => 'testmanager@example.com',
+            'roles' => [$managerRole->id],
+        ]);
+
+        $response->assertSessionHasErrors(['roles']);
+        // Verify the error message contains the key phrase
+        $errors = session('errors');
+        $this->assertNotNull($errors);
+        $roleErrors = $errors->get('roles');
+        $this->assertNotEmpty($roleErrors);
+        $this->assertStringContainsString('Cannot assign roles with sensitive permissions', $roleErrors[0]);
+
+        // Verify user was not created
+        $user = User::where('email', 'testmanager@example.com')->first();
+        $this->assertNull($user);
     }
 }

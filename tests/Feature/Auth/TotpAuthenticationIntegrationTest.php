@@ -30,8 +30,6 @@ class TotpAuthenticationIntegrationTest extends TestCase
             'password' => Hash::make('test-password'),
             'two_factor_secret' => encrypt($this->validSecret),
             'two_factor_confirmed_at' => now(),
-            'email_2fa_enabled' => false,
-            'preferred_2fa_method' => 'totp',
         ]);
     }
 
@@ -223,7 +221,6 @@ class TotpAuthenticationIntegrationTest extends TestCase
             'password' => Hash::make('test-password'),
             'two_factor_secret' => null,
             'two_factor_confirmed_at' => null,
-            'email_2fa_enabled' => false,
         ]);
 
         // API authentication should work without 2FA
@@ -267,8 +264,6 @@ class TotpAuthenticationIntegrationTest extends TestCase
             'password' => Hash::make('test-password'),
             'two_factor_secret' => encrypt('INVALID0SECRET1'), // Contains invalid Base32 chars 0 and 1
             'two_factor_confirmed_at' => now(),
-            'email_2fa_enabled' => false,
-            'preferred_2fa_method' => 'totp',
         ]);
 
         $response = $this->postJson('/api/mobile/verify-two-factor', [

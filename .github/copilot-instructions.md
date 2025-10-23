@@ -2,6 +2,8 @@
 
 **CRITICAL**: Always use VS Code tools instead of terminal when possible (e.g. to list files, search in files, replace in files, interact with github, interact with tests...)
 **CRITICAL**: Always use VS Code tools to run tests
+**CRITICAL**: Always implement the entire request (do not arbitrary prioritize parts of it; do not arbitrary decide that parts of it are not worth handling, or too long; do not arbitrary decide that a task is out of scope of the request)
+**CRITICAL**: Always fix all warnings and all errors, none are acceptable
 
 This repo is a Laravel 12 (PHP 8.2+) backend and Vue 3 + TypeScript SPA frontend monorepo. The guidance below focuses on project-specific rules, commands, and locations an automated coding agent needs to be productive.
 

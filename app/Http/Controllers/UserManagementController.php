@@ -106,8 +106,9 @@ class UserManagementController extends Controller
     {
         $roles = Role::all();
         $user->load('roles');
+        $isEditingSelf = Auth::id() === $user->id;
 
-        return view('admin.users.edit', compact('user', 'roles'));
+        return view('admin.users.edit', compact('user', 'roles', 'isEditingSelf'));
     }
 
     /**
@@ -128,13 +129,16 @@ class UserManagementController extends Controller
             $user->update(['password' => Hash::make($generatedPassword)]);
         }
 
-        if (isset($validated['roles'])) {
-            // Convert role IDs to role objects for syncRoles
-            $roles = Role::whereIn('id', $validated['roles'])->get();
-            $user->syncRoles($roles);
-        } else {
-            // If no roles are provided, remove all roles
-            $user->syncRoles([]);
+        // Prevent users from editing their own role assignments
+        if (Auth::id() !== $user->id) {
+            if (isset($validated['roles'])) {
+                // Convert role IDs to role objects for syncRoles
+                $roles = Role::whereIn('id', $validated['roles'])->get();
+                $user->syncRoles($roles);
+            } else {
+                // If no roles are provided, remove all roles
+                $user->syncRoles([]);
+            }
         }
 
         // Handle email verification management

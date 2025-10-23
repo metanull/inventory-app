@@ -190,16 +190,31 @@ export interface ArtistResource {
 export interface AttachFromAvailableCollectionImageRequest {
     'available_image_id': string;
     'alt_text'?: string | null;
+    'include'?: string;
 }
 export interface AttachFromAvailableItemImageRequest {
     'available_image_id': string;
     'alt_text'?: string | null;
+    'include'?: string;
+}
+export interface AttachGlossarySynonymRequest {
+    'synonym_id': string;
 }
 export interface AttachItemCollectionRequest {
     'item_id': string;
+    'include'?: string;
 }
 export interface AttachItemsCollectionRequest {
+    'include'?: string;
     'item_ids': Array<string>;
+}
+export interface AttachTagItemRequest {
+    'tag_id': string;
+    'include'?: string;
+}
+export interface AttachTagsItemRequest {
+    'include'?: string;
+    'tag_ids': Array<string>;
 }
 export interface AuthorResource {
     /**
@@ -257,9 +272,6 @@ export interface AvailableImageResource {
 export interface AvailableImageShow200Response {
     'data': AvailableImageResource;
 }
-export interface CollectionAttachItem200Response {
-    'data': OperationSuccessResource;
-}
 export interface CollectionByType200Response {
     'data': Array<CollectionResource>;
 }
@@ -308,6 +320,9 @@ export interface CollectionImageResource {
      * The date of last modification of the resource (managed by the system)
      */
     'updated_at': string | null;
+}
+export interface CollectionImageTightenOrdering200Response {
+    'data': OperationSuccessResource;
 }
 export interface CollectionImagesIndex200Response {
     'data': Array<CollectionImageResource>;
@@ -613,9 +628,120 @@ export interface CountryResource {
 export interface CountryShow200Response {
     'data': CountryResource;
 }
-export interface EmailCodeRequestResource {
-    'message': string;
-    'expires_in': string;
+export interface GlossaryIndex200Response {
+    'data': Array<GlossaryResource>;
+    'links': AddressIndex200ResponseLinks;
+    'meta': AddressIndex200ResponseMeta;
+}
+export interface GlossaryResource {
+    /**
+     * The unique identifier (GUID)
+     */
+    'id': string;
+    /**
+     * A name for this resource, for internal use only.
+     */
+    'internal_name': string;
+    /**
+     * The Id(s) of matching resource in the legacy system (if any).
+     */
+    'backward_compatibility': string | null;
+    /**
+     * The date of creation of the resource (managed by the system)
+     */
+    'created_at': string | null;
+    /**
+     * The date of last modification of the resource (managed by the system)
+     */
+    'updated_at': string | null;
+    /**
+     * Relationships (only included if loaded)
+     */
+    'translations'?: Array<GlossaryTranslationResource>;
+    'spellings'?: Array<GlossarySpellingResource>;
+    'synonyms'?: Array<GlossaryResource>;
+}
+export interface GlossaryShow200Response {
+    'data': GlossaryResource;
+}
+export interface GlossarySpellingIndex200Response {
+    'data': Array<GlossarySpellingResource>;
+    'links': AddressIndex200ResponseLinks;
+    'meta': AddressIndex200ResponseMeta;
+}
+export interface GlossarySpellingResource {
+    /**
+     * The unique identifier (GUID)
+     */
+    'id': string;
+    /**
+     * The glossary this spelling belongs to
+     */
+    'glossary_id': string;
+    /**
+     * The language of this spelling
+     */
+    'language_id': string;
+    /**
+     * The spelling variation
+     */
+    'spelling': string;
+    /**
+     * The date of creation of the resource (managed by the system)
+     */
+    'created_at': string | null;
+    /**
+     * The date of last modification of the resource (managed by the system)
+     */
+    'updated_at': string | null;
+    /**
+     * Relationships (only included if loaded)
+     */
+    'glossary'?: GlossaryResource;
+    'language'?: LanguageResource;
+    'item_translations'?: Array<ItemTranslationResource>;
+}
+export interface GlossarySpellingShow200Response {
+    'data': GlossarySpellingResource;
+}
+export interface GlossaryTranslationIndex200Response {
+    'data': Array<GlossaryTranslationResource>;
+    'links': AddressIndex200ResponseLinks;
+    'meta': AddressIndex200ResponseMeta;
+}
+export interface GlossaryTranslationResource {
+    /**
+     * The unique identifier (GUID)
+     */
+    'id': string;
+    /**
+     * The glossary this translation belongs to
+     */
+    'glossary_id': string;
+    /**
+     * The language of this translation
+     */
+    'language_id': string;
+    /**
+     * The definition/translation text
+     */
+    'definition': string;
+    /**
+     * The date of creation of the resource (managed by the system)
+     */
+    'created_at': string | null;
+    /**
+     * The date of last modification of the resource (managed by the system)
+     */
+    'updated_at': string | null;
+    /**
+     * Relationships (only included if loaded)
+     */
+    'glossary'?: GlossaryResource;
+    'language'?: LanguageResource;
+}
+export interface GlossaryTranslationShow200Response {
+    'data': GlossaryTranslationResource;
 }
 export interface ImageUploadIndex200Response {
     'data': Array<ImageUploadResource>;
@@ -865,7 +991,7 @@ export interface ItemTranslationResource {
     /**
      * The description of the item translation
      */
-    'description': string;
+    'description': string | null;
     /**
      * The type of the item translation
      */
@@ -1266,10 +1392,6 @@ export interface ProvinceTranslationResource {
 export interface ProvinceTranslationShow200Response {
     'data': ProvinceTranslationResource;
 }
-export interface RequestEmailCodeMobileAppAuthenticationRequest {
-    'email': string;
-    'password': string;
-}
 export interface SetDefaultContextRequest {
     'is_default': boolean;
 }
@@ -1330,7 +1452,7 @@ export interface StoreCollectionTranslationRequest {
     'language_id': string;
     'context_id': string;
     'title': string;
-    'description'?: string | null;
+    'description': string;
     'url'?: string | null;
     'backward_compatibility'?: string | null;
     'extra'?: string | null;
@@ -1362,6 +1484,23 @@ export interface StoreCountryRequest {
     'id': string;
     'internal_name': string;
     'backward_compatibility'?: string | null;
+}
+export interface StoreGlossaryRequest {
+    'id'?: string;
+    'internal_name': string;
+    'backward_compatibility'?: string | null;
+}
+export interface StoreGlossarySpellingRequest {
+    'id'?: string;
+    'glossary_id': string;
+    'language_id': string;
+    'spelling': string;
+}
+export interface StoreGlossaryTranslationRequest {
+    'id'?: string;
+    'glossary_id': string;
+    'language_id': string;
+    'definition': string;
 }
 export interface StoreItemImageRequest {
     'path': string;
@@ -1642,9 +1781,6 @@ export interface TokenAcquire202Response {
     'primary_method': string;
     'message': string;
 }
-export interface TokenRequestEmailCode200Response {
-    'data': EmailCodeRequestResource;
-}
 export interface TokenTwoFactorStatus200Response {
     'data': TwoFactorStatusResource;
 }
@@ -1714,7 +1850,7 @@ export interface UpdateCollectionTranslationRequest {
     'language_id'?: string;
     'context_id'?: string;
     'title'?: string;
-    'description'?: string | null;
+    'description'?: string;
     'url'?: string | null;
     'backward_compatibility'?: string | null;
     'extra'?: string | null;
@@ -1746,6 +1882,23 @@ export interface UpdateCountryRequest {
     'id'?: string;
     'internal_name': string;
     'backward_compatibility'?: string | null;
+}
+export interface UpdateGlossaryRequest {
+    'id'?: string;
+    'internal_name': string;
+    'backward_compatibility'?: string | null;
+}
+export interface UpdateGlossarySpellingRequest {
+    'id'?: string;
+    'glossary_id'?: string;
+    'language_id'?: string;
+    'spelling'?: string;
+}
+export interface UpdateGlossaryTranslationRequest {
+    'id'?: string;
+    'glossary_id'?: string;
+    'language_id'?: string;
+    'definition'?: string;
 }
 export interface UpdateItemImageRequest {
     /**
@@ -3694,10 +3847,11 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItem: async (collection: string, itemId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionDetachItem: async (collection: string, itemId: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'collection' is not null or undefined
             assertParamExists('collectionDetachItem', 'collection', collection)
             // verify required parameter 'itemId' is not null or undefined
@@ -3723,6 +3877,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
                 localVarQueryParameter['item_id'] = itemId;
             }
 
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -3739,10 +3897,11 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItems: async (collection: string, itemIds: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionDetachItems: async (collection: string, itemIds: Array<string>, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'collection' is not null or undefined
             assertParamExists('collectionDetachItems', 'collection', collection)
             // verify required parameter 'itemIds' is not null or undefined
@@ -3766,6 +3925,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
 
             if (itemIds) {
                 localVarQueryParameter['item_ids[]'] = itemIds;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
             }
 
 
@@ -4012,7 +4175,7 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionAttachItem(collection: string, attachItemCollectionRequest: AttachItemCollectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async collectionAttachItem(collection: string, attachItemCollectionRequest: AttachItemCollectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.collectionAttachItem(collection, attachItemCollectionRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionAttachItem']?.[localVarOperationServerIndex]?.url;
@@ -4026,7 +4189,7 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionAttachItems(collection: string, attachItemsCollectionRequest: AttachItemsCollectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async collectionAttachItems(collection: string, attachItemsCollectionRequest: AttachItemsCollectionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.collectionAttachItems(collection, attachItemsCollectionRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionAttachItems']?.[localVarOperationServerIndex]?.url;
@@ -4064,11 +4227,12 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItem(collection, itemId, options);
+        async collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItem(collection, itemId, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionDetachItem']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4078,11 +4242,12 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItems(collection, itemIds, options);
+        async collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItems(collection, itemIds, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionDetachItems']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4174,7 +4339,7 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionAttachItem(collection: string, attachItemCollectionRequest: AttachItemCollectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        collectionAttachItem(collection: string, attachItemCollectionRequest: AttachItemCollectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
             return localVarFp.collectionAttachItem(collection, attachItemCollectionRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -4185,7 +4350,7 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionAttachItems(collection: string, attachItemsCollectionRequest: AttachItemsCollectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        collectionAttachItems(collection: string, attachItemsCollectionRequest: AttachItemsCollectionRequest, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
             return localVarFp.collectionAttachItems(collection, attachItemsCollectionRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -4214,22 +4379,24 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
-            return localVarFp.collectionDetachItem(collection, itemId, options).then((request) => request(axios, basePath));
+        collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
+            return localVarFp.collectionDetachItem(collection, itemId, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
+         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
-            return localVarFp.collectionDetachItems(collection, itemIds, options).then((request) => request(axios, basePath));
+        collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
+            return localVarFp.collectionDetachItems(collection, itemIds, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4345,11 +4512,12 @@ export class CollectionApi extends BaseAPI {
      * @summary Detach an item from a collection
      * @param {string} collection The collection ID
      * @param {string} itemId 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionDetachItem(collection, itemId, options).then((request) => request(this.axios, this.basePath));
+    public collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionDetachItem(collection, itemId, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4357,11 +4525,12 @@ export class CollectionApi extends BaseAPI {
      * @summary Detach multiple items from a collection
      * @param {string} collection The collection ID
      * @param {Array<string>} itemIds 
+     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionDetachItems(collection, itemIds, options).then((request) => request(this.axios, this.basePath));
+    public collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionDetachItems(collection, itemIds, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -5005,7 +5174,7 @@ export const CollectionImageApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImageTightenOrdering200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageDetach(collectionImage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageDetach']?.[localVarOperationServerIndex]?.url;
@@ -5071,7 +5240,7 @@ export const CollectionImageApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImageTightenOrdering200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.collectionImageTightenOrdering(collectionImage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionImageApi.collectionImageTightenOrdering']?.[localVarOperationServerIndex]?.url;
@@ -5183,7 +5352,7 @@ export const CollectionImageApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        collectionImageDetach(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImageTightenOrdering200Response> {
             return localVarFp.collectionImageDetach(collectionImage, options).then((request) => request(axios, basePath));
         },
         /**
@@ -5234,7 +5403,7 @@ export const CollectionImageApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        collectionImageTightenOrdering(collectionImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImageTightenOrdering200Response> {
             return localVarFp.collectionImageTightenOrdering(collectionImage, options).then((request) => request(axios, basePath));
         },
         /**
@@ -8726,6 +8895,1691 @@ export class CountryApi extends BaseAPI {
 
 
 /**
+ * GlossaryApi - axios parameter creator
+ */
+export const GlossaryApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Attach a synonym to the glossary entry
+         * @param {string} glossary The glossary ID
+         * @param {AttachGlossarySynonymRequest} attachGlossarySynonymRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryAttachSynonym: async (glossary: string, attachGlossarySynonymRequest: AttachGlossarySynonymRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'glossary' is not null or undefined
+            assertParamExists('glossaryAttachSynonym', 'glossary', glossary)
+            // verify required parameter 'attachGlossarySynonymRequest' is not null or undefined
+            assertParamExists('glossaryAttachSynonym', 'attachGlossarySynonymRequest', attachGlossarySynonymRequest)
+            const localVarPath = `/glossary/{glossary}/attach-synonym`
+                .replace(`{${"glossary"}}`, encodeURIComponent(String(glossary)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(attachGlossarySynonymRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} glossary The glossary ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryDestroy: async (glossary: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'glossary' is not null or undefined
+            assertParamExists('glossaryDestroy', 'glossary', glossary)
+            const localVarPath = `/glossary/{glossary}`
+                .replace(`{${"glossary"}}`, encodeURIComponent(String(glossary)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Detach a synonym from the glossary entry
+         * @param {string} glossary The glossary ID
+         * @param {string} synonymId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryDetachSynonym: async (glossary: string, synonymId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'glossary' is not null or undefined
+            assertParamExists('glossaryDetachSynonym', 'glossary', glossary)
+            // verify required parameter 'synonymId' is not null or undefined
+            assertParamExists('glossaryDetachSynonym', 'synonymId', synonymId)
+            const localVarPath = `/glossary/{glossary}/detach-synonym`
+                .replace(`{${"glossary"}}`, encodeURIComponent(String(glossary)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (synonymId !== undefined) {
+                localVarQueryParameter['synonym_id'] = synonymId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/glossary`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} glossary The glossary ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryShow: async (glossary: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'glossary' is not null or undefined
+            assertParamExists('glossaryShow', 'glossary', glossary)
+            const localVarPath = `/glossary/{glossary}`
+                .replace(`{${"glossary"}}`, encodeURIComponent(String(glossary)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreGlossaryRequest} storeGlossaryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryStore: async (storeGlossaryRequest: StoreGlossaryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storeGlossaryRequest' is not null or undefined
+            assertParamExists('glossaryStore', 'storeGlossaryRequest', storeGlossaryRequest)
+            const localVarPath = `/glossary`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storeGlossaryRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossary The glossary ID
+         * @param {UpdateGlossaryRequest} updateGlossaryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryUpdate: async (glossary: string, updateGlossaryRequest: UpdateGlossaryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'glossary' is not null or undefined
+            assertParamExists('glossaryUpdate', 'glossary', glossary)
+            // verify required parameter 'updateGlossaryRequest' is not null or undefined
+            assertParamExists('glossaryUpdate', 'updateGlossaryRequest', updateGlossaryRequest)
+            const localVarPath = `/glossary/{glossary}`
+                .replace(`{${"glossary"}}`, encodeURIComponent(String(glossary)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateGlossaryRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossary The glossary ID
+         * @param {UpdateGlossaryRequest} updateGlossaryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryUpdate2: async (glossary: string, updateGlossaryRequest: UpdateGlossaryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'glossary' is not null or undefined
+            assertParamExists('glossaryUpdate2', 'glossary', glossary)
+            // verify required parameter 'updateGlossaryRequest' is not null or undefined
+            assertParamExists('glossaryUpdate2', 'updateGlossaryRequest', updateGlossaryRequest)
+            const localVarPath = `/glossary/{glossary}`
+                .replace(`{${"glossary"}}`, encodeURIComponent(String(glossary)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateGlossaryRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * GlossaryApi - functional programming interface
+ */
+export const GlossaryApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = GlossaryApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Attach a synonym to the glossary entry
+         * @param {string} glossary The glossary ID
+         * @param {AttachGlossarySynonymRequest} attachGlossarySynonymRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossaryAttachSynonym(glossary: string, attachGlossarySynonymRequest: AttachGlossarySynonymRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossaryShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossaryAttachSynonym(glossary, attachGlossarySynonymRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossaryApi.glossaryAttachSynonym']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} glossary The glossary ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossaryDestroy(glossary: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossaryDestroy(glossary, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossaryApi.glossaryDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Detach a synonym from the glossary entry
+         * @param {string} glossary The glossary ID
+         * @param {string} synonymId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossaryDetachSynonym(glossary: string, synonymId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossaryShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossaryDetachSynonym(glossary, synonymId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossaryApi.glossaryDetachSynonym']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossaryIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossaryIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossaryIndex(page, perPage, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossaryApi.glossaryIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} glossary The glossary ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossaryShow(glossary: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossaryShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossaryShow(glossary, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossaryApi.glossaryShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreGlossaryRequest} storeGlossaryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossaryStore(storeGlossaryRequest: StoreGlossaryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossaryShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossaryStore(storeGlossaryRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossaryApi.glossaryStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossary The glossary ID
+         * @param {UpdateGlossaryRequest} updateGlossaryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossaryUpdate(glossary: string, updateGlossaryRequest: UpdateGlossaryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossaryShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossaryUpdate(glossary, updateGlossaryRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossaryApi.glossaryUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossary The glossary ID
+         * @param {UpdateGlossaryRequest} updateGlossaryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossaryUpdate2(glossary: string, updateGlossaryRequest: UpdateGlossaryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossaryShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossaryUpdate2(glossary, updateGlossaryRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossaryApi.glossaryUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * GlossaryApi - factory interface
+ */
+export const GlossaryApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = GlossaryApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Attach a synonym to the glossary entry
+         * @param {string} glossary The glossary ID
+         * @param {AttachGlossarySynonymRequest} attachGlossarySynonymRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryAttachSynonym(glossary: string, attachGlossarySynonymRequest: AttachGlossarySynonymRequest, options?: RawAxiosRequestConfig): AxiosPromise<GlossaryShow200Response> {
+            return localVarFp.glossaryAttachSynonym(glossary, attachGlossarySynonymRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} glossary The glossary ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryDestroy(glossary: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.glossaryDestroy(glossary, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Detach a synonym from the glossary entry
+         * @param {string} glossary The glossary ID
+         * @param {string} synonymId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryDetachSynonym(glossary: string, synonymId: string, options?: RawAxiosRequestConfig): AxiosPromise<GlossaryShow200Response> {
+            return localVarFp.glossaryDetachSynonym(glossary, synonymId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<GlossaryIndex200Response> {
+            return localVarFp.glossaryIndex(page, perPage, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} glossary The glossary ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryShow(glossary: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<GlossaryShow200Response> {
+            return localVarFp.glossaryShow(glossary, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreGlossaryRequest} storeGlossaryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryStore(storeGlossaryRequest: StoreGlossaryRequest, options?: RawAxiosRequestConfig): AxiosPromise<GlossaryShow200Response> {
+            return localVarFp.glossaryStore(storeGlossaryRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossary The glossary ID
+         * @param {UpdateGlossaryRequest} updateGlossaryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryUpdate(glossary: string, updateGlossaryRequest: UpdateGlossaryRequest, options?: RawAxiosRequestConfig): AxiosPromise<GlossaryShow200Response> {
+            return localVarFp.glossaryUpdate(glossary, updateGlossaryRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossary The glossary ID
+         * @param {UpdateGlossaryRequest} updateGlossaryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryUpdate2(glossary: string, updateGlossaryRequest: UpdateGlossaryRequest, options?: RawAxiosRequestConfig): AxiosPromise<GlossaryShow200Response> {
+            return localVarFp.glossaryUpdate2(glossary, updateGlossaryRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * GlossaryApi - object-oriented interface
+ */
+export class GlossaryApi extends BaseAPI {
+    /**
+     * 
+     * @summary Attach a synonym to the glossary entry
+     * @param {string} glossary The glossary ID
+     * @param {AttachGlossarySynonymRequest} attachGlossarySynonymRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossaryAttachSynonym(glossary: string, attachGlossarySynonymRequest: AttachGlossarySynonymRequest, options?: RawAxiosRequestConfig) {
+        return GlossaryApiFp(this.configuration).glossaryAttachSynonym(glossary, attachGlossarySynonymRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Remove the specified resource from storage
+     * @param {string} glossary The glossary ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossaryDestroy(glossary: string, options?: RawAxiosRequestConfig) {
+        return GlossaryApiFp(this.configuration).glossaryDestroy(glossary, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Detach a synonym from the glossary entry
+     * @param {string} glossary The glossary ID
+     * @param {string} synonymId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossaryDetachSynonym(glossary: string, synonymId: string, options?: RawAxiosRequestConfig) {
+        return GlossaryApiFp(this.configuration).glossaryDetachSynonym(glossary, synonymId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of the resource
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossaryIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return GlossaryApiFp(this.configuration).glossaryIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified resource
+     * @param {string} glossary The glossary ID
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossaryShow(glossary: string, include?: string, options?: RawAxiosRequestConfig) {
+        return GlossaryApiFp(this.configuration).glossaryShow(glossary, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created resource in storage
+     * @param {StoreGlossaryRequest} storeGlossaryRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossaryStore(storeGlossaryRequest: StoreGlossaryRequest, options?: RawAxiosRequestConfig) {
+        return GlossaryApiFp(this.configuration).glossaryStore(storeGlossaryRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} glossary The glossary ID
+     * @param {UpdateGlossaryRequest} updateGlossaryRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossaryUpdate(glossary: string, updateGlossaryRequest: UpdateGlossaryRequest, options?: RawAxiosRequestConfig) {
+        return GlossaryApiFp(this.configuration).glossaryUpdate(glossary, updateGlossaryRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} glossary The glossary ID
+     * @param {UpdateGlossaryRequest} updateGlossaryRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossaryUpdate2(glossary: string, updateGlossaryRequest: UpdateGlossaryRequest, options?: RawAxiosRequestConfig) {
+        return GlossaryApiFp(this.configuration).glossaryUpdate2(glossary, updateGlossaryRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * GlossarySpellingApi - axios parameter creator
+ */
+export const GlossarySpellingApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} glossarySpelling The glossary spelling ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossarySpellingDestroy: async (glossarySpelling: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'glossarySpelling' is not null or undefined
+            assertParamExists('glossarySpellingDestroy', 'glossarySpelling', glossarySpelling)
+            const localVarPath = `/glossary-spelling/{glossarySpelling}`
+                .replace(`{${"glossarySpelling"}}`, encodeURIComponent(String(glossarySpelling)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossarySpellingIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/glossary-spelling`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} glossarySpelling The glossary spelling ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossarySpellingShow: async (glossarySpelling: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'glossarySpelling' is not null or undefined
+            assertParamExists('glossarySpellingShow', 'glossarySpelling', glossarySpelling)
+            const localVarPath = `/glossary-spelling/{glossarySpelling}`
+                .replace(`{${"glossarySpelling"}}`, encodeURIComponent(String(glossarySpelling)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreGlossarySpellingRequest} storeGlossarySpellingRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossarySpellingStore: async (storeGlossarySpellingRequest: StoreGlossarySpellingRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storeGlossarySpellingRequest' is not null or undefined
+            assertParamExists('glossarySpellingStore', 'storeGlossarySpellingRequest', storeGlossarySpellingRequest)
+            const localVarPath = `/glossary-spelling`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storeGlossarySpellingRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossarySpelling The glossary spelling ID
+         * @param {UpdateGlossarySpellingRequest} [updateGlossarySpellingRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossarySpellingUpdate: async (glossarySpelling: string, updateGlossarySpellingRequest?: UpdateGlossarySpellingRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'glossarySpelling' is not null or undefined
+            assertParamExists('glossarySpellingUpdate', 'glossarySpelling', glossarySpelling)
+            const localVarPath = `/glossary-spelling/{glossarySpelling}`
+                .replace(`{${"glossarySpelling"}}`, encodeURIComponent(String(glossarySpelling)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateGlossarySpellingRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossarySpelling The glossary spelling ID
+         * @param {UpdateGlossarySpellingRequest} [updateGlossarySpellingRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossarySpellingUpdate2: async (glossarySpelling: string, updateGlossarySpellingRequest?: UpdateGlossarySpellingRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'glossarySpelling' is not null or undefined
+            assertParamExists('glossarySpellingUpdate2', 'glossarySpelling', glossarySpelling)
+            const localVarPath = `/glossary-spelling/{glossarySpelling}`
+                .replace(`{${"glossarySpelling"}}`, encodeURIComponent(String(glossarySpelling)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateGlossarySpellingRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * GlossarySpellingApi - functional programming interface
+ */
+export const GlossarySpellingApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = GlossarySpellingApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} glossarySpelling The glossary spelling ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossarySpellingDestroy(glossarySpelling: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossarySpellingDestroy(glossarySpelling, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossarySpellingApi.glossarySpellingDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossarySpellingIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossarySpellingIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossarySpellingIndex(page, perPage, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossarySpellingApi.glossarySpellingIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} glossarySpelling The glossary spelling ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossarySpellingShow(glossarySpelling: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossarySpellingShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossarySpellingShow(glossarySpelling, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossarySpellingApi.glossarySpellingShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreGlossarySpellingRequest} storeGlossarySpellingRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossarySpellingStore(storeGlossarySpellingRequest: StoreGlossarySpellingRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossarySpellingShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossarySpellingStore(storeGlossarySpellingRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossarySpellingApi.glossarySpellingStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossarySpelling The glossary spelling ID
+         * @param {UpdateGlossarySpellingRequest} [updateGlossarySpellingRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossarySpellingUpdate(glossarySpelling: string, updateGlossarySpellingRequest?: UpdateGlossarySpellingRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossarySpellingShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossarySpellingUpdate(glossarySpelling, updateGlossarySpellingRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossarySpellingApi.glossarySpellingUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossarySpelling The glossary spelling ID
+         * @param {UpdateGlossarySpellingRequest} [updateGlossarySpellingRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossarySpellingUpdate2(glossarySpelling: string, updateGlossarySpellingRequest?: UpdateGlossarySpellingRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossarySpellingShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossarySpellingUpdate2(glossarySpelling, updateGlossarySpellingRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossarySpellingApi.glossarySpellingUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * GlossarySpellingApi - factory interface
+ */
+export const GlossarySpellingApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = GlossarySpellingApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} glossarySpelling The glossary spelling ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossarySpellingDestroy(glossarySpelling: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.glossarySpellingDestroy(glossarySpelling, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossarySpellingIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<GlossarySpellingIndex200Response> {
+            return localVarFp.glossarySpellingIndex(page, perPage, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} glossarySpelling The glossary spelling ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossarySpellingShow(glossarySpelling: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<GlossarySpellingShow200Response> {
+            return localVarFp.glossarySpellingShow(glossarySpelling, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreGlossarySpellingRequest} storeGlossarySpellingRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossarySpellingStore(storeGlossarySpellingRequest: StoreGlossarySpellingRequest, options?: RawAxiosRequestConfig): AxiosPromise<GlossarySpellingShow200Response> {
+            return localVarFp.glossarySpellingStore(storeGlossarySpellingRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossarySpelling The glossary spelling ID
+         * @param {UpdateGlossarySpellingRequest} [updateGlossarySpellingRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossarySpellingUpdate(glossarySpelling: string, updateGlossarySpellingRequest?: UpdateGlossarySpellingRequest, options?: RawAxiosRequestConfig): AxiosPromise<GlossarySpellingShow200Response> {
+            return localVarFp.glossarySpellingUpdate(glossarySpelling, updateGlossarySpellingRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossarySpelling The glossary spelling ID
+         * @param {UpdateGlossarySpellingRequest} [updateGlossarySpellingRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossarySpellingUpdate2(glossarySpelling: string, updateGlossarySpellingRequest?: UpdateGlossarySpellingRequest, options?: RawAxiosRequestConfig): AxiosPromise<GlossarySpellingShow200Response> {
+            return localVarFp.glossarySpellingUpdate2(glossarySpelling, updateGlossarySpellingRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * GlossarySpellingApi - object-oriented interface
+ */
+export class GlossarySpellingApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified resource from storage
+     * @param {string} glossarySpelling The glossary spelling ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossarySpellingDestroy(glossarySpelling: string, options?: RawAxiosRequestConfig) {
+        return GlossarySpellingApiFp(this.configuration).glossarySpellingDestroy(glossarySpelling, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of the resource
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossarySpellingIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return GlossarySpellingApiFp(this.configuration).glossarySpellingIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified resource
+     * @param {string} glossarySpelling The glossary spelling ID
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossarySpellingShow(glossarySpelling: string, include?: string, options?: RawAxiosRequestConfig) {
+        return GlossarySpellingApiFp(this.configuration).glossarySpellingShow(glossarySpelling, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created resource in storage
+     * @param {StoreGlossarySpellingRequest} storeGlossarySpellingRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossarySpellingStore(storeGlossarySpellingRequest: StoreGlossarySpellingRequest, options?: RawAxiosRequestConfig) {
+        return GlossarySpellingApiFp(this.configuration).glossarySpellingStore(storeGlossarySpellingRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} glossarySpelling The glossary spelling ID
+     * @param {UpdateGlossarySpellingRequest} [updateGlossarySpellingRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossarySpellingUpdate(glossarySpelling: string, updateGlossarySpellingRequest?: UpdateGlossarySpellingRequest, options?: RawAxiosRequestConfig) {
+        return GlossarySpellingApiFp(this.configuration).glossarySpellingUpdate(glossarySpelling, updateGlossarySpellingRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} glossarySpelling The glossary spelling ID
+     * @param {UpdateGlossarySpellingRequest} [updateGlossarySpellingRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossarySpellingUpdate2(glossarySpelling: string, updateGlossarySpellingRequest?: UpdateGlossarySpellingRequest, options?: RawAxiosRequestConfig) {
+        return GlossarySpellingApiFp(this.configuration).glossarySpellingUpdate2(glossarySpelling, updateGlossarySpellingRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * GlossaryTranslationApi - axios parameter creator
+ */
+export const GlossaryTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} glossaryTranslation The glossary translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryTranslationDestroy: async (glossaryTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'glossaryTranslation' is not null or undefined
+            assertParamExists('glossaryTranslationDestroy', 'glossaryTranslation', glossaryTranslation)
+            const localVarPath = `/glossary-translation/{glossaryTranslation}`
+                .replace(`{${"glossaryTranslation"}}`, encodeURIComponent(String(glossaryTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryTranslationIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/glossary-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} glossaryTranslation The glossary translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryTranslationShow: async (glossaryTranslation: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'glossaryTranslation' is not null or undefined
+            assertParamExists('glossaryTranslationShow', 'glossaryTranslation', glossaryTranslation)
+            const localVarPath = `/glossary-translation/{glossaryTranslation}`
+                .replace(`{${"glossaryTranslation"}}`, encodeURIComponent(String(glossaryTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreGlossaryTranslationRequest} storeGlossaryTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryTranslationStore: async (storeGlossaryTranslationRequest: StoreGlossaryTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storeGlossaryTranslationRequest' is not null or undefined
+            assertParamExists('glossaryTranslationStore', 'storeGlossaryTranslationRequest', storeGlossaryTranslationRequest)
+            const localVarPath = `/glossary-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storeGlossaryTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossaryTranslation The glossary translation ID
+         * @param {UpdateGlossaryTranslationRequest} [updateGlossaryTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryTranslationUpdate: async (glossaryTranslation: string, updateGlossaryTranslationRequest?: UpdateGlossaryTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'glossaryTranslation' is not null or undefined
+            assertParamExists('glossaryTranslationUpdate', 'glossaryTranslation', glossaryTranslation)
+            const localVarPath = `/glossary-translation/{glossaryTranslation}`
+                .replace(`{${"glossaryTranslation"}}`, encodeURIComponent(String(glossaryTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateGlossaryTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossaryTranslation The glossary translation ID
+         * @param {UpdateGlossaryTranslationRequest} [updateGlossaryTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryTranslationUpdate2: async (glossaryTranslation: string, updateGlossaryTranslationRequest?: UpdateGlossaryTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'glossaryTranslation' is not null or undefined
+            assertParamExists('glossaryTranslationUpdate2', 'glossaryTranslation', glossaryTranslation)
+            const localVarPath = `/glossary-translation/{glossaryTranslation}`
+                .replace(`{${"glossaryTranslation"}}`, encodeURIComponent(String(glossaryTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateGlossaryTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * GlossaryTranslationApi - functional programming interface
+ */
+export const GlossaryTranslationApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = GlossaryTranslationApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} glossaryTranslation The glossary translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossaryTranslationDestroy(glossaryTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossaryTranslationDestroy(glossaryTranslation, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossaryTranslationApi.glossaryTranslationDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossaryTranslationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossaryTranslationIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossaryTranslationIndex(page, perPage, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossaryTranslationApi.glossaryTranslationIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} glossaryTranslation The glossary translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossaryTranslationShow(glossaryTranslation: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossaryTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossaryTranslationShow(glossaryTranslation, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossaryTranslationApi.glossaryTranslationShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreGlossaryTranslationRequest} storeGlossaryTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossaryTranslationStore(storeGlossaryTranslationRequest: StoreGlossaryTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossaryTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossaryTranslationStore(storeGlossaryTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossaryTranslationApi.glossaryTranslationStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossaryTranslation The glossary translation ID
+         * @param {UpdateGlossaryTranslationRequest} [updateGlossaryTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossaryTranslationUpdate(glossaryTranslation: string, updateGlossaryTranslationRequest?: UpdateGlossaryTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossaryTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossaryTranslationUpdate(glossaryTranslation, updateGlossaryTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossaryTranslationApi.glossaryTranslationUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossaryTranslation The glossary translation ID
+         * @param {UpdateGlossaryTranslationRequest} [updateGlossaryTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async glossaryTranslationUpdate2(glossaryTranslation: string, updateGlossaryTranslationRequest?: UpdateGlossaryTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GlossaryTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.glossaryTranslationUpdate2(glossaryTranslation, updateGlossaryTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GlossaryTranslationApi.glossaryTranslationUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * GlossaryTranslationApi - factory interface
+ */
+export const GlossaryTranslationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = GlossaryTranslationApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} glossaryTranslation The glossary translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryTranslationDestroy(glossaryTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.glossaryTranslationDestroy(glossaryTranslation, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryTranslationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<GlossaryTranslationIndex200Response> {
+            return localVarFp.glossaryTranslationIndex(page, perPage, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} glossaryTranslation The glossary translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryTranslationShow(glossaryTranslation: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<GlossaryTranslationShow200Response> {
+            return localVarFp.glossaryTranslationShow(glossaryTranslation, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreGlossaryTranslationRequest} storeGlossaryTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryTranslationStore(storeGlossaryTranslationRequest: StoreGlossaryTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<GlossaryTranslationShow200Response> {
+            return localVarFp.glossaryTranslationStore(storeGlossaryTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossaryTranslation The glossary translation ID
+         * @param {UpdateGlossaryTranslationRequest} [updateGlossaryTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryTranslationUpdate(glossaryTranslation: string, updateGlossaryTranslationRequest?: UpdateGlossaryTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<GlossaryTranslationShow200Response> {
+            return localVarFp.glossaryTranslationUpdate(glossaryTranslation, updateGlossaryTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} glossaryTranslation The glossary translation ID
+         * @param {UpdateGlossaryTranslationRequest} [updateGlossaryTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        glossaryTranslationUpdate2(glossaryTranslation: string, updateGlossaryTranslationRequest?: UpdateGlossaryTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<GlossaryTranslationShow200Response> {
+            return localVarFp.glossaryTranslationUpdate2(glossaryTranslation, updateGlossaryTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * GlossaryTranslationApi - object-oriented interface
+ */
+export class GlossaryTranslationApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified resource from storage
+     * @param {string} glossaryTranslation The glossary translation ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossaryTranslationDestroy(glossaryTranslation: string, options?: RawAxiosRequestConfig) {
+        return GlossaryTranslationApiFp(this.configuration).glossaryTranslationDestroy(glossaryTranslation, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of the resource
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossaryTranslationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return GlossaryTranslationApiFp(this.configuration).glossaryTranslationIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified resource
+     * @param {string} glossaryTranslation The glossary translation ID
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossaryTranslationShow(glossaryTranslation: string, include?: string, options?: RawAxiosRequestConfig) {
+        return GlossaryTranslationApiFp(this.configuration).glossaryTranslationShow(glossaryTranslation, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created resource in storage
+     * @param {StoreGlossaryTranslationRequest} storeGlossaryTranslationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossaryTranslationStore(storeGlossaryTranslationRequest: StoreGlossaryTranslationRequest, options?: RawAxiosRequestConfig) {
+        return GlossaryTranslationApiFp(this.configuration).glossaryTranslationStore(storeGlossaryTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} glossaryTranslation The glossary translation ID
+     * @param {UpdateGlossaryTranslationRequest} [updateGlossaryTranslationRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossaryTranslationUpdate(glossaryTranslation: string, updateGlossaryTranslationRequest?: UpdateGlossaryTranslationRequest, options?: RawAxiosRequestConfig) {
+        return GlossaryTranslationApiFp(this.configuration).glossaryTranslationUpdate(glossaryTranslation, updateGlossaryTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} glossaryTranslation The glossary translation ID
+     * @param {UpdateGlossaryTranslationRequest} [updateGlossaryTranslationRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public glossaryTranslationUpdate2(glossaryTranslation: string, updateGlossaryTranslationRequest?: UpdateGlossaryTranslationRequest, options?: RawAxiosRequestConfig) {
+        return GlossaryTranslationApiFp(this.configuration).glossaryTranslationUpdate2(glossaryTranslation, updateGlossaryTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
  * ImageUploadApi - axios parameter creator
  */
 export const ImageUploadApiAxiosParamCreator = function (configuration?: Configuration) {
@@ -9353,6 +11207,94 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
     return {
         /**
          * 
+         * @summary Attach a single tag to an item
+         * @param {string} item The item ID
+         * @param {AttachTagItemRequest} attachTagItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemAttachTag: async (item: string, attachTagItemRequest: AttachTagItemRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'item' is not null or undefined
+            assertParamExists('itemAttachTag', 'item', item)
+            // verify required parameter 'attachTagItemRequest' is not null or undefined
+            assertParamExists('itemAttachTag', 'attachTagItemRequest', attachTagItemRequest)
+            const localVarPath = `/item/{item}/attach-tag`
+                .replace(`{${"item"}}`, encodeURIComponent(String(item)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(attachTagItemRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Attach multiple tags to an item
+         * @param {string} item The item ID
+         * @param {AttachTagsItemRequest} attachTagsItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemAttachTags: async (item: string, attachTagsItemRequest: AttachTagsItemRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'item' is not null or undefined
+            assertParamExists('itemAttachTags', 'item', item)
+            // verify required parameter 'attachTagsItemRequest' is not null or undefined
+            assertParamExists('itemAttachTags', 'attachTagsItemRequest', attachTagsItemRequest)
+            const localVarPath = `/item/{item}/attach-tags`
+                .replace(`{${"item"}}`, encodeURIComponent(String(item)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(attachTagsItemRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Get items by type
          * @param {string} type 
          * @param {ItemByTypeTypeEnum} type2 
@@ -9466,6 +11408,104 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Detach a single tag from an item
+         * @param {string} item The item ID
+         * @param {string} tagId 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemDetachTag: async (item: string, tagId: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'item' is not null or undefined
+            assertParamExists('itemDetachTag', 'item', item)
+            // verify required parameter 'tagId' is not null or undefined
+            assertParamExists('itemDetachTag', 'tagId', tagId)
+            const localVarPath = `/item/{item}/detach-tag`
+                .replace(`{${"item"}}`, encodeURIComponent(String(item)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (tagId !== undefined) {
+                localVarQueryParameter['tag_id'] = tagId;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Detach multiple tags from an item
+         * @param {string} item The item ID
+         * @param {Array<string>} [tagIds] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemDetachTags: async (item: string, tagIds?: Array<string>, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'item' is not null or undefined
+            assertParamExists('itemDetachTags', 'item', item)
+            const localVarPath = `/item/{item}/detach-tags`
+                .replace(`{${"item"}}`, encodeURIComponent(String(item)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (tagIds) {
+                localVarQueryParameter['tag_ids[]'] = tagIds;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -9909,6 +11949,34 @@ export const ItemApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Attach a single tag to an item
+         * @param {string} item The item ID
+         * @param {AttachTagItemRequest} attachTagItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemAttachTag(item: string, attachTagItemRequest: AttachTagItemRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemAttachTag(item, attachTagItemRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemApi.itemAttachTag']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Attach multiple tags to an item
+         * @param {string} item The item ID
+         * @param {AttachTagsItemRequest} attachTagsItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemAttachTags(item: string, attachTagsItemRequest: AttachTagsItemRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemAttachTags(item, attachTagsItemRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemApi.itemAttachTags']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Get items by type
          * @param {string} type 
          * @param {ItemByTypeTypeEnum} type2 
@@ -9946,6 +12014,36 @@ export const ItemApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.itemDestroy(item, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemApi.itemDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Detach a single tag from an item
+         * @param {string} item The item ID
+         * @param {string} tagId 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemDetachTag(item: string, tagId: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemDetachTag(item, tagId, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemApi.itemDetachTag']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Detach multiple tags from an item
+         * @param {string} item The item ID
+         * @param {Array<string>} [tagIds] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemDetachTags(item: string, tagIds?: Array<string>, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemDetachTags(item, tagIds, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemApi.itemDetachTags']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -10096,6 +12194,28 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
     return {
         /**
          * 
+         * @summary Attach a single tag to an item
+         * @param {string} item The item ID
+         * @param {AttachTagItemRequest} attachTagItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemAttachTag(item: string, attachTagItemRequest: AttachTagItemRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemShow200Response> {
+            return localVarFp.itemAttachTag(item, attachTagItemRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Attach multiple tags to an item
+         * @param {string} item The item ID
+         * @param {AttachTagsItemRequest} attachTagsItemRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemAttachTags(item: string, attachTagsItemRequest: AttachTagsItemRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemShow200Response> {
+            return localVarFp.itemAttachTags(item, attachTagsItemRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Get items by type
          * @param {string} type 
          * @param {ItemByTypeTypeEnum} type2 
@@ -10125,6 +12245,30 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
          */
         itemDestroy(item: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.itemDestroy(item, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Detach a single tag from an item
+         * @param {string} item The item ID
+         * @param {string} tagId 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemDetachTag(item: string, tagId: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemShow200Response> {
+            return localVarFp.itemDetachTag(item, tagId, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Detach multiple tags from an item
+         * @param {string} item The item ID
+         * @param {Array<string>} [tagIds] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemDetachTags(item: string, tagIds?: Array<string>, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemShow200Response> {
+            return localVarFp.itemDetachTags(item, tagIds, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -10242,6 +12386,30 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
 export class ItemApi extends BaseAPI {
     /**
      * 
+     * @summary Attach a single tag to an item
+     * @param {string} item The item ID
+     * @param {AttachTagItemRequest} attachTagItemRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemAttachTag(item: string, attachTagItemRequest: AttachTagItemRequest, options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemAttachTag(item, attachTagItemRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Attach multiple tags to an item
+     * @param {string} item The item ID
+     * @param {AttachTagsItemRequest} attachTagsItemRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemAttachTags(item: string, attachTagsItemRequest: AttachTagsItemRequest, options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemAttachTags(item, attachTagsItemRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Get items by type
      * @param {string} type 
      * @param {ItemByTypeTypeEnum} type2 
@@ -10273,6 +12441,32 @@ export class ItemApi extends BaseAPI {
      */
     public itemDestroy(item: string, options?: RawAxiosRequestConfig) {
         return ItemApiFp(this.configuration).itemDestroy(item, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Detach a single tag from an item
+     * @param {string} item The item ID
+     * @param {string} tagId 
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemDetachTag(item: string, tagId: string, include?: string, options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemDetachTag(item, tagId, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Detach multiple tags from an item
+     * @param {string} item The item ID
+     * @param {Array<string>} [tagIds] 
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemDetachTags(item: string, tagIds?: Array<string>, include?: string, options?: RawAxiosRequestConfig) {
+        return ItemApiFp(this.configuration).itemDetachTags(item, tagIds, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -10974,7 +13168,7 @@ export const ItemImageApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImageTightenOrdering200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.itemImageDetach(itemImage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImageDetach']?.[localVarOperationServerIndex]?.url;
@@ -11040,7 +13234,7 @@ export const ItemImageApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionAttachItem200Response>> {
+        async itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImageTightenOrdering200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.itemImageTightenOrdering(itemImage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ItemImageApi.itemImageTightenOrdering']?.[localVarOperationServerIndex]?.url;
@@ -11152,7 +13346,7 @@ export const ItemImageApiFactory = function (configuration?: Configuration, base
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        itemImageDetach(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImageTightenOrdering200Response> {
             return localVarFp.itemImageDetach(itemImage, options).then((request) => request(axios, basePath));
         },
         /**
@@ -11203,7 +13397,7 @@ export const ItemImageApiFactory = function (configuration?: Configuration, base
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionAttachItem200Response> {
+        itemImageTightenOrdering(itemImage: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImageTightenOrdering200Response> {
             return localVarFp.itemImageTightenOrdering(itemImage, options).then((request) => request(axios, basePath));
         },
         /**
@@ -15186,43 +17380,7 @@ export const MobileAppAuthenticationApiAxiosParamCreator = function (configurati
         },
         /**
          * 
-         * @summary Request an email 2FA code for mobile authentication
-         * @param {RequestEmailCodeMobileAppAuthenticationRequest} requestEmailCodeMobileAppAuthenticationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        tokenRequestEmailCode: async (requestEmailCodeMobileAppAuthenticationRequest: RequestEmailCodeMobileAppAuthenticationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'requestEmailCodeMobileAppAuthenticationRequest' is not null or undefined
-            assertParamExists('tokenRequestEmailCode', 'requestEmailCodeMobileAppAuthenticationRequest', requestEmailCodeMobileAppAuthenticationRequest)
-            const localVarPath = `/mobile/request-email-code`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(requestEmailCodeMobileAppAuthenticationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Get user\'s 2FA status and available methods
+         * @summary Get user\'s 2FA status
          * @param {TwoFactorStatusMobileAppAuthenticationRequest} twoFactorStatusMobileAppAuthenticationRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -15350,20 +17508,7 @@ export const MobileAppAuthenticationApiFp = function(configuration?: Configurati
         },
         /**
          * 
-         * @summary Request an email 2FA code for mobile authentication
-         * @param {RequestEmailCodeMobileAppAuthenticationRequest} requestEmailCodeMobileAppAuthenticationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async tokenRequestEmailCode(requestEmailCodeMobileAppAuthenticationRequest: RequestEmailCodeMobileAppAuthenticationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TokenRequestEmailCode200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.tokenRequestEmailCode(requestEmailCodeMobileAppAuthenticationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['MobileAppAuthenticationApi.tokenRequestEmailCode']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Get user\'s 2FA status and available methods
+         * @summary Get user\'s 2FA status
          * @param {TwoFactorStatusMobileAppAuthenticationRequest} twoFactorStatusMobileAppAuthenticationRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -15420,17 +17565,7 @@ export const MobileAppAuthenticationApiFactory = function (configuration?: Confi
         },
         /**
          * 
-         * @summary Request an email 2FA code for mobile authentication
-         * @param {RequestEmailCodeMobileAppAuthenticationRequest} requestEmailCodeMobileAppAuthenticationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        tokenRequestEmailCode(requestEmailCodeMobileAppAuthenticationRequest: RequestEmailCodeMobileAppAuthenticationRequest, options?: RawAxiosRequestConfig): AxiosPromise<TokenRequestEmailCode200Response> {
-            return localVarFp.tokenRequestEmailCode(requestEmailCodeMobileAppAuthenticationRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Get user\'s 2FA status and available methods
+         * @summary Get user\'s 2FA status
          * @param {TwoFactorStatusMobileAppAuthenticationRequest} twoFactorStatusMobileAppAuthenticationRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -15477,18 +17612,7 @@ export class MobileAppAuthenticationApi extends BaseAPI {
 
     /**
      * 
-     * @summary Request an email 2FA code for mobile authentication
-     * @param {RequestEmailCodeMobileAppAuthenticationRequest} requestEmailCodeMobileAppAuthenticationRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public tokenRequestEmailCode(requestEmailCodeMobileAppAuthenticationRequest: RequestEmailCodeMobileAppAuthenticationRequest, options?: RawAxiosRequestConfig) {
-        return MobileAppAuthenticationApiFp(this.configuration).tokenRequestEmailCode(requestEmailCodeMobileAppAuthenticationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Get user\'s 2FA status and available methods
+     * @summary Get user\'s 2FA status
      * @param {TwoFactorStatusMobileAppAuthenticationRequest} twoFactorStatusMobileAppAuthenticationRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

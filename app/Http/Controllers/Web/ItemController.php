@@ -21,7 +21,7 @@ class ItemController extends Controller
         $this->middleware('auth');
         $this->middleware('permission:'.Permission::VIEW_DATA->value)->only(['index', 'show']);
         $this->middleware('permission:'.Permission::CREATE_DATA->value)->only(['create', 'store']);
-        $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update']);
+        $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update', 'attachTag', 'detachTag']);
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
@@ -98,5 +98,36 @@ class ItemController extends Controller
 
         return redirect()->route('items.index')
             ->with('success', 'Item deleted successfully');
+    }
+
+    public function attachTag(Request $request, Item $item): RedirectResponse
+    {
+        $request->validate([
+            'tag_id' => ['required', 'exists:tags,id'],
+        ]);
+
+        // Attach the tag if not already attached
+        if (! $item->tags()->where('tag_id', $request->tag_id)->exists()) {
+            $item->tags()->attach($request->tag_id);
+            $message = 'Tag attached successfully';
+        } else {
+            $message = 'Tag is already attached to this item';
+        }
+
+        return redirect()->route('items.show', $item)
+            ->with('success', $message);
+    }
+
+    public function detachTag(Item $item, \App\Models\Tag $tag): RedirectResponse
+    {
+        if ($item->tags()->where('tag_id', $tag->id)->exists()) {
+            $item->tags()->detach($tag->id);
+            $message = 'Tag removed successfully';
+        } else {
+            $message = 'Tag was not attached to this item';
+        }
+
+        return redirect()->route('items.show', $item)
+            ->with('success', $message);
     }
 }

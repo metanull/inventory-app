@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
 use Illuminate\Foundation\Http\FormRequest;
 
 class DetachItemsCollectionRequest extends FormRequest
@@ -24,6 +26,17 @@ class DetachItemsCollectionRequest extends FormRequest
         return [
             'item_ids' => ['required', 'array', 'min:1'],
             'item_ids.*' => ['required', 'uuid', 'exists:items,id'],
+            'include' => ['sometimes', 'string'],
         ];
+    }
+
+    /**
+     * Get validated include parameters.
+     *
+     * @return array<int, string>
+     */
+    public function getIncludeParams(): array
+    {
+        return IncludeParser::fromRequest($this, AllowList::for('collection'));
     }
 }

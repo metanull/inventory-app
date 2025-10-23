@@ -62,4 +62,50 @@ class AnonymousTest extends TestCase
         $response = $this->deleteJson(route('item.destroy', $item->id));
         $response->assertUnauthorized();
     }
+
+    public function test_update_tags_forbids_anonymous_access(): void
+    {
+        $item = Item::factory()->create();
+        $response = $this->patchJson(route('item.updateTags', $item->id), [
+            'attach' => [],
+            'detach' => [],
+        ]);
+        $response->assertUnauthorized();
+    }
+
+    public function test_attach_tag_forbids_anonymous_access(): void
+    {
+        $item = Item::factory()->create();
+        $response = $this->postJson(route('item.attachTag', $item->id), [
+            'tag_id' => 'test-uuid',
+        ]);
+        $response->assertUnauthorized();
+    }
+
+    public function test_detach_tag_forbids_anonymous_access(): void
+    {
+        $item = Item::factory()->create();
+        $response = $this->deleteJson(route('item.detachTag', $item->id), [
+            'tag_id' => 'test-uuid',
+        ]);
+        $response->assertUnauthorized();
+    }
+
+    public function test_attach_tags_forbids_anonymous_access(): void
+    {
+        $item = Item::factory()->create();
+        $response = $this->postJson(route('item.attachTags', $item->id), [
+            'tag_ids' => [],
+        ]);
+        $response->assertUnauthorized();
+    }
+
+    public function test_detach_tags_forbids_anonymous_access(): void
+    {
+        $item = Item::factory()->create();
+        $response = $this->deleteJson(route('item.detachTags', $item->id), [
+            'tag_ids' => [],
+        ]);
+        $response->assertUnauthorized();
+    }
 }

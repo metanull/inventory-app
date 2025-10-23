@@ -12,6 +12,8 @@ return [
         'projects' => 'teal',
         'contexts' => 'indigo',
         'collections' => 'yellow',
+        'glossary' => 'emerald',
+        'glossaries' => 'emerald',
     ],
     // Utility mapping for commonly used fragments in Blade (derived from COLOR_MAP in SPA)
     'fragments' => [
@@ -58,6 +60,17 @@ return [
             'base' => 'fuchsia-500',
             'bg' => 'bg-fuchsia-50',
             'text' => 'text-fuchsia-600',
+        ],
+        'emerald' => [
+            'button' => 'bg-emerald-600 hover:bg-emerald-700 text-white',
+            'focus' => 'focus:border-emerald-500 focus:ring-emerald-500',
+            'badge' => 'bg-emerald-100 text-emerald-700',
+            'accentText' => 'text-emerald-700',
+            'accentLink' => 'text-emerald-600 hover:text-emerald-800',
+            'pill' => 'bg-emerald-100 text-emerald-600',
+            'base' => 'emerald-500',
+            'bg' => 'bg-emerald-50',
+            'text' => 'text-emerald-600',
         ],
     ],
 ];

@@ -99,10 +99,9 @@ class StoreTest extends TestCase
     {
         $response = $this->post(route('item-translations.store'), [
             'name' => '',
-            'description' => '',
         ]);
 
-        $response->assertSessionHasErrors(['item_id', 'language_id', 'context_id', 'name', 'description']);
+        $response->assertSessionHasErrors(['item_id', 'language_id', 'context_id', 'name']);
     }
 
     public function test_store_enforces_unique_constraint(): void

@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\AttachTagItemRequest;
+use App\Http\Requests\Api\AttachTagsItemRequest;
 use App\Http\Requests\Api\ByTypeItemRequest;
 use App\Http\Requests\Api\ChildrenItemRequest;
+use App\Http\Requests\Api\DetachTagItemRequest;
+use App\Http\Requests\Api\DetachTagsItemRequest;
 use App\Http\Requests\Api\ForTagItemRequest;
 use App\Http\Requests\Api\IndexItemRequest;
 use App\Http\Requests\Api\ParentsItemRequest;
@@ -152,6 +156,91 @@ class ItemController extends Controller
         $item->refresh();
         $includes = IncludeParser::fromRequest($request, AllowList::for('item'));
         $item->load($includes);
+
+        return new ItemResource($item);
+    }
+
+    /**
+     * Attach a single tag to an item.
+     *
+     * @return ItemResource
+     */
+    public function attachTag(AttachTagItemRequest $request, Item $item)
+    {
+        $validated = $request->validated();
+
+        // Check if tag is already attached
+        if (! $item->tags()->where('tags.id', $validated['tag_id'])->exists()) {
+            $item->tags()->attach($validated['tag_id']);
+        }
+
+        // Refresh and load relationships
+        $item->refresh();
+        $includes = $request->getIncludeParams();
+        $item->load($this->expandIncludes($includes));
+
+        return new ItemResource($item);
+    }
+
+    /**
+     * Detach a single tag from an item.
+     *
+     * @return ItemResource
+     */
+    public function detachTag(DetachTagItemRequest $request, Item $item)
+    {
+        $validated = $request->validated();
+
+        $item->tags()->detach($validated['tag_id']);
+
+        // Refresh and load relationships
+        $item->refresh();
+        $includes = $request->getIncludeParams();
+        $item->load($this->expandIncludes($includes));
+
+        return new ItemResource($item);
+    }
+
+    /**
+     * Attach multiple tags to an item.
+     *
+     * @return ItemResource
+     */
+    public function attachTags(AttachTagsItemRequest $request, Item $item)
+    {
+        $validated = $request->validated();
+
+        // Only attach tags that aren't already attached
+        $existingTagIds = $item->tags()->pluck('tags.id')->toArray();
+        $tagsToAttach = array_diff($validated['tag_ids'], $existingTagIds);
+
+        if (! empty($tagsToAttach)) {
+            $item->tags()->attach($tagsToAttach);
+        }
+
+        // Refresh and load relationships
+        $item->refresh();
+        $includes = $request->getIncludeParams();
+        $item->load($this->expandIncludes($includes));
+
+        return new ItemResource($item);
+    }
+
+    /**
+     * Detach multiple tags from an item.
+     *
+     * @return ItemResource
+     */
+    public function detachTags(DetachTagsItemRequest $request, Item $item)
+    {
+        $validated = $request->validated();
+
+        $item->tags()->detach($validated['tag_ids']);
+
+        // Refresh and load relationships
+        $item->refresh();
+        $includes = $request->getIncludeParams();
+        $item->load($this->expandIncludes($includes));
 
         return new ItemResource($item);
     }

@@ -15,11 +15,6 @@ class CustomLoginResponse implements LoginResponseContract
             if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail()) {
                 return redirect()->route('verification.notice');
             }
-
-            // Then check 2FA
-            if (($user->hasEmailTwoFactorEnabled() || $user->hasTotpEnabled()) && ! session()->has('auth.password_confirmed_at')) {
-                return redirect()->intended(route('two-factor.login'));
-            }
         }
 
         // Default Fortify behavior
