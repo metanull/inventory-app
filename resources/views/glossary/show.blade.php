@@ -4,9 +4,9 @@
     <x-layout.show-page 
         entity="glossary"
         title="Glossary Entry Detail"
-        :back-route="route('glossary.index')"
-        :edit-route="route('glossary.edit', $glossary)"
-        :delete-route="route('glossary.destroy', $glossary)"
+        :back-route="route('glossaries.index')"
+        :edit-route="route('glossaries.edit', $glossary)"
+        :delete-route="route('glossaries.destroy', $glossary)"
         delete-confirm="Are you sure you want to delete this glossary entry?"
         :backward-compatibility="$glossary->backward_compatibility"
     >
@@ -19,50 +19,10 @@
         </x-display.description-list>
 
         <!-- Translations Section -->
-        @if($glossary->translations->isNotEmpty())
-            <div class="mt-8">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Translations / Definitions</h3>
-                <div class="bg-white shadow overflow-hidden sm:rounded-md">
-                    <ul class="divide-y divide-gray-200">
-                        @foreach($glossary->translations as $translation)
-                            <li class="px-6 py-4">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-900">
-                                            {{ $translation->language->internal_name ?? $translation->language_id }}
-                                        </p>
-                                        <p class="mt-1 text-sm text-gray-600">{{ $translation->definition }}</p>
-                                    </div>
-                                </div>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        @endif
+        @include('glossary._translations')
 
         <!-- Spellings Section -->
-        @if($glossary->spellings->isNotEmpty())
-            <div class="mt-8">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Spellings</h3>
-                <div class="bg-white shadow overflow-hidden sm:rounded-md">
-                    <ul class="divide-y divide-gray-200">
-                        @foreach($glossary->spellings as $spelling)
-                            <li class="px-6 py-4">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-900">
-                                            {{ $spelling->language->internal_name ?? $spelling->language_id }}
-                                        </p>
-                                        <p class="mt-1 text-sm text-gray-600 font-mono">{{ $spelling->spelling }}</p>
-                                    </div>
-                                </div>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        @endif
+        @include('glossary._spellings')
 
         <!-- Synonyms Section -->
         @if($glossary->synonyms->isNotEmpty())
@@ -72,7 +32,7 @@
                     <ul class="divide-y divide-gray-200">
                         @foreach($glossary->synonyms as $synonym)
                             <li class="px-6 py-4">
-                                <a href="{{ route('glossary.show', $synonym) }}" class="block hover:bg-gray-50">
+                                <a href="{{ route('glossaries.show', $synonym) }}" class="block hover:bg-gray-50">
                                     <div class="flex items-center justify-between">
                                         <p class="text-sm font-medium text-blue-600">{{ $synonym->internal_name }}</p>
                                         <x-heroicon-o-arrow-right class="w-5 h-5 text-gray-400" />
