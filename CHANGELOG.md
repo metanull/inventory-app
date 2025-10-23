@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Tag System**: Complete tag classification system for Items:
+  - Database schema: item_tag pivot table for N-to-N relationship between Items and Tags
+  - Models: Tag with UUID primary keys, internal_name, description, backward_compatibility fields
+  - API: Full CRUD endpoints (/api/tag) with authentication and pagination
+  - Resources: TagResource for consistent API responses
+  - FormRequests: StoreTagRequest, UpdateTagRequest for Web operations
+  - Web UI: TagController with SearchAndPaginate, Blade views (index, create, edit, show)
+  - Web Routes: Resource routes at /web/tags with permission-based access control
+  - Frontend: TagsTable Livewire component for listing tags
+  - Tests: 7 comprehensive web feature tests (Index, Show, Create, Store, Edit, Update, Destroy)
+  - Navigation: Added Tag tile to home page Primary Domains section with violet color scheme
+  - API Client: Regenerated TypeScript client with Tag endpoints
+  - All 1491 tests passing with full test coverage
+
 - **Glossary System**: Complete glossary management system for specialized terminology:
   - Database schema: glossaries, glossary_translations, glossary_spellings, glossary_synonyms, item_translation_spelling pivot
   - Models: Glossary, GlossaryTranslation, GlossarySpelling with UUID primary keys, factories, and seeders
