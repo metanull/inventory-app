@@ -10196,53 +10196,10 @@
                 "security": []
             }
         },
-        "/mobile/request-email-code": {
-            "post": {
-                "operationId": "token.request_email_code",
-                "summary": "Request an email 2FA code for mobile authentication",
-                "tags": [
-                    "MobileAppAuthentication"
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RequestEmailCodeMobileAppAuthenticationRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "`EmailCodeRequestResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/EmailCodeRequestResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    }
-                },
-                "security": []
-            }
-        },
         "/mobile/two-factor-status": {
             "post": {
                 "operationId": "token.two_factor_status",
-                "summary": "Get user's 2FA status and available methods",
+                "summary": "Get user's 2FA status",
                 "tags": [
                     "MobileAppAuthentication"
                 ],
@@ -14407,22 +14364,6 @@
                 ],
                 "title": "CountryResource"
             },
-            "EmailCodeRequestResource": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    },
-                    "expires_in": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "message",
-                    "expires_in"
-                ],
-                "title": "EmailCodeRequestResource"
-            },
             "GlossaryResource": {
                 "type": "object",
                 "properties": {
@@ -15536,23 +15477,6 @@
                     "updated_at"
                 ],
                 "title": "ProvinceTranslationResource"
-            },
-            "RequestEmailCodeMobileAppAuthenticationRequest": {
-                "type": "object",
-                "properties": {
-                    "email": {
-                        "type": "string",
-                        "format": "email"
-                    },
-                    "password": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "email",
-                    "password"
-                ],
-                "title": "RequestEmailCodeMobileAppAuthenticationRequest"
             },
             "SetDefaultContextRequest": {
                 "type": "object",

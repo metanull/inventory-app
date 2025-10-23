@@ -17,6 +17,7 @@ use App\Http\Controllers\Web\ItemTranslationController as WebItemTranslationCont
 use App\Http\Controllers\Web\LanguageController as WebLanguageController;
 use App\Http\Controllers\Web\PartnerController as WebPartnerController;
 use App\Http\Controllers\Web\ProjectController as WebProjectController;
+use App\Http\Controllers\Web\TagController as WebTagController;
 use Dedoc\Scramble\Generator;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Support\Facades\Route;
@@ -63,6 +64,7 @@ Route::prefix('web')->group(function () {
         Route::resource('languages', WebLanguageController::class);
         Route::resource('projects', WebProjectController::class);
         Route::resource('contexts', WebContextController::class);
+        Route::resource('tags', WebTagController::class);
         Route::resource('glossaries', WebGlossaryController::class);
 
         // Glossary Translations - nested routes

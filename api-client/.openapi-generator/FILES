@@ -62,7 +62,6 @@ docs/CountryApi.md
 docs/CountryIndex200Response.md
 docs/CountryResource.md
 docs/CountryShow200Response.md
-docs/EmailCodeRequestResource.md
 docs/GlossaryApi.md
 docs/GlossaryIndex200Response.md
 docs/GlossaryResource.md
@@ -138,7 +137,6 @@ docs/ProvinceTranslationApi.md
 docs/ProvinceTranslationIndex200Response.md
 docs/ProvinceTranslationResource.md
 docs/ProvinceTranslationShow200Response.md
-docs/RequestEmailCodeMobileAppAuthenticationRequest.md
 docs/SetDefaultContextRequest.md
 docs/SetDefaultLanguageRequest.md
 docs/SetEnabledProjectRequest.md
@@ -185,7 +183,6 @@ docs/ThemeTranslationShow200Response.md
 docs/ThemeTranslationsApi.md
 docs/TokenAcquire201Response.md
 docs/TokenAcquire202Response.md
-docs/TokenRequestEmailCode200Response.md
 docs/TokenTwoFactorStatus200Response.md
 docs/TwoFactorStatusMobileAppAuthenticationRequest.md
 docs/TwoFactorStatusResource.md
