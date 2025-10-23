@@ -84,6 +84,9 @@ class GlossaryTable extends Component
             $query->where('internal_name', 'LIKE', "%{$search}%");
         }
 
+        // Eager load translations and spellings with their languages
+        $query->with(['translations.language', 'spellings.language']);
+
         // Apply sorting
         $validSortFields = ['internal_name', 'backward_compatibility', 'created_at', 'updated_at'];
         $sortField = in_array($this->sortBy, $validSortFields) ? $this->sortBy : 'created_at';

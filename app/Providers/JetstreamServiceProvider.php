@@ -56,9 +56,6 @@ class JetstreamServiceProvider extends ServiceProvider
         // Override Jetstream's TwoFactorAuthenticationForm with our custom implementation
         \Livewire\Livewire::component('profile.two-factor-authentication-form', \App\Livewire\Profile\TwoFactorAuthenticationForm::class);
 
-        // Register our custom Email Two Factor Authentication Form
-        \Livewire\Livewire::component('profile.email-two-factor-form', \App\Livewire\Profile\EmailTwoFactorForm::class);
-
         Vite::prefetch(concurrency: 3);
     }
 

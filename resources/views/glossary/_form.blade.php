@@ -20,5 +20,5 @@
 
 <x-form.actions 
     entity="glossary" 
-    :cancel-route="$glossary ? route('glossary.show', $glossary) : route('glossary.index')"
+    :cancel-route="$glossary ? route('glossaries.show', $glossary) : route('glossaries.index')"
 />

@@ -276,8 +276,7 @@ class RegistrationTest extends TestCase
 
         $this->assertNull($user->two_factor_secret);
         $this->assertNull($user->two_factor_confirmed_at);
-        $this->assertFalse($user->email_2fa_enabled);
-        $this->assertFalse($user->hasAnyTwoFactorEnabled());
+        $this->assertFalse($user->hasEnabledTwoFactorAuthentication());
     }
 
     public function test_registration_with_email_verification_required(): void
@@ -363,9 +362,8 @@ class RegistrationTest extends TestCase
 
         $user = User::where('email', 'john@example.com')->first();
 
-        // Should set preferred method but not enable 2FA yet
-        $this->assertEquals('email', $user->preferred_2fa_method);
-        $this->assertFalse($user->hasAnyTwoFactorEnabled());
+        // 2FA is not enabled on registration
+        $this->assertFalse($user->hasEnabledTwoFactorAuthentication());
     }
 
     public function test_registration_rate_limiting(): void
@@ -409,8 +407,34 @@ class RegistrationTest extends TestCase
         // Data should be escaped when displayed, not when stored
         $this->assertNotNull($user);
         $this->assertEquals('<script>alert("xss")</script>John Doe', $user->name);
+    }
 
-        // The security protection happens at the view layer with proper escaping
-        // e.g., {{ $user->name }} in Blade templates automatically escapes
+    public function test_registration_is_blocked_when_self_registration_disabled(): void
+    {
+        // Disable self-registration
+        \App\Models\Setting::set('self_registration_enabled', false, 'boolean');
+
+        $userData = [
+            'name' => 'John Doe',
+            'email' => 'blocked@example.com',
+            'password' => 'secure-password123',
+            'password_confirmation' => 'secure-password123',
+            'terms' => true,
+        ];
+
+        // Attempt to access registration page
+        $getResponse = $this->get(route('register'));
+        $getResponse->assertStatus(302);
+        $getResponse->assertRedirect(route('login'));
+
+        // Attempt to submit registration form
+        // ValidationException redirects back to the form with errors
+        $postResponse = $this->post(route('register.store'), $userData);
+        $postResponse->assertStatus(302);
+        $postResponse->assertRedirect(route('register'));
+        $postResponse->assertSessionHasErrors(['registration']);
+
+        // Verify user was NOT created
+        $this->assertNull(User::where('email', 'blocked@example.com')->first());
     }
 }

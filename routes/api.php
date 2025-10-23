@@ -329,9 +329,6 @@ Route::post('mobile/acquire-token', [MobileAppAuthenticationController::class, '
 Route::post('mobile/verify-two-factor', [MobileAppAuthenticationController::class, 'verify_two_factor'])
     ->name('token.verify_two_factor');
 
-Route::post('mobile/request-email-code', [MobileAppAuthenticationController::class, 'request_email_code'])
-    ->name('token.request_email_code');
-
 Route::post('mobile/two-factor-status', [MobileAppAuthenticationController::class, 'two_factor_status'])
     ->name('token.two_factor_status');
 

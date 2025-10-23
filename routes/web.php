@@ -8,6 +8,8 @@ use App\Http\Controllers\Web\CollectionTranslationController as WebCollectionTra
 use App\Http\Controllers\Web\ContextController as WebContextController;
 use App\Http\Controllers\Web\CountryController as WebCountryController;
 use App\Http\Controllers\Web\GlossaryController as WebGlossaryController;
+use App\Http\Controllers\Web\GlossarySpellingController as WebGlossarySpellingController;
+use App\Http\Controllers\Web\GlossaryTranslationController as WebGlossaryTranslationController;
 use App\Http\Controllers\Web\ImageUploadController as WebImageUploadController;
 use App\Http\Controllers\Web\ItemController as WebItemController;
 use App\Http\Controllers\Web\ItemImageController as WebItemImageController;
@@ -62,6 +64,29 @@ Route::prefix('web')->group(function () {
         Route::resource('projects', WebProjectController::class);
         Route::resource('contexts', WebContextController::class);
         Route::resource('glossaries', WebGlossaryController::class);
+
+        // Glossary Translations - nested routes
+        Route::prefix('glossaries/{glossary}/translations')->name('glossaries.translations.')->group(function () {
+            Route::get('/', [WebGlossaryTranslationController::class, 'index'])->name('index');
+            Route::get('/create', [WebGlossaryTranslationController::class, 'create'])->name('create');
+            Route::post('/', [WebGlossaryTranslationController::class, 'store'])->name('store');
+            Route::get('/{translation}', [WebGlossaryTranslationController::class, 'show'])->name('show');
+            Route::get('/{translation}/edit', [WebGlossaryTranslationController::class, 'edit'])->name('edit');
+            Route::put('/{translation}', [WebGlossaryTranslationController::class, 'update'])->name('update');
+            Route::delete('/{translation}', [WebGlossaryTranslationController::class, 'destroy'])->name('destroy');
+        });
+
+        // Glossary Spellings - nested routes
+        Route::prefix('glossaries/{glossary}/spellings')->name('glossaries.spellings.')->group(function () {
+            Route::get('/', [WebGlossarySpellingController::class, 'index'])->name('index');
+            Route::get('/create', [WebGlossarySpellingController::class, 'create'])->name('create');
+            Route::post('/', [WebGlossarySpellingController::class, 'store'])->name('store');
+            Route::get('/{spelling}', [WebGlossarySpellingController::class, 'show'])->name('show');
+            Route::get('/{spelling}/edit', [WebGlossarySpellingController::class, 'edit'])->name('edit');
+            Route::put('/{spelling}', [WebGlossarySpellingController::class, 'update'])->name('update');
+            Route::delete('/{spelling}', [WebGlossarySpellingController::class, 'destroy'])->name('destroy');
+        });
+
         Route::resource('collections', WebCollectionController::class);
         Route::resource('authors', \App\Http\Controllers\Web\AuthorController::class);
         Route::resource('contacts', \App\Http\Controllers\Web\ContactController::class);

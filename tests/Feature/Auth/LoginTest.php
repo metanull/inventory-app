@@ -3,13 +3,11 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use App\Services\EmailTwoFactorService;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
-use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 use Tests\TestCase;
 use Tests\Traits\AuthenticationTestHelpers;
 
@@ -82,22 +80,6 @@ class LoginTest extends TestCase
         $this->assertGuest(); // Should not be authenticated yet
     }
 
-    public function test_user_with_email_two_factor_is_redirected_to_two_factor_challenge(): void
-    {
-        $user = $this->createUserWithEmailTwoFactor();
-
-        $response = $this->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        $response->assertStatus(302);
-        $response->assertRedirect(route('two-factor.login'));
-        // User is "partially" authenticated (Fortify behavior), but cannot access protected routes
-        $dashboardResponse = $this->get(route('dashboard'));
-        $dashboardResponse->assertRedirect(route('web.welcome'));
-    }
-
     public function test_user_can_complete_totp_challenge(): void
     {
         Event::fake();
@@ -114,30 +96,6 @@ class LoginTest extends TestCase
         // Then complete the 2FA challenge
         $response = $this->post(route('two-factor.login.store'), [
             'code' => $this->getValidTotpCode(),
-        ]);
-
-        $response->assertStatus(302);
-        $response->assertRedirect(route('dashboard'));
-        $this->assertAuthenticatedAs($user);
-        Event::assertDispatched(Login::class);
-    }
-
-    public function test_user_can_complete_email_two_factor_challenge(): void
-    {
-        Event::fake();
-        $this->mockEmailTwoFactorService(true);
-
-        $user = $this->createUserWithEmailTwoFactor();
-
-        // First, login to get to the 2FA challenge
-        $this->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        // Then complete the 2FA challenge
-        $response = $this->post(route('two-factor.login.store'), [
-            'code' => $this->getValidEmailTwoFactorCode(),
         ]);
 
         $response->assertStatus(302);
@@ -168,98 +126,19 @@ class LoginTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_email_two_factor_challenge_fails_with_invalid_code(): void
-    {
-        $user = $this->createUserWithEmailTwoFactor();
-
-        // Generate a valid email 2FA code for the user (so they have one in the system)
-        $emailTwoFactorService = app(\App\Services\EmailTwoFactorService::class);
-        $validCode = $emailTwoFactorService->generateAndSendCode($user);
-
-        // First, login to get to the 2FA challenge
-        $this->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        // Then try to complete the 2FA challenge with invalid code
-        $response = $this->post(route('two-factor.login.store'), [
-            'code' => $this->getInvalidEmailTwoFactorCode(),
-        ]);
-
-        $response->assertStatus(302);
-        // For now, just ensure we redirect somewhere reasonable since email 2FA integration is complex
-        $this->assertTrue(in_array($response->headers->get('location'), [
-            'http://localhost/web/two-factor-challenge',
-            'http://localhost/web/dashboard',
-        ]));
-    }
-
-    public function test_user_with_both_two_factor_methods_can_use_totp(): void
-    {
-        Event::fake();
-        $this->mockTotpProvider(true);
-
-        $user = $this->createUserWithBothTwoFactor();
-
-        // Login and get to 2FA challenge
-        $this->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        // Complete with TOTP code
-        $response = $this->post(route('two-factor.login.store'), [
-            'code' => $this->getValidTotpCode(),
-        ]);
-
-        $response->assertStatus(302);
-        $response->assertRedirect(route('dashboard'));
-        $this->assertAuthenticatedAs($user);
-    }
-
-    public function test_user_with_both_two_factor_methods_can_use_email_if_totp_fails(): void
-    {
-        Event::fake();
-
-        // Mock TOTP to fail, email 2FA to succeed
-        $this->mock(TwoFactorAuthenticationProvider::class, function ($mock) {
-            $mock->shouldReceive('verify')->once()->andReturn(false);
-        });
-
-        $this->mock(EmailTwoFactorService::class, function ($mock) {
-            $mock->shouldReceive('verifyCode')->once()->andReturn(true);
-        });
-
-        $user = $this->createUserWithBothTwoFactor();
-
-        // Login and get to 2FA challenge
-        $this->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        // Try to complete with a code that works for email but not TOTP
-        $response = $this->post(route('two-factor.login.store'), [
-            'code' => $this->getValidEmailTwoFactorCode(),
-        ]);
-
-        $response->assertStatus(302);
-        $response->assertRedirect(route('dashboard'));
-        $this->assertAuthenticatedAs($user);
-    }
-
     public function test_two_factor_challenge_expires_after_timeout(): void
     {
         $user = $this->createUserWithTotp();
 
-        // Attempt 2FA challenge without first logging in
+        // Attempt 2FA challenge without first logging in (no session)
         $response = $this->post(route('two-factor.login.store'), [
             'code' => $this->getValidTotpCode(),
         ]);
 
+        // Fortify redirects back to 2FA challenge page with error when session is missing
         $response->assertStatus(302);
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('two-factor.login'));
+        $response->assertSessionHasErrors(['code']);
         $this->assertGuest();
     }
 
@@ -306,7 +185,6 @@ class LoginTest extends TestCase
             'password' => Hash::make('password'),
             'two_factor_secret' => encrypt('INVALID0TOTP1SECRET'), // Contains invalid Base32 chars
             'two_factor_confirmed_at' => now(),
-            'email_2fa_enabled' => false,
         ]);
 
         // First login should work (gets to 2FA challenge)

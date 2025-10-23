@@ -48,7 +48,7 @@ class GlossaryController extends Controller
     {
         $glossary = Glossary::create($request->validated());
 
-        return redirect()->route('glossary.show', $glossary)->with('success', 'Glossary entry created successfully');
+        return redirect()->route('glossaries.show', $glossary)->with('success', 'Glossary entry created successfully');
     }
 
     public function edit(Glossary $glossary): View
@@ -62,13 +62,13 @@ class GlossaryController extends Controller
     {
         $glossary->update($request->validated());
 
-        return redirect()->route('glossary.show', $glossary)->with('success', 'Glossary entry updated successfully');
+        return redirect()->route('glossaries.show', $glossary)->with('success', 'Glossary entry updated successfully');
     }
 
     public function destroy(Glossary $glossary): RedirectResponse
     {
         $glossary->delete();
 
-        return redirect()->route('glossary.index')->with('success', 'Glossary entry deleted successfully');
+        return redirect()->route('glossaries.index')->with('success', 'Glossary entry deleted successfully');
     }
 }

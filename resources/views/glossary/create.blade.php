@@ -4,8 +4,8 @@
 <x-layout.form-page 
     entity="glossary" 
     title="Create Glossary Entry" 
-    :back-route="route('glossary.index')"
-    :submit-route="route('glossary.store')">
+    :back-route="route('glossaries.index')"
+    :submit-route="route('glossaries.store')">
     @include('glossary._form', ['glossary' => null])
 </x-layout.form-page>
 @endsection
