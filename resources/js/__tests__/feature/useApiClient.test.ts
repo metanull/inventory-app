@@ -28,12 +28,11 @@ vi.mock('@metanull/inventory-app-api-client', () => ({
   ProvinceApi: vi.fn(),
   TagApi: vi.fn(),
   ThemeApi: vi.fn(),
-  AddressTranslationApi: vi.fn(),
-  ContactTranslationApi: vi.fn(),
   DetailTranslationApi: vi.fn(),
   ExhibitionTranslationApi: vi.fn(),
   ItemTranslationApi: vi.fn(),
   LocationTranslationApi: vi.fn(),
+  PartnerTranslationApi: vi.fn(),
   PictureTranslationApi: vi.fn(),
   ProvinceTranslationApi: vi.fn(),
   ThemeTranslationApi: vi.fn(),
@@ -82,10 +81,9 @@ describe('useApiClient composable', () => {
     expect(typeof apiClient.createThemeTranslationApi).toBe('function')
 
     // Test translation API methods (only existing translation APIs)
-    expect(typeof apiClient.createAddressTranslationApi).toBe('function')
-    expect(typeof apiClient.createContactTranslationApi).toBe('function')
     expect(typeof apiClient.createItemTranslationApi).toBe('function')
     expect(typeof apiClient.createLocationTranslationApi).toBe('function')
+    expect(typeof apiClient.createPartnerTranslationApi).toBe('function')
     expect(typeof apiClient.createProvinceTranslationApi).toBe('function')
     expect(typeof apiClient.createThemeTranslationApi).toBe('function')
 
