@@ -10,6 +10,12 @@ Name | Type | Description | Notes
 **backward_compatibility** | **string** |  | [optional] [default to undefined]
 **type** | **string** |  | [default to undefined]
 **country_id** | **string** |  | [optional] [default to undefined]
+**latitude** | **number** | GPS Location | [optional] [default to undefined]
+**longitude** | **number** |  | [optional] [default to undefined]
+**map_zoom** | **number** |  | [optional] [default to undefined]
+**project_id** | **string** | Relationships | [optional] [default to undefined]
+**monument_item_id** | **string** |  | [optional] [default to undefined]
+**visible** | **boolean** | Visibility | [optional] [default to undefined]
 
 ## Example
 
@@ -22,6 +28,12 @@ const instance: UpdatePartnerRequest = {
     backward_compatibility,
     type,
     country_id,
+    latitude,
+    longitude,
+    map_zoom,
+    project_id,
+    monument_item_id,
+    visible,
 };
 ```
 
