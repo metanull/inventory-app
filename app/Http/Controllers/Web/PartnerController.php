@@ -34,7 +34,7 @@ class PartnerController extends Controller
 
     public function show(Partner $partner): View
     {
-        $partner->load('country');
+        $partner->load('country', 'project', 'monumentItem');
 
         return view('partners.show', compact('partner'));
     }
@@ -55,7 +55,7 @@ class PartnerController extends Controller
 
     public function edit(Partner $partner): View
     {
-        $partner->load('country');
+        $partner->load('country', 'project', 'monumentItem');
         $countries = \App\Models\Country::query()->orderBy('internal_name')->get(['id', 'internal_name']);
 
         return view('partners.edit', compact('partner', 'countries'));
