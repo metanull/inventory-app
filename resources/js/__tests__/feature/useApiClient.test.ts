@@ -23,6 +23,9 @@ vi.mock('@metanull/inventory-app-api-client', () => ({
   MarkdownApi: vi.fn(),
   MobileAppAuthenticationApi: vi.fn(),
   PartnerApi: vi.fn(),
+  PartnerImageApi: vi.fn(),
+  PartnerTranslationApi: vi.fn(),
+  PartnerTranslationImageApi: vi.fn(),
   PictureApi: vi.fn(),
   ProjectApi: vi.fn(),
   ProvinceApi: vi.fn(),
@@ -32,7 +35,6 @@ vi.mock('@metanull/inventory-app-api-client', () => ({
   ExhibitionTranslationApi: vi.fn(),
   ItemTranslationApi: vi.fn(),
   LocationTranslationApi: vi.fn(),
-  PartnerTranslationApi: vi.fn(),
   PictureTranslationApi: vi.fn(),
   ProvinceTranslationApi: vi.fn(),
   ThemeTranslationApi: vi.fn(),
@@ -73,6 +75,9 @@ describe('useApiClient composable', () => {
     expect(typeof apiClient.createMarkdownApi).toBe('function')
     expect(typeof apiClient.createMobileAppAuthenticationApi).toBe('function')
     expect(typeof apiClient.createPartnerApi).toBe('function')
+    expect(typeof apiClient.createPartnerImageApi).toBe('function')
+    expect(typeof apiClient.createPartnerTranslationApi).toBe('function')
+    expect(typeof apiClient.createPartnerTranslationImageApi).toBe('function')
     expect(typeof apiClient.createProjectApi).toBe('function')
     expect(typeof apiClient.createProvinceApi).toBe('function')
     expect(typeof apiClient.createProvinceTranslationApi).toBe('function')

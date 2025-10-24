@@ -20,6 +20,9 @@ import {
   MarkdownApi,
   MobileAppAuthenticationApi,
   PartnerApi,
+  PartnerImageApi,
+  PartnerTranslationApi,
+  PartnerTranslationImageApi,
   ProjectApi,
   ProvinceApi,
   ProvinceTranslationApi,
@@ -115,6 +118,15 @@ export const useApiClient = () => {
   const createPartnerApi = () =>
     new PartnerApi(configuration.value, configuration.value.basePath, sessionAxios)
 
+  const createPartnerImageApi = () =>
+    new PartnerImageApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createPartnerTranslationApi = () =>
+    new PartnerTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createPartnerTranslationImageApi = () =>
+    new PartnerTranslationImageApi(configuration.value, configuration.value.basePath, sessionAxios)
+
   const createProjectApi = () =>
     new ProjectApi(configuration.value, configuration.value.basePath, sessionAxios)
 
@@ -161,6 +173,9 @@ export const useApiClient = () => {
     createMarkdownApi,
     createMobileAppAuthenticationApi,
     createPartnerApi,
+    createPartnerImageApi,
+    createPartnerTranslationApi,
+    createPartnerTranslationImageApi,
     createProjectApi,
     createProvinceApi,
     createProvinceTranslationApi,
