@@ -47,7 +47,7 @@ Route::prefix('web')->group(function () {
         Route::resource('items', WebItemController::class);
 
         // Item Images - nested routes
-        Route::prefix('items/{item}/item-images')->name('items.item-images.')->group(function () {
+        Route::prefix('items/{item}/images')->name('items.item-images.')->group(function () {
             Route::get('/create', [WebItemImageController::class, 'create'])->name('create');
             Route::post('/', [WebItemImageController::class, 'store'])->name('store');
             Route::get('/{item_image}/view', [WebItemImageController::class, 'view'])->name('view');
@@ -69,7 +69,7 @@ Route::prefix('web')->group(function () {
         Route::resource('partners', WebPartnerController::class);
 
         // Partner Images - nested routes
-        Route::prefix('partners/{partner}/partner-images')->name('partners.partner-images.')->group(function () {
+        Route::prefix('partners/{partner}/images')->name('partners.partner-images.')->group(function () {
             Route::get('/create', [WebPartnerImageController::class, 'create'])->name('create');
             Route::post('/', [WebPartnerImageController::class, 'store'])->name('store');
             Route::get('/{partner_image}/view', [WebPartnerImageController::class, 'view'])->name('view');
@@ -85,7 +85,7 @@ Route::prefix('web')->group(function () {
         Route::resource('partner-translations', WebPartnerTranslationController::class);
 
         // Partner Translation Images - nested routes
-        Route::prefix('partner-translations/{partner_translation}/images')->name('partner-translations.images.')->group(function () {
+        Route::prefix('partner-translations/{partner_translation}/images')->name('partner-translations.partner-translation-images.')->group(function () {
             Route::get('/create', [WebPartnerTranslationImageController::class, 'create'])->name('create');
             Route::post('/', [WebPartnerTranslationImageController::class, 'store'])->name('store');
             Route::get('/{partner_translation_image}/view', [WebPartnerTranslationImageController::class, 'view'])->name('view');
@@ -131,7 +131,7 @@ Route::prefix('web')->group(function () {
         Route::resource('authors', \App\Http\Controllers\Web\AuthorController::class);
 
         // Collection Images - nested routes
-        Route::prefix('collections/{collection}/collection-images')->name('collections.collection-images.')->group(function () {
+        Route::prefix('collections/{collection}/images')->name('collections.collection-images.')->group(function () {
             Route::get('/create', [WebCollectionImageController::class, 'create'])->name('create');
             Route::post('/', [WebCollectionImageController::class, 'store'])->name('store');
             Route::get('/{collection_image}/view', [WebCollectionImageController::class, 'view'])->name('view');

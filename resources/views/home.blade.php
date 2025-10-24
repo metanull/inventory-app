@@ -241,36 +241,6 @@
                     <p class="text-sm text-gray-600 flex-1">Manage content authors and contributors.</p>
                     <span class="mt-4 inline-flex items-center text-sm font-medium {{ $ac['text'] ?? 'text-amber-600' }} group-hover:underline">Open &rarr;</span>
                 </a>
-
-                @php($conc = $entityColor('contacts'))
-                <a href="{{ route('contacts.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $conc['base'] }}/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md {{ $conc['bg'] ?? 'bg-sky-50' }} {{ $conc['text'] ?? 'text-sky-600' }} group-hover:opacity-90">
-                                <x-heroicon-o-phone class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Contacts</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $conc['text'] ?? 'text-sky-600' }}" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Manage contact information and labels.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $conc['text'] ?? 'text-sky-600' }} group-hover:underline">Open &rarr;</span>
-                </a>
-
-                @php($addc = $entityColor('addresses'))
-                <a href="{{ route('addresses.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $addc['base'] }}/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md {{ $addc['bg'] ?? 'bg-lime-50' }} {{ $addc['text'] ?? 'text-lime-600' }} group-hover:opacity-90">
-                                <x-heroicon-o-map-pin class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Addresses</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $addc['text'] ?? 'text-lime-600' }}" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Manage physical addresses with translations.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $addc['text'] ?? 'text-lime-600' }} group-hover:underline">Open &rarr;</span>
-                </a>
             </div>
         </section>
         @endcan

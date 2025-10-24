@@ -103,7 +103,14 @@
         </table>
     </div>
 
-    <div class="mt-4">
-        {{ $partnerTranslations->links() }}
+    <div>
+        <x-layout.pagination 
+            :paginator="$partnerTranslations" 
+            entity="partner-translations"
+            param-page="page"
+        />
     </div>
+    
+    <!-- Delete confirmation modal -->
+    <x-table.delete-modal />
 </div>

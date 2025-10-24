@@ -184,5 +184,6 @@
 </div>
 
 <x-form.actions 
+    entity="partner_translations"
     :cancel-route="isset($partnerTranslation) && $partnerTranslation->exists ? route('partner-translations.show', $partnerTranslation) : route('partner-translations.index')"
 />
