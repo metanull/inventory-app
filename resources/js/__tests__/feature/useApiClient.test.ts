@@ -10,9 +10,7 @@ vi.mock('@metanull/inventory-app-api-client', () => ({
     accessToken: config?.accessToken || null,
   })),
   LanguageApi: vi.fn(),
-  AddressApi: vi.fn(),
   CollectionApi: vi.fn(),
-  ContactApi: vi.fn(),
   ContextApi: vi.fn(),
   CountryApi: vi.fn(),
   DetailApi: vi.fn(),
@@ -61,12 +59,8 @@ describe('useApiClient composable', () => {
     const apiClient = useApiClient()
 
     // Test that all factory methods are available
-    expect(typeof apiClient.createAddressApi).toBe('function')
-    expect(typeof apiClient.createAddressTranslationApi).toBe('function')
     expect(typeof apiClient.createAvailableImageApi).toBe('function')
     expect(typeof apiClient.createCollectionApi).toBe('function')
-    expect(typeof apiClient.createContactApi).toBe('function')
-    expect(typeof apiClient.createContactTranslationApi).toBe('function')
     expect(typeof apiClient.createContextApi).toBe('function')
     expect(typeof apiClient.createCountryApi).toBe('function')
     expect(typeof apiClient.createImageUploadApi).toBe('function')
@@ -111,7 +105,6 @@ describe('useApiClient composable', () => {
 
     // Test that we can create instances without errors
     expect(() => apiClient.createLanguageApi()).not.toThrow()
-    expect(() => apiClient.createAddressApi()).not.toThrow()
     expect(() => apiClient.createCollectionApi()).not.toThrow()
   })
 

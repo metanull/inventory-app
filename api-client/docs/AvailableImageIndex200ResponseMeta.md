@@ -1,4 +1,4 @@
-# AddressIndex200ResponseMeta
+# AvailableImageIndex200ResponseMeta
 
 
 ## Properties
@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **current_page** | **number** |  | [default to undefined]
 **from** | **number** |  | [default to undefined]
 **last_page** | **number** |  | [default to undefined]
-**links** | [**Array&lt;AddressIndex200ResponseMetaLinksInner&gt;**](AddressIndex200ResponseMetaLinksInner.md) | Generated paginator links. | [default to undefined]
+**links** | [**Array&lt;AvailableImageIndex200ResponseMetaLinksInner&gt;**](AvailableImageIndex200ResponseMetaLinksInner.md) | Generated paginator links. | [default to undefined]
 **path** | **string** | Base path for paginator generated URLs. | [default to undefined]
 **per_page** | **number** | Number of items shown per page. | [default to undefined]
 **to** | **number** | Number of the last item in the slice. | [default to undefined]
@@ -17,9 +17,9 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { AddressIndex200ResponseMeta } from './api';
+import { AvailableImageIndex200ResponseMeta } from './api';
 
-const instance: AddressIndex200ResponseMeta = {
+const instance: AvailableImageIndex200ResponseMeta = {
     current_page,
     from,
     last_page,

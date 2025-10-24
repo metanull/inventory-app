@@ -1,4 +1,4 @@
-# AddressIndex200ResponseLinks
+# AvailableImageIndex200ResponseLinks
 
 
 ## Properties
@@ -13,9 +13,9 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { AddressIndex200ResponseLinks } from './api';
+import { AvailableImageIndex200ResponseLinks } from './api';
 
-const instance: AddressIndex200ResponseLinks = {
+const instance: AvailableImageIndex200ResponseLinks = {
     first,
     last,
     prev,

@@ -1,21 +1,23 @@
-# StoreContactRequestTranslationsInner
+# AvailableImageIndex200ResponseMetaLinksInner
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**language_id** | **number** |  | [default to undefined]
+**url** | **string** |  | [default to undefined]
 **label** | **string** |  | [default to undefined]
+**active** | **boolean** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { StoreContactRequestTranslationsInner } from './api';
+import { AvailableImageIndex200ResponseMetaLinksInner } from './api';
 
-const instance: StoreContactRequestTranslationsInner = {
-    language_id,
+const instance: AvailableImageIndex200ResponseMetaLinksInner = {
+    url,
     label,
+    active,
 };
 ```
 
