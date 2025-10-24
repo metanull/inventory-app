@@ -150,9 +150,9 @@ class PartnerImage extends Model
     /**
      * Attach an available image to a partner, preserving the ID.
      */
-    public static function attachFromAvailableImage(AvailableImage $availableImage, string $partnerId): static
+    public static function attachFromAvailableImage(AvailableImage $availableImage, string $partnerId, ?string $altText = null): static
     {
-        return DB::transaction(function () use ($availableImage, $partnerId) {
+        return DB::transaction(function () use ($availableImage, $partnerId, $altText) {
             $displayOrder = static::getNextDisplayOrderForPartner($partnerId);
 
             $partnerImage = static::create([
@@ -162,7 +162,7 @@ class PartnerImage extends Model
                 'original_name' => $availableImage->original_name ?? '',
                 'mime_type' => $availableImage->mime_type ?? '',
                 'size' => $availableImage->size ?? 0,
-                'alt_text' => $availableImage->comment,
+                'alt_text' => $altText ?? $availableImage->comment,
                 'display_order' => $displayOrder,
             ]);
 

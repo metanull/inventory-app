@@ -10,9 +10,7 @@ vi.mock('@metanull/inventory-app-api-client', () => ({
     accessToken: config?.accessToken || null,
   })),
   LanguageApi: vi.fn(),
-  AddressApi: vi.fn(),
   CollectionApi: vi.fn(),
-  ContactApi: vi.fn(),
   ContextApi: vi.fn(),
   CountryApi: vi.fn(),
   DetailApi: vi.fn(),
@@ -25,13 +23,14 @@ vi.mock('@metanull/inventory-app-api-client', () => ({
   MarkdownApi: vi.fn(),
   MobileAppAuthenticationApi: vi.fn(),
   PartnerApi: vi.fn(),
+  PartnerImageApi: vi.fn(),
+  PartnerTranslationApi: vi.fn(),
+  PartnerTranslationImageApi: vi.fn(),
   PictureApi: vi.fn(),
   ProjectApi: vi.fn(),
   ProvinceApi: vi.fn(),
   TagApi: vi.fn(),
   ThemeApi: vi.fn(),
-  AddressTranslationApi: vi.fn(),
-  ContactTranslationApi: vi.fn(),
   DetailTranslationApi: vi.fn(),
   ExhibitionTranslationApi: vi.fn(),
   ItemTranslationApi: vi.fn(),
@@ -61,12 +60,8 @@ describe('useApiClient composable', () => {
     const apiClient = useApiClient()
 
     // Test that all factory methods are available
-    expect(typeof apiClient.createAddressApi).toBe('function')
-    expect(typeof apiClient.createAddressTranslationApi).toBe('function')
     expect(typeof apiClient.createAvailableImageApi).toBe('function')
     expect(typeof apiClient.createCollectionApi).toBe('function')
-    expect(typeof apiClient.createContactApi).toBe('function')
-    expect(typeof apiClient.createContactTranslationApi).toBe('function')
     expect(typeof apiClient.createContextApi).toBe('function')
     expect(typeof apiClient.createCountryApi).toBe('function')
     expect(typeof apiClient.createImageUploadApi).toBe('function')
@@ -80,6 +75,9 @@ describe('useApiClient composable', () => {
     expect(typeof apiClient.createMarkdownApi).toBe('function')
     expect(typeof apiClient.createMobileAppAuthenticationApi).toBe('function')
     expect(typeof apiClient.createPartnerApi).toBe('function')
+    expect(typeof apiClient.createPartnerImageApi).toBe('function')
+    expect(typeof apiClient.createPartnerTranslationApi).toBe('function')
+    expect(typeof apiClient.createPartnerTranslationImageApi).toBe('function')
     expect(typeof apiClient.createProjectApi).toBe('function')
     expect(typeof apiClient.createProvinceApi).toBe('function')
     expect(typeof apiClient.createProvinceTranslationApi).toBe('function')
@@ -88,10 +86,9 @@ describe('useApiClient composable', () => {
     expect(typeof apiClient.createThemeTranslationApi).toBe('function')
 
     // Test translation API methods (only existing translation APIs)
-    expect(typeof apiClient.createAddressTranslationApi).toBe('function')
-    expect(typeof apiClient.createContactTranslationApi).toBe('function')
     expect(typeof apiClient.createItemTranslationApi).toBe('function')
     expect(typeof apiClient.createLocationTranslationApi).toBe('function')
+    expect(typeof apiClient.createPartnerTranslationApi).toBe('function')
     expect(typeof apiClient.createProvinceTranslationApi).toBe('function')
     expect(typeof apiClient.createThemeTranslationApi).toBe('function')
 
@@ -111,7 +108,6 @@ describe('useApiClient composable', () => {
 
     // Test that we can create instances without errors
     expect(() => apiClient.createLanguageApi()).not.toThrow()
-    expect(() => apiClient.createAddressApi()).not.toThrow()
     expect(() => apiClient.createCollectionApi()).not.toThrow()
   })
 

@@ -1,15 +1,11 @@
 <?php
 
 use App\Enums\Permission;
-use App\Http\Controllers\AddressController;
-use App\Http\Controllers\AddressTranslationController;
 use App\Http\Controllers\Api\MarkdownController;
 use App\Http\Controllers\AvailableImageController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CollectionImageController;
 use App\Http\Controllers\CollectionTranslationController;
-use App\Http\Controllers\ContactController;
-use App\Http\Controllers\ContactTranslationController;
 use App\Http\Controllers\ContextController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\GlossaryController;
@@ -96,10 +92,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('partner-translation', [PartnerTranslationController::class, 'index'])->name('partner-translation.index');
 
         // Partner Image routes (read)
+        Route::get('partner-image/{partnerImage}/download', [PartnerImageController::class, 'download'])->name('partner-image.download');
+        Route::get('partner-image/{partnerImage}/view', [PartnerImageController::class, 'view'])->name('partner-image.view');
         Route::get('partner-image/{partnerImage}', [PartnerImageController::class, 'show'])->name('partner-image.show');
         Route::get('partner-image', [PartnerImageController::class, 'index'])->name('partner-image.index');
 
         // Partner Translation Image routes (read)
+        Route::get('partner-translation-image/{partnerTranslationImage}/download', [PartnerTranslationImageController::class, 'download'])->name('partner-translation-image.download');
+        Route::get('partner-translation-image/{partnerTranslationImage}/view', [PartnerTranslationImageController::class, 'view'])->name('partner-translation-image.view');
         Route::get('partner-translation-image/{partnerTranslationImage}', [PartnerTranslationImageController::class, 'show'])->name('partner-translation-image.show');
         Route::get('partner-translation-image', [PartnerTranslationImageController::class, 'index'])->name('partner-translation-image.index');
 
@@ -130,25 +130,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('available-image/{available_image}', [AvailableImageController::class, 'show'])->name('available-image.show');
         Route::get('available-image', [AvailableImageController::class, 'index'])->name('available-image.index');
 
-        // Contact, Location, Address routes (read)
-        Route::get('contact/{contact}', [ContactController::class, 'show'])->name('contact.show');
-        Route::get('contact', [ContactController::class, 'index'])->name('contact.index');
+        // Province, Location routes (read)
         Route::get('province/{province}', [ProvinceController::class, 'show'])->name('province.show');
         Route::get('province', [ProvinceController::class, 'index'])->name('province.index');
         Route::get('location/{location}', [LocationController::class, 'show'])->name('location.show');
         Route::get('location', [LocationController::class, 'index'])->name('location.index');
-        Route::get('address/{address}', [AddressController::class, 'show'])->name('address.show');
-        Route::get('address', [AddressController::class, 'index'])->name('address.index');
 
         // Translation routes (read)
-        Route::get('contact-translation/{contact_translation}', [ContactTranslationController::class, 'show'])->name('contact-translation.show');
-        Route::get('contact-translation', [ContactTranslationController::class, 'index'])->name('contact-translation.index');
         Route::get('province-translation/{province_translation}', [ProvinceTranslationController::class, 'show'])->name('province-translation.show');
         Route::get('province-translation', [ProvinceTranslationController::class, 'index'])->name('province-translation.index');
         Route::get('location-translation/{location_translation}', [LocationTranslationController::class, 'show'])->name('location-translation.show');
         Route::get('location-translation', [LocationTranslationController::class, 'index'])->name('location-translation.index');
-        Route::get('address-translation/{address_translation}', [AddressTranslationController::class, 'show'])->name('address-translation.show');
-        Route::get('address-translation', [AddressTranslationController::class, 'index'])->name('address-translation.index');
         Route::get('item-translation/{item_translation}', [ItemTranslationController::class, 'show'])->name('item-translation.show');
         Route::get('item-translation', [ItemTranslationController::class, 'index'])->name('item-translation.index');
         Route::get('collection-translation/{collection_translation}', [CollectionTranslationController::class, 'show'])->name('collection-translation.show');
@@ -183,7 +175,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('country', [CountryController::class, 'store'])->name('country.store');
         Route::post('tag', [TagController::class, 'store'])->name('tag.store');
         Route::post('partner', [PartnerController::class, 'store'])->name('partner.store');
+        Route::post('partner/{partner}/attach-image', [PartnerImageController::class, 'attachFromAvailable'])->name('partner.attachImage');
         Route::post('partner-translation', [PartnerTranslationController::class, 'store'])->name('partner-translation.store');
+        Route::post('partner-translation/{partnerTranslation}/attach-image', [PartnerTranslationImageController::class, 'attachFromAvailable'])->name('partner-translation.attachImage');
         Route::post('partner-image', [PartnerImageController::class, 'store'])->name('partner-image.store');
         Route::post('partner-translation-image', [PartnerTranslationImageController::class, 'store'])->name('partner-translation-image.store');
         Route::post('item', [ItemController::class, 'store'])->name('item.store');
@@ -193,14 +187,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('item/{item}/attach-tags', [ItemController::class, 'attachTags'])->name('item.attachTags');
         Route::post('project', [ProjectController::class, 'store'])->name('project.store');
         Route::post('image-upload', [ImageUploadController::class, 'store'])->name('image-upload.store');
-        Route::post('contact', [ContactController::class, 'store'])->name('contact.store');
         Route::post('province', [ProvinceController::class, 'store'])->name('province.store');
         Route::post('location', [LocationController::class, 'store'])->name('location.store');
-        Route::post('address', [AddressController::class, 'store'])->name('address.store');
-        Route::post('contact-translation', [ContactTranslationController::class, 'store'])->name('contact-translation.store');
         Route::post('province-translation', [ProvinceTranslationController::class, 'store'])->name('province-translation.store');
         Route::post('location-translation', [LocationTranslationController::class, 'store'])->name('location-translation.store');
-        Route::post('address-translation', [AddressTranslationController::class, 'store'])->name('address-translation.store');
         Route::post('item-translation', [ItemTranslationController::class, 'store'])->name('item-translation.store');
         Route::post('collection-translation', [CollectionTranslationController::class, 'store'])->name('collection-translation.store');
         Route::post('collection', [CollectionController::class, 'store'])->name('collection.store');
@@ -252,9 +242,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::patch('partner-image/{partnerImage}', [PartnerImageController::class, 'update'])->name('partner-image.update');
         Route::put('partner-image/{partnerImage}', [PartnerImageController::class, 'update']);
+        Route::patch('partner-image/{partnerImage}/move-up', [PartnerImageController::class, 'moveUp'])->name('partner-image.moveUp');
+        Route::patch('partner-image/{partnerImage}/move-down', [PartnerImageController::class, 'moveDown'])->name('partner-image.moveDown');
+        Route::patch('partner-image/{partnerImage}/tighten-ordering', [PartnerImageController::class, 'tightenOrdering'])->name('partner-image.tightenOrdering');
 
         Route::patch('partner-translation-image/{partnerTranslationImage}', [PartnerTranslationImageController::class, 'update'])->name('partner-translation-image.update');
         Route::put('partner-translation-image/{partnerTranslationImage}', [PartnerTranslationImageController::class, 'update']);
+        Route::patch('partner-translation-image/{partnerTranslationImage}/move-up', [PartnerTranslationImageController::class, 'moveUp'])->name('partner-translation-image.moveUp');
+        Route::patch('partner-translation-image/{partnerTranslationImage}/move-down', [PartnerTranslationImageController::class, 'moveDown'])->name('partner-translation-image.moveDown');
+        Route::patch('partner-translation-image/{partnerTranslationImage}/tighten-ordering', [PartnerTranslationImageController::class, 'tightenOrdering'])->name('partner-translation-image.tightenOrdering');
 
         Route::patch('item/{item}/tags', [ItemController::class, 'updateTags'])->name('item.updateTags');
         Route::patch('item/{item}', [ItemController::class, 'update'])->name('item.update');
@@ -272,29 +268,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::patch('collection-image/{collectionImage}/move-down', [CollectionImageController::class, 'moveDown'])->name('collection-image.moveDown');
         Route::patch('collection-image/{collectionImage}/tighten-ordering', [CollectionImageController::class, 'tightenOrdering'])->name('collection-image.tightenOrdering');
 
-        Route::patch('contact/{contact}', [ContactController::class, 'update'])->name('contact.update');
-        Route::put('contact/{contact}', [ContactController::class, 'update']);
-
         Route::patch('province/{province}', [ProvinceController::class, 'update'])->name('province.update');
         Route::put('province/{province}', [ProvinceController::class, 'update']);
 
         Route::patch('location/{location}', [LocationController::class, 'update'])->name('location.update');
         Route::put('location/{location}', [LocationController::class, 'update']);
 
-        Route::patch('address/{address}', [AddressController::class, 'update'])->name('address.update');
-        Route::put('address/{address}', [AddressController::class, 'update']);
-
-        Route::patch('contact-translation/{contact_translation}', [ContactTranslationController::class, 'update'])->name('contact-translation.update');
-        Route::put('contact-translation/{contact_translation}', [ContactTranslationController::class, 'update']);
-
         Route::patch('province-translation/{province_translation}', [ProvinceTranslationController::class, 'update'])->name('province-translation.update');
         Route::put('province-translation/{province_translation}', [ProvinceTranslationController::class, 'update']);
 
         Route::patch('location-translation/{location_translation}', [LocationTranslationController::class, 'update'])->name('location-translation.update');
         Route::put('location-translation/{location_translation}', [LocationTranslationController::class, 'update']);
-
-        Route::patch('address-translation/{address_translation}', [AddressTranslationController::class, 'update'])->name('address-translation.update');
-        Route::put('address-translation/{address_translation}', [AddressTranslationController::class, 'update']);
 
         Route::patch('item-translation/{item_translation}', [ItemTranslationController::class, 'update'])->name('item-translation.update');
         Route::put('item-translation/{item_translation}', [ItemTranslationController::class, 'update']);
@@ -325,7 +309,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('partner/{partner}', [PartnerController::class, 'destroy'])->name('partner.destroy');
         Route::delete('partner-translation/{partnerTranslation}', [PartnerTranslationController::class, 'destroy'])->name('partner-translation.destroy');
         Route::delete('partner-image/{partnerImage}', [PartnerImageController::class, 'destroy'])->name('partner-image.destroy');
+        Route::post('partner-image/{partnerImage}/detach', [PartnerImageController::class, 'detachToAvailable'])->name('partner-image.detach');
         Route::delete('partner-translation-image/{partnerTranslationImage}', [PartnerTranslationImageController::class, 'destroy'])->name('partner-translation-image.destroy');
+        Route::post('partner-translation-image/{partnerTranslationImage}/detach', [PartnerTranslationImageController::class, 'detachToAvailable'])->name('partner-translation-image.detach');
         Route::delete('item/{item}', [ItemController::class, 'destroy'])->name('item.destroy');
         Route::delete('item/{item}/detach-tag', [ItemController::class, 'detachTag'])->name('item.detachTag');
         Route::delete('item/{item}/detach-tags', [ItemController::class, 'detachTags'])->name('item.detachTags');
@@ -338,14 +324,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('available-image/{available_image}', [AvailableImageController::class, 'destroy'])->name('available-image.destroy');
         Route::patch('available-image/{available_image}', [AvailableImageController::class, 'update'])->name('available-image.update');
         Route::put('available-image/{available_image}', [AvailableImageController::class, 'update']);
-        Route::delete('contact/{contact}', [ContactController::class, 'destroy'])->name('contact.destroy');
         Route::delete('province/{province}', [ProvinceController::class, 'destroy'])->name('province.destroy');
         Route::delete('location/{location}', [LocationController::class, 'destroy'])->name('location.destroy');
-        Route::delete('address/{address}', [AddressController::class, 'destroy'])->name('address.destroy');
-        Route::delete('contact-translation/{contact_translation}', [ContactTranslationController::class, 'destroy'])->name('contact-translation.destroy');
         Route::delete('province-translation/{province_translation}', [ProvinceTranslationController::class, 'destroy'])->name('province-translation.destroy');
         Route::delete('location-translation/{location_translation}', [LocationTranslationController::class, 'destroy'])->name('location-translation.destroy');
-        Route::delete('address-translation/{address_translation}', [AddressTranslationController::class, 'destroy'])->name('address-translation.destroy');
         Route::delete('item-translation/{item_translation}', [ItemTranslationController::class, 'destroy'])->name('item-translation.destroy');
         Route::delete('collection-translation/{collection_translation}', [CollectionTranslationController::class, 'destroy'])->name('collection-translation.destroy');
         Route::delete('collection/{collection}', [CollectionController::class, 'destroy'])->name('collection.destroy');

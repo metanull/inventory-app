@@ -150,9 +150,9 @@ class PartnerTranslationImage extends Model
     /**
      * Attach an available image to a partner translation, preserving the ID.
      */
-    public static function attachFromAvailableImage(AvailableImage $availableImage, string $partnerTranslationId): static
+    public static function attachFromAvailableImage(AvailableImage $availableImage, string $partnerTranslationId, ?string $altText = null): static
     {
-        return DB::transaction(function () use ($availableImage, $partnerTranslationId) {
+        return DB::transaction(function () use ($availableImage, $partnerTranslationId, $altText) {
             $displayOrder = static::getNextDisplayOrderForPartnerTranslation($partnerTranslationId);
 
             $partnerTranslationImage = static::create([
@@ -162,7 +162,7 @@ class PartnerTranslationImage extends Model
                 'original_name' => $availableImage->original_name ?? '',
                 'mime_type' => $availableImage->mime_type ?? '',
                 'size' => $availableImage->size ?? 0,
-                'alt_text' => $availableImage->comment,
+                'alt_text' => $altText ?? $availableImage->comment,
                 'display_order' => $displayOrder,
             ]);
 

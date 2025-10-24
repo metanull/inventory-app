@@ -6,8 +6,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **data** | [**Array&lt;PartnerImageResource&gt;**](PartnerImageResource.md) |  | [default to undefined]
-**links** | [**AddressIndex200ResponseLinks**](AddressIndex200ResponseLinks.md) |  | [default to undefined]
-**meta** | [**AddressIndex200ResponseMeta**](AddressIndex200ResponseMeta.md) |  | [default to undefined]
+**links** | [**AvailableImageIndex200ResponseLinks**](AvailableImageIndex200ResponseLinks.md) |  | [default to undefined]
+**meta** | [**AvailableImageIndex200ResponseMeta**](AvailableImageIndex200ResponseMeta.md) |  | [default to undefined]
 
 ## Example
 

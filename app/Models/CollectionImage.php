@@ -150,9 +150,9 @@ class CollectionImage extends Model
     /**
      * Attach an available image to a collection, preserving the ID.
      */
-    public static function attachFromAvailableImage(AvailableImage $availableImage, string $collectionId): static
+    public static function attachFromAvailableImage(AvailableImage $availableImage, string $collectionId, ?string $altText = null): static
     {
-        return DB::transaction(function () use ($availableImage, $collectionId) {
+        return DB::transaction(function () use ($availableImage, $collectionId, $altText) {
             $displayOrder = static::getNextDisplayOrderForCollection($collectionId);
 
             $collectionImage = static::create([
@@ -162,7 +162,7 @@ class CollectionImage extends Model
                 'original_name' => $availableImage->original_name ?? '',
                 'mime_type' => $availableImage->mime_type ?? '',
                 'size' => $availableImage->size ?? 0,
-                'alt_text' => $availableImage->comment,
+                'alt_text' => $altText ?? $availableImage->comment,
                 'display_order' => $displayOrder,
             ]);
 

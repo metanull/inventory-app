@@ -15,721 +15,6 @@
         }
     ],
     "paths": {
-        "/address/{address}": {
-            "get": {
-                "operationId": "address.show",
-                "summary": "Display the specified address",
-                "tags": [
-                    "Address"
-                ],
-                "parameters": [
-                    {
-                        "name": "address",
-                        "in": "path",
-                        "required": true,
-                        "description": "The address ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    },
-                    {
-                        "name": "include",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "`AddressResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AddressResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            },
-            "patch": {
-                "operationId": "address.update",
-                "summary": "Update the specified address",
-                "tags": [
-                    "Address"
-                ],
-                "parameters": [
-                    {
-                        "name": "address",
-                        "in": "path",
-                        "required": true,
-                        "description": "The address ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UpdateAddressRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "`AddressResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AddressResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            },
-            "put": {
-                "operationId": "address.update_2",
-                "summary": "Update the specified address",
-                "tags": [
-                    "Address"
-                ],
-                "parameters": [
-                    {
-                        "name": "address",
-                        "in": "path",
-                        "required": true,
-                        "description": "The address ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UpdateAddressRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "`AddressResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AddressResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            },
-            "delete": {
-                "operationId": "address.destroy",
-                "summary": "Remove the specified address",
-                "tags": [
-                    "Address"
-                ],
-                "parameters": [
-                    {
-                        "name": "address",
-                        "in": "path",
-                        "required": true,
-                        "description": "The address ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No content"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
-            }
-        },
-        "/address": {
-            "get": {
-                "operationId": "address.index",
-                "summary": "Display a listing of addresses",
-                "tags": [
-                    "Address"
-                ],
-                "parameters": [
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "schema": {
-                            "type": "integer",
-                            "minimum": 1
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "schema": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 100
-                        }
-                    },
-                    {
-                        "name": "include",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Paginated set of `AddressResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/AddressResource"
-                                            }
-                                        },
-                                        "links": {
-                                            "type": "object",
-                                            "properties": {
-                                                "first": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "last": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "prev": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "next": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                }
-                                            },
-                                            "required": [
-                                                "first",
-                                                "last",
-                                                "prev",
-                                                "next"
-                                            ]
-                                        },
-                                        "meta": {
-                                            "type": "object",
-                                            "properties": {
-                                                "current_page": {
-                                                    "type": "integer"
-                                                },
-                                                "from": {
-                                                    "type": [
-                                                        "integer",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "last_page": {
-                                                    "type": "integer"
-                                                },
-                                                "links": {
-                                                    "type": "array",
-                                                    "description": "Generated paginator links.",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "url": {
-                                                                "type": [
-                                                                    "string",
-                                                                    "null"
-                                                                ]
-                                                            },
-                                                            "label": {
-                                                                "type": "string"
-                                                            },
-                                                            "active": {
-                                                                "type": "boolean"
-                                                            }
-                                                        },
-                                                        "required": [
-                                                            "url",
-                                                            "label",
-                                                            "active"
-                                                        ]
-                                                    }
-                                                },
-                                                "path": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ],
-                                                    "description": "Base path for paginator generated URLs."
-                                                },
-                                                "per_page": {
-                                                    "type": "integer",
-                                                    "description": "Number of items shown per page."
-                                                },
-                                                "to": {
-                                                    "type": [
-                                                        "integer",
-                                                        "null"
-                                                    ],
-                                                    "description": "Number of the last item in the slice."
-                                                },
-                                                "total": {
-                                                    "type": "integer",
-                                                    "description": "Total number of items being paginated."
-                                                }
-                                            },
-                                            "required": [
-                                                "current_page",
-                                                "from",
-                                                "last_page",
-                                                "links",
-                                                "path",
-                                                "per_page",
-                                                "to",
-                                                "total"
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "data",
-                                        "links",
-                                        "meta"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            },
-            "post": {
-                "operationId": "address.store",
-                "summary": "Store a newly created address",
-                "tags": [
-                    "Address"
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/StoreAddressRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "`AddressResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AddressResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            }
-        },
-        "/address-translation/{addressTranslation}": {
-            "get": {
-                "operationId": "address-translation.show",
-                "summary": "Display the specified resource",
-                "tags": [
-                    "AddressTranslation"
-                ],
-                "parameters": [
-                    {
-                        "name": "addressTranslation",
-                        "in": "path",
-                        "required": true,
-                        "description": "The address translation ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "`AddressTranslationResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AddressTranslationResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
-            },
-            "patch": {
-                "operationId": "address-translation.update",
-                "summary": "Update the specified resource in storage",
-                "tags": [
-                    "AddressTranslation"
-                ],
-                "parameters": [
-                    {
-                        "name": "addressTranslation",
-                        "in": "path",
-                        "required": true,
-                        "description": "The address translation ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UpdateAddressTranslationRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "`AddressTranslationResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AddressTranslationResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            },
-            "put": {
-                "operationId": "addressTranslation.update_2",
-                "summary": "Update the specified resource in storage",
-                "tags": [
-                    "AddressTranslation"
-                ],
-                "parameters": [
-                    {
-                        "name": "addressTranslation",
-                        "in": "path",
-                        "required": true,
-                        "description": "The address translation ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UpdateAddressTranslationRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "`AddressTranslationResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AddressTranslationResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            },
-            "delete": {
-                "operationId": "address-translation.destroy",
-                "summary": "Remove the specified resource from storage",
-                "tags": [
-                    "AddressTranslation"
-                ],
-                "parameters": [
-                    {
-                        "name": "addressTranslation",
-                        "in": "path",
-                        "required": true,
-                        "description": "The address translation ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No content"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
-            }
-        },
-        "/address-translation": {
-            "get": {
-                "operationId": "address-translation.index",
-                "summary": "Display a listing of the resource",
-                "tags": [
-                    "AddressTranslation"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Array of `AddressTranslationResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/AddressTranslationResource"
-                                            }
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
-            },
-            "post": {
-                "operationId": "address-translation.store",
-                "summary": "Store a newly created resource in storage",
-                "tags": [
-                    "AddressTranslation"
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/StoreAddressTranslationRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "`AddressTranslationResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AddressTranslationResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            }
-        },
         "/available-image/{availableImage}/download": {
             "get": {
                 "operationId": "available-image.download",
@@ -3072,721 +2357,6 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
-            }
-        },
-        "/contact/{contact}": {
-            "get": {
-                "operationId": "contact.show",
-                "summary": "Display the specified contact",
-                "tags": [
-                    "Contact"
-                ],
-                "parameters": [
-                    {
-                        "name": "contact",
-                        "in": "path",
-                        "required": true,
-                        "description": "The contact ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    },
-                    {
-                        "name": "include",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "`ContactResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/ContactResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            },
-            "patch": {
-                "operationId": "contact.update",
-                "summary": "Update the specified contact",
-                "tags": [
-                    "Contact"
-                ],
-                "parameters": [
-                    {
-                        "name": "contact",
-                        "in": "path",
-                        "required": true,
-                        "description": "The contact ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UpdateContactRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "`ContactResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/ContactResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            },
-            "put": {
-                "operationId": "contact.update_2",
-                "summary": "Update the specified contact",
-                "tags": [
-                    "Contact"
-                ],
-                "parameters": [
-                    {
-                        "name": "contact",
-                        "in": "path",
-                        "required": true,
-                        "description": "The contact ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UpdateContactRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "`ContactResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/ContactResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            },
-            "delete": {
-                "operationId": "contact.destroy",
-                "summary": "Remove the specified contact",
-                "tags": [
-                    "Contact"
-                ],
-                "parameters": [
-                    {
-                        "name": "contact",
-                        "in": "path",
-                        "required": true,
-                        "description": "The contact ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No content"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
-            }
-        },
-        "/contact": {
-            "get": {
-                "operationId": "contact.index",
-                "summary": "Display a listing of contacts",
-                "tags": [
-                    "Contact"
-                ],
-                "parameters": [
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "schema": {
-                            "type": "integer",
-                            "minimum": 1
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "schema": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 100
-                        }
-                    },
-                    {
-                        "name": "include",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Paginated set of `ContactResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/ContactResource"
-                                            }
-                                        },
-                                        "links": {
-                                            "type": "object",
-                                            "properties": {
-                                                "first": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "last": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "prev": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "next": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ]
-                                                }
-                                            },
-                                            "required": [
-                                                "first",
-                                                "last",
-                                                "prev",
-                                                "next"
-                                            ]
-                                        },
-                                        "meta": {
-                                            "type": "object",
-                                            "properties": {
-                                                "current_page": {
-                                                    "type": "integer"
-                                                },
-                                                "from": {
-                                                    "type": [
-                                                        "integer",
-                                                        "null"
-                                                    ]
-                                                },
-                                                "last_page": {
-                                                    "type": "integer"
-                                                },
-                                                "links": {
-                                                    "type": "array",
-                                                    "description": "Generated paginator links.",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "url": {
-                                                                "type": [
-                                                                    "string",
-                                                                    "null"
-                                                                ]
-                                                            },
-                                                            "label": {
-                                                                "type": "string"
-                                                            },
-                                                            "active": {
-                                                                "type": "boolean"
-                                                            }
-                                                        },
-                                                        "required": [
-                                                            "url",
-                                                            "label",
-                                                            "active"
-                                                        ]
-                                                    }
-                                                },
-                                                "path": {
-                                                    "type": [
-                                                        "string",
-                                                        "null"
-                                                    ],
-                                                    "description": "Base path for paginator generated URLs."
-                                                },
-                                                "per_page": {
-                                                    "type": "integer",
-                                                    "description": "Number of items shown per page."
-                                                },
-                                                "to": {
-                                                    "type": [
-                                                        "integer",
-                                                        "null"
-                                                    ],
-                                                    "description": "Number of the last item in the slice."
-                                                },
-                                                "total": {
-                                                    "type": "integer",
-                                                    "description": "Total number of items being paginated."
-                                                }
-                                            },
-                                            "required": [
-                                                "current_page",
-                                                "from",
-                                                "last_page",
-                                                "links",
-                                                "path",
-                                                "per_page",
-                                                "to",
-                                                "total"
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "data",
-                                        "links",
-                                        "meta"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            },
-            "post": {
-                "operationId": "contact.store",
-                "summary": "Store a newly created contact",
-                "tags": [
-                    "Contact"
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/StoreContactRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "`ContactResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/ContactResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            }
-        },
-        "/contact-translation/{contactTranslation}": {
-            "get": {
-                "operationId": "contact-translation.show",
-                "summary": "Display the specified resource",
-                "tags": [
-                    "ContactTranslation"
-                ],
-                "parameters": [
-                    {
-                        "name": "contactTranslation",
-                        "in": "path",
-                        "required": true,
-                        "description": "The contact translation ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "`ContactTranslationResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/ContactTranslationResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
-            },
-            "patch": {
-                "operationId": "contact-translation.update",
-                "summary": "Update the specified resource in storage",
-                "tags": [
-                    "ContactTranslation"
-                ],
-                "parameters": [
-                    {
-                        "name": "contactTranslation",
-                        "in": "path",
-                        "required": true,
-                        "description": "The contact translation ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UpdateContactTranslationRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "`ContactTranslationResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/ContactTranslationResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            },
-            "put": {
-                "operationId": "contactTranslation.update_2",
-                "summary": "Update the specified resource in storage",
-                "tags": [
-                    "ContactTranslation"
-                ],
-                "parameters": [
-                    {
-                        "name": "contactTranslation",
-                        "in": "path",
-                        "required": true,
-                        "description": "The contact translation ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UpdateContactTranslationRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "`ContactTranslationResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/ContactTranslationResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    }
-                }
-            },
-            "delete": {
-                "operationId": "contact-translation.destroy",
-                "summary": "Remove the specified resource from storage",
-                "tags": [
-                    "ContactTranslation"
-                ],
-                "parameters": [
-                    {
-                        "name": "contactTranslation",
-                        "in": "path",
-                        "required": true,
-                        "description": "The contact translation ID",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No content"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
-            }
-        },
-        "/contact-translation": {
-            "get": {
-                "operationId": "contact-translation.index",
-                "summary": "Display a listing of the resource",
-                "tags": [
-                    "ContactTranslation"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Array of `ContactTranslationResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/ContactTranslationResource"
-                                            }
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
-            },
-            "post": {
-                "operationId": "contact-translation.store",
-                "summary": "Store a newly created resource in storage",
-                "tags": [
-                    "ContactTranslation"
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/StoreContactTranslationRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "`ContactTranslationResource`",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/ContactTranslationResource"
-                                        }
-                                    },
-                                    "required": [
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
                     }
                 }
             }
@@ -10973,6 +9543,84 @@
                 }
             }
         },
+        "/partner-image/{partnerImage}/download": {
+            "get": {
+                "operationId": "partner-image.download",
+                "summary": "Returns the file to the caller",
+                "tags": [
+                    "PartnerImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "partnerImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/partner-image/{partnerImage}/view": {
+            "get": {
+                "operationId": "partner-image.view",
+                "summary": "Returns the image file for direct viewing (e.g., for use in <img> src attribute)",
+                "tags": [
+                    "PartnerImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "partnerImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/partner-image/{partnerImage}": {
             "get": {
                 "operationId": "partner-image.show",
@@ -11406,6 +10054,257 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
+        "/partner/{partner}/attach-image": {
+            "post": {
+                "operationId": "partner.attachImage",
+                "summary": "Attach an available image to a partner",
+                "tags": [
+                    "PartnerImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "partner",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AttachFromAvailablePartnerImageRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`PartnerImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PartnerImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
+        "/partner-image/{partnerImage}/move-up": {
+            "patch": {
+                "operationId": "partner-image.moveUp",
+                "summary": "Move partner image up in display order",
+                "tags": [
+                    "PartnerImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "partnerImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`PartnerImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PartnerImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/partner-image/{partnerImage}/move-down": {
+            "patch": {
+                "operationId": "partner-image.moveDown",
+                "summary": "Move partner image down in display order",
+                "tags": [
+                    "PartnerImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "partnerImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`PartnerImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PartnerImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/partner-image/{partnerImage}/tighten-ordering": {
+            "patch": {
+                "operationId": "partner-image.tightenOrdering",
+                "summary": "Tighten ordering for all images of the partner",
+                "tags": [
+                    "PartnerImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "partnerImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`OperationSuccessResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/OperationSuccessResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/partner-image/{partnerImage}/detach": {
+            "post": {
+                "operationId": "partner-image.detach",
+                "summary": "Detach a partner image and convert it back to available image",
+                "tags": [
+                    "PartnerImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "partnerImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`OperationSuccessResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/OperationSuccessResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -11847,6 +10746,84 @@
                 }
             }
         },
+        "/partner-translation-image/{partnerTranslationImage}/download": {
+            "get": {
+                "operationId": "partner-translation-image.download",
+                "summary": "Returns the file to the caller",
+                "tags": [
+                    "PartnerTranslationImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "partnerTranslationImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner translation image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/partner-translation-image/{partnerTranslationImage}/view": {
+            "get": {
+                "operationId": "partner-translation-image.view",
+                "summary": "Returns the image file for direct viewing (e.g., for use in <img> src attribute)",
+                "tags": [
+                    "PartnerTranslationImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "partnerTranslationImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner translation image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/partner-translation-image/{partnerTranslationImage}": {
             "get": {
                 "operationId": "partner-translation-image.show",
@@ -12280,6 +11257,257 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
+        "/partner-translation/{partnerTranslation}/attach-image": {
+            "post": {
+                "operationId": "partner-translation.attachImage",
+                "summary": "Attach an available image to a partner translation",
+                "tags": [
+                    "PartnerTranslationImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "partnerTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AttachFromAvailablePartnerTranslationImageRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`PartnerTranslationImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PartnerTranslationImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
+        "/partner-translation-image/{partnerTranslationImage}/move-up": {
+            "patch": {
+                "operationId": "partner-translation-image.moveUp",
+                "summary": "Move partner translation image up in display order",
+                "tags": [
+                    "PartnerTranslationImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "partnerTranslationImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner translation image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`PartnerTranslationImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PartnerTranslationImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/partner-translation-image/{partnerTranslationImage}/move-down": {
+            "patch": {
+                "operationId": "partner-translation-image.moveDown",
+                "summary": "Move partner translation image down in display order",
+                "tags": [
+                    "PartnerTranslationImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "partnerTranslationImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner translation image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`PartnerTranslationImageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PartnerTranslationImageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/partner-translation-image/{partnerTranslationImage}/tighten-ordering": {
+            "patch": {
+                "operationId": "partner-translation-image.tightenOrdering",
+                "summary": "Tighten ordering for all images of the partner translation",
+                "tags": [
+                    "PartnerTranslationImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "partnerTranslationImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner translation image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`OperationSuccessResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/OperationSuccessResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/partner-translation-image/{partnerTranslationImage}/detach": {
+            "post": {
+                "operationId": "partner-translation-image.detach",
+                "summary": "Detach a partner translation image and convert it back to available image",
+                "tags": [
+                    "PartnerTranslationImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "partnerTranslationImage",
+                        "in": "path",
+                        "required": true,
+                        "description": "The partner translation image ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`OperationSuccessResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/OperationSuccessResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -15054,108 +14282,6 @@
                 ],
                 "title": "AcquireTokenMobileAppAuthenticationRequest"
             },
-            "AddressResource": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "description": "The unique identifier (GUID)"
-                    },
-                    "internal_name": {
-                        "type": "string",
-                        "description": "A name for this resource, for internal use only."
-                    },
-                    "country_id": {
-                        "type": "string",
-                        "description": "The country this address belongs to (CountryResource id)"
-                    },
-                    "translations": {
-                        "type": "array",
-                        "description": "Translations for this address (AddressTranslationResource[])",
-                        "items": {
-                            "$ref": "#/components/schemas/AddressTranslationResource"
-                        }
-                    },
-                    "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
-                        "description": "The date of creation of the resource (managed by the system)"
-                    },
-                    "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
-                        "description": "The date of last modification of the resource (managed by the system)"
-                    }
-                },
-                "required": [
-                    "id",
-                    "internal_name",
-                    "country_id",
-                    "created_at",
-                    "updated_at"
-                ],
-                "title": "AddressResource"
-            },
-            "AddressTranslationResource": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "description": "The unique identifier (GUID)"
-                    },
-                    "address_id": {
-                        "type": "string",
-                        "description": "The address this translation belongs to (AddressResource id)"
-                    },
-                    "language_id": {
-                        "type": "string",
-                        "description": "The language of this translation (LanguageResource id)"
-                    },
-                    "address": {
-                        "type": "string",
-                        "description": "The address translation text"
-                    },
-                    "description": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "description": "The description of the address translation"
-                    },
-                    "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
-                        "description": "The date of creation of the resource (managed by the system)"
-                    },
-                    "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
-                        "description": "The date of last modification of the resource (managed by the system)"
-                    }
-                },
-                "required": [
-                    "id",
-                    "address_id",
-                    "language_id",
-                    "address",
-                    "description",
-                    "created_at",
-                    "updated_at"
-                ],
-                "title": "AddressTranslationResource"
-            },
             "ArtistResource": {
                 "type": "object",
                 "properties": {
@@ -15295,6 +14421,50 @@
                     "available_image_id"
                 ],
                 "title": "AttachFromAvailableItemImageRequest"
+            },
+            "AttachFromAvailablePartnerImageRequest": {
+                "type": "object",
+                "properties": {
+                    "available_image_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "alt_text": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "include": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "available_image_id"
+                ],
+                "title": "AttachFromAvailablePartnerImageRequest"
+            },
+            "AttachFromAvailablePartnerTranslationImageRequest": {
+                "type": "object",
+                "properties": {
+                    "available_image_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "alt_text": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "include": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "available_image_id"
+                ],
+                "title": "AttachFromAvailablePartnerTranslationImageRequest"
             },
             "AttachGlossarySynonymRequest": {
                 "type": "object",
@@ -15752,135 +14922,6 @@
                     "updated_at"
                 ],
                 "title": "CollectionTranslationResource"
-            },
-            "ContactResource": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "description": "The unique identifier (GUID)"
-                    },
-                    "internal_name": {
-                        "type": "string",
-                        "description": "A name for this resource, for internal use only."
-                    },
-                    "phone_number": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "description": "The phone number of the contact"
-                    },
-                    "formatted_phone_number": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "description": "The formatted phone number of the contact"
-                    },
-                    "fax_number": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "description": "The fax number of the contact"
-                    },
-                    "formatted_fax_number": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "description": "The formatted fax number of the contact"
-                    },
-                    "email": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "description": "The email address of the contact"
-                    },
-                    "translations": {
-                        "type": "array",
-                        "description": "Translations for this contact (ContactTranslationResource[])",
-                        "items": {
-                            "$ref": "#/components/schemas/ContactTranslationResource"
-                        }
-                    },
-                    "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
-                        "description": "The date of creation of the resource (managed by the system)"
-                    },
-                    "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
-                        "description": "The date of last modification of the resource (managed by the system)"
-                    }
-                },
-                "required": [
-                    "id",
-                    "internal_name",
-                    "phone_number",
-                    "formatted_phone_number",
-                    "fax_number",
-                    "formatted_fax_number",
-                    "email",
-                    "created_at",
-                    "updated_at"
-                ],
-                "title": "ContactResource"
-            },
-            "ContactTranslationResource": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "description": "The unique identifier (GUID)"
-                    },
-                    "contact_id": {
-                        "type": "string",
-                        "description": "The contact this translation belongs to (ContactResource id)"
-                    },
-                    "language_id": {
-                        "type": "string",
-                        "description": "The language of this translation (LanguageResource id)"
-                    },
-                    "label": {
-                        "type": "string",
-                        "description": "The label for the contact translation"
-                    },
-                    "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
-                        "description": "The date of creation of the resource (managed by the system)"
-                    },
-                    "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time",
-                        "description": "The date of last modification of the resource (managed by the system)"
-                    }
-                },
-                "required": [
-                    "id",
-                    "contact_id",
-                    "language_id",
-                    "label",
-                    "created_at",
-                    "updated_at"
-                ],
-                "title": "ContactTranslationResource"
             },
             "ContextResource": {
                 "type": "object",
@@ -17443,83 +16484,6 @@
                 ],
                 "title": "SetLaunchedProjectRequest"
             },
-            "StoreAddressRequest": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "internal_name": {
-                        "type": "string"
-                    },
-                    "country_id": {
-                        "type": "integer"
-                    },
-                    "backward_compatibility": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "translations": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "language_id": {
-                                    "type": "integer"
-                                },
-                                "address": {
-                                    "type": "string"
-                                },
-                                "description": {
-                                    "type": [
-                                        "string",
-                                        "null"
-                                    ]
-                                }
-                            },
-                            "required": [
-                                "language_id",
-                                "address"
-                            ]
-                        },
-                        "minItems": 1
-                    }
-                },
-                "required": [
-                    "internal_name",
-                    "country_id"
-                ],
-                "title": "StoreAddressRequest"
-            },
-            "StoreAddressTranslationRequest": {
-                "type": "object",
-                "properties": {
-                    "address_id": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "language_id": {
-                        "type": "string"
-                    },
-                    "address": {
-                        "type": "string"
-                    },
-                    "description": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    }
-                },
-                "required": [
-                    "address_id",
-                    "language_id",
-                    "address"
-                ],
-                "title": "StoreAddressTranslationRequest"
-            },
             "StoreCollectionImageRequest": {
                 "type": "object",
                 "properties": {
@@ -17654,85 +16618,6 @@
                     "description"
                 ],
                 "title": "StoreCollectionTranslationRequest"
-            },
-            "StoreContactRequest": {
-                "type": "object",
-                "properties": {
-                    "internal_name": {
-                        "type": "string"
-                    },
-                    "phone_number": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "fax_number": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "email": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "email"
-                    },
-                    "backward_compatibility": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "translations": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "language_id": {
-                                    "type": "integer"
-                                },
-                                "label": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "language_id",
-                                "label"
-                            ]
-                        },
-                        "minItems": 1
-                    }
-                },
-                "required": [
-                    "internal_name",
-                    "translations"
-                ],
-                "title": "StoreContactRequest"
-            },
-            "StoreContactTranslationRequest": {
-                "type": "object",
-                "properties": {
-                    "contact_id": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "language_id": {
-                        "type": "string"
-                    },
-                    "label": {
-                        "type": "string",
-                        "maxLength": 255
-                    }
-                },
-                "required": [
-                    "contact_id",
-                    "language_id",
-                    "label"
-                ],
-                "title": "StoreContactTranslationRequest"
             },
             "StoreContextRequest": {
                 "type": "object",
@@ -19042,74 +17927,6 @@
                 ],
                 "title": "TwoFactorStatusResource"
             },
-            "UpdateAddressRequest": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "internal_name": {
-                        "type": "string"
-                    },
-                    "country_id": {
-                        "type": "integer"
-                    },
-                    "backward_compatibility": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "translations": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "language_id": {
-                                    "type": "integer"
-                                },
-                                "address": {
-                                    "type": "string"
-                                },
-                                "description": {
-                                    "type": [
-                                        "string",
-                                        "null"
-                                    ]
-                                }
-                            }
-                        },
-                        "minItems": 1
-                    }
-                },
-                "required": [
-                    "internal_name",
-                    "country_id"
-                ],
-                "title": "UpdateAddressRequest"
-            },
-            "UpdateAddressTranslationRequest": {
-                "type": "object",
-                "properties": {
-                    "address_id": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "language_id": {
-                        "type": "string"
-                    },
-                    "address": {
-                        "type": "string"
-                    },
-                    "description": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    }
-                },
-                "title": "UpdateAddressTranslationRequest"
-            },
             "UpdateAvailableImageRequest": {
                 "type": "object",
                 "properties": {
@@ -19243,75 +18060,6 @@
                     }
                 },
                 "title": "UpdateCollectionTranslationRequest"
-            },
-            "UpdateContactRequest": {
-                "type": "object",
-                "properties": {
-                    "internal_name": {
-                        "type": "string"
-                    },
-                    "phone_number": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "fax_number": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "email": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "email"
-                    },
-                    "backward_compatibility": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "translations": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "language_id": {
-                                    "type": "integer"
-                                },
-                                "label": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "minItems": 1
-                    }
-                },
-                "required": [
-                    "internal_name"
-                ],
-                "title": "UpdateContactRequest"
-            },
-            "UpdateContactTranslationRequest": {
-                "type": "object",
-                "properties": {
-                    "contact_id": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "language_id": {
-                        "type": "string"
-                    },
-                    "label": {
-                        "type": "string",
-                        "maxLength": 255
-                    }
-                },
-                "title": "UpdateContactTranslationRequest"
             },
             "UpdateContextRequest": {
                 "type": "object",

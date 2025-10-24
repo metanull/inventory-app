@@ -4,13 +4,9 @@ import { getSessionAwareAxios } from '@/utils/sessionAwareAxios'
 
 // Import all API classes from the generated client
 import {
-  AddressApi,
-  AddressTranslationApi,
   AvailableImageApi,
   CollectionApi,
   CollectionImageApi,
-  ContactApi,
-  ContactTranslationApi,
   ContextApi,
   CountryApi,
   ImageUploadApi,
@@ -24,6 +20,9 @@ import {
   MarkdownApi,
   MobileAppAuthenticationApi,
   PartnerApi,
+  PartnerImageApi,
+  PartnerTranslationApi,
+  PartnerTranslationImageApi,
   ProjectApi,
   ProvinceApi,
   ProvinceTranslationApi,
@@ -71,12 +70,6 @@ export const useApiClient = () => {
   // Factory methods for all API clients
   // Each method creates a new instance with session-aware axios injected
 
-  const createAddressApi = () =>
-    new AddressApi(configuration.value, configuration.value.basePath, sessionAxios)
-
-  const createAddressTranslationApi = () =>
-    new AddressTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
-
   const createAvailableImageApi = () =>
     new AvailableImageApi(configuration.value, configuration.value.basePath, sessionAxios)
 
@@ -85,12 +78,6 @@ export const useApiClient = () => {
 
   const createCollectionImageApi = () =>
     new CollectionImageApi(configuration.value, configuration.value.basePath, sessionAxios)
-
-  const createContactApi = () =>
-    new ContactApi(configuration.value, configuration.value.basePath, sessionAxios)
-
-  const createContactTranslationApi = () =>
-    new ContactTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
 
   const createContextApi = () =>
     new ContextApi(configuration.value, configuration.value.basePath, sessionAxios)
@@ -131,6 +118,15 @@ export const useApiClient = () => {
   const createPartnerApi = () =>
     new PartnerApi(configuration.value, configuration.value.basePath, sessionAxios)
 
+  const createPartnerImageApi = () =>
+    new PartnerImageApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createPartnerTranslationApi = () =>
+    new PartnerTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
+
+  const createPartnerTranslationImageApi = () =>
+    new PartnerTranslationImageApi(configuration.value, configuration.value.basePath, sessionAxios)
+
   const createProjectApi = () =>
     new ProjectApi(configuration.value, configuration.value.basePath, sessionAxios)
 
@@ -161,13 +157,9 @@ export const useApiClient = () => {
     sessionAxios,
 
     // API factory methods
-    createAddressApi,
-    createAddressTranslationApi,
     createAvailableImageApi,
     createCollectionApi,
     createCollectionImageApi,
-    createContactApi,
-    createContactTranslationApi,
     createContextApi,
     createCountryApi,
     createImageUploadApi,
@@ -181,6 +173,9 @@ export const useApiClient = () => {
     createMarkdownApi,
     createMobileAppAuthenticationApi,
     createPartnerApi,
+    createPartnerImageApi,
+    createPartnerTranslationApi,
+    createPartnerTranslationImageApi,
     createProjectApi,
     createProvinceApi,
     createProvinceTranslationApi,
