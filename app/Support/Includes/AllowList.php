@@ -36,6 +36,19 @@ class AllowList
             ],
             'partner' => [
                 'country', 'items', 'pictures',
+                'project', 'monumentItem',
+                'translations', 'partnerImages',
+                'collections',
+            ],
+            'partner_translation' => [
+                'partner', 'language', 'context',
+                'partnerTranslationImages',
+            ],
+            'partner_image' => [
+                'partner',
+            ],
+            'partner_translation_image' => [
+                'partnerTranslation',
             ],
             'country' => [
                 'items', 'partners',
