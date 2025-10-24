@@ -20,9 +20,7 @@
             <x-display.field label="Country">
                 <x-display.country-reference :country="$partner->country" />
             </x-display.field>
-            <x-display.field label="Visible">
-                <x-display.boolean :value="$partner->visible" />
-            </x-display.field>
+            <x-display.field label="Visible" :value="$partner->visible ? 'Yes' : 'No'" />
             <x-display.field label="GPS Location">
                 <x-display.gps-location 
                     :latitude="$partner->latitude" 

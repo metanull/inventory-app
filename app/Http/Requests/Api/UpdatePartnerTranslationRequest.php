@@ -14,13 +14,13 @@ class UpdatePartnerTranslationRequest extends FormRequest
 
     public function rules(): array
     {
-        $partnerTranslation = $this->route('partner_translation');
+        $partnerTranslation = $this->route('partnerTranslation');
 
         $uniqueRule = Rule::unique('partner_translations')
             ->where('partner_id', $this->input('partner_id'))
             ->where('language_id', $this->input('language_id'))
             ->where('context_id', $this->input('context_id'))
-            ->ignore($partnerTranslation->id);
+            ->ignore($partnerTranslation?->id);
 
         return [
             'id' => ['prohibited'],

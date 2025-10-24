@@ -46,23 +46,17 @@ class PartnerTranslationFactory extends Factory
             'contact_phone' => $this->faker->optional()->phoneNumber(),
             'contact_website' => $this->faker->optional()->url(),
             'contact_notes' => $this->faker->optional()->sentence(),
-            'contact_emails' => $this->faker->optional(0.3)->passthrough(
-                json_encode([
-                    $this->faker->companyEmail(),
-                    $this->faker->companyEmail(),
-                ])
-            ),
-            'contact_phones' => $this->faker->optional(0.3)->passthrough(
-                json_encode([
-                    $this->faker->phoneNumber(),
-                    $this->faker->phoneNumber(),
-                ])
-            ),
+            'contact_emails' => $this->faker->optional(0.3)->passthrough([
+                $this->faker->companyEmail(),
+                $this->faker->companyEmail(),
+            ]),
+            'contact_phones' => $this->faker->optional(0.3)->passthrough([
+                $this->faker->phoneNumber(),
+                $this->faker->phoneNumber(),
+            ]),
             // Metadata
             'backward_compatibility' => $this->faker->optional()->bothify('???_##'),
-            'extra' => $this->faker->optional()->passthrough(
-                json_encode(['key' => 'value'])
-            ),
+            'extra' => $this->faker->optional()->passthrough(['key' => 'value']),
         ];
     }
 
