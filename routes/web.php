@@ -16,6 +16,9 @@ use App\Http\Controllers\Web\ItemImageController as WebItemImageController;
 use App\Http\Controllers\Web\ItemTranslationController as WebItemTranslationController;
 use App\Http\Controllers\Web\LanguageController as WebLanguageController;
 use App\Http\Controllers\Web\PartnerController as WebPartnerController;
+use App\Http\Controllers\Web\PartnerImageController as WebPartnerImageController;
+use App\Http\Controllers\Web\PartnerTranslationController as WebPartnerTranslationController;
+use App\Http\Controllers\Web\PartnerTranslationImageController as WebPartnerTranslationImageController;
 use App\Http\Controllers\Web\ProjectController as WebProjectController;
 use App\Http\Controllers\Web\TagController as WebTagController;
 use Dedoc\Scramble\Generator;
@@ -64,6 +67,37 @@ Route::prefix('web')->group(function () {
         Route::resource('item-translations', WebItemTranslationController::class);
         Route::resource('collection-translations', WebCollectionTranslationController::class);
         Route::resource('partners', WebPartnerController::class);
+
+        // Partner Images - nested routes
+        Route::prefix('partners/{partner}/partner-images')->name('partners.partner-images.')->group(function () {
+            Route::get('/create', [WebPartnerImageController::class, 'create'])->name('create');
+            Route::post('/', [WebPartnerImageController::class, 'store'])->name('store');
+            Route::get('/{partner_image}/view', [WebPartnerImageController::class, 'view'])->name('view');
+            Route::get('/{partner_image}/download', [WebPartnerImageController::class, 'download'])->name('download');
+            Route::get('/{partner_image}/edit', [WebPartnerImageController::class, 'edit'])->name('edit');
+            Route::put('/{partner_image}', [WebPartnerImageController::class, 'update'])->name('update');
+            Route::post('/{partner_image}/move-up', [WebPartnerImageController::class, 'moveUp'])->name('move-up');
+            Route::post('/{partner_image}/move-down', [WebPartnerImageController::class, 'moveDown'])->name('move-down');
+            Route::post('/{partner_image}/detach', [WebPartnerImageController::class, 'detach'])->name('detach');
+            Route::delete('/{partner_image}', [WebPartnerImageController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::resource('partner-translations', WebPartnerTranslationController::class);
+
+        // Partner Translation Images - nested routes
+        Route::prefix('partner-translations/{partner_translation}/images')->name('partner-translations.images.')->group(function () {
+            Route::get('/create', [WebPartnerTranslationImageController::class, 'create'])->name('create');
+            Route::post('/', [WebPartnerTranslationImageController::class, 'store'])->name('store');
+            Route::get('/{partner_translation_image}/view', [WebPartnerTranslationImageController::class, 'view'])->name('view');
+            Route::get('/{partner_translation_image}/download', [WebPartnerTranslationImageController::class, 'download'])->name('download');
+            Route::get('/{partner_translation_image}/edit', [WebPartnerTranslationImageController::class, 'edit'])->name('edit');
+            Route::put('/{partner_translation_image}', [WebPartnerTranslationImageController::class, 'update'])->name('update');
+            Route::post('/{partner_translation_image}/move-up', [WebPartnerTranslationImageController::class, 'moveUp'])->name('move-up');
+            Route::post('/{partner_translation_image}/move-down', [WebPartnerTranslationImageController::class, 'moveDown'])->name('move-down');
+            Route::post('/{partner_translation_image}/detach', [WebPartnerTranslationImageController::class, 'detach'])->name('detach');
+            Route::delete('/{partner_translation_image}', [WebPartnerTranslationImageController::class, 'destroy'])->name('destroy');
+        });
+
         Route::resource('countries', WebCountryController::class);
         Route::resource('languages', WebLanguageController::class);
         Route::resource('projects', WebProjectController::class);

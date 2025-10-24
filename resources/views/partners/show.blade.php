@@ -36,6 +36,12 @@
             </x-display.field>
         </x-display.description-list>
 
+        <!-- Images Section -->
+        @include('partners._images')
+
+        <!-- Translations Section -->
+        @include('partners._translations')
+
         <!-- System Properties -->
         <x-system-properties 
             :id="$partner->id"
