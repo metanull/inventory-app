@@ -30,11 +30,17 @@ class UpdateTest extends TestCase
             'type' => $partner->type,
             'backward_compatibility' => $partner->backward_compatibility,
             'country_id' => $partner->country_id,
+            'visible' => true,
+            'latitude' => 51.5074,
+            'longitude' => -0.1278,
+            'map_zoom' => 12,
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('partners', [
             'id' => $partner->id,
             'internal_name' => 'Updated Name',
+            'visible' => true,
+            'latitude' => 51.5074,
         ]);
     }
 
@@ -87,6 +93,27 @@ class UpdateTest extends TestCase
             'id' => $partner->id,
             'country_id' => $country->id,
             'internal_name' => 'Modified Name',
+        ]);
+    }
+
+    public function test_update_gps_coordinates(): void
+    {
+        $partner = Partner::factory()->create();
+        $response = $this->put(route('partners.update', $partner), [
+            'internal_name' => $partner->internal_name,
+            'type' => $partner->type,
+            'backward_compatibility' => $partner->backward_compatibility,
+            'country_id' => $partner->country_id,
+            'latitude' => 35.6762,
+            'longitude' => 139.6503,
+            'map_zoom' => 11,
+        ]);
+        $response->assertRedirect();
+        $this->assertDatabaseHas('partners', [
+            'id' => $partner->id,
+            'latitude' => 35.6762,
+            'longitude' => 139.6503,
+            'map_zoom' => 11,
         ]);
     }
 }

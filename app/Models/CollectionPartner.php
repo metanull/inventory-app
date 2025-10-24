@@ -47,6 +47,8 @@ class CollectionPartner extends Pivot
         'collection_type',
         'partner_id',
         'level',
+        'visible',
+        'relationship_type',
     ];
 
     /**
@@ -56,6 +58,8 @@ class CollectionPartner extends Pivot
      */
     protected $casts = [
         'level' => 'string',
+        'visible' => 'boolean',
+        'relationship_type' => 'string',
     ];
 
     /**

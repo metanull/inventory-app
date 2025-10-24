@@ -28,12 +28,19 @@ class StoreTest extends TestCase
             'type' => 'museum',
             'backward_compatibility' => 'LEG-P1',
             'country_id' => null,
+            'visible' => true,
+            'latitude' => 40.7128,
+            'longitude' => -74.0060,
+            'map_zoom' => 15,
         ];
         $response = $this->post(route('partners.store'), $payload);
         $response->assertRedirect();
         $this->assertDatabaseHas('partners', [
             'internal_name' => 'Test Partner',
             'type' => 'museum',
+            'visible' => true,
+            'latitude' => 40.7128,
+            'longitude' => -74.0060,
         ]);
     }
 
@@ -78,6 +85,35 @@ class StoreTest extends TestCase
         $this->assertDatabaseHas('partners', [
             'internal_name' => 'Partner Z',
             'country_id' => $country->id,
+        ]);
+    }
+
+    public function test_store_validates_gps_coordinates(): void
+    {
+        $response = $this->post(route('partners.store'), [
+            'internal_name' => 'GPS Test Partner',
+            'type' => 'museum',
+            'latitude' => 100, // invalid: > 90
+            'longitude' => -200, // invalid: < -180
+        ]);
+        $response->assertSessionHasErrors(['latitude', 'longitude']);
+    }
+
+    public function test_store_accepts_valid_gps_coordinates(): void
+    {
+        $response = $this->post(route('partners.store'), [
+            'internal_name' => 'Valid GPS Partner',
+            'type' => 'museum',
+            'latitude' => 48.8566,
+            'longitude' => 2.3522,
+            'map_zoom' => 14,
+        ]);
+        $response->assertRedirect();
+        $this->assertDatabaseHas('partners', [
+            'internal_name' => 'Valid GPS Partner',
+            'latitude' => 48.8566,
+            'longitude' => 2.3522,
+            'map_zoom' => 14,
         ]);
     }
 }

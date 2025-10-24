@@ -1231,6 +1231,42 @@ export interface OperationSuccessResource {
     'success': string;
     'message': string;
 }
+export interface PartnerImageIndex200Response {
+    'data': Array<PartnerImageResource>;
+    'links': AddressIndex200ResponseLinks;
+    'meta': AddressIndex200ResponseMeta;
+}
+export interface PartnerImageResource {
+    /**
+     * The unique identifier (GUID)
+     */
+    'id': string;
+    /**
+     * Foreign key
+     */
+    'partner_id': string;
+    /**
+     * Image information
+     */
+    'path': string;
+    'original_name': string;
+    'mime_type': string;
+    'size': string;
+    'alt_text': string;
+    'display_order': string;
+    /**
+     * Relationships
+     */
+    'partner'?: PartnerResource;
+    /**
+     * Timestamps
+     */
+    'created_at': string;
+    'updated_at': string;
+}
+export interface PartnerImageShow200Response {
+    'data': PartnerImageResource;
+}
 export interface PartnerIndex200Response {
     'data': Array<PartnerResource>;
     'links': AddressIndex200ResponseLinks;
@@ -1258,6 +1294,24 @@ export interface PartnerResource {
      */
     'country'?: CountryResource;
     /**
+     * GPS Location
+     */
+    'latitude': string;
+    'longitude': string;
+    'map_zoom': string;
+    /**
+     * Relationships
+     */
+    'project'?: ProjectResource;
+    'monument_item'?: ItemResource;
+    'translations'?: Array<PartnerTranslationResource>;
+    'images'?: Array<PartnerImageResource>;
+    'collections'?: Array<CollectionResource>;
+    /**
+     * Visibility
+     */
+    'visible': string;
+    /**
      * The date of creation of the resource (managed by the system)
      */
     'created_at': string | null;
@@ -1268,6 +1322,103 @@ export interface PartnerResource {
 }
 export interface PartnerShow200Response {
     'data': PartnerResource;
+}
+export interface PartnerTranslationImageIndex200Response {
+    'data': Array<PartnerTranslationImageResource>;
+    'links': AddressIndex200ResponseLinks;
+    'meta': AddressIndex200ResponseMeta;
+}
+export interface PartnerTranslationImageResource {
+    /**
+     * The unique identifier (GUID)
+     */
+    'id': string;
+    /**
+     * Foreign key
+     */
+    'partner_translation_id': string;
+    /**
+     * Image information
+     */
+    'path': string;
+    'original_name': string;
+    'mime_type': string;
+    'size': string;
+    'alt_text': string;
+    'display_order': string;
+    /**
+     * Relationships
+     */
+    'partner_translation'?: PartnerTranslationResource;
+    /**
+     * Timestamps
+     */
+    'created_at': string;
+    'updated_at': string;
+}
+export interface PartnerTranslationImageShow200Response {
+    'data': PartnerTranslationImageResource;
+}
+export interface PartnerTranslationIndex200Response {
+    'data': Array<PartnerTranslationResource>;
+    'links': AddressIndex200ResponseLinks;
+    'meta': AddressIndex200ResponseMeta;
+}
+export interface PartnerTranslationResource {
+    /**
+     * The unique identifier (GUID)
+     */
+    'id': string;
+    /**
+     * Foreign keys
+     */
+    'partner_id': string;
+    'language_id': string;
+    'context_id': string;
+    /**
+     * Core partner info
+     */
+    'name': string;
+    'description': string;
+    /**
+     * Address fields (embedded)
+     */
+    'city_display': string;
+    'address_line_1': string;
+    'address_line_2': string;
+    'postal_code': string;
+    'address_notes': string;
+    /**
+     * Contact fields (semi-structured)
+     */
+    'contact_name': string;
+    'contact_email_general': string;
+    'contact_email_press': string;
+    'contact_phone': string;
+    'contact_website': string;
+    'contact_notes': string;
+    'contact_emails': string;
+    'contact_phones': string;
+    /**
+     * Relationships
+     */
+    'partner'?: PartnerResource;
+    'language'?: LanguageResource;
+    'context'?: ContextResource;
+    'partner_translation_images'?: Array<PartnerTranslationImageResource>;
+    /**
+     * Metadata
+     */
+    'backward_compatibility': string;
+    'extra': string;
+    /**
+     * Timestamps
+     */
+    'created_at': string;
+    'updated_at': string;
+}
+export interface PartnerTranslationShow200Response {
+    'data': PartnerTranslationResource;
 }
 export interface ProjectEnabled200Response {
     'data': Array<ProjectResource>;
@@ -1582,12 +1733,37 @@ export interface StoreLocationTranslationRequest {
     'name': string;
     'description'?: string | null;
 }
+export interface StorePartnerImageRequest {
+    'id'?: string;
+    'partner_id': string;
+    'path': string;
+    'original_name': string;
+    'mime_type': string;
+    'size': number;
+    'alt_text'?: string | null;
+    'display_order': number;
+}
 export interface StorePartnerRequest {
     'id'?: string;
     'internal_name': string;
     'backward_compatibility'?: string | null;
     'type': StorePartnerRequestTypeEnum;
     'country_id'?: string | null;
+    /**
+     * GPS Location
+     */
+    'latitude'?: number | null;
+    'longitude'?: number | null;
+    'map_zoom'?: number | null;
+    /**
+     * Relationships
+     */
+    'project_id'?: string | null;
+    'monument_item_id'?: string | null;
+    /**
+     * Visibility
+     */
+    'visible'?: boolean;
 }
 
 export const StorePartnerRequestTypeEnum = {
@@ -1598,6 +1774,48 @@ export const StorePartnerRequestTypeEnum = {
 
 export type StorePartnerRequestTypeEnum = typeof StorePartnerRequestTypeEnum[keyof typeof StorePartnerRequestTypeEnum];
 
+export interface StorePartnerTranslationImageRequest {
+    'id'?: string;
+    'partner_translation_id': string;
+    'path': string;
+    'original_name': string;
+    'mime_type': string;
+    'size': number;
+    'alt_text'?: string | null;
+    'display_order': number;
+}
+export interface StorePartnerTranslationRequest {
+    'id'?: string;
+    'partner_id': string;
+    'language_id': string;
+    'context_id': string;
+    'name': string;
+    'description'?: string | null;
+    /**
+     * Address fields
+     */
+    'city_display'?: string | null;
+    'address_line_1'?: string | null;
+    'address_line_2'?: string | null;
+    'postal_code'?: string | null;
+    'address_notes'?: string | null;
+    /**
+     * Contact fields
+     */
+    'contact_name'?: string | null;
+    'contact_email_general'?: string | null;
+    'contact_email_press'?: string | null;
+    'contact_phone'?: string | null;
+    'contact_website'?: string | null;
+    'contact_notes'?: string | null;
+    /**
+     * Metadata
+     */
+    'backward_compatibility'?: string | null;
+    'extra'?: Array<string> | null;
+    'contact_emails'?: Array<string> | null;
+    'contact_phones'?: Array<string> | null;
+}
 export interface StoreProjectRequest {
     'id'?: string;
     'internal_name': string;
@@ -1983,12 +2201,37 @@ export interface UpdateLocationTranslationRequest {
     'name'?: string;
     'description'?: string | null;
 }
+export interface UpdatePartnerImageRequest {
+    'id'?: string;
+    'partner_id': string;
+    'path': string;
+    'original_name': string;
+    'mime_type': string;
+    'size': number;
+    'alt_text'?: string | null;
+    'display_order': number;
+}
 export interface UpdatePartnerRequest {
     'id'?: string;
     'internal_name': string;
     'backward_compatibility'?: string | null;
     'type': UpdatePartnerRequestTypeEnum;
     'country_id'?: string | null;
+    /**
+     * GPS Location
+     */
+    'latitude'?: number | null;
+    'longitude'?: number | null;
+    'map_zoom'?: number | null;
+    /**
+     * Relationships
+     */
+    'project_id'?: string | null;
+    'monument_item_id'?: string | null;
+    /**
+     * Visibility
+     */
+    'visible'?: boolean;
 }
 
 export const UpdatePartnerRequestTypeEnum = {
@@ -1999,6 +2242,48 @@ export const UpdatePartnerRequestTypeEnum = {
 
 export type UpdatePartnerRequestTypeEnum = typeof UpdatePartnerRequestTypeEnum[keyof typeof UpdatePartnerRequestTypeEnum];
 
+export interface UpdatePartnerTranslationImageRequest {
+    'id'?: string;
+    'partner_translation_id': string;
+    'path': string;
+    'original_name': string;
+    'mime_type': string;
+    'size': number;
+    'alt_text'?: string | null;
+    'display_order': number;
+}
+export interface UpdatePartnerTranslationRequest {
+    'id'?: string;
+    'partner_id': string;
+    'language_id': string;
+    'context_id': string;
+    'name': string;
+    'description'?: string | null;
+    /**
+     * Address fields
+     */
+    'city_display'?: string | null;
+    'address_line_1'?: string | null;
+    'address_line_2'?: string | null;
+    'postal_code'?: string | null;
+    'address_notes'?: string | null;
+    /**
+     * Contact fields
+     */
+    'contact_name'?: string | null;
+    'contact_email_general'?: string | null;
+    'contact_email_press'?: string | null;
+    'contact_phone'?: string | null;
+    'contact_website'?: string | null;
+    'contact_notes'?: string | null;
+    /**
+     * Metadata
+     */
+    'backward_compatibility'?: string | null;
+    'extra'?: Array<string> | null;
+    'contact_emails'?: Array<string> | null;
+    'contact_phones'?: Array<string> | null;
+}
 export interface UpdateProjectRequest {
     'id'?: string;
     'internal_name': string;
@@ -18150,6 +18435,1536 @@ export class PartnerApi extends BaseAPI {
      */
     public partnerUpdate2(partner: string, updatePartnerRequest: UpdatePartnerRequest, options?: RawAxiosRequestConfig) {
         return PartnerApiFp(this.configuration).partnerUpdate2(partner, updatePartnerRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * PartnerImageApi - axios parameter creator
+ */
+export const PartnerImageApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} partnerImage The partner image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerImageDestroy: async (partnerImage: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerImage' is not null or undefined
+            assertParamExists('partnerImageDestroy', 'partnerImage', partnerImage)
+            const localVarPath = `/partner-image/{partnerImage}`
+                .replace(`{${"partnerImage"}}`, encodeURIComponent(String(partnerImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerImageIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/partner-image`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} partnerImage The partner image ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerImageShow: async (partnerImage: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerImage' is not null or undefined
+            assertParamExists('partnerImageShow', 'partnerImage', partnerImage)
+            const localVarPath = `/partner-image/{partnerImage}`
+                .replace(`{${"partnerImage"}}`, encodeURIComponent(String(partnerImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StorePartnerImageRequest} storePartnerImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerImageStore: async (storePartnerImageRequest: StorePartnerImageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storePartnerImageRequest' is not null or undefined
+            assertParamExists('partnerImageStore', 'storePartnerImageRequest', storePartnerImageRequest)
+            const localVarPath = `/partner-image`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storePartnerImageRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerImage The partner image ID
+         * @param {UpdatePartnerImageRequest} updatePartnerImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerImageUpdate: async (partnerImage: string, updatePartnerImageRequest: UpdatePartnerImageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerImage' is not null or undefined
+            assertParamExists('partnerImageUpdate', 'partnerImage', partnerImage)
+            // verify required parameter 'updatePartnerImageRequest' is not null or undefined
+            assertParamExists('partnerImageUpdate', 'updatePartnerImageRequest', updatePartnerImageRequest)
+            const localVarPath = `/partner-image/{partnerImage}`
+                .replace(`{${"partnerImage"}}`, encodeURIComponent(String(partnerImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updatePartnerImageRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerImage The partner image ID
+         * @param {UpdatePartnerImageRequest} updatePartnerImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerImageUpdate2: async (partnerImage: string, updatePartnerImageRequest: UpdatePartnerImageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerImage' is not null or undefined
+            assertParamExists('partnerImageUpdate2', 'partnerImage', partnerImage)
+            // verify required parameter 'updatePartnerImageRequest' is not null or undefined
+            assertParamExists('partnerImageUpdate2', 'updatePartnerImageRequest', updatePartnerImageRequest)
+            const localVarPath = `/partner-image/{partnerImage}`
+                .replace(`{${"partnerImage"}}`, encodeURIComponent(String(partnerImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updatePartnerImageRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * PartnerImageApi - functional programming interface
+ */
+export const PartnerImageApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = PartnerImageApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} partnerImage The partner image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerImageDestroy(partnerImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerImageDestroy(partnerImage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerImageApi.partnerImageDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerImageIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerImageIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerImageIndex(page, perPage, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerImageApi.partnerImageIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} partnerImage The partner image ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerImageShow(partnerImage: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerImageShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerImageShow(partnerImage, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerImageApi.partnerImageShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StorePartnerImageRequest} storePartnerImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerImageStore(storePartnerImageRequest: StorePartnerImageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerImageShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerImageStore(storePartnerImageRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerImageApi.partnerImageStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerImage The partner image ID
+         * @param {UpdatePartnerImageRequest} updatePartnerImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerImageUpdate(partnerImage: string, updatePartnerImageRequest: UpdatePartnerImageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerImageShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerImageUpdate(partnerImage, updatePartnerImageRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerImageApi.partnerImageUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerImage The partner image ID
+         * @param {UpdatePartnerImageRequest} updatePartnerImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerImageUpdate2(partnerImage: string, updatePartnerImageRequest: UpdatePartnerImageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerImageShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerImageUpdate2(partnerImage, updatePartnerImageRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerImageApi.partnerImageUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * PartnerImageApi - factory interface
+ */
+export const PartnerImageApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = PartnerImageApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} partnerImage The partner image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerImageDestroy(partnerImage: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.partnerImageDestroy(partnerImage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerImageIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<PartnerImageIndex200Response> {
+            return localVarFp.partnerImageIndex(page, perPage, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} partnerImage The partner image ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerImageShow(partnerImage: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<PartnerImageShow200Response> {
+            return localVarFp.partnerImageShow(partnerImage, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StorePartnerImageRequest} storePartnerImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerImageStore(storePartnerImageRequest: StorePartnerImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<PartnerImageShow200Response> {
+            return localVarFp.partnerImageStore(storePartnerImageRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerImage The partner image ID
+         * @param {UpdatePartnerImageRequest} updatePartnerImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerImageUpdate(partnerImage: string, updatePartnerImageRequest: UpdatePartnerImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<PartnerImageShow200Response> {
+            return localVarFp.partnerImageUpdate(partnerImage, updatePartnerImageRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerImage The partner image ID
+         * @param {UpdatePartnerImageRequest} updatePartnerImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerImageUpdate2(partnerImage: string, updatePartnerImageRequest: UpdatePartnerImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<PartnerImageShow200Response> {
+            return localVarFp.partnerImageUpdate2(partnerImage, updatePartnerImageRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * PartnerImageApi - object-oriented interface
+ */
+export class PartnerImageApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified resource from storage
+     * @param {string} partnerImage The partner image ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerImageDestroy(partnerImage: string, options?: RawAxiosRequestConfig) {
+        return PartnerImageApiFp(this.configuration).partnerImageDestroy(partnerImage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of the resource
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerImageIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return PartnerImageApiFp(this.configuration).partnerImageIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified resource
+     * @param {string} partnerImage The partner image ID
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerImageShow(partnerImage: string, include?: string, options?: RawAxiosRequestConfig) {
+        return PartnerImageApiFp(this.configuration).partnerImageShow(partnerImage, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created resource in storage
+     * @param {StorePartnerImageRequest} storePartnerImageRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerImageStore(storePartnerImageRequest: StorePartnerImageRequest, options?: RawAxiosRequestConfig) {
+        return PartnerImageApiFp(this.configuration).partnerImageStore(storePartnerImageRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} partnerImage The partner image ID
+     * @param {UpdatePartnerImageRequest} updatePartnerImageRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerImageUpdate(partnerImage: string, updatePartnerImageRequest: UpdatePartnerImageRequest, options?: RawAxiosRequestConfig) {
+        return PartnerImageApiFp(this.configuration).partnerImageUpdate(partnerImage, updatePartnerImageRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} partnerImage The partner image ID
+     * @param {UpdatePartnerImageRequest} updatePartnerImageRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerImageUpdate2(partnerImage: string, updatePartnerImageRequest: UpdatePartnerImageRequest, options?: RawAxiosRequestConfig) {
+        return PartnerImageApiFp(this.configuration).partnerImageUpdate2(partnerImage, updatePartnerImageRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * PartnerTranslationApi - axios parameter creator
+ */
+export const PartnerTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} partnerTranslation The partner translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationDestroy: async (partnerTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerTranslation' is not null or undefined
+            assertParamExists('partnerTranslationDestroy', 'partnerTranslation', partnerTranslation)
+            const localVarPath = `/partner-translation/{partnerTranslation}`
+                .replace(`{${"partnerTranslation"}}`, encodeURIComponent(String(partnerTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/partner-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} partnerTranslation The partner translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationShow: async (partnerTranslation: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerTranslation' is not null or undefined
+            assertParamExists('partnerTranslationShow', 'partnerTranslation', partnerTranslation)
+            const localVarPath = `/partner-translation/{partnerTranslation}`
+                .replace(`{${"partnerTranslation"}}`, encodeURIComponent(String(partnerTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StorePartnerTranslationRequest} storePartnerTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationStore: async (storePartnerTranslationRequest: StorePartnerTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storePartnerTranslationRequest' is not null or undefined
+            assertParamExists('partnerTranslationStore', 'storePartnerTranslationRequest', storePartnerTranslationRequest)
+            const localVarPath = `/partner-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storePartnerTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerTranslation The partner translation ID
+         * @param {UpdatePartnerTranslationRequest} updatePartnerTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationUpdate: async (partnerTranslation: string, updatePartnerTranslationRequest: UpdatePartnerTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerTranslation' is not null or undefined
+            assertParamExists('partnerTranslationUpdate', 'partnerTranslation', partnerTranslation)
+            // verify required parameter 'updatePartnerTranslationRequest' is not null or undefined
+            assertParamExists('partnerTranslationUpdate', 'updatePartnerTranslationRequest', updatePartnerTranslationRequest)
+            const localVarPath = `/partner-translation/{partnerTranslation}`
+                .replace(`{${"partnerTranslation"}}`, encodeURIComponent(String(partnerTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updatePartnerTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerTranslation The partner translation ID
+         * @param {UpdatePartnerTranslationRequest} updatePartnerTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationUpdate2: async (partnerTranslation: string, updatePartnerTranslationRequest: UpdatePartnerTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerTranslation' is not null or undefined
+            assertParamExists('partnerTranslationUpdate2', 'partnerTranslation', partnerTranslation)
+            // verify required parameter 'updatePartnerTranslationRequest' is not null or undefined
+            assertParamExists('partnerTranslationUpdate2', 'updatePartnerTranslationRequest', updatePartnerTranslationRequest)
+            const localVarPath = `/partner-translation/{partnerTranslation}`
+                .replace(`{${"partnerTranslation"}}`, encodeURIComponent(String(partnerTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updatePartnerTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * PartnerTranslationApi - functional programming interface
+ */
+export const PartnerTranslationApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = PartnerTranslationApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} partnerTranslation The partner translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerTranslationDestroy(partnerTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerTranslationDestroy(partnerTranslation, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerTranslationApi.partnerTranslationDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerTranslationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerTranslationIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerTranslationIndex(page, perPage, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerTranslationApi.partnerTranslationIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} partnerTranslation The partner translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerTranslationShow(partnerTranslation: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerTranslationShow(partnerTranslation, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerTranslationApi.partnerTranslationShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StorePartnerTranslationRequest} storePartnerTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerTranslationStore(storePartnerTranslationRequest: StorePartnerTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerTranslationStore(storePartnerTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerTranslationApi.partnerTranslationStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerTranslation The partner translation ID
+         * @param {UpdatePartnerTranslationRequest} updatePartnerTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerTranslationUpdate(partnerTranslation: string, updatePartnerTranslationRequest: UpdatePartnerTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerTranslationUpdate(partnerTranslation, updatePartnerTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerTranslationApi.partnerTranslationUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerTranslation The partner translation ID
+         * @param {UpdatePartnerTranslationRequest} updatePartnerTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerTranslationUpdate2(partnerTranslation: string, updatePartnerTranslationRequest: UpdatePartnerTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerTranslationUpdate2(partnerTranslation, updatePartnerTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerTranslationApi.partnerTranslationUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * PartnerTranslationApi - factory interface
+ */
+export const PartnerTranslationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = PartnerTranslationApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} partnerTranslation The partner translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationDestroy(partnerTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.partnerTranslationDestroy(partnerTranslation, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<PartnerTranslationIndex200Response> {
+            return localVarFp.partnerTranslationIndex(page, perPage, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} partnerTranslation The partner translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationShow(partnerTranslation: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<PartnerTranslationShow200Response> {
+            return localVarFp.partnerTranslationShow(partnerTranslation, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StorePartnerTranslationRequest} storePartnerTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationStore(storePartnerTranslationRequest: StorePartnerTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<PartnerTranslationShow200Response> {
+            return localVarFp.partnerTranslationStore(storePartnerTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerTranslation The partner translation ID
+         * @param {UpdatePartnerTranslationRequest} updatePartnerTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationUpdate(partnerTranslation: string, updatePartnerTranslationRequest: UpdatePartnerTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<PartnerTranslationShow200Response> {
+            return localVarFp.partnerTranslationUpdate(partnerTranslation, updatePartnerTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerTranslation The partner translation ID
+         * @param {UpdatePartnerTranslationRequest} updatePartnerTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationUpdate2(partnerTranslation: string, updatePartnerTranslationRequest: UpdatePartnerTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<PartnerTranslationShow200Response> {
+            return localVarFp.partnerTranslationUpdate2(partnerTranslation, updatePartnerTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * PartnerTranslationApi - object-oriented interface
+ */
+export class PartnerTranslationApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified resource from storage
+     * @param {string} partnerTranslation The partner translation ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerTranslationDestroy(partnerTranslation: string, options?: RawAxiosRequestConfig) {
+        return PartnerTranslationApiFp(this.configuration).partnerTranslationDestroy(partnerTranslation, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of the resource
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerTranslationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return PartnerTranslationApiFp(this.configuration).partnerTranslationIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified resource
+     * @param {string} partnerTranslation The partner translation ID
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerTranslationShow(partnerTranslation: string, include?: string, options?: RawAxiosRequestConfig) {
+        return PartnerTranslationApiFp(this.configuration).partnerTranslationShow(partnerTranslation, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created resource in storage
+     * @param {StorePartnerTranslationRequest} storePartnerTranslationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerTranslationStore(storePartnerTranslationRequest: StorePartnerTranslationRequest, options?: RawAxiosRequestConfig) {
+        return PartnerTranslationApiFp(this.configuration).partnerTranslationStore(storePartnerTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} partnerTranslation The partner translation ID
+     * @param {UpdatePartnerTranslationRequest} updatePartnerTranslationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerTranslationUpdate(partnerTranslation: string, updatePartnerTranslationRequest: UpdatePartnerTranslationRequest, options?: RawAxiosRequestConfig) {
+        return PartnerTranslationApiFp(this.configuration).partnerTranslationUpdate(partnerTranslation, updatePartnerTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} partnerTranslation The partner translation ID
+     * @param {UpdatePartnerTranslationRequest} updatePartnerTranslationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerTranslationUpdate2(partnerTranslation: string, updatePartnerTranslationRequest: UpdatePartnerTranslationRequest, options?: RawAxiosRequestConfig) {
+        return PartnerTranslationApiFp(this.configuration).partnerTranslationUpdate2(partnerTranslation, updatePartnerTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * PartnerTranslationImageApi - axios parameter creator
+ */
+export const PartnerTranslationImageApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} partnerTranslationImage The partner translation image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationImageDestroy: async (partnerTranslationImage: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerTranslationImage' is not null or undefined
+            assertParamExists('partnerTranslationImageDestroy', 'partnerTranslationImage', partnerTranslationImage)
+            const localVarPath = `/partner-translation-image/{partnerTranslationImage}`
+                .replace(`{${"partnerTranslationImage"}}`, encodeURIComponent(String(partnerTranslationImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationImageIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/partner-translation-image`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} partnerTranslationImage The partner translation image ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationImageShow: async (partnerTranslationImage: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerTranslationImage' is not null or undefined
+            assertParamExists('partnerTranslationImageShow', 'partnerTranslationImage', partnerTranslationImage)
+            const localVarPath = `/partner-translation-image/{partnerTranslationImage}`
+                .replace(`{${"partnerTranslationImage"}}`, encodeURIComponent(String(partnerTranslationImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StorePartnerTranslationImageRequest} storePartnerTranslationImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationImageStore: async (storePartnerTranslationImageRequest: StorePartnerTranslationImageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storePartnerTranslationImageRequest' is not null or undefined
+            assertParamExists('partnerTranslationImageStore', 'storePartnerTranslationImageRequest', storePartnerTranslationImageRequest)
+            const localVarPath = `/partner-translation-image`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storePartnerTranslationImageRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerTranslationImage The partner translation image ID
+         * @param {UpdatePartnerTranslationImageRequest} updatePartnerTranslationImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationImageUpdate: async (partnerTranslationImage: string, updatePartnerTranslationImageRequest: UpdatePartnerTranslationImageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerTranslationImage' is not null or undefined
+            assertParamExists('partnerTranslationImageUpdate', 'partnerTranslationImage', partnerTranslationImage)
+            // verify required parameter 'updatePartnerTranslationImageRequest' is not null or undefined
+            assertParamExists('partnerTranslationImageUpdate', 'updatePartnerTranslationImageRequest', updatePartnerTranslationImageRequest)
+            const localVarPath = `/partner-translation-image/{partnerTranslationImage}`
+                .replace(`{${"partnerTranslationImage"}}`, encodeURIComponent(String(partnerTranslationImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updatePartnerTranslationImageRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerTranslationImage The partner translation image ID
+         * @param {UpdatePartnerTranslationImageRequest} updatePartnerTranslationImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationImageUpdate2: async (partnerTranslationImage: string, updatePartnerTranslationImageRequest: UpdatePartnerTranslationImageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerTranslationImage' is not null or undefined
+            assertParamExists('partnerTranslationImageUpdate2', 'partnerTranslationImage', partnerTranslationImage)
+            // verify required parameter 'updatePartnerTranslationImageRequest' is not null or undefined
+            assertParamExists('partnerTranslationImageUpdate2', 'updatePartnerTranslationImageRequest', updatePartnerTranslationImageRequest)
+            const localVarPath = `/partner-translation-image/{partnerTranslationImage}`
+                .replace(`{${"partnerTranslationImage"}}`, encodeURIComponent(String(partnerTranslationImage)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updatePartnerTranslationImageRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * PartnerTranslationImageApi - functional programming interface
+ */
+export const PartnerTranslationImageApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = PartnerTranslationImageApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} partnerTranslationImage The partner translation image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerTranslationImageDestroy(partnerTranslationImage: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerTranslationImageDestroy(partnerTranslationImage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerTranslationImageApi.partnerTranslationImageDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerTranslationImageIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerTranslationImageIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerTranslationImageIndex(page, perPage, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerTranslationImageApi.partnerTranslationImageIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} partnerTranslationImage The partner translation image ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerTranslationImageShow(partnerTranslationImage: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerTranslationImageShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerTranslationImageShow(partnerTranslationImage, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerTranslationImageApi.partnerTranslationImageShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StorePartnerTranslationImageRequest} storePartnerTranslationImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerTranslationImageStore(storePartnerTranslationImageRequest: StorePartnerTranslationImageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerTranslationImageShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerTranslationImageStore(storePartnerTranslationImageRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerTranslationImageApi.partnerTranslationImageStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerTranslationImage The partner translation image ID
+         * @param {UpdatePartnerTranslationImageRequest} updatePartnerTranslationImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerTranslationImageUpdate(partnerTranslationImage: string, updatePartnerTranslationImageRequest: UpdatePartnerTranslationImageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerTranslationImageShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerTranslationImageUpdate(partnerTranslationImage, updatePartnerTranslationImageRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerTranslationImageApi.partnerTranslationImageUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerTranslationImage The partner translation image ID
+         * @param {UpdatePartnerTranslationImageRequest} updatePartnerTranslationImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerTranslationImageUpdate2(partnerTranslationImage: string, updatePartnerTranslationImageRequest: UpdatePartnerTranslationImageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerTranslationImageShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerTranslationImageUpdate2(partnerTranslationImage, updatePartnerTranslationImageRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerTranslationImageApi.partnerTranslationImageUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * PartnerTranslationImageApi - factory interface
+ */
+export const PartnerTranslationImageApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = PartnerTranslationImageApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} partnerTranslationImage The partner translation image ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationImageDestroy(partnerTranslationImage: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.partnerTranslationImageDestroy(partnerTranslationImage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationImageIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<PartnerTranslationImageIndex200Response> {
+            return localVarFp.partnerTranslationImageIndex(page, perPage, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} partnerTranslationImage The partner translation image ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationImageShow(partnerTranslationImage: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<PartnerTranslationImageShow200Response> {
+            return localVarFp.partnerTranslationImageShow(partnerTranslationImage, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StorePartnerTranslationImageRequest} storePartnerTranslationImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationImageStore(storePartnerTranslationImageRequest: StorePartnerTranslationImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<PartnerTranslationImageShow200Response> {
+            return localVarFp.partnerTranslationImageStore(storePartnerTranslationImageRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerTranslationImage The partner translation image ID
+         * @param {UpdatePartnerTranslationImageRequest} updatePartnerTranslationImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationImageUpdate(partnerTranslationImage: string, updatePartnerTranslationImageRequest: UpdatePartnerTranslationImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<PartnerTranslationImageShow200Response> {
+            return localVarFp.partnerTranslationImageUpdate(partnerTranslationImage, updatePartnerTranslationImageRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerTranslationImage The partner translation image ID
+         * @param {UpdatePartnerTranslationImageRequest} updatePartnerTranslationImageRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerTranslationImageUpdate2(partnerTranslationImage: string, updatePartnerTranslationImageRequest: UpdatePartnerTranslationImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<PartnerTranslationImageShow200Response> {
+            return localVarFp.partnerTranslationImageUpdate2(partnerTranslationImage, updatePartnerTranslationImageRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * PartnerTranslationImageApi - object-oriented interface
+ */
+export class PartnerTranslationImageApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified resource from storage
+     * @param {string} partnerTranslationImage The partner translation image ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerTranslationImageDestroy(partnerTranslationImage: string, options?: RawAxiosRequestConfig) {
+        return PartnerTranslationImageApiFp(this.configuration).partnerTranslationImageDestroy(partnerTranslationImage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of the resource
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerTranslationImageIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return PartnerTranslationImageApiFp(this.configuration).partnerTranslationImageIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified resource
+     * @param {string} partnerTranslationImage The partner translation image ID
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerTranslationImageShow(partnerTranslationImage: string, include?: string, options?: RawAxiosRequestConfig) {
+        return PartnerTranslationImageApiFp(this.configuration).partnerTranslationImageShow(partnerTranslationImage, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created resource in storage
+     * @param {StorePartnerTranslationImageRequest} storePartnerTranslationImageRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerTranslationImageStore(storePartnerTranslationImageRequest: StorePartnerTranslationImageRequest, options?: RawAxiosRequestConfig) {
+        return PartnerTranslationImageApiFp(this.configuration).partnerTranslationImageStore(storePartnerTranslationImageRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} partnerTranslationImage The partner translation image ID
+     * @param {UpdatePartnerTranslationImageRequest} updatePartnerTranslationImageRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerTranslationImageUpdate(partnerTranslationImage: string, updatePartnerTranslationImageRequest: UpdatePartnerTranslationImageRequest, options?: RawAxiosRequestConfig) {
+        return PartnerTranslationImageApiFp(this.configuration).partnerTranslationImageUpdate(partnerTranslationImage, updatePartnerTranslationImageRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} partnerTranslationImage The partner translation image ID
+     * @param {UpdatePartnerTranslationImageRequest} updatePartnerTranslationImageRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerTranslationImageUpdate2(partnerTranslationImage: string, updatePartnerTranslationImageRequest: UpdatePartnerTranslationImageRequest, options?: RawAxiosRequestConfig) {
+        return PartnerTranslationImageApiFp(this.configuration).partnerTranslationImageUpdate2(partnerTranslationImage, updatePartnerTranslationImageRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

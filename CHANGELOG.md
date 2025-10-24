@@ -9,6 +9,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Partner System Enhancement**: Complete overhaul of Partner system with translations and images:
+  - **Database Schema**:
+    - Enhanced `partners` table with GPS location (latitude, longitude, map_zoom)
+    - Added optional relationships: `project_id`, `monument_item_id`
+    - Added `visible` boolean flag (default: false)
+    - Created `partner_translations` table with full address and contact fields
+    - Created `partner_images` table for partner-level logos
+    - Created `partner_translation_images` table for context-specific logos
+    - Enhanced `collection_partner` pivot with `visible` and `relationship_type` fields
+  - **Models**:
+    - PartnerTranslation with embedded address (city, address lines, postal code, notes)
+    - PartnerTranslation with semi-structured contacts (name, emails, phones, website, notes)
+    - PartnerImage for general partner images (ordered by display_order)
+    - PartnerTranslationImage for language/context-specific images
+    - CollectionPartner pivot model enhanced with relationship types
+    - PartnerRelationshipType enum (partner, associate_partner, further_associate)
+  - **API**:
+    - Full CRUD endpoints for PartnerTranslation (/api/partner-translation)
+    - Full CRUD endpoints for PartnerImage (/api/partner-image)
+    - Full CRUD endpoints for PartnerTranslationImage (/api/partner-translation-image)
+    - Updated Partner endpoints with new fields and includes
+    - Resources: PartnerTranslationResource, PartnerImageResource, PartnerTranslationImageResource
+    - FormRequests: 15 validation classes for API operations
+  - **Web UI**:
+    - PartnerTranslationController with full CRUD and permission middleware
+    - PartnerImageController for image management
+    - Updated Partner views with GPS location, project, monument fields
+    - Display components: gps-location (with Google Maps link), item-reference
+    - Livewire components: ProjectSelect, ItemSelect (monument filter)
+  - **Testing**:
+    - 80+ new tests for PartnerTranslation, PartnerImage, PartnerTranslationImage
+    - AnonymousTest for authentication testing
+    - Updated Web Partner tests for new fields
+    - All 2,266 tests passing (1 skipped)
+  - **Documentation**:
+    - Updated Partner.md with new fields and relationships
+    - Created PartnerTranslation.md with complete field documentation
+    - Created PartnerImage.md model documentation
+    - Created PartnerTranslationImage.md model documentation
+  - **API Client**:
+    - Regenerated TypeScript client (v1.0.1-dev.1024.1735)
+    - All 1,391 frontend tests passing
+  - **Deprecations**:
+    - Address/AddressTranslation models marked as legacy (use PartnerTranslation fields)
+    - Contact/ContactTranslation models marked as legacy (use PartnerTranslation fields)
+
 - **Tag System**: Complete tag classification system for Items:
   - Database schema: item_tag pivot table for N-to-N relationship between Items and Tags
   - Models: Tag with UUID primary keys, internal_name, description, backward_compatibility fields
