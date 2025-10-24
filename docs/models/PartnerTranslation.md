@@ -11,7 +11,7 @@ parent: Database Models
 | Property               | Type   | Description                           |
 | ---------------------- | ------ | ------------------------------------- |
 | partner_id             | uuid   | Foreign key to Partner                |
-| language_id            | string | Foreign key to Language (ISO 639-3)  |
+| language_id            | string | Foreign key to Language (ISO 639-3)   |
 | context_id             | uuid   | Foreign key to Context                |
 | name                   | string | Partner name in this language/context |
 | description            | text   | Partner description                   |

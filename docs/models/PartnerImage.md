@@ -12,13 +12,13 @@ parent: Database Models
 
 ## 📊 Model Overview
 
-| Property         | Type             | Description                       |
-| ---------------- | ---------------- | --------------------------------- |
-| **Model Name**   | PartnerImage     | Partner image management model    |
-| **Table Name**   | `partner_images` | Database table                    |
-| **Primary Key**  | `id` (UUID)      | Unique identifier                 |
-| **Timestamps**   | ✅ Yes           | `created_at`, `updated_at`        |
-| **Soft Deletes** | ❌ No            | Hard deletes only                 |
+| Property         | Type             | Description                    |
+| ---------------- | ---------------- | ------------------------------ |
+| **Model Name**   | PartnerImage     | Partner image management model |
+| **Table Name**   | `partner_images` | Database table                 |
+| **Primary Key**  | `id` (UUID)      | Unique identifier              |
+| **Timestamps**   | ✅ Yes           | `created_at`, `updated_at`     |
+| **Soft Deletes** | ❌ No            | Hard deletes only              |
 
 ## 🏗️ Database Schema
 

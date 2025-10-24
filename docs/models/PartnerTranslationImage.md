@@ -12,25 +12,25 @@ parent: Database Models
 
 ## 📊 Model Overview
 
-| Property         | Type                         | Description                                |
-| ---------------- | ---------------------------- | ------------------------------------------ |
-| **Model Name**   | PartnerTranslationImage      | Translation-specific image management      |
-| **Table Name**   | `partner_translation_images` | Database table                             |
-| **Primary Key**  | `id` (UUID)                  | Unique identifier                          |
-| **Timestamps**   | ✅ Yes                       | `created_at`, `updated_at`                 |
-| **Soft Deletes** | ❌ No                        | Hard deletes only                          |
+| Property         | Type                         | Description                           |
+| ---------------- | ---------------------------- | ------------------------------------- |
+| **Model Name**   | PartnerTranslationImage      | Translation-specific image management |
+| **Table Name**   | `partner_translation_images` | Database table                        |
+| **Primary Key**  | `id` (UUID)                  | Unique identifier                     |
+| **Timestamps**   | ✅ Yes                       | `created_at`, `updated_at`            |
+| **Soft Deletes** | ❌ No                        | Hard deletes only                     |
 
 ## 🏗️ Database Schema
 
-| Column                   | Type      | Constraints           | Description                         |
-| ------------------------ | --------- | --------------------- | ----------------------------------- |
-| id                       | uuid      | Primary Key           | Unique identifier (UUID)            |
-| partner_translation_id   | uuid      | Foreign Key, Required | References `partner_translations.id`|
-| available_image_id       | uuid      | Foreign Key, Required | References `available_images.id`    |
-| display_order            | integer   | Required, Default: 1  | Order for display (1 = first)       |
-| backward_compatibility   | string    | Nullable              | Legacy system reference             |
-| created_at               | timestamp | Auto-managed          | Creation timestamp                  |
-| updated_at               | timestamp | Auto-managed          | Last update timestamp               |
+| Column                 | Type      | Constraints           | Description                          |
+| ---------------------- | --------- | --------------------- | ------------------------------------ |
+| id                     | uuid      | Primary Key           | Unique identifier (UUID)             |
+| partner_translation_id | uuid      | Foreign Key, Required | References `partner_translations.id` |
+| available_image_id     | uuid      | Foreign Key, Required | References `available_images.id`     |
+| display_order          | integer   | Required, Default: 1  | Order for display (1 = first)        |
+| backward_compatibility | string    | Nullable              | Legacy system reference              |
+| created_at             | timestamp | Auto-managed          | Creation timestamp                   |
+| updated_at             | timestamp | Auto-managed          | Last update timestamp                |
 
 ## 🔗 Relationships
 

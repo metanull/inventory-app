@@ -8,18 +8,18 @@ parent: Database Models
 
 **Namespace:** `App\Models\Partner`
 
-| Property               | Type    | Description                           |
-| ---------------------- | ------- | ------------------------------------- |
-| internal_name          | string  | Internal name                         |
+| Property               | Type    | Description                                       |
+| ---------------------- | ------- | ------------------------------------------------- |
+| internal_name          | string  | Internal name                                     |
 | type                   | string  | Type of partner (museum, institution, individual) |
-| backward_compatibility | string  | Backward compatibility info           |
-| country_id             | string  | Foreign key to Country (ISO 3166-1 alpha-3) |
-| latitude               | decimal | GPS latitude (-90 to 90)              |
-| longitude              | decimal | GPS longitude (-180 to 180)           |
-| map_zoom               | integer | Map zoom level (1-20)                 |
-| project_id             | uuid    | Optional foreign key to Project       |
-| monument_item_id       | uuid    | Optional foreign key to Item (monument) |
-| visible                | boolean | Visibility flag (default: false)      |
+| backward_compatibility | string  | Backward compatibility info                       |
+| country_id             | string  | Foreign key to Country (ISO 3166-1 alpha-3)       |
+| latitude               | decimal | GPS latitude (-90 to 90)                          |
+| longitude              | decimal | GPS longitude (-180 to 180)                       |
+| map_zoom               | integer | Map zoom level (1-20)                             |
+| project_id             | uuid    | Optional foreign key to Project                   |
+| monument_item_id       | uuid    | Optional foreign key to Item (monument)           |
+| visible                | boolean | Visibility flag (default: false)                  |
 
 **Relationships:**
 
