@@ -112,14 +112,6 @@
                     :icon="'<x-heroicon-o-document-text class=\'w-6 h-6\' />'"
                     iconColor="indigo"
                 >Read</x-ui.card>
-                            </span>
-                            <h2 class="text-lg font-semibold text-gray-900">Project Docs</h2>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Architecture notes, developer guides & operational procedures.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">Read <span class="ml-1">&rarr;</span></span>
-                </a>
             </div>
         </div>
     </div>

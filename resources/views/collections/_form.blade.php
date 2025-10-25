@@ -23,33 +23,30 @@
 </x-form.field>
 
 <x-form.field label="Language" name="language_id" variant="gray" required>
-    <x-form.select 
+    <x-form.entity-select 
         name="language_id" 
-        :value="old('language_id', $collection->language_id ?? '')"
-        placeholder="Select language..."
+        :value="old('language_id', $collection->language_id ?? null)"
+        :options="\App\Models\Language::orderBy('internal_name')->get()"
+        displayField="internal_name"
+        placeholder="Select a language..."
+        searchPlaceholder="Type to search languages..."
+        :showId="true"
+        entity="collections"
         required
-    >
-        @foreach($languages ?? [] as $language)
-            <option value="{{ $language->id }}" @selected(old('language_id', $collection->language_id ?? '') == $language->id)>
-                {{ $language->internal_name }} ({{ $language->id }})
-            </option>
-        @endforeach
-    </x-form.select>
+    />
 </x-form.field>
 
 <x-form.field label="Context" name="context_id" required>
-    <x-form.select 
+    <x-form.entity-select 
         name="context_id" 
-        :value="old('context_id', $collection->context_id ?? '')"
-        placeholder="Select context..."
+        :value="old('context_id', $collection->context_id ?? null)"
+        :options="\App\Models\Context::orderBy('internal_name')->get()"
+        displayField="internal_name"
+        placeholder="Select a context..."
+        searchPlaceholder="Type to search contexts..."
+        entity="collections"
         required
-    >
-        @foreach($contexts ?? [] as $context)
-            <option value="{{ $context->id }}" @selected(old('context_id', $collection->context_id ?? '') == $context->id)>
-                {{ $context->internal_name }}
-            </option>
-        @endforeach
-    </x-form.select>
+    />
 </x-form.field>
 
 <x-form.field label="Legacy ID" name="backward_compatibility" variant="gray">
