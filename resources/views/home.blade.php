@@ -19,19 +19,17 @@
         <section class="space-y-4">
             <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Getting Started</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <a href="{{ route('login') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-emerald-50 text-emerald-600 group-hover:opacity-90">
-                                <x-heroicon-o-lock-closed class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Login</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-emerald-600" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Authenticate to access management features.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-emerald-600 group-hover:underline">Continue &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('login') }}"
+                    title="Login"
+                    description="Authenticate to access management features."
+                    iconColor="emerald"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-lock-closed class="w-6 h-6" />
+                    </x-slot:icon>
+                    Continue
+                </x-ui.card>
             </div>
         </section>
         @endguest
@@ -62,185 +60,149 @@
         <section class="space-y-4">
             <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Primary Domains</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                @php($ic = $entityColor('items'))
-                <a href="{{ route('items.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $ic['base'] }}/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md {{ $ic['bg'] ?? 'bg-teal-50' }} {{ $ic['text'] ?? 'text-teal-600' }} group-hover:opacity-90">
-                                <x-heroicon-o-archive-box class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Items</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $ic['text'] ?? 'text-teal-600' }}" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Create, browse and maintain collection item records.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $ic['text'] ?? 'text-teal-600' }} group-hover:underline">Open &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('items.index') }}"
+                    title="Items"
+                    description="Create, browse and maintain collection item records."
+                    entity="items"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-archive-box class="w-6 h-6" />
+                    </x-slot:icon>
+                    Open
+                </x-ui.card>
 
-                @php($itc = $entityColor('item_translations'))
-                <a href="{{ route('item-translations.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $itc['base'] }}/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md {{ $itc['bg'] ?? 'bg-blue-50' }} {{ $itc['text'] ?? 'text-blue-600' }} group-hover:opacity-90">
-                                <x-heroicon-o-language class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Item Translations</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $itc['text'] ?? 'text-blue-600' }}" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Manage translations for items across different languages and contexts.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $itc['text'] ?? 'text-blue-600' }} group-hover:underline">Open &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('item-translations.index') }}"
+                    title="Item Translations"
+                    description="Manage translations for items across different languages and contexts."
+                    entity="item_translations"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-language class="w-6 h-6" />
+                    </x-slot:icon>
+                    Open
+                </x-ui.card>
 
-                @php($pc = $entityColor('partners'))
-                <a href="{{ route('partners.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $pc['base'] }}/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md {{ $pc['bg'] ?? 'bg-yellow-50' }} {{ $pc['text'] ?? 'text-yellow-600' }} group-hover:opacity-90">
-                                <x-heroicon-o-user-group class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Partners</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $pc['text'] ?? 'text-yellow-600' }}" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Manage institutions, collaborators and contributors.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $pc['text'] ?? 'text-yellow-600' }} group-hover:underline">Open &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('partners.index') }}"
+                    title="Partners"
+                    description="Manage institutions, collaborators and contributors."
+                    entity="partners"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-user-group class="w-6 h-6" />
+                    </x-slot:icon>
+                    Open
+                </x-ui.card>
 
-                @php($prc = $entityColor('projects'))
-                <a href="{{ route('projects.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $prc['base'] }}/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md {{ $prc['bg'] ?? 'bg-teal-50' }} {{ $prc['text'] ?? 'text-teal-600' }} group-hover:opacity-90">
-                                <x-heroicon-o-rocket-launch class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Projects</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $prc['text'] ?? 'text-teal-600' }}" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Feature flags and visibility of app domains.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $prc['text'] ?? 'text-teal-600' }} group-hover:underline">Open &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('projects.index') }}"
+                    title="Projects"
+                    description="Feature flags and visibility of app domains."
+                    entity="projects"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-rocket-launch class="w-6 h-6" />
+                    </x-slot:icon>
+                    Open
+                </x-ui.card>
 
-                @php($xc = $entityColor('contexts'))
-                <a href="{{ route('contexts.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $xc['base'] }}/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md {{ $xc['bg'] ?? 'bg-indigo-50' }} {{ $xc['text'] ?? 'text-indigo-600' }} group-hover:opacity-90">
-                                <x-heroicon-o-adjustments-horizontal class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Contexts</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $xc['text'] ?? 'text-indigo-600' }}" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Default and alternate content contexts.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $xc['text'] ?? 'text-indigo-600' }} group-hover:underline">Open &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('contexts.index') }}"
+                    title="Contexts"
+                    description="Default and alternate content contexts."
+                    entity="contexts"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-adjustments-horizontal class="w-6 h-6" />
+                    </x-slot:icon>
+                    Open
+                </x-ui.card>
 
-                @php($cc2 = $entityColor('collections'))
-                <a href="{{ route('collections.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $cc2['base'] }}/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md {{ $cc2['bg'] ?? 'bg-yellow-50' }} {{ $cc2['text'] ?? 'text-yellow-600' }} group-hover:opacity-90">
-                                <x-heroicon-o-rectangle-stack class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Collections</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $cc2['text'] ?? 'text-yellow-600' }}" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Group and present curated item sets.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $cc2['text'] ?? 'text-yellow-600' }} group-hover:underline">Open &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('collections.index') }}"
+                    title="Collections"
+                    description="Group and present curated item sets."
+                    entity="collections"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-rectangle-stack class="w-6 h-6" />
+                    </x-slot:icon>
+                    Open
+                </x-ui.card>
 
-                @php($ctc = $entityColor('collection_translations'))
-                <a href="{{ route('collection-translations.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $ctc['base'] }}/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md {{ $ctc['bg'] ?? 'bg-yellow-50' }} {{ $ctc['text'] ?? 'text-yellow-600' }} group-hover:opacity-90">
-                                <x-heroicon-o-language class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Collection Translations</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $ctc['text'] ?? 'text-yellow-600' }}" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Manage translations for collections across different languages and contexts.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $ctc['text'] ?? 'text-yellow-600' }} group-hover:underline">Open &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('collection-translations.index') }}"
+                    title="Collection Translations"
+                    description="Manage translations for collections across different languages and contexts."
+                    entity="collection_translations"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-language class="w-6 h-6" />
+                    </x-slot:icon>
+                    Open
+                </x-ui.card>
 
-                @php($cc = $entityColor('countries'))
-                <a href="{{ route('countries.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $cc['base'] }}/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:opacity-90">
-                                <x-heroicon-o-globe-europe-africa class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Countries</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-600" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Manage ISO country codes and legacy mappings.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:underline">Open &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('countries.index') }}"
+                    title="Countries"
+                    description="Manage ISO country codes and legacy mappings."
+                    entity="countries"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-globe-europe-africa class="w-6 h-6" />
+                    </x-slot:icon>
+                    Open
+                </x-ui.card>
 
-                @php($lc = $entityColor('languages'))
-                <a href="{{ route('languages.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $lc['base'] }}/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-fuchsia-50 text-fuchsia-600 group-hover:opacity-90">
-                                <x-heroicon-o-language class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Languages</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-fuchsia-600" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Maintain supported languages and default flag.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-fuchsia-600 group-hover:underline">Open &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('languages.index') }}"
+                    title="Languages"
+                    description="Maintain supported languages and default flag."
+                    entity="languages"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-language class="w-6 h-6" />
+                    </x-slot:icon>
+                    Open
+                </x-ui.card>
 
-                @php($gc = $entityColor('glossaries'))
-                <a href="{{ route('glossaries.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $gc['base'] }}/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md {{ $gc['bg'] ?? 'bg-emerald-50' }} {{ $gc['text'] ?? 'text-emerald-600' }} group-hover:opacity-90">
-                                <x-heroicon-o-book-open class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Glossary</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $gc['text'] ?? 'text-emerald-600' }}" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Specialized terms, definitions, and spelling variations.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $gc['text'] ?? 'text-emerald-600' }} group-hover:underline">Open &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('glossaries.index') }}"
+                    title="Glossary"
+                    description="Specialized terms, definitions, and spelling variations."
+                    entity="glossaries"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-book-open class="w-6 h-6" />
+                    </x-slot:icon>
+                    Open
+                </x-ui.card>
 
-                @php($tc = $entityColor('tags'))
-                <a href="{{ route('tags.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $tc['base'] }}/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md {{ $tc['bg'] ?? 'bg-violet-50' }} {{ $tc['text'] ?? 'text-violet-600' }} group-hover:opacity-90">
-                                <x-heroicon-o-tag class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Tags</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $tc['text'] ?? 'text-violet-600' }}" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Classify and categorize items with flexible tags.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $tc['text'] ?? 'text-violet-600' }} group-hover:underline">Open &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('tags.index') }}"
+                    title="Tags"
+                    description="Classify and categorize items with flexible tags."
+                    entity="tags"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-tag class="w-6 h-6" />
+                    </x-slot:icon>
+                    Open
+                </x-ui.card>
 
-                @php($ac = $entityColor('authors'))
-                <a href="{{ route('authors.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-{{ $ac['base'] }}/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md {{ $ac['bg'] ?? 'bg-amber-50' }} {{ $ac['text'] ?? 'text-amber-600' }} group-hover:opacity-90">
-                                <x-heroicon-o-user-circle class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Authors</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:{{ $ac['text'] ?? 'text-amber-600' }}" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Manage content authors and contributors.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium {{ $ac['text'] ?? 'text-amber-600' }} group-hover:underline">Open &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('authors.index') }}"
+                    title="Authors"
+                    description="Manage content authors and contributors."
+                    entity="authors"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-user-circle class="w-6 h-6" />
+                    </x-slot:icon>
+                    Open
+                </x-ui.card>
             </div>
         </section>
         @endcan

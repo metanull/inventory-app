@@ -36,9 +36,9 @@
                         <div class="border-b border-gray-200 pb-2 mb-4">
                             <h4 class="text-base font-semibold text-gray-900 flex items-center">
                                 @if($isDefaultContext)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 mr-2">
+                                    <x-ui.badge color="green" class="mr-2">
                                         Default
-                                    </span>
+                                    </x-ui.badge>
                                 @endif
                                 <span>{{ $context ? $context->internal_name : 'No Context' }}</span>
                             </h4>
@@ -49,22 +49,21 @@
                             @foreach($translations as $translation)
                                 <div class="bg-white rounded-lg overflow-hidden border border-gray-200">
                                     <div class="p-4">
-                <!-- Header with Language and Context -->
-                <div class="flex items-start justify-between mb-3">
-                    <div class="flex items-center space-x-2">
-                        <x-heroicon-o-language class="h-5 w-5 text-blue-500" />
-                        <div class="flex flex-wrap gap-2">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                {{ $translation->language->internal_name ?? $translation->language_id }}
-                            </span>
-                            @if($translation->context)
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    {{ $translation->context->internal_name }}
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                </div>                                <!-- Translation Name -->
+                                        <div class="flex items-start justify-between mb-3">
+                                            <div class="flex items-center space-x-2">
+                                                <x-heroicon-o-language class="h-5 w-5 text-blue-500" />
+                                                <div class="flex flex-wrap gap-2">
+                                                    <x-ui.badge color="blue" variant="pill">
+                                                        {{ $translation->language->internal_name ?? $translation->language_id }}
+                                                    </x-ui.badge>
+                                                    @if($translation->context)
+                                                        <x-ui.badge color="gray" variant="pill">
+                                                            {{ $translation->context->internal_name }}
+                                                        </x-ui.badge>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>                                <!-- Translation Name -->
                                 <div class="mb-2">
                                     <h4 class="text-base font-semibold text-gray-900">
                                         {{ $translation->name }}
@@ -111,18 +110,14 @@
                                         Edit
                                     </x-ui.button>
                                     <!-- Delete -->
-                                    <form method="POST" action="{{ route('item-translations.destroy', $translation) }}" 
-                                          onsubmit="return confirm('Are you sure you want to delete this translation?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <x-ui.button 
-                                            type="submit"
-                                            variant="danger"
-                                            size="sm"
-                                            icon="trash">
-                                            Delete
-                                        </x-ui.button>
-                                    </form>
+                                    <x-ui.confirm-button 
+                                        action="{{ route('item-translations.destroy', $translation) }}"
+                                        confirmMessage="Are you sure you want to delete this translation?"
+                                        variant="danger"
+                                        size="sm"
+                                        icon="trash">
+                                        Delete
+                                    </x-ui.confirm-button>
                                 </div>
                             </div>
                         </div>

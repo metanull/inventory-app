@@ -31,9 +31,9 @@
                                 <div class="flex items-start justify-between mb-3">
                                     <div class="flex items-center space-x-2">
                                         <x-heroicon-o-language class="h-5 w-5 text-blue-500" />
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <x-ui.badge color="blue" variant="pill">
                                             {{ $translation->language->internal_name ?? $translation->language_id }}
-                                        </span>
+                                        </x-ui.badge>
                                     </div>
                                 </div>
 
@@ -63,18 +63,14 @@
                                         Edit
                                     </x-ui.button>
                                     <!-- Delete -->
-                                    <form method="POST" action="{{ route('glossaries.translations.destroy', [$glossary, $translation]) }}" 
-                                          onsubmit="return confirm('Are you sure you want to delete this translation?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <x-ui.button 
-                                            type="submit"
-                                            variant="danger"
-                                            size="sm"
-                                            icon="trash">
-                                            Delete
-                                        </x-ui.button>
-                                    </form>
+                                    <x-ui.confirm-button 
+                                        action="{{ route('glossaries.translations.destroy', [$glossary, $translation]) }}"
+                                        confirmMessage="Are you sure you want to delete this translation?"
+                                        variant="danger"
+                                        size="sm"
+                                        icon="trash">
+                                        Delete
+                                    </x-ui.confirm-button>
                                 </div>
                             </div>
                         </div>

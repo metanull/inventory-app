@@ -1,83 +1,75 @@
 <x-app-layout>
     @php($c = $entityColor('users'))
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('User Management') }}
-            </h2>
+    
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <x-entity.header entity="users" title="User Management">
             @can(\App\Enums\Permission::MANAGE_USERS->value)
-                <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 rounded-md text-sm font-medium text-white {{ $c['button'] }}">
-                    {{ __('Create User') }}
-                </a>
+                <x-ui.button 
+                    href="{{ route('admin.users.create') }}" 
+                    variant="primary"
+                    entity="users"
+                    icon="plus">
+                    Create User
+                </x-ui.button>
             @endcan
-        </div>
-    </x-slot>
+        </x-entity.header>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow sm:rounded-lg">
-                <div class="p-6">
-                    <!-- Generated Password Notification -->
-                    @if(session('generated_password'))
-                        <div class="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
-                            <div class="flex">
-                                <div class="shrink-0">
-                                    <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                    </svg>
-                                </div>
-                                <div class="ml-3 flex-1">
-                                    <h3 class="text-sm font-medium text-green-800">
-                                        {{ __('Password Generated Successfully') }}
-                                    </h3>
-                                    <div class="mt-2 text-sm text-green-700">
-                                        <p><strong>{{ __('User:') }}</strong> {{ session('user_name') }} ({{ session('user_email') }})</p>
-                                        <p><strong>{{ __('Generated Password:') }}</strong> 
-                                            <span class="font-mono bg-gray-100 px-2 py-1 rounded text-gray-900 select-all" id="generated-password">{{ session('generated_password') }}</span>
-                                        </p>
-                                        <p class="mt-2 text-xs">{{ __('Please copy this password and share it securely with the user. This password will not be shown again.') }}</p>
-                                    </div>
-                                </div>
-                                <div class="ml-4 shrink-0">
-                                    <button type="button" class="bg-green-100 rounded-md inline-flex text-green-400 hover:text-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" onclick="copyToClipboard('{{ session('generated_password') }}')">
-                                        <span class="sr-only">{{ __('Copy password') }}</span>
-                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
+        <!-- Generated Password Notification -->
+        @if(session('generated_password'))
+            <x-ui.alert type="success" entity="users">
+                <div class="flex">
+                    <div class="ml-3 flex-1">
+                        <h3 class="text-sm font-medium text-green-800">
+                            {{ __('Password Generated Successfully') }}
+                        </h3>
+                        <div class="mt-2 text-sm text-green-700">
+                            <p><strong>{{ __('User:') }}</strong> {{ session('user_name') }} ({{ session('user_email') }})</p>
+                            <p><strong>{{ __('Generated Password:') }}</strong> 
+                                <span class="font-mono bg-gray-100 px-2 py-1 rounded text-gray-900 select-all" id="generated-password">{{ session('generated_password') }}</span>
+                            </p>
+                            <p class="mt-2 text-xs">{{ __('Please copy this password and share it securely with the user. This password will not be shown again.') }}</p>
                         </div>
-                    @endif
-
-                    <!-- Search and Filters -->
-                    <div class="mb-6">
-                        <form method="GET" action="{{ route('admin.users.index') }}" class="flex flex-wrap gap-4">
-                            <div class="flex-1 min-w-0">
-                                <input type="text" name="search" value="{{ request('search') }}" 
-                                    placeholder="Search users..." 
-                                    class="w-full rounded-md border-gray-300 shadow-sm {{ $c['focus'] }}">
-                            </div>
-                            <div>
-                                <select name="role" class="rounded-md border-gray-300 shadow-sm {{ $c['focus'] }}">
-                                    <option value="">All Roles</option>
-                                    @foreach($roles as $role)
-                                        <option value="{{ $role->name }}" {{ request('role') === $role->name ? 'selected' : '' }}>
-                                            {{ $role->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <button type="submit" class="inline-flex items-center px-4 py-2 rounded-md text-sm font-medium text-white {{ $c['button'] }}">
-                                {{ __('Filter') }}
-                            </button>
-                            @if(request('search') || request('role'))
-                                <a href="{{ route('admin.users.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                    {{ __('Clear') }}
-                                </a>
-                            @endif
-                        </form>
                     </div>
+                    <div class="ml-4 shrink-0">
+                        <button type="button" class="bg-green-100 rounded-md inline-flex text-green-400 hover:text-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" onclick="copyToClipboard('{{ session('generated_password') }}')">
+                            <span class="sr-only">{{ __('Copy password') }}</span>
+                            <x-heroicon-o-clipboard class="h-5 w-5" />
+                        </button>
+                    </div>
+                </div>
+            </x-ui.alert>
+        @endif
+
+        <div class="bg-white overflow-hidden shadow sm:rounded-lg">
+            <div class="p-6">
+                <!-- Search and Filters -->
+                <x-table.filter-bar>
+                    <form method="GET" action="{{ route('admin.users.index') }}" class="flex flex-wrap gap-4">
+                        <div class="flex-1 min-w-0">
+                            <input type="text" name="search" value="{{ request('search') }}" 
+                                placeholder="Search users..." 
+                                class="w-full rounded-md border-gray-300 shadow-sm {{ $c['focus'] }}">
+                        </div>
+                        <div>
+                            <select name="role" class="rounded-md border-gray-300 shadow-sm {{ $c['focus'] }}">
+                                <option value="">All Roles</option>
+                                @foreach($roles as $role)
+                                    <option value="{{ $role->name }}" {{ request('role') === $role->name ? 'selected' : '' }}>
+                                        {{ $role->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <x-ui.button type="submit" variant="primary" entity="users">
+                            {{ __('Filter') }}
+                        </x-ui.button>
+                        @if(request('search') || request('role'))
+                            <x-ui.button href="{{ route('admin.users.index') }}" variant="secondary">
+                                {{ __('Clear') }}
+                            </x-ui.button>
+                        @endif
+                    </form>
+                </x-table.filter-bar>
 
                     <!-- Users Table -->
                     <div class="overflow-x-auto">
@@ -116,64 +108,71 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex flex-wrap gap-1">
                                                 @forelse($user->roles as $role)
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                    <x-ui.badge color="blue" variant="pill">
                                                         {{ $role->name }}
-                                                    </span>
+                                                    </x-ui.badge>
                                                 @empty
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    <x-ui.badge color="red" variant="pill">
                                                         {{ __('No Role') }}
-                                                    </span>
+                                                    </x-ui.badge>
                                                 @endforelse
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center gap-2">
                                                 @if($user->hasEnabledTwoFactorAuthentication())
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" title="{{ __('TOTP 2FA Enabled') }}">
-                                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/>
-                                                        </svg>
+                                                    <x-ui.badge color="green" variant="pill" title="{{ __('TOTP 2FA Enabled') }}">
+                                                        <x-heroicon-o-lock-closed class="w-3 h-3 mr-1" />
                                                         {{ __('Enabled') }}
-                                                    </span>
+                                                    </x-ui.badge>
                                                 @else
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                    <x-ui.badge color="gray" variant="pill">
                                                         {{ __('Disabled') }}
-                                                    </span>
+                                                    </x-ui.badge>
                                                 @endif
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @if($user->email_verified_at)
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                <x-ui.badge color="green" variant="pill">
                                                     {{ __('Verified') }}
-                                                </span>
+                                                </x-ui.badge>
                                             @else
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                <x-ui.badge color="yellow" variant="pill">
                                                     {{ __('Pending') }}
-                                                </span>
+                                                </x-ui.badge>
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $user->created_at->format('M j, Y') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div class="flex justify-end gap-3">
-                                                <a href="{{ route('admin.users.show', $user) }}" class="{{ $c['text'] }} hover:opacity-80">
-                                                    {{ __('View') }}
-                                                </a>
+                                            <div class="flex justify-end gap-2">
+                                                <x-ui.button 
+                                                    href="{{ route('admin.users.show', $user) }}" 
+                                                    variant="edit"
+                                                    size="sm"
+                                                    entity="users"
+                                                    icon="eye">
+                                                    View
+                                                </x-ui.button>
                                                 @can(\App\Enums\Permission::MANAGE_USERS->value)
-                                                    <a href="{{ route('admin.users.edit', $user) }}" class="text-green-600 hover:text-green-900">
-                                                        {{ __('Edit') }}
-                                                    </a>
+                                                    <x-ui.button 
+                                                        href="{{ route('admin.users.edit', $user) }}" 
+                                                        variant="warning"
+                                                        size="sm"
+                                                        icon="pencil">
+                                                        Edit
+                                                    </x-ui.button>
                                                     @if($user->id !== auth()->id())
-                                                        <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="inline">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="text-red-600 hover:text-red-900" 
-                                                                onclick="return confirm('Are you sure you want to delete this user?')">
-                                                                {{ __('Delete') }}
-                                                            </button>
-                                                        </form>
+                                                        <x-ui.confirm-button 
+                                                            action="{{ route('admin.users.destroy', $user) }}"
+                                                            confirmMessage="Are you sure you want to delete this user?"
+                                                            variant="danger"
+                                                            size="sm"
+                                                            icon="trash">
+                                                            Delete
+                                                        </x-ui.confirm-button>
                                                     @endif
                                                 @endcan
                                             </div>
