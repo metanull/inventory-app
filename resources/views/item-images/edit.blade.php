@@ -14,10 +14,11 @@
                             Update the alternative text for this image
                         </p>
                     </div>
-                    <a href="{{ route('items.show', $item) }}" 
-                       class="inline-flex items-center px-4 py-2 bg-gray-300 dark:bg-gray-700 border border-transparent rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest hover:bg-gray-400 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150">
+                    <x-ui.button 
+                        href="{{ route('items.show', $item) }}" 
+                        variant="secondary">
                         Cancel
-                    </a>
+                    </x-ui.button>
                 </div>
             </div>
 
@@ -65,14 +66,17 @@
 
                     <!-- Form Actions -->
                     <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <a href="{{ route('items.show', $item) }}" 
-                           class="inline-flex items-center px-4 py-2 bg-gray-300 dark:bg-gray-700 border border-transparent rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest hover:bg-gray-400 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150">
+                        <x-ui.button 
+                            href="{{ route('items.show', $item) }}" 
+                            variant="secondary">
                             Cancel
-                        </a>
-                        <button type="submit" 
-                                class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ease-in-out duration-150">
+                        </x-ui.button>
+                        <x-ui.button 
+                            type="submit" 
+                            variant="primary"
+                            icon="check">
                             Update Image
-                        </button>
+                        </x-ui.button>
                     </div>
                 </form>
             </div>

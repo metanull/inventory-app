@@ -1,12 +1,5 @@
 <div class="space-y-4">
-    <div class="flex items-center gap-3 flex-wrap">
-        <div class="relative">
-            <input wire:model.live.debounce.300ms="q" type="text" placeholder="Search translations..." class="w-64 rounded-md border-gray-300 {{ $c['focus'] ?? '' }}" />
-        </div>
-        @if($q)
-            <button wire:click="$set('q','')" type="button" class="text-sm text-gray-600 hover:underline">Clear</button>
-        @endif
-
+    <x-table.filter-bar wireModel="q" placeholder="Search translations...">
         <div class="flex items-center gap-2">
             <label for="contextFilter" class="text-sm text-gray-700">Context:</label>
             <select wire:model.live="contextFilter" id="contextFilter" class="rounded-md border-gray-300 {{ $c['focus'] ?? '' }} text-sm">
@@ -28,7 +21,7 @@
                 @endforeach
             </select>
         </div>
-    </div>
+    </x-table.filter-bar>
 
     <div class="bg-white shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">

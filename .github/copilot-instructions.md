@@ -7,6 +7,7 @@
   - **CRITICAL**: Verify existing implementation before code changes to ensure alignment with project's patterns and standards. If new issues are found, even if not directly related to the user request, fix them as part of the task.
 **CRITICAL**: The project is in active development; breaking changes are accepted, there is no need to preserve backward compatibility.
 **CRITICAL**: Use VS Code tools instead of terminal when possible.
+  - **CRITICAL**: Use `git rm` to remove files if no VS Code tools exists for that.
 **CRITICAL**: Use VS Code testing to run tests.
 **CRITICAL**: Always implement the entire user request (do not prioritize, take shortcuts, or leave tasks for later)
 **CRITICAL**: All warnings and all errors must be addressed, none are acceptable.

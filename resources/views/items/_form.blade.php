@@ -22,7 +22,16 @@
 </x-form.field>
 
 <x-form.field label="Country" name="country_id" variant="gray">
-    <livewire:country-select :value="old('country_id', $item->country_id ?? null)" name="country_id" label="" />
+    <x-form.entity-select 
+        name="country_id" 
+        :value="old('country_id', $item->country_id ?? null)"
+        :options="\App\Models\Country::orderBy('name')->get()"
+        displayField="name"
+        placeholder="Select a country..."
+        searchPlaceholder="Type to search countries..."
+        :showId="true"
+        entity="items"
+    />
 </x-form.field>
 
 <x-form.field label="Legacy ID" name="backward_compatibility">
