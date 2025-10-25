@@ -7,37 +7,41 @@
         
         <div class="space-y-6">
             <x-form.field label="Partner" name="partner_id" variant="gray" required>
-                <select name="partner_id" required class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                    <option value="">Select a partner...</option>
-                    @foreach($partners as $partner)
-                        <option value="{{ $partner->id }}" @selected(old('partner_id', $partnerTranslation->partner_id ?? $selectedPartnerId ?? '') === $partner->id)>
-                            {{ $partner->internal_name }}
-                        </option>
-                    @endforeach
-                </select>
+                <x-form.entity-select 
+                    name="partner_id" 
+                    :value="old('partner_id', $partnerTranslation->partner_id ?? $selectedPartnerId ?? null)"
+                    :options="$partners"
+                    displayField="internal_name"
+                    placeholder="Select a partner..."
+                    searchPlaceholder="Type to search partners..."
+                    required
+                    entity="partners"
+                />
             </x-form.field>
 
             <x-form.field label="Language" name="language_id" variant="gray" required>
-                <select name="language_id" required class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                    <option value="">Select a language...</option>
-                    @foreach($languages as $language)
-                        <option value="{{ $language->id }}" @selected(old('language_id', $partnerTranslation->language_id ?? ($defaultLanguage->id ?? '')) === $language->id)>
-                            {{ $language->internal_name }}
-                        </option>
-                    @endforeach
-                </select>
+                <x-form.entity-select 
+                    name="language_id" 
+                    :value="old('language_id', $partnerTranslation->language_id ?? ($defaultLanguage->id ?? null))"
+                    :options="$languages"
+                    displayField="internal_name"
+                    placeholder="Select a language..."
+                    searchPlaceholder="Type to search languages..."
+                    required
+                    :showId="true"
+                />
             </x-form.field>
 
             <x-form.field label="Context" name="context_id" variant="gray" required>
-                <select name="context_id" required class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                    <option value="">Select a context...</option>
-                    @foreach($contexts as $context)
-                        <option value="{{ $context->id }}" @selected(old('context_id', $partnerTranslation->context_id ?? ($defaultContext->id ?? '')) === $context->id)>
-                            {{ $context->internal_name }}
-                            @if($context->is_default) (default) @endif
-                        </option>
-                    @endforeach
-                </select>
+                <x-form.entity-select 
+                    name="context_id" 
+                    :value="old('context_id', $partnerTranslation->context_id ?? ($defaultContext->id ?? null))"
+                    :options="$contexts"
+                    displayField="internal_name"
+                    placeholder="Select a context..."
+                    searchPlaceholder="Type to search contexts..."
+                    required
+                />
             </x-form.field>
 
             <x-form.field label="Name" name="name" variant="gray" required>

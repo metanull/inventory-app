@@ -7,37 +7,41 @@
         
         <div class="space-y-6">
             <x-form.field label="Collection" name="collection_id" variant="gray" required>
-                <select name="collection_id" required class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                    <option value="">Select a collection...</option>
-                    @foreach($collections as $collection)
-                        <option value="{{ $collection->id }}" @selected(old('collection_id', $collectionTranslation->collection_id ?? $selectedCollectionId ?? '') === $collection->id)>
-                            {{ $collection->internal_name }}
-                        </option>
-                    @endforeach
-                </select>
+                <x-form.entity-select 
+                    name="collection_id" 
+                    :value="old('collection_id', $collectionTranslation->collection_id ?? $selectedCollectionId ?? null)"
+                    :options="$collections"
+                    displayField="internal_name"
+                    placeholder="Select a collection..."
+                    searchPlaceholder="Type to search collections..."
+                    required
+                    entity="collections"
+                />
             </x-form.field>
 
             <x-form.field label="Language" name="language_id" variant="gray" required>
-                <select name="language_id" required class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                    <option value="">Select a language...</option>
-                    @foreach($languages as $language)
-                        <option value="{{ $language->id }}" @selected(old('language_id', $collectionTranslation->language_id ?? '') === $language->id)>
-                            {{ $language->internal_name }}
-                        </option>
-                    @endforeach
-                </select>
+                <x-form.entity-select 
+                    name="language_id" 
+                    :value="old('language_id', $collectionTranslation->language_id ?? null)"
+                    :options="$languages"
+                    displayField="internal_name"
+                    placeholder="Select a language..."
+                    searchPlaceholder="Type to search languages..."
+                    required
+                    :showId="true"
+                />
             </x-form.field>
 
             <x-form.field label="Context" name="context_id" variant="gray" required>
-                <select name="context_id" required class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                    <option value="">Select a context...</option>
-                    @foreach($contexts as $context)
-                        <option value="{{ $context->id }}" @selected(old('context_id', $collectionTranslation->context_id ?? ($defaultContext->id ?? '')) === $context->id)>
-                            {{ $context->internal_name }}
-                            @if($context->is_default) (default) @endif
-                        </option>
-                    @endforeach
-                </select>
+                <x-form.entity-select 
+                    name="context_id" 
+                    :value="old('context_id', $collectionTranslation->context_id ?? ($defaultContext->id ?? null))"
+                    :options="$contexts"
+                    displayField="internal_name"
+                    placeholder="Select a context..."
+                    searchPlaceholder="Type to search contexts..."
+                    required
+                />
             </x-form.field>
 
             <x-form.field label="Title" name="title" variant="gray" required>

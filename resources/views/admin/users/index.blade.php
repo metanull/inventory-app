@@ -1,20 +1,21 @@
 <x-app-layout>
+    @php($c = $entityColor('users'))
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('User Management') }}
             </h2>
             @can(\App\Enums\Permission::MANAGE_USERS->value)
-                <a href="{{ route('admin.users.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 rounded-md text-sm font-medium text-white {{ $c['button'] }}">
                     {{ __('Create User') }}
                 </a>
             @endcan
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+    <div class="py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow sm:rounded-lg">
                 <div class="p-6">
                     <!-- Generated Password Notification -->
                     @if(session('generated_password'))
@@ -55,10 +56,10 @@
                             <div class="flex-1 min-w-0">
                                 <input type="text" name="search" value="{{ request('search') }}" 
                                     placeholder="Search users..." 
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                    class="w-full rounded-md border-gray-300 shadow-sm {{ $c['focus'] }}">
                             </div>
                             <div>
-                                <select name="role" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <select name="role" class="rounded-md border-gray-300 shadow-sm {{ $c['focus'] }}">
                                     <option value="">All Roles</option>
                                     @foreach($roles as $role)
                                         <option value="{{ $role->name }}" {{ request('role') === $role->name ? 'selected' : '' }}>
@@ -67,11 +68,11 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <button type="submit" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                            <button type="submit" class="inline-flex items-center px-4 py-2 rounded-md text-sm font-medium text-white {{ $c['button'] }}">
                                 {{ __('Filter') }}
                             </button>
                             @if(request('search') || request('role'))
-                                <a href="{{ route('admin.users.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+                                <a href="{{ route('admin.users.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                                     {{ __('Clear') }}
                                 </a>
                             @endif
@@ -156,8 +157,8 @@
                                             {{ $user->created_at->format('M j, Y') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div class="flex justify-end space-x-2">
-                                                <a href="{{ route('admin.users.show', $user) }}" class="text-blue-600 hover:text-blue-900">
+                                            <div class="flex justify-end gap-3">
+                                                <a href="{{ route('admin.users.show', $user) }}" class="{{ $c['text'] }} hover:opacity-80">
                                                     {{ __('View') }}
                                                 </a>
                                                 @can(\App\Enums\Permission::MANAGE_USERS->value)

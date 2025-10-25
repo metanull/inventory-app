@@ -21,19 +21,16 @@
                 @csrf
                 <div class="flex-1">
                     <label for="tag_id" class="block text-sm font-medium text-gray-700 mb-1">Select Tag</label>
-                    <select 
+                    <x-form.entity-select 
                         name="tag_id" 
-                        id="tag_id" 
+                        :value="null"
+                        :options="\App\Models\Tag::orderBy('internal_name')->get()->reject(fn($tag) => $item->tags->contains($tag->id))"
+                        displayField="internal_name"
+                        placeholder="Select a tag..."
+                        searchPlaceholder="Type to search tags..."
                         required
-                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-{{ $tc['base'] }} focus:ring-{{ $tc['base'] }} sm:text-sm"
-                    >
-                        <option value="">-- Select a tag --</option>
-                        @foreach(\App\Models\Tag::orderBy('internal_name')->get() as $tag)
-                            @if(!$item->tags->contains($tag->id))
-                                <option value="{{ $tag->id }}">{{ $tag->internal_name }}</option>
-                            @endif
-                        @endforeach
-                    </select>
+                        entity="tags"
+                    />
                 </div>
                 <div class="flex gap-2">
                     <button 

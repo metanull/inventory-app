@@ -1,12 +1,5 @@
 <div class="space-y-4">
-    <div class="flex items-center gap-3">
-        <div class="relative">
-            <input wire:model.live.debounce.300ms="q" type="text" placeholder="Search tags..." class="w-64 rounded-md border-gray-300 {{ $c['focus'] ?? '' }}" />
-        </div>
-        @if($q)
-            <button wire:click="$set('q','')" type="button" class="text-sm text-gray-600 hover:underline">Clear</button>
-        @endif
-    </div>
+    <x-table.filter-bar wireModel="q" placeholder="Search tags..." />
 
     <div class="bg-white shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
