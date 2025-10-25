@@ -24,6 +24,10 @@ class CreateGlossaryTest extends TestCase
         $response->assertViewIs('glossary.create');
         $response->assertSee('Internal Name');
         $response->assertSee('Legacy ID');
+        // Verify form has the correct action and method
+        $response->assertSee('action="'.route('glossaries.store').'"', false);
+        $response->assertSee('name="internal_name"', false);
+        $response->assertSee('name="backward_compatibility"', false);
     }
 
     public function test_create_requires_authentication(): void

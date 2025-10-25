@@ -21,7 +21,7 @@ class CreateGlossarySpellingTest extends TestCase
         $this->actingAs($user);
 
         $glossary = Glossary::factory()->create();
-        Language::factory()->create();
+        $language = Language::factory()->create(['internal_name' => 'Test Language']);
 
         $response = $this->get(route('glossaries.spellings.create', $glossary));
 
@@ -29,6 +29,12 @@ class CreateGlossarySpellingTest extends TestCase
         $response->assertViewIs('glossary-spelling.create');
         $response->assertSee('Language');
         $response->assertSee('Spelling');
+        // Verify form has the correct action and method
+        $response->assertSee('action="'.route('glossaries.spellings.store', $glossary).'"', false);
+        $response->assertSee('name="language_id"', false);
+        $response->assertSee('name="spelling"', false);
+        // Verify that languages are available in the select dropdown
+        $response->assertSee('Test Language', false);
     }
 
     public function test_create_requires_authentication(): void

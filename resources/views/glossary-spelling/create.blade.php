@@ -6,6 +6,6 @@
     title="Add Spelling" 
     :back-route="route('glossaries.spellings.index', $glossary)"
     :submit-route="route('glossaries.spellings.store', $glossary)">
-    @include('glossary-spelling._form', ['spelling' => null])
+    @include('glossary-spelling._form')
 </x-layout.form-page>
 @endsection
