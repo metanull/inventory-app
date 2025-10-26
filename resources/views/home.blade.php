@@ -212,34 +212,30 @@
         <section class="space-y-4">
             <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Image Management</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <a href="{{ route('available-images.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-pink-500/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-pink-50 text-pink-600 group-hover:opacity-90">
-                                <x-heroicon-o-photo class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Available Images</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-pink-600" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">View processed and validated images ready for use in your collection.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-pink-600 group-hover:underline">View Images &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('available-images.index') }}"
+                    title="Available Images"
+                    description="View processed and validated images ready for use in your collection."
+                    iconColor="pink"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-photo class="w-6 h-6" />
+                    </x-slot:icon>
+                    View Images
+                </x-ui.card>
 
                 @can(\App\Enums\Permission::CREATE_DATA->value)
-                <a href="{{ route('images.upload') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-indigo-500/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:opacity-90">
-                                <x-heroicon-o-cloud-arrow-up class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Upload Images</h3>
-                        </div>
-                        <x-heroicon-o-plus class="w-5 h-5 text-gray-400 group-hover:text-indigo-600" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Upload images for validation and processing into the collection.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:underline">Upload Images &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('images.upload') }}"
+                    title="Upload Images"
+                    description="Upload images for validation and processing into the collection."
+                    iconColor="indigo"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-cloud-arrow-up class="w-6 h-6" />
+                    </x-slot:icon>
+                    Upload Images
+                </x-ui.card>
                 @endcan
             </div>
         </section>
@@ -252,66 +248,58 @@
             <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Administration</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @can(\App\Enums\Permission::MANAGE_USERS->value)
-                <a href="{{ route('admin.users.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-red-500/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-red-50 text-red-600 group-hover:opacity-90">
-                                <x-heroicon-o-users class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">User Management</h3>
-                        </div>
-                        <x-heroicon-o-cog-6-tooth class="w-5 h-5 text-gray-400 group-hover:text-red-600" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Manage user accounts and assign roles.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-red-600 group-hover:underline">Manage &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('admin.users.index') }}"
+                    title="User Management"
+                    description="Manage user accounts and assign roles."
+                    iconColor="red"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-users class="w-6 h-6" />
+                    </x-slot:icon>
+                    Manage
+                </x-ui.card>
                 @endcan
 
                 @can(\App\Enums\Permission::MANAGE_ROLES->value)
-                <a href="{{ route('admin.roles.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-purple-500/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-purple-50 text-purple-600 group-hover:opacity-90">
-                                <x-heroicon-o-shield-check class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Role Management</h3>
-                        </div>
-                        <x-heroicon-o-cog-6-tooth class="w-5 h-5 text-gray-400 group-hover:text-purple-600" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Create and manage roles and permissions.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-purple-600 group-hover:underline">Manage &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('admin.roles.index') }}"
+                    title="Role Management"
+                    description="Create and manage roles and permissions."
+                    iconColor="purple"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-shield-check class="w-6 h-6" />
+                    </x-slot:icon>
+                    Manage
+                </x-ui.card>
                 @endcan
 
                 @can(\App\Enums\Permission::MANAGE_SETTINGS->value)
-                <a href="{{ route('settings.index') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-orange-500/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-orange-50 text-orange-600 group-hover:opacity-90">
-                                <x-heroicon-o-cog-6-tooth class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Settings</h3>
-                        </div>
-                        <x-heroicon-o-cog-6-tooth class="w-5 h-5 text-gray-400 group-hover:text-orange-600" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Configure system-wide settings and preferences.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-orange-600 group-hover:underline">Configure &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('settings.index') }}"
+                    title="Settings"
+                    description="Configure system-wide settings and preferences."
+                    iconColor="orange"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-cog-6-tooth class="w-6 h-6" />
+                    </x-slot:icon>
+                    Configure
+                </x-ui.card>
                 @endcan
 
-                <a href="{{ route('web.profile.show') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col ring-1 ring-transparent hover:ring-blue-500/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-blue-50 text-blue-600 group-hover:opacity-90">
-                                <x-heroicon-o-user-circle class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">My Profile</h3>
-                        </div>
-                        <x-heroicon-o-cog-6-tooth class="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">View your roles, permissions, and account settings.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-blue-600 group-hover:underline">View Profile &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ route('web.profile.show') }}"
+                    title="My Profile"
+                    description="View your roles, permissions, and account settings."
+                    iconColor="blue"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-user-circle class="w-6 h-6" />
+                    </x-slot:icon>
+                    View Profile
+                </x-ui.card>
             </div>
         </section>
         @endif
@@ -322,64 +310,58 @@
             <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Resources &amp; Tools</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @auth
-                    <a href="{{ url('/docs/api') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:opacity-90">
-                                    <x-heroicon-o-book-open class="w-6 h-6" />
-                                </span>
-                                <h3 class="text-lg font-semibold text-gray-900">API Documentation</h3>
-                            </div>
-                            <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-600" />
-                        </div>
-                        <p class="text-sm text-gray-600 flex-1">REST endpoints, schemas and integration notes.</p>
-                        <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:underline">Browse &rarr;</span>
-                    </a>
+                    <x-ui.card 
+                        href="{{ url('/docs/api') }}"
+                        title="API Documentation"
+                        description="REST endpoints, schemas and integration notes."
+                        iconColor="indigo"
+                        padding="p-5">
+                        <x-slot:icon>
+                            <x-heroicon-o-book-open class="w-6 h-6" />
+                        </x-slot:icon>
+                        Browse
+                    </x-ui.card>
                 @endauth
 
                 @if(config('interface.show_spa_link'))
-                <a href="{{ url('/cli') }}" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-purple-50 text-purple-600 group-hover:opacity-90">
-                                <x-heroicon-o-window class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">SPA Client</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-purple-600" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Vue.js client showcasing reactive workflows.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-purple-600 group-hover:underline">Launch &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="{{ url('/cli') }}"
+                    title="SPA Client"
+                    description="Vue.js client showcasing reactive workflows."
+                    iconColor="purple"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-window class="w-6 h-6" />
+                    </x-slot:icon>
+                    Launch
+                </x-ui.card>
                 @endif
 
-                <a href="https://github.com/metanull/inventory-app" target="_blank" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-gray-100 text-gray-800 group-hover:opacity-90">
-                                <x-heroicon-o-code-bracket class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Source Code</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-gray-800" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Explore repository & contributions.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-gray-700 group-hover:underline">Open &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="https://github.com/metanull/inventory-app"
+                    title="Source Code"
+                    description="Explore repository & contributions."
+                    iconColor="gray"
+                    padding="p-5"
+                    target="_blank">
+                    <x-slot:icon>
+                        <x-heroicon-o-code-bracket class="w-6 h-6" />
+                    </x-slot:icon>
+                    Open
+                </x-ui.card>
 
-                <a href="https://metanull.github.io/inventory-app" target="_blank" class="group rounded-xl border border-gray-200 bg-white p-5 hover:shadow transition flex flex-col">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-sky-50 text-sky-600 group-hover:opacity-90">
-                                <x-heroicon-o-document-text class="w-6 h-6" />
-                            </span>
-                            <h3 class="text-lg font-semibold text-gray-900">Project Docs</h3>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-sky-600" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Development guidelines & architecture.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-sky-600 group-hover:underline">Read &rarr;</span>
-                </a>
+                <x-ui.card 
+                    href="https://metanull.github.io/inventory-app"
+                    title="Project Docs"
+                    description="Development guidelines & architecture."
+                    iconColor="sky"
+                    padding="p-5"
+                    target="_blank">
+                    <x-slot:icon>
+                        <x-heroicon-o-document-text class="w-6 h-6" />
+                    </x-slot:icon>
+                    Read
+                </x-ui.card>
             </div>
         </section>
     </div>

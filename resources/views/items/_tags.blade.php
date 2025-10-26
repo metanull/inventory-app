@@ -73,18 +73,16 @@
                                 </a>
                             </div>
                             @can(\App\Enums\Permission::UPDATE_DATA->value)
-                                <form action="{{ route('items.tags.detach', [$item, $tag]) }}" method="POST" class="ml-4">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button 
-                                        type="submit"
-                                        onclick="return confirm('Are you sure you want to remove this tag?')"
-                                        class="text-red-600 hover:text-red-900"
-                                        title="Remove tag"
-                                    >
-                                        <x-heroicon-o-x-mark class="w-5 h-5" />
-                                    </button>
-                                </form>
+                                <x-ui.confirm-button 
+                                    action="{{ route('items.tags.detach', [$item, $tag]) }}"
+                                    method="DELETE"
+                                    variant="danger"
+                                    size="sm"
+                                    icon="x-mark"
+                                    :title="'Remove tag'"
+                                    message="Are you sure you want to remove this tag?">
+                                    <span class="sr-only">Remove</span>
+                                </x-ui.confirm-button>
                             @endcan
                         </div>
                     </li>
