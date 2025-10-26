@@ -55,10 +55,10 @@
             </div>
         </section>
         @else
-        {{-- Primary Domain Group (if authenticated and has data permissions) --}}
+        {{-- Inventory Group (if authenticated and has data permissions) --}}
         @can(\App\Enums\Permission::VIEW_DATA->value)
         <section class="space-y-4">
-            <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Primary Domains</h2>
+            <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Inventory</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <x-ui.card 
                     href="{{ route('items.index') }}"
@@ -109,18 +109,6 @@
                 </x-ui.card>
 
                 <x-ui.card 
-                    href="{{ route('contexts.index') }}"
-                    title="Contexts"
-                    description="Default and alternate content contexts."
-                    entity="contexts"
-                    padding="p-5">
-                    <x-slot:icon>
-                        <x-heroicon-o-adjustments-horizontal class="w-6 h-6" />
-                    </x-slot:icon>
-                    Open
-                </x-ui.card>
-
-                <x-ui.card 
                     href="{{ route('collections.index') }}"
                     title="Collections"
                     description="Group and present curated item sets."
@@ -143,7 +131,15 @@
                     </x-slot:icon>
                     Open
                 </x-ui.card>
+            </div>
+        </section>
+        @endcan
 
+        {{-- Reference Group (if authenticated and has data permissions) --}}
+        @can(\App\Enums\Permission::VIEW_DATA->value)
+        <section class="space-y-4">
+            <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Reference</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <x-ui.card 
                     href="{{ route('countries.index') }}"
                     title="Countries"
@@ -164,6 +160,18 @@
                     padding="p-5">
                     <x-slot:icon>
                         <x-heroicon-o-language class="w-6 h-6" />
+                    </x-slot:icon>
+                    Open
+                </x-ui.card>
+
+                <x-ui.card 
+                    href="{{ route('contexts.index') }}"
+                    title="Contexts"
+                    description="Default and alternate content contexts."
+                    entity="contexts"
+                    padding="p-5">
+                    <x-slot:icon>
+                        <x-heroicon-o-adjustments-horizontal class="w-6 h-6" />
                     </x-slot:icon>
                     Open
                 </x-ui.card>

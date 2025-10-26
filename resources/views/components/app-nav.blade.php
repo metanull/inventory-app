@@ -51,24 +51,28 @@
                     </button>
                     <div x-show="openMenu==='reference'" x-transition x-cloak @click.outside="openMenu=null" class="absolute z-30 mt-2 w-56 rounded-md border border-gray-200 bg-white shadow-lg py-2">
                         @php($cc = $entityColor('countries'))
-                        @php($lc = $entityColor('languages'))
-                        @php($xc = $entityColor('contexts'))
-                        @php($gc = $entityColor('glossaries'))
                         <a href="{{ route('countries.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('countries.*') ? $cc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-globe-europe-africa class="w-4 h-4" /> Countries
                         </a>
+                        @php($lc = $entityColor('languages'))
                         <a href="{{ route('languages.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('languages.*') ? $lc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-language class="w-4 h-4" /> Languages
                         </a>
+                        @php($xc = $entityColor('contexts'))
                         <a href="{{ route('contexts.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('contexts.*') ? $xc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-adjustments-horizontal class="w-4 h-4" /> Contexts
                         </a>
+                        @php($gc = $entityColor('glossaries'))
                         <a href="{{ route('glossaries.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('glossaries.*') || request()->routeIs('glossaries.translations.*') || request()->routeIs('glossaries.spellings.*') ? $gc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-book-open class="w-4 h-4" /> Glossary
                         </a>
-                        @php($tc = $entityColor('tags'))
+                        @php($ac = $entityColor('authors'))
                         <a href="{{ route('tags.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('tags.*') ? $tc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-tag class="w-4 h-4" /> Tags
+                        </a>
+                        @php($tc = $entityColor('tags'))
+                        <a href="{{ route('authors.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('authors.*') ? $ac['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <x-heroicon-o-user-circle class="w-4 h-4" /> Authors
                         </a>
                     </div>
                 </div>
