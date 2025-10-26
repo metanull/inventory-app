@@ -101,7 +101,7 @@ The laravel application exposes several components via distinct classes of route
       - Never extrapolate how the link target will be transformed; always use the exact path as per the rules above.
       - Always use "absolute links", starting with `/` (where / is the root of the documentation and maps to our /docs/ directory). E.g. `[Guidelines](/guidelines)` is an absolute link mapping to our `/docs/guidelines` directory (and more precisely to its index.md file).
       - Create links to non-markdown files (e.g. json, images, etc.) by creating a markdown placeholder file, with `permalink` and `layout: null` frontmatter fields. 
-        - To create publish our /docs/_openapi/api.json file as '/api.json' on the generated website: create a file `docs/api.json.md` with the following content:
+        -By example, to create publish our /docs/_openapi/api.json file as '/api.json' on the generated website: create a file `docs/api.json.md` with the following content:
             ```
             ---
             layout: null
