@@ -1,14 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
+    @php
+        $c = $entityColor('roles');
+        $pageTitle = 'Manage Permissions: ' . $role->name;
+    @endphp
+    
     <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
-        @php($c = $entityColor('roles'))
-        
         <div>
             <a href="{{ route('admin.roles.index') }}" class="text-sm {{ $c['accentLink'] }}">&larr; Back to Roles</a>
         </div>
         
-        <x-entity.header entity="roles" :title="'Manage Permissions: ' . $role->name">
+        <x-entity.header entity="roles" :title="$pageTitle">
             <div class="flex gap-2">
                 <x-ui.button 
                     href="{{ route('admin.roles.show', $role) }}" 
@@ -75,12 +78,12 @@
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Available Permissions</h3>
                     
                     @php
-                        $availablePermissions = $permissions->whereNotIn('id', $role->permissions->pluck('id'));
+                        $available = $permissions->whereNotIn('id', $role->permissions->pluck('id'));
                     @endphp
                     
-                    @if($availablePermissions->count() > 0)
+                    @if($available->count() > 0)
                         <div class="space-y-3">
-                            @foreach($availablePermissions as $permission)
+                            @foreach($available as $permission)
                                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                                     <div>
                                         <h4 class="font-medium text-gray-900">{{ $permission->name }}</h4>

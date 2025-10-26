@@ -105,20 +105,3 @@
         />
     </div>
 @endsection
-
-                    </div>
-@endsection
-
-            </div>
-
-            <!-- System Properties -->
-            <div class="mt-6">
-                <x-system-properties 
-                    :id="$user->id"
-                    :created-at="$user->created_at"
-                    :updated-at="$user->updated_at"
-                />
-            </div>
-        </div>
-    </div>
-</x-app-layout>
