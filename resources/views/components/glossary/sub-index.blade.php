@@ -4,7 +4,7 @@
     'itemType',         // 'translation' or 'spelling'
     'itemDisplayField', // Field to display as primary content
     'createRoute',      // Route to create new item
-    'showRoutePattern', // Route pattern with placeholders for showing individual items
+    'showRouteName',    // Route name for showing individual items (e.g., 'glossaries.translations.show')
     'backRoute',        // Route to go back to glossary
 ])
 
@@ -54,12 +54,8 @@
         @else
             <ul class="divide-y divide-gray-200">
                 @foreach($items as $item)
-                    @php
-                        // Generate the show route for this specific item
-                        $showRoute = str_replace(['{glossary}', '{item}'], [$glossary->id, $item->id], $showRoutePattern);
-                    @endphp
                     <li class="px-6 py-4 hover:bg-gray-50">
-                        <a href="{{ $showRoute }}" class="block">
+                        <a href="{{ route($showRouteName, [$glossary, $item]) }}" class="block">
                             <div class="flex items-start justify-between">
                                 <div class="flex-1">
                                     <p class="text-sm font-medium text-gray-900">{{ $item->language->internal_name }}</p>

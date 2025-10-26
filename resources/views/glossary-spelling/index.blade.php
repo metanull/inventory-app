@@ -4,6 +4,6 @@
     item-type="spelling"
     item-display-field="spelling"
     :create-route="route('glossaries.spellings.create', $glossary)"
-    show-route-pattern="{{ route('glossaries.spellings.show', ['{glossary}', '{item}']) }}"
+    show-route-name="glossaries.spellings.show"
     :back-route="route('glossaries.show', $glossary)"
 />
