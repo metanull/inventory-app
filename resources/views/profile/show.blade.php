@@ -2,11 +2,11 @@
 
 @section('content')
     <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <x-entity.header entity="users" title="Profile">
-            <p class="text-sm text-gray-600">
-                Manage your profile information and security settings.
-            </p>
-        </x-entity.header>
+        <x-entity.header 
+            entity="users" 
+            title="Profile"
+            description="Manage your profile information and security settings."
+        />
 
         <div class="space-y-6">
             @if (Laravel\Fortify\Features::canUpdateProfileInformation())

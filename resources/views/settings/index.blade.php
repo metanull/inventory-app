@@ -3,14 +3,6 @@
 @section('content')
     <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div class="max-w-3xl mx-auto">
-            @php
-                $c = $entityColor('settings');
-                $focusRing = 'focus:ring-' . $c['name'] . '-500';
-                $textColor = 'text-' . $c['name'] . '-600';
-                $checkboxClass = $focusRing . ' h-4 w-4 ' . $textColor . ' border-gray-300 rounded';
-                $textInputClass = $focusRing . ' h-4 w-4 ' . $textColor . ' border-gray-300 rounded block w-full';
-            @endphp
-            
             <x-entity.header entity="settings" title="System Settings">
                 <p class="text-sm text-gray-600">
                     Configure system-wide settings and behavior.
@@ -27,36 +19,38 @@
                         @csrf
                         @method('PUT')
 
-                        <div class="space-y-4">
+                        <div class="space-y-6">
                             @foreach($settings as $setting)
-                                <div class="flex items-start">
-                                    <div class="flex items-center h-5">
-                                        <input 
-                                            id="{{ $setting['key'] }}" 
-                                            name="{{ $setting['key'] }}" 
-                                            type="{{ $setting['type'] === 'boolean' ? 'checkbox' : 'text' }}"
-                                            value="{{ $setting['type'] === 'boolean' ? '1' : $setting['value'] }}"
-                                            {{ $setting['type'] === 'boolean' && $setting['value'] ? 'checked' : '' }}
-                                            class="{{ $setting['type'] === 'boolean' ? $checkboxClass : $textInputClass }}"
-                                        >
-                                    </div>
-                                    <div class="ml-3 text-sm">
-                                        <label for="{{ $setting['key'] }}" class="font-medium text-gray-700">
-                                            {{ $setting['label'] }}
-                                        </label>
-                                        <p class="text-gray-500">{{ $setting['description'] }}</p>
-                                    </div>
-                                </div>
+                                @if($setting['type'] === 'boolean')
+                                    <x-form.checkbox 
+                                        :name="$setting['key']"
+                                        :label="$setting['label']"
+                                        :checked="(bool)$setting['value']"
+                                    >
+                                        {{ $setting['description'] }}
+                                    </x-form.checkbox>
+                                @else
+                                    <x-form.field 
+                                        :label="$setting['label']" 
+                                        :name="$setting['key']"
+                                    >
+                                        <x-form.input 
+                                            :name="$setting['key']"
+                                            :value="$setting['value']"
+                                        />
+                                        <p class="mt-1 text-sm text-gray-500">{{ $setting['description'] }}</p>
+                                    </x-form.field>
+                                @endif
                             @endforeach
                         </div>
 
                         <x-validation-errors class="mt-6" />
 
-                        <div class="mt-6 flex justify-end">
-                            <x-ui.button type="submit" variant="primary" entity="settings">
-                                Save Settings
-                            </x-ui.button>
-                        </div>
+                        <x-form.actions 
+                            :cancel-route="route('dashboard')"
+                            entity="settings"
+                            submit-text="Save Settings"
+                        />
                     </form>
                 </div>
             </div>

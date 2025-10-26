@@ -1,20 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    @php
-        $c = $entityColor('users');
-        
-        // Define checkbox classes for reuse
-        $checkboxFocusRing = 'focus:ring-' . $c['name'] . '-500';
-        $checkboxTextColor = 'text-' . $c['name'] . '-600';
-        $checkboxClass = $checkboxFocusRing . ' h-4 w-4 ' . $checkboxTextColor . ' border-gray-300 rounded';
-        
-        // Define role checkbox classes
-        $roleCheckboxTextColor = 'text-' . $c['name'] . '-600';
-        $roleCheckboxFocusBorder = 'focus:border-' . $c['name'] . '-300';
-        $roleCheckboxFocusRing = 'focus:ring-' . $c['name'] . '-200';
-        $roleCheckboxClass = 'rounded border-gray-300 ' . $roleCheckboxTextColor . ' shadow-sm ' . $roleCheckboxFocusBorder . ' focus:ring ' . $roleCheckboxFocusRing . ' focus:ring-opacity-50';
-    @endphp
+    @php($c = $entityColor('users'))
     
     <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <x-entity.header entity="users" :title="'Edit User: ' . $user->name">
@@ -65,7 +52,7 @@
                                 <div class="flex items-start">
                                     <div class="flex items-center h-5">
                                         <input type="checkbox" name="generate_new_password" value="1" id="generate_new_password"
-                                            class="{{ $checkboxClass }}">
+                                            class="rounded border-gray-300 text-{{ $c['name'] }}-600 focus:ring-{{ $c['name'] }}-500 h-4 w-4">
                                     </div>
                                     <div class="ml-3">
                                         <label for="generate_new_password" class="font-medium text-gray-700">{{ __('Generate New Password') }}</label>
@@ -110,7 +97,7 @@
                                                    name="roles[]" 
                                                    value="{{ $role->id }}"
                                                    {{ in_array($role->id, old('roles', $user->roles->pluck('id')->toArray())) ? 'checked' : '' }}
-                                                   class="{{ $roleCheckboxClass }}">
+                                                   class="rounded border-gray-300 text-{{ $c['name'] }}-600 shadow-sm focus:border-{{ $c['name'] }}-300 focus:ring focus:ring-{{ $c['name'] }}-200 focus:ring-opacity-50">
                                             <span class="ml-2 text-sm text-gray-700">{{ $role->name }}</span>
                                             @if($role->permissions->count() > 0)
                                                 <span class="ml-2 text-xs text-gray-500">

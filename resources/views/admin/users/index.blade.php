@@ -16,7 +16,7 @@
 
         <!-- Generated Password Notification -->
         @if(session('generated_password'))
-            <x-ui.alert type="success" entity="users">
+            <x-ui.alert type="success" entity="users" :dismissible="false">
                 <div class="flex">
                     <div class="ml-3 flex-1">
                         <h3 class="text-sm font-medium text-green-800">

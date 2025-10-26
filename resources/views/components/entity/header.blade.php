@@ -2,6 +2,7 @@
     'entity',
     'title' => null,
     'icon' => null,
+    'description' => null,
 ])
 @php
     $iconMap = [
@@ -26,13 +27,22 @@
     ][$entity] ?? 'text-gray-700';
 @endphp
 <div {{ $attributes->merge(['class' => 'flex items-center justify-between mb-6']) }}>
-    <h1 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">
-        <span class="inline-flex items-center justify-center p-2 rounded-md {{ $colorIconBg }} text-white">
-            <x-dynamic-component :component="$iconComponent" class="w-5 h-5" />
-        </span>
-        <span class="{{ $accentText }}">{{ $title ?? \Illuminate\Support\Str::title($entity) }}</span>
-    </h1>
-    @if(trim($slot))
+    <div class="flex-1">
+        <h1 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">
+            <span class="inline-flex items-center justify-center p-2 rounded-md {{ $colorIconBg }} text-white">
+                <x-dynamic-component :component="$iconComponent" class="w-5 h-5" />
+            </span>
+            <span class="{{ $accentText }}">{{ $title ?? \Illuminate\Support\Str::title($entity) }}</span>
+        </h1>
+        @if($description || trim($slot) && !isset($action))
+            <p class="mt-2 text-sm text-gray-600">
+                {{ $description ?? $slot }}
+            </p>
+        @endif
+    </div>
+    @if(isset($action))
+        <div class="flex gap-2">{{ $action }}</div>
+    @elseif(trim($slot) && !$description)
         <div class="flex gap-2">{{ $slot }}</div>
     @endif
 </div>
