@@ -21,12 +21,12 @@
     </x-form.field>
 
     <x-form.field label="Definition" name="definition" variant="gray" required>
-        <textarea 
+        <x-form.textarea 
             name="definition" 
+            :value="old('definition', ($translation ?? null)?->definition ?? '')"
             rows="6"
-            required 
-            class="block w-full px-3 py-2 rounded-md shadow-sm sm:text-sm border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-        >{{ old('definition', ($translation ?? null)?->definition ?? '') }}</textarea>
+            required
+        />
     </x-form.field>
 </div>
 

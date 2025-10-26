@@ -74,28 +74,14 @@
                     <!-- Users Table -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full table-auto">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {{ __('User') }}
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {{ __('Roles') }}
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {{ __('MFA Status') }}
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {{ __('Email Verified') }}
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {{ __('Created') }}
-                                    </th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {{ __('Actions') }}
-                                    </th>
-                                </tr>
-                            </thead>
+                            <x-table.header>
+                                <x-table.header-cell class="px-6">{{ __('User') }}</x-table.header-cell>
+                                <x-table.header-cell class="px-6">{{ __('Roles') }}</x-table.header-cell>
+                                <x-table.header-cell class="px-6">{{ __('MFA Status') }}</x-table.header-cell>
+                                <x-table.header-cell class="px-6">{{ __('Email Verified') }}</x-table.header-cell>
+                                <x-table.header-cell class="px-6">{{ __('Created') }}</x-table.header-cell>
+                                <x-table.header-cell class="px-6 text-right">{{ __('Actions') }}</x-table.header-cell>
+                            </x-table.header>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($users as $user)
                                     <tr>

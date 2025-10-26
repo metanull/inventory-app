@@ -46,25 +46,13 @@
                     <!-- Roles Table -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {{ __('Name') }}
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {{ __('Description') }}
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {{ __('Permissions') }}
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {{ __('Users') }}
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {{ __('Actions') }}
-                                    </th>
-                                </tr>
-                            </thead>
+                            <x-table.header>
+                                <x-table.header-cell class="px-6">{{ __('Name') }}</x-table.header-cell>
+                                <x-table.header-cell class="px-6">{{ __('Description') }}</x-table.header-cell>
+                                <x-table.header-cell class="px-6">{{ __('Permissions') }}</x-table.header-cell>
+                                <x-table.header-cell class="px-6">{{ __('Users') }}</x-table.header-cell>
+                                <x-table.header-cell class="px-6">{{ __('Actions') }}</x-table.header-cell>
+                            </x-table.header>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($roles as $role)
                                     <tr>

@@ -43,22 +43,15 @@
         <div class="bg-white rounded-lg shadow">
             <div class="p-6 space-y-6">
                 <!-- Comment Field -->
-                <div>
-                    <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">
-                        Comment
-                    </label>
-                    <textarea
-                        id="comment"
+                <x-form.field label="Comment" name="comment">
+                    <x-form.textarea
                         name="comment"
+                        :value="old('comment', $availableImage->comment)"
                         rows="3"
-                        class="w-full rounded-md border-gray-300 shadow-sm {{ $c['focus'] }} @error('comment') border-red-500 @enderror"
                         placeholder="Optional description or comment about this image"
-                    >{{ old('comment', $availableImage->comment) }}</textarea>
-                    @error('comment')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                    />
                     <p class="mt-1 text-sm text-gray-500">Add a description or notes about this image (max 500 characters)</p>
-                </div>
+                </x-form.field>
 
                 <!-- Read-only Information -->
                 <div class="pt-4 border-t border-gray-200">

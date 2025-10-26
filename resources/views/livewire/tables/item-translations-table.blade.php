@@ -25,18 +25,16 @@
 
     <div class="bg-white shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <x-table.sortable-header field="name" label="Name" :sort-by="$sortBy" :sort-direction="$sortDirection" />
-                    <th class="hidden md:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
-                    <th class="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Language</th>
-                    <th class="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Context</th>
-                    <x-table.sortable-header field="created_at" label="Created" :sort-by="$sortBy" :sort-direction="$sortDirection" class="hidden xl:table-cell" />
-                    <th class="hidden sm:table-cell px-4 py-3">
-                        <span class="sr-only">Actions</span>
-                    </th>
-                </tr>
-            </thead>
+            <x-table.header>
+                <x-table.sortable-header field="name" label="Name" :sort-by="$sortBy" :sort-direction="$sortDirection" />
+                <x-table.header-cell hidden="hidden md:table-cell">Item</x-table.header-cell>
+                <x-table.header-cell hidden="hidden lg:table-cell">Language</x-table.header-cell>
+                <x-table.header-cell hidden="hidden lg:table-cell">Context</x-table.header-cell>
+                <x-table.sortable-header field="created_at" label="Created" :sort-by="$sortBy" :sort-direction="$sortDirection" class="hidden xl:table-cell" />
+                <x-table.header-cell hidden="hidden sm:table-cell">
+                    <span class="sr-only">Actions</span>
+                </x-table.header-cell>
+            </x-table.header>
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($itemTranslations as $translation)
                     <tr class="hover:bg-gray-50 cursor-pointer" wire:key="translation-{{ $translation->id }}" onclick="window.location='{{ route('item-translations.show', $translation) }}'">

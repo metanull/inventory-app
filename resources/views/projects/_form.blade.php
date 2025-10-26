@@ -20,31 +20,27 @@
 </x-form.checkbox-group>
 
 <x-form.field label="Context" name="context_id">
-    <x-form.select 
+    <x-form.entity-select 
         name="context_id" 
-        :value="old('context_id', $project->context_id ?? '')"
-        placeholder="Select context..."
-    >
-        @foreach($contexts ?? [] as $context)
-            <option value="{{ $context->id }}" @selected(old('context_id', $project->context_id ?? '') == $context->id)>
-                {{ $context->internal_name }}
-            </option>
-        @endforeach
-    </x-form.select>
+        :value="old('context_id', $project->context_id ?? null)"
+        :options="\App\Models\Context::orderBy('internal_name')->get()"
+        displayField="internal_name"
+        placeholder="Select a context..."
+        searchPlaceholder="Type to search contexts..."
+        entity="projects"
+    />
 </x-form.field>
 
 <x-form.field label="Language" name="language_id" variant="gray">
-    <x-form.select 
+    <x-form.entity-select 
         name="language_id" 
-        :value="old('language_id', $project->language_id ?? '')"
-        placeholder="Select language..."
-    >
-        @foreach($languages ?? [] as $language)
-            <option value="{{ $language->id }}" @selected(old('language_id', $project->language_id ?? '') == $language->id)>
-                {{ $language->internal_name }} ({{ $language->id }})
-            </option>
-        @endforeach
-    </x-form.select>
+        :value="old('language_id', $project->language_id ?? null)"
+        :options="\App\Models\Language::orderBy('internal_name')->get()"
+        displayField="internal_name"
+        placeholder="Select a language..."
+        searchPlaceholder="Type to search languages..."
+        entity="projects"
+    />
 </x-form.field>
 
 <x-form.field label="Legacy ID" name="backward_compatibility">

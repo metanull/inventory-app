@@ -57,11 +57,11 @@
         </x-form.field>
 
         <x-form.field label="Description" name="description" variant="gray">
-            <textarea 
+            <x-form.textarea 
                 name="description" 
+                :value="old('description', $itemTranslation->description ?? '')"
                 rows="4"
-                class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-            >{{ old('description', $itemTranslation->description ?? '') }}</textarea>
+            />
         </x-form.field>
     </x-form.section>
 
@@ -76,30 +76,30 @@
             </x-form.field>
 
             <x-form.field label="Holder" name="holder" variant="gray">
-                <textarea 
+                <x-form.textarea 
                     name="holder" 
+                    :value="old('holder', $itemTranslation->holder ?? '')"
                     rows="2"
-                    class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                     placeholder="Current holder of the item"
-                >{{ old('holder', $itemTranslation->holder ?? '') }}</textarea>
+                />
             </x-form.field>
 
             <x-form.field label="Owner" name="owner" variant="gray">
-                <textarea 
+                <x-form.textarea 
                     name="owner" 
+                    :value="old('owner', $itemTranslation->owner ?? '')"
                     rows="2"
-                    class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                     placeholder="Current owner of the item"
-                >{{ old('owner', $itemTranslation->owner ?? '') }}</textarea>
+                />
             </x-form.field>
 
             <x-form.field label="Initial Owner" name="initial_owner" variant="gray">
-                <textarea 
+                <x-form.textarea 
                     name="initial_owner" 
+                    :value="old('initial_owner', $itemTranslation->initial_owner ?? '')"
                     rows="2"
-                    class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                     placeholder="Original owner of the item"
-                >{{ old('initial_owner', $itemTranslation->initial_owner ?? '') }}</textarea>
+                />
             </x-form.field>
 
             <x-form.field label="Dates" name="dates" variant="gray">
@@ -138,39 +138,39 @@
     {{-- Research Information --}}
     <x-form.section heading="Research Information">
         <x-form.field label="Method for Datation" name="method_for_datation" variant="gray">
-            <textarea 
+            <x-form.textarea 
                 name="method_for_datation" 
+                :value="old('method_for_datation', $itemTranslation->method_for_datation ?? '')"
                 rows="3"
-                class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                 placeholder="Method used to date the item"
-            >{{ old('method_for_datation', $itemTranslation->method_for_datation ?? '') }}</textarea>
+            />
         </x-form.field>
 
         <x-form.field label="Method for Provenance" name="method_for_provenance" variant="gray">
-            <textarea 
+            <x-form.textarea 
                 name="method_for_provenance" 
+                :value="old('method_for_provenance', $itemTranslation->method_for_provenance ?? '')"
                 rows="3"
-                class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                 placeholder="Method used to determine provenance"
-            >{{ old('method_for_provenance', $itemTranslation->method_for_provenance ?? '') }}</textarea>
+            />
         </x-form.field>
 
             <x-form.field label="Obtention" name="obtention" variant="gray">
-                <textarea 
+                <x-form.textarea 
                     name="obtention" 
+                    :value="old('obtention', $itemTranslation->obtention ?? '')"
                     rows="3"
-                    class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                     placeholder="How the item was obtained"
-                >{{ old('obtention', $itemTranslation->obtention ?? '') }}</textarea>
+                />
             </x-form.field>
 
             <x-form.field label="Bibliography" name="bibliography" variant="gray">
-                <textarea 
+                <x-form.textarea 
                     name="bibliography" 
+                    :value="old('bibliography', $itemTranslation->bibliography ?? '')"
                     rows="4"
-                    class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                     placeholder="Bibliographic references"
-                >{{ old('bibliography', $itemTranslation->bibliography ?? '') }}</textarea>
+                />
             </x-form.field>
         </x-form.section>
 
@@ -224,12 +224,12 @@
     {{-- Additional Information --}}
     <x-form.section heading="Additional Information" :border="false">
         <x-form.field label="Remarks" name="extra[remarks]" variant="gray">
-            <textarea 
+            <x-form.textarea 
                 name="extra[remarks]" 
+                :value="old('extra.remarks', $itemTranslation->extra->remarks ?? '')"
                 rows="4"
-                class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                 placeholder="Additional notes or comments..."
-            >{{ old('extra.remarks', $itemTranslation->extra->remarks ?? '') }}</textarea>
+            />
             <p class="mt-1 text-xs text-gray-500">Additional notes or comments for this translation</p>
         </x-form.field>
 

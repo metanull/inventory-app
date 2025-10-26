@@ -3,17 +3,14 @@
 
     <div class="bg-white shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <x-table.sortable-header field="internal_name" label="Internal Name" :sort-by="$sortBy" :sort-direction="$sortDirection" />
-                    <x-table.sortable-header field="is_default" label="Default" :sort-by="$sortBy" :sort-direction="$sortDirection" class="hidden md:table-cell" />
-                    <x-table.sortable-header field="created_at" label="Created" :sort-by="$sortBy" :sort-direction="$sortDirection" class="hidden lg:table-cell" />
-                    </th>
-                    <th class="hidden sm:table-cell px-4 py-3">
-                        <span class="sr-only">Actions</span>
-                    </th>
-                </tr>
-            </thead>
+            <x-table.header>
+                <x-table.sortable-header field="internal_name" label="Internal Name" :sort-by="$sortBy" :sort-direction="$sortDirection" />
+                <x-table.sortable-header field="is_default" label="Default" :sort-by="$sortBy" :sort-direction="$sortDirection" class="hidden md:table-cell" />
+                <x-table.sortable-header field="created_at" label="Created" :sort-by="$sortBy" :sort-direction="$sortDirection" class="hidden lg:table-cell" />
+                <x-table.header-cell hidden="hidden sm:table-cell">
+                    <span class="sr-only">Actions</span>
+                </x-table.header-cell>
+            </x-table.header>
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($contexts as $context)
                     <tr class="hover:bg-gray-50 cursor-pointer" wire:key="context-{{ $context->id }}" onclick="window.location='{{ route('contexts.show', $context) }}'">

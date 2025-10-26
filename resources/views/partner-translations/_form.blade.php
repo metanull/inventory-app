@@ -2,11 +2,8 @@
 
 <div class="p-6 space-y-6">
     {{-- Required Fields --}}
-    <div class="border-b border-gray-200 pb-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
-        
-        <div class="space-y-6">
-            <x-form.field label="Partner" name="partner_id" variant="gray" required>
+    <x-form.section heading="Basic Information">
+        <x-form.field label="Partner" name="partner_id" variant="gray" required>
                 <x-form.entity-select 
                     name="partner_id" 
                     :value="old('partner_id', $partnerTranslation->partner_id ?? $selectedPartnerId ?? null)"
@@ -54,12 +51,12 @@
             </x-form.field>
 
             <x-form.field label="Description" name="description" variant="gray">
-                <textarea 
+                <x-form.textarea 
                     name="description" 
+                    :value="old('description', $partnerTranslation->description ?? '')"
                     rows="4"
-                    class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                     placeholder="Partner description"
-                >{{ old('description', $partnerTranslation->description ?? '') }}</textarea>
+                />
             </x-form.field>
 
             <x-form.field label="City (Display)" name="city_display" variant="gray">
@@ -70,14 +67,11 @@
                 />
             </x-form.field>
         </div>
-    </div>
+    </x-form.section>
 
     {{-- Address Information --}}
-    <div class="border-b border-gray-200 pb-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Address</h3>
-        
-        <div class="space-y-6">
-            <x-form.field label="Address Line 1" name="address_line_1" variant="gray">
+    <x-form.section heading="Address">
+        <x-form.field label="Address Line 1" name="address_line_1" variant="gray">
                 <x-form.input 
                     name="address_line_1" 
                     :value="old('address_line_1', $partnerTranslation->address_line_1 ?? '')" 
@@ -102,22 +96,19 @@
             </x-form.field>
 
             <x-form.field label="Address Notes" name="address_notes" variant="gray">
-                <textarea 
+                <x-form.textarea 
                     name="address_notes" 
+                    :value="old('address_notes', $partnerTranslation->address_notes ?? '')"
                     rows="2"
-                    class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                     placeholder="Additional address information or directions"
-                >{{ old('address_notes', $partnerTranslation->address_notes ?? '') }}</textarea>
+                />
             </x-form.field>
         </div>
-    </div>
+    </x-form.section>
 
     {{-- Contact Information --}}
-    <div class="border-b border-gray-200 pb-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
-        
-        <div class="space-y-6">
-            <x-form.field label="Contact Name" name="contact_name" variant="gray">
+    <x-form.section heading="Contact Information">
+        <x-form.field label="Contact Name" name="contact_name" variant="gray">
                 <x-form.input 
                     name="contact_name" 
                     :value="old('contact_name', $partnerTranslation->contact_name ?? '')" 
@@ -161,22 +152,19 @@
             </x-form.field>
 
             <x-form.field label="Contact Notes" name="contact_notes" variant="gray">
-                <textarea 
+                <x-form.textarea 
                     name="contact_notes" 
+                    :value="old('contact_notes', $partnerTranslation->contact_notes ?? '')"
                     rows="2"
-                    class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                     placeholder="Additional contact information"
-                >{{ old('contact_notes', $partnerTranslation->contact_notes ?? '') }}</textarea>
+                />
             </x-form.field>
         </div>
-    </div>
+    </x-form.section>
 
     {{-- Advanced --}}
-    <div>
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Advanced</h3>
-        
-        <div class="space-y-6">
-            <x-form.field label="Backward Compatibility ID" name="backward_compatibility" variant="gray">
+    <x-form.section heading="Advanced" :border="false">
+        <x-form.field label="Backward Compatibility ID" name="backward_compatibility" variant="gray">
                 <x-form.input 
                     name="backward_compatibility" 
                     :value="old('backward_compatibility', $partnerTranslation->backward_compatibility ?? '')" 
@@ -184,7 +172,7 @@
                 />
             </x-form.field>
         </div>
-    </div>
+    </x-form.section>
 </div>
 
 <x-form.actions 

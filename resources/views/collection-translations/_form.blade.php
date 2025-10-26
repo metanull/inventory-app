@@ -2,11 +2,8 @@
 
 <div class="p-6 space-y-6">
     {{-- Required Fields --}}
-    <div class="border-b border-gray-200 pb-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
-        
-        <div class="space-y-6">
-            <x-form.field label="Collection" name="collection_id" variant="gray" required>
+    <x-form.section heading="Basic Information">
+        <x-form.field label="Collection" name="collection_id" variant="gray" required>
                 <x-form.entity-select 
                     name="collection_id" 
                     :value="old('collection_id', $collectionTranslation->collection_id ?? $selectedCollectionId ?? null)"
@@ -54,12 +51,12 @@
             </x-form.field>
 
             <x-form.field label="Description" name="description" variant="gray">
-                <textarea 
+                <x-form.textarea 
                     name="description" 
+                    :value="old('description', $collectionTranslation->description ?? '')"
                     rows="4"
-                    class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                     placeholder="Description of the collection in this language"
-                >{{ old('description', $collectionTranslation->description ?? '') }}</textarea>
+                />
             </x-form.field>
 
             <x-form.field label="URL" name="url" variant="gray">
@@ -71,20 +68,17 @@
                 />
             </x-form.field>
         </div>
-    </div>
+    </x-form.section>
 
     {{-- Additional Information --}}
-    <div>
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Additional Information</h3>
-        
-        <div class="space-y-6">
-            <x-form.field label="Remarks" name="extra[remarks]" variant="gray">
-                <textarea 
+    <x-form.section heading="Additional Information" :border="false">
+        <x-form.field label="Remarks" name="extra[remarks]" variant="gray">
+                <x-form.textarea 
                     name="extra[remarks]" 
+                    :value="old('extra.remarks', $collectionTranslation->extra->remarks ?? '')"
                     rows="4"
-                    class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                     placeholder="Additional notes or comments..."
-                >{{ old('extra.remarks', $collectionTranslation->extra->remarks ?? '') }}</textarea>
+                />
                 <p class="mt-1 text-xs text-gray-500">Additional notes or comments for this translation</p>
             </x-form.field>
 
@@ -96,7 +90,7 @@
                 />
             </x-form.field>
         </div>
-    </div>
+    </x-form.section>
 </div>
 
 <x-form.actions 

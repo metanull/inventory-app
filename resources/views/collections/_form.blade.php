@@ -10,16 +10,21 @@
 </x-form.field>
 
 <x-form.field label="Type" name="type" required>
-    <x-form.select 
+    <x-form.entity-select 
         name="type" 
         :value="old('type', $collection->type ?? '')"
+        :options="collect([
+            (object)['id' => 'collection', 'name' => 'Collection'],
+            (object)['id' => 'exhibition', 'name' => 'Exhibition'],
+            (object)['id' => 'gallery', 'name' => 'Gallery']
+        ])"
+        displayField="name"
+        valueField="id"
         placeholder="Select type..."
+        searchPlaceholder="Type to search..."
+        entity="collections"
         required
-    >
-        <option value="collection" @selected(old('type', $collection->type ?? '') === 'collection')>Collection</option>
-        <option value="exhibition" @selected(old('type', $collection->type ?? '') === 'exhibition')>Exhibition</option>
-        <option value="gallery" @selected(old('type', $collection->type ?? '') === 'gallery')>Gallery</option>
-    </x-form.select>
+    />
 </x-form.field>
 
 <x-form.field label="Language" name="language_id" variant="gray" required>

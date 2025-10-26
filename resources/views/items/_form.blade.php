@@ -10,15 +10,20 @@
 </x-form.field>
 
 <x-form.field label="Type" name="type" required>
-    <x-form.select 
+    <x-form.entity-select 
         name="type" 
         :value="old('type', $item->type ?? '')"
+        :options="collect([
+            (object)['id' => 'object', 'name' => 'Object'],
+            (object)['id' => 'monument', 'name' => 'Monument']
+        ])"
+        displayField="name"
+        valueField="id"
         placeholder="Select type..."
+        searchPlaceholder="Type to search..."
+        entity="items"
         required
-    >
-        <option value="object" @selected(old('type', $item->type ?? '') === 'object')>Object</option>
-        <option value="monument" @selected(old('type', $item->type ?? '') === 'monument')>Monument</option>
-    </x-form.select>
+    />
 </x-form.field>
 
 <x-form.field label="Country" name="country_id" variant="gray">
