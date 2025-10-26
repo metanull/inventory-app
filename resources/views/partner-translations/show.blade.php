@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
+    @php
+        $c = $entityColor('partner_translations');
+    @endphp
+    
     <x-layout.show-page 
         entity="partner_translations"
         :title="$partnerTranslation->name"
