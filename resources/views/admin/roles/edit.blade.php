@@ -1,9 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
+    @php
+        $c = $entityColor('roles');
+        $selectedPermissions = $role->permissions->pluck('id')->toArray();
+    @endphp
+    
     <div class="max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
-        @php($c = $entityColor('roles'))
-        
         <div>
             <a href="{{ route('admin.roles.index') }}" class="text-sm {{ $c['accentLink'] }}">&larr; Back to Roles</a>
         </div>
@@ -45,9 +48,6 @@
                             <h3 class="text-lg font-medium text-gray-900 mb-4">Assign Permissions</h3>
                             
                             @if($permissions->count() > 0)
-                                @php
-                                    $selectedPermissions = $role->permissions->pluck('id')->toArray();
-                                @endphp
                                 <x-form.checkbox-list 
                                     :items="$permissions"
                                     name="permissions[]"
