@@ -176,7 +176,7 @@ class UserManagementTest extends TestCase
             'name' => 'Alice SearchTest Smith',
             'email' => 'alice.searchtest@example.com',
         ]);
-        
+
         $bobUser = User::factory()->create([
             'name' => 'Bob SearchTest Jones',
             'email' => 'bob.searchtest@example.com',
@@ -187,19 +187,19 @@ class UserManagementTest extends TestCase
             ->get(route('admin.users.index', ['search' => 'Alice SearchTest']));
 
         $response->assertStatus(200);
-        
+
         // Assert Alice is in the results
         $response->assertSee('Alice SearchTest Smith');
         $response->assertSee('alice.searchtest@example.com');
-        
+
         // Assert Bob is NOT in the results by checking both name and email
         $response->assertDontSee('Bob SearchTest Jones');
         $response->assertDontSee('bob.searchtest@example.com');
-        
+
         // Verify the search also works by email
         $response = $this->actingAs($manager)
             ->get(route('admin.users.index', ['search' => 'bob.searchtest']));
-            
+
         $response->assertStatus(200);
         $response->assertSee('Bob SearchTest Jones');
         $response->assertDontSee('Alice SearchTest Smith');
