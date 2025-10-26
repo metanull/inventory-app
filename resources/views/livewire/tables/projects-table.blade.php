@@ -21,10 +21,14 @@
                         <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $project->internal_name }}</td>
                         <td class="hidden md:table-cell px-4 py-3 text-sm text-gray-500">{{ optional($project->launch_date)->format('Y-m-d') ?? '—' }}</td>
                         <td class="hidden sm:table-cell px-4 py-3 text-sm">
-                            <span class="inline-flex px-2 py-0.5 rounded text-xs {{ $project->is_launched ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600' }}">{{ $project->is_launched ? 'Yes' : 'No' }}</span>
+                            <x-ui.badge :color="$project->is_launched ? 'green' : 'gray'" variant="pill">
+                                {{ $project->is_launched ? 'Yes' : 'No' }}
+                            </x-ui.badge>
                         </td>
                         <td class="hidden sm:table-cell px-4 py-3 text-sm">
-                            <span class="inline-flex px-2 py-0.5 rounded text-xs {{ $project->is_enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600' }}">{{ $project->is_enabled ? 'Yes' : 'No' }}</span>
+                            <x-ui.badge :color="$project->is_enabled ? 'green' : 'gray'" variant="pill">
+                                {{ $project->is_enabled ? 'Yes' : 'No' }}
+                            </x-ui.badge>
                         </td>
                         <td class="hidden lg:table-cell px-4 py-3 text-xs text-gray-400">{{ optional($project->created_at)->format('Y-m-d H:i') }}</td>
                         <td class="hidden sm:table-cell px-4 py-3 text-right text-sm" onclick="event.stopPropagation()">

@@ -51,7 +51,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4">
                 @foreach($availableImages as $image)
                     <a href="{{ route('available-images.show', $image) }}" 
-                       class="group relative bg-white rounded-lg border-2 border-pink-200 hover:shadow-lg transition-shadow cursor-pointer">
+                       class="group relative bg-white rounded-lg border-2 {{ $c['border'] ?? 'border-pink-200' }} hover:shadow-lg transition-shadow cursor-pointer">
                         <!-- Image -->
                         <div class="aspect-square rounded-t-lg overflow-hidden bg-gray-100">
                             <img 

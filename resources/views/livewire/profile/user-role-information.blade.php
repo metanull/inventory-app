@@ -22,9 +22,9 @@
                                         <div class="text-sm text-gray-600">{{ $role->description }}</div>
                                     @endif
                                 </div>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <x-ui.badge color="green" variant="pill">
                                     {{ __('Active') }}
-                                </span>
+                                </x-ui.badge>
                             </div>
                         @endforeach
                     </div>

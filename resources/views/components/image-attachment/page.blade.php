@@ -9,16 +9,16 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div class="min-h-screen bg-gray-50 py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header -->
             <div class="mb-8">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                        <h1 class="text-3xl font-bold text-gray-900">
                             Attach Image to {{ $entity->internal_name }}
                         </h1>
-                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        <p class="mt-2 text-sm text-gray-600">
                             Select an available image to attach to this {{ $entityName }}
                         </p>
                     </div>
@@ -59,7 +59,7 @@
                                                class="peer sr-only" 
                                                {{ old('available_image_id') == $availableImage->id ? 'checked' : '' }}>
                                         
-                                        <div class="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden border-2 border-transparent peer-checked:border-blue-500 transition-all">
+                                        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-transparent peer-checked:border-blue-500 transition-all">
                                             <img src="{{ route('available-images.view', $availableImage) }}" 
                                                  alt="{{ $availableImage->comment ?? 'Available image' }}"
                                                  class="w-full h-full object-cover">

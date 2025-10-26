@@ -19,7 +19,9 @@
                     <tr class="hover:bg-gray-50 cursor-pointer" wire:key="context-{{ $context->id }}" onclick="window.location='{{ route('contexts.show', $context) }}'">
                         <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $context->internal_name }}</td>
                         <td class="hidden md:table-cell px-4 py-3 text-sm">
-                            <span class="inline-flex px-2 py-0.5 rounded text-xs {{ $context->is_default ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600' }}">{{ $context->is_default ? 'Yes' : 'No' }}</span>
+                            <x-ui.badge :color="$context->is_default ? 'green' : 'gray'" variant="pill">
+                                {{ $context->is_default ? 'Yes' : 'No' }}
+                            </x-ui.badge>
                         </td>
                         <td class="hidden lg:table-cell px-4 py-3 text-xs text-gray-400">{{ optional($context->created_at)->format('Y-m-d H:i') }}</td>
                         <td class="hidden sm:table-cell px-4 py-3 text-right text-sm" onclick="event.stopPropagation()">

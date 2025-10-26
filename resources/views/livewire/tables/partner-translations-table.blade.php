@@ -55,7 +55,7 @@
                         <td class="hidden lg:table-cell px-4 py-3 text-sm text-gray-700">
                             {{ $translation->context?->internal_name ?? 'N/A' }}
                             @if($translation->context?->is_default)
-                                <span class="ml-1 inline-flex px-1.5 py-0.5 rounded text-xs bg-emerald-100 text-emerald-700">default</span>
+                                <x-ui.badge color="green" variant="pill" size="sm">default</x-ui.badge>
                             @endif
                         </td>
                         <td class="hidden xl:table-cell px-4 py-3 text-xs text-gray-400">{{ optional($translation->created_at)->format('Y-m-d H:i') }}</td>

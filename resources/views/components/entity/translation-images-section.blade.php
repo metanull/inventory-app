@@ -98,16 +98,15 @@
                                 </form>
 
                                 <!-- Detach -->
-                                <form method="POST" action="{{ route($routePrefix . '.detach', [$model, $image]) }}" class="inline" onsubmit="return confirm('Detach this image and return it to available images?');">
-                                    @csrf
-                                    <x-ui.button 
-                                        type="submit"
-                                        variant="warning"
-                                        size="sm"
-                                        icon="arrows-up-down">
-                                        Detach
-                                    </x-ui.button>
-                                </form>
+                                <x-ui.confirm-button 
+                                    :action="route($routePrefix . '.detach', [$model, $image])"
+                                    confirmMessage="Detach this image and return it to available images?"
+                                    variant="warning"
+                                    size="sm"
+                                    icon="arrows-up-down"
+                                    entity="{{ $entity }}">
+                                    Detach
+                                </x-ui.confirm-button>
                             </div>
                         </div>
                     </div>

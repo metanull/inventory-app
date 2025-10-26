@@ -25,9 +25,9 @@
                         <td class="hidden md:table-cell px-4 py-3 text-sm text-gray-500">
                             <div class="flex flex-wrap gap-1">
                                 @forelse($glossary->translations as $translation)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                    <x-ui.badge color="blue" variant="pill">
                                         {{ $translation->language_id }}
-                                    </span>
+                                    </x-ui.badge>
                                 @empty
                                     <span class="text-gray-400 text-xs">—</span>
                                 @endforelse
@@ -39,9 +39,9 @@
                                     $spellingsByLanguage = $glossary->spellings->groupBy('language_id');
                                 @endphp
                                 @forelse($spellingsByLanguage as $languageId => $spellings)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                    <x-ui.badge color="green" variant="pill">
                                         {{ $languageId }} ({{ $spellings->count() }})
-                                    </span>
+                                    </x-ui.badge>
                                 @empty
                                     <span class="text-gray-400 text-xs">—</span>
                                 @endforelse

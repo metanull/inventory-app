@@ -41,7 +41,7 @@
             <x-display.field label="Phone" :value="$partnerTranslation->contact_phone" />
             <x-display.field label="Website">
                 @if($partnerTranslation->contact_website)
-                    <a href="{{ $partnerTranslation->contact_website }}" target="_blank" class="text-indigo-600 hover:text-indigo-900">
+                    <a href="{{ $partnerTranslation->contact_website }}" target="_blank" class="{{ $c['accentLink'] }}">
                         {{ $partnerTranslation->contact_website }}
                     </a>
                 @endif
