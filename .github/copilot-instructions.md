@@ -77,6 +77,9 @@ The laravel application exposes several components via distinct classes of route
   - Controllers must use dedicated Request and Resource classes for input validation and output formatting.
   - Never alter existing migrations; create new migrations for schema changes.
   - UUID primary keys are used for all models (with the only exception of Language and Country that are using 3 character long iso codes).
+  - **CRITICAL**: Do not use shorthand notation (e.g. for components use <x-slot name="action"> instead of <x-slot:action>)
+  - **CRITICAL**: in blade components use variables like "$routePrefix" instead of string interpolation like "{$entity}.images.create". To avoid issue when nesting.
+  - Code must respect the DRY principle.
 - Conventions for the Sample SPA application:
   - Use Pinia for state management
   - Use Vue 3 Composition API with TypeScript for all components.

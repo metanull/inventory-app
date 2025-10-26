@@ -1,14 +1,14 @@
-@props([
-    'entity',           // e.g., 'items', 'partners', 'collections'
-    'model',            // The model instance ($item, $partner, $collection)
-    'relationship' => null, // Optional override for relationship method name
-])
+@props(['model', 'entity'])
 
 @php
+    // Convert entity to singular camelCase for relationship name
+    // e.g., 'partner-translations' -> 'partnerTranslation' -> 'partnerTranslationImages'
     $entitySingular = \Illuminate\Support\Str::singular($entity);
-    $relationship = $relationship ?? $entitySingular . 'Images';
+    $imagesRelation = \Illuminate\Support\Str::camel($entitySingular) . 'Images';
+    $images = $model->$imagesRelation()->orderBy('display_order')->get();
+    // Route prefix uses entity (plural) + entitySingular-images
+    // e.g., 'partner-translations' + 'partner-translation-images' = 'partner-translations.partner-translation-images'
     $routePrefix = $entity . '.' . $entitySingular . '-images';
-    $images = $model->{$relationship}()->orderBy('display_order')->get();
 @endphp
 
 <div class="mt-8">
@@ -27,7 +27,7 @@
             <x-ui.empty-state 
                 icon="photo"
                 title="No images"
-                message="Get started by attaching an image to this {{ $entitySingular }}.">
+                message="Get started by attaching an image to this translation.">
                 <x-ui.button 
                     href="{{ route($routePrefix . '.create', $model) }}" 
                     variant="primary" 
@@ -42,7 +42,7 @@
                         <!-- Image -->
                         <div class="aspect-square bg-gray-200">
                             <img src="{{ route($routePrefix . '.view', [$model, $image]) }}" 
-                                 alt="{{ $image->alt_text ?? ucfirst($entitySingular) . ' image' }}"
+                                 alt="{{ $image->alt_text ?? 'Translation image' }}"
                                  class="w-full h-full object-cover">
                         </div>
 

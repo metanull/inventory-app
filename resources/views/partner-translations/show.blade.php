@@ -77,7 +77,7 @@
         </x-display.description-list>
 
         {{-- Images Section --}}
-        @include('partner-translations._images')
+        <x-entity.translation-images-section :model="$partnerTranslation" entity="partner-translations" />
 
         <!-- System Properties -->
         <x-system-properties 

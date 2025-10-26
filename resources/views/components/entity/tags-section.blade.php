@@ -1,8 +1,10 @@
+@props(['model'])
+
 @php($tc = $entityColor('tags'))
 <div class="mt-8">
     <x-layout.section title="Tags" icon="tag">
         @can(\App\Enums\Permission::UPDATE_DATA->value)
-            <x-slot:action>
+            <x-slot name="action">
                 <x-ui.button 
                     type="button"
                     onclick="document.getElementById('add-tag-form').classList.toggle('hidden')"
@@ -11,20 +13,20 @@
                     icon="plus">
                     Add Tag
                 </x-ui.button>
-            </x-slot:action>
+            </x-slot>
         @endcan
 
         <!-- Add Tag Form (Hidden by default) -->
         @can(\App\Enums\Permission::UPDATE_DATA->value)
             <div id="add-tag-form" class="hidden mb-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <form action="{{ route('items.tags.attach', $item) }}" method="POST" class="flex items-end gap-3">
+                <form action="{{ route('items.tags.attach', $model) }}" method="POST" class="flex items-end gap-3">
                     @csrf
                     <div class="flex-1">
                         <label for="tag_id" class="block text-sm font-medium text-gray-700 mb-1">Select Tag</label>
                         <x-form.entity-select 
                             name="tag_id" 
                             :value="null"
-                            :options="\App\Models\Tag::orderBy('internal_name')->get()->reject(fn($tag) => $item->tags->contains($tag->id))"
+                            :options="\App\Models\Tag::orderBy('internal_name')->get()->reject(fn($tag) => $model->tags->contains($tag->id))"
                             displayField="internal_name"
                             placeholder="Select a tag..."
                             searchPlaceholder="Type to search tags..."
@@ -51,12 +53,12 @@
         @endcan
 
         <!-- Tags List -->
-        @if($item->tags->isEmpty())
+        @if($model->tags->isEmpty())
             <p class="text-sm text-gray-500 italic">No tags assigned</p>
         @else
         <div class="bg-white shadow overflow-hidden sm:rounded-md">
             <ul class="divide-y divide-gray-200">
-                @foreach($item->tags as $tag)
+                @foreach($model->tags as $tag)
                     <li class="px-6 py-4">
                         <div class="flex items-center justify-between">
                             <div class="flex-1">
@@ -74,7 +76,7 @@
                             </div>
                             @can(\App\Enums\Permission::UPDATE_DATA->value)
                                 <x-ui.confirm-button 
-                                    action="{{ route('items.tags.detach', [$item, $tag]) }}"
+                                    action="{{ route('items.tags.detach', [$model, $tag]) }}"
                                     method="DELETE"
                                     variant="danger"
                                     size="sm"

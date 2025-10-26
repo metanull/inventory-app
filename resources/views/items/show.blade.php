@@ -29,13 +29,13 @@
         </x-display.description-list>
 
         <!-- Images Section -->
-        @include('items._images')
+        <x-entity.images-section entity="items" :model="$item" />
 
         <!-- Translations Section -->
-        @include('items._translations')
+        <x-entity.translations-section entity="items" :model="$item" translationRoute="item-translations" />
 
         <!-- Tags Section -->
-        @include('items._tags')
+        <x-entity.tags-section :model="$item" />
 
         <!-- System Properties -->
         <x-system-properties 

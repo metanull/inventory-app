@@ -66,11 +66,11 @@
                         <a href="{{ route('glossaries.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('glossaries.*') || request()->routeIs('glossaries.translations.*') || request()->routeIs('glossaries.spellings.*') ? $gc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-book-open class="w-4 h-4" /> Glossary
                         </a>
-                        @php($ac = $entityColor('authors'))
+                        @php($tc = $entityColor('tags'))
                         <a href="{{ route('tags.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('tags.*') ? $tc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-tag class="w-4 h-4" /> Tags
                         </a>
-                        @php($tc = $entityColor('tags'))
+                        @php($ac = $entityColor('authors'))
                         <a href="{{ route('authors.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('authors.*') ? $ac['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-user-circle class="w-4 h-4" /> Authors
                         </a>

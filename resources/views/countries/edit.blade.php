@@ -1,13 +1,4 @@
-@extends('layouts.app')
+<x-layout.edit-page entity="countries" :model="$country">
+    @include('countries._form')
+</x-layout.edit-page>
 
-@section('content')
-    <x-layout.form-page 
-        entity="countries"
-        title="Edit Country"
-        :back-route="route('countries.show', $country)"
-        :submit-route="route('countries.update', $country)"
-        method="PUT"
-    >
-        @include('countries._form', ['country' => $country])
-    </x-layout.form-page>
-@endsection

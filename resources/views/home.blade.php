@@ -60,77 +60,29 @@
         <section class="space-y-4">
             <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Inventory</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <x-ui.card 
-                    href="{{ route('items.index') }}"
-                    title="Items"
-                    description="Create, browse and maintain collection item records."
-                    entity="items"
-                    padding="p-5">
-                    <x-slot:icon>
-                        <x-heroicon-o-archive-box class="w-6 h-6" />
-                    </x-slot:icon>
-                    Open
-                </x-ui.card>
-
-                <x-ui.card 
-                    href="{{ route('item-translations.index') }}"
-                    title="Item Translations"
-                    description="Manage translations for items across different languages and contexts."
-                    entity="item_translations"
-                    padding="p-5">
-                    <x-slot:icon>
-                        <x-heroicon-o-language class="w-6 h-6" />
-                    </x-slot:icon>
-                    Open
-                </x-ui.card>
-
-                <x-ui.card 
-                    href="{{ route('partners.index') }}"
-                    title="Partners"
-                    description="Manage institutions, collaborators and contributors."
-                    entity="partners"
-                    padding="p-5">
-                    <x-slot:icon>
-                        <x-heroicon-o-user-group class="w-6 h-6" />
-                    </x-slot:icon>
-                    Open
-                </x-ui.card>
-
-                <x-ui.card 
-                    href="{{ route('projects.index') }}"
-                    title="Projects"
-                    description="Feature flags and visibility of app domains."
-                    entity="projects"
-                    padding="p-5">
-                    <x-slot:icon>
-                        <x-heroicon-o-rocket-launch class="w-6 h-6" />
-                    </x-slot:icon>
-                    Open
-                </x-ui.card>
-
-                <x-ui.card 
-                    href="{{ route('collections.index') }}"
-                    title="Collections"
-                    description="Group and present curated item sets."
-                    entity="collections"
-                    padding="p-5">
-                    <x-slot:icon>
-                        <x-heroicon-o-rectangle-stack class="w-6 h-6" />
-                    </x-slot:icon>
-                    Open
-                </x-ui.card>
-
-                <x-ui.card 
-                    href="{{ route('collection-translations.index') }}"
-                    title="Collection Translations"
-                    description="Manage translations for collections across different languages and contexts."
-                    entity="collection_translations"
-                    padding="p-5">
-                    <x-slot:icon>
-                        <x-heroicon-o-language class="w-6 h-6" />
-                    </x-slot:icon>
-                    Open
-                </x-ui.card>
+                @php
+                    $inventoryCards = [
+                        ['route' => 'items.index', 'title' => 'Items', 'description' => 'Create, browse and maintain collection item records.', 'entity' => 'items', 'icon' => 'archive-box'],
+                        ['route' => 'item-translations.index', 'title' => 'Item Translations', 'description' => 'Manage translations for items across different languages and contexts.', 'entity' => 'item_translations', 'icon' => 'language'],
+                        ['route' => 'partners.index', 'title' => 'Partners', 'description' => 'Manage institutions, collaborators and contributors.', 'entity' => 'partners', 'icon' => 'user-group'],
+                        ['route' => 'projects.index', 'title' => 'Projects', 'description' => 'Feature flags and visibility of app domains.', 'entity' => 'projects', 'icon' => 'rocket-launch'],
+                        ['route' => 'collections.index', 'title' => 'Collections', 'description' => 'Group and present curated item sets.', 'entity' => 'collections', 'icon' => 'rectangle-stack'],
+                        ['route' => 'collection-translations.index', 'title' => 'Collection Translations', 'description' => 'Manage translations for collections across different languages and contexts.', 'entity' => 'collection_translations', 'icon' => 'language'],
+                    ];
+                @endphp
+                @foreach($inventoryCards as $card)
+                    <x-ui.card 
+                        href="{{ route($card['route']) }}"
+                        :title="$card['title']"
+                        :description="$card['description']"
+                        :entity="$card['entity']"
+                        padding="p-5">
+                        <x-slot:icon>
+                            <x-dynamic-component :component="'heroicon-o-' . $card['icon']" class="w-6 h-6" />
+                        </x-slot:icon>
+                        Open
+                    </x-ui.card>
+                @endforeach
             </div>
         </section>
         @endcan
@@ -140,77 +92,29 @@
         <section class="space-y-4">
             <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Reference</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <x-ui.card 
-                    href="{{ route('countries.index') }}"
-                    title="Countries"
-                    description="Manage ISO country codes and legacy mappings."
-                    entity="countries"
-                    padding="p-5">
-                    <x-slot:icon>
-                        <x-heroicon-o-globe-europe-africa class="w-6 h-6" />
-                    </x-slot:icon>
-                    Open
-                </x-ui.card>
-
-                <x-ui.card 
-                    href="{{ route('languages.index') }}"
-                    title="Languages"
-                    description="Maintain supported languages and default flag."
-                    entity="languages"
-                    padding="p-5">
-                    <x-slot:icon>
-                        <x-heroicon-o-language class="w-6 h-6" />
-                    </x-slot:icon>
-                    Open
-                </x-ui.card>
-
-                <x-ui.card 
-                    href="{{ route('contexts.index') }}"
-                    title="Contexts"
-                    description="Default and alternate content contexts."
-                    entity="contexts"
-                    padding="p-5">
-                    <x-slot:icon>
-                        <x-heroicon-o-adjustments-horizontal class="w-6 h-6" />
-                    </x-slot:icon>
-                    Open
-                </x-ui.card>
-
-                <x-ui.card 
-                    href="{{ route('glossaries.index') }}"
-                    title="Glossary"
-                    description="Specialized terms, definitions, and spelling variations."
-                    entity="glossaries"
-                    padding="p-5">
-                    <x-slot:icon>
-                        <x-heroicon-o-book-open class="w-6 h-6" />
-                    </x-slot:icon>
-                    Open
-                </x-ui.card>
-
-                <x-ui.card 
-                    href="{{ route('tags.index') }}"
-                    title="Tags"
-                    description="Classify and categorize items with flexible tags."
-                    entity="tags"
-                    padding="p-5">
-                    <x-slot:icon>
-                        <x-heroicon-o-tag class="w-6 h-6" />
-                    </x-slot:icon>
-                    Open
-                </x-ui.card>
-
-                <x-ui.card 
-                    href="{{ route('authors.index') }}"
-                    title="Authors"
-                    description="Manage content authors and contributors."
-                    entity="authors"
-                    padding="p-5">
-                    <x-slot:icon>
-                        <x-heroicon-o-user-circle class="w-6 h-6" />
-                    </x-slot:icon>
-                    Open
-                </x-ui.card>
+                @php
+                    $referenceCards = [
+                        ['route' => 'countries.index', 'title' => 'Countries', 'description' => 'Manage ISO country codes and legacy mappings.', 'entity' => 'countries', 'icon' => 'globe-europe-africa'],
+                        ['route' => 'languages.index', 'title' => 'Languages', 'description' => 'Maintain supported languages and default flag.', 'entity' => 'languages', 'icon' => 'language'],
+                        ['route' => 'contexts.index', 'title' => 'Contexts', 'description' => 'Default and alternate content contexts.', 'entity' => 'contexts', 'icon' => 'adjustments-horizontal'],
+                        ['route' => 'glossaries.index', 'title' => 'Glossary', 'description' => 'Specialized terms, definitions, and spelling variations.', 'entity' => 'glossaries', 'icon' => 'book-open'],
+                        ['route' => 'tags.index', 'title' => 'Tags', 'description' => 'Classify and categorize items with flexible tags.', 'entity' => 'tags', 'icon' => 'tag'],
+                        ['route' => 'authors.index', 'title' => 'Authors', 'description' => 'Manage content authors and contributors.', 'entity' => 'authors', 'icon' => 'user-circle'],
+                    ];
+                @endphp
+                @foreach($referenceCards as $card)
+                    <x-ui.card 
+                        href="{{ route($card['route']) }}"
+                        :title="$card['title']"
+                        :description="$card['description']"
+                        :entity="$card['entity']"
+                        padding="p-5">
+                        <x-slot:icon>
+                            <x-dynamic-component :component="'heroicon-o-' . $card['icon']" class="w-6 h-6" />
+                        </x-slot:icon>
+                        Open
+                    </x-ui.card>
+                @endforeach
             </div>
         </section>
         @endcan

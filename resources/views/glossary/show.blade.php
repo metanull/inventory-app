@@ -19,31 +19,21 @@
         </x-display.description-list>
 
         <!-- Translations Section -->
-        @include('glossary._translations')
+        <x-entity.translations-section 
+            entity="glossary" 
+            :model="$glossary" 
+            translationRoute="glossaries.translations" 
+            :groupByContext="false"
+            primaryField="definition"
+            :secondaryField="null"
+            :descriptionField="null"
+        />
 
         <!-- Spellings Section -->
-        @include('glossary._spellings')
+        <x-entity.spellings-section :model="$glossary" />
 
         <!-- Synonyms Section -->
-        @if($glossary->synonyms->isNotEmpty())
-            <div class="mt-8">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Synonyms</h3>
-                <div class="bg-white shadow overflow-hidden sm:rounded-md">
-                    <ul class="divide-y divide-gray-200">
-                        @foreach($glossary->synonyms as $synonym)
-                            <li class="px-6 py-4">
-                                <a href="{{ route('glossaries.show', $synonym) }}" class="block hover:bg-gray-50">
-                                    <div class="flex items-center justify-between">
-                                        <p class="text-sm font-medium text-blue-600">{{ $synonym->internal_name }}</p>
-                                        <x-heroicon-o-arrow-right class="w-5 h-5 text-gray-400" />
-                                    </div>
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        @endif
+        <x-entity.synonyms-section :model="$glossary" />
 
         <!-- System Properties -->
         <x-system-properties 

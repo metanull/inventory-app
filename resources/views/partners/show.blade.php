@@ -37,10 +37,10 @@
         </x-display.description-list>
 
         <!-- Images Section -->
-        @include('partners._images')
+        <x-entity.images-section entity="partners" :model="$partner" />
 
         <!-- Translations Section -->
-        @include('partners._translations')
+        <x-entity.translations-section entity="partners" :model="$partner" translationRoute="partner-translations" />
 
         <!-- System Properties -->
         <x-system-properties 
