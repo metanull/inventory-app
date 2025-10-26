@@ -120,23 +120,17 @@
                     @method('PUT')
                     <input type="hidden" name="action" value="sync">
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        @foreach($permissions as $permission)
-                            <label class="flex items-start">
-                                <input type="checkbox" 
-                                       name="permissions[]" 
-                                       value="{{ $permission->id }}"
-                                       {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}
-                                       class="mt-1 rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <div class="ml-3">
-                                    <span class="text-sm font-medium text-gray-700">{{ $permission->name }}</span>
-                                    @if($permission->description)
-                                        <p class="text-xs text-gray-500 mt-1">{{ $permission->description }}</p>
-                                    @endif
-                                </div>
-                            </label>
-                        @endforeach
-                    </div>
+                    @php
+                        $selectedPermissions = $role->permissions->pluck('id')->toArray();
+                    @endphp
+                    
+                    <x-form.checkbox-list 
+                        :items="$permissions"
+                        name="permissions[]"
+                        :selected="$selectedPermissions"
+                        entity="roles"
+                        class="mb-4"
+                    />
                     
                     <div class="flex justify-end">
                         <x-ui.button type="submit" variant="primary" entity="roles">

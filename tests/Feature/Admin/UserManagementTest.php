@@ -171,15 +171,38 @@ class UserManagementTest extends TestCase
         // Create manager with MANAGE_USERS permission
         $manager = $this->createUserWithPermissions([Permission::MANAGE_USERS->value]);
 
-        $user1 = User::factory()->create(['name' => 'Alice Smith']);
-        $user2 = User::factory()->create(['name' => 'Bob Jones']);
+        // Create test users with unique, easily identifiable names
+        $aliceUser = User::factory()->create([
+            'name' => 'Alice SearchTest Smith',
+            'email' => 'alice.searchtest@example.com',
+        ]);
+        
+        $bobUser = User::factory()->create([
+            'name' => 'Bob SearchTest Jones',
+            'email' => 'bob.searchtest@example.com',
+        ]);
 
+        // Search for Alice - should only return Alice
         $response = $this->actingAs($manager)
-            ->get(route('admin.users.index', ['search' => 'Alice']));
+            ->get(route('admin.users.index', ['search' => 'Alice SearchTest']));
 
         $response->assertStatus(200);
-        $response->assertSee('Alice Smith');
-        $response->assertDontSee('Bob Jones');
+        
+        // Assert Alice is in the results
+        $response->assertSee('Alice SearchTest Smith');
+        $response->assertSee('alice.searchtest@example.com');
+        
+        // Assert Bob is NOT in the results by checking both name and email
+        $response->assertDontSee('Bob SearchTest Jones');
+        $response->assertDontSee('bob.searchtest@example.com');
+        
+        // Verify the search also works by email
+        $response = $this->actingAs($manager)
+            ->get(route('admin.users.index', ['search' => 'bob.searchtest']));
+            
+        $response->assertStatus(200);
+        $response->assertSee('Bob SearchTest Jones');
+        $response->assertDontSee('Alice SearchTest Smith');
     }
 
     public function test_role_filter_works(): void
