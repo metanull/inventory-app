@@ -6,8 +6,8 @@
 
         <x-validation-errors class="mb-4" />
 
-        <form method="POST" action="{{ route('password.update') }}">
-            @csrf
+        <form method="POST" action="{{ route('password.update') }}" id="reset-password-form">
+            {{-- CSRF token is injected via JavaScript to prevent password manager issues --}}
 
             <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
@@ -33,4 +33,6 @@
             </div>
         </form>
     </x-authentication-card>
+
+    <x-auth.csrf-refresh formId="reset-password-form" />
 </x-guest-layout>

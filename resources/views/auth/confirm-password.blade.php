@@ -10,8 +10,8 @@
 
         <x-validation-errors class="mb-4" />
 
-        <form method="POST" action="{{ route('password.confirm') }}">
-            @csrf
+        <form method="POST" action="{{ route('password.confirm') }}" id="confirm-password-form">
+            {{-- CSRF token is injected via JavaScript to prevent password manager issues --}}
 
             <div>
                 <x-label for="password" value="{{ __('Password') }}" />
@@ -25,4 +25,6 @@
             </div>
         </form>
     </x-authentication-card>
+
+    <x-auth.csrf-refresh formId="confirm-password-form" />
 </x-guest-layout>

@@ -15,8 +15,8 @@
         @endif
 
         <div class="mt-4 flex items-center justify-between">
-            <form method="POST" action="{{ route('verification.send') }}">
-                @csrf
+            <form method="POST" action="{{ route('verification.send') }}" id="verify-email-form">
+                {{-- CSRF token is injected via JavaScript to prevent password manager issues --}}
 
                 <div>
                     <x-button type="submit">
@@ -32,8 +32,8 @@
                 >
                     {{ __('Edit Profile') }}</a>
 
-                <form method="POST" action="{{ route('logout') }}" class="inline">
-                    @csrf
+                <form method="POST" action="{{ route('logout') }}" class="inline" id="logout-form">
+                    {{-- CSRF token is injected via JavaScript to prevent password manager issues --}}
 
                     <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-2">
                         {{ __('Log Out') }}
@@ -42,4 +42,7 @@
             </div>
         </div>
     </x-authentication-card>
+
+    <x-auth.csrf-refresh formId="verify-email-form" />
+    <x-auth.csrf-refresh formId="logout-form" />
 </x-guest-layout>
