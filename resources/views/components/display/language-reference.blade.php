@@ -1,9 +1,18 @@
-@props([
-    'language' => null,
-])
+@props(['language' => null, 'link' => true])
+
+@php($c = $entityColor('languages'))
 
 @if($language)
-    {{ $language->internal_name }} ({{ $language->id }})
+    @if($link)
+        <a 
+            href="{{ route('languages.show', $language) }}" 
+            class="{{ $c['accentLink'] }}"
+        >
+            {{ $language->internal_name }}
+        </a>
+    @else
+        {{ $language->internal_name }}
+    @endif
 @else
-    —
+    <span class="text-gray-400">{{ $language?->id ?? 'N/A' }}</span>
 @endif

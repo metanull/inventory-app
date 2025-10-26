@@ -17,34 +17,13 @@
         <x-display.description-list>
             <x-display.field label="Title" :value="$collectionTranslation->title" />
             <x-display.field label="Collection">
-                @if($collectionTranslation->collection)
-                    <a href="{{ route('collections.show', $collectionTranslation->collection) }}" class="text-indigo-600 hover:text-indigo-900">
-                        {{ $collectionTranslation->collection->internal_name }}
-                    </a>
-                @else
-                    <span class="text-gray-400">N/A</span>
-                @endif
+                <x-display.collection-reference :collection="$collectionTranslation->collection" />
             </x-display.field>
             <x-display.field label="Language">
-                @if($collectionTranslation->language)
-                    <a href="{{ route('languages.show', $collectionTranslation->language) }}" class="text-indigo-600 hover:text-indigo-900">
-                        {{ $collectionTranslation->language->internal_name }}
-                    </a>
-                @else
-                    <span class="text-gray-400">{{ $collectionTranslation->language_id }}</span>
-                @endif
+                <x-display.language-reference :language="$collectionTranslation->language" />
             </x-display.field>
             <x-display.field label="Context">
-                @if($collectionTranslation->context)
-                    <a href="{{ route('contexts.show', $collectionTranslation->context) }}" class="text-indigo-600 hover:text-indigo-900">
-                        {{ $collectionTranslation->context->internal_name }}
-                        @if($collectionTranslation->context->is_default)
-                            <span class="ml-2 inline-flex px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-700">default</span>
-                        @endif
-                    </a>
-                @else
-                    <span class="text-gray-400">N/A</span>
-                @endif
+                <x-display.context-reference :context="$collectionTranslation->context" />
             </x-display.field>
             <x-display.field label="Description" :value="$collectionTranslation->description" full-width />
             <x-display.field label="URL" :value="$collectionTranslation->url" full-width />

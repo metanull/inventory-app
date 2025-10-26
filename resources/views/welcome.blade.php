@@ -122,7 +122,7 @@
             <div class="bg-gray-50 rounded-xl p-8 lg:p-12 text-center">
                 <x-heroicon-o-sparkles class="size-16 mx-auto text-blue-800 mb-6" />
                 <h2 class="text-3xl font-bold text-gray-900 mb-4">
-                    Ready to Manager your Items?
+                    Ready to Manage your Items?
                 </h2>
                 <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
                     Clicking the link below will allow you to manage your inventory and access all cataloging features.

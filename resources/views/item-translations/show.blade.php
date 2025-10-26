@@ -18,34 +18,13 @@
             <x-display.field label="Name" :value="$itemTranslation->name" />
             <x-display.field label="Alternate Name" :value="$itemTranslation->alternate_name" />
             <x-display.field label="Item">
-                @if($itemTranslation->item)
-                    <a href="{{ route('items.show', $itemTranslation->item) }}" class="text-indigo-600 hover:text-indigo-900">
-                        {{ $itemTranslation->item->internal_name }}
-                    </a>
-                @else
-                    <span class="text-gray-400">N/A</span>
-                @endif
+                <x-display.item-reference :item="$itemTranslation->item" />
             </x-display.field>
             <x-display.field label="Language">
-                @if($itemTranslation->language)
-                    <a href="{{ route('languages.show', $itemTranslation->language) }}" class="text-indigo-600 hover:text-indigo-900">
-                        {{ $itemTranslation->language->internal_name }}
-                    </a>
-                @else
-                    <span class="text-gray-400">{{ $itemTranslation->language_id }}</span>
-                @endif
+                <x-display.language-reference :language="$itemTranslation->language" />
             </x-display.field>
             <x-display.field label="Context">
-                @if($itemTranslation->context)
-                    <a href="{{ route('contexts.show', $itemTranslation->context) }}" class="text-indigo-600 hover:text-indigo-900">
-                        {{ $itemTranslation->context->internal_name }}
-                        @if($itemTranslation->context->is_default)
-                            <span class="ml-2 inline-flex px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-700">default</span>
-                        @endif
-                    </a>
-                @else
-                    <span class="text-gray-400">N/A</span>
-                @endif
+                <x-display.context-reference :context="$itemTranslation->context" />
             </x-display.field>
             <x-display.field label="Description" :value="$itemTranslation->description" full-width />
             <x-display.field label="Type" :value="$itemTranslation->type" />

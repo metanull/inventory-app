@@ -17,34 +17,13 @@
         <x-display.description-list>
             <x-display.field label="Name" :value="$partnerTranslation->name" />
             <x-display.field label="Partner">
-                @if($partnerTranslation->partner)
-                    <a href="{{ route('partners.show', $partnerTranslation->partner) }}" class="text-indigo-600 hover:text-indigo-900">
-                        {{ $partnerTranslation->partner->internal_name }}
-                    </a>
-                @else
-                    <span class="text-gray-400">N/A</span>
-                @endif
+                <x-display.partner-reference :partner="$partnerTranslation->partner" />
             </x-display.field>
             <x-display.field label="Language">
-                @if($partnerTranslation->language)
-                    <a href="{{ route('languages.show', $partnerTranslation->language) }}" class="text-indigo-600 hover:text-indigo-900">
-                        {{ $partnerTranslation->language->internal_name }}
-                    </a>
-                @else
-                    <span class="text-gray-400">{{ $partnerTranslation->language_id }}</span>
-                @endif
+                <x-display.language-reference :language="$partnerTranslation->language" />
             </x-display.field>
             <x-display.field label="Context">
-                @if($partnerTranslation->context)
-                    <a href="{{ route('contexts.show', $partnerTranslation->context) }}" class="text-indigo-600 hover:text-indigo-900">
-                        {{ $partnerTranslation->context->internal_name }}
-                        @if($partnerTranslation->context->is_default)
-                            <span class="ml-2 inline-flex px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-700">default</span>
-                        @endif
-                    </a>
-                @else
-                    <span class="text-gray-400">N/A</span>
-                @endif
+                <x-display.context-reference :context="$partnerTranslation->context" />
             </x-display.field>
             <x-display.field label="Description" :value="$partnerTranslation->description" full-width />
             <x-display.field label="City (Display)" :value="$partnerTranslation->city_display" />
