@@ -48,9 +48,10 @@
 
     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         @if($items->isEmpty())
-            <div class="px-6 py-12 text-center text-gray-500">
-                <p>{{ $emptyMessage }}</p>
-            </div>
+            <x-ui.empty-state 
+                :title="'No ' . $itemType . 's found'"
+                :description="$emptyMessage"
+            />
         @else
             <ul class="divide-y divide-gray-200">
                 @foreach($items as $item)

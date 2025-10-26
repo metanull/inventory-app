@@ -11,8 +11,9 @@
             <div class="hidden md:flex gap-6 text-sm">
                 @can(\App\Enums\Permission::VIEW_DATA->value)
                 <!-- Inventory Dropdown -->
+                @php($ic = $entityColor('items'))
                 <div class="relative" @mouseenter="openMenu='inventory'" @mouseleave="openMenu=null">
-                    <button @click="openMenu = openMenu==='inventory'? null : 'inventory'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('items.*') || request()->routeIs('partners.*') || request()->routeIs('projects.*') || request()->routeIs('collections.*') || request()->routeIs('item-translations.*') || request()->routeIs('collection-translations.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
+                    <button @click="openMenu = openMenu==='inventory'? null : 'inventory'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('items.*') || request()->routeIs('partners.*') || request()->routeIs('projects.*') || request()->routeIs('collections.*') || request()->routeIs('item-translations.*') || request()->routeIs('collection-translations.*') ? $ic['badge'].' font-medium' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
                         <x-heroicon-o-squares-2x2 class="w-4 h-4" />
                         Inventory
                         <span class="w-4 h-4 transition" x-bind:class="openMenu==='inventory' ? 'rotate-180' : ''">
@@ -20,22 +21,27 @@
                         </span>
                     </button>
                     <div x-show="openMenu==='inventory'" x-transition x-cloak @click.outside="openMenu=null" class="absolute z-30 mt-2 w-56 rounded-md border border-gray-200 bg-white shadow-lg py-2">
-                        <a href="{{ route('items.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('items.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                        <a href="{{ route('items.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('items.*') ? $ic['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-archive-box class="w-4 h-4" /> Items
                         </a>
-                        <a href="{{ route('item-translations.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('item-translations.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                        @php($itc = $entityColor('item-translations'))
+                        <a href="{{ route('item-translations.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('item-translations.*') ? $itc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-language class="w-4 h-4" /> Item Translations
                         </a>
-                        <a href="{{ route('partners.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('partners.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                        @php($pc = $entityColor('partners'))
+                        <a href="{{ route('partners.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('partners.*') ? $pc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-user-group class="w-4 h-4" /> Partners
                         </a>
-                        <a href="{{ route('projects.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('projects.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                        @php($prc = $entityColor('projects'))
+                        <a href="{{ route('projects.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('projects.*') ? $prc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-rocket-launch class="w-4 h-4" /> Projects
                         </a>
-                        <a href="{{ route('collections.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('collections.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                        @php($coc = $entityColor('collections'))
+                        <a href="{{ route('collections.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('collections.*') ? $coc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-rectangle-stack class="w-4 h-4" /> Collections
                         </a>
-                        <a href="{{ route('collection-translations.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('collection-translations.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                        @php($ctc = $entityColor('collection-translations'))
+                        <a href="{{ route('collection-translations.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('collection-translations.*') ? $ctc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-language class="w-4 h-4" /> Collection Translations
                         </a>
                     </div>
@@ -78,19 +84,20 @@
                 </div>
 
                 <!-- Images Dropdown -->
+                @php($imc = $entityColor('available-images'))
                 <div class="relative" @mouseenter="openMenu='images'" @mouseleave="openMenu=null">
-                    <button @click="openMenu = openMenu==='images'? null : 'images'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('available-images.*') || request()->routeIs('images.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
+                    <button @click="openMenu = openMenu==='images'? null : 'images'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('available-images.*') || request()->routeIs('images.*') ? $imc['badge'].' font-medium' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
                         <x-heroicon-o-photo class="w-4 h-4" /> Images
                         <span class="w-4 h-4 transition" x-bind:class="openMenu==='images' ? 'rotate-180' : ''">
                             <x-heroicon-o-chevron-down class="w-4 h-4" />
                         </span>
                     </button>
                     <div x-show="openMenu==='images'" x-transition x-cloak @click.outside="openMenu=null" class="absolute z-30 mt-2 w-56 rounded-md border border-gray-200 bg-white shadow-lg py-2">
-                        <a href="{{ route('available-images.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('available-images.*') ? 'bg-pink-50 text-pink-700 font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
+                        <a href="{{ route('available-images.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('available-images.*') ? $imc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-photo class="w-4 h-4" /> Available Images
                         </a>
                         @can(\App\Enums\Permission::CREATE_DATA->value)
-                        <a href="{{ route('images.upload') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('images.upload') ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
+                        <a href="{{ route('images.upload') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('images.upload') ? $imc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             <x-heroicon-o-cloud-arrow-up class="w-4 h-4" /> Upload Images
                         </a>
                         @endcan
@@ -127,8 +134,10 @@
                 @auth
                     @if(auth()->user()->can(\App\Enums\Permission::MANAGE_USERS->value) || auth()->user()->can(\App\Enums\Permission::MANAGE_ROLES->value) || auth()->user()->can(\App\Enums\Permission::MANAGE_SETTINGS->value))
                         <!-- Administration Dropdown -->
+                        @php($uc = $entityColor('users'))
+                        @php($rc = $entityColor('roles'))
                         <div class="relative" @mouseenter="openMenu='admin'" @mouseleave="openMenu=null">
-                            <button @click="openMenu = openMenu==='admin'? null : 'admin'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('admin.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
+                            <button @click="openMenu = openMenu==='admin'? null : 'admin'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('admin.*') ? $uc['badge'].' font-medium' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
                                 <x-heroicon-o-cog-6-tooth class="w-4 h-4" /> Administration
                                 <span class="w-4 h-4 transition" x-bind:class="openMenu==='admin' ? 'rotate-180' : ''">
                                     <x-heroicon-o-chevron-down class="w-4 h-4" />
@@ -139,17 +148,17 @@
                                     System Management
                                 </div>
                                 @can(\App\Enums\Permission::MANAGE_USERS->value)
-                                    <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('admin.users.*') ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                                    <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('admin.users.*') ? $uc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                                         <x-heroicon-o-users class="w-4 h-4" /> User Management
                                     </a>
                                 @endcan
                                 @can(\App\Enums\Permission::MANAGE_ROLES->value)
-                                    <a href="{{ route('admin.roles.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('admin.roles.*') ? 'bg-purple-50 text-purple-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                                    <a href="{{ route('admin.roles.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('admin.roles.*') ? $rc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                                         <x-heroicon-o-shield-check class="w-4 h-4" /> Role Management
                                     </a>
                                 @endcan
                                 @can(\App\Enums\Permission::MANAGE_SETTINGS->value)
-                                    <a href="{{ route('settings.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('settings.*') ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                                    <a href="{{ route('settings.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('settings.*') ? $uc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                                         <x-heroicon-o-cog-6-tooth class="w-4 h-4" /> Settings
                                     </a>
                                 @endcan
@@ -190,12 +199,18 @@
             @can(\App\Enums\Permission::VIEW_DATA->value)
             <div class="space-y-2">
                 <p class="text-[11px] font-semibold text-gray-400 uppercase">Inventory</p>
-                <a href="{{ route('items.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('items.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Items</a>
-                <a href="{{ route('item-translations.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('item-translations.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Item Translations</a>
-                <a href="{{ route('partners.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('partners.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Partners</a>
-                <a href="{{ route('projects.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('projects.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Projects</a>
-                <a href="{{ route('collections.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('collections.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Collections</a>
-                <a href="{{ route('collection-translations.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('collection-translations.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Collection Translations</a>
+                @php($ic = $entityColor('items'))
+                @php($itc = $entityColor('item-translations'))
+                @php($pc = $entityColor('partners'))
+                @php($prc = $entityColor('projects'))
+                @php($coc = $entityColor('collections'))
+                @php($ctc = $entityColor('collection-translations'))
+                <a href="{{ route('items.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('items.*') ? $ic['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Items</a>
+                <a href="{{ route('item-translations.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('item-translations.*') ? $itc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Item Translations</a>
+                <a href="{{ route('partners.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('partners.*') ? $pc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Partners</a>
+                <a href="{{ route('projects.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('projects.*') ? $prc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Projects</a>
+                <a href="{{ route('collections.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('collections.*') ? $coc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Collections</a>
+                <a href="{{ route('collection-translations.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('collection-translations.*') ? $ctc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Collection Translations</a>
             </div>
             <div class="space-y-2">
                 <p class="text-[11px] font-semibold text-gray-400 uppercase">Reference</p>
@@ -208,9 +223,10 @@
             </div>
             <div class="space-y-2">
                 <p class="text-[11px] font-semibold text-gray-400 uppercase">Images</p>
-                <a href="{{ route('available-images.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('available-images.*') ? 'bg-pink-50 text-pink-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Available Images</a>
+                @php($imc = $entityColor('available-images'))
+                <a href="{{ route('available-images.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('available-images.*') ? $imc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Available Images</a>
                 @can(\App\Enums\Permission::CREATE_DATA->value)
-                <a href="{{ route('images.upload') }}" class="block px-2 py-1 rounded {{ request()->routeIs('images.upload') ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Upload Images</a>
+                <a href="{{ route('images.upload') }}" class="block px-2 py-1 rounded {{ request()->routeIs('images.upload') ? $imc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Upload Images</a>
                 @endcan
             </div>
             @endcan
@@ -227,11 +243,13 @@
                 @if(auth()->user()->can(\App\Enums\Permission::MANAGE_USERS->value) || auth()->user()->can(\App\Enums\Permission::MANAGE_ROLES->value))
                     <div class="space-y-2">
                         <p class="text-[11px] font-semibold text-gray-400 uppercase">Administration</p>
+                        @php($uc = $entityColor('users'))
+                        @php($rc = $entityColor('roles'))
                         @can(\App\Enums\Permission::MANAGE_USERS->value)
-                        <a href="{{ route('admin.users.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('admin.users.*') ? 'bg-red-50 text-red-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">User Management</a>
+                        <a href="{{ route('admin.users.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('admin.users.*') ? $uc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">User Management</a>
                         @endcan
                         @can(\App\Enums\Permission::MANAGE_ROLES->value)
-                        <a href="{{ route('admin.roles.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('admin.roles.*') ? 'bg-purple-50 text-purple-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Role Management</a>
+                        <a href="{{ route('admin.roles.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('admin.roles.*') ? $rc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Role Management</a>
                         @endcan
                     </div>
                 @endif

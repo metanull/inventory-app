@@ -1,13 +1,15 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('API Tokens') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div>
-        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+@section('content')
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <x-entity.header entity="users" title="API Tokens">
+            <p class="text-sm text-gray-600">
+                Manage API tokens to access the application programmatically.
+            </p>
+        </x-entity.header>
+
+        <div>
             @livewire('api.api-token-manager')
         </div>
     </div>
-</x-app-layout>
+@endsection

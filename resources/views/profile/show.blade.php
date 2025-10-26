@@ -1,51 +1,43 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Profile') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div>
-        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+@section('content')
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <x-entity.header entity="users" title="Profile">
+            <p class="text-sm text-gray-600">
+                Manage your profile information and security settings.
+            </p>
+        </x-entity.header>
+
+        <div class="space-y-6">
             @if (Laravel\Fortify\Features::canUpdateProfileInformation())
                 @livewire('profile.update-profile-information-form')
-
-                <x-section-border />
             @endif
 
-            <div class="mt-10 sm:mt-0">
+            <div>
                 @livewire('profile.user-role-information')
             </div>
 
-            <x-section-border />
-
             @if (Laravel\Fortify\Features::enabled(Laravel\Fortify\Features::updatePasswords()))
-                <div class="mt-10 sm:mt-0">
+                <div>
                     @livewire('profile.update-password-form')
                 </div>
-
-                <x-section-border />
             @endif
 
             @if (Laravel\Fortify\Features::canManageTwoFactorAuthentication())
-                <div class="mt-10 sm:mt-0">
+                <div>
                     @livewire('profile.two-factor-authentication-form')
                 </div>
-
-                <x-section-border />
             @endif
 
-            <div class="mt-10 sm:mt-0">
+            <div>
                 @livewire('profile.logout-other-browser-sessions-form')
             </div>
 
             @if (Laravel\Jetstream\Jetstream::hasAccountDeletionFeatures())
-                <x-section-border />
-
-                <div class="mt-10 sm:mt-0">
+                <div>
                     @livewire('profile.delete-user-form')
                 </div>
             @endif
         </div>
     </div>
-</x-app-layout>
+@endsection

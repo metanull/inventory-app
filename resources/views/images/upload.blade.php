@@ -76,25 +76,27 @@
     </div>
 
     <!-- Information Box -->
-    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div class="flex">
-            <div class="flex-shrink-0">
-                <x-heroicon-o-information-circle class="h-5 w-5 text-blue-400" />
-            </div>
-            <div class="ml-3 flex-1">
-                <h3 class="text-sm font-medium text-blue-800">
-                    About Image Processing
-                </h3>
-                <div class="mt-2 text-sm text-blue-700">
-                    <p>
-                        After uploading, your image will be automatically validated and processed. 
-                        Once processing is complete, the image will appear in the 
-                        <a href="{{ route('available-images.index') }}" class="font-medium underline">Available Images</a> 
-                        gallery where you can view, edit, and manage it.
-                    </p>
+    <div class="mt-8">
+        <x-ui.alert type="info" entity="available-images">
+            <div class="flex">
+                <div class="shrink-0">
+                    <x-heroicon-o-information-circle class="h-5 w-5" />
+                </div>
+                <div class="ml-3 flex-1">
+                    <h3 class="text-sm font-medium">
+                        About Image Processing
+                    </h3>
+                    <div class="mt-2 text-sm">
+                        <p>
+                            After uploading, your image will be automatically validated and processed. 
+                            Once processing is complete, the image will appear in the 
+                            <a href="{{ route('available-images.index') }}" class="font-medium underline">Available Images</a> 
+                            gallery where you can view, edit, and manage it.
+                        </p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </x-ui.alert>
     </div>
 </div>
 

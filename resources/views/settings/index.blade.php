@@ -3,7 +3,13 @@
 @section('content')
     <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div class="max-w-3xl mx-auto">
-            @php($c = $entityColor('settings'))
+            @php
+                $c = $entityColor('settings');
+                $focusRing = 'focus:ring-' . $c['name'] . '-500';
+                $textColor = 'text-' . $c['name'] . '-600';
+                $checkboxClass = $focusRing . ' h-4 w-4 ' . $textColor . ' border-gray-300 rounded';
+                $textInputClass = $focusRing . ' h-4 w-4 ' . $textColor . ' border-gray-300 rounded block w-full';
+            @endphp
             
             <x-entity.header entity="settings" title="System Settings">
                 <p class="text-sm text-gray-600">
@@ -21,7 +27,7 @@
                         @csrf
                         @method('PUT')
 
-                        <div class="space-y-6">
+                        <div class="space-y-4">
                             @foreach($settings as $setting)
                                 <div class="flex items-start">
                                     <div class="flex items-center h-5">
@@ -31,7 +37,7 @@
                                             type="{{ $setting['type'] === 'boolean' ? 'checkbox' : 'text' }}"
                                             value="{{ $setting['type'] === 'boolean' ? '1' : $setting['value'] }}"
                                             {{ $setting['type'] === 'boolean' && $setting['value'] ? 'checked' : '' }}
-                                            class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded {{ $setting['type'] === 'boolean' ? '' : 'block w-full' }}"
+                                            class="{{ $setting['type'] === 'boolean' ? $checkboxClass : $textInputClass }}"
                                         >
                                     </div>
                                     <div class="ml-3 text-sm">
@@ -44,27 +50,7 @@
                             @endforeach
                         </div>
 
-                        @if($errors->any())
-                            <div class="mt-6 bg-red-50 border border-red-200 rounded-md p-4">
-                                <div class="flex">
-                                    <div class="shrink-0">
-                                        <x-heroicon-o-exclamation-circle class="h-5 w-5 text-red-400" />
-                                    </div>
-                                    <div class="ml-3">
-                                        <h3 class="text-sm font-medium text-red-800">
-                                            There were errors with your submission
-                                        </h3>
-                                        <div class="mt-2 text-sm text-red-700">
-                                            <ul class="list-disc pl-5 space-y-1">
-                                                @foreach ($errors->all() as $error)
-                                                    <li>{{ $error }}</li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
+                        <x-validation-errors class="mt-6" />
 
                         <div class="mt-6 flex justify-end">
                             <x-ui.button type="submit" variant="primary" entity="settings">

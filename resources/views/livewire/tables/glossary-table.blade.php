@@ -25,7 +25,7 @@
                         <td class="hidden md:table-cell px-4 py-3 text-sm text-gray-500">
                             <div class="flex flex-wrap gap-1">
                                 @forelse($glossary->translations as $translation)
-                                    <x-ui.badge color="blue" variant="pill">
+                                    <x-ui.badge entity="glossaries" variant="pill">
                                         {{ $translation->language_id }}
                                     </x-ui.badge>
                                 @empty
@@ -39,7 +39,7 @@
                                     $spellingsByLanguage = $glossary->spellings->groupBy('language_id');
                                 @endphp
                                 @forelse($spellingsByLanguage as $languageId => $spellings)
-                                    <x-ui.badge color="green" variant="pill">
+                                    <x-ui.badge entity="glossaries" variant="pill">
                                         {{ $languageId }} ({{ $spellings->count() }})
                                     </x-ui.badge>
                                 @empty

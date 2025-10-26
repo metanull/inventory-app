@@ -16,6 +16,7 @@
     $chipBg = "bg-{$chipColor}-100";
     $chipText = "text-{$chipColor}-800";
     $chipHover = "hover:text-{$chipColor}-900";
+    $chipHoverBg = "hover:bg-{$chipColor}-50";
 @endphp
 
 <div 
@@ -78,7 +79,7 @@
             <template x-for="option in filteredOptions" :key="option.id">
                 <div 
                     @click="addOption(option)" 
-                    class="cursor-pointer select-none relative py-2 px-3 hover:bg-{{ $chipColor }}-50"
+                    class="cursor-pointer select-none relative py-2 px-3 {{ $chipHoverBg }}"
                 >
                     <span class="block truncate" x-text="option.{{ $displayField }}"></span>
                     @if($descriptionField)

@@ -73,9 +73,9 @@
                                 @endforeach
                             </div>
                         @else
-                            <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
-                                <p class="text-red-700">No roles assigned - user cannot access the system.</p>
-                            </div>
+                            <x-ui.alert type="error" entity="users">
+                                No roles assigned - user cannot access the system.
+                            </x-ui.alert>
                         @endif
                     </div>
 
@@ -85,8 +85,8 @@
                             <h4 class="text-sm font-medium text-gray-700 mb-2">Available Permissions</h4>
                             <div class="grid grid-cols-1 gap-1">
                                 @foreach($user->getAllPermissions() as $permission)
-                                    <div class="flex items-center p-2 bg-green-50 rounded">
-                                        <x-heroicon-o-check-circle class="w-4 h-4 text-green-500 mr-2" />
+                                    <div class="flex items-center p-2 {{ $c['bg'] }} rounded">
+                                        <x-heroicon-o-check-circle class="w-4 h-4 {{ $c['text'] }} mr-2" />
                                         <span class="text-sm text-gray-700">{{ $permission->name }}</span>
                                     </div>
                                 @endforeach

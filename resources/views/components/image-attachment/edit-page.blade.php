@@ -19,7 +19,7 @@
                         <h1 class="text-3xl font-bold text-gray-900">
                             Edit Image Alt Text
                         </h1>
-                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        <p class="mt-2 text-sm text-gray-600">
                             Update the alternative text for this image
                         </p>
                     </div>
@@ -48,7 +48,7 @@
 
                     <!-- Alt Text Field -->
                     <div>
-                        <label for="alt_text" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label for="alt_text" class="block text-sm font-medium text-gray-700">
                             Alternative Text
                         </label>
                         <input type="text" 
@@ -58,9 +58,9 @@
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                placeholder="Descriptive text for accessibility">
                         @error('alt_text')
-                            <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
-                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                        <p class="mt-2 text-sm text-gray-500">
                             Provide descriptive text for screen readers and when the image cannot be displayed.
                         </p>
                     </div>
@@ -69,14 +69,14 @@
                         <!-- Display Order Info -->
                         <div class="bg-gray-50 rounded-lg p-4">
                             <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Display Order:</span>
-                                <span class="text-sm text-gray-600 dark:text-gray-400">{{ $entityImage->display_order }}</span>
+                                <span class="text-sm font-medium text-gray-700">Display Order:</span>
+                                <span class="text-sm text-gray-600">{{ $entityImage->display_order }}</span>
                             </div>
                         </div>
                     @endif
 
                     <!-- Form Actions -->
-                    <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
                         <x-ui.button 
                             href="{{ $backRoute }}" 
                             variant="secondary">

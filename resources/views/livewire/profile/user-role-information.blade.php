@@ -8,6 +8,7 @@
     </x-slot>
 
     <x-slot name="content">
+        @php($uc = $entityColor('users'))
         @if($roles->count() > 0)
             <div class="space-y-4">
                 <!-- Roles Section -->
@@ -15,14 +16,14 @@
                     <h3 class="text-lg font-medium text-gray-900">{{ __('Assigned Roles') }}</h3>
                     <div class="mt-2 space-y-2">
                         @foreach($roles as $role)
-                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center justify-between p-3 {{ $uc['bg'] }} rounded-lg">
                                 <div>
                                     <div class="font-medium text-gray-900">{{ $role->name }}</div>
                                     @if($role->description)
                                         <div class="text-sm text-gray-600">{{ $role->description }}</div>
                                     @endif
                                 </div>
-                                <x-ui.badge color="green" variant="pill">
+                                <x-ui.badge entity="users" variant="pill">
                                     {{ __('Active') }}
                                 </x-ui.badge>
                             </div>
@@ -36,10 +37,8 @@
                         <h3 class="text-lg font-medium text-gray-900">{{ __('Available Permissions') }}</h3>
                         <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
                             @foreach($permissions as $permission)
-                                <div class="flex items-center p-2 bg-blue-50 rounded">
-                                    <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                    </svg>
+                                <div class="flex items-center p-2 {{ $uc['bg'] }} rounded">
+                                    <x-heroicon-o-check-circle class="w-4 h-4 {{ $uc['text'] }} mr-2" />
                                     <span class="text-sm text-gray-700">{{ $permission->name }}</span>
                                 </div>
                             @endforeach
@@ -48,15 +47,13 @@
                 @endif
             </div>
         @else
-            <div class="flex items-center justify-center p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <x-ui.alert type="warning" entity="users">
                 <div class="text-center">
-                    <svg class="w-8 h-8 text-yellow-500 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                    </svg>
-                    <h3 class="text-lg font-medium text-yellow-800">{{ __('No Roles Assigned') }}</h3>
-                    <p class="text-yellow-700">{{ __('You have no roles assigned. Please contact an administrator to get access to the system.') }}</p>
+                    <x-heroicon-o-exclamation-triangle class="w-8 h-8 mx-auto mb-2" />
+                    <h3 class="text-lg font-medium">{{ __('No Roles Assigned') }}</h3>
+                    <p>{{ __('You have no roles assigned. Please contact an administrator to get access to the system.') }}</p>
                 </div>
-            </div>
+            </x-ui.alert>
         @endif
     </x-slot>
 </x-action-section>

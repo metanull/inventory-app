@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-12">
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-12">
         <header>
             <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
                 <span class="inline-flex items-center justify-center p-2 rounded-lg bg-gray-800 text-white">
@@ -41,18 +41,18 @@
         @endphp
         @if(!$hasAnyPermission)
         <section class="space-y-4">
-            <div class="rounded-lg bg-yellow-50 border border-yellow-200 p-6">
+            <x-ui.alert type="warning" entity="users">
                 <div class="flex items-center gap-3 mb-4">
-                    <x-heroicon-o-exclamation-triangle class="h-8 w-8 text-yellow-600" />
-                    <h2 class="text-lg font-semibold text-yellow-800">Account Under Review</h2>
+                    <x-heroicon-o-exclamation-triangle class="h-8 w-8" />
+                    <h2 class="text-lg font-semibold">Account Under Review</h2>
                 </div>
-                <p class="text-yellow-700 mb-4">
+                <p class="mb-4">
                     Your account has been successfully created, but it requires verification by an administrator before you can access the system features. 
                 </p>
-                <p class="text-yellow-700">
+                <p>
                     Please wait for an administrator to grant you the appropriate permissions. You will receive an email notification once your account has been verified and activated.
                 </p>
-            </div>
+            </x-ui.alert>
         </section>
         @else
         {{-- Inventory Group (if authenticated and has data permissions) --}}

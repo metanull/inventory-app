@@ -12,6 +12,60 @@
 **CRITICAL**: Always implement the entire user request (do not prioritize, take shortcuts, or leave tasks for later)
 **CRITICAL**: All warnings and all errors must be addressed, none are acceptable.
 **CRITICAL**: The terminal tool uses Windows PowerShell; never use *nix commands; use windows powershell compatbile escaping.
+**CRITICAL**: Never delete a file in order to recreate it; instead edit or replace its content using VS Code tools.
+**CRITICAL**: If, in a test for a blade template you find the error `unexpected token "else", expecting end of file`, it can typically be resolved by verifying the source (not the cached version) carfully from the start of the file making sure that:
+  - It does not not use shorthand notation (e.g. for components use <x-slot name="action"> instead of x-slot:action)
+  - It uses variables like "$routePrefix" instead of string interpolation like "{$entity}.images.create" in blade components
+  - The wrapping if @if/@else in the blade templates is correct:
+    - Move ALL variable definitions to a single @php...@endphp block at the TOP of the @section, before any control structures
+      - Wrong:
+        ```
+        @if(...)
+            @php ... @endphp  ← PHP block interrupts the control flow
+            <element>
+            ...
+        @else  ← Parser loses track of the matching @if
+        ```
+      - Correct:
+        ```
+        @section('content')
+            @php($c = $entityColor('entity'))  ← Variables at top
+            
+            <div>
+                @if(...)                        ← Clean if/else structure
+                    <element>
+                        @foreach...
+                        @endforeach
+                    </element>
+                @else
+                    ...
+                @endif
+            </div>
+        @endsection
+        ```
+    - The @if wraps the ENTIRE component, not just the @foreach inside it:
+      - Wrong:
+        ```
+        @if($items->count() > 0)
+            @php ... @endphp       ← PHP block is INSIDE the @if
+            <div class="grid...">  ← Opening div
+                @foreach...
+                @endforeach
+            </div>                 ← Closing div is AFTER @endforeach but BEFORE @else
+        @else
+        ```
+      - Correct:
+        ```
+        @if(...)
+          <element>
+            @foreach...
+            @endforeach
+          </element>
+        @else
+        ```
+  - The use of @php in the blade templates is correct (we had @php including another @php)
+  - There are no duplicated variable definitions.
+  - Nested @foreach and @if are correctly closed in the right order.
 
 ## Project Overview
 
