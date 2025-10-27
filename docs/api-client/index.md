@@ -1,11 +1,18 @@
 ---
 layout: default
 title: TypeScript API Client
-nav_order: 5
+nav_order: 8
 has_children: true
 ---
 
 # TypeScript API Client Documentation
+
+{: .note }
+
+> **Auto-generated Documentation:** This section is automatically maintained by the API client documentation generator.
+> Last updated: <!-- AUTOGEN_DATE -->
+> Client version: <!-- AUTOGEN_VERSION -->
+> API specification: <!-- AUTOGEN_API_VERSION -->
 
 This section contains the automatically generated documentation for the TypeScript-Axios API client.
 

@@ -6,8 +6,8 @@
 
         <x-validation-errors class="mb-4" />
 
-        <form method="POST" action="{{ route('register') }}">
-            @csrf
+        <form method="POST" action="{{ route('register') }}" id="register-form">
+            {{-- CSRF token is injected via JavaScript to prevent password manager issues --}}
 
             <div>
                 <x-label for="name" value="{{ __('Name') }}" />
@@ -57,4 +57,6 @@
             </div>
         </form>
     </x-authentication-card>
+
+    <x-auth.csrf-refresh formId="register-form" />
 </x-guest-layout>

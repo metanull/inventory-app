@@ -1,12 +1,4 @@
-@extends('layouts.app')
+<x-layout.edit-page entity="authors" :model="$author">
+    @include('authors._form')
+</x-layout.edit-page>
 
-@section('content')
-<x-layout.form-page 
-    entity="authors" 
-    title="Edit Author" 
-    :back-route="route('authors.show', $author)"
-    :submit-route="route('authors.update', $author)"
-    method="PUT">
-    @include('authors._form', ['author' => $author])
-</x-layout.form-page>
-@endsection

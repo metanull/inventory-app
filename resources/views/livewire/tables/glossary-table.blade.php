@@ -1,46 +1,21 @@
 <div class="space-y-4">
-    <div class="flex items-center gap-3">
-        <div class="relative">
-            <input wire:model.live.debounce.300ms="q" type="text" placeholder="Search internal name..." class="w-64 rounded-md border-gray-300 {{ $c['focus'] ?? '' }}" />
-        </div>
-        @if($q)
-            <button wire:click="$set('q','')" type="button" class="text-sm text-gray-600 hover:underline">Clear</button>
-        @endif
-    </div>
+    <x-table.filter-bar wireModel="q" placeholder="Search internal name..." />
 
     <div class="bg-white shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <x-table.sortable-header field="internal_name" label="Internal Name" :sort-by="$sortBy" :sort-direction="$sortDirection" />
-                    <th class="hidden md:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Translations
-                    </th>
-                    <th class="hidden md:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Spellings
-                    </th>
-                    <th class="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <button wire:click="sortBy('created_at')" 
-                                class="group flex items-center space-x-1 hover:text-gray-700 transition-colors duration-200">
-                            <span>Created</span>
-                            <span class="flex flex-col">
-                                @if($sortBy === 'created_at')
-                                    @if($sortDirection === 'asc')
-                                        <x-heroicon-s-chevron-up class="w-3 h-3 text-gray-600" />
-                                    @else
-                                        <x-heroicon-s-chevron-down class="w-3 h-3 text-gray-600" />
-                                    @endif
-                                @else
-                                    <x-heroicon-s-chevron-up class="w-3 h-3 text-gray-300 group-hover:text-gray-400" />
-                                @endif
-                            </span>
-                        </button>
-                    </th>
-                    <th class="hidden sm:table-cell px-4 py-3">
-                        <span class="sr-only">Actions</span>
-                    </th>
-                </tr>
-            </thead>
+            <x-table.header>
+                <x-table.sortable-header field="internal_name" label="Internal Name" :sort-by="$sortBy" :sort-direction="$sortDirection" />
+                <x-table.header-cell hidden="hidden md:table-cell">
+                    Translations
+                </x-table.header-cell>
+                <x-table.header-cell hidden="hidden md:table-cell">
+                    Spellings
+                </x-table.header-cell>
+                <x-table.sortable-header field="created_at" label="Created" :sort-by="$sortBy" :sort-direction="$sortDirection" class="hidden lg:table-cell" />
+                <x-table.header-cell hidden="hidden sm:table-cell">
+                    <span class="sr-only">Actions</span>
+                </x-table.header-cell>
+            </x-table.header>
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($glossaries as $glossary)
                     <tr class="hover:bg-gray-50 cursor-pointer" wire:key="glossary-{{ $glossary->id }}" onclick="window.location='{{ route('glossaries.show', $glossary) }}'">
@@ -48,9 +23,9 @@
                         <td class="hidden md:table-cell px-4 py-3 text-sm text-gray-500">
                             <div class="flex flex-wrap gap-1">
                                 @forelse($glossary->translations as $translation)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                    <x-ui.badge entity="glossaries" variant="pill">
                                         {{ $translation->language_id }}
-                                    </span>
+                                    </x-ui.badge>
                                 @empty
                                     <span class="text-gray-400 text-xs">—</span>
                                 @endforelse
@@ -62,9 +37,9 @@
                                     $spellingsByLanguage = $glossary->spellings->groupBy('language_id');
                                 @endphp
                                 @forelse($spellingsByLanguage as $languageId => $spellings)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                    <x-ui.badge entity="glossaries" variant="pill">
                                         {{ $languageId }} ({{ $spellings->count() }})
-                                    </span>
+                                    </x-ui.badge>
                                 @empty
                                     <span class="text-gray-400 text-xs">—</span>
                                 @endforelse

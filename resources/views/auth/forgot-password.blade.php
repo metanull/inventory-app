@@ -16,8 +16,8 @@
 
         <x-validation-errors class="mb-4" />
 
-        <form method="POST" action="{{ route('password.email') }}">
-            @csrf
+        <form method="POST" action="{{ route('password.email') }}" id="forgot-password-form">
+            {{-- CSRF token is injected via JavaScript to prevent password manager issues --}}
 
             <div class="block">
                 <x-label for="email" value="{{ __('Email') }}" />
@@ -31,4 +31,6 @@
             </div>
         </form>
     </x-authentication-card>
+
+    <x-auth.csrf-refresh formId="forgot-password-form" />
 </x-guest-layout>

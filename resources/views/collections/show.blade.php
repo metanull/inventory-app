@@ -25,10 +25,10 @@
             </x-display.field>
         </x-display.description-list>
 
-        @include('collections._images')
+        <x-entity.images-section entity="collections" :model="$collection" />
 
         <!-- Translations Section -->
-        @include('collections._translations')
+        <x-entity.translations-section entity="collections" :model="$collection" translationRoute="collection-translations" />
 
         <!-- System Properties -->
         <x-system-properties 

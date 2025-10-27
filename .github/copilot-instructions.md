@@ -7,10 +7,65 @@
   - **CRITICAL**: Verify existing implementation before code changes to ensure alignment with project's patterns and standards. If new issues are found, even if not directly related to the user request, fix them as part of the task.
 **CRITICAL**: The project is in active development; breaking changes are accepted, there is no need to preserve backward compatibility.
 **CRITICAL**: Use VS Code tools instead of terminal when possible.
+  - **CRITICAL**: Use `git rm` to remove files if no VS Code tools exists for that.
 **CRITICAL**: Use VS Code testing to run tests.
 **CRITICAL**: Always implement the entire user request (do not prioritize, take shortcuts, or leave tasks for later)
 **CRITICAL**: All warnings and all errors must be addressed, none are acceptable.
 **CRITICAL**: The terminal tool uses Windows PowerShell; never use *nix commands; use windows powershell compatbile escaping.
+**CRITICAL**: Never delete a file in order to recreate it; instead edit or replace its content using VS Code tools.
+**CRITICAL**: If, in a test for a blade template you find the error `unexpected token "else", expecting end of file`, it can typically be resolved by verifying the source (not the cached version) carfully from the start of the file making sure that:
+  - It does not not use shorthand notation (e.g. for components use <x-slot name="action"> instead of x-slot:action)
+  - It uses variables like "$routePrefix" instead of string interpolation like "{$entity}.images.create" in blade components
+  - The wrapping if @if/@else in the blade templates is correct:
+    - Move ALL variable definitions to a single @php...@endphp block at the TOP of the @section, before any control structures
+      - Wrong:
+        ```
+        @if(...)
+            @php ... @endphp  ← PHP block interrupts the control flow
+            <element>
+            ...
+        @else  ← Parser loses track of the matching @if
+        ```
+      - Correct:
+        ```
+        @section('content')
+            @php($c = $entityColor('entity'))  ← Variables at top
+            
+            <div>
+                @if(...)                        ← Clean if/else structure
+                    <element>
+                        @foreach...
+                        @endforeach
+                    </element>
+                @else
+                    ...
+                @endif
+            </div>
+        @endsection
+        ```
+    - The @if wraps the ENTIRE component, not just the @foreach inside it:
+      - Wrong:
+        ```
+        @if($items->count() > 0)
+            @php ... @endphp       ← PHP block is INSIDE the @if
+            <div class="grid...">  ← Opening div
+                @foreach...
+                @endforeach
+            </div>                 ← Closing div is AFTER @endforeach but BEFORE @else
+        @else
+        ```
+      - Correct:
+        ```
+        @if(...)
+          <element>
+            @foreach...
+            @endforeach
+          </element>
+        @else
+        ```
+  - The use of @php in the blade templates is correct (we had @php including another @php)
+  - There are no duplicated variable definitions.
+  - Nested @foreach and @if are correctly closed in the right order.
 
 ## Project Overview
 
@@ -76,6 +131,9 @@ The laravel application exposes several components via distinct classes of route
   - Controllers must use dedicated Request and Resource classes for input validation and output formatting.
   - Never alter existing migrations; create new migrations for schema changes.
   - UUID primary keys are used for all models (with the only exception of Language and Country that are using 3 character long iso codes).
+  - **CRITICAL**: Do not use shorthand notation (e.g. for components use <x-slot name="action"> instead of <x-slot:action>)
+  - **CRITICAL**: in blade components use variables like "$routePrefix" instead of string interpolation like "{$entity}.images.create". To avoid issue when nesting.
+  - Code must respect the DRY principle.
 - Conventions for the Sample SPA application:
   - Use Pinia for state management
   - Use Vue 3 Composition API with TypeScript for all components.
@@ -85,7 +143,7 @@ The laravel application exposes several components via distinct classes of route
   - Follow existing store patterns for actions, getters, and state organization.
 - Conventions for the documentation site (Jekyll):
   - The main configuration for Jekyll is in `_config.yml`.
-  - The site uses simpledocs theme as base.
+  - The site uses just-the-docs theme as base.
   - All md files must include proper front matter with layout, title, nav_order, and other relevant fields (e.g. parent, permalink and has_children must be added when applicable).
   - Any directory that is part of the documentation must contain an `index.md`.
   - Keep the navigation structure in sync with the actual files and their front matter.
@@ -97,7 +155,7 @@ The laravel application exposes several components via distinct classes of route
       - Never extrapolate how the link target will be transformed; always use the exact path as per the rules above.
       - Always use "absolute links", starting with `/` (where / is the root of the documentation and maps to our /docs/ directory). E.g. `[Guidelines](/guidelines)` is an absolute link mapping to our `/docs/guidelines` directory (and more precisely to its index.md file).
       - Create links to non-markdown files (e.g. json, images, etc.) by creating a markdown placeholder file, with `permalink` and `layout: null` frontmatter fields. 
-        - To create publish our /docs/_openapi/api.json file as '/api.json' on the generated website: create a file `docs/api.json.md` with the following content:
+        -By example, to create publish our /docs/_openapi/api.json file as '/api.json' on the generated website: create a file `docs/api.json.md` with the following content:
             ```
             ---
             layout: null

@@ -10,16 +10,11 @@
     </x-form.field>
 
     <x-form.field label="Default" name="is_default">
-        <label class="inline-flex items-center space-x-2">
-            <input 
-                type="checkbox" 
-                name="is_default" 
-                value="1" 
-                @checked(old('is_default', $context->is_default ?? false)) 
-                class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" 
-            />
-            <span class="text-sm text-gray-700">Mark as default context</span>
-        </label>
+        <x-form.checkbox 
+            name="is_default" 
+            :checked="old('is_default', $context->is_default ?? false)"
+            label="Mark as default context"
+        />
     </x-form.field>
 
     <x-form.field label="Legacy ID" name="backward_compatibility" variant="gray">

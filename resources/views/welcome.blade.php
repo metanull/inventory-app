@@ -46,111 +46,72 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                 @guest
                     {{-- Login Tile (Prominent) --}}
-                    <a href="{{ route('login') }}" class="group rounded-xl border border-indigo-300 bg-white p-6 hover:shadow transition flex flex-col ring-1 ring-indigo-100 hover:ring-indigo-300">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
-                                    <x-heroicon-o-arrow-right-on-rectangle class="w-6 h-6" />
-                                </span>
-                                <h2 class="text-lg font-semibold text-gray-900">Sign In</h2>
-                            </div>
-                            <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
-                        </div>
-                        <p class="text-sm text-gray-600 flex-1">Access the authenticated inventory management portal.</p>
-                        <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">Login <span class="ml-1">&rarr;</span></span>
-                    </a>
+                    <x-ui.card 
+                        href="{{ route('login') }}"
+                        title="Sign In"
+                        description="Access the authenticated inventory management portal."
+                        :icon="'<x-heroicon-o-arrow-right-on-rectangle class=\'w-6 h-6\' />'"
+                        iconColor="indigo"
+                        :highlighted="true"
+                    >Login</x-ui.card>
+                    
                     @if(Route::has('register') && \App\Models\Setting::get('self_registration_enabled', false))
                         {{-- Register Tile --}}
-                        <a href="{{ route('register') }}" class="group rounded-xl border border-gray-200 bg-white p-6 hover:border-indigo-300 hover:shadow transition flex flex-col">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center gap-3">
-                                    <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
-                                        <x-heroicon-o-user-plus class="w-6 h-6" />
-                                    </span>
-                                    <h2 class="text-lg font-semibold text-gray-900">Create Account</h2>
-                                </div>
-                                <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
-                            </div>
-                            <p class="text-sm text-gray-600 flex-1">Register to start cataloging items and managing partners.</p>
-                            <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">Register <span class="ml-1">&rarr;</span></span>
-                        </a>
+                        <x-ui.card 
+                            href="{{ route('register') }}"
+                            title="Create Account"
+                            description="Register to start cataloging items and managing partners."
+                            :icon="'<x-heroicon-o-user-plus class=\'w-6 h-6\' />'"
+                            iconColor="indigo"
+                        >Register</x-ui.card>
                     @endif
                 @else
                     {{-- Direct Inventory Access (Authenticated) --}}
-                    <a href="{{ route('items.index') }}" class="group rounded-xl border border-teal-300 bg-white p-6 hover:shadow transition flex flex-col ring-1 ring-teal-100 hover:ring-teal-300">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <span class="p-2 rounded-md bg-teal-50 text-teal-600 group-hover:bg-teal-100">
-                                    <x-heroicon-o-archive-box class="w-6 h-6" />
-                                </span>
-                                <h2 class="text-lg font-semibold text-gray-900">Items</h2>
-                            </div>
-                            <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
-                        </div>
-                        <p class="text-sm text-gray-600 flex-1">Browse and manage inventory item records.</p>
-                        <span class="mt-4 inline-flex items-center text-sm font-medium text-teal-600 group-hover:text-teal-700">Open <span class="ml-1">&rarr;</span></span>
-                    </a>
+                    <x-ui.card 
+                        href="{{ route('items.index') }}"
+                        title="Items"
+                        description="Browse and manage inventory item records."
+                        :icon="'<x-heroicon-o-archive-box class=\'w-6 h-6\' />'"
+                        iconColor="teal"
+                        :highlighted="true"
+                    >Open</x-ui.card>
                 @endguest
 
                 {{-- SPA Client --}}
-                <a href="{{ url('/cli') }}" class="group rounded-xl border border-gray-200 bg-white p-6 hover:border-indigo-300 hover:shadow transition flex flex-col">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
-                                <x-heroicon-o-window class="w-6 h-6" />
-                            </span>
-                            <h2 class="text-lg font-semibold text-gray-900">SPA Client</h2>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Vue.js single-page application sharing the same API backend.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">Launch <span class="ml-1">&rarr;</span></span>
-                </a>
+                <x-ui.card 
+                    href="{{ url('/cli') }}"
+                    title="SPA Client"
+                    description="Vue.js single-page application sharing the same API backend."
+                    :icon="'<x-heroicon-o-window class=\'w-6 h-6\' />'"
+                    iconColor="indigo"
+                >Launch</x-ui.card>
 
                 {{-- API Documentation --}}
-                <a href="{{ url('/docs/api') }}" class="group rounded-xl border border-gray-200 bg-white p-6 hover:border-indigo-300 hover:shadow transition flex flex-col">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
-                                <x-heroicon-o-book-open class="w-6 h-6" />
-                            </span>
-                            <h2 class="text-lg font-semibold text-gray-900">API Docs</h2>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Reference for the REST endpoints and data contracts.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">Browse <span class="ml-1">&rarr;</span></span>
-                </a>
+                <x-ui.card 
+                    href="{{ url('/docs/api') }}"
+                    title="API Docs"
+                    description="Reference for the REST endpoints and data contracts."
+                    :icon="'<x-heroicon-o-book-open class=\'w-6 h-6\' />'"
+                    iconColor="indigo"
+                >Browse</x-ui.card>
 
                 {{-- Source Code --}}
-                <a href="https://github.com/metanull/inventory-app" target="_blank" class="group rounded-xl border border-gray-200 bg-white p-6 hover:border-indigo-300 hover:shadow transition flex flex-col">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
-                                <x-heroicon-o-code-bracket class="w-6 h-6" />
-                            </span>
-                            <h2 class="text-lg font-semibold text-gray-900">Source Code</h2>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Explore the repository and contribute improvements.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">Open <span class="ml-1">&rarr;</span></span>
-                </a>
+                <x-ui.card 
+                    href="https://github.com/metanull/inventory-app"
+                    title="Source Code"
+                    description="Explore the repository and contribute improvements."
+                    :icon="'<x-heroicon-o-code-bracket class=\'w-6 h-6\' />'"
+                    iconColor="indigo"
+                >Open</x-ui.card>
 
                 {{-- Project Docs --}}
-                <a href="https://metanull.github.io/inventory-app" target="_blank" class="group rounded-xl border border-gray-200 bg-white p-6 hover:border-indigo-300 hover:shadow transition flex flex-col">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 rounded-md bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
-                                <x-heroicon-o-document-text class="w-6 h-6" />
-                            </span>
-                            <h2 class="text-lg font-semibold text-gray-900">Project Docs</h2>
-                        </div>
-                        <x-heroicon-o-eye class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" />
-                    </div>
-                    <p class="text-sm text-gray-600 flex-1">Architecture notes, developer guides & operational procedures.</p>
-                    <span class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">Read <span class="ml-1">&rarr;</span></span>
-                </a>
+                <x-ui.card 
+                    href="https://metanull.github.io/inventory-app"
+                    title="Project Docs"
+                    description="View comprehensive project documentation and guidelines."
+                    :icon="'<x-heroicon-o-document-text class=\'w-6 h-6\' />'"
+                    iconColor="indigo"
+                >Read</x-ui.card>
             </div>
         </div>
     </div>
@@ -161,7 +122,7 @@
             <div class="bg-gray-50 rounded-xl p-8 lg:p-12 text-center">
                 <x-heroicon-o-sparkles class="size-16 mx-auto text-blue-800 mb-6" />
                 <h2 class="text-3xl font-bold text-gray-900 mb-4">
-                    Ready to Manager your Items?
+                    Ready to Manage your Items?
                 </h2>
                 <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
                     Clicking the link below will allow you to manage your inventory and access all cataloging features.

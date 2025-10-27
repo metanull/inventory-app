@@ -12,8 +12,8 @@
             </div>
         @endsession
 
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
+        <form method="POST" action="{{ route('login') }}" id="login-form">
+            {{-- CSRF token is injected via JavaScript to prevent password manager issues --}}
 
             <div>
                 <x-label for="email" value="{{ __('Email') }}" />
@@ -54,4 +54,6 @@
             </div>
         @endif
     </x-authentication-card>
+
+    <x-auth.csrf-refresh formId="login-form" />
 </x-guest-layout>

@@ -476,6 +476,6 @@ LoadModule expires_module modules/mod_expires.so
 
 ## Next Steps
 
-- 🔧 [Configuration Guide](configuration) - Detailed configuration options
+- [Configuration Guide](configuration) - Detailed configuration options
 - 🏃 [Development Setup](development-setup) - Local development environment
-- 📊 [Monitoring](monitoring) - Application monitoring and alerting
+- [Monitoring](monitoring) - Application monitoring and alerting

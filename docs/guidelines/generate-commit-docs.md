@@ -2,7 +2,7 @@
 layout: default
 title: Development Archive Documentation Generator
 nav_order: 4
-parent: Guidelines
+parent: Backend Guidelines
 ---
 
 # Development Archive Documentation Generator
@@ -84,7 +84,7 @@ _docs/
 2. Generate documentation:
 
    ```bash
-   python docs/generate-commit-docs.py
+   python scripts/generate-commit-docs.py
    ```
 
 3. Build Jekyll site:
@@ -105,7 +105,7 @@ pipelines.
 
 {: .note }
 
-> **Python script for the generation of the pages**: [generate-commit-docs.py](https://github.com/metanull/inventory-app/blob/main/docs/generate-commit-docs.py)
+> **Python script for the generation of the pages**: [generate-commit-docs.py](https://github.com/metanull/inventory-app/blob/main/scripts/generate-commit-docs.py)
 
 ```yaml
 name: Generate Commit Documentation
@@ -174,7 +174,7 @@ jobs:
 
       - name: Generate documentation of the latest commits
         run: |
-          python docs/generate-commit-docs.py
+          python scripts/generate-commit-docs.py
 
       - name: Build Jekyll site
         run: |

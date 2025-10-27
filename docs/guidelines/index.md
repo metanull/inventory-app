@@ -1,29 +1,26 @@
 ---
 layout: default
-title: Guidelines
+title: Backend Guidelines
 nav_order: 10
 has_children: true
+permalink: /guidelines/
 ---
 
-# Development Guidelines
+# Backend Development Guidelines
 
-This section contains comprehensive guidelines for developing and maintaining the Inventory Management UI application.
+This section contains comprehensive guidelines for developing and maintaining the Inventory Management API application (backend).
 
 ## Sections
 
-### [Coding Guidelines](coding-guidelines)
+### [Coding Guidelines]({{ '/guidelines/coding-guidelines' | relative_url }})
 
-Code style standards, best practices, and conventions for Vue.js, TypeScript, and related technologies.
+Code style standards, best practices, and conventions for PHP, Laravel, and related technologies.
 
-### [Testing](testing)
-
-Testing strategies, tools, and procedures including unit tests and integration tests.
-
-### [Development Archive Documentation Generator](generate-commit-docs)
+### [Development Archive Documentation Generator]({{ '/guidelines/generate-commit-docs' | relative_url }})
 
 Automatically generate documentation for Git commits on the main branch.
 
-### [API Client Documentation Generator](generate-api-client-docs)
+### [API Client Documentation Generator]({{ '/guidelines/generate-api-client-docs' | relative_url }})
 
 Automatically generate Jekyll-compatible documentation for the TypeScript API client.
 

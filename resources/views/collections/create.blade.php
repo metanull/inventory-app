@@ -1,11 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
-<x-layout.form-page 
-    entity="collections" 
-    title="Create Collection" 
-    :back-route="route('collections.index')"
-    :submit-route="route('collections.store')">
+<x-layout.create-page entity="collections">
     @include('collections._form', ['collection' => null])
-</x-layout.form-page>
-@endsection
+</x-layout.create-page>
+

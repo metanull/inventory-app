@@ -41,11 +41,16 @@ class NonVerifiedUserAuthorizationTest extends TestCase
         $response = $this->actingAs($user)->get(route('web.welcome'));
 
         $response->assertStatus(200);
-        $response->assertDontSee('Primary Domains');
         $response->assertDontSee('Items');
         $response->assertDontSee('Partners');
         $response->assertDontSee('Projects');
         $response->assertDontSee('Collections');
+        $response->assertDontSee('Countries');
+        $response->assertDontSee('Languages');
+        $response->assertDontSee('Contexts');
+        $response->assertDontSee('Glossary');
+        $response->assertDontSee('Tags');
+        $response->assertDontSee('Authors');
     }
 
     /**
@@ -79,11 +84,16 @@ class NonVerifiedUserAuthorizationTest extends TestCase
         $response = $this->actingAs($user)->get(route('web.welcome'));
 
         $response->assertStatus(200);
-        $response->assertSee('Primary Domains');
         $response->assertSee('Items');
         $response->assertSee('Partners');
         $response->assertSee('Projects');
         $response->assertSee('Collections');
+        $response->assertSee('Countries');
+        $response->assertSee('Languages');
+        $response->assertSee('Contexts');
+        $response->assertSee('Glossary');
+        $response->assertSee('Tags');
+        $response->assertSee('Authors');
         $response->assertDontSee('Account Under Review');
     }
 
@@ -123,7 +133,16 @@ class NonVerifiedUserAuthorizationTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Administration');
         $response->assertSee('User Management');
-        $response->assertDontSee('Primary Domains');
+        $response->assertDontSee('Items');
+        $response->assertDontSee('Partners');
+        $response->assertDontSee('Projects');
+        $response->assertDontSee('Collections');
+        $response->assertDontSee('Countries');
+        $response->assertDontSee('Languages');
+        $response->assertDontSee('Contexts');
+        $response->assertDontSee('Glossary');
+        $response->assertDontSee('Tags');
+        $response->assertDontSee('Authors');
         $response->assertDontSee('Account Under Review');
     }
 

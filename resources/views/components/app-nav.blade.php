@@ -20,24 +20,48 @@
                         </span>
                     </button>
                     <div x-show="openMenu==='inventory'" x-transition x-cloak @click.outside="openMenu=null" class="absolute z-30 mt-2 w-56 rounded-md border border-gray-200 bg-white shadow-lg py-2">
-                        <a href="{{ route('items.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('items.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <x-heroicon-o-archive-box class="w-4 h-4" /> Items
-                        </a>
-                        <a href="{{ route('item-translations.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('item-translations.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <x-heroicon-o-language class="w-4 h-4" /> Item Translations
-                        </a>
-                        <a href="{{ route('partners.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('partners.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <x-heroicon-o-user-group class="w-4 h-4" /> Partners
-                        </a>
-                        <a href="{{ route('projects.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('projects.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <x-heroicon-o-rocket-launch class="w-4 h-4" /> Projects
-                        </a>
-                        <a href="{{ route('collections.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('collections.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <x-heroicon-o-rectangle-stack class="w-4 h-4" /> Collections
-                        </a>
-                        <a href="{{ route('collection-translations.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('collection-translations.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <x-heroicon-o-language class="w-4 h-4" /> Collection Translations
-                        </a>
+                        <x-nav.menu-item 
+                            :route="route('items.index')"
+                            routePattern="items.*"
+                            entity="items"
+                            icon="archive-box"
+                            label="Items"
+                        />
+                        <x-nav.menu-item 
+                            :route="route('item-translations.index')"
+                            routePattern="item-translations.*"
+                            entity="item-translations"
+                            icon="language"
+                            label="Item Translations"
+                        />
+                        <x-nav.menu-item 
+                            :route="route('partners.index')"
+                            routePattern="partners.*"
+                            entity="partners"
+                            icon="user-group"
+                            label="Partners"
+                        />
+                        <x-nav.menu-item 
+                            :route="route('projects.index')"
+                            routePattern="projects.*"
+                            entity="projects"
+                            icon="rocket-launch"
+                            label="Projects"
+                        />
+                        <x-nav.menu-item 
+                            :route="route('collections.index')"
+                            routePattern="collections.*"
+                            entity="collections"
+                            icon="rectangle-stack"
+                            label="Collections"
+                        />
+                        <x-nav.menu-item 
+                            :route="route('collection-translations.index')"
+                            routePattern="collection-translations.*"
+                            entity="collection-translations"
+                            icon="language"
+                            label="Collection Translations"
+                        />
                     </div>
                 </div>
 
@@ -50,26 +74,48 @@
                         </span>
                     </button>
                     <div x-show="openMenu==='reference'" x-transition x-cloak @click.outside="openMenu=null" class="absolute z-30 mt-2 w-56 rounded-md border border-gray-200 bg-white shadow-lg py-2">
-                        @php($cc = $entityColor('countries'))
-                        @php($lc = $entityColor('languages'))
-                        @php($xc = $entityColor('contexts'))
-                        @php($gc = $entityColor('glossaries'))
-                        <a href="{{ route('countries.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('countries.*') ? $cc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <x-heroicon-o-globe-europe-africa class="w-4 h-4" /> Countries
-                        </a>
-                        <a href="{{ route('languages.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('languages.*') ? $lc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <x-heroicon-o-language class="w-4 h-4" /> Languages
-                        </a>
-                        <a href="{{ route('contexts.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('contexts.*') ? $xc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <x-heroicon-o-adjustments-horizontal class="w-4 h-4" /> Contexts
-                        </a>
-                        <a href="{{ route('glossaries.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('glossaries.*') || request()->routeIs('glossaries.translations.*') || request()->routeIs('glossaries.spellings.*') ? $gc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <x-heroicon-o-book-open class="w-4 h-4" /> Glossary
-                        </a>
-                        @php($tc = $entityColor('tags'))
-                        <a href="{{ route('tags.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('tags.*') ? $tc['badge'].' font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <x-heroicon-o-tag class="w-4 h-4" /> Tags
-                        </a>
+                        <x-nav.menu-item 
+                            :route="route('countries.index')"
+                            routePattern="countries.*"
+                            entity="countries"
+                            icon="globe-europe-africa"
+                            label="Countries"
+                        />
+                        <x-nav.menu-item 
+                            :route="route('languages.index')"
+                            routePattern="languages.*"
+                            entity="languages"
+                            icon="language"
+                            label="Languages"
+                        />
+                        <x-nav.menu-item 
+                            :route="route('contexts.index')"
+                            routePattern="contexts.*"
+                            entity="contexts"
+                            icon="adjustments-horizontal"
+                            label="Contexts"
+                        />
+                        <x-nav.menu-item 
+                            :route="route('glossaries.index')"
+                            routePattern="glossaries.*"
+                            entity="glossaries"
+                            icon="book-open"
+                            label="Glossary"
+                        />
+                        <x-nav.menu-item 
+                            :route="route('tags.index')"
+                            routePattern="tags.*"
+                            entity="tags"
+                            icon="tag"
+                            label="Tags"
+                        />
+                        <x-nav.menu-item 
+                            :route="route('authors.index')"
+                            routePattern="authors.*"
+                            entity="authors"
+                            icon="user-circle"
+                            label="Authors"
+                        />
                     </div>
                 </div>
 
@@ -82,13 +128,21 @@
                         </span>
                     </button>
                     <div x-show="openMenu==='images'" x-transition x-cloak @click.outside="openMenu=null" class="absolute z-30 mt-2 w-56 rounded-md border border-gray-200 bg-white shadow-lg py-2">
-                        <a href="{{ route('available-images.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('available-images.*') ? 'bg-pink-50 text-pink-700 font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <x-heroicon-o-photo class="w-4 h-4" /> Available Images
-                        </a>
+                        <x-nav.menu-item 
+                            :route="route('available-images.index')"
+                            routePattern="available-images.*"
+                            entity="available-images"
+                            icon="photo"
+                            label="Available Images"
+                        />
                         @can(\App\Enums\Permission::CREATE_DATA->value)
-                        <a href="{{ route('images.upload') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('images.upload') ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <x-heroicon-o-cloud-arrow-up class="w-4 h-4" /> Upload Images
-                        </a>
+                        <x-nav.menu-item 
+                            :route="route('images.upload')"
+                            routePattern="images.upload"
+                            entity="available-images"
+                            icon="cloud-arrow-up"
+                            label="Upload Images"
+                        />
                         @endcan
                     </div>
                 </div>
@@ -135,19 +189,31 @@
                                     System Management
                                 </div>
                                 @can(\App\Enums\Permission::MANAGE_USERS->value)
-                                    <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('admin.users.*') ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                                        <x-heroicon-o-users class="w-4 h-4" /> User Management
-                                    </a>
+                                    <x-nav.menu-item 
+                                        :route="route('admin.users.index')"
+                                        routePattern="admin.users.*"
+                                        entity="users"
+                                        icon="users"
+                                        label="User Management"
+                                    />
                                 @endcan
                                 @can(\App\Enums\Permission::MANAGE_ROLES->value)
-                                    <a href="{{ route('admin.roles.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('admin.roles.*') ? 'bg-purple-50 text-purple-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                                        <x-heroicon-o-shield-check class="w-4 h-4" /> Role Management
-                                    </a>
+                                    <x-nav.menu-item 
+                                        :route="route('admin.roles.index')"
+                                        routePattern="admin.roles.*"
+                                        entity="roles"
+                                        icon="shield-check"
+                                        label="Role Management"
+                                    />
                                 @endcan
                                 @can(\App\Enums\Permission::MANAGE_SETTINGS->value)
-                                    <a href="{{ route('settings.index') }}" class="flex items-center gap-2 px-3 py-2 text-sm {{ request()->routeIs('settings.*') ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                                        <x-heroicon-o-cog-6-tooth class="w-4 h-4" /> Settings
-                                    </a>
+                                    <x-nav.menu-item 
+                                        :route="route('settings.index')"
+                                        routePattern="settings.*"
+                                        entity="users"
+                                        icon="cog-6-tooth"
+                                        label="Settings"
+                                    />
                                 @endcan
                             </div>
                         </div>
@@ -186,27 +252,90 @@
             @can(\App\Enums\Permission::VIEW_DATA->value)
             <div class="space-y-2">
                 <p class="text-[11px] font-semibold text-gray-400 uppercase">Inventory</p>
-                <a href="{{ route('items.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('items.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Items</a>
-                <a href="{{ route('item-translations.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('item-translations.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Item Translations</a>
-                <a href="{{ route('partners.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('partners.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Partners</a>
-                <a href="{{ route('projects.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('projects.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Projects</a>
-                <a href="{{ route('collections.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('collections.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Collections</a>
-                <a href="{{ route('collection-translations.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('collection-translations.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Collection Translations</a>
+                <x-nav.menu-item 
+                    :route="route('items.index')"
+                    routePattern="items.*"
+                    entity="items"
+                    label="Items"
+                    mobile
+                />
+                <x-nav.menu-item 
+                    :route="route('item-translations.index')"
+                    routePattern="item-translations.*"
+                    entity="item-translations"
+                    label="Item Translations"
+                    mobile
+                />
+                <x-nav.menu-item 
+                    :route="route('partners.index')"
+                    routePattern="partners.*"
+                    entity="partners"
+                    label="Partners"
+                    mobile
+                />
+                <x-nav.menu-item 
+                    :route="route('projects.index')"
+                    routePattern="projects.*"
+                    entity="projects"
+                    label="Projects"
+                    mobile
+                />
+                <x-nav.menu-item 
+                    :route="route('collections.index')"
+                    routePattern="collections.*"
+                    entity="collections"
+                    label="Collections"
+                    mobile
+                />
+                <x-nav.menu-item 
+                    :route="route('collection-translations.index')"
+                    routePattern="collection-translations.*"
+                    entity="collection-translations"
+                    label="Collection Translations"
+                    mobile
+                />
             </div>
             <div class="space-y-2">
                 <p class="text-[11px] font-semibold text-gray-400 uppercase">Reference</p>
-                @php($cc = $entityColor('countries'))
-                @php($lc = $entityColor('languages'))
-                @php($xc = $entityColor('contexts'))
-                <a href="{{ route('countries.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('countries.*') ? $cc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Countries</a>
-                <a href="{{ route('languages.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('languages.*') ? $lc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Languages</a>
-                <a href="{{ route('contexts.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('contexts.*') ? $xc['badge'].' font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Contexts</a>
+                <x-nav.menu-item 
+                    :route="route('countries.index')"
+                    routePattern="countries.*"
+                    entity="countries"
+                    label="Countries"
+                    mobile
+                />
+                <x-nav.menu-item 
+                    :route="route('languages.index')"
+                    routePattern="languages.*"
+                    entity="languages"
+                    label="Languages"
+                    mobile
+                />
+                <x-nav.menu-item 
+                    :route="route('contexts.index')"
+                    routePattern="contexts.*"
+                    entity="contexts"
+                    label="Contexts"
+                    mobile
+                />
             </div>
             <div class="space-y-2">
                 <p class="text-[11px] font-semibold text-gray-400 uppercase">Images</p>
-                <a href="{{ route('available-images.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('available-images.*') ? 'bg-pink-50 text-pink-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Available Images</a>
+                <x-nav.menu-item 
+                    :route="route('available-images.index')"
+                    routePattern="available-images.*"
+                    entity="available-images"
+                    label="Available Images"
+                    mobile
+                />
                 @can(\App\Enums\Permission::CREATE_DATA->value)
-                <a href="{{ route('images.upload') }}" class="block px-2 py-1 rounded {{ request()->routeIs('images.upload') ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Upload Images</a>
+                <x-nav.menu-item 
+                    :route="route('images.upload')"
+                    routePattern="images.upload"
+                    entity="available-images"
+                    label="Upload Images"
+                    mobile
+                />
                 @endcan
             </div>
             @endcan
@@ -224,10 +353,22 @@
                     <div class="space-y-2">
                         <p class="text-[11px] font-semibold text-gray-400 uppercase">Administration</p>
                         @can(\App\Enums\Permission::MANAGE_USERS->value)
-                        <a href="{{ route('admin.users.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('admin.users.*') ? 'bg-red-50 text-red-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">User Management</a>
+                        <x-nav.menu-item 
+                            :route="route('admin.users.index')"
+                            routePattern="admin.users.*"
+                            entity="users"
+                            label="User Management"
+                            mobile
+                        />
                         @endcan
                         @can(\App\Enums\Permission::MANAGE_ROLES->value)
-                        <a href="{{ route('admin.roles.index') }}" class="block px-2 py-1 rounded {{ request()->routeIs('admin.roles.*') ? 'bg-purple-50 text-purple-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800' }}">Role Management</a>
+                        <x-nav.menu-item 
+                            :route="route('admin.roles.index')"
+                            routePattern="admin.roles.*"
+                            entity="roles"
+                            label="Role Management"
+                            mobile
+                        />
                         @endcan
                     </div>
                 @endif

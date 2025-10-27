@@ -2,7 +2,7 @@
 layout: default
 title: API Client Documentation Generator
 nav_order: 2
-parent: Guidelines
+parent: Backend Guidelines
 ---
 
 # API Client Documentation Generator
@@ -137,7 +137,7 @@ The generator automatically fixes common broken links:
 # . ./scripts/generate-api-client.ps1
 
 # Generate Jekyll documentation
-python docs/generate-client-docs.py
+python scripts/generate-client-docs.py
 ```
 
 ### Automated Generation
@@ -148,7 +148,7 @@ The client documentation is automatically generated as part of the GitHub Pages 
 - name: Generate API Client Documentation
   run: |
     if [ -d "api-client/docs" ]; then
-      python docs/generate-client-docs.py
+      python scripts/generate-client-docs.py
     fi
 ```
 

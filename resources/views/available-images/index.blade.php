@@ -11,25 +11,29 @@
     @endif
 
     <!-- Search Bar -->
-    <div class="mb-4">
-        <form method="GET" action="{{ route('available-images.index') }}" class="flex items-center gap-3">
-            <div class="relative flex-1 max-w-md">
+    <div class="mb-4 bg-white shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg p-4">
+        <form method="GET" action="{{ route('available-images.index') }}" class="flex flex-wrap items-center gap-3">
+            <div class="relative flex-1 min-w-[16rem]">
                 <input 
                     type="text" 
                     name="q" 
                     value="{{ $search }}" 
                     placeholder="Search by comment..." 
-                    class="w-full rounded-md border-gray-300 {{ $c['focus'] ?? '' }}"
+                    class="w-full rounded-md border-gray-300 focus:border-pink-500 focus:ring-pink-500"
                 />
             </div>
-            @if($search)
-                <a href="{{ route('available-images.index') }}" class="text-sm text-gray-600 hover:underline">
-                    Clear
-                </a>
-            @endif
-            <button type="submit" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                Search
-            </button>
+            
+            <div class="flex items-center gap-2">
+                <x-ui.button type="submit" variant="primary" entity="available-images" size="sm">
+                    Search
+                </x-ui.button>
+                
+                @if($search)
+                    <x-ui.button href="{{ route('available-images.index') }}" variant="secondary" size="sm">
+                        Clear
+                    </x-ui.button>
+                @endif
+            </div>
         </form>
     </div>
 
@@ -51,7 +55,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4">
                 @foreach($availableImages as $image)
                     <a href="{{ route('available-images.show', $image) }}" 
-                       class="group relative bg-white rounded-lg border-2 border-pink-200 hover:shadow-lg transition-shadow cursor-pointer">
+                       class="group relative bg-white rounded-lg border-2 {{ $c['border'] ?? 'border-pink-200' }} hover:shadow-lg transition-shadow cursor-pointer">
                         <!-- Image -->
                         <div class="aspect-square rounded-t-lg overflow-hidden bg-gray-100">
                             <img 

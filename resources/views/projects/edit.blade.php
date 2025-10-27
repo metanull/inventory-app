@@ -1,12 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
-<x-layout.form-page 
-    entity="projects" 
-    title="Edit Project" 
-    :back-route="route('projects.show', $project)"
-    :submit-route="route('projects.update', $project)" 
-    method="PUT">
+<x-layout.edit-page entity="projects" :model="$project">
     @include('projects._form')
-</x-layout.form-page>
-@endsection
+</x-layout.edit-page>
+

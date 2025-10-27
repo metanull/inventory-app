@@ -1,12 +1,18 @@
-@props(['item'])
+@props(['item', 'link' => true])
+
+@php($c = $entityColor('items'))
 
 @if($item)
-    <a 
-        href="{{ route('items.show', $item) }}" 
-        class="text-blue-600 hover:text-blue-800 underline"
-    >
+    @if($link)
+        <a 
+            href="{{ route('items.show', $item) }}" 
+            class="{{ $c['accentLink'] }}"
+        >
+            {{ $item->internal_name }}
+        </a>
+    @else
         {{ $item->internal_name }}
-    </a>
+    @endif
 @else
-    <span class="text-gray-400">Not specified</span>
+    <span class="text-gray-400">N/A</span>
 @endif

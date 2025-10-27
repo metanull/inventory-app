@@ -58,14 +58,14 @@
                     @endcan
                 </div>
                 @can(\App\Enums\Permission::DELETE_DATA->value)
-                <form method="POST" action="{{ route('available-images.destroy', $availableImage) }}" onsubmit="return confirm('Are you sure you want to permanently delete this image? This action cannot be undone.');">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                        <x-heroicon-o-trash class="h-4 w-4 mr-2" />
-                        Delete
-                    </button>
-                </form>
+                <x-ui.confirm-button 
+                    :action="route('available-images.destroy', $availableImage)"
+                    confirmMessage="Are you sure you want to permanently delete this image? This action cannot be undone."
+                    variant="danger"
+                    icon="trash"
+                    entity="available_images">
+                    Delete
+                </x-ui.confirm-button>
                 @endcan
             </div>
         </div>

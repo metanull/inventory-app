@@ -78,6 +78,10 @@ plugins:
   - jekyll-feed
   - jekyll-seo-tag
 
+# Include directories that start with underscore
+include:
+  - _model
+
 # Exclude from processing
 exclude:
   - node_modules/
@@ -92,11 +96,14 @@ exclude:
   - lib/
   - bin/
   - README.md
+  - _docs/README.md
+  - _model/README.md
+  - _openapi/README.md
+  - api-client/README.md
   - Rakefile
   - COMMIT_DOCS_README.md
-  - generate-commit-docs.py
-  - generate-commit-docs.ps1
   - commit-docs.log
+  - client-docs.log
   - contributing-new.md
   - node_modules
   - vendor/bundle/
@@ -119,7 +126,3 @@ sass:
 aux_links:
   "View on GitHub":
     - "https://github.com/metanull/inventory-app"
-
-# Include additional files that Jekyll should process
-include:
-  - api.json

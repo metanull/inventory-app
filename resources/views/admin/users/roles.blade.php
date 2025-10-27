@@ -1,39 +1,47 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Manage Roles') }}: {{ $user->name }}
-            </h2>
-            <div class="flex space-x-2">
-                <a href="{{ route('admin.users.show', $user) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    {{ __('View User') }}
-                </a>
-                <a href="{{ route('admin.users.edit', $user) }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                    {{ __('Edit User') }}
-                </a>
-                <a href="{{ route('admin.users.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                    {{ __('Back to Users') }}
-                </a>
-            </div>
-        </div>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+@section('content')
+    @php($c = $entityColor('users'))
+    
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <x-entity.header entity="users" :title="'Manage Roles: ' . $user->name">
+            <x-slot name="action">
+                <div class="flex gap-2">
+                    <x-ui.button 
+                        href="{{ route('admin.users.show', $user) }}" 
+                        variant="secondary">
+                        View User
+                    </x-ui.button>
+                    <x-ui.button 
+                        href="{{ route('admin.users.edit', $user) }}" 
+                        variant="secondary">
+                        Edit User
+                    </x-ui.button>
+                    <x-ui.button 
+                        href="{{ route('admin.users.index') }}" 
+                        variant="secondary">
+                        Back to Users
+                    </x-ui.button>
+                </div>
+            </x-slot>
+        </x-entity.header>
+
+        <div class="space-y-6">
+        <div class="space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Current Roles -->
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="bg-white overflow-hidden shadow sm:rounded-lg">
                     <div class="p-6">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Current Roles') }}</h3>
                         
                         @if($user->roles->count() > 0)
                             <div class="space-y-3">
                                 @foreach($user->roles as $role)
-                                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                                    <div class="flex items-center justify-between p-3 {{ $c['lightBg'] }} rounded-lg border {{ $c['border'] }}">
                                         <div>
-                                            <h4 class="font-medium text-green-900">{{ $role->name }}</h4>
+                                            <h4 class="font-medium {{ $c['darkText'] }}">{{ $role->name }}</h4>
                                             @if($role->permissions->count() > 0)
-                                                <p class="text-sm text-green-700 mt-1">
+                                                <p class="text-sm {{ $c['mediumText'] }} mt-1">
                                                     {{ __('Permissions') }}: {{ $role->permissions->pluck('name')->implode(', ') }}
                                                 </p>
                                             @endif
@@ -59,7 +67,7 @@
                 </div>
 
                 <!-- Available Roles -->
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="bg-white overflow-hidden shadow sm:rounded-lg">
                     <div class="p-6">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Available Roles') }}</h3>
                         
@@ -85,7 +93,7 @@
                                             <input type="hidden" name="action" value="add">
                                             <input type="hidden" name="role_id" value="{{ $role->id }}">
                                             <button type="submit" 
-                                                    class="text-green-600 hover:text-green-800 text-sm font-medium"
+                                                    class="{{ $c['accentLink'] }} text-sm font-medium"
                                                     onclick="return confirm('{{ __('Are you sure you want to assign this role?') }}')">
                                                 {{ __('Assign') }}
                                             </button>
@@ -100,8 +108,10 @@
                 </div>
             </div>
 
+            </div>
+
             <!-- Bulk Role Management -->
-            <div class="mt-6 bg-white overflow-hidden shadow-xl sm:rounded-lg">
+            <div class="bg-white overflow-hidden shadow sm:rounded-lg">
                 <div class="p-6">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Bulk Role Assignment') }}</h3>
                     
@@ -110,6 +120,12 @@
                         @method('PUT')
                         <input type="hidden" name="action" value="sync">
                         
+                        @php
+                            $rolesCheckboxTextColor = 'text-' . $c['name'] . '-600';
+                            $rolesCheckboxFocusBorder = 'focus:border-' . $c['name'] . '-300';
+                            $rolesCheckboxFocusRing = 'focus:ring-' . $c['name'] . '-200';
+                            $rolesCheckboxClass = 'mt-1 rounded border-gray-300 ' . $rolesCheckboxTextColor . ' shadow-sm ' . $rolesCheckboxFocusBorder . ' focus:ring ' . $rolesCheckboxFocusRing . ' focus:ring-opacity-50';
+                        @endphp
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                             @foreach($roles as $role)
                                 <label class="flex items-start">
@@ -117,7 +133,7 @@
                                            name="roles[]" 
                                            value="{{ $role->id }}"
                                            {{ $user->hasRole($role->name) ? 'checked' : '' }}
-                                           class="mt-1 rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                           class="{{ $rolesCheckboxClass }}">
                                     <div class="ml-3">
                                         <span class="text-sm font-medium text-gray-700">{{ $role->name }}</span>
                                         @if($role->permissions->count() > 0)
@@ -131,13 +147,16 @@
                         </div>
                         
                         <div class="flex items-center justify-end">
-                            <button type="submit" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
-                                {{ __('Update All Roles') }}
-                            </button>
+                            <x-ui.button 
+                                type="submit" 
+                                variant="primary"
+                                entity="users">
+                                Update All Roles
+                            </x-ui.button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-</x-app-layout>
+@endsection

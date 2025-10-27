@@ -231,11 +231,11 @@ composer dev -- --reset
 
 The `composer dev` script will:
 
-- ✅ Start PHP artisan serve (Laravel API)
-- ✅ Start npm run dev (Vite frontend server)
-- ✅ Start queue listener for background jobs
-- ✅ Run all servers concurrently with colored output
-- ✅ Handle graceful shutdown
+- Start PHP artisan serve (Laravel API)
+- Start npm run dev (Vite frontend server)
+- Start queue listener for background jobs
+- Run all servers concurrently with colored output
+- Handle graceful shutdown
 
 ## Step 4: IDE Configuration
 
@@ -556,7 +556,6 @@ composer ci-before:pull-request
 
 ## Next Steps
 
-- 📖 [Production Deployment](production-deployment) - Deploy to production
-- 🔧 [Configuration](configuration) - Advanced configuration options
-- 🧪 [Testing Guide](testing) - Comprehensive testing strategies
-- 📊 [API Documentation](../api-documentation) - API endpoint documentation
+- [Configuration](configuration) - Advanced configuration options
+- [Testing Guide]({{ '/development/testing' | relative_url }}) - Comprehensive testing strategies
+- [API Documentation]({{ '/api/' | relative_url }}) - API endpoint documentation

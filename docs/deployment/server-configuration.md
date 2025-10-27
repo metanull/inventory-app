@@ -684,6 +684,6 @@ maxretry = 10
 ## Next Steps
 
 - 📖 [Configuration Guide](configuration) - Application configuration
-- 💻 [Development Setup](development-setup) - Local development
+- [Development Setup](development-setup) - Local development
 - 🔒 [Security Guide](security) - Security best practices
-- 📊 [Monitoring](monitoring) - Application monitoring
+- [Monitoring](monitoring) - Application monitoring

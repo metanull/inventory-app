@@ -15,8 +15,8 @@
 
             <x-validation-errors class="mb-4" />
 
-            <form method="POST" action="{{ route('two-factor.login') }}">
-                @csrf
+            <form method="POST" action="{{ route('two-factor.login') }}" id="two-factor-form">
+                {{-- CSRF token is injected via JavaScript to prevent password manager issues --}}
 
                 <div class="mt-4" x-show="! recovery">
                     <x-label for="code" value="{{ __('Code') }}" />
@@ -55,4 +55,6 @@
             </form>
         </div>
     </x-authentication-card>
+
+    <x-auth.csrf-refresh formId="two-factor-form" />
 </x-guest-layout>

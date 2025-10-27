@@ -2,7 +2,7 @@
 layout: default
 title: Coding Guidelines
 nav_order: 1
-parent: Guidelines
+parent: Backend Guidelines
 ---
 
 # Coding Guidelines
@@ -11,7 +11,7 @@ parent: Guidelines
 
 This document outlines the coding standards and best practices for the Inventory Management API project built with PHP 8.2+ and Laravel 12.
 
-## 🎯 General Principles
+General Principles
 
 ### Code Quality
 
@@ -28,7 +28,7 @@ This document outlines the coding standards and best practices for the Inventory
 - Implement efficient caching strategies
 - Minimize API response times
 
-## 🔧 PHP & Laravel Standards
+## PHP & Laravel Standards
 
 ### Class Structure
 
@@ -94,7 +94,7 @@ class ItemController extends Controller
 ```php
 <?php
 
-// ✅ Good - Organized imports
+// Good - Organized imports
 // 1. Laravel/Framework imports
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -117,7 +117,7 @@ use App\Http\Requests\StoreItemRequest;
 use App\Services\ImageProcessingService;
 ```
 
-## 🎨 Laravel Guidelines
+Laravel Guidelines
 
 ### Model Design
 
@@ -221,7 +221,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 /**
- * ✅ Good - Resource controller with proper typing
+ * Good - Resource controller with proper typing
  */
 class ItemController extends Controller
 {
@@ -260,7 +260,7 @@ class ItemController extends Controller
 }
 ```
 
-## ✅ Quality Controls
+## Quality Controls
 
 Before submitting code, ensure all quality controls pass:
 
@@ -341,7 +341,7 @@ composer ci-before:pull-request
 composer ci-git:assert-no-change
 ```
 
-## 🏗️ Application Architecture
+## Application Architecture
 
 ### Model Structure Pattern
 
@@ -418,7 +418,7 @@ When adding new entities to the API:
 - **ImageUploads** - File upload tracking and processing status
 - **AvailableImages** - Image availability and accessibility management
 
-## 🚫 Common Pitfalls
+Common Pitfalls
 
 ### Avoid These Mistakes
 

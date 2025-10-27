@@ -34,7 +34,7 @@ class PartnerController extends Controller
 
     public function show(Partner $partner): View
     {
-        $partner->load('country', 'project', 'monumentItem');
+        $partner->load('country', 'project', 'monumentItem', 'translations.context', 'translations.language');
 
         return view('partners.show', compact('partner'));
     }
