@@ -8,6 +8,7 @@ has_children: true
 # TypeScript API Client Documentation
 
 {: .note }
+
 > **Auto-generated Documentation:** This section is automatically maintained by the API client documentation generator.
 > Last updated: <!-- AUTOGEN_DATE -->
 > Client version: <!-- AUTOGEN_VERSION -->

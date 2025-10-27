@@ -36,6 +36,7 @@ resources/views/components/
 Components are called using the `<x-component-name>` syntax:
 
 {% raw %}
+
 ```blade
 {{-- Simple component --}}
 <x-button>Click Me</x-button>
@@ -50,14 +51,15 @@ Components are called using the `<x-component-name>` syntax:
     <x-slot name="header">
         Card Title
     </x-slot>
-    
+
     Card content goes here
-    
+
     <x-slot name="footer">
         <x-button>Action</x-button>
     </x-slot>
 </x-card>
 ```
+
 {% endraw %}
 
 ## Common Component Patterns
@@ -75,7 +77,7 @@ Many components accept entity-based colors:
 ### Conditional Rendering
 
 ```blade
-<x-button 
+<x-button
     :disabled="$isDisabled"
     :loading="$isLoading"
 >
@@ -90,11 +92,11 @@ Many components accept entity-based colors:
     <x-slot name="title">
         Modal Title
     </x-slot>
-    
+
     <x-slot name="content">
         Modal body content
     </x-slot>
-    
+
     <x-slot name="footer">
         <x-button>Close</x-button>
     </x-slot>

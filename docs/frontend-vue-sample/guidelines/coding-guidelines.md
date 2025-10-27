@@ -53,8 +53,11 @@ General Principles
 ```vue
 <!-- Good: Proper Heroicons usage -->
 <script setup lang="ts">
-  import { CogIcon as ContextIcon, CheckCircleIcon } from '@heroicons/vue/24/solid'
-  import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
+import {
+  CogIcon as ContextIcon,
+  CheckCircleIcon,
+} from "@heroicons/vue/24/solid";
+import { ArrowLeftIcon } from "@heroicons/vue/24/outline";
 </script>
 
 <template>
@@ -108,20 +111,20 @@ Each entity must use its assigned color consistently across ALL components:
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted } from 'vue'
-  import type { ApiResponse } from '@/api/client'
+import { ref, onMounted } from "vue";
+import type { ApiResponse } from "@/api/client";
 
-  // Proper TypeScript typing
-  const loading = ref<boolean>(false)
-  const data = ref<ApiResponse | null>(null)
+// Proper TypeScript typing
+const loading = ref<boolean>(false);
+const data = ref<ApiResponse | null>(null);
 
-  onMounted(() => {
-    // Component logic
-  })
+onMounted(() => {
+  // Component logic
+});
 </script>
 
 <style scoped>
-  /* Component-specific styles */
+/* Component-specific styles */
 </style>
 ```
 
@@ -135,23 +138,23 @@ Each entity must use its assigned color consistently across ALL components:
 ```typescript
 // Good - Organized imports
 // 1. Vue imports
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
 
 // 2. Third-party imports
-import { z } from 'zod'
+import { z } from "zod";
 
 // 3. Internal imports - stores
-import { useUserStore } from '@/stores/user'
+import { useUserStore } from "@/stores/user";
 
 // 4. Internal imports - composables
-import { useApi } from '@/composables/useApi'
+import { useApi } from "@/composables/useApi";
 
 // 5. Internal imports - components
-import UserForm from '@/components/forms/UserForm.vue'
+import UserForm from "@/components/forms/UserForm.vue";
 
 // 6. Internal imports - types
-import type { User, ApiResponse } from '@/types'
+import type { User, ApiResponse } from "@/types";
 ```
 
 Vue.js Guidelines
@@ -164,39 +167,39 @@ Vue.js Guidelines
 
 ```typescript
 // Good
-UserProfile.vue
-ItemListView.vue
-NavigationMenu.vue
+UserProfile.vue;
+ItemListView.vue;
+NavigationMenu.vue;
 
 // Avoid
-User.vue
-Item.vue
-Nav.vue
+User.vue;
+Item.vue;
+Nav.vue;
 ```
 
 ### Props and Events
 
 ```vue
 <script setup lang="ts">
-  // Good - Explicit prop types
-  interface Props {
-    items: Item[]
-    loading?: boolean
-    maxItems?: number
-  }
+// Good - Explicit prop types
+interface Props {
+  items: Item[];
+  loading?: boolean;
+  maxItems?: number;
+}
 
-  const props = withDefaults(defineProps<Props>(), {
-    loading: false,
-    maxItems: 100,
-  })
+const props = withDefaults(defineProps<Props>(), {
+  loading: false,
+  maxItems: 100,
+});
 
-  // Good - Typed events
-  interface Emits {
-    'item-selected': [item: Item]
-    'load-more': []
-  }
+// Good - Typed events
+interface Emits {
+  "item-selected": [item: Item];
+  "load-more": [];
+}
 
-  const emit = defineEmits<Emits>()
+const emit = defineEmits<Emits>();
 </script>
 ```
 
@@ -211,7 +214,9 @@ Styling Guidelines
 ```vue
 <template>
   <!-- Good - Utility classes -->
-  <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+  <div
+    class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+  >
     <h2 class="text-xl font-semibold text-gray-800 mb-4">{{ title }}</h2>
     <p class="text-gray-600 leading-relaxed">{{ description }}</p>
   </div>
@@ -222,19 +227,19 @@ Styling Guidelines
 
 ```vue
 <style scoped>
-  /* Good - Scoped styles for component-specific needs */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-  }
+/* Good - Scoped styles for component-specific needs */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
 
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 rounded-full;
-  }
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
 
-  /* Use CSS variables for dynamic values */
-  .progress-bar {
-    width: var(--progress-width, 0%);
-  }
+/* Use CSS variables for dynamic values */
+.progress-bar {
+  width: var(--progress-width, 0%);
+}
 </style>
 ```
 

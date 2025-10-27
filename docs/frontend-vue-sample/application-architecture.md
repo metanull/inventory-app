@@ -277,13 +277,14 @@ All reference data resources now use **consistent ListView/DetailView architectu
 ```typescript
 // Base configuration pattern used across all stores
 const createApiClient = () => {
-  const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'
+  const baseURL =
+    import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
   const configuration = new Configuration({
     basePath: baseURL,
     accessToken: authStore.token,
-  })
-  return new ResourceApi(configuration)
-}
+  });
+  return new ResourceApi(configuration);
+};
 ```
 
 ### API-to-Application Feature Mapping
@@ -320,30 +321,30 @@ const createApiClient = () => {
 | `contextUpdate()`      | Update context via inline editing               |
 | `contextDestroy()`     | Delete context with confirmation                |
 | `contextSetDefault()`  | Set default context functionality               |
-| **Advanced filtering** | **Implemented** - Default context filtering  |
+| **Advanced filtering** | **Implemented** - Default context filtering     |
 
 #### Country API (`CountryApi`)
 
-| API Feature              | Application Usage                                     |
-| ------------------------ | ----------------------------------------------------- |
-| `countryIndex()`         | Country list loading with smart caching               |
-| `countryStore()`         | Create country via DetailView system                  |
-| `countryShow()`          | Country detail view data loading                      |
-| `countryUpdate()`        | Update country via inline editing                     |
-| `countryDestroy()`       | Delete country with confirmation                      |
+| API Feature              | Application Usage                                  |
+| ------------------------ | -------------------------------------------------- |
+| `countryIndex()`         | Country list loading with smart caching            |
+| `countryStore()`         | Create country via DetailView system               |
+| `countryShow()`          | Country detail view data loading                   |
+| `countryUpdate()`        | Update country via inline editing                  |
+| `countryDestroy()`       | Delete country with confirmation                   |
 | **Search functionality** | **Implemented** - Real-time country search         |
 | **Form validation**      | **Implemented** - Country name and code validation |
 
 #### Language API (`LanguageApi`)
 
-| API Feature            | Application Usage                               |
-| ---------------------- | ----------------------------------------------- |
-| `languageIndex()`      | Language list loading with caching              |
-| `languageStore()`      | Create language via DetailView system           |
-| `languageShow()`       | Language detail view data loading               |
-| `languageUpdate()`     | Update language via inline editing              |
-| `languageDestroy()`    | Delete language with confirmation               |
-| `languageSetDefault()` | Set default language functionality              |
+| API Feature            | Application Usage                            |
+| ---------------------- | -------------------------------------------- |
+| `languageIndex()`      | Language list loading with caching           |
+| `languageStore()`      | Create language via DetailView system        |
+| `languageShow()`       | Language detail view data loading            |
+| `languageUpdate()`     | Update language via inline editing           |
+| `languageDestroy()`    | Delete language with confirmation            |
+| `languageSetDefault()` | Set default language functionality           |
 | **Advanced filtering** | **Implemented** - Default language filtering |
 
 #### System Information API (`InfoApi`)
@@ -356,26 +357,26 @@ const createApiClient = () => {
 
 #### Partner API (`PartnerApi`)
 
-| API Status             | Application Status                        |
-| ---------------------- | ----------------------------------------- |
+| API Status          | Application Status                     |
+| ------------------- | -------------------------------------- |
 | Available in client | **Not implemented** - Planned resource |
 
 #### Item API (`ItemApi`)
 
-| API Status             | Application Status                              |
-| ---------------------- | ----------------------------------------------- |
+| API Status          | Application Status                           |
+| ------------------- | -------------------------------------------- |
 | Available in client | **Not implemented** - Core inventory feature |
 
 #### Tag API (`TagApi`)
 
-| API Status             | Application Status                           |
-| ---------------------- | -------------------------------------------- |
+| API Status          | Application Status                        |
+| ------------------- | ----------------------------------------- |
 | Available in client | **Not implemented** - Metadata management |
 
 #### Picture API (`PictureApi`)
 
-| API Status             | Application Status                        |
-| ---------------------- | ----------------------------------------- |
+| API Status          | Application Status                     |
+| ------------------- | -------------------------------------- |
 | Available in client | **Not implemented** - Media management |
 
 ## Component Architecture
@@ -589,8 +590,8 @@ All stores follow consistent patterns:
 
 ### Implementation Maturity
 
-| Feature                  | Projects               | Contexts               | Countries              | Languages              |
-| ------------------------ | ---------------------- | ---------------------- | ---------------------- | ---------------------- |
+| Feature                  | Projects            | Contexts            | Countries           | Languages           |
+| ------------------------ | ------------------- | ------------------- | ------------------- | ------------------- |
 | **Layout Component**     | ListView/DetailView | ListView/DetailView | ListView/DetailView | ListView/DetailView |
 | **Three-Mode System**    | View/Edit/Create    | View/Edit/Create    | View/Edit/Create    | View/Edit/Create    |
 | **Search Functionality** | Real-time search    | Real-time search    | Real-time search    | Real-time search    |

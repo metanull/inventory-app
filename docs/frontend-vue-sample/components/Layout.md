@@ -547,11 +547,11 @@ Displays system-level metadata like creation and modification timestamps.
 
 ```typescript
 interface Resource {
-  id: string
-  internal_name: string
-  backward_compatibility?: string | null
-  created_at: string | null
-  updated_at: string | null
+  id: string;
+  internal_name: string;
+  backward_compatibility?: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 ```
 
@@ -559,10 +559,10 @@ interface Resource {
 
 ```typescript
 interface BackLinkConfig {
-  title: string
-  route: string
-  icon: Component
-  color?: string
+  title: string;
+  route: string;
+  icon: Component;
+  color?: string;
 }
 ```
 
@@ -570,19 +570,19 @@ interface BackLinkConfig {
 
 ```typescript
 interface StatusCardConfig {
-  title: string
-  description: string
-  mainColor: string
-  statusText: string
-  toggleTitle: string
-  isActive: boolean
-  loading: boolean
-  disabled?: boolean
-  activeIconBackgroundClass: string
-  inactiveIconBackgroundClass: string
-  activeIconClass: string
-  inactiveIconClass: string
-  activeIconComponent: Component
-  inactiveIconComponent: Component
+  title: string;
+  description: string;
+  mainColor: string;
+  statusText: string;
+  toggleTitle: string;
+  isActive: boolean;
+  loading: boolean;
+  disabled?: boolean;
+  activeIconBackgroundClass: string;
+  inactiveIconBackgroundClass: string;
+  activeIconClass: string;
+  inactiveIconClass: string;
+  activeIconComponent: Component;
+  inactiveIconComponent: Component;
 }
 ```

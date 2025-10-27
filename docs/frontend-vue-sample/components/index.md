@@ -54,31 +54,31 @@ All components follow these conventions:
 
 ```typescript
 interface Props {
-  required: string
-  optional?: boolean
-  withDefault?: string
+  required: string;
+  optional?: boolean;
+  withDefault?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   optional: false,
-  withDefault: 'default value',
-})
+  withDefault: "default value",
+});
 ```
 
 ### Event Emissions
 
 ```typescript
 const emit = defineEmits<{
-  click: []
-  change: [value: string]
-  customEvent: [data: CustomType]
-}>()
+  click: [];
+  change: [value: string];
+  customEvent: [data: CustomType];
+}>();
 ```
 
 ### Computed Properties
 
 ```typescript
 const computedValue = computed(() => {
-  return props.someValue ? 'active' : 'inactive'
-})
+  return props.someValue ? "active" : "inactive";
+});
 ```

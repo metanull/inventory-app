@@ -40,17 +40,17 @@ npm run test:watch
 
 ```typescript
 // Good: Descriptive test structure
-describe('AuthStore', () => {
-  describe('login', () => {
-    it('should set user data when login succeeds', async () => {
+describe("AuthStore", () => {
+  describe("login", () => {
+    it("should set user data when login succeeds", async () => {
       // Test implementation
-    })
+    });
 
-    it('should handle login errors gracefully', async () => {
+    it("should handle login errors gracefully", async () => {
       // Test implementation
-    })
-  })
-})
+    });
+  });
+});
 ```
 
 ### Component Tests
@@ -61,17 +61,17 @@ describe('AuthStore', () => {
 
 ```typescript
 // Good: Component test example
-describe('ItemDetail.vue', () => {
-  it('should display item information correctly', async () => {
+describe("ItemDetail.vue", () => {
+  it("should display item information correctly", async () => {
     const wrapper = mount(ItemDetail, {
       global: {
         plugins: [router, pinia],
       },
-    })
+    });
 
-    expect(wrapper.text()).toContain('Expected Item Name')
-  })
-})
+    expect(wrapper.text()).toContain("Expected Item Name");
+  });
+});
 ```
 
 ## Code Review Testing Criteria
@@ -181,30 +181,30 @@ The project maintains high test coverage requirements:
 ### Example Unit Test
 
 ```typescript
-import { describe, test, expect, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { apiClient } from '@/api/client'
-import Countries from '@/views/Countries.vue'
+import { describe, test, expect, vi } from "vitest";
+import { mount } from "@vue/test-utils";
+import { apiClient } from "@/api/client";
+import Countries from "@/views/Countries.vue";
 
 // Mock API client
-vi.mock('@/api/client')
+vi.mock("@/api/client");
 
-describe('Countries.vue', () => {
-  test('should load and display countries', async () => {
+describe("Countries.vue", () => {
+  test("should load and display countries", async () => {
     // Mock API response
     vi.mocked(apiClient.getCountries).mockResolvedValue([
-      { id: '1', name: 'United States', iso_code: 'US' },
-    ])
+      { id: "1", name: "United States", iso_code: "US" },
+    ]);
 
-    const wrapper = mount(Countries)
+    const wrapper = mount(Countries);
 
     // Wait for async operations
-    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick();
 
     // Assert component behavior
-    expect(wrapper.text()).toContain('United States')
-  })
-})
+    expect(wrapper.text()).toContain("United States");
+  });
+});
 ```
 
 ## Integration Tests
@@ -325,35 +325,35 @@ php artisan db:seed --env=testing
 ### Integration Test Example
 
 ```typescript
-describe('Countries API Integration', () => {
-  test('should create, read, update, and delete a country', async () => {
+describe("Countries API Integration", () => {
+  test("should create, read, update, and delete a country", async () => {
     // Skip if destructive tests are disabled
     if (!TEST_CONFIG.RUN_DESTRUCTIVE_TESTS) {
-      return
+      return;
     }
 
     // Create
     const newCountry = await apiClient.createCountry({
-      name: 'Test Country',
-      iso_code: 'TC',
-    })
-    createdResources.countries.push(newCountry.id)
+      name: "Test Country",
+      iso_code: "TC",
+    });
+    createdResources.countries.push(newCountry.id);
 
     // Read
-    const fetchedCountry = await apiClient.getCountry(newCountry.id)
-    expect(fetchedCountry.name).toBe('Test Country')
+    const fetchedCountry = await apiClient.getCountry(newCountry.id);
+    expect(fetchedCountry.name).toBe("Test Country");
 
     // Update
     const updatedCountry = await apiClient.updateCountry(newCountry.id, {
-      name: 'Updated Test Country',
-    })
-    expect(updatedCountry.name).toBe('Updated Test Country')
+      name: "Updated Test Country",
+    });
+    expect(updatedCountry.name).toBe("Updated Test Country");
 
     // Delete
-    await apiClient.deleteCountry(newCountry.id)
-    await expect(apiClient.getCountry(newCountry.id)).rejects.toThrow()
-  })
-})
+    await apiClient.deleteCountry(newCountry.id);
+    await expect(apiClient.getCountry(newCountry.id)).rejects.toThrow();
+  });
+});
 ```
 
 ## Test Configuration
@@ -367,12 +367,12 @@ export default defineConfig({
   plugins: [vue()],
   test: {
     globals: true,
-    environment: 'jsdom',
-    setupFiles: ['src/test/setup.ts'],
+    environment: "jsdom",
+    setupFiles: ["src/test/setup.ts"],
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/', 'src/test/', '**/*.d.ts', '**/*.config.*'],
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      exclude: ["node_modules/", "src/test/", "**/*.d.ts", "**/*.config.*"],
       thresholds: {
         global: {
           branches: 80,
@@ -383,7 +383,7 @@ export default defineConfig({
       },
     },
   },
-})
+});
 ```
 
 ### Integration Test Configuration
@@ -394,20 +394,20 @@ File: `vitest.integration.config.ts`
 export default defineConfig({
   plugins: [vue()],
   test: {
-    name: 'integration',
-    include: ['**/integration.test.ts'],
-    environment: 'jsdom',
+    name: "integration",
+    include: ["**/integration.test.ts"],
+    environment: "jsdom",
     globals: true,
     // Run tests sequentially to avoid conflicts
-    pool: 'forks',
+    pool: "forks",
     poolOptions: {
       forks: { singleFork: true },
     },
     // Longer timeout for network requests
     testTimeout: 30000,
-    reporters: ['verbose'],
+    reporters: ["verbose"],
   },
-})
+});
 ```
 
 ## Continuous Integration
@@ -428,8 +428,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - run: npm ci
       - run: npm run type-check
@@ -498,11 +498,11 @@ npm test
 ```typescript
 // Provide required props/mocks
 const wrapper = mount(Component, {
-  props: { required: 'value' },
+  props: { required: "value" },
   global: {
     mocks: { $router: mockRouter },
   },
-})
+});
 ```
 
 ### Common Integration Test Issues
@@ -571,8 +571,8 @@ php artisan db:seed --env=testing
 
 ```typescript
 // Use vi.mock() to mock heavy dependencies
-vi.mock('@/api/client')
-vi.mock('@metanull/inventory-app-api-client')
+vi.mock("@/api/client");
+vi.mock("@metanull/inventory-app-api-client");
 ```
 
 #### Slow Integration Tests

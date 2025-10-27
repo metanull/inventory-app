@@ -53,9 +53,12 @@ Each entity has a standardized icon that must be used consistently:
 
 ```vue
 <script setup lang="ts">
-  // Import Heroicons directly
-  import { CogIcon as ContextIcon, CheckCircleIcon } from '@heroicons/vue/24/solid'
-  import { ArrowLeftIcon, PencilIcon } from '@heroicons/vue/24/outline'
+// Import Heroicons directly
+import {
+  CogIcon as ContextIcon,
+  CheckCircleIcon,
+} from "@heroicons/vue/24/solid";
+import { ArrowLeftIcon, PencilIcon } from "@heroicons/vue/24/outline";
 </script>
 
 <template>
@@ -170,8 +173,8 @@ Fallback icon for generic use cases.
 ### In Back Links
 
 ```vue
-const backLink = computed(() => ({ title: 'Back to Projects', route: '/projects', icon: ProjectIcon,
-color: 'orange' }))
+const backLink = computed(() => ({ title: 'Back to Projects', route:
+'/projects', icon: ProjectIcon, color: 'orange' }))
 ```
 
 ## Styling

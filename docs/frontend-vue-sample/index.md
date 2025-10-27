@@ -12,6 +12,7 @@ permalink: /frontend-vue-sample/
 Sample Application
 
 {: .note }
+
 > **Note:** This is a SAMPLE single-page application demonstrating API usage.
 > It is NOT the main frontend for end users, see [Blade/Livewire Frontend]({{ '/frontend-blade/' | relative_url }}).
 

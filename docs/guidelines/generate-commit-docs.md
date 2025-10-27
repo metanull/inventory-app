@@ -115,7 +115,7 @@ on:
     branches: [main]
   schedule:
     # Run every day at 2 AM UTC
-    - cron: '0 2 * * *'
+    - cron: "0 2 * * *"
   workflow_dispatch:
     # Allow manual triggering
 
@@ -128,7 +128,7 @@ permissions:
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: 'pages'
+  group: "pages"
   cancel-in-progress: false
 
 jobs:
@@ -156,7 +156,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -164,7 +164,7 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2.3'
+          ruby-version: "3.2.3"
           working-directory: docs
 
       - name: Install Ruby dependencies

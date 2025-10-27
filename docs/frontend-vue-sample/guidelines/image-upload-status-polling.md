@@ -102,51 +102,51 @@ Authorization: Bearer {token}
 ```javascript
 async function uploadAndPollStatus(file) {
   // Upload the image
-  const formData = new FormData()
-  formData.append('file', file)
+  const formData = new FormData();
+  formData.append("file", file);
 
-  const uploadResponse = await fetch('/api/image-upload', {
-    method: 'POST',
+  const uploadResponse = await fetch("/api/image-upload", {
+    method: "POST",
     body: formData,
     headers: {
       Authorization: `Bearer ${token}`,
     },
-  })
+  });
 
-  const uploadData = await uploadResponse.json()
-  const uploadId = uploadData.data.id
+  const uploadData = await uploadResponse.json();
+  const uploadId = uploadData.data.id;
 
   // Poll for status
-  let status = 'processing'
-  let availableImage = null
+  let status = "processing";
+  let availableImage = null;
 
-  while (status === 'processing') {
+  while (status === "processing") {
     const statusResponse = await fetch(`/api/image-upload/${uploadId}/status`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    })
+    });
 
-    const statusData = await statusResponse.json()
-    status = statusData.status
-    availableImage = statusData.available_image
+    const statusData = await statusResponse.json();
+    status = statusData.status;
+    availableImage = statusData.available_image;
 
-    if (status === 'processing') {
+    if (status === "processing") {
       // Wait 1 second before polling again
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
 
-  if (status === 'processed') {
-    console.log('Image processed successfully:', availableImage)
+  if (status === "processed") {
+    console.log("Image processed successfully:", availableImage);
 
     // You can now use the available image
-    const imageUrl = `/api/available-image/${availableImage.id}/view`
-    const downloadUrl = `/api/available-image/${availableImage.id}/download`
+    const imageUrl = `/api/available-image/${availableImage.id}/view`;
+    const downloadUrl = `/api/available-image/${availableImage.id}/download`;
 
-    return { availableImage, imageUrl, downloadUrl }
+    return { availableImage, imageUrl, downloadUrl };
   } else {
-    throw new Error(`Image processing failed: ${status}`)
+    throw new Error(`Image processing failed: ${status}`);
   }
 }
 ```
@@ -154,15 +154,15 @@ async function uploadAndPollStatus(file) {
 ## React Hook Example
 
 ```javascript
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 
 function useImageUploadStatus(uploadId) {
-  const [status, setStatus] = useState('processing')
-  const [availableImage, setAvailableImage] = useState(null)
-  const [error, setError] = useState(null)
+  const [status, setStatus] = useState("processing");
+  const [availableImage, setAvailableImage] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!uploadId) return
+    if (!uploadId) return;
 
     const pollStatus = async () => {
       try {
@@ -170,66 +170,69 @@ function useImageUploadStatus(uploadId) {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
+        });
 
         if (!response.ok) {
-          throw new Error('Failed to check status')
+          throw new Error("Failed to check status");
         }
 
-        const data = await response.json()
-        setStatus(data.status)
-        setAvailableImage(data.available_image)
+        const data = await response.json();
+        setStatus(data.status);
+        setAvailableImage(data.available_image);
 
-        if (data.status === 'processing') {
+        if (data.status === "processing") {
           // Continue polling
-          setTimeout(pollStatus, 1000)
+          setTimeout(pollStatus, 1000);
         }
       } catch (err) {
-        setError(err.message)
+        setError(err.message);
       }
-    }
+    };
 
-    pollStatus()
-  }, [uploadId])
+    pollStatus();
+  }, [uploadId]);
 
-  return { status, availableImage, error }
+  return { status, availableImage, error };
 }
 
 // Usage
 function ImageUploadComponent() {
-  const [uploadId, setUploadId] = useState(null)
-  const { status, availableImage, error } = useImageUploadStatus(uploadId)
+  const [uploadId, setUploadId] = useState(null);
+  const { status, availableImage, error } = useImageUploadStatus(uploadId);
 
-  const handleUpload = async file => {
-    const formData = new FormData()
-    formData.append('file', file)
+  const handleUpload = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
 
-    const response = await fetch('/api/image-upload', {
-      method: 'POST',
+    const response = await fetch("/api/image-upload", {
+      method: "POST",
       body: formData,
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    })
+    });
 
-    const data = await response.json()
-    setUploadId(data.data.id)
-  }
+    const data = await response.json();
+    setUploadId(data.data.id);
+  };
 
   return (
     <div>
-      <input type="file" onChange={e => handleUpload(e.target.files[0])} />
+      <input type="file" onChange={(e) => handleUpload(e.target.files[0])} />
 
-      {status === 'processing' && <p>Processing image...</p>}
-      {status === 'processed' && availableImage && (
+      {status === "processing" && <p>Processing image...</p>}
+      {status === "processed" && availableImage && (
         <div>
           <p>Image processed successfully!</p>
-          <img src={`/api/available-image/${availableImage.id}/view`} alt="Processed" />
+          <img
+            src={`/api/available-image/${availableImage.id}/view`}
+            alt="Processed"
+          />
         </div>
       )}
       {error && <p>Error: {error}</p>}
     </div>
-  )
+  );
 }
 ```
 

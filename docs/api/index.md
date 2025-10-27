@@ -59,10 +59,12 @@ npm install @metanull/inventory-app-api-client@latest
 ### Quick Start
 
 ```typescript
-import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client'
+import { Configuration, DefaultApi } from "@metanull/inventory-app-api-client";
 
-const api = new DefaultApi(new Configuration({ basePath: 'https://your.api.url' }))
-api.addressIndex().then(response => console.log(response.data))
+const api = new DefaultApi(
+  new Configuration({ basePath: "https://your.api.url" }),
+);
+api.addressIndex().then((response) => console.log(response.data));
 ```
 
 ### Package Information
@@ -259,25 +261,28 @@ To use the API client in a project:
 3. **Usage**:
 
    ```typescript
-   import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client'
+   import {
+     Configuration,
+     DefaultApi,
+   } from "@metanull/inventory-app-api-client";
 
    // Create API instance
    const api = new DefaultApi(
      new Configuration({
-       basePath: 'https://your-api-url',
+       basePath: "https://your-api-url",
        // Optional: Authentication
-       accessToken: 'your-access-token',
-     })
-   )
+       accessToken: "your-access-token",
+     }),
+   );
 
    // Make API calls
    async function fetchItems() {
      try {
-       const response = await api.itemIndex()
-       return response.data
+       const response = await api.itemIndex();
+       return response.data;
      } catch (error) {
-       console.error('API Error:', error)
-       throw error
+       console.error("API Error:", error);
+       throw error;
      }
    }
    ```

@@ -652,4 +652,3 @@ cat .env | grep -v PASSWORD | grep -v KEY | grep -v SECRET
 - [Configuration]({{ '/deployment/configuration' | relative_url }}) - Application configuration
 - [Development Setup]({{ '/deployment/development-setup' | relative_url }}) - Development environment
 - [Server Configuration]({{ '/deployment/server-configuration' | relative_url }}) - Web server setup
-

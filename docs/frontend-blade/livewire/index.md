@@ -37,15 +37,15 @@ use Livewire\WithPagination;
 class ItemTable extends Component
 {
     use WithPagination;
-    
+
     public $search = '';
     public $perPage = 15;
-    
+
     public function updatingSearch()
     {
         $this->resetPage();
     }
-    
+
     public function render()
     {
         return view('livewire.item.item-table', [
@@ -59,17 +59,18 @@ class ItemTable extends Component
 ### 2. Blade View (Template)
 
 {% raw %}
+
 ```blade
 <div>
     <div class="mb-4">
-        <input 
-            wire:model.live="search" 
-            type="text" 
+        <input
+            wire:model.live="search"
+            type="text"
             placeholder="Search items..."
             class="border rounded px-4 py-2"
         />
     </div>
-    
+
     <table class="w-full">
         <thead>
             <tr>
@@ -90,10 +91,11 @@ class ItemTable extends Component
             @endforeach
         </tbody>
     </table>
-    
+
     {{ $items->links() }}
 </div>
 ```
+
 {% endraw %}
 
 ## Common Patterns
@@ -116,14 +118,16 @@ public function updatingSearch()
 ### Form Handling
 
 {% raw %}
+
 ```blade
 <form wire:submit="save">
     <input wire:model="name" type="text" />
     @error('name') <span class="error">{{ $message }}</span> @enderror
-    
+
     <button type="submit">Save</button>
 </form>
 ```
+
 {% endraw %}
 
 ```php
@@ -136,11 +140,11 @@ protected $rules = [
 public function save()
 {
     $this->validate();
-    
+
     Item::create([
         'name' => $this->name,
     ]);
-    
+
     session()->flash('message', 'Item created successfully.');
     return redirect()->route('item.index');
 }
@@ -154,7 +158,7 @@ use Livewire\WithPagination;
 class ItemList extends Component
 {
     use WithPagination;
-    
+
     public function render()
     {
         return view('livewire.item-list', [
@@ -165,14 +169,17 @@ class ItemList extends Component
 ```
 
 {% raw %}
+
 ```blade
 {{ $items->links() }}
 ```
+
 {% endraw %}
 
 ### Loading States
 
 {% raw %}
+
 ```blade
 <button wire:click="save" wire:loading.attr="disabled">
     <span wire:loading.remove>Save</span>
@@ -183,19 +190,22 @@ class ItemList extends Component
     Searching...
 </div>
 ```
+
 {% endraw %}
 
 ### Confirmation Dialogs
 
 {% raw %}
+
 ```blade
-<button 
+<button
     wire:click="delete({{ $item->id }})"
     wire:confirm="Are you sure you want to delete this item?"
 >
     Delete
 </button>
 ```
+
 {% endraw %}
 
 ```php
@@ -209,19 +219,21 @@ public function delete($id)
 ## File Upload
 
 {% raw %}
+
 ```blade
 <form wire:submit="save">
     <input type="file" wire:model="photo">
-    
+
     @error('photo') <span class="error">{{ $message }}</span> @enderror
-    
+
     @if ($photo)
         <img src="{{ $photo->temporaryUrl() }}" />
     @endif
-    
+
     <button type="submit">Upload</button>
 </form>
 ```
+
 {% endraw %}
 
 ```php
@@ -230,19 +242,19 @@ use Livewire\WithFileUploads;
 class UploadPhoto extends Component
 {
     use WithFileUploads;
-    
+
     public $photo;
-    
+
     protected $rules = [
         'photo' => 'image|max:1024',
     ];
-    
+
     public function save()
     {
         $this->validate();
-        
+
         $path = $this->photo->store('photos');
-        
+
         // Save to database...
     }
 }
@@ -256,7 +268,7 @@ class UploadPhoto extends Component
 public function save()
 {
     // Save logic...
-    
+
     $this->dispatch('item-created');
 }
 ```
@@ -273,6 +285,7 @@ public function refreshList()
 ```
 
 In Blade:
+
 ```blade
 <div wire:on="item-created">
     Item was created!

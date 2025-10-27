@@ -15,9 +15,10 @@ Form components provide consistent input handling and validation display.
 ### Input Fields
 
 #### Text Input
+
 ```blade
-<x-form.input 
-    name="title" 
+<x-form.input
+    name="title"
     label="Title"
     :value="old('title', $item->title ?? '')"
     required
@@ -25,20 +26,22 @@ Form components provide consistent input handling and validation display.
 ```
 
 #### Email Input
+
 ```blade
-<x-form.input 
+<x-form.input
     type="email"
-    name="email" 
+    name="email"
     label="Email Address"
     placeholder="user@example.com"
 />
 ```
 
 #### Number Input
+
 ```blade
-<x-form.input 
+<x-form.input
     type="number"
-    name="quantity" 
+    name="quantity"
     label="Quantity"
     min="0"
     step="1"
@@ -48,8 +51,8 @@ Form components provide consistent input handling and validation display.
 ### Select Dropdown
 
 ```blade
-<x-form.select 
-    name="country_id" 
+<x-form.select
+    name="country_id"
     label="Country"
     :options="$countries"
     :selected="old('country_id', $item->country_id ?? '')"
@@ -60,8 +63,8 @@ Form components provide consistent input handling and validation display.
 ### Textarea
 
 ```blade
-<x-form.textarea 
-    name="description" 
+<x-form.textarea
+    name="description"
     label="Description"
     :value="old('description', $item->description ?? '')"
     rows="5"
@@ -71,8 +74,8 @@ Form components provide consistent input handling and validation display.
 ### Checkbox
 
 ```blade
-<x-form.checkbox 
-    name="is_active" 
+<x-form.checkbox
+    name="is_active"
     label="Active"
     :checked="old('is_active', $item->is_active ?? false)"
 />
@@ -83,17 +86,21 @@ Form components provide consistent input handling and validation display.
 Validation errors are automatically displayed:
 
 {% raw %}
+
 ```blade
 <x-form.input name="email" label="Email" />
 {{-- Error will show if validation fails --}}
 ```
+
 {% endraw %}
 
 Manual error display:
 {% raw %}
+
 ```blade
 <x-form.error name="email" />
 ```
+
 {% endraw %}
 
 ## Form Patterns
@@ -101,28 +108,29 @@ Manual error display:
 ### Standard CRUD Form
 
 {% raw %}
+
 ```blade
 <form method="POST" action="{{ route('item.store') }}">
     @csrf
-    
-    <x-form.input 
-        name="internal_name" 
+
+    <x-form.input
+        name="internal_name"
         label="Internal Name"
         required
     />
-    
-    <x-form.select 
-        name="partner_id" 
+
+    <x-form.select
+        name="partner_id"
         label="Partner"
         :options="$partners"
         required
     />
-    
-    <x-form.textarea 
-        name="description" 
+
+    <x-form.textarea
+        name="description"
         label="Description"
     />
-    
+
     <div class="flex gap-2">
         <x-button type="submit" color="green">
             Save
@@ -133,25 +141,26 @@ Manual error display:
     </div>
 </form>
 ```
+
 {% endraw %}
 
 ### Form with Livewire
 
 ```blade
 <form wire:submit="save">
-    <x-form.input 
-        wire:model="title" 
-        name="title" 
+    <x-form.input
+        wire:model="title"
+        name="title"
         label="Title"
     />
-    
-    <x-form.select 
-        wire:model="category" 
-        name="category" 
+
+    <x-form.select
+        wire:model="category"
+        name="category"
         label="Category"
         :options="$categories"
     />
-    
+
     <x-button type="submit" wire:loading.attr="disabled">
         <span wire:loading.remove>Save</span>
         <span wire:loading>Saving...</span>
@@ -166,10 +175,12 @@ Manual error display:
 Errors display automatically beneath fields:
 
 {% raw %}
+
 ```blade
 <x-form.input name="email" label="Email" />
 {{-- If validation fails, error appears here --}}
 ```
+
 {% endraw %}
 
 ### Summary Errors
@@ -177,6 +188,7 @@ Errors display automatically beneath fields:
 Display all errors at the top of the form:
 
 {% raw %}
+
 ```blade
 @if ($errors->any())
     <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 mb-4">
@@ -189,6 +201,7 @@ Display all errors at the top of the form:
     </div>
 @endif
 ```
+
 {% endraw %}
 
 ## Best Practices

@@ -21,8 +21,8 @@ The application communicates with a RESTful API using the `@metanull/inventory-a
 
 ### Museum Resources
 
-| Resource     | Description                                                              | Implementation Status    |
-| ------------ | ------------------------------------------------------------------------ | ------------------------ |
+| Resource     | Description                                                              | Implementation Status |
+| ------------ | ------------------------------------------------------------------------ | --------------------- |
 | **Items**    | Cultural objects and monuments with detailed metadata                    | Planned               |
 | **Partners** | Museums, institutions, and individual collectors                         | Planned               |
 | **Projects** | Collections with launch dates, status tracking, and partner associations | **Fully implemented** |
@@ -31,8 +31,8 @@ The application communicates with a RESTful API using the `@metanull/inventory-a
 
 ### Reference Data
 
-| Resource      | Description                                                 | Usage Status                       |
-| ------------- | ----------------------------------------------------------- | ---------------------------------- |
+| Resource      | Description                                                 | Usage Status                    |
+| ------------- | ----------------------------------------------------------- | ------------------------------- |
 | **Countries** | Geographic reference data with standardized names and codes | Available but not actively used |
 | **Languages** | Language reference data for internationalization            | Available but not actively used |
 | **Contexts**  | Content organization and categorization framework           | Available but not actively used |
@@ -67,21 +67,21 @@ The application uses a centralized API client configuration:
 
 ```typescript
 // src/composables/useApiClient.ts
-import { Configuration } from '@metanull/inventory-app-api-client'
-import { useAuthStore } from '@/stores/auth'
+import { Configuration } from "@metanull/inventory-app-api-client";
+import { useAuthStore } from "@/stores/auth";
 
 export const useApiClient = () => {
-  const authStore = useAuthStore()
+  const authStore = useAuthStore();
 
   const getApiClient = () => {
     return new Configuration({
       basePath: import.meta.env.VITE_API_BASE_URL,
       accessToken: authStore.token,
-    })
-  }
+    });
+  };
 
-  return { getApiClient }
-}
+  return { getApiClient };
+};
 ```
 
 ### Store Integration Pattern
@@ -90,54 +90,60 @@ Each resource follows this pattern in Pinia stores:
 
 ```typescript
 // src/stores/project.ts (reference implementation)
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { ProjectsApi, type Project, type ProjectRequest } from '@metanull/inventory-app-api-client'
-import { useApiClient } from '@/composables/useApiClient'
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
+import {
+  ProjectsApi,
+  type Project,
+  type ProjectRequest,
+} from "@metanull/inventory-app-api-client";
+import { useApiClient } from "@/composables/useApiClient";
 
-export const useProjectStore = defineStore('project', () => {
+export const useProjectStore = defineStore("project", () => {
   // State
-  const projects = ref<Project[]>([])
-  const currentProject = ref<Project | null>(null)
-  const loading = ref(false)
-  const error = ref<string | null>(null)
+  const projects = ref<Project[]>([]);
+  const currentProject = ref<Project | null>(null);
+  const loading = ref(false);
+  const error = ref<string | null>(null);
 
   // API client
-  const { getApiClient } = useApiClient()
+  const { getApiClient } = useApiClient();
 
   // Actions with proper error handling
   const fetchProjects = async () => {
-    loading.value = true
-    error.value = null
+    loading.value = true;
+    error.value = null;
     try {
-      const api = new ProjectsApi(getApiClient())
-      const response = await api.getProjects()
-      projects.value = response.data
+      const api = new ProjectsApi(getApiClient());
+      const response = await api.getProjects();
+      projects.value = response.data;
     } catch (err: any) {
-      error.value = err.response?.data?.message || 'Failed to fetch projects'
-      console.error('Fetch projects error:', err)
+      error.value = err.response?.data?.message || "Failed to fetch projects";
+      console.error("Fetch projects error:", err);
     } finally {
-      loading.value = false
+      loading.value = false;
     }
-  }
+  };
 
-  const createProject = async (projectData: ProjectRequest): Promise<Project | null> => {
-    loading.value = true
-    error.value = null
+  const createProject = async (
+    projectData: ProjectRequest,
+  ): Promise<Project | null> => {
+    loading.value = true;
+    error.value = null;
     try {
-      const api = new ProjectsApi(getApiClient())
-      const response = await api.storeProject(projectData)
-      const newProject = response.data
-      projects.value.push(newProject)
-      return newProject
+      const api = new ProjectsApi(getApiClient());
+      const response = await api.storeProject(projectData);
+      const newProject = response.data;
+      projects.value.push(newProject);
+      return newProject;
     } catch (err: any) {
-      error.value = err.response?.data?.message || 'Failed to create project'
-      console.error('Create project error:', err)
-      return null
+      error.value = err.response?.data?.message || "Failed to create project";
+      console.error("Create project error:", err);
+      return null;
     } finally {
-      loading.value = false
+      loading.value = false;
     }
-  }
+  };
 
   return {
     projects,
@@ -147,8 +153,8 @@ export const useProjectStore = defineStore('project', () => {
     fetchProjects,
     createProject,
     // ... other actions
-  }
-})
+  };
+});
 ```
 
 ### Error Handling Patterns
@@ -158,22 +164,22 @@ The client library provides structured error responses:
 ```typescript
 // Standard error handling in stores
 try {
-  const response = await api.getProjects()
-  projects.value = response.data
+  const response = await api.getProjects();
+  projects.value = response.data;
 } catch (err: any) {
   if (err.response?.status === 401) {
     // Unauthorized - redirect to login
-    authStore.logout()
-    router.push('/login')
+    authStore.logout();
+    router.push("/login");
   } else if (err.response?.status === 404) {
-    error.value = 'Resource not found'
+    error.value = "Resource not found";
   } else if (err.response?.status === 422) {
     // Validation errors
-    error.value = err.response.data.message || 'Validation failed'
+    error.value = err.response.data.message || "Validation failed";
   } else {
-    error.value = 'An unexpected error occurred'
+    error.value = "An unexpected error occurred";
   }
-  console.error('API Error:', err)
+  console.error("API Error:", err);
 }
 ```
 
@@ -186,16 +192,16 @@ The application uses **JWT Bearer Token** authentication:
 ```typescript
 // 1. User submits credentials
 const loginData = {
-  email: 'user@example.com',
-  password: 'password123',
-}
+  email: "user@example.com",
+  password: "password123",
+};
 
 // 2. API returns JWT token
-const response = await apiClient.login(loginData)
-const token = response.data.access_token
+const response = await apiClient.login(loginData);
+const token = response.data.access_token;
 
 // 3. Token stored in localStorage
-localStorage.setItem('token', token)
+localStorage.setItem("token", token);
 
 // 4. Token automatically included in subsequent requests
 // via the @metanull/inventory-app-api-client library
@@ -216,16 +222,16 @@ The application uses the `@metanull/inventory-app-api-client` TypeScript client 
 
 ```typescript
 export interface ItemResource {
-  id: string
-  internal_name: string
-  backward_compatibility: string | null
-  type: 'object' | 'monument'
-  partner?: PartnerResource
-  project?: ProjectResource
-  country?: CountryResource
-  tags?: TagResource[]
-  created_at: string | null
-  updated_at: string | null
+  id: string;
+  internal_name: string;
+  backward_compatibility: string | null;
+  type: "object" | "monument";
+  partner?: PartnerResource;
+  project?: ProjectResource;
+  country?: CountryResource;
+  tags?: TagResource[];
+  created_at: string | null;
+  updated_at: string | null;
 }
 ```
 
@@ -239,40 +245,40 @@ import {
   PartnersApi,
   ProjectsApi,
   TagsApi,
-} from '@metanull/inventory-app-api-client'
+} from "@metanull/inventory-app-api-client";
 
 // Configure the API client
 const config = new Configuration({
   basePath: import.meta.env.VITE_API_BASE_URL,
-  accessToken: () => localStorage.getItem('token') || '',
-})
+  accessToken: () => localStorage.getItem("token") || "",
+});
 
 // Create API instances
-const itemsApi = new ItemsApi(config)
-const partnersApi = new PartnersApi(config)
-const projectsApi = new ProjectsApi(config)
-const tagsApi = new TagsApi(config)
+const itemsApi = new ItemsApi(config);
+const partnersApi = new PartnersApi(config);
+const projectsApi = new ProjectsApi(config);
+const tagsApi = new TagsApi(config);
 
 // Example usage
 const getItems = async () => {
-  const response = await itemsApi.apiItemsGet()
-  return response.data
-}
+  const response = await itemsApi.apiItemsGet();
+  return response.data;
+};
 ```
 
 ### Error Handling
 
 ```typescript
 try {
-  const response = await itemsApi.apiItemsGet()
-  items.value = response.data
+  const response = await itemsApi.apiItemsGet();
+  items.value = response.data;
 } catch (error: any) {
   if (error.response?.status === 401) {
     // Redirect to login
-    router.push('/login')
+    router.push("/login");
   } else {
     // Show user-friendly error message
-    errorMessage.value = error.message || 'An error occurred'
+    errorMessage.value = error.message || "An error occurred";
   }
 }
 ```
@@ -283,9 +289,9 @@ Request/Response Patterns
 
 ```typescript
 interface ApiResponse<T> {
-  data: T
-  message?: string
-  status: 'success' | 'error'
+  data: T;
+  message?: string;
+  status: "success" | "error";
 }
 ```
 
@@ -295,76 +301,84 @@ interface ApiResponse<T> {
 
 ```typescript
 // Import the client library
-import { Configuration, ItemsApi, CreateItemDto } from '@metanull/inventory-app-api-client'
+import {
+  Configuration,
+  ItemsApi,
+  CreateItemDto,
+} from "@metanull/inventory-app-api-client";
 
 // Configure the API client
 const config = new Configuration({
   basePath: import.meta.env.VITE_API_BASE_URL,
-  accessToken: () => localStorage.getItem('token') || '',
-})
+  accessToken: () => localStorage.getItem("token") || "",
+});
 
 // Create API instance
-const itemsApi = new ItemsApi(config)
+const itemsApi = new ItemsApi(config);
 
 // Frontend request
 const newItem: CreateItemDto = {
-  internal_name: 'Ancient Vase',
-  type: 'object',
-  partner_id: 'partner-uuid',
-  project_id: 'project-uuid',
-}
+  internal_name: "Ancient Vase",
+  type: "object",
+  partner_id: "partner-uuid",
+  project_id: "project-uuid",
+};
 
-const response = await itemsApi.apiItemsPost(newItem)
+const response = await itemsApi.apiItemsPost(newItem);
 ```
 
 #### Updating with Relationships
 
 ```typescript
 // Import the client library
-import { Configuration, ItemsApi, UpdateItemDto } from '@metanull/inventory-app-api-client'
+import {
+  Configuration,
+  ItemsApi,
+  UpdateItemDto,
+} from "@metanull/inventory-app-api-client";
 
 // Configure the API client (typically done once in your app)
 const config = new Configuration({
   basePath: import.meta.env.VITE_API_BASE_URL,
-  accessToken: () => localStorage.getItem('token') || '',
-})
+  accessToken: () => localStorage.getItem("token") || "",
+});
 
 // Create API instance
-const itemsApi = new ItemsApi(config)
+const itemsApi = new ItemsApi(config);
 
 // Update item with new partner
 const updatedItem: UpdateItemDto = {
-  internal_name: 'Updated Name',
-  partner_id: 'new-partner-uuid',
-}
+  internal_name: "Updated Name",
+  partner_id: "new-partner-uuid",
+};
 
-const response = await itemsApi.apiItemsIdPut(itemId, updatedItem)
+const response = await itemsApi.apiItemsIdPut(itemId, updatedItem);
 ```
 
 #### Tag Management
 
 ```typescript
 // Import the client library
-import { Configuration, TagsApi } from '@metanull/inventory-app-api-client'
+import { Configuration, TagsApi } from "@metanull/inventory-app-api-client";
 
 // Configure the API client
 const config = new Configuration({
   basePath: import.meta.env.VITE_API_BASE_URL,
-  accessToken: () => localStorage.getItem('token') || '',
-})
+  accessToken: () => localStorage.getItem("token") || "",
+});
 
 // Create API instance
-const tagsApi = new TagsApi(config)
+const tagsApi = new TagsApi(config);
 
 // Add tag to item
-await tagsApi.apiItemsItemIdTagsTagIdPost(itemId, tagId)
+await tagsApi.apiItemsItemIdTagsTagIdPost(itemId, tagId);
 
 // Remove tag from item
-await tagsApi.apiItemsItemIdTagsTagIdDelete(itemId, tagId)
+await tagsApi.apiItemsItemIdTagsTagIdDelete(itemId, tagId);
 
 // Get all tags for item
-const response = await tagsApi.apiItemsItemIdTagsGet(itemId)
-const tags = response.data
+const response = await tagsApi.apiItemsItemIdTagsGet(itemId);
+const tags = response.data;
 ```
 
 ## State Management Integration
@@ -374,44 +388,48 @@ The API client integrates with Pinia stores for state management:
 ### Auth Store
 
 ```typescript
-export const useAuthStore = defineStore('auth', () => {
-  const token = ref<string | null>(localStorage.getItem('token'))
-  const user = ref<User | null>(null)
+export const useAuthStore = defineStore("auth", () => {
+  const token = ref<string | null>(localStorage.getItem("token"));
+  const user = ref<User | null>(null);
 
   const login = async (credentials: LoginCredentials) => {
     // Import the client library
-    import { Configuration, AuthApi, AcquireTokenRequest } from '@metanull/inventory-app-api-client'
+    import {
+      Configuration,
+      AuthApi,
+      AcquireTokenRequest,
+    } from "@metanull/inventory-app-api-client";
 
     // Create API instance for authentication
     const authApi = new AuthApi(
       new Configuration({
         basePath: import.meta.env.VITE_API_BASE_URL,
-      })
-    )
+      }),
+    );
 
     // Prepare token request
     const tokenRequest: AcquireTokenRequest = {
       email: credentials.email,
       password: credentials.password,
-      device_name: 'web-app',
+      device_name: "web-app",
       wipe_tokens: false,
-    }
+    };
 
     // Acquire token
-    const response = await authApi.apiMobileAcquireTokenPost(tokenRequest)
-    token.value = response.data.access_token
-    localStorage.setItem('token', token.value)
-  }
+    const response = await authApi.apiMobileAcquireTokenPost(tokenRequest);
+    token.value = response.data.access_token;
+    localStorage.setItem("token", token.value);
+  };
 
   const logout = () => {
-    token.value = null
-    user.value = null
-    localStorage.removeItem('token')
-    router.push('/login')
-  }
+    token.value = null;
+    user.value = null;
+    localStorage.removeItem("token");
+    router.push("/login");
+  };
 
-  return { token, user, login, logout, isAuthenticated }
-})
+  return { token, user, login, logout, isAuthenticated };
+});
 ```
 
 Environment Configuration
@@ -437,7 +455,9 @@ Loading States & Error Handling
 ```vue
 <template>
   <div v-if="loading" class="text-center py-8">
-    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+    <div
+      class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"
+    ></div>
   </div>
 
   <div v-else-if="error" class="text-red-600 text-center py-8">
@@ -454,19 +474,19 @@ Loading States & Error Handling
 
 ```typescript
 const fetchData = async () => {
-  loading.value = true
-  error.value = null
+  loading.value = true;
+  error.value = null;
 
   try {
     // Using the client library
-    const response = await itemsApi.apiItemsGet()
-    data.value = response.data
+    const response = await itemsApi.apiItemsGet();
+    data.value = response.data;
   } catch (err: any) {
-    error.value = err.message || 'Failed to load data'
+    error.value = err.message || "Failed to load data";
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 ```
 
 ## Development & Testing
@@ -477,28 +497,28 @@ For testing, API calls are mocked using Vitest:
 
 ```typescript
 // Test setup
-vi.mock('@metanull/inventory-app-api-client', () => {
+vi.mock("@metanull/inventory-app-api-client", () => {
   const mockItemsApi = {
     apiItemsGet: vi.fn(),
     apiItemsPost: vi.fn(),
     apiItemsIdPut: vi.fn(),
     apiItemsIdDelete: vi.fn(),
-  }
+  };
 
   return {
     ItemsApi: vi.fn(() => mockItemsApi),
     Configuration: vi.fn(),
     MockItemsApi: mockItemsApi, // Expose for easy access in tests
-  }
-})
+  };
+});
 
 // Import the mock
-import { MockItemsApi } from '@metanull/inventory-app-api-client'
+import { MockItemsApi } from "@metanull/inventory-app-api-client";
 
 // Test usage
 MockItemsApi.apiItemsGet.mockResolvedValue({
   data: [mockItem1, mockItem2],
-})
+});
 ```
 
 ### Local Development

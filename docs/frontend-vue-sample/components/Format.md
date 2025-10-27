@@ -56,7 +56,12 @@ A styled input component that works with v-model for form data binding.
 **Usage:**
 
 ```vue
-<FormInput v-model="formData.name" type="text" placeholder="Enter name" :required="true" />
+<FormInput
+  v-model="formData.name"
+  type="text"
+  placeholder="Enter name"
+  :required="true"
+/>
 ```
 
 ### GenericDropdown
@@ -290,6 +295,7 @@ Interactive card component for displaying and toggling status information.
   :inactive-icon-component="XIcon"
   @toggle="handleToggle"
 />
-For details about the centralized color system, available color names, and how to use `useColors`
-and `getThemeClass`, see the Theme and Colors guide: [Theme and Colors](./theme-and-colors).
+For details about the centralized color system, available color names, and how
+to use `useColors` and `getThemeClass`, see the Theme and Colors guide: [Theme
+and Colors](./theme-and-colors).
 ```

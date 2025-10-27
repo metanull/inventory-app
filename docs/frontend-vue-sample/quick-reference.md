@@ -46,10 +46,14 @@ Entity Standards Quick Reference
     <Title variant="page" description="Welcome message">Dashboard</Title>
 
     <div class="mb-8">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
+      <h2
+        class="text-xl font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2"
+      >
         Section Name
       </h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      >
         <NavigationCard
           title="EntityName"
           description="Entity description"
@@ -115,7 +119,10 @@ Entity Standards Quick Reference
         <DescriptionRow variant="gray">
           <DescriptionTerm>Field Name</DescriptionTerm>
           <DescriptionDetail>
-            <FormInput v-if="mode === 'edit' || mode === 'create'" v-model="editForm.field" />
+            <FormInput
+              v-if="mode === 'edit' || mode === 'create'"
+              v-model="editForm.field"
+            />
             <DisplayText v-else>{{ entity?.field }}</DisplayText>
           </DescriptionDetail>
         </DescriptionRow>
@@ -162,28 +169,28 @@ Common Mistakes to Avoid
 ### List Pages
 
 ```typescript
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useEntityStore } from '@/stores/entity'
-import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
-import { useErrorDisplayStore } from '@/stores/errorDisplay'
-import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
-import ListView from '@/components/layout/list/ListView.vue'
-import { EntityIcon } from '@heroicons/vue/24/solid'
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useEntityStore } from "@/stores/entity";
+import { useLoadingOverlayStore } from "@/stores/loadingOverlay";
+import { useErrorDisplayStore } from "@/stores/errorDisplay";
+import { useDeleteConfirmationStore } from "@/stores/deleteConfirmation";
+import ListView from "@/components/layout/list/ListView.vue";
+import { EntityIcon } from "@heroicons/vue/24/solid";
 ```
 
 ### Detail Pages
 
 ```typescript
-import { computed, ref, onMounted, watch } from 'vue'
-import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
-import { useEntityStore } from '@/stores/entity'
-import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
-import { useErrorDisplayStore } from '@/stores/errorDisplay'
-import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
-import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
-import DetailView from '@/components/layout/detail/DetailView.vue'
-import { EntityIcon } from '@heroicons/vue/24/solid'
+import { computed, ref, onMounted, watch } from "vue";
+import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
+import { useEntityStore } from "@/stores/entity";
+import { useLoadingOverlayStore } from "@/stores/loadingOverlay";
+import { useErrorDisplayStore } from "@/stores/errorDisplay";
+import { useDeleteConfirmationStore } from "@/stores/deleteConfirmation";
+import { useCancelChangesConfirmationStore } from "@/stores/cancelChangesConfirmation";
+import DetailView from "@/components/layout/detail/DetailView.vue";
+import { EntityIcon } from "@heroicons/vue/24/solid";
 ```
 
 ## Validation Checklist

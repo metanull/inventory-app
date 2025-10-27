@@ -29,8 +29,8 @@ How to use
 1. Simple usage in components:
 
 ```ts
-import { useColors } from '@/composables/useColors'
-const colorClasses = useColors('green')
+import { useColors } from "@/composables/useColors";
+const colorClasses = useColors("green");
 
 // Then in template
 // <svg :class="colorClasses.icon" />
@@ -40,8 +40,8 @@ const colorClasses = useColors('green')
 2. Use entity-specific helpers:
 
 ```ts
-import { useEntityColors } from '@/composables/useColors'
-const projectColors = useEntityColors('projects')
+import { useEntityColors } from "@/composables/useColors";
+const projectColors = useEntityColors("projects");
 ```
 
 3. Theme tokens for layout fragments (headers, modals):

@@ -20,27 +20,24 @@ Tailwind is configured in `tailwind.config.js`:
 
 ```javascript
 module.exports = {
-    content: [
-        './resources/**/*.blade.php',
-        './resources/**/*.js',
-        './resources/**/*.vue',
-    ],
-    theme: {
-        extend: {
-            colors: {
-                // Custom entity colors
-                item: colors.blue,
-                partner: colors.purple,
-                collection: colors.green,
-                // ...
-            },
-        },
+  content: [
+    "./resources/**/*.blade.php",
+    "./resources/**/*.js",
+    "./resources/**/*.vue",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        // Custom entity colors
+        item: colors.blue,
+        partner: colors.purple,
+        collection: colors.green,
+        // ...
+      },
     },
-    plugins: [
-        require('@tailwindcss/forms'),
-        require('@tailwindcss/typography'),
-    ],
-}
+  },
+  plugins: [require("@tailwindcss/forms"), require("@tailwindcss/typography")],
+};
 ```
 
 ### Common Patterns
@@ -99,41 +96,46 @@ The application uses a consistent color system for different entity types.
 
 ### Available Entity Colors
 
-| Entity | Color | Usage |
-|--------|-------|-------|
-| Item | Blue | Items, objects, monuments |
-| Partner | Purple | Partners, institutions |
-| Collection | Green | Collections, exhibitions |
-| Tag | Yellow | Tags, categories |
-| Project | Indigo | Projects |
-| Language | Pink | Languages |
-| Country | Red | Countries |
+| Entity     | Color  | Usage                     |
+| ---------- | ------ | ------------------------- |
+| Item       | Blue   | Items, objects, monuments |
+| Partner    | Purple | Partners, institutions    |
+| Collection | Green  | Collections, exhibitions  |
+| Tag        | Yellow | Tags, categories          |
+| Project    | Indigo | Projects                  |
+| Language   | Pink   | Languages                 |
+| Country    | Red    | Countries                 |
 
 ### Using Entity Colors
 
 #### Via PHP Helper
 
 {% raw %}
+
 ```blade
 <div class="bg-{{ $entityColor('item') }}-100 border-{{ $entityColor('item') }}-500">
     Item content
 </div>
 ```
+
 {% endraw %}
 
 #### In Components
 
 {% raw %}
+
 ```blade
 <x-badge :color="$entityColor('partner')">
     Partner Badge
 </x-badge>
 ```
+
 {% endraw %}
 
 #### Dynamic Colors
 
 {% raw %}
+
 ```blade
 @php
     $color = match($type) {
@@ -148,6 +150,7 @@ The application uses a consistent color system for different entity types.
     Colored content
 </div>
 ```
+
 {% endraw %}
 
 ### Color Variants
@@ -178,31 +181,37 @@ Tailwind provides different shades (50-900):
 #### Badge
 
 {% raw %}
+
 ```blade
 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{ $entityColor('item') }}-100 text-{{ $entityColor('item') }}-800">
     Item
 </span>
 ```
+
 {% endraw %}
 
 #### Button
 
 {% raw %}
+
 ```blade
 <button class="bg-{{ $entityColor('partner') }}-600 hover:bg-{{ $entityColor('partner') }}-700 text-white px-4 py-2 rounded">
     Partner Action
 </button>
 ```
+
 {% endraw %}
 
 #### Alert
 
 {% raw %}
+
 ```blade
 <div class="bg-{{ $entityColor('collection') }}-50 border-l-4 border-{{ $entityColor('collection') }}-500 p-4">
     <p class="text-{{ $entityColor('collection') }}-700">Collection notice</p>
 </div>
 ```
+
 {% endraw %}
 
 ## Typography
@@ -237,8 +246,8 @@ Tailwind provides different shades (50-900):
 ### Input Fields
 
 ```blade
-<input 
-    type="text" 
+<input
+    type="text"
     class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
     placeholder="Enter text"
 />
@@ -256,8 +265,8 @@ Tailwind provides different shades (50-900):
 ### Textarea
 
 ```blade
-<textarea 
-    rows="4" 
+<textarea
+    rows="4"
     class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
 ></textarea>
 ```
@@ -265,8 +274,8 @@ Tailwind provides different shades (50-900):
 ### Checkbox
 
 ```blade
-<input 
-    type="checkbox" 
+<input
+    type="checkbox"
     class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 />
 ```
@@ -356,9 +365,9 @@ When Tailwind utilities aren't enough, add custom CSS to `resources/css/app.css`
 
 ```css
 @layer components {
-    .btn-primary {
-        @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded;
-    }
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded;
+  }
 }
 ```
 

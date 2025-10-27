@@ -9,6 +9,7 @@ permalink: /frontend-blade/
 # Blade/Livewire Frontend Documentation
 
 {: .important }
+
 > This is the **MAIN** frontend that end users interact with. For the sample Vue.js API client demo, see [Vue.js Sample App]({{ '/frontend-vue-sample/' | relative_url }}).
 
 ## Overview
@@ -23,13 +24,13 @@ The Blade/Livewire frontend is a server-rendered web application built with:
 
 ## Technology Stack
 
-| Technology | Version | Purpose |
-|-----------|---------|---------|
-| Laravel Blade | 11+ | Server-side templating |
-| Livewire | 3.6+ | Reactive components |
-| Alpine.js | 3.x | Client-side interactions |
-| Tailwind CSS | 3.x | Styling framework |
-| Heroicons | 2.x | SVG icons |
+| Technology    | Version | Purpose                  |
+| ------------- | ------- | ------------------------ |
+| Laravel Blade | 11+     | Server-side templating   |
+| Livewire      | 3.6+    | Reactive components      |
+| Alpine.js     | 3.x     | Client-side interactions |
+| Tailwind CSS  | 3.x     | Styling framework        |
+| Heroicons     | 2.x     | SVG icons                |
 
 ## Architecture
 
@@ -52,21 +53,25 @@ resources/views/
 ## Key Features
 
 ### Server-Side Rendering
+
 - Fast initial page loads
 - SEO-friendly
 - Progressive enhancement
 
 ### Reactive Components
+
 - Real-time updates via Livewire
 - No full page refreshes
 - Minimal JavaScript required
 
 ### Responsive Design
+
 - Mobile-first approach
 - Tailwind utility classes
 - Consistent UI across devices
 
 ### Entity Color System
+
 - Color-coded entities for visual clarity
 - Consistent color usage throughout the app
 - Configurable via entity color service
@@ -76,11 +81,13 @@ resources/views/
 ### Development Setup
 
 1. **Start the development server:**
+
    ```bash
    php artisan serve
    ```
 
 2. **Watch for asset changes:**
+
    ```bash
    npm run dev
    ```

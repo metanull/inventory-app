@@ -46,6 +46,7 @@ This API is part of the modernization effort for Museum With No Frontiers:
 ### [Blade/Livewire Frontend]({{ '/frontend-blade/' | relative_url }})
 
 {: .note }
+
 > This is the main user interface, it is a Blade/Livewire frontend.
 
 {: .important }
@@ -76,6 +77,7 @@ Production and development environment setup instructions.
 Sample Vue.js application demonstrating API integration.
 
 {: .note }
+
 > This documents a sample Vue.js client application. The main user interface is the Blade/Livewire frontend.
 
 ---

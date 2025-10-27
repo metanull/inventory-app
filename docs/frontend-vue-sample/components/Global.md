@@ -52,19 +52,19 @@ enable(): void      // Re-enable overlay functionality
 ### Usage Example
 
 ```typescript
-import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
+import { useLoadingOverlayStore } from "@/stores/loadingOverlay";
 
-const loadingStore = useLoadingOverlayStore()
+const loadingStore = useLoadingOverlayStore();
 
 // Show loading during API call
 const fetchData = async () => {
   try {
-    loadingStore.show()
-    await apiCall()
+    loadingStore.show();
+    await apiCall();
   } finally {
-    loadingStore.hide()
+    loadingStore.hide();
   }
-}
+};
 ```
 
 ### Styling
@@ -116,14 +116,14 @@ clearAll(): void                    // Clear all messages
 ### Usage Example
 
 ```typescript
-import { useErrorDisplayStore } from '@/stores/errorDisplay'
+import { useErrorDisplayStore } from "@/stores/errorDisplay";
 
-const errorStore = useErrorDisplayStore()
+const errorStore = useErrorDisplayStore();
 
 // Add different message types
-errorStore.addMessage('info', 'Data saved successfully!')
-errorStore.addMessage('warning', 'Please review your input.')
-errorStore.addMessage('error', 'Failed to save. Please try again.')
+errorStore.addMessage("info", "Data saved successfully!");
+errorStore.addMessage("warning", "Please review your input.");
+errorStore.addMessage("error", "Failed to save. Please try again.");
 ```
 
 ### Message Behavior
@@ -176,20 +176,20 @@ confirmDelete(): void        // Shorthand for resolve('delete')
 ### Usage Example
 
 ```typescript
-import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
+import { useDeleteConfirmationStore } from "@/stores/deleteConfirmation";
 
-const deleteStore = useDeleteConfirmationStore()
+const deleteStore = useDeleteConfirmationStore();
 
 const handleDelete = async (item: Item) => {
   const result = await deleteStore.trigger(
-    'Delete Item',
-    `Are you sure you want to delete "${item.name}"? This action cannot be undone.`
-  )
+    "Delete Item",
+    `Are you sure you want to delete "${item.name}"? This action cannot be undone.`,
+  );
 
-  if (result === 'delete') {
-    await performDelete(item.id)
+  if (result === "delete") {
+    await performDelete(item.id);
   }
-}
+};
 ```
 
 ### Modal Design
@@ -244,38 +244,38 @@ resetChanges(): void               // Clear pending changes flag
 ### Usage Example
 
 ```typescript
-import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
+import { useCancelChangesConfirmationStore } from "@/stores/cancelChangesConfirmation";
 
-const cancelChangesStore = useCancelChangesConfirmationStore()
+const cancelChangesStore = useCancelChangesConfirmationStore();
 
 // Track form changes
 watch(
   formData,
   () => {
-    cancelChangesStore.addChange()
+    cancelChangesStore.addChange();
   },
-  { deep: true }
-)
+  { deep: true },
+);
 
 // Handle navigation with unsaved changes
 const handleNavigation = async () => {
   if (cancelChangesStore.pendingChanges) {
     const result = await cancelChangesStore.trigger(
-      'Unsaved Changes',
-      'You have unsaved changes. Are you sure you want to leave?'
-    )
+      "Unsaved Changes",
+      "You have unsaved changes. Are you sure you want to leave?",
+    );
 
-    if (result === 'leave') {
-      router.push('/other-page')
+    if (result === "leave") {
+      router.push("/other-page");
     }
   }
-}
+};
 
 // Reset after successful save
 const saveForm = async () => {
-  await saveData()
-  cancelChangesStore.resetChanges()
-}
+  await saveData();
+  cancelChangesStore.resetChanges();
+};
 ```
 
 ### Modal Design
@@ -323,10 +323,10 @@ All global components require their respective Pinia stores to be imported and u
 
 ```typescript
 // In any Vue component
-import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
-import { useErrorDisplayStore } from '@/stores/errorDisplay'
-import { useDeleteConfirmationStore } from '@/stores/deleteConfirmation'
-import { useCancelChangesConfirmationStore } from '@/stores/cancelChangesConfirmation'
+import { useLoadingOverlayStore } from "@/stores/loadingOverlay";
+import { useErrorDisplayStore } from "@/stores/errorDisplay";
+import { useDeleteConfirmationStore } from "@/stores/deleteConfirmation";
+import { useCancelChangesConfirmationStore } from "@/stores/cancelChangesConfirmation";
 ```
 
 ### Best Practices

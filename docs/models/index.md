@@ -9,6 +9,7 @@ permalink: /models/
 # Database Models
 
 {: .note }
+
 > **Auto-Generated Documentation:** Model documentation is automatically generated from Laravel models using `php artisan docs:model`.
 
 This section contains complete documentation for all database models in the application.
@@ -17,7 +18,7 @@ This section contains complete documentation for all database models in the appl
 
 The model documentation is organized by category. Use the navigation sidebar or visit the sections below:
 
-- [All Models (Alphabetical)]({{ site.baseurl }}/_model/)
+- [All Models (Alphabetical)]({{ site.baseurl }}/\_model/)
 
 ## What's Included
 
@@ -43,4 +44,4 @@ This updates all model documentation files in the `_model/` directory.
 ---
 
 {: .fs-6 .fw-300 }
-For complete model details, see the [Generated Model Documentation]({{ site.baseurl }}/_model/).
+For complete model details, see the [Generated Model Documentation]({{ site.baseurl }}/\_model/).

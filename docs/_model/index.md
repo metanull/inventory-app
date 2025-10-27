@@ -6,6 +6,7 @@ title: Generated Model Documentation
 # Generated Model Documentation
 
 {: .highlight }
+
 > This documentation is automatically generated from the Laravel models and database schema. Last updated: 2025-10-26 23:52:46 UTC
 
 ## Overview
@@ -55,29 +56,29 @@ title: Generated Model Documentation
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `artists` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `artists`                        |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `name` | varchar | Unknown | Unknown |  |
-| `place_of_birth` | varchar | Unknown | Unknown |  |
-| `place_of_death` | varchar | Unknown | Unknown |  |
-| `date_of_birth` | varchar | Unknown | Unknown |  |
-| `date_of_death` | varchar | Unknown | Unknown |  |
-| `period_of_activity` | varchar | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `name`                   | varchar   | Unknown  | Unknown |       |
+| `place_of_birth`         | varchar   | Unknown  | Unknown |       |
+| `place_of_death`         | varchar   | Unknown  | Unknown |       |
+| `date_of_birth`          | varchar   | Unknown  | Unknown |       |
+| `date_of_death`          | varchar   | Unknown  | Unknown |       |
+| `period_of_activity`     | varchar   | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -87,8 +88,8 @@ title: Generated Model Documentation
 
 ### Attribute Casting
 
-| Attribute | Cast Type |
-|-----------|-----------|
+| Attribute    | Cast Type  |
+| ------------ | ---------- |
 | `created_at` | `datetime` |
 | `updated_at` | `datetime` |
 
@@ -102,8 +103,8 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To Many
-- **`items()`**: BelongsToMany [Item](#item)
 
+- **`items()`**: BelongsToMany [Item](#item)
 
 ## Author {#author}
 
@@ -111,24 +112,24 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `authors` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `authors`                        |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `name` | varchar | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `name`                   | varchar   | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -138,8 +139,8 @@ const UPDATED_AT = 'updated_at';
 
 ### Attribute Casting
 
-| Attribute | Cast Type |
-|-----------|-----------|
+| Attribute    | Cast Type  |
+| ------------ | ---------- |
 | `created_at` | `datetime` |
 | `updated_at` | `datetime` |
 
@@ -152,30 +153,29 @@ const UPDATED_AT = 'updated_at';
 
 ### Relationships
 
-
 ## AvailableImage {#availableimage}
 
 **Namespace:** `App\Models\AvailableImage`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `available_images` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `available_images`               |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `path` | varchar | Unknown | Unknown |  |
-| `comment` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column       | Type      | Nullable | Default | Extra |
+| ------------ | --------- | -------- | ------- | ----- |
+| `id`         | uuid      | Unknown  | Unknown |       |
+| `path`       | varchar   | Unknown  | Unknown |       |
+| `comment`    | varchar   | Unknown  | Unknown |       |
+| `created_at` | timestamp | Unknown  | Unknown |       |
+| `updated_at` | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -192,33 +192,32 @@ const UPDATED_AT = 'updated_at';
 
 ### Relationships
 
-
 ## Collection {#collection}
 
 **Namespace:** `App\Models\Collection`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `collections` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `collections`                    |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `type` | enum | Unknown | Unknown |  |
-| `language_id` | varchar | Unknown | Unknown |  |
-| `context_id` | uuid | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `type`                   | enum      | Unknown  | Unknown |       |
+| `language_id`            | varchar   | Unknown  | Unknown |       |
+| `context_id`             | uuid      | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -239,15 +238,18 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`language()`**: BelongsTo [Language](#language)
 - **`context()`**: BelongsTo [Context](#context)
 
 #### Has Many
+
 - **`translations()`**: HasMany [CollectionTranslation](#collectiontranslation)
 - **`items()`**: HasMany [Item](#item)
 - **`collectionImages()`**: HasMany [CollectionImage](#collectionimage)
 
 #### Belongs To Many
+
 - **`attachedItems()`**: BelongsToMany [Item](#item)
 - **`partners()`**: BelongsToMany [Partner](#partner)
 - **`directPartners()`**: BelongsToMany [Partner](#partner)
@@ -260,35 +262,34 @@ const UPDATED_AT = 'updated_at';
 - **`exhibitions()`**
 - **`galleries()`**
 
-
 ## CollectionImage {#collectionimage}
 
 **Namespace:** `App\Models\CollectionImage`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `collection_images` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `collection_images`              |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `collection_id` | uuid | Unknown | Unknown |  |
-| `path` | varchar | Unknown | Unknown |  |
-| `original_name` | varchar | Unknown | Unknown |  |
-| `mime_type` | varchar | Unknown | Unknown |  |
-| `size` | bigint | Unknown | Unknown |  |
-| `alt_text` | varchar | Unknown | Unknown |  |
-| `display_order` | int | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column          | Type      | Nullable | Default | Extra |
+| --------------- | --------- | -------- | ------- | ----- |
+| `id`            | uuid      | Unknown  | Unknown |       |
+| `collection_id` | uuid      | Unknown  | Unknown |       |
+| `path`          | varchar   | Unknown  | Unknown |       |
+| `original_name` | varchar   | Unknown  | Unknown |       |
+| `mime_type`     | varchar   | Unknown  | Unknown |       |
+| `size`          | bigint    | Unknown  | Unknown |       |
+| `alt_text`      | varchar   | Unknown  | Unknown |       |
+| `display_order` | int       | Unknown  | Unknown |       |
+| `created_at`    | timestamp | Unknown  | Unknown |       |
+| `updated_at`    | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -298,9 +299,9 @@ const UPDATED_AT = 'updated_at';
 
 ### Attribute Casting
 
-| Attribute | Cast Type |
-|-----------|-----------|
-| `size` | `integer` |
+| Attribute       | Cast Type |
+| --------------- | --------- |
+| `size`          | `integer` |
 | `display_order` | `integer` |
 
 ### Model Constants
@@ -313,8 +314,8 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
-- **`collection()`**: BelongsTo [Collection](#collection)
 
+- **`collection()`**: BelongsTo [Collection](#collection)
 
 ## CollectionPartner {#collectionpartner}
 
@@ -322,11 +323,11 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
+| Property       | Value                |
+| -------------- | -------------------- |
 | **Table Name** | `collection_partner` |
-⚠️ **Error generating documentation for this model:** Array to string conversion
 
+⚠️ **Error generating documentation for this model:** Array to string conversion
 
 ## CollectionTranslation {#collectiontranslation}
 
@@ -334,29 +335,29 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `collection_translations` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `collection_translations`        |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `collection_id` | uuid | Unknown | Unknown |  |
-| `language_id` | varchar | Unknown | Unknown |  |
-| `context_id` | uuid | Unknown | Unknown |  |
-| `title` | varchar | Unknown | Unknown |  |
-| `description` | text | Unknown | Unknown |  |
-| `url` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `extra` | longtext | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `collection_id`          | uuid      | Unknown  | Unknown |       |
+| `language_id`            | varchar   | Unknown  | Unknown |       |
+| `context_id`             | uuid      | Unknown  | Unknown |       |
+| `title`                  | varchar   | Unknown  | Unknown |       |
+| `description`            | text      | Unknown  | Unknown |       |
+| `url`                    | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `extra`                  | longtext  | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -367,8 +368,8 @@ const UPDATED_AT = 'updated_at';
 ### Attribute Casting
 
 | Attribute | Cast Type |
-|-----------|-----------|
-| `extra` | `object` |
+| --------- | --------- |
+| `extra`   | `object`  |
 
 ### Model Constants
 
@@ -380,6 +381,7 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`collection()`**: BelongsTo [Collection](#collection)
 - **`language()`**: BelongsTo [Language](#language)
 - **`context()`**: BelongsTo [Context](#context)
@@ -390,31 +392,30 @@ const UPDATED_AT = 'updated_at';
 - **`forLanguage()`**
 - **`forContext()`**
 
-
 ## Context {#context}
 
 **Namespace:** `App\Models\Context`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `contexts` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `contexts`                       |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
-| `is_default` | tinyint | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
+| `is_default`             | tinyint   | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -424,8 +425,8 @@ const UPDATED_AT = 'updated_at';
 
 ### Attribute Casting
 
-| Attribute | Cast Type |
-|-----------|-----------|
+| Attribute    | Cast Type |
+| ------------ | --------- |
 | `is_default` | `boolean` |
 
 ### Model Constants
@@ -441,30 +442,29 @@ const UPDATED_AT = 'updated_at';
 
 - **`default()`**
 
-
 ## Country {#country}
 
 **Namespace:** `App\Models\Country`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `countries` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `countries`                      |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | varchar | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | varchar   | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -482,9 +482,9 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Has Many
+
 - **`items()`**: HasMany [Item](#item)
 - **`partners()`**: HasMany [Partner](#partner)
-
 
 ## Glossary {#glossary}
 
@@ -492,23 +492,23 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `glossaries` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `glossaries`                     |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -526,13 +526,14 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Has Many
+
 - **`translations()`**: HasMany [GlossaryTranslation](#glossarytranslation)
 - **`spellings()`**: HasMany [GlossarySpelling](#glossaryspelling)
 
 #### Belongs To Many
+
 - **`synonyms()`**: BelongsToMany [Glossary](#glossary)
 - **`reverseSynonyms()`**: BelongsToMany [Glossary](#glossary)
-
 
 ## GlossarySpelling {#glossaryspelling}
 
@@ -540,24 +541,24 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `glossary_spellings` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `glossary_spellings`             |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `glossary_id` | uuid | Unknown | Unknown |  |
-| `language_id` | varchar | Unknown | Unknown |  |
-| `spelling` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column        | Type      | Nullable | Default | Extra |
+| ------------- | --------- | -------- | ------- | ----- |
+| `id`          | uuid      | Unknown  | Unknown |       |
+| `glossary_id` | uuid      | Unknown  | Unknown |       |
+| `language_id` | varchar   | Unknown  | Unknown |       |
+| `spelling`    | varchar   | Unknown  | Unknown |       |
+| `created_at`  | timestamp | Unknown  | Unknown |       |
+| `updated_at`  | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -575,10 +576,12 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`glossary()`**: BelongsTo [Glossary](#glossary)
 - **`language()`**: BelongsTo [Language](#language)
 
 #### Belongs To Many
+
 - **`itemTranslations()`**: BelongsToMany [ItemTranslation](#itemtranslation)
 
 ### Query Scopes
@@ -586,31 +589,30 @@ const UPDATED_AT = 'updated_at';
 - **`forLanguage()`**
 - **`forSpelling()`**
 
-
 ## GlossaryTranslation {#glossarytranslation}
 
 **Namespace:** `App\Models\GlossaryTranslation`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `glossary_translations` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `glossary_translations`          |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `glossary_id` | uuid | Unknown | Unknown |  |
-| `language_id` | varchar | Unknown | Unknown |  |
-| `definition` | text | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column        | Type      | Nullable | Default | Extra |
+| ------------- | --------- | -------- | ------- | ----- |
+| `id`          | uuid      | Unknown  | Unknown |       |
+| `glossary_id` | uuid      | Unknown  | Unknown |       |
+| `language_id` | varchar   | Unknown  | Unknown |       |
+| `definition`  | text      | Unknown  | Unknown |       |
+| `created_at`  | timestamp | Unknown  | Unknown |       |
+| `updated_at`  | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -628,6 +630,7 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`glossary()`**: BelongsTo [Glossary](#glossary)
 - **`language()`**: BelongsTo [Language](#language)
 
@@ -635,33 +638,32 @@ const UPDATED_AT = 'updated_at';
 
 - **`forLanguage()`**
 
-
 ## ImageUpload {#imageupload}
 
 **Namespace:** `App\Models\ImageUpload`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `image_uploads` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `image_uploads`                  |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `path` | varchar | Unknown | Unknown |  |
-| `name` | varchar | Unknown | Unknown |  |
-| `extension` | varchar | Unknown | Unknown |  |
-| `mime_type` | varchar | Unknown | Unknown |  |
-| `size` | bigint | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column       | Type      | Nullable | Default | Extra |
+| ------------ | --------- | -------- | ------- | ----- |
+| `id`         | uuid      | Unknown  | Unknown |       |
+| `path`       | varchar   | Unknown  | Unknown |       |
+| `name`       | varchar   | Unknown  | Unknown |       |
+| `extension`  | varchar   | Unknown  | Unknown |       |
+| `mime_type`  | varchar   | Unknown  | Unknown |       |
+| `size`       | bigint    | Unknown  | Unknown |       |
+| `created_at` | timestamp | Unknown  | Unknown |       |
+| `updated_at` | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -678,38 +680,37 @@ const UPDATED_AT = 'updated_at';
 
 ### Relationships
 
-
 ## Item {#item}
 
 **Namespace:** `App\Models\Item`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `items` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `items`                          |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `partner_id` | uuid | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `type` | enum | Unknown | Unknown |  |
-| `parent_id` | uuid | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
-| `country_id` | varchar | Unknown | Unknown |  |
-| `project_id` | uuid | Unknown | Unknown |  |
-| `collection_id` | uuid | Unknown | Unknown |  |
-| `owner_reference` | varchar | Unknown | Unknown |  |
-| `mwnf_reference` | varchar | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `partner_id`             | uuid      | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `type`                   | enum      | Unknown  | Unknown |       |
+| `parent_id`              | uuid      | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
+| `country_id`             | varchar   | Unknown  | Unknown |       |
+| `project_id`             | uuid      | Unknown  | Unknown |       |
+| `collection_id`          | uuid      | Unknown  | Unknown |       |
+| `owner_reference`        | varchar   | Unknown  | Unknown |       |
+| `mwnf_reference`         | varchar   | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -731,6 +732,7 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`partner()`**: BelongsTo [Partner](#partner)
 - **`country()`**: BelongsTo [Country](#country)
 - **`project()`**: BelongsTo [Project](#project)
@@ -738,11 +740,13 @@ const UPDATED_AT = 'updated_at';
 - **`parent()`**: BelongsTo [Item](#item)
 
 #### Has Many
+
 - **`children()`**: HasMany [Item](#item)
 - **`itemImages()`**: HasMany [ItemImage](#itemimage)
 - **`translations()`**: HasMany [ItemTranslation](#itemtranslation)
 
 #### Belongs To Many
+
 - **`tags()`**: BelongsToMany [Tag](#tag)
 - **`artists()`**: BelongsToMany [Artist](#artist)
 - **`workshops()`**: BelongsToMany [Workshop](#workshop)
@@ -760,35 +764,34 @@ const UPDATED_AT = 'updated_at';
 - **`withAllTags()`**
 - **`withAnyTags()`**
 
-
 ## ItemImage {#itemimage}
 
 **Namespace:** `App\Models\ItemImage`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `item_images` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `item_images`                    |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `item_id` | uuid | Unknown | Unknown |  |
-| `path` | varchar | Unknown | Unknown |  |
-| `original_name` | varchar | Unknown | Unknown |  |
-| `mime_type` | varchar | Unknown | Unknown |  |
-| `size` | bigint | Unknown | Unknown |  |
-| `alt_text` | varchar | Unknown | Unknown |  |
-| `display_order` | int | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column          | Type      | Nullable | Default | Extra |
+| --------------- | --------- | -------- | ------- | ----- |
+| `id`            | uuid      | Unknown  | Unknown |       |
+| `item_id`       | uuid      | Unknown  | Unknown |       |
+| `path`          | varchar   | Unknown  | Unknown |       |
+| `original_name` | varchar   | Unknown  | Unknown |       |
+| `mime_type`     | varchar   | Unknown  | Unknown |       |
+| `size`          | bigint    | Unknown  | Unknown |       |
+| `alt_text`      | varchar   | Unknown  | Unknown |       |
+| `display_order` | int       | Unknown  | Unknown |       |
+| `created_at`    | timestamp | Unknown  | Unknown |       |
+| `updated_at`    | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -798,9 +801,9 @@ const UPDATED_AT = 'updated_at';
 
 ### Attribute Casting
 
-| Attribute | Cast Type |
-|-----------|-----------|
-| `size` | `integer` |
+| Attribute       | Cast Type |
+| --------------- | --------- |
+| `size`          | `integer` |
 | `display_order` | `integer` |
 
 ### Model Constants
@@ -813,8 +816,8 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
-- **`item()`**: BelongsTo [Item](#item)
 
+- **`item()`**: BelongsTo [Item](#item)
 
 ## ItemTranslation {#itemtranslation}
 
@@ -822,45 +825,45 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `item_translations` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `item_translations`              |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `item_id` | uuid | Unknown | Unknown |  |
-| `language_id` | varchar | Unknown | Unknown |  |
-| `context_id` | uuid | Unknown | Unknown |  |
-| `name` | varchar | Unknown | Unknown |  |
-| `alternate_name` | varchar | Unknown | Unknown |  |
-| `description` | text | Unknown | Unknown |  |
-| `type` | varchar | Unknown | Unknown |  |
-| `holder` | text | Unknown | Unknown |  |
-| `owner` | text | Unknown | Unknown |  |
-| `initial_owner` | text | Unknown | Unknown |  |
-| `dates` | text | Unknown | Unknown |  |
-| `location` | text | Unknown | Unknown |  |
-| `dimensions` | text | Unknown | Unknown |  |
-| `place_of_production` | text | Unknown | Unknown |  |
-| `method_for_datation` | text | Unknown | Unknown |  |
-| `method_for_provenance` | text | Unknown | Unknown |  |
-| `obtention` | text | Unknown | Unknown |  |
-| `bibliography` | text | Unknown | Unknown |  |
-| `author_id` | uuid | Unknown | Unknown |  |
-| `text_copy_editor_id` | uuid | Unknown | Unknown |  |
-| `translator_id` | uuid | Unknown | Unknown |  |
-| `translation_copy_editor_id` | uuid | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `extra` | longtext | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                       | Type      | Nullable | Default | Extra |
+| ---------------------------- | --------- | -------- | ------- | ----- |
+| `id`                         | uuid      | Unknown  | Unknown |       |
+| `item_id`                    | uuid      | Unknown  | Unknown |       |
+| `language_id`                | varchar   | Unknown  | Unknown |       |
+| `context_id`                 | uuid      | Unknown  | Unknown |       |
+| `name`                       | varchar   | Unknown  | Unknown |       |
+| `alternate_name`             | varchar   | Unknown  | Unknown |       |
+| `description`                | text      | Unknown  | Unknown |       |
+| `type`                       | varchar   | Unknown  | Unknown |       |
+| `holder`                     | text      | Unknown  | Unknown |       |
+| `owner`                      | text      | Unknown  | Unknown |       |
+| `initial_owner`              | text      | Unknown  | Unknown |       |
+| `dates`                      | text      | Unknown  | Unknown |       |
+| `location`                   | text      | Unknown  | Unknown |       |
+| `dimensions`                 | text      | Unknown  | Unknown |       |
+| `place_of_production`        | text      | Unknown  | Unknown |       |
+| `method_for_datation`        | text      | Unknown  | Unknown |       |
+| `method_for_provenance`      | text      | Unknown  | Unknown |       |
+| `obtention`                  | text      | Unknown  | Unknown |       |
+| `bibliography`               | text      | Unknown  | Unknown |       |
+| `author_id`                  | uuid      | Unknown  | Unknown |       |
+| `text_copy_editor_id`        | uuid      | Unknown  | Unknown |       |
+| `translator_id`              | uuid      | Unknown  | Unknown |       |
+| `translation_copy_editor_id` | uuid      | Unknown  | Unknown |       |
+| `backward_compatibility`     | varchar   | Unknown  | Unknown |       |
+| `extra`                      | longtext  | Unknown  | Unknown |       |
+| `created_at`                 | timestamp | Unknown  | Unknown |       |
+| `updated_at`                 | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -871,8 +874,8 @@ const UPDATED_AT = 'updated_at';
 ### Attribute Casting
 
 | Attribute | Cast Type |
-|-----------|-----------|
-| `extra` | `object` |
+| --------- | --------- |
+| `extra`   | `object`  |
 
 ### Model Constants
 
@@ -884,6 +887,7 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`item()`**: BelongsTo [Item](#item)
 - **`language()`**: BelongsTo [Language](#language)
 - **`context()`**: BelongsTo [Context](#context)
@@ -893,6 +897,7 @@ const UPDATED_AT = 'updated_at';
 - **`translationCopyEditor()`**: BelongsTo [Author](#author)
 
 #### Belongs To Many
+
 - **`spellings()`**: BelongsToMany [GlossarySpelling](#glossaryspelling)
 
 ### Query Scopes
@@ -901,31 +906,30 @@ const UPDATED_AT = 'updated_at';
 - **`forLanguage()`**
 - **`forContext()`**
 
-
 ## Language {#language}
 
 **Namespace:** `App\Models\Language`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `languages` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `languages`                      |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | varchar | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
-| `is_default` | tinyint | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | varchar   | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
+| `is_default`             | tinyint   | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -935,8 +939,8 @@ const UPDATED_AT = 'updated_at';
 
 ### Attribute Casting
 
-| Attribute | Cast Type |
-|-----------|-----------|
+| Attribute    | Cast Type |
+| ------------ | --------- |
 | `is_default` | `boolean` |
 
 ### Model Constants
@@ -953,31 +957,30 @@ const UPDATED_AT = 'updated_at';
 - **`english()`**
 - **`default()`**
 
-
 ## Location {#location}
 
 **Namespace:** `App\Models\Location`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `locations` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `locations`                      |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `country_id` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `country_id`             | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -995,11 +998,12 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`country()`**: BelongsTo [Country](#country)
 
 #### Has Many
-- **`translations()`**: HasMany [LocationTranslation](#locationtranslation)
 
+- **`translations()`**: HasMany [LocationTranslation](#locationtranslation)
 
 ## LocationTranslation {#locationtranslation}
 
@@ -1007,26 +1011,26 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `location_translations` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `location_translations`          |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `location_id` | uuid | Unknown | Unknown |  |
-| `language_id` | varchar | Unknown | Unknown |  |
-| `name` | varchar | Unknown | Unknown |  |
-| `description` | text | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `location_id`            | uuid      | Unknown  | Unknown |       |
+| `language_id`            | varchar   | Unknown  | Unknown |       |
+| `name`                   | varchar   | Unknown  | Unknown |       |
+| `description`            | text      | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -1044,9 +1048,9 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`location()`**: BelongsTo [Location](#location)
 - **`language()`**: BelongsTo [Language](#language)
-
 
 ## Partner {#partner}
 
@@ -1054,25 +1058,25 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `partners` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `partners`                       |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `type` | enum | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
-| `country_id` | varchar | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `type`                   | enum      | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
+| `country_id`             | varchar   | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -1082,12 +1086,12 @@ const UPDATED_AT = 'updated_at';
 
 ### Attribute Casting
 
-| Attribute | Cast Type |
-|-----------|-----------|
-| `latitude` | `decimal:8` |
+| Attribute   | Cast Type   |
+| ----------- | ----------- |
+| `latitude`  | `decimal:8` |
 | `longitude` | `decimal:8` |
-| `map_zoom` | `integer` |
-| `visible` | `boolean` |
+| `map_zoom`  | `integer`   |
+| `visible`   | `boolean`   |
 
 ### Model Constants
 
@@ -1099,22 +1103,24 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`country()`**: BelongsTo [Country](#country)
 - **`project()`**: BelongsTo [Project](#project)
 - **`monumentItem()`**: BelongsTo [Item](#item)
 
 #### Has Many
+
 - **`items()`**: HasMany [Item](#item)
 - **`translations()`**: HasMany [PartnerTranslation](#partnertranslation)
 - **`partnerImages()`**: HasMany [PartnerImage](#partnerimage)
 
 #### Belongs To Many
+
 - **`collections()`**: BelongsToMany [Collection](#collection)
 
 ### Query Scopes
 
 - **`visible()`**
-
 
 ## PartnerImage {#partnerimage}
 
@@ -1122,13 +1128,13 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `partner_images` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `partner_images`                 |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Fillable Fields
 
@@ -1138,9 +1144,9 @@ const UPDATED_AT = 'updated_at';
 
 ### Attribute Casting
 
-| Attribute | Cast Type |
-|-----------|-----------|
-| `size` | `integer` |
+| Attribute       | Cast Type |
+| --------------- | --------- |
+| `size`          | `integer` |
 | `display_order` | `integer` |
 
 ### Model Constants
@@ -1153,8 +1159,8 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
-- **`partner()`**: BelongsTo [Partner](#partner)
 
+- **`partner()`**: BelongsTo [Partner](#partner)
 
 ## PartnerTranslation {#partnertranslation}
 
@@ -1162,13 +1168,13 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `partner_translations` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `partner_translations`           |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Fillable Fields
 
@@ -1178,11 +1184,11 @@ const UPDATED_AT = 'updated_at';
 
 ### Attribute Casting
 
-| Attribute | Cast Type |
-|-----------|-----------|
-| `contact_emails` | `array` |
-| `contact_phones` | `array` |
-| `extra` | `object` |
+| Attribute        | Cast Type |
+| ---------------- | --------- |
+| `contact_emails` | `array`   |
+| `contact_phones` | `array`   |
+| `extra`          | `object`  |
 
 ### Model Constants
 
@@ -1194,11 +1200,13 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`partner()`**: BelongsTo [Partner](#partner)
 - **`language()`**: BelongsTo [Language](#language)
 - **`context()`**: BelongsTo [Context](#context)
 
 #### Has Many
+
 - **`partnerTranslationImages()`**: HasMany [PartnerTranslationImage](#partnertranslationimage)
 
 ### Query Scopes
@@ -1207,20 +1215,19 @@ const UPDATED_AT = 'updated_at';
 - **`forLanguage()`**
 - **`forContext()`**
 
-
 ## PartnerTranslationImage {#partnertranslationimage}
 
 **Namespace:** `App\Models\PartnerTranslationImage`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `partner_translation_images` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `partner_translation_images`     |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Fillable Fields
 
@@ -1230,9 +1237,9 @@ const UPDATED_AT = 'updated_at';
 
 ### Attribute Casting
 
-| Attribute | Cast Type |
-|-----------|-----------|
-| `size` | `integer` |
+| Attribute       | Cast Type |
+| --------------- | --------- |
+| `size`          | `integer` |
 | `display_order` | `integer` |
 
 ### Model Constants
@@ -1245,8 +1252,8 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
-- **`partnerTranslation()`**: BelongsTo [PartnerTranslation](#partnertranslation)
 
+- **`partnerTranslation()`**: BelongsTo [PartnerTranslation](#partnertranslation)
 
 ## Project {#project}
 
@@ -1254,28 +1261,28 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `projects` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `projects`                       |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `launch_date` | date | Unknown | Unknown |  |
-| `is_launched` | tinyint | Unknown | Unknown |  |
-| `is_enabled` | tinyint | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
-| `context_id` | uuid | Unknown | Unknown |  |
-| `language_id` | varchar | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `launch_date`            | date      | Unknown  | Unknown |       |
+| `is_launched`            | tinyint   | Unknown  | Unknown |       |
+| `is_enabled`             | tinyint   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
+| `context_id`             | uuid      | Unknown  | Unknown |       |
+| `language_id`            | varchar   | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -1285,11 +1292,11 @@ const UPDATED_AT = 'updated_at';
 
 ### Attribute Casting
 
-| Attribute | Cast Type |
-|-----------|-----------|
+| Attribute     | Cast Type        |
+| ------------- | ---------------- |
 | `launch_date` | `datetime:Y-m-d` |
-| `is_launched` | `boolean` |
-| `is_enabled` | `boolean` |
+| `is_launched` | `boolean`        |
+| `is_enabled`  | `boolean`        |
 
 ### Model Constants
 
@@ -1301,6 +1308,7 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`context()`**: BelongsTo [Context](#context)
 - **`language()`**: BelongsTo [Language](#language)
 
@@ -1312,31 +1320,30 @@ const UPDATED_AT = 'updated_at';
 - **`visible()`**
 - **`enabled()`**
 
-
 ## Province {#province}
 
 **Namespace:** `App\Models\Province`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `provinces` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `provinces`                      |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `country_id` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `country_id`             | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -1354,11 +1361,12 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`country()`**: BelongsTo [Country](#country)
 
 #### Has Many
-- **`translations()`**: HasMany [ProvinceTranslation](#provincetranslation)
 
+- **`translations()`**: HasMany [ProvinceTranslation](#provincetranslation)
 
 ## ProvinceTranslation {#provincetranslation}
 
@@ -1366,26 +1374,26 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `province_translations` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `province_translations`          |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `province_id` | uuid | Unknown | Unknown |  |
-| `language_id` | varchar | Unknown | Unknown |  |
-| `name` | varchar | Unknown | Unknown |  |
-| `description` | text | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `province_id`            | uuid      | Unknown  | Unknown |       |
+| `language_id`            | varchar   | Unknown  | Unknown |       |
+| `name`                   | varchar   | Unknown  | Unknown |       |
+| `description`            | text      | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -1403,9 +1411,9 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`province()`**: BelongsTo [Province](#province)
 - **`language()`**: BelongsTo [Language](#language)
-
 
 ## Setting {#setting}
 
@@ -1413,25 +1421,25 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `settings` |
-| **Primary Key** | `id` |
-| **Key Type** | Auto-incrementing Integer |
-| **Incrementing** | Yes |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `settings`                       |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | Auto-incrementing Integer        |
+| **Incrementing** | Yes                              |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | bigint | Unknown | Unknown |  |
-| `key` | varchar | Unknown | Unknown |  |
-| `value` | text | Unknown | Unknown |  |
-| `type` | varchar | Unknown | Unknown |  |
-| `description` | text | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column        | Type      | Nullable | Default | Extra |
+| ------------- | --------- | -------- | ------- | ----- |
+| `id`          | bigint    | Unknown  | Unknown |       |
+| `key`         | varchar   | Unknown  | Unknown |       |
+| `value`       | text      | Unknown  | Unknown |       |
+| `type`        | varchar   | Unknown  | Unknown |       |
+| `description` | text      | Unknown  | Unknown |       |
+| `created_at`  | timestamp | Unknown  | Unknown |       |
+| `updated_at`  | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -1442,8 +1450,8 @@ const UPDATED_AT = 'updated_at';
 ### Attribute Casting
 
 | Attribute | Cast Type |
-|-----------|-----------|
-| `id` | `int` |
+| --------- | --------- |
+| `id`      | `int`     |
 
 ### Model Constants
 
@@ -1454,31 +1462,30 @@ const UPDATED_AT = 'updated_at';
 
 ### Relationships
 
-
 ## Tag {#tag}
 
 **Namespace:** `App\Models\Tag`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `tags` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `tags`                           |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `description` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `description`            | varchar   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -1496,12 +1503,12 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To Many
+
 - **`items()`**: BelongsToMany [Item](#item)
 
 ### Query Scopes
 
 - **`forItem()`**
-
 
 ## Theme {#theme}
 
@@ -1509,25 +1516,25 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `themes` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `themes`                         |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `collection_id` | uuid | Unknown | Unknown |  |
-| `parent_id` | uuid | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `collection_id`          | uuid      | Unknown  | Unknown |       |
+| `parent_id`              | uuid      | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -1545,13 +1552,14 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`collection()`**: BelongsTo [Collection](#collection)
 - **`parent()`**: BelongsTo [Theme](#theme)
 
 #### Has Many
+
 - **`subthemes()`**: HasMany [Theme](#theme)
 - **`translations()`**: HasMany [ThemeTranslation](#themetranslation)
-
 
 ## ThemeTranslation {#themetranslation}
 
@@ -1559,29 +1567,29 @@ const UPDATED_AT = 'updated_at';
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `theme_translations` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `theme_translations`             |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `theme_id` | uuid | Unknown | Unknown |  |
-| `language_id` | varchar | Unknown | Unknown |  |
-| `context_id` | uuid | Unknown | Unknown |  |
-| `title` | varchar | Unknown | Unknown |  |
-| `description` | text | Unknown | Unknown |  |
-| `introduction` | text | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `extra` | longtext | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `theme_id`               | uuid      | Unknown  | Unknown |       |
+| `language_id`            | varchar   | Unknown  | Unknown |       |
+| `context_id`             | uuid      | Unknown  | Unknown |       |
+| `title`                  | varchar   | Unknown  | Unknown |       |
+| `description`            | text      | Unknown  | Unknown |       |
+| `introduction`           | text      | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `extra`                  | longtext  | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -1592,8 +1600,8 @@ const UPDATED_AT = 'updated_at';
 ### Attribute Casting
 
 | Attribute | Cast Type |
-|-----------|-----------|
-| `extra` | `object` |
+| --------- | --------- |
+| `extra`   | `object`  |
 
 ### Model Constants
 
@@ -1605,6 +1613,7 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To
+
 - **`theme()`**: BelongsTo [Theme](#theme)
 - **`language()`**: BelongsTo [Language](#language)
 - **`context()`**: BelongsTo [Context](#context)
@@ -1615,38 +1624,37 @@ const UPDATED_AT = 'updated_at';
 - **`forLanguage()`**
 - **`forContext()`**
 
-
 ## User {#user}
 
 **Namespace:** `App\Models\User`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `users` |
-| **Primary Key** | `id` |
-| **Key Type** | Auto-incrementing Integer |
-| **Incrementing** | Yes |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `users`                          |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | Auto-incrementing Integer        |
+| **Incrementing** | Yes                              |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | bigint | Unknown | Unknown |  |
-| `name` | varchar | Unknown | Unknown |  |
-| `email` | varchar | Unknown | Unknown |  |
-| `email_verified_at` | timestamp | Unknown | Unknown |  |
-| `password` | varchar | Unknown | Unknown |  |
-| `two_factor_secret` | text | Unknown | Unknown |  |
-| `two_factor_recovery_codes` | text | Unknown | Unknown |  |
-| `two_factor_confirmed_at` | timestamp | Unknown | Unknown |  |
-| `remember_token` | varchar | Unknown | Unknown |  |
-| `current_team_id` | bigint | Unknown | Unknown |  |
-| `profile_photo_path` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                      | Type      | Nullable | Default | Extra |
+| --------------------------- | --------- | -------- | ------- | ----- |
+| `id`                        | bigint    | Unknown  | Unknown |       |
+| `name`                      | varchar   | Unknown  | Unknown |       |
+| `email`                     | varchar   | Unknown  | Unknown |       |
+| `email_verified_at`         | timestamp | Unknown  | Unknown |       |
+| `password`                  | varchar   | Unknown  | Unknown |       |
+| `two_factor_secret`         | text      | Unknown  | Unknown |       |
+| `two_factor_recovery_codes` | text      | Unknown  | Unknown |       |
+| `two_factor_confirmed_at`   | timestamp | Unknown  | Unknown |       |
+| `remember_token`            | varchar   | Unknown  | Unknown |       |
+| `current_team_id`           | bigint    | Unknown  | Unknown |       |
+| `profile_photo_path`        | varchar   | Unknown  | Unknown |       |
+| `created_at`                | timestamp | Unknown  | Unknown |       |
+| `updated_at`                | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -1656,11 +1664,11 @@ const UPDATED_AT = 'updated_at';
 
 ### Attribute Casting
 
-| Attribute | Cast Type |
-|-----------|-----------|
-| `id` | `int` |
+| Attribute           | Cast Type  |
+| ------------------- | ---------- |
+| `id`                | `int`      |
 | `email_verified_at` | `datetime` |
-| `password` | `hashed` |
+| `password`          | `hashed`   |
 
 ### Model Constants
 
@@ -1672,6 +1680,7 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Morph Many
+
 - **`tokens()`**: MorphMany [PersonalAccessToken](#personalaccesstoken)
 - **`notifications()`**: MorphMany [DatabaseNotification](#databasenotification)
 - **`readNotifications()`**: MorphMany [DatabaseNotification](#databasenotification)
@@ -1684,31 +1693,30 @@ const UPDATED_AT = 'updated_at';
 - **`permission()`**
 - **`withoutPermission()`**
 
-
 ## Workshop {#workshop}
 
 **Namespace:** `App\Models\Workshop`
 
 ### Database Table
 
-| Property | Value |
-|----------|-------|
-| **Table Name** | `workshops` |
-| **Primary Key** | `id` |
-| **Key Type** | String (UUID) |
-| **Incrementing** | No |
-| **Timestamps** | Yes (`created_at`, `updated_at`) |
+| Property         | Value                            |
+| ---------------- | -------------------------------- |
+| **Table Name**   | `workshops`                      |
+| **Primary Key**  | `id`                             |
+| **Key Type**     | String (UUID)                    |
+| **Incrementing** | No                               |
+| **Timestamps**   | Yes (`created_at`, `updated_at`) |
 
 ### Database Schema
 
-| Column | Type | Nullable | Default | Extra |
-|--------|------|----------|---------|-------|
-| `id` | uuid | Unknown | Unknown |  |
-| `name` | varchar | Unknown | Unknown |  |
-| `internal_name` | varchar | Unknown | Unknown |  |
-| `backward_compatibility` | varchar | Unknown | Unknown |  |
-| `created_at` | timestamp | Unknown | Unknown |  |
-| `updated_at` | timestamp | Unknown | Unknown |  |
+| Column                   | Type      | Nullable | Default | Extra |
+| ------------------------ | --------- | -------- | ------- | ----- |
+| `id`                     | uuid      | Unknown  | Unknown |       |
+| `name`                   | varchar   | Unknown  | Unknown |       |
+| `internal_name`          | varchar   | Unknown  | Unknown |       |
+| `backward_compatibility` | varchar   | Unknown  | Unknown |       |
+| `created_at`             | timestamp | Unknown  | Unknown |       |
+| `updated_at`             | timestamp | Unknown  | Unknown |       |
 
 ### Fillable Fields
 
@@ -1718,8 +1726,8 @@ const UPDATED_AT = 'updated_at';
 
 ### Attribute Casting
 
-| Attribute | Cast Type |
-|-----------|-----------|
+| Attribute    | Cast Type  |
+| ------------ | ---------- |
 | `created_at` | `datetime` |
 | `updated_at` | `datetime` |
 
@@ -1733,9 +1741,9 @@ const UPDATED_AT = 'updated_at';
 ### Relationships
 
 #### Belongs To Many
-- **`items()`**: BelongsToMany [Item](#item)
 
+- **`items()`**: BelongsToMany [Item](#item)
 
 ---
 
-*This documentation was automatically generated using `php artisan docs:models`*
+_This documentation was automatically generated using `php artisan docs:models`_
