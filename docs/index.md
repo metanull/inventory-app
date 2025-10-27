@@ -45,23 +45,23 @@ This API is part of the modernization effort for Museum With No Frontiers:
 
 ### [Blade/Livewire Frontend]({{ '/frontend-blade/' | relative_url }})
 
+{: .note }
+> This is the main user interface, it is a Blade/Livewire frontend.
+
 {: .important }
-**Main User Interface** - Documentation for the server-rendered Blade/Livewire frontend that end users interact with.
+It is a **Server rendered frontend**.
+
+### [Backend Guidelines]({{ '/guidelines/' | relative_url }})
+
+Development guidelines covering coding standards, API integration, and best practices.
 
 ### [API Documentation]({{ '/api/' | relative_url }})
 
 Interactive API documentation with Swagger UI and OpenAPI specification.
 
-{: .note }
-> This is the main user interface, it is a Blade/Livewire frontend.
-
 ### [Database Models]({{ '/models/' | relative_url }})
 
 Complete reference for all database models, their properties, and relationships.
-
-### [Backend Guidelines]({{ '/guidelines/' | relative_url }})
-
-Development guidelines covering coding standards, API integration, and best practices.
 
 ### [Development]({{ '/development/' | relative_url }})
 
