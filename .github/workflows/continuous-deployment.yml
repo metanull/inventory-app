@@ -325,7 +325,7 @@ jobs:
       WEBSERVER_PATH: ${{ vars.WEBSERVER_PATH || 'C:\\Apache24\\htdocs\\inventory-app' }}
     steps:
       - name: Download deployment artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: laravel-app-${{ github.sha }}
           path: deployment-package/
