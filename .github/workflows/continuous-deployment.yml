@@ -213,7 +213,8 @@ jobs:
           }
 
           # Copy application files (excluding dev dependencies and build artifacts)
-          $excludeDirs = @('.git', 'node_modules', 'tests', '.github', 'docs', 'storage/logs', 'storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views')
+          # IMPORTANT: storage/app is excluded because it will be symlinked to a shared persistent location
+          $excludeDirs = @('.git', 'node_modules', 'tests', '.github', 'docs', 'storage/app', 'storage/logs', 'storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views')
           $excludeFiles = @('*.log', '.env*', 'composer.lock', 'package-lock.json', 'webpack.mix.js', 'vite.config.js')
 
           Write-Host "::group::Copying application files to $deployDir"
@@ -347,6 +348,58 @@ jobs:
           
           # Store staging path for next step
           echo "STAGING_PATH=$stagingPath" >> $env:GITHUB_ENV
+        shell: powershell
+
+      - name: Setup shared persistent storage
+        run: |
+          # Create shared storage directory for persistent data (images, uploads, etc.)
+          # This directory is shared across all deployments to preserve uploaded files
+          
+          $sharedStoragePath = Join-Path (Split-Path $env:WEBSERVER_PATH -Parent) "shared-storage"
+          $storageAppPath = Join-Path $sharedStoragePath "app"
+          
+          # Create shared storage directory if it doesn't exist
+          if (-not (Test-Path $storageAppPath)) {
+            try {
+              New-Item -ItemType Directory -Path $storageAppPath -Force -ErrorAction Stop | Out-Null
+              Write-Host "Created shared storage directory: $storageAppPath"
+              
+              # Create required subdirectories
+              @('private', 'public', 'public/images') | ForEach-Object {
+                $subDir = Join-Path $storageAppPath $_
+                New-Item -ItemType Directory -Path $subDir -Force -ErrorAction Stop | Out-Null
+                Write-Host "Created storage subdirectory: $subDir"
+              }
+            } catch {
+              Write-Host "::error::Failed to create shared storage directory: $_"
+              exit 1
+            }
+          } else {
+            Write-Host "Shared storage directory already exists: $storageAppPath"
+          }
+          
+          # Create symlink from staging directory to shared storage
+          $stagingStorageAppPath = Join-Path $env:STAGING_PATH "storage\app"
+          
+          # Remove the placeholder storage/app directory from staging if it exists
+          if (Test-Path $stagingStorageAppPath) {
+            try {
+              Remove-Item $stagingStorageAppPath -Recurse -Force -ErrorAction Stop
+              Write-Host "Removed placeholder storage/app from staging directory"
+            } catch {
+              Write-Host "::error::Failed to remove placeholder storage/app directory: $_"
+              exit 1
+            }
+          }
+          
+          # Create symlink
+          try {
+            New-Item -ItemType SymbolicLink -Path $stagingStorageAppPath -Target $storageAppPath -ErrorAction Stop | Out-Null
+            Write-Host "Created symlink: $stagingStorageAppPath -> $storageAppPath"
+          } catch {
+            Write-Host "::error::Failed to create storage symlink: $_"
+            exit 1
+          }
         shell: powershell
 
       - name: Shutdown the old application
