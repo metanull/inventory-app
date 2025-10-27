@@ -10,17 +10,29 @@
             />
         </div>
 
-        @if(session('success'))
-            <x-ui.alert :message="session('success')" type="success" entity="images" />
-        @endif
-
-        @if($errors->any())
-            <x-ui.alert :message="$errors->first()" type="error" entity="images" />
-        @endif
-
         <div class="bg-white rounded-lg shadow">
             <div class="p-6">
                 <h2 class="text-lg font-medium text-gray-900 mb-4">Upload Images</h2>
+
+                @if(session('success'))
+                    <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 5000)" x-show="show" x-transition>
+                        <x-ui.alert 
+                            :message="session('success')" 
+                            type="success" 
+                            entity="images"
+                            :dismissible="true"
+                        />
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <x-ui.alert 
+                        :message="$errors->first()" 
+                        type="error" 
+                        entity="images"
+                        :dismissible="true"
+                    />
+                @endif
 
                 <form action="{{ route('images.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                     @csrf

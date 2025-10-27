@@ -28,8 +28,9 @@
     <label class="block text-sm font-medium text-gray-700">
         {{ $label }}@if($required)<span class="text-red-500">*</span>@endif
     </label>
-    <div 
-        class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors"
+    <label 
+        for="{{ $name }}-upload"
+        class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors cursor-pointer"
         x-data="fileUpload()"
         @drop.prevent="handleDrop($event)"
         @dragover.prevent="highlight()"
@@ -37,27 +38,25 @@
         @dragleave.prevent="unhighlight()"
         :class="{ 'border-{{ $c['name'] }}-500 bg-{{ $c['name'] }}-50': isDragging }"
     >
-        <div class="space-y-1 text-center">
+        <div class="space-y-1 text-center pointer-events-none">
             <x-heroicon-o-photo class="mx-auto h-12 w-12 text-gray-400" />
-            <div class="flex text-sm text-gray-600">
-                <label for="{{ $name }}-upload" class="relative cursor-pointer rounded-md font-medium {{ $c['text'] }} hover:{{ $c['text'] }}/80 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 {{ $c['focus'] }}">
-                    <span>Upload a file</span>
-                    <input 
-                        id="{{ $name }}-upload" 
-                        name="{{ $name }}" 
-                        type="file" 
-                        accept="{{ $accept }}" 
-                        @if($required) required @endif
-                        class="sr-only"
-                        @change="handleFileSelect($event)"
-                    >
-                </label>
-                <p class="pl-1">or drag and drop</p>
+            <div class="flex text-sm text-gray-600 justify-center">
+                <span class="font-medium {{ $c['text'] }}">Upload a file</span>
+                <span class="pl-1">or drag and drop</span>
             </div>
             <p class="text-xs text-gray-500">{{ $help }}</p>
             <p x-show="selectedFile" x-text="'Selected: ' + selectedFile" class="text-sm {{ $c['text'] }} font-medium mt-2"></p>
         </div>
-    </div>
+        <input 
+            id="{{ $name }}-upload" 
+            name="{{ $name }}" 
+            type="file" 
+            accept="{{ $accept }}" 
+            @if($required) required @endif
+            class="sr-only"
+            @change="handleFileSelect($event)"
+        >
+    </label>
     @error($name)
         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
     @enderror
@@ -98,7 +97,12 @@ function fileUpload() {
                 dataTransfer.items.add(file);
                 input.files = dataTransfer.files;
                 
+                // Update the selected file display
                 this.selectedFile = file.name;
+                
+                // Trigger change event so forms recognize the file
+                const event = new Event('change', { bubbles: true });
+                input.dispatchEvent(event);
             }
         },
         
