@@ -623,6 +623,6 @@ npm run test:integration
 
 For more detailed information, see:
 
-- [Integration Testing Guide](integration-testing)
+- [Integration Testing Guide]({{ '/frontend-vue-sample/guidelines/integration-testing' | relative_url }})
 - [Contributing Guide]({{ '/development/contributing' | relative_url }})
-- [API Integration Documentation](api-integration)
+- [API Integration Documentation]({{ '/frontend-vue-sample/guidelines/api-integration' | relative_url }})

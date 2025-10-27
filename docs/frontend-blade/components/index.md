@@ -105,10 +105,10 @@ Many components accept entity-based colors:
 
 ## Component Categories
 
-- **[Forms](forms)** - Input fields, selects, textareas
-- **[Tables](tables)** - Data tables and grids
-- **[Modals](modals)** - Dialog boxes and overlays
-- **[Navigation](navigation)** - Menus, breadcrumbs, pagination
+- **[Forms]({{ '/frontend-blade/components/forms' | relative_url }})** - Input fields, selects, textareas
+
+{: .note }
+> Additional component categories (Tables, Modals, Navigation) will be documented as they are implemented.
 
 ## Best Practices
 

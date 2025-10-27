@@ -11,9 +11,9 @@ Essential patterns and standards for Vue.js development in the Inventory Managem
 
 ## Getting Started
 
-1. **Read First**: [Page Patterns](page-patterns) - Complete implementation guide
-2. **Component Docs**: [Components](components/) - Reusable component reference
-3. **Guidelines**: [Coding Guidelines](guidelines/coding-guidelines) - Standards and best practices
+1. **Read First**: [Page Patterns]({{ '/frontend-vue-sample/page-patterns' | relative_url }}) - Complete implementation guide
+2. **Component Docs**: [Components]({{ '/frontend-vue-sample/components/' | relative_url }}) - Reusable component reference
+3. **Guidelines**: [Coding Guidelines]({{ '/frontend-vue-sample/guidelines/coding-guidelines' | relative_url }}) - Standards and best practices
 
 ## Pre-Development Checklist
 
@@ -210,6 +210,6 @@ Before submitting:
 Need Help?
 
 1. **Examples**: Check existing pages (Contexts.vue, ContextDetail.vue)
-2. **Components**: Browse [Component Reference](components/)
-3. **Patterns**: Review [Page Patterns](page-patterns) guide
-4. **Standards**: Check [Coding Guidelines](guidelines/coding-guidelines)
+2. **Components**: Browse [Component Reference]({{ '/frontend-vue-sample/components/' | relative_url }})
+3. **Patterns**: Review [Page Patterns]({{ '/frontend-vue-sample/page-patterns' | relative_url }}) guide
+4. **Standards**: Check [Coding Guidelines]({{ '/frontend-vue-sample/guidelines/coding-guidelines' | relative_url }})

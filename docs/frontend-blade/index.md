@@ -98,17 +98,17 @@ resources/views/
 
 ### Common Tasks
 
-- **Create a new view:** See [Components](components/)
-- **Add Livewire component:** See [Livewire](livewire/)
-- **Style with Tailwind:** See [Styling](styling/)
-- **Add Alpine.js interactions:** See [Alpine.js](alpine/)
+- **Create a new view:** See [Components]({{ '/frontend-blade/components/' | relative_url }})
+- **Add Livewire component:** See [Livewire]({{ '/frontend-blade/livewire/' | relative_url }})
+- **Style with Tailwind:** See [Styling]({{ '/frontend-blade/styling/' | relative_url }})
+- **Add Alpine.js interactions:** See [Alpine.js]({{ '/frontend-blade/alpine/' | relative_url }})
 
 ## Directory Structure
 
-- **[Components](components/)** - Blade component library
-- **[Livewire](livewire/)** - Livewire component patterns
-- **[Alpine.js](alpine/)** - JavaScript interaction patterns
-- **[Styling](styling/)** - Tailwind conventions and entity colors
+- **[Components]({{ '/frontend-blade/components/' | relative_url }})** - Blade component library
+- **[Livewire]({{ '/frontend-blade/livewire/' | relative_url }})** - Livewire component patterns
+- **[Alpine.js]({{ '/frontend-blade/alpine/' | relative_url }})** - JavaScript interaction patterns
+- **[Styling]({{ '/frontend-blade/styling/' | relative_url }})** - Tailwind conventions and entity colors
 
 ## Related Documentation
 
