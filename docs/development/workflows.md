@@ -32,7 +32,7 @@ The `/.github/workflows` directory contains GitHub Actions workflows for continu
 - **PowerShell workflows** use PowerShell on Windows runners for application deployment
 - Most workflows use **concurrency groups** to prevent duplicate runs and conserve resources
 - Workflows are triggered by push events, pull requests, releases, or manual dispatch (`workflow_dispatch`)
-- Several workflows interact with scripts in [/scripts/README.md](../../scripts/README.md)
+- Several workflows interact with scripts in [/scripts/README.md](/development/scripts)
 
 ## Continuous Integration and Testing
 
@@ -202,6 +202,8 @@ This workflow runs automatically when changes are pushed to `main`.
 
 Generates and deploys the Jekyll-based static documentation website to GitHub Pages. This workflow calls Python scripts to generate commit history and API client documentation.
 
+See [/docs/README.md](/development/documentation-site) for complete Jekyll site documentation.
+
 **Workflow properties**
 
 | Property | Value |
@@ -219,8 +221,8 @@ Generates and deploys the Jekyll-based static documentation website to GitHub Pa
    - Sets up Python 3.x
    - Sets up Ruby 3.2.3
    - Installs Ruby dependencies with `bundle install`
-   - **Generates commit history documentation** - Calls `python scripts/generate-commit-docs.py`. See [/scripts/README.md](../../scripts/README.md#generating-the-git-commit-history)
-   - **Generates API client documentation** - Calls `python scripts/generate-client-docs.py`. See [/scripts/README.md](../../scripts/README.md#generating-the-api-client-npm-packages-static-documentation)
+   - **Generates commit history documentation** - Calls `python scripts/generate-commit-docs.py`. See [/scripts/README.md](/development/scripts#generating-the-git-commit-history)
+   - **Generates API client documentation** - Calls `python scripts/generate-client-docs.py`. See [/scripts/README.md](/development/scripts#generating-the-api-client-npm-packages-static-documentation)
    - Builds Jekyll site with `bundle exec jekyll build`
    - Uploads artifact for GitHub Pages
 
@@ -239,8 +241,10 @@ Generates and deploys the Jekyll-based static documentation website to GitHub Pa
 **Scripts called**
 
 This workflow depends on the following scripts:
-- `generate-commit-docs.py` - Converts Git commit history into Jekyll markdown pages. See [/scripts/README.md](../../scripts/README.md#generating-the-git-commit-history)
-- `generate-client-docs.py` - Converts TypeScript API client docs into Jekyll markdown pages. See [/scripts/README.md](../../scripts/README.md#generating-the-api-client-npm-packages-static-documentation)
+- `generate-commit-docs.py` - Converts Git commit history into Jekyll markdown pages. See [/scripts/README.md](/development/scripts#generating-the-git-commit-history)
+- `generate-client-docs.py` - Converts TypeScript API client docs into Jekyll markdown pages. See [/scripts/README.md](/development/scripts#generating-the-api-client-npm-packages-static-documentation)
+
+For Jekyll site documentation, see [/docs/README.md](/development/documentation-site)
 
 **Usage**
 
@@ -295,7 +299,7 @@ Publishes the TypeScript API client package to GitHub Packages when a release is
 **Prerequisites**
 
 Before this workflow can run successfully:
-1. API client must be generated using `generate-api-client.ps1`. See [/scripts/README.md](../../scripts/README.md#generating-the-api-client-npm-package)
+1. API client must be generated using `generate-api-client.ps1`. See [/scripts/README.md](/development/scripts#generating-the-api-client-npm-package)
 2. Package version should be updated appropriately
 3. A release must be created in GitHub
 
@@ -435,15 +439,15 @@ Several workflows interact with scripts and other workflows:
 | --- | --- | --- |
 | `continuous-integration.yml` | - | `version-bump.yml` |
 | `continuous-deployment.yml` | - | - |
-| `continuous-deployment_github-pages.yml` | [/scripts/README.md](../../scripts/README.md) scripts | - |
+| `continuous-deployment_github-pages.yml` | [/scripts/README.md](/development/scripts) scripts | - |
 | `publish-npm-github-package.yml` | API client generation | - |
 | `version-bump.yml` | `continuous-integration.yml` | - |
 | `merge-dependabot-pr.yml` | - | - |
 
 **Scripts used by workflows:**
 
-- `generate-commit-docs.py` - Used by `continuous-deployment_github-pages.yml`. See [/scripts/README.md](../../scripts/README.md#generating-the-git-commit-history)
-- `generate-client-docs.py` - Used by `continuous-deployment_github-pages.yml`. See [/scripts/README.md](../../scripts/README.md#generating-the-api-client-npm-packages-static-documentation)
+- `generate-commit-docs.py` - Used by `continuous-deployment_github-pages.yml`. See [/scripts/README.md](/development/scripts#generating-the-git-commit-history)
+- `generate-client-docs.py` - Used by `continuous-deployment_github-pages.yml`. See [/scripts/README.md](/development/scripts#generating-the-api-client-npm-packages-static-documentation)
 
 ---
 
@@ -454,6 +458,6 @@ When adding new workflows:
 1. Add description to this README
 2. Document triggers, jobs, permissions, and environment variables
 3. Update the workflow dependencies table
-4. Add cross-references to [/scripts/README.md](../../scripts/README.md) if applicable
+4. Add cross-references to [/scripts/README.md](/development/scripts) if applicable
 5. Test both manual and automated execution
-6. Validate workflow syntax with `node scripts/validate-workflows.cjs`. See [/scripts/README.md](../../scripts/README.md#validation-of-the-workflow-files)
+6. Validate workflow syntax with `node scripts/validate-workflows.cjs`. See [/scripts/README.md](/development/scripts#validation-of-the-workflow-files)

@@ -1,10 +1,40 @@
 Jekyll::Hooks.register :site, :after_init do |site|
+  # Define a helper method to transform README.md links to Jekyll permalinks
+  def transform_readme_links(content)
+    # Transform links to /scripts/README.md (with or without anchors)
+    # Note: Omit trailing slash as per Jekyll conventions for file links
+    content = content.gsub(/\[([^\]]+)\]\(([\.\/]*)scripts\/README\.md(#[^\)]+)?\)/) do
+      link_text = $1
+      anchor = $3 || ''
+      "[#{link_text}](/development/scripts#{anchor})"
+    end
+    
+    # Transform links to /.github/workflows/README.md (with or without anchors)
+    content = content.gsub(/\[([^\]]+)\]\(([\.\/]*)\.github\/workflows\/README\.md(#[^\)]+)?\)/) do
+      link_text = $1
+      anchor = $3 || ''
+      "[#{link_text}](/development/workflows#{anchor})"
+    end
+    
+    # Transform links to /docs/README.md (with or without anchors)
+    content = content.gsub(/\[([^\]]+)\]\(([\.\/]*)docs\/README\.md(#[^\)]+)?\)/) do
+      link_text = $1
+      anchor = $3 || ''
+      "[#{link_text}](/development/documentation-site#{anchor})"
+    end
+    
+    content
+  end
+  
   # Copy scripts/README.md to docs/development/scripts.md
   scripts_readme_source = File.join(site.source, '..', 'scripts', 'README.md')
   scripts_readme_dest = File.join(site.source, 'development', 'scripts.md')
   
   if File.exist?(scripts_readme_source)
     content = File.read(scripts_readme_source)
+    
+    # Transform README.md links to Jekyll permalinks
+    content = transform_readme_links(content)
     
     # Add front matter
     front_matter = <<~FRONTMATTER
@@ -32,6 +62,9 @@ Jekyll::Hooks.register :site, :after_init do |site|
   if File.exist?(workflows_readme_source)
     content = File.read(workflows_readme_source)
     
+    # Transform README.md links to Jekyll permalinks
+    content = transform_readme_links(content)
+    
     # Add front matter
     front_matter = <<~FRONTMATTER
       ---
@@ -57,6 +90,9 @@ Jekyll::Hooks.register :site, :after_init do |site|
   
   if File.exist?(docs_readme_source)
     content = File.read(docs_readme_source)
+    
+    # Transform README.md links to Jekyll permalinks
+    content = transform_readme_links(content)
     
     # Add front matter
     front_matter = <<~FRONTMATTER

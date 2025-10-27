@@ -43,7 +43,11 @@ The /scripts directory contains automation and helper scripts used for documenta
 
 ### Auto-generation of the static documentation website
 
-These scripts are triggered by the CI/CD Workflow action `.github/workflows/continuous-deployment_github-pages.yml` responsible for deploying the static documentation website to [github.io](https://metanull.github.io). See [/.github/workflows/README.md](../.github/workflows/README.md#deploy-documentation-to-github-pages).
+These scripts are triggered by the CI/CD Workflow action `.github/workflows/continuous-deployment_github-pages.yml` responsible for deploying the static documentation website to [github.io](https://metanull.github.io). 
+
+See:
+- [/.github/workflows/README.md](/development/workflows#deploy-documentation-to-github-pages) for workflow details
+- [/docs/README.md](/development/documentation-site) for Jekyll site documentation
 
 #### Generating the Git Commit History
 
@@ -51,14 +55,18 @@ Converts Git commit history into Jekyll-compatible markdown pages.
 
 These files are integrated by Jekyll into the static documentation website under `/inventory-app/development/archive`.
 
-The script is called by CI workflows on push to main. See [/.github/workflows/README.md](../.github/workflows/README.md#deploy-documentation-to-github-pages).
+The script is called by CI workflows on push to main. 
+
+See:
+- [/.github/workflows/README.md](/development/workflows#deploy-documentation-to-github-pages) for workflow details
+- [/docs/README.md](/development/documentation-site#script-generate-commit-documentation) for Jekyll integration
 
 **Script properties**
 
 | Property | Value |
 | --- | --- |
 | **Script** | `generate-commit-docs.py` |
-| **Invoker** | Invoked by `.github/workflows/continuous-deployment_github-pages.yml` on **push** to **main**. See [/.github/workflows/README.md](../.github/workflows/README.md#deploy-documentation-to-github-pages) |
+| **Invoker** | Invoked by `.github/workflows/continuous-deployment_github-pages.yml` on **push** to **main**. See [/.github/workflows/README.md](/development/workflows#deploy-documentation-to-github-pages) |
 | **Input** | It reads from git directly |
 | **Output** | `/docs/_docs/**/*.md` |
 | **Log** | `/docs/commit-docs.log` |
@@ -81,14 +89,18 @@ Transforms the TypeScript API Client markdown files (auto-generated) into Jekyll
 
 These files are integrated by Jekyll into the static documentation website under `/inventory-app/api-client/`.
 
-The script is called by CI workflows on push to main. See [/.github/workflows/README.md](../.github/workflows/README.md#deploy-documentation-to-github-pages).
+The script is called by CI workflows on push to main. 
+
+See:
+- [/.github/workflows/README.md](/development/workflows#deploy-documentation-to-github-pages) for workflow details
+- [/docs/README.md](/development/documentation-site#script-generate-api-client-documentation) for Jekyll integration
 
 **Script properties**
 
 | Property | Value |
 | --- | --- |
 | Script | `generate-client-docs.py` |
-| Invoker | Invoked by `.github/workflows/continuous-deployment_github-pages.yml` on **push** to **main**. See [/.github/workflows/README.md](../.github/workflows/README.md#deploy-documentation-to-github-pages) |
+| Invoker | Invoked by `.github/workflows/continuous-deployment_github-pages.yml` on **push** to **main**. See [/.github/workflows/README.md](/development/workflows#deploy-documentation-to-github-pages) |
 | Input | `/api-client/docs/*.md` - These files are auto-generated during development and not directly suitable for integration by Jekyll. See [Generating the API client npm package](#generating-the-api-client-npm-package) |
 | Output | `/docs/api-client/*.md` |
 | Log | `/docs/client-docs.log` |
@@ -217,6 +229,8 @@ Publishes the API client npm package to the [GitHub Packages](https://docs.githu
 
 Invokes the Jekyll Ruby Gem in a Windows Subsystem for Linux (WSL) terminal; it transforms the content of /docs into a static website.
 
+See [/docs/README.md](/development/documentation-site#building-the-site) for Jekyll site documentation.
+
 **Script properties**
 
 | Property | Value |
@@ -248,6 +262,8 @@ Invokes the Jekyll Ruby Gem in a Windows Subsystem for Linux (WSL) terminal; it 
 #### Running the static documentation website locally
 
 Serves the static documentation website on a local URL [http://localhost:4000](http://localhost:4000).
+
+See [/docs/README.md](/development/documentation-site#building-the-site) for Jekyll site documentation.
 
 **Script properties**
 
@@ -369,7 +385,7 @@ Validates all YAML workflow files.
 | Property | Value |
 | --- | --- |
 | Script | `validate-workflows.cjs` |
-| Invoker | Invoked by the developer after a **change** to workflow's **`*.yml`** files using `node ./scripts/validate-workflows.cjs`. See [/.github/workflows/README.md](../.github/workflows/README.md) |
+| Invoker | Invoked by the developer after a **change** to workflow's **`*.yml`** files using `node ./scripts/validate-workflows.cjs`. See [/.github/workflows/README.md](/development/workflows) |
 | Input | `/.github/workflows` |
 | Output | **N/A** - The script writes to the terminal |
 | Log | **N/A** - The script writes to the terminal |
