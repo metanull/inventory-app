@@ -1,4 +1,10 @@
-# Scripts
+---
+layout: default
+title: Scripts
+parent: Development
+nav_order: 4
+permalink: /development/scripts/
+---
 
 The /scripts directory contains automation and helper scripts used for documentation, management of the API client npm package, etc.
 
@@ -37,11 +43,7 @@ The /scripts directory contains automation and helper scripts used for documenta
 
 ### Auto-generation of the static documentation website
 
-These scripts are triggered by the CI/CD Workflow action `.github/workflows/continuous-deployment_github-pages.yml` responsible for deploying the static documentation website to [github.io](https://metanull.github.io). 
-
-See:
-- [/.github/workflows/README.md](../.github/workflows/README.md#deploy-documentation-to-github-pages) for workflow details
-- [/docs/README.md](../docs/README.md) for Jekyll site documentation
+These scripts are triggered by the CI/CD Workflow action `.github/workflows/continuous-deployment_github-pages.yml` responsible for deploying the static documentation website to [github.io](https://metanull.github.io). See [/.github/workflows/README.md](../.github/workflows/README.md#deploy-documentation-to-github-pages).
 
 #### Generating the Git Commit History
 
@@ -49,11 +51,7 @@ Converts Git commit history into Jekyll-compatible markdown pages.
 
 These files are integrated by Jekyll into the static documentation website under `/inventory-app/development/archive`.
 
-The script is called by CI workflows on push to main. 
-
-See:
-- [/.github/workflows/README.md](../.github/workflows/README.md#deploy-documentation-to-github-pages) for workflow details
-- [/docs/README.md](../docs/README.md#script-generate-commit-documentation) for Jekyll integration
+The script is called by CI workflows on push to main. See [/.github/workflows/README.md](../.github/workflows/README.md#deploy-documentation-to-github-pages).
 
 **Script properties**
 
@@ -83,11 +81,7 @@ Transforms the TypeScript API Client markdown files (auto-generated) into Jekyll
 
 These files are integrated by Jekyll into the static documentation website under `/inventory-app/api-client/`.
 
-The script is called by CI workflows on push to main. 
-
-See:
-- [/.github/workflows/README.md](../.github/workflows/README.md#deploy-documentation-to-github-pages) for workflow details
-- [/docs/README.md](../docs/README.md#script-generate-api-client-documentation) for Jekyll integration
+The script is called by CI workflows on push to main. See [/.github/workflows/README.md](../.github/workflows/README.md#deploy-documentation-to-github-pages).
 
 **Script properties**
 
@@ -223,8 +217,6 @@ Publishes the API client npm package to the [GitHub Packages](https://docs.githu
 
 Invokes the Jekyll Ruby Gem in a Windows Subsystem for Linux (WSL) terminal; it transforms the content of /docs into a static website.
 
-See [/docs/README.md](../docs/README.md#building-the-site) for Jekyll site documentation.
-
 **Script properties**
 
 | Property | Value |
@@ -256,8 +248,6 @@ See [/docs/README.md](../docs/README.md#building-the-site) for Jekyll site docum
 #### Running the static documentation website locally
 
 Serves the static documentation website on a local URL [http://localhost:4000](http://localhost:4000).
-
-See [/docs/README.md](../docs/README.md#building-the-site) for Jekyll site documentation.
 
 **Script properties**
 

@@ -41,6 +41,15 @@ This API is part of the modernization effort for Museum With No Frontiers:
 - **Public Consultation REST API**: Read-only access for public-facing applications
 - **Client-side Web Applications**: Interact with the consultation API to present data
 
+## This very website
+
+This documentation website is built with Jekyll and automatically generated from multiple sources. Learn about the site architecture, custom plugins, and how content is generated from scripts, Git commits, and API specifications.
+
+{: .note }
+
+> Read more about it in [Development / Documentation Site]({{ '/development/documentation-site/' | relative_url }})
+
+
 ## Documentation Sections
 
 ### [Blade/Livewire Frontend]({{ '/frontend-blade/' | relative_url }})
