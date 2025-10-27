@@ -34,7 +34,7 @@ class DetachTest extends TestCase
         $imagePath = $this->itemImage->path;
 
         $response = $this->actingAs($user)
-            ->post(route('items.item-images.detach', [$this->item, $this->itemImage]));
+            ->delete(route('items.item-images.detach', [$this->item, $this->itemImage]));
 
         $response->assertRedirect(route('items.show', $this->item));
         $response->assertSessionHas('success', 'Image detached and returned to available images');
@@ -57,7 +57,7 @@ class DetachTest extends TestCase
         $imagePath = $this->itemImage->path;
 
         $this->actingAs($user)
-            ->post(route('items.item-images.detach', [$this->item, $this->itemImage]));
+            ->delete(route('items.item-images.detach', [$this->item, $this->itemImage]));
 
         $availableImage = AvailableImage::where('path', $imagePath)->first();
         $this->assertNotNull($availableImage);
@@ -72,14 +72,14 @@ class DetachTest extends TestCase
         $otherItemImage = ItemImage::factory()->for($otherItem)->create();
 
         $response = $this->actingAs($user)
-            ->post(route('items.item-images.detach', [$this->item, $otherItemImage]));
+            ->delete(route('items.item-images.detach', [$this->item, $otherItemImage]));
 
         $response->assertNotFound();
     }
 
     public function test_guest_cannot_detach_image(): void
     {
-        $response = $this->post(route('items.item-images.detach', [$this->item, $this->itemImage]));
+        $response = $this->delete(route('items.item-images.detach', [$this->item, $this->itemImage]));
 
         $response->assertRedirect(route('login'));
     }

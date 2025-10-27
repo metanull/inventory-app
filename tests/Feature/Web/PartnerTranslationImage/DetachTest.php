@@ -34,7 +34,7 @@ class DetachTest extends TestCase
         $imagePath = $this->partnerTranslationImage->path;
 
         $response = $this->actingAs($user)
-            ->post(route('partner-translations.partner-translation-images.detach', [$this->partnerTranslation, $this->partnerTranslationImage]));
+            ->delete(route('partner-translations.partner-translation-images.detach', [$this->partnerTranslation, $this->partnerTranslationImage]));
 
         $response->assertRedirect(route('partner-translations.show', $this->partnerTranslation));
         $response->assertSessionHas('success', 'Image detached and returned to available images');
@@ -57,7 +57,7 @@ class DetachTest extends TestCase
         $imagePath = $this->partnerTranslationImage->path;
 
         $this->actingAs($user)
-            ->post(route('partner-translations.partner-translation-images.detach', [$this->partnerTranslation, $this->partnerTranslationImage]));
+            ->delete(route('partner-translations.partner-translation-images.detach', [$this->partnerTranslation, $this->partnerTranslationImage]));
 
         $availableImage = AvailableImage::where('path', $imagePath)->first();
         $this->assertNotNull($availableImage);
@@ -72,14 +72,14 @@ class DetachTest extends TestCase
         $otherPartnerTranslationImage = PartnerTranslationImage::factory()->for($otherPartnerTranslation, 'partnerTranslation')->create();
 
         $response = $this->actingAs($user)
-            ->post(route('partner-translations.partner-translation-images.detach', [$this->partnerTranslation, $otherPartnerTranslationImage]));
+            ->delete(route('partner-translations.partner-translation-images.detach', [$this->partnerTranslation, $otherPartnerTranslationImage]));
 
         $response->assertNotFound();
     }
 
     public function test_guest_cannot_detach_image(): void
     {
-        $response = $this->post(route('partner-translations.partner-translation-images.detach', [$this->partnerTranslation, $this->partnerTranslationImage]));
+        $response = $this->delete(route('partner-translations.partner-translation-images.detach', [$this->partnerTranslation, $this->partnerTranslationImage]));
 
         $response->assertRedirect(route('login'));
     }

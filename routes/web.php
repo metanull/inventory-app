@@ -56,7 +56,7 @@ Route::prefix('web')->group(function () {
             Route::put('/{item_image}', [WebItemImageController::class, 'update'])->name('update');
             Route::post('/{item_image}/move-up', [WebItemImageController::class, 'moveUp'])->name('move-up');
             Route::post('/{item_image}/move-down', [WebItemImageController::class, 'moveDown'])->name('move-down');
-            Route::post('/{item_image}/detach', [WebItemImageController::class, 'detach'])->name('detach');
+            Route::delete('/{item_image}/detach', [WebItemImageController::class, 'detach'])->name('detach');
             Route::delete('/{item_image}', [WebItemImageController::class, 'destroy'])->name('destroy');
         });
 
@@ -78,7 +78,7 @@ Route::prefix('web')->group(function () {
             Route::put('/{partner_image}', [WebPartnerImageController::class, 'update'])->name('update');
             Route::post('/{partner_image}/move-up', [WebPartnerImageController::class, 'moveUp'])->name('move-up');
             Route::post('/{partner_image}/move-down', [WebPartnerImageController::class, 'moveDown'])->name('move-down');
-            Route::post('/{partner_image}/detach', [WebPartnerImageController::class, 'detach'])->name('detach');
+            Route::delete('/{partner_image}/detach', [WebPartnerImageController::class, 'detach'])->name('detach');
             Route::delete('/{partner_image}', [WebPartnerImageController::class, 'destroy'])->name('destroy');
         });
 
@@ -94,7 +94,7 @@ Route::prefix('web')->group(function () {
             Route::put('/{partner_translation_image}', [WebPartnerTranslationImageController::class, 'update'])->name('update');
             Route::post('/{partner_translation_image}/move-up', [WebPartnerTranslationImageController::class, 'moveUp'])->name('move-up');
             Route::post('/{partner_translation_image}/move-down', [WebPartnerTranslationImageController::class, 'moveDown'])->name('move-down');
-            Route::post('/{partner_translation_image}/detach', [WebPartnerTranslationImageController::class, 'detach'])->name('detach');
+            Route::delete('/{partner_translation_image}/detach', [WebPartnerTranslationImageController::class, 'detach'])->name('detach');
             Route::delete('/{partner_translation_image}', [WebPartnerTranslationImageController::class, 'destroy'])->name('destroy');
         });
 
@@ -140,7 +140,7 @@ Route::prefix('web')->group(function () {
             Route::put('/{collection_image}', [WebCollectionImageController::class, 'update'])->name('update');
             Route::post('/{collection_image}/move-up', [WebCollectionImageController::class, 'moveUp'])->name('move-up');
             Route::post('/{collection_image}/move-down', [WebCollectionImageController::class, 'moveDown'])->name('move-down');
-            Route::post('/{collection_image}/detach', [WebCollectionImageController::class, 'detach'])->name('detach');
+            Route::delete('/{collection_image}/detach', [WebCollectionImageController::class, 'detach'])->name('detach');
             Route::delete('/{collection_image}', [WebCollectionImageController::class, 'destroy'])->name('destroy');
         });
 
