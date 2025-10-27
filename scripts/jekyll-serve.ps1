@@ -34,7 +34,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$false)]
-    [string]$Host = "127.0.0.1",
+    [string]$HostAddress = "127.0.0.1",
     
     [Parameter(Mandatory=$false)]
     [int]$Port = 4000,
@@ -101,12 +101,12 @@ if (-not $foundRubyPath) {
 Write-Host ""
 Write-Host "🌐 Starting Jekyll server..." -ForegroundColor Cyan
 Write-Host "  Ruby path: $foundRubyPath" -ForegroundColor Gray
-Write-Host "  Host: $Host" -ForegroundColor Gray
+Write-Host "  Host: $HostAddress" -ForegroundColor Gray
 Write-Host "  Port: $Port" -ForegroundColor Gray
 
 # Build the command
 $serveArgs = @(
-    "--host `"$Host`"",
+    "--host `"$HostAddress`"",
     "--port $Port"
 )
 
@@ -133,7 +133,7 @@ Write-Host ""
 Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "  📚 Server will be available at:" -ForegroundColor Green
-Write-Host "     http://$Host`:$Port" -ForegroundColor Cyan
+Write-Host "     http://$HostAddress`:$Port" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  Press Ctrl+C to stop the server" -ForegroundColor Yellow
 Write-Host ""

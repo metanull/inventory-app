@@ -10,9 +10,9 @@ title: Generated Model Documentation
 
 ## Overview
 
-- ** Total Models:** 32
-- ** Database Connection:** mariadb
-- ** Laravel Version:** 12.34.0
+- Total Models: 32
+- Database Connection: mariadb
+- Laravel Version: 12.34.0
 
 ## Table of Contents
 

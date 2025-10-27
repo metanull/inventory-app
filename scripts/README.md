@@ -164,6 +164,31 @@ php artisan scramble:export --path=docs/_openapi/api.json --ansi
 
 ---
 
+#### `generate-model-documentation.ps1`
+**Purpose:** Generates comprehensive documentation for all Laravel models from their definitions and database schemas.
+
+**Usage:**
+```powershell
+# Generate/update model documentation
+. ./scripts/generate-model-documentation.ps1
+
+# Force regenerate all documentation
+. ./scripts/generate-model-documentation.ps1 -Force
+```
+
+**Triggered by:**
+- Manually by developers after model changes
+- After database schema migrations
+- When model relationships or attributes are updated
+
+**Output:**
+- Auto-generated markdown files in `docs/_model/` directory
+- Includes database schemas, relationships, fillable fields, casts, scopes, etc.
+
+**Note:** The generated files should not be manually edited as they will be overwritten.
+
+---
+
 #### `publish-api-client.ps1`
 **Purpose:** Publishes TypeScript API client to GitHub Packages.
 
@@ -275,6 +300,7 @@ node scripts/validate-workflows.cjs
 | `generate-commit-docs.py` | ✓ | ✓ (on push to main) | | |
 | `generate-client-docs.py` | ✓ | ✓ (on push to main) | | |
 | `generate-api-client.ps1` | ✓ | | | |
+| `generate-model-documentation.ps1` | ✓ | | | |
 | `publish-api-client.ps1` | ✓ | | | |
 | `download-seed-images.ps1` | ✓ | | | |
 | `scan-tailwind-colors.js` | ✓ | | | |

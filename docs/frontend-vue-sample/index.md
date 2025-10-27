@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Vue.js Sample Frontend
-nav_order: 5
+nav_order: 7
 has_children: true
 permalink: /frontend-vue-sample/
 ---
@@ -13,8 +13,7 @@ Sample Application
 
 {: .note }
 > **Note:** This is a SAMPLE single-page application demonstrating API usage.
-> It is NOT the main frontend for end users.
-> The main frontend uses Laravel Blade + Livewire (documentation coming soon).
+> It is NOT the main frontend for end users, see [Blade/Livewire Frontend]({{ '/frontend-blade/' | relative_url }}).
 
 This section covers the Vue.js sample application that demonstrates how to interact with the Laravel API.
 

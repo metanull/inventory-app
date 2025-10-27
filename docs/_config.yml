@@ -78,6 +78,10 @@ plugins:
   - jekyll-feed
   - jekyll-seo-tag
 
+# Include directories that start with underscore
+include:
+  - _model
+
 # Exclude from processing
 exclude:
   - node_modules/

@@ -52,20 +52,12 @@ This API is part of the modernization effort for Museum With No Frontiers:
 
 Interactive API documentation with Swagger UI and OpenAPI specification.
 
+{: .note }
+> This is the main user interface, it is a Blade/Livewire frontend.
+
 ### [Database Models]({{ '/models/' | relative_url }})
 
 Complete reference for all database models, their properties, and relationships.
-
-### [Deployment Guide]({{ '/deployment/' | relative_url }})
-
-Production and development environment setup instructions.
-
-### [Frontend Documentation]({{ '/frontend-vue-sample/' | relative_url }})
-
-Sample Vue.js application demonstrating API integration.
-
-{: .note }
-> This documents a sample Vue.js application. The main user interface is a Blade/Livewire frontend (documentation coming soon).
 
 ### [Backend Guidelines]({{ '/guidelines/' | relative_url }})
 
@@ -74,6 +66,17 @@ Development guidelines covering coding standards, API integration, and best prac
 ### [Development]({{ '/development/' | relative_url }})
 
 Contributing guidelines, testing strategies, and project history.
+
+### [Deployment Guide]({{ '/deployment/' | relative_url }})
+
+Production and development environment setup instructions.
+
+### [Vue.js Sample Frontend]({{ '/frontend-vue-sample/' | relative_url }})
+
+Sample Vue.js application demonstrating API integration.
+
+{: .note }
+> This documents a sample Vue.js client application. The main user interface is the Blade/Livewire frontend.
 
 ---
 
