@@ -31,7 +31,7 @@
         "@headlessui/vue": "^1.7.23",
         "@heroicons/vue": "^2.2.0",
         "@metanull/inventory-app-api-client": "1.0.1-dev.1024.2251",
-        "@vueuse/core": "^13.9.0",
+        "@vueuse/core": "^14.0.0",
         "axios": "^1.12.2",
         "glob": "^11.0.3",
         "pinia": "^3.0.3",
