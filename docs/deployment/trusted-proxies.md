@@ -109,7 +109,7 @@ TRUSTED_PROXIES=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22
 - Incorrect client IP detection
 - Security bypasses
 
-✅ **Best Practices**:
+**Best Practices**:
 
 - Use specific IP addresses instead of broad ranges
 - Regularly audit trusted proxy configuration

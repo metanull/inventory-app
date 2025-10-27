@@ -61,11 +61,11 @@ jobs:
 
       - name: Generate documentation of the latest commits
         run: |
-          python docs/generate-commit-docs.py
+          python scripts/generate-commit-docs.py
 
       - name: Generate client documentation
         run: |
-          python docs/generate-client-docs.py
+          python scripts/generate-client-docs.py
 
       - name: Build Jekyll site
         run: |

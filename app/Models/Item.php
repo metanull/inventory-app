@@ -71,9 +71,6 @@ class Item extends Model
             $this->workshops()->detach();
             $this->attachedToCollections()->detach();
 
-            // 5. Delete gallery relationships (commented out - Gallery model doesn't exist yet)
-            // $this->galleries()->detach();
-
             // 6. Finally, delete the item itself
             $this->performDeleteOnModel();
 
@@ -187,16 +184,6 @@ class Item extends Model
     public function translations(): HasMany
     {
         return $this->hasMany(ItemTranslation::class)->chaperone('item');
-    }
-
-    /**
-     * Get all galleries that include this item.
-     */
-    public function galleries(): MorphToMany
-    {
-        return $this->morphToMany(Gallery::class, 'galleryable')
-            ->withPivot(['order', 'backward_compatibility'])
-            ->withTimestamps();
     }
 
     /**

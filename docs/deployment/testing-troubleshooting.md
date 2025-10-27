@@ -2,7 +2,7 @@
 layout: default
 title: Testing & Troubleshooting
 parent: Deployment Guide
-nav_order: 5
+nav_order: 7
 ---
 
 # Testing & Troubleshooting Guide
@@ -649,7 +649,7 @@ cat .env | grep -v PASSWORD | grep -v KEY | grep -v SECRET
 
 ## Next Steps
 
-- 📖 [Production Deployment](production-deployment) - Production deployment guide
-- 🔧 [Configuration](configuration) - Application configuration
-- 💻 [Development Setup](development-setup) - Development environment
-- 🚀 [Server Configuration](server-configuration) - Web server setup
+- [Configuration]({{ '/deployment/configuration' | relative_url }}) - Application configuration
+- [Development Setup]({{ '/deployment/development-setup' | relative_url }}) - Development environment
+- [Server Configuration]({{ '/deployment/server-configuration' | relative_url }}) - Web server setup
+

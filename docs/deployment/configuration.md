@@ -650,9 +650,9 @@ class ValidateConfiguration extends Command
         // Check database connection
         try {
             DB::connection()->getPdo();
-            $this->info('✅ Database connection: OK');
+            $this->info('Database connection: OK');
         } catch (\Exception $e) {
-            $this->error('❌ Database connection: FAILED');
+            $this->error('Database connection: FAILED');
             $this->error($e->getMessage());
         }
 
@@ -661,9 +661,9 @@ class ValidateConfiguration extends Command
         foreach ($disks as $disk) {
             try {
                 Storage::disk($disk)->exists('test');
-                $this->info("✅ Storage disk '{$disk}': OK");
+                $this->info("Storage disk '{$disk}': OK");
             } catch (\Exception $e) {
-                $this->error("❌ Storage disk '{$disk}': FAILED");
+                $this->error("Storage disk '{$disk}': FAILED");
                 $this->error($e->getMessage());
             }
         }
@@ -672,9 +672,9 @@ class ValidateConfiguration extends Command
         $required = ['APP_KEY', 'DB_CONNECTION', 'APP_URL'];
         foreach ($required as $env) {
             if (env($env)) {
-                $this->info("✅ Environment variable '{$env}': OK");
+                $this->info("Environment variable '{$env}': OK");
             } else {
-                $this->error("❌ Environment variable '{$env}': MISSING");
+                $this->error("Environment variable '{$env}': MISSING");
             }
         }
 
@@ -687,7 +687,7 @@ class ValidateConfiguration extends Command
 
 ## Next Steps
 
-- 🚀 [Server Configuration](server-configuration) - Web server setup
-- 💻 [Development Setup](development-setup) - Local development
-- 📊 [Monitoring](monitoring) - Application monitoring
-- 🔐 [Security](security) - Security best practices
+- [Server Configuration](server-configuration) - Web server setup
+- [Development Setup](development-setup) - Local development
+- [Monitoring](monitoring) - Application monitoring
+- [Security](security) - Security best practices

@@ -2,7 +2,7 @@
 layout: default
 title: Command Line User Management
 parent: Deployment Guide
-nav_order: 6
+nav_order: 8
 ---
 
 # Command Line User Management

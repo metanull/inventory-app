@@ -143,7 +143,7 @@ The laravel application exposes several components via distinct classes of route
   - Follow existing store patterns for actions, getters, and state organization.
 - Conventions for the documentation site (Jekyll):
   - The main configuration for Jekyll is in `_config.yml`.
-  - The site uses simpledocs theme as base.
+  - The site uses just-the-docs theme as base.
   - All md files must include proper front matter with layout, title, nav_order, and other relevant fields (e.g. parent, permalink and has_children must be added when applicable).
   - Any directory that is part of the documentation must contain an `index.md`.
   - Keep the navigation structure in sync with the actual files and their front matter.
