@@ -95,6 +95,7 @@ Sample Vue.js application demonstrating API integration.
 
 - [GitHub Repository](https://github.com/metanull/inventory-app) - Source code and issue tracking
 - [GitHub Issues](https://github.com/metanull/inventory-app/issues) - Bug reports and feature requests
+- [GitHub Page](https://metanull.github.io/inventory-app/) - *This* documentation website
 - [Development Archive]({{ '/development/archive' | relative_url }}) - Complete commit history
 
 ## License
