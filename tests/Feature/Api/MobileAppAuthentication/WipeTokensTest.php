@@ -4,12 +4,11 @@ namespace Tests\Feature\Api\MobileAppAuthentication;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class WipeTokensTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
 
     protected ?User $user = null;
 

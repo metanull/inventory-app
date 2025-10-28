@@ -7,13 +7,12 @@ use App\Models\Language;
 use App\Models\Province;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Tests\Traits\CreatesUsersWithPermissions;
 
 class ShowTest extends TestCase
 {
-    use CreatesUsersWithPermissions, RefreshDatabase, WithFaker;
+    use CreatesUsersWithPermissions, RefreshDatabase;
 
     protected ?User $user = null;
 

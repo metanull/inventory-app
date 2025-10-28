@@ -6,13 +6,12 @@ use App\Models\Collection;
 use App\Models\CollectionImage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Tests\Traits\CreatesUsersWithPermissions;
 
 class IndexTest extends TestCase
 {
-    use CreatesUsersWithPermissions, RefreshDatabase, WithFaker;
+    use CreatesUsersWithPermissions, RefreshDatabase;
 
     protected ?User $user = null;
 

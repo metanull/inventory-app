@@ -4,8 +4,10 @@
 
 **CRITICAL**: Use VS Code tools instead of terminal when possible.
   - To delete files and directories, save the list of files in a temporary text file and use VS Code to open and delete them.
-**CRITICAL**: Never modify files through scripting. All changes must be made through explicit code edits.
-**CRITICAL**: Always maintain consistency with existing code patterns and conventions.
+**CRITICAL**: **Never** modify files through terminal scripts. All changes must be made through explicit code edits.
+**CRITICAL**: Modifying files through powershell script is Hazardous and **must** be avoided. Always prefer VS Code tools.
+**CRITICAL**: It is not a tedious task to use the replace_string_in_file tool in VS Code instead of scripting. **Always** prefer VS Code tools.
+**CRITICAL**: Maintain consistency with existing code patterns and conventions.
   - **CRITICAL**: Verify existing implementation before code changes to ensure alignment with project's patterns and standards. If new issues are found, even if not directly related to the user request, fix them as part of the task.
 **CRITICAL**: The project is in active development; breaking changes are accepted, there is no need to preserve backward compatibility.
 **CRITICAL**: Use VS Code testing to run tests.

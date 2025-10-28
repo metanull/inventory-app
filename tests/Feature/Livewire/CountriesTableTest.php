@@ -8,14 +8,12 @@ use App\Livewire\Tables\CountriesTable;
 use App\Models\Country;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
 use Tests\TestCase;
 
 class CountriesTableTest extends TestCase
 {
     use RefreshDatabase;
-    use WithFaker;
 
     protected ?User $user = null;
 

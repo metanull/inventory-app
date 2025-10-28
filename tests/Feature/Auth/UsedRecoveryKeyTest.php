@@ -3,14 +3,13 @@
 namespace Tests\Feature\Auth;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 use Tests\Traits\AuthenticationTestHelpers;
 
 class UsedRecoveryKeyTest extends TestCase
 {
-    use AuthenticationTestHelpers, RefreshDatabase, WithFaker;
+    use AuthenticationTestHelpers, RefreshDatabase;
 
     public function test_used_recovery_code_cannot_be_reused(): void
     {

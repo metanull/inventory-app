@@ -3,13 +3,12 @@
 namespace Tests\Feature\Auth;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Tests\Traits\AuthenticationTestHelpers;
 
 class RecoveryKeyGenerationTest extends TestCase
 {
-    use AuthenticationTestHelpers, RefreshDatabase, WithFaker;
+    use AuthenticationTestHelpers, RefreshDatabase;
 
     public function test_user_can_generate_recovery_codes_when_totp_enabled(): void
     {

@@ -3,7 +3,6 @@
 namespace Tests\Feature\Api\Markdown;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 /**
@@ -11,7 +10,7 @@ use Tests\TestCase;
  */
 class MarkdownToHtmlTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
 
     public function test_converts_basic_markdown_to_html(): void
     {

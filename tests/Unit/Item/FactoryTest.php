@@ -5,12 +5,11 @@ namespace Tests\Unit\Item;
 use App\Models\Item;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class FactoryTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
 
     public function test_factory(): void
     {

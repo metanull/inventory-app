@@ -6,13 +6,12 @@ use App\Models\Item;
 use App\Models\Partner;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Tests\Traits\CreatesUsersWithPermissions;
 
 class StoreTest extends TestCase
 {
-    use CreatesUsersWithPermissions, RefreshDatabase, WithFaker;
+    use CreatesUsersWithPermissions, RefreshDatabase;
 
     protected ?User $user = null;
 

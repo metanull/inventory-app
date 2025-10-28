@@ -5,7 +5,6 @@ namespace Tests\Feature\Api\Project;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Tests\Traits\CreatesUsersWithPermissions;
 
@@ -13,7 +12,6 @@ class SetEnabledTest extends TestCase
 {
     use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use WithFaker;
 
     protected ?User $user = null;
 

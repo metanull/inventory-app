@@ -11,14 +11,12 @@ use App\Models\ItemTranslation;
 use App\Models\Language;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
 use Tests\TestCase;
 
 class ItemTranslationsTableTest extends TestCase
 {
     use RefreshDatabase;
-    use WithFaker;
 
     protected ?User $user = null;
 

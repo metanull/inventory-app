@@ -6,7 +6,6 @@ namespace Tests\Feature\Web\AvailableImage;
 
 use App\Models\AvailableImage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Tests\Traits\RequiresDataPermissions;
 
@@ -14,7 +13,6 @@ class ShowTest extends TestCase
 {
     use RefreshDatabase;
     use RequiresDataPermissions;
-    use WithFaker;
 
     protected function setUp(): void
     {

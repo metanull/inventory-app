@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature\Web\Projects;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Tests\Traits\RequiresDataPermissions;
 
@@ -13,7 +12,6 @@ class StoreTest extends TestCase
 {
     use RefreshDatabase;
     use RequiresDataPermissions;
-    use WithFaker;
 
     protected function setUp(): void
     {

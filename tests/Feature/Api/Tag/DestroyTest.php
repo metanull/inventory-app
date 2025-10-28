@@ -11,9 +11,7 @@ use Tests\Traits\CreatesUsersWithPermissions;
 
 class DestroyTest extends TestCase
 {
-    use CreatesUsersWithPermissions;
-    use RefreshDatabase;
-    use WithFaker;
+    use CreatesUsersWithPermissions, RefreshDatabase, WithFaker;
 
     protected ?User $user = null;
 

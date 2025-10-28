@@ -8,14 +8,12 @@ use App\Livewire\Tables\ContextsTable;
 use App\Models\Context;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
 use Tests\TestCase;
 
 class ContextsTableTest extends TestCase
 {
     use RefreshDatabase;
-    use WithFaker;
 
     protected ?User $user = null;
 

@@ -5,7 +5,6 @@ namespace Tests\Feature\Api\ThemeTranslation;
 use App\Models\ThemeTranslation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Tests\Traits\CreatesUsersWithPermissions;
 
@@ -13,7 +12,6 @@ class ShowTest extends TestCase
 {
     use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use WithFaker;
 
     protected ?User $user = null;
 

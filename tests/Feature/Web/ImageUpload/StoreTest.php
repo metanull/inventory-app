@@ -7,7 +7,6 @@ namespace Tests\Feature\Web\ImageUpload;
 use App\Events\ImageUploadEvent;
 use App\Models\ImageUpload;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
@@ -18,7 +17,6 @@ class StoreTest extends TestCase
 {
     use RefreshDatabase;
     use RequiresDataPermissions;
-    use WithFaker;
 
     protected function setUp(): void
     {

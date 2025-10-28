@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -17,7 +16,7 @@ use Tests\Traits\AuthenticationTestHelpers;
 
 class RegistrationTest extends TestCase
 {
-    use AuthenticationTestHelpers, RefreshDatabase, WithFaker;
+    use AuthenticationTestHelpers, RefreshDatabase;
 
     protected function setUp(): void
     {

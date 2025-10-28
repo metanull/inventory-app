@@ -5,7 +5,6 @@ namespace Tests\Feature\Api\Glossary;
 use App\Models\Glossary;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Tests\Traits\CreatesUsersWithPermissions;
 
@@ -13,7 +12,6 @@ class AttachSynonymTest extends TestCase
 {
     use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use WithFaker;
 
     protected ?User $user = null;
 

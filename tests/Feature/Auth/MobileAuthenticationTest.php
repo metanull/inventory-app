@@ -4,7 +4,6 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
@@ -12,7 +11,7 @@ use Tests\Traits\AuthenticationTestHelpers;
 
 class MobileAuthenticationTest extends TestCase
 {
-    use AuthenticationTestHelpers, RefreshDatabase, WithFaker;
+    use AuthenticationTestHelpers, RefreshDatabase;
 
     protected string $mobileTokenEndpoint = '/api/mobile/acquire-token';
 

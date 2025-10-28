@@ -5,7 +5,6 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -13,7 +12,7 @@ use Tests\Traits\AuthenticationTestHelpers;
 
 class LoginTest extends TestCase
 {
-    use AuthenticationTestHelpers, RefreshDatabase, WithFaker;
+    use AuthenticationTestHelpers, RefreshDatabase;
 
     public function test_user_can_login_without_two_factor(): void
     {

@@ -4,14 +4,13 @@ namespace Tests\Feature\Auth;
 
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 use Tests\Traits\AuthenticationTestHelpers;
 
 class LogoutTest extends TestCase
 {
-    use AuthenticationTestHelpers, RefreshDatabase, WithFaker;
+    use AuthenticationTestHelpers, RefreshDatabase;
 
     public function test_user_can_logout_without_two_factor(): void
     {

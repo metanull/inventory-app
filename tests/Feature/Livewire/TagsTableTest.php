@@ -8,14 +8,12 @@ use App\Livewire\Tables\TagsTable;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
 use Tests\TestCase;
 
 class TagsTableTest extends TestCase
 {
     use RefreshDatabase;
-    use WithFaker;
 
     protected ?User $user = null;
 

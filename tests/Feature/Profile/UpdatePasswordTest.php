@@ -4,7 +4,6 @@ namespace Tests\Feature\Profile;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Jetstream\Http\Livewire\UpdatePasswordForm;
 use Livewire\Livewire;
@@ -12,7 +11,7 @@ use Tests\TestCase;
 
 class UpdatePasswordTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
 
     protected ?User $user = null;
 

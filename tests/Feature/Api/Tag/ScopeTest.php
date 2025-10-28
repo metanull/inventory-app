@@ -6,15 +6,12 @@ use App\Models\Item;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Tests\Traits\CreatesUsersWithPermissions;
 
 class ScopeTest extends TestCase
 {
-    use CreatesUsersWithPermissions;
-    use RefreshDatabase;
-    use WithFaker;
+    use CreatesUsersWithPermissions, RefreshDatabase;
 
     protected ?User $user = null;
 

@@ -4,7 +4,6 @@ namespace Tests\Feature\Api\ImageUpload;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
@@ -14,7 +13,7 @@ use Tests\TestCase;
 
 class UpdateTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
 
     protected ?User $user = null;
 

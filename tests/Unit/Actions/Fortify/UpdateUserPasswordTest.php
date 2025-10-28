@@ -5,7 +5,6 @@ namespace Tests\Unit\Actions\Fortify;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
@@ -13,7 +12,7 @@ use Tests\TestCase;
 
 class UpdateUserPasswordTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
 
     protected UpdateUserPassword $action;
 
