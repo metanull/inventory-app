@@ -31,8 +31,8 @@
     <x-form.entity-select 
         name="country_id" 
         :value="old('country_id', $partner->country_id ?? null)"
-        :options="\App\Models\Country::orderBy('name')->get()"
-        displayField="name"
+        :options="\App\Models\Country::orderBy('internal_name')->get()"
+        displayField="internal_name"
         placeholder="Select a country..."
         searchPlaceholder="Type to search countries..."
         :showId="true"

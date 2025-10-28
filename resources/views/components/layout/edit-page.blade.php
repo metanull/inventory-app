@@ -11,16 +11,12 @@
     $submitRoute = route($entity . '.update', $model);
 @endphp
 
-@extends('layouts.app')
-
-@section('content')
-    <x-layout.form-page 
-        :entity="$entity"
-        :title="$title"
-        :back-route="$backRoute"
-        :submit-route="$submitRoute"
-        method="PUT"
-    >
-        {{ $slot }}
-    </x-layout.form-page>
-@endsection
+<x-layout.form-page 
+    :entity="$entity"
+    :title="$title"
+    :back-route="$backRoute"
+    :submit-route="$submitRoute"
+    method="PUT"
+>
+    {{ $slot }}
+</x-layout.form-page>

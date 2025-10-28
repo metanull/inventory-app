@@ -34,15 +34,13 @@
             </span>
             <span class="{{ $accentText }}">{{ $title ?? \Illuminate\Support\Str::title($entity) }}</span>
         </h1>
-        @if($description || trim($slot) && !isset($action))
+        @if($description)
             <p class="mt-2 text-sm text-gray-600">
-                {{ $description ?? $slot }}
+                {{ $description }}
             </p>
         @endif
     </div>
-    @if(isset($action))
-        <div class="flex gap-2">{{ $action }}</div>
-    @elseif(trim($slot) && !$description)
-        <div class="flex gap-2">{{ $slot }}</div>
+    @if(isset($action) || trim($slot))
+        <div class="flex gap-2">{{ $action ?? $slot }}</div>
     @endif
 </div>
