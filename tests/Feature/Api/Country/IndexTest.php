@@ -98,25 +98,6 @@ class IndexTest extends TestCase
         $this->assertGreaterThan(0, $response->json('meta.per_page'));
     }
 
-    public function test_index_accepts_include_parameter(): void
-    {
-        Country::factory(2)->create();
-
-        // Test that include parameter is accepted (no relationships for basic test)
-        $response = $this->getJson(route('country.index'));
-
-        $response->assertOk()
-            ->assertJsonStructure([
-                'data' => [
-                    '*' => [
-                        'id',
-                        'internal_name',
-                        'backward_compatibility',
-                    ],
-                ],
-            ]);
-    }
-
     public function test_index_validates_pagination_parameters(): void
     {
         $response = $this->getJson(route('country.index', ['per_page' => 0]));

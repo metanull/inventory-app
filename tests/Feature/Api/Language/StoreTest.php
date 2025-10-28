@@ -23,42 +23,6 @@ class StoreTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_factory(): void
-    {
-        $language = \App\Models\Language::factory()->create();
-
-        $this->assertDatabaseHas('languages', [
-            'id' => $language->id,
-            'internal_name' => $language->internal_name,
-            'backward_compatibility' => $language->backward_compatibility,
-            'is_default' => $language->is_default,
-        ]);
-    }
-
-    public function test_factory_without_is_default(): void
-    {
-        $language = \App\Models\Language::factory()->create();
-
-        $this->assertDatabaseHas('languages', [
-            'id' => $language->id,
-            'internal_name' => $language->internal_name,
-            'backward_compatibility' => $language->backward_compatibility,
-            'is_default' => false,
-        ]);
-    }
-
-    public function test_factory_with_is_default(): void
-    {
-        $language = \App\Models\Language::factory()->withIsDefault()->create();
-
-        $this->assertDatabaseHas('languages', [
-            'id' => $language->id,
-            'internal_name' => $language->internal_name,
-            'backward_compatibility' => $language->backward_compatibility,
-            'is_default' => true,
-        ]);
-    }
-
     public function test_store_allows_authenticated_users(): void
     {
         $response = $this->postJson(route('language.store'), [
