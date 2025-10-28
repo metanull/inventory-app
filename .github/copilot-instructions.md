@@ -2,17 +2,17 @@
 
 ## General Guidelines
 
+**CRITICAL**: Use VS Code tools instead of terminal when possible.
+  - To delete files and directories, save the list of files in a temporary text file and use VS Code to open and delete them.
 **CRITICAL**: Never modify files through scripting. All changes must be made through explicit code edits.
 **CRITICAL**: Always maintain consistency with existing code patterns and conventions.
   - **CRITICAL**: Verify existing implementation before code changes to ensure alignment with project's patterns and standards. If new issues are found, even if not directly related to the user request, fix them as part of the task.
 **CRITICAL**: The project is in active development; breaking changes are accepted, there is no need to preserve backward compatibility.
-**CRITICAL**: Use VS Code tools instead of terminal when possible.
-  - **CRITICAL**: Use `git rm` to remove files if no VS Code tools exists for that.
 **CRITICAL**: Use VS Code testing to run tests.
 **CRITICAL**: Always implement the entire user request (do not prioritize, take shortcuts, or leave tasks for later)
 **CRITICAL**: All warnings and all errors must be addressed, none are acceptable.
 **CRITICAL**: The terminal tool uses Windows PowerShell; never use *nix commands; use windows powershell compatbile escaping.
-**CRITICAL**: Never delete a file in order to recreate it; instead edit or replace its content using VS Code tools.
+**CRITICAL**: Never delete then re-create a file; instead edit or replace its content using VS Code tools.
 **CRITICAL**: If, in a test for a blade template you find the error `unexpected token "else", expecting end of file`, it can typically be resolved by verifying the source (not the cached version) carfully from the start of the file making sure that:
   - It does not not use shorthand notation (e.g. for components use <x-slot name="action"> instead of x-slot:action)
   - It uses variables like "$routePrefix" instead of string interpolation like "{$entity}.images.create" in blade components
