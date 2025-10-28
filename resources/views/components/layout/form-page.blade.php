@@ -18,6 +18,7 @@
     <x-entity.header :entity="$entity" :title="$title" />
 
     <form method="POST" action="{{ $submitRoute }}" class="bg-white shadow sm:rounded-lg">
+        @csrf
         @if($method !== 'POST')
             @method($method)
         @endif
