@@ -2,72 +2,48 @@
 
 ## General Guidelines
 
-**CRITICAL**: Use VS Code tools instead of terminal when possible.
-  - To delete files and directories, save the list of files in a temporary text file and use VS Code to open and delete them.
-**CRITICAL**: **Never** modify files through terminal scripts. All changes must be made through explicit code edits.
-**CRITICAL**: Modifying files through powershell script is Hazardous and **must** be avoided. Always prefer VS Code tools.
-**CRITICAL**: It is not a tedious task to use the replace_string_in_file tool in VS Code instead of scripting. **Always** prefer VS Code tools.
-**CRITICAL**: Maintain consistency with existing code patterns and conventions.
-  - **CRITICAL**: Verify existing implementation before code changes to ensure alignment with project's patterns and standards. If new issues are found, even if not directly related to the user request, fix them as part of the task.
-**CRITICAL**: The project is in active development; breaking changes are accepted, there is no need to preserve backward compatibility.
+**CRITICAL**: When the context window is full, reload the copilot-instructions.md file not to lose context.
 **CRITICAL**: Use VS Code testing to run tests.
-**CRITICAL**: Always implement the entire user request (do not prioritize, take shortcuts, or leave tasks for later)
+**CRITICAL**: Use VS Code tools instead of terminal when possible.
+  - **CRITICAL**: **Never modify content of files through terminal scripts**. It is hazardous! Only do explicit code edits using VS Code tools such as `grep_search` or `repolace_string_in_file`. **No exceptions!**
+  - To delete files and directories, first save the list of files in a temporary text file then run a terminal command that reads the list from that file, and delete all the files in a loop.
+**CRITICAL**: Maintain consistency with existing code patterns and conventions.
+  - Verify existing implementation before changeing to ensure alignment with project's patterns and standards.
+  - If new issues are found, even if not directly related to the user request, fix them as part of the task.
+**CRITICAL**: The project is in active development; breaking changes are accepted, there is no need to preserve backward compatibility.
+**CRITICAL**: Always implement the entire user request (do not prioritize, do not take shortcuts, do not postpone tasks)
 **CRITICAL**: All warnings and all errors must be addressed, none are acceptable.
 **CRITICAL**: The terminal tool uses Windows PowerShell; never use *nix commands; use windows powershell compatbile escaping.
-**CRITICAL**: Never delete then re-create a file; instead edit or replace its content using VS Code tools.
+**CRITICAL**: Never delete then re-create a file! Instead, edit or replace its content using VS Code tools.
 **CRITICAL**: If, in a test for a blade template you find the error `unexpected token "else", expecting end of file`, it can typically be resolved by verifying the source (not the cached version) carfully from the start of the file making sure that:
   - It does not not use shorthand notation (e.g. for components use <x-slot name="action"> instead of x-slot:action)
   - It uses variables like "$routePrefix" instead of string interpolation like "{$entity}.images.create" in blade components
-  - The wrapping if @if/@else in the blade templates is correct:
-    - Move ALL variable definitions to a single @php...@endphp block at the TOP of the @section, before any control structures
-      - Wrong:
-        ```
-        @if(...)
-            @php ... @endphp  ← PHP block interrupts the control flow
-            <element>
-            ...
-        @else  ← Parser loses track of the matching @if
-        ```
-      - Correct:
-        ```
-        @section('content')
-            @php($c = $entityColor('entity'))  ← Variables at top
-            
-            <div>
-                @if(...)                        ← Clean if/else structure
-                    <element>
-                        @foreach...
-                        @endforeach
-                    </element>
-                @else
-                    ...
-                @endif
-            </div>
-        @endsection
-        ```
-    - The @if wraps the ENTIRE component, not just the @foreach inside it:
+  - All variables are defined in a single @php/@endphp block BEFORE the start of the section using them, and there are no duplicated variable definitions.
+  - The wrapping of @if/@else and @php/@endphp is correct (as @php interrupts control flow, it must not appear inside control flow blocks (e.g. @if/@else) nor inside other @php/@endphp).
+  - Nested @foreach and @if are correctly closed in the right order.
+  - Examples:
       - Wrong:
         ```
         @if($items->count() > 0)
             @php ... @endphp       ← PHP block is INSIDE the @if
-            <div class="grid...">  ← Opening div
+            <element class="{$entity}-xyz">  ← Opening div + string interpolation
                 @foreach...
                 @endforeach
-            </div>                 ← Closing div is AFTER @endforeach but BEFORE @else
+            </element>                 ← Closing div is AFTER @endforeach but BEFORE @else
         @else
         ```
       - Correct:
         ```
+        @php
+            $variableEntity = "{$entity}.images.create";  ← All variable definitions are in a single PHP block BEFORE the control flow
+        @endphp
         @if(...)
-          <element>
+          <element class="{{ $variableEntity }}">  ← Opening div with variable usage (no string interpolation)
             @foreach...
             @endforeach
           </element>
         @else
         ```
-  - The use of @php in the blade templates is correct (we had @php including another @php)
-  - There are no duplicated variable definitions.
-  - Nested @foreach and @if are correctly closed in the right order.
 
 ## Project Overview
 

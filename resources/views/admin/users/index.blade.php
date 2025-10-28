@@ -1,4 +1,6 @@
-<x-app-layout>
+@extends('layouts.app')
+
+@section('content')
     @php($c = $entityColor('users'))
     
     <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -199,4 +201,4 @@
             });
         }
     </script>
-</x-app-layout>
+@endsection

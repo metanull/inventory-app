@@ -8,12 +8,12 @@ use App\Models\PartnerTranslationImage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class DetachTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     protected PartnerTranslation $partnerTranslation;
 
@@ -29,7 +29,7 @@ class DetachTest extends TestCase
 
     public function test_authenticated_user_can_detach_image(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $imagePath = $this->partnerTranslationImage->path;
 
@@ -52,7 +52,7 @@ class DetachTest extends TestCase
 
     public function test_detached_image_preserves_path(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $imagePath = $this->partnerTranslationImage->path;
 
@@ -66,7 +66,7 @@ class DetachTest extends TestCase
 
     public function test_cannot_detach_image_from_different_partner_translation(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $otherPartnerTranslation = PartnerTranslation::factory()->create();
         $otherPartnerTranslationImage = PartnerTranslationImage::factory()->for($otherPartnerTranslation, 'partnerTranslation')->create();

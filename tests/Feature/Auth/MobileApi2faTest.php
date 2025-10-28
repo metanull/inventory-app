@@ -1,145 +1,160 @@
 <?php
 
+namespace Tests\Feature\Auth;
+
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
+use Tests\TestCase;
 
-test('mobile api can authenticate user without 2fa', function () {
-    $user = User::factory()->create();
+class MobileApi2faTest extends TestCase
+{
+    use RefreshDatabase;
 
-    $response = $this->postJson('/api/mobile/acquire-token', [
-        'email' => $user->email,
-        'password' => 'password',
-        'device_name' => 'Test Device',
-    ]);
+    public function test_mobile_api_can_authenticate_user_without_2fa(): void
+    {
+        $user = User::factory()->create();
 
-    $response->assertStatus(201);
-    $response->assertJsonStructure([
-        'token',
-        'user' => ['id', 'name', 'email', 'two_factor_enabled'],
-    ]);
-    $response->assertJson([
-        'user' => [
-            'two_factor_enabled' => false,
-        ],
-    ]);
-});
+        $response = $this->postJson('/api/mobile/acquire-token', [
+            'email' => $user->email,
+            'password' => 'password',
+            'device_name' => 'Test Device',
+        ]);
 
-test('mobile api requires 2fa when user has totp enabled', function () {
-    $user = User::factory()->create();
+        $response->assertStatus(201);
+        $response->assertJsonStructure([
+            'token',
+            'user' => ['id', 'name', 'email', 'two_factor_enabled'],
+        ]);
+        $response->assertJson([
+            'user' => [
+                'two_factor_enabled' => false,
+            ],
+        ]);
+    }
 
-    // Enable TOTP for user
-    $user->forceFill([
-        'two_factor_secret' => encrypt('test-secret'),
-        'two_factor_confirmed_at' => now(),
-    ])->save();
+    public function test_mobile_api_requires_2fa_when_user_has_totp_enabled(): void
+    {
+        $user = User::factory()->create();
 
-    $response = $this->postJson('/api/mobile/acquire-token', [
-        'email' => $user->email,
-        'password' => 'password',
-        'device_name' => 'Test Device',
-    ]);
+        // Enable TOTP for user
+        $user->forceFill([
+            'two_factor_secret' => encrypt('test-secret'),
+            'two_factor_confirmed_at' => now(),
+        ])->save();
 
-    $response->assertStatus(202);
-    $response->assertJson([
-        'requires_two_factor' => true,
-        'available_methods' => ['totp'],
-        'primary_method' => 'totp',
-    ]);
-});
+        $response = $this->postJson('/api/mobile/acquire-token', [
+            'email' => $user->email,
+            'password' => 'password',
+            'device_name' => 'Test Device',
+        ]);
 
-test('mobile api can verify totp 2fa code', function () {
-    $user = User::factory()->create();
+        $response->assertStatus(202);
+        $response->assertJson([
+            'requires_two_factor' => true,
+            'available_methods' => ['totp'],
+            'primary_method' => 'totp',
+        ]);
+    }
 
-    // Enable TOTP
-    $user->forceFill([
-        'two_factor_secret' => encrypt('test-secret'),
-        'two_factor_confirmed_at' => now(),
-    ])->save();
+    public function test_mobile_api_can_verify_totp_2fa_code(): void
+    {
+        $user = User::factory()->create();
 
-    // Mock the TOTP provider to return true
-    $this->mock(TwoFactorAuthenticationProvider::class, function ($mock) {
-        $mock->shouldReceive('verify')->once()->andReturn(true);
-    });
+        // Enable TOTP
+        $user->forceFill([
+            'two_factor_secret' => encrypt('test-secret'),
+            'two_factor_confirmed_at' => now(),
+        ])->save();
 
-    $response = $this->postJson('/api/mobile/verify-two-factor', [
-        'email' => $user->email,
-        'password' => 'password',
-        'device_name' => 'Test Device',
-        'code' => '123456',
-        'method' => 'totp',
-    ]);
+        // Mock the TOTP provider to return true
+        $this->mock(TwoFactorAuthenticationProvider::class, function ($mock) {
+            $mock->shouldReceive('verify')->once()->andReturn(true);
+        });
 
-    $response->assertStatus(201);
-    $response->assertJsonStructure([
-        'token',
-        'user' => ['id', 'name', 'email', 'two_factor_enabled', 'two_factor_method'],
-    ]);
-    $response->assertJson([
-        'user' => [
-            'two_factor_enabled' => true,
-            'two_factor_method' => 'totp',
-        ],
-    ]);
-});
+        $response = $this->postJson('/api/mobile/verify-two-factor', [
+            'email' => $user->email,
+            'password' => 'password',
+            'device_name' => 'Test Device',
+            'code' => '123456',
+            'method' => 'totp',
+        ]);
 
-test('mobile api rejects invalid totp 2fa code', function () {
-    $user = User::factory()->create();
+        $response->assertStatus(201);
+        $response->assertJsonStructure([
+            'token',
+            'user' => ['id', 'name', 'email', 'two_factor_enabled', 'two_factor_method'],
+        ]);
+        $response->assertJson([
+            'user' => [
+                'two_factor_enabled' => true,
+                'two_factor_method' => 'totp',
+            ],
+        ]);
+    }
 
-    // Enable TOTP
-    $user->forceFill([
-        'two_factor_secret' => encrypt('test-secret'),
-        'two_factor_confirmed_at' => now(),
-    ])->save();
+    public function test_mobile_api_rejects_invalid_totp_2fa_code(): void
+    {
+        $user = User::factory()->create();
 
-    // Mock the TOTP provider to return false
-    $this->mock(TwoFactorAuthenticationProvider::class, function ($mock) {
-        $mock->shouldReceive('verify')->once()->andReturn(false);
-    });
+        // Enable TOTP
+        $user->forceFill([
+            'two_factor_secret' => encrypt('test-secret'),
+            'two_factor_confirmed_at' => now(),
+        ])->save();
 
-    $response = $this->postJson('/api/mobile/verify-two-factor', [
-        'email' => $user->email,
-        'password' => 'password',
-        'device_name' => 'Test Device',
-        'code' => '000000',
-        'method' => 'totp',
-    ]);
+        // Mock the TOTP provider to return false
+        $this->mock(TwoFactorAuthenticationProvider::class, function ($mock) {
+            $mock->shouldReceive('verify')->once()->andReturn(false);
+        });
 
-    $response->assertStatus(422);
-    $response->assertJsonValidationErrors(['code']);
-});
+        $response = $this->postJson('/api/mobile/verify-two-factor', [
+            'email' => $user->email,
+            'password' => 'password',
+            'device_name' => 'Test Device',
+            'code' => '000000',
+            'method' => 'totp',
+        ]);
 
-test('mobile api fails with invalid credentials', function () {
-    $user = User::factory()->create();
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['code']);
+    }
 
-    $response = $this->postJson('/api/mobile/acquire-token', [
-        'email' => $user->email,
-        'password' => 'wrong-password',
-        'device_name' => 'Test Device',
-    ]);
+    public function test_mobile_api_fails_with_invalid_credentials(): void
+    {
+        $user = User::factory()->create();
 
-    $response->assertStatus(422);
-    $response->assertJsonValidationErrors(['email']);
-});
+        $response = $this->postJson('/api/mobile/acquire-token', [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+            'device_name' => 'Test Device',
+        ]);
 
-test('mobile api can wipe tokens after authentication', function () {
-    $user = User::factory()->create();
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['email']);
+    }
 
-    // Create some existing tokens
-    $user->createToken('Old Device 1');
-    $user->createToken('Old Device 2');
+    public function test_mobile_api_can_wipe_tokens_after_authentication(): void
+    {
+        $user = User::factory()->create();
 
-    expect($user->tokens()->count())->toBe(2);
+        // Create some existing tokens
+        $user->createToken('Old Device 1');
+        $user->createToken('Old Device 2');
 
-    $response = $this->postJson('/api/mobile/acquire-token', [
-        'email' => $user->email,
-        'password' => 'password',
-        'device_name' => 'New Device',
-        'wipe_tokens' => true,
-    ]);
+        $this->assertEquals(2, $user->tokens()->count());
 
-    $response->assertStatus(201);
+        $response = $this->postJson('/api/mobile/acquire-token', [
+            'email' => $user->email,
+            'password' => 'password',
+            'device_name' => 'New Device',
+            'wipe_tokens' => true,
+        ]);
 
-    // Should have only the new token
-    expect($user->fresh()->tokens()->count())->toBe(1);
-    expect($user->fresh()->tokens()->first()->name)->toBe('New Device');
-});
+        $response->assertStatus(201);
+
+        // Should have only the new token
+        $this->assertEquals(1, $user->fresh()->tokens()->count());
+        $this->assertEquals('New Device', $user->fresh()->tokens()->first()->name);
+    }
+}

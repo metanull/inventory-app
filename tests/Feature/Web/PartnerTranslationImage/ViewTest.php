@@ -8,16 +8,16 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class ViewTest extends TestCase
 {
-    use RefreshDatabase, RequiresDataPermissions;
+    use CreatesUsersWithPermissions, RefreshDatabase;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
 
         // Set up a fake storage disk for testing
         Storage::fake('local');

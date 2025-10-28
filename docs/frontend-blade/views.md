@@ -37,13 +37,14 @@ List views display all records with filtering, sorting, and pagination.
 ### Standard Structure
 
 {% raw %}
+
 ```blade
 @extends('layouts.app')
 
 @section('content')
 <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
     @php($c = $entityColor('items'))
-    
+
     <x-entity.header entity="items" title="Items">
         @can(\App\Enums\Permission::CREATE_DATA->value)
             <a href="{{ route('items.create') }}" class="inline-flex items-center px-3 py-2 rounded-md {{ $c['button'] }} text-sm font-medium">
@@ -61,6 +62,7 @@ List views display all records with filtering, sorting, and pagination.
 </div>
 @endsection
 ```
+
 {% endraw %}
 
 ### Key Features
@@ -77,6 +79,7 @@ Detail views display a single record with all its information.
 ### Standard Structure
 
 {% raw %}
+
 ```blade
 @extends('layouts.app')
 
@@ -93,24 +96,25 @@ Detail views display a single record with all its information.
     <div class="bg-white shadow sm:rounded-lg">
         <div class="px-4 py-5 sm:p-6 space-y-6">
             <h3 class="text-lg font-medium text-gray-900">Information</h3>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <x-form.field label="Name" name="name">
                     <div class="mt-1 text-sm text-gray-900">{{ $item->internal_name }}</div>
                 </x-form.field>
-                
+
                 <!-- More fields -->
             </div>
         </div>
     </div>
-    
-    <x-system-properties 
+
+    <x-system-properties
         :created="$item->created_at"
         :updated="$item->updated_at"
     />
 </x-layout.show-page>
 @endsection
 ```
+
 {% endraw %}
 
 ## Create View Pattern
@@ -120,6 +124,7 @@ Create views present a form for new records.
 ### Standard Structure
 
 {% raw %}
+
 ```blade
 @extends('layouts.app')
 
@@ -132,18 +137,19 @@ Create views present a form for new records.
     method="POST"
 >
     @csrf
-    
+
     <div class="px-4 py-5 sm:p-6 space-y-6">
         @include('items._form')
     </div>
-    
-    <x-form.actions 
+
+    <x-form.actions
         :cancel-route="route('items.index')"
         entity="items"
     />
 </x-layout.form-page>
 @endsection
 ```
+
 {% endraw %}
 
 ## Edit View Pattern
@@ -153,6 +159,7 @@ Edit views present a form for updating existing records.
 ### Standard Structure
 
 {% raw %}
+
 ```blade
 @extends('layouts.app')
 
@@ -166,18 +173,19 @@ Edit views present a form for updating existing records.
 >
     @csrf
     @method('PUT')
-    
+
     <div class="px-4 py-5 sm:p-6 space-y-6">
         @include('items._form')
     </div>
-    
-    <x-form.actions 
+
+    <x-form.actions
         :cancel-route="route('items.show', $item)"
         entity="items"
     />
 </x-layout.form-page>
 @endsection
 ```
+
 {% endraw %}
 
 ## Form Partial Pattern
@@ -187,16 +195,17 @@ Form partials (`_form.blade.php`) contain shared form fields for create/edit vie
 ### Standard Structure
 
 {% raw %}
+
 ```blade
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <x-form.field label="Name *" name="internal_name">
-        <x-form.input 
-            name="internal_name" 
-            :value="old('internal_name', $item->internal_name ?? '')" 
-            required 
+        <x-form.input
+            name="internal_name"
+            :value="old('internal_name', $item->internal_name ?? '')"
+            required
         />
     </x-form.field>
-    
+
     <x-form.field label="Type *" name="type">
         <x-form.select name="type" :value="old('type', $item->type ?? '')">
             <option value="">Select type</option>
@@ -206,6 +215,7 @@ Form partials (`_form.blade.php`) contain shared form fields for create/edit vie
     </x-form.field>
 </div>
 ```
+
 {% endraw %}
 
 ## Validation and Errors
@@ -213,6 +223,7 @@ Form partials (`_form.blade.php`) contain shared form fields for create/edit vie
 Form validation errors are displayed automatically:
 
 {% raw %}
+
 ```blade
 <x-form.field label="Name" name="internal_name">
     <x-form.input name="internal_name" :value="old('internal_name')" />
@@ -220,6 +231,7 @@ Form validation errors are displayed automatically:
 
 <!-- Error is displayed automatically below the input -->
 ```
+
 {% endraw %}
 
 ## Best Practices

@@ -8,12 +8,12 @@ use App\Models\PartnerTranslationImage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class StoreTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     protected PartnerTranslation $partnerTranslation;
 
@@ -26,7 +26,7 @@ class StoreTest extends TestCase
 
     public function test_authenticated_user_can_attach_image(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $availableImage = AvailableImage::factory()->create();
 
@@ -51,7 +51,7 @@ class StoreTest extends TestCase
 
     public function test_attached_image_gets_display_order(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $availableImage = AvailableImage::factory()->create();
 
@@ -67,7 +67,7 @@ class StoreTest extends TestCase
 
     public function test_validates_available_image_id_required(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
 
         $response = $this->actingAs($user)
@@ -78,7 +78,7 @@ class StoreTest extends TestCase
 
     public function test_store_validates_available_image_exists(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
 
         $response = $this->actingAs($user)
@@ -91,7 +91,7 @@ class StoreTest extends TestCase
 
     public function test_store_requires_valid_uuid(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
 
         $response = $this->actingAs($user)

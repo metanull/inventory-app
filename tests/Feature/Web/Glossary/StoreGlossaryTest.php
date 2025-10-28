@@ -7,17 +7,16 @@ namespace Tests\Feature\Web\Glossary;
 use App\Models\Glossary;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class StoreGlossaryTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     public function test_store_creates_glossary_with_valid_data(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $data = [
             'internal_name' => 'test-term',
@@ -38,8 +37,7 @@ class StoreGlossaryTest extends TestCase
 
     public function test_store_validates_required_internal_name(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $data = [
             'backward_compatibility' => 'legacy-id',
@@ -53,8 +51,7 @@ class StoreGlossaryTest extends TestCase
 
     public function test_store_allows_optional_backward_compatibility(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $data = [
             'internal_name' => 'test-term',
@@ -69,8 +66,7 @@ class StoreGlossaryTest extends TestCase
 
     public function test_store_validates_unique_internal_name(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         Glossary::factory()->create(['internal_name' => 'duplicate-term']);
 

@@ -7,16 +7,16 @@ namespace Tests\Feature\Web\Tags;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class DestroyTagTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
-    public function test_destroy_deletes_tag(): void
+    public function test_destroy_deletes_and_redirects(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(\App\Enums\Permission::dataOperations());
         $this->actingAs($user);
 
         $tag = Tag::factory()->create();

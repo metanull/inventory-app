@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\Glossary;
 
+use App\Enums\Permission;
 use App\Models\Glossary;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -10,15 +11,14 @@ use Tests\Traits\CreatesUsersWithPermissions;
 
 class DetachSynonymTest extends TestCase
 {
-    use CreatesUsersWithPermissions;
-    use RefreshDatabase;
+    use CreatesUsersWithPermissions, RefreshDatabase;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createDataUser();
+        $this->user = $this->createUserWith(Permission::dataOperations());
         $this->actingAs($this->user);
     }
 

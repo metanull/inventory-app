@@ -7,17 +7,17 @@ namespace Tests\Feature\Web\Item;
 use App\Models\Item;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class EditTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
     }
 
     public function test_edit_form_renders(): void

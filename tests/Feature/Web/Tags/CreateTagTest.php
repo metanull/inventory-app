@@ -6,16 +6,16 @@ namespace Tests\Feature\Web\Tags;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class CreateTagTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     public function test_create_displays_form(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(\App\Enums\Permission::dataOperations());
         $this->actingAs($user);
 
         $response = $this->get(route('tags.create'));

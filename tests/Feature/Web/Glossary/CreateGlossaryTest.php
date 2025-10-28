@@ -6,17 +6,16 @@ namespace Tests\Feature\Web\Glossary;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class CreateGlossaryTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     public function test_create_displays_form(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $response = $this->get(route('glossaries.create'));
 

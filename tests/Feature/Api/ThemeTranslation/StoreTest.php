@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\ThemeTranslation;
 
+use App\Enums\Permission;
 use App\Models\Context;
 use App\Models\Language;
 use App\Models\Theme;
@@ -16,12 +17,12 @@ class StoreTest extends TestCase
     use CreatesUsersWithPermissions;
     use RefreshDatabase;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createDataUser();
+        $this->user = $this->createUserWith(Permission::dataOperations());
         $this->actingAs($this->user);
     }
 

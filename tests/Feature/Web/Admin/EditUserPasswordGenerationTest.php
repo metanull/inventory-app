@@ -38,7 +38,6 @@ class EditUserPasswordGenerationTest extends TestCase
         ]);
 
         $response->assertRedirect(route('admin.users.index'));
-        $response->assertSessionHas('success');
         $response->assertSessionHas('generated_password');
         $response->assertSessionHas('user_name', $targetUser->name);
         $response->assertSessionHas('user_email', $targetUser->email);

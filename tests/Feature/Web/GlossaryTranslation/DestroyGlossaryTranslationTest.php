@@ -8,17 +8,16 @@ use App\Models\Glossary;
 use App\Models\GlossaryTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class DestroyGlossaryTranslationTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     public function test_destroy_deletes_translation(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create();
         $translation = GlossaryTranslation::factory()->for($glossary)->create();

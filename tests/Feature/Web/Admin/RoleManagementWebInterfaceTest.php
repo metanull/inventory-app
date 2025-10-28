@@ -24,7 +24,7 @@ class RoleManagementWebInterfaceTest extends TestCase
 
     public function test_user_with_manage_roles_permission_can_access_role_index(): void
     {
-        $user = $this->createUserWithPermissions([PermissionEnum::MANAGE_ROLES->value]);
+        $user = $this->createUserWith([PermissionEnum::MANAGE_ROLES->value]);
 
         $response = $this->actingAs($user)->get(route('admin.roles.index'));
 
@@ -43,7 +43,7 @@ class RoleManagementWebInterfaceTest extends TestCase
 
     public function test_user_with_manage_roles_permission_can_view_create_form(): void
     {
-        $user = $this->createUserWithPermissions([PermissionEnum::MANAGE_ROLES->value]);
+        $user = $this->createUserWith([PermissionEnum::MANAGE_ROLES->value]);
 
         $response = $this->actingAs($user)->get(route('admin.roles.create'));
 
@@ -54,7 +54,7 @@ class RoleManagementWebInterfaceTest extends TestCase
 
     public function test_user_can_create_role_via_web_form(): void
     {
-        $user = $this->createUserWithPermissions([PermissionEnum::MANAGE_ROLES->value]);
+        $user = $this->createUserWith([PermissionEnum::MANAGE_ROLES->value]);
 
         $viewDataPermission = Permission::where('name', PermissionEnum::VIEW_DATA->value)->first();
 
@@ -78,7 +78,7 @@ class RoleManagementWebInterfaceTest extends TestCase
 
     public function test_user_can_view_role_details(): void
     {
-        $user = $this->createUserWithPermissions([PermissionEnum::MANAGE_ROLES->value]);
+        $user = $this->createUserWith([PermissionEnum::MANAGE_ROLES->value]);
 
         $role = Role::create(['name' => 'Test Role', 'description' => 'Test description']);
 
@@ -91,7 +91,7 @@ class RoleManagementWebInterfaceTest extends TestCase
 
     public function test_user_can_edit_role_via_web_form(): void
     {
-        $user = $this->createUserWithPermissions([PermissionEnum::MANAGE_ROLES->value]);
+        $user = $this->createUserWith([PermissionEnum::MANAGE_ROLES->value]);
 
         $role = Role::create(['name' => 'Original Role', 'description' => 'Original description']);
 
@@ -104,7 +104,7 @@ class RoleManagementWebInterfaceTest extends TestCase
 
     public function test_user_can_update_role_via_web_form(): void
     {
-        $user = $this->createUserWithPermissions([PermissionEnum::MANAGE_ROLES->value]);
+        $user = $this->createUserWith([PermissionEnum::MANAGE_ROLES->value]);
 
         $role = Role::create(['name' => 'Original Name']);
         $createDataPermission = Permission::where('name', PermissionEnum::CREATE_DATA->value)->first();
@@ -130,7 +130,7 @@ class RoleManagementWebInterfaceTest extends TestCase
 
     public function test_user_can_delete_role_via_web_form(): void
     {
-        $user = $this->createUserWithPermissions([PermissionEnum::MANAGE_ROLES->value]);
+        $user = $this->createUserWith([PermissionEnum::MANAGE_ROLES->value]);
 
         $role = Role::create(['name' => 'Role to Delete']);
 
@@ -146,7 +146,7 @@ class RoleManagementWebInterfaceTest extends TestCase
 
     public function test_cannot_delete_role_with_assigned_users(): void
     {
-        $user = $this->createUserWithPermissions([PermissionEnum::MANAGE_ROLES->value]);
+        $user = $this->createUserWith([PermissionEnum::MANAGE_ROLES->value]);
 
         $role = Role::create(['name' => 'Role with Users']);
         $targetUser = User::factory()->create();
@@ -164,7 +164,7 @@ class RoleManagementWebInterfaceTest extends TestCase
 
     public function test_user_can_access_permissions_management_page(): void
     {
-        $user = $this->createUserWithPermissions([PermissionEnum::MANAGE_ROLES->value]);
+        $user = $this->createUserWith([PermissionEnum::MANAGE_ROLES->value]);
 
         $role = Role::create(['name' => 'Test Role']);
 
@@ -177,7 +177,7 @@ class RoleManagementWebInterfaceTest extends TestCase
 
     public function test_user_can_add_permission_to_role(): void
     {
-        $user = $this->createUserWithPermissions([PermissionEnum::MANAGE_ROLES->value]);
+        $user = $this->createUserWith([PermissionEnum::MANAGE_ROLES->value]);
 
         $role = Role::create(['name' => 'Test Role']);
         $permission = Permission::where('name', PermissionEnum::VIEW_DATA->value)->first();
@@ -196,7 +196,7 @@ class RoleManagementWebInterfaceTest extends TestCase
 
     public function test_user_can_remove_permission_from_role(): void
     {
-        $user = $this->createUserWithPermissions([PermissionEnum::MANAGE_ROLES->value]);
+        $user = $this->createUserWith([PermissionEnum::MANAGE_ROLES->value]);
 
         $role = Role::create(['name' => 'Test Role']);
         $permission = Permission::where('name', PermissionEnum::VIEW_DATA->value)->first();
@@ -216,7 +216,7 @@ class RoleManagementWebInterfaceTest extends TestCase
 
     public function test_user_can_sync_all_permissions_at_once(): void
     {
-        $user = $this->createUserWithPermissions([PermissionEnum::MANAGE_ROLES->value]);
+        $user = $this->createUserWith([PermissionEnum::MANAGE_ROLES->value]);
 
         $role = Role::create(['name' => 'Test Role']);
         $viewPermission = Permission::where('name', PermissionEnum::VIEW_DATA->value)->first();
@@ -241,7 +241,7 @@ class RoleManagementWebInterfaceTest extends TestCase
 
     public function test_role_search_works_correctly(): void
     {
-        $user = $this->createUserWithPermissions([PermissionEnum::MANAGE_ROLES->value]);
+        $user = $this->createUserWith([PermissionEnum::MANAGE_ROLES->value]);
 
         Role::create(['name' => 'Admin Role', 'description' => 'Administrator']);
         Role::create(['name' => 'User Role', 'description' => 'Regular user']);

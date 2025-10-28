@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Event\ImageUpload;
 
+use App\Enums\Permission;
 use App\Events\AvailableImageEvent;
 use App\Events\ImageUploadEvent;
 use App\Listeners\ImageUploadListener;
@@ -26,12 +27,12 @@ class ImageUploadTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createDataUser();
-        $this->actingAs($this->user);
-
         Storage::fake('local');
+        Storage::fake('public');
         Event::fake();
         Http::fake();
+        $this->user = $this->createUserWith(Permission::dataOperations());
+        $this->actingAs($this->user);
     }
 
     public function test_imageuploadlistener_listener_is_registered_for_imageuploadevent_event(): void

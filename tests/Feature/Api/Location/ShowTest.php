@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\Location;
 
+use App\Enums\Permission;
 use App\Models\Country;
 use App\Models\Language;
 use App\Models\Location;
@@ -19,8 +20,7 @@ class ShowTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->user = $this->createVisitorUser();
+        $this->user = $this->createUserWith([Permission::VIEW_DATA->value]);
         $this->actingAs($this->user);
     }
 

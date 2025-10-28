@@ -10,17 +10,17 @@ use App\Models\Context;
 use App\Models\Language;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class UpdateTest extends TestCase
 {
     use RefreshDatabase;
-    use RequiresDataPermissions;
+    use CreatesUsersWithPermissions;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
     }
 
     public function test_update_modifies_collection_translation_and_redirects(): void

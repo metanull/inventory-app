@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\Partner;
 
+use App\Enums\Permission;
 use App\Models\Partner;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,13 +13,12 @@ class StoreTest extends TestCase
 {
     use CreatesUsersWithPermissions, RefreshDatabase;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        // Create user with all data permissions for store operations
-        $this->user = $this->createDataUser();
+        $this->user = $this->createUserWith(Permission::dataOperations());
         $this->actingAs($this->user);
     }
 

@@ -32,21 +32,22 @@ The `<x-modal>` component provides the foundation for all modal dialogs.
 
 ### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `name` | string | Yes | Unique modal identifier |
-| `show` | boolean | No | Initial visibility state |
-| `maxWidth` | string | No | Modal max width: 'sm', 'md', 'lg', 'xl', '2xl' (default: '2xl') |
+| Prop       | Type    | Required | Description                                                     |
+| ---------- | ------- | -------- | --------------------------------------------------------------- |
+| `name`     | string  | Yes      | Unique modal identifier                                         |
+| `show`     | boolean | No       | Initial visibility state                                        |
+| `maxWidth` | string  | No       | Modal max width: 'sm', 'md', 'lg', 'xl', '2xl' (default: '2xl') |
 
 ### Usage
 
 {% raw %}
+
 ```blade
 <x-modal name="example-modal" :show="$errors->isNotEmpty()">
     <div class="p-6">
         <h2 class="text-lg font-medium text-gray-900">Modal Title</h2>
         <p class="mt-1 text-sm text-gray-600">Modal content goes here.</p>
-        
+
         <div class="mt-6 flex justify-end gap-3">
             <x-secondary-button @click="show = false">
                 Cancel
@@ -58,11 +59,13 @@ The `<x-modal>` component provides the foundation for all modal dialogs.
     </div>
 </x-modal>
 ```
+
 {% endraw %}
 
 ### Opening/Closing with Alpine.js
 
 {% raw %}
+
 ```blade
 <!-- Trigger button -->
 <x-button @click="$dispatch('open-modal', 'example-modal')">
@@ -77,6 +80,7 @@ The `<x-modal>` component provides the foundation for all modal dialogs.
     </x-secondary-button>
 </x-modal>
 ```
+
 {% endraw %}
 
 ## Dialog Modal
@@ -85,15 +89,16 @@ The `<x-dialog-modal>` component is designed for informational dialogs with a ti
 
 ### Slots
 
-| Slot | Required | Description |
-|------|----------|-------------|
-| `title` | Yes | Modal title |
-| `content` | Yes | Main content area |
-| `footer` | Yes | Action buttons area |
+| Slot      | Required | Description         |
+| --------- | -------- | ------------------- |
+| `title`   | Yes      | Modal title         |
+| `content` | Yes      | Main content area   |
+| `footer`  | Yes      | Action buttons area |
 
 ### Usage
 
 {% raw %}
+
 ```blade
 <x-dialog-modal wire:model="confirmingDeletion">
     <x-slot name="title">
@@ -115,6 +120,7 @@ The `<x-dialog-modal>` component is designed for informational dialogs with a ti
     </x-slot>
 </x-dialog-modal>
 ```
+
 {% endraw %}
 
 ## Confirmation Modal
@@ -124,6 +130,7 @@ The `<x-confirmation-modal>` component is specifically for user confirmations.
 ### Usage
 
 {% raw %}
+
 ```blade
 <x-confirmation-modal wire:model="confirmingAction">
     <x-slot name="title">
@@ -145,6 +152,7 @@ The `<x-confirmation-modal>` component is specifically for user confirmations.
     </x-slot>
 </x-confirmation-modal>
 ```
+
 {% endraw %}
 
 ## Delete Modal (Table)
@@ -153,40 +161,37 @@ The `<x-table.delete-modal>` component provides a reusable deletion confirmation
 
 ### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `id` | string | No | Modal ID (default: 'table-delete-modal') |
+| Prop | Type   | Required | Description                              |
+| ---- | ------ | -------- | ---------------------------------------- |
+| `id` | string | No       | Modal ID (default: 'table-delete-modal') |
 
 ### Usage
 
 {% raw %}
+
 ```blade
 <!-- Include once at the end of your table -->
 <x-table.delete-modal />
 
 <!-- Trigger from row actions -->
-<x-table.delete-button 
+<x-table.delete-button
     :id="'item-' . $item->id"
     entity="items"
     :name="$item->internal_name"
     :action="route('items.destroy', $item)"
 />
 ```
+
 {% endraw %}
 
 ### JavaScript API
 
 ```javascript
 // Open the modal
-openTableDeleteModal(id, entity, name, action)
+openTableDeleteModal(id, entity, name, action);
 
 // Example:
-openTableDeleteModal(
-    'item-123',
-    'items',
-    'Sample Item',
-    '/items/123'
-)
+openTableDeleteModal("item-123", "items", "Sample Item", "/items/123");
 ```
 
 ## UI Delete Modal
@@ -195,32 +200,34 @@ The `<x-ui.delete-modal>` component is a generic delete confirmation modal.
 
 ### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `id` | string | Yes | Unique modal identifier |
-| `entity` | string | Yes | Entity name for context |
-| `name` | string | Yes | Record name to display |
-| `action` | string | Yes | Form action URL |
+| Prop     | Type   | Required | Description             |
+| -------- | ------ | -------- | ----------------------- |
+| `id`     | string | Yes      | Unique modal identifier |
+| `entity` | string | Yes      | Entity name for context |
+| `name`   | string | Yes      | Record name to display  |
+| `action` | string | Yes      | Form action URL         |
 
 ### Usage
 
 {% raw %}
+
 ```blade
 <!-- Modal -->
-<x-ui.delete-modal 
+<x-ui.delete-modal
     :id="'delete-item-modal'"
     entity="item"
     :name="$item->internal_name"
-    :action="route('items.destroy', $item)" 
+    :action="route('items.destroy', $item)"
 />
 
 <!-- Trigger button -->
-<button type="button" 
-        onclick="openModal('delete-item-modal')" 
+<button type="button"
+        onclick="openModal('delete-item-modal')"
         class="text-red-600 hover:text-red-900">
     Delete
 </button>
 ```
+
 {% endraw %}
 
 ## UI General Modal
@@ -229,20 +236,21 @@ The `<x-ui.modal>` component is a flexible modal for various use cases.
 
 ### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `id` | string | Yes | Unique modal identifier |
-| `title` | string | No | Modal title |
-| `message` | string | No | Modal message/content |
-| `confirmText` | string | No | Confirm button text (default: 'Confirm') |
-| `cancelText` | string | No | Cancel button text (default: 'Cancel') |
-| `confirmClass` | string | No | Confirm button CSS classes |
+| Prop           | Type   | Required | Description                              |
+| -------------- | ------ | -------- | ---------------------------------------- |
+| `id`           | string | Yes      | Unique modal identifier                  |
+| `title`        | string | No       | Modal title                              |
+| `message`      | string | No       | Modal message/content                    |
+| `confirmText`  | string | No       | Confirm button text (default: 'Confirm') |
+| `cancelText`   | string | No       | Cancel button text (default: 'Cancel')   |
+| `confirmClass` | string | No       | Confirm button CSS classes               |
 
 ### Usage
 
 {% raw %}
+
 ```blade
-<x-ui.modal 
+<x-ui.modal
     id="custom-modal"
     title="Custom Action"
     message="Please confirm this action."
@@ -255,6 +263,7 @@ The `<x-ui.modal>` component is a flexible modal for various use cases.
     Open Modal
 </button>
 ```
+
 {% endraw %}
 
 ## Modal JavaScript Functions
@@ -266,7 +275,7 @@ The application provides global JavaScript functions for modal control:
 Opens a modal by ID.
 
 ```javascript
-openModal('my-modal-id')
+openModal("my-modal-id");
 ```
 
 ### closeModal(modalId)
@@ -274,7 +283,7 @@ openModal('my-modal-id')
 Closes a modal by ID.
 
 ```javascript
-closeModal('my-modal-id')
+closeModal("my-modal-id");
 ```
 
 ### Modal Event Listeners
@@ -282,6 +291,7 @@ closeModal('my-modal-id')
 Modals listen for Alpine.js events:
 
 {% raw %}
+
 ```blade
 <!-- Dispatch event to open -->
 <button @click="$dispatch('open-modal', 'modal-name')">
@@ -293,6 +303,7 @@ Modals listen for Alpine.js events:
     Close
 </button>
 ```
+
 {% endraw %}
 
 ## Livewire Integration
@@ -317,7 +328,7 @@ class DeleteItem extends Component
     {
         Item::findOrFail($this->itemToDelete)->delete();
         $this->confirmingDeletion = false;
-        
+
         session()->flash('message', 'Item deleted successfully.');
     }
 
@@ -331,6 +342,7 @@ class DeleteItem extends Component
 ### Livewire Modal Template
 
 {% raw %}
+
 ```blade
 <div>
     <x-danger-button wire:click="confirmDeletion({{ $item->id }})">
@@ -358,6 +370,7 @@ class DeleteItem extends Component
     </x-confirmation-modal>
 </div>
 ```
+
 {% endraw %}
 
 ## Accessibility
@@ -377,7 +390,7 @@ All modal components follow accessibility best practices:
 ```css
 /* Semi-transparent dark background */
 .modal-overlay {
-    background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 ```
 
@@ -386,10 +399,10 @@ All modal components follow accessibility best practices:
 ```css
 /* Centered white container */
 .modal-container {
-    background-color: white;
-    max-width: 2xl; /* Configurable */
-    border-radius: 0.5rem;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  max-width: 2xl; /* Configurable */
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 ```
 

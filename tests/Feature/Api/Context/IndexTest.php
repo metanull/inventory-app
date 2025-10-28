@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\Context;
 
+use App\Enums\Permission;
 use App\Models\Context;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,12 +13,12 @@ class IndexTest extends TestCase
 {
     use CreatesUsersWithPermissions, RefreshDatabase;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createVisitorUser();
+        $this->user = $this->createUserWith([Permission::VIEW_DATA->value]);
         $this->actingAs($this->user);
     }
 

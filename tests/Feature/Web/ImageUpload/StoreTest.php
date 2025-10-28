@@ -11,17 +11,17 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class StoreTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         Storage::fake(config('localstorage.uploads.images.disk'));
     }
 

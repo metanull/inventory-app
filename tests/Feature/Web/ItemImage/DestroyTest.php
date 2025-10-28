@@ -8,12 +8,12 @@ use App\Models\ItemImage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class DestroyTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     protected Item $item;
 
@@ -29,7 +29,7 @@ class DestroyTest extends TestCase
 
     public function test_authenticated_user_can_delete_image(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
 
         $response = $this->actingAs($user)
@@ -45,7 +45,7 @@ class DestroyTest extends TestCase
 
     public function test_delete_is_permanent(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $imagePath = $this->itemImage->path;
 
@@ -60,7 +60,7 @@ class DestroyTest extends TestCase
 
     public function test_cannot_delete_image_from_different_item(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $otherItem = Item::factory()->create();
         $otherItemImage = ItemImage::factory()->for($otherItem)->create();

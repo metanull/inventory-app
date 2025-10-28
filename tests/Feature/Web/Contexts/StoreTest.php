@@ -6,17 +6,17 @@ namespace Tests\Feature\Web\Contexts;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class StoreTest extends TestCase
 {
     use RefreshDatabase;
-    use RequiresDataPermissions;
+    use CreatesUsersWithPermissions;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
     }
 
     public function test_store_persists_context_and_redirects(): void

@@ -7,17 +7,17 @@ namespace Tests\Feature\Web\Contexts;
 use App\Models\Context;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class DestroyTest extends TestCase
 {
     use RefreshDatabase;
-    use RequiresDataPermissions;
+    use CreatesUsersWithPermissions;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
     }
 
     public function test_destroy_deletes_non_default_and_redirects(): void

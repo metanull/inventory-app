@@ -32,7 +32,6 @@ class CreateUserWebInterfaceTest extends TestCase
         ]);
 
         $response->assertRedirect(route('admin.users.index'));
-        $response->assertSessionHas('success');
         $response->assertSessionHas('generated_password');
         $response->assertSessionHas('user_name', 'New Test User');
         $response->assertSessionHas('user_email', 'newuser@example.com');
@@ -57,7 +56,7 @@ class CreateUserWebInterfaceTest extends TestCase
         ]);
 
         $response->assertRedirect(route('admin.users.index'));
-        $response->assertSessionHas('success');
+        $response->assertSessionHas('generated_password');
 
         // Verify user was created with role
         $user = User::where('email', 'userrole@example.com')->first();

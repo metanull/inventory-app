@@ -10,18 +10,16 @@ use App\Models\GlossaryTranslation;
 use App\Models\Language;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class DestroyGlossaryTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
-    public function test_destroy_deletes_glossary(): void
+    public function test_destroy_deletes_glossary_and_redirects(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
-
+        $this->actingAsDataUser();
         $glossary = Glossary::factory()->create();
 
         $response = $this->delete(route('glossaries.destroy', $glossary));
@@ -31,10 +29,9 @@ class DestroyGlossaryTest extends TestCase
         $this->assertModelMissing($glossary);
     }
 
-    public function test_destroy_deletes_glossary_with_translations(): void
+    public function test_destroy_returns_404_if_glossary_not_found(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create();
         $language = Language::factory()->create();
@@ -52,8 +49,7 @@ class DestroyGlossaryTest extends TestCase
 
     public function test_destroy_deletes_glossary_with_spellings(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create();
         $language = Language::factory()->create();
@@ -71,8 +67,7 @@ class DestroyGlossaryTest extends TestCase
 
     public function test_destroy_removes_synonym_relationships(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary1 = Glossary::factory()->create();
         $glossary2 = Glossary::factory()->create();

@@ -7,16 +7,16 @@ namespace Tests\Feature\Web\Tags;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class IndexTagTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
-    public function test_index_displays_tags(): void
+    public function test_index_lists_tags_with_pagination(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(\App\Enums\Permission::dataOperations());
         $this->actingAs($user);
 
         $tags = Tag::factory()->count(3)->create();
@@ -34,7 +34,7 @@ class IndexTagTest extends TestCase
 
     public function test_index_search_filters_tags(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(\App\Enums\Permission::dataOperations());
         $this->actingAs($user);
 
         $matching = Tag::factory()->create(['internal_name' => 'specific-tag']);
@@ -49,7 +49,7 @@ class IndexTagTest extends TestCase
 
     public function test_index_pagination_works(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(\App\Enums\Permission::dataOperations());
         $this->actingAs($user);
 
         Tag::factory()->count(30)->create();

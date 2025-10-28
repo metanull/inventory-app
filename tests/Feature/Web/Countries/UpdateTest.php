@@ -7,16 +7,16 @@ namespace Tests\Feature\Web\Countries;
 use App\Models\Country;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class UpdateTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     public function test_country_can_be_updated(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $country = Country::factory()->create(['internal_name' => 'Old Name']);
 
         $payload = [

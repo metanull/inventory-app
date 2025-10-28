@@ -25,10 +25,10 @@ Feature tests verify entire user workflows including views, routing, and databas
 public function test_items_index_displays_items()
 {
     $items = Item::factory()->count(3)->create();
-    
+
     $response = $this->actingAs($this->user)
         ->get(route('items.index'));
-    
+
     $response->assertOk();
     $response->assertViewIs('items.index');
     $response->assertSee($items->first()->internal_name);
@@ -45,10 +45,10 @@ public function test_can_create_item()
         'type' => 'monument',
         'partner_id' => Partner::factory()->create()->id,
     ];
-    
+
     $response = $this->actingAs($this->user)
         ->post(route('items.store'), $data);
-    
+
     $response->assertRedirect();
     $this->assertDatabaseHas('items', [
         'internal_name' => 'Test Item',
@@ -62,10 +62,10 @@ public function test_can_create_item()
 public function test_item_name_is_required()
 {
     $data = ['type' => 'monument'];
-    
+
     $response = $this->actingAs($this->user)
         ->post(route('items.store'), $data);
-    
+
     $response->assertSessionHasErrors('internal_name');
 }
 ```
@@ -82,7 +82,7 @@ use Livewire\Livewire;
 public function test_items_table_renders()
 {
     Item::factory()->count(3)->create();
-    
+
     Livewire::actingAs($this->user)
         ->test(ItemsTable::class)
         ->assertStatus(200)
@@ -97,7 +97,7 @@ public function test_can_sort_items_by_name()
 {
     Item::factory()->create(['internal_name' => 'Zebra']);
     Item::factory()->create(['internal_name' => 'Apple']);
-    
+
     Livewire::actingAs($this->user)
         ->test(ItemsTable::class)
         ->call('sortBy', 'internal_name')
@@ -111,7 +111,7 @@ public function test_can_sort_items_by_name()
 public function test_items_table_paginates()
 {
     Item::factory()->count(20)->create();
-    
+
     Livewire::actingAs($this->user)
         ->test(ItemsTable::class)
         ->assertSet('items.perPage', 15)
@@ -126,7 +126,7 @@ public function test_can_search_items()
 {
     Item::factory()->create(['internal_name' => 'Findable']);
     Item::factory()->create(['internal_name' => 'Hidden']);
-    
+
     Livewire::actingAs($this->user)
         ->test(ItemsTable::class)
         ->set('search', 'Findable')
@@ -147,7 +147,7 @@ public function test_entity_header_renders_correctly()
     $view = $this->blade(
         '<x-entity.header entity="items" title="Test Items" />'
     );
-    
+
     $view->assertSee('Test Items');
     $view->assertSee('items'); // Entity class
 }
@@ -164,7 +164,7 @@ public function test_modal_renders_with_slots()
             Content here
         </x-modal>'
     );
-    
+
     $view->assertSee('Test Title');
     $view->assertSee('Content here');
 }
@@ -179,18 +179,18 @@ public function test_create_button_only_visible_with_permission()
 {
     // User without permission
     $user = User::factory()->create();
-    
+
     $response = $this->actingAs($user)
         ->get(route('items.index'));
-    
+
     $response->assertDontSee('Add Item');
-    
+
     // User with permission
     $user->givePermissionTo(Permission::CREATE_DATA);
-    
+
     $response = $this->actingAs($user)
         ->get(route('items.index'));
-    
+
     $response->assertSee('Add Item');
 }
 ```
@@ -201,10 +201,10 @@ public function test_create_button_only_visible_with_permission()
 public function test_item_creation_redirects_with_success_message()
 {
     $data = ['internal_name' => 'Test', 'type' => 'monument'];
-    
+
     $response = $this->actingAs($this->user)
         ->post(route('items.store'), $data);
-    
+
     $response->assertRedirect(route('items.show', Item::latest()->first()));
     $response->assertSessionHas('status', 'Item created successfully.');
 }

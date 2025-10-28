@@ -18,7 +18,7 @@ class StoreTest extends TestCase
     {
         parent::setUp();
         // Create user with CREATE_DATA permission for create operations
-        $this->user = $this->createUserWithPermissions(['create data']);
+        $this->user = $this->createUserWith(['create data']);
         $this->actingAs($this->user);
     }
 

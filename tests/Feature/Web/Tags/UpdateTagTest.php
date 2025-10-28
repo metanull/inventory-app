@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Web\Tags;
 
+use App\Enums\Permission as PermissionEnum;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class UpdateTagTest extends TestCase
 {
-    use RefreshDatabase;
-    use RequiresDataPermissions;
+    use CreatesUsersWithPermissions, RefreshDatabase;
 
     public function test_update_modifies_tag_with_valid_data(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(PermissionEnum::dataOperations());
         $this->actingAs($user);
 
         $tag = Tag::factory()->create([
@@ -45,7 +45,7 @@ class UpdateTagTest extends TestCase
 
     public function test_update_validates_required_internal_name(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(PermissionEnum::dataOperations());
         $this->actingAs($user);
 
         $tag = Tag::factory()->create();
@@ -61,7 +61,7 @@ class UpdateTagTest extends TestCase
 
     public function test_update_validates_required_description(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(PermissionEnum::dataOperations());
         $this->actingAs($user);
 
         $tag = Tag::factory()->create();
@@ -77,7 +77,7 @@ class UpdateTagTest extends TestCase
 
     public function test_update_validates_unique_internal_name(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(PermissionEnum::dataOperations());
         $this->actingAs($user);
 
         Tag::factory()->create(['internal_name' => 'existing-tag']);
@@ -95,7 +95,7 @@ class UpdateTagTest extends TestCase
 
     public function test_update_allows_same_internal_name(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(PermissionEnum::dataOperations());
         $this->actingAs($user);
 
         $tag = Tag::factory()->create(['internal_name' => 'same-tag']);

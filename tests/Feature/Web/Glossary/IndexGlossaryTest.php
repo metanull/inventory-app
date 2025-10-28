@@ -7,17 +7,16 @@ namespace Tests\Feature\Web\Glossary;
 use App\Models\Glossary;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class IndexGlossaryTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     public function test_index_displays_glossary_entries(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossaries = Glossary::factory()->count(3)->create();
 
@@ -34,8 +33,7 @@ class IndexGlossaryTest extends TestCase
 
     public function test_index_search_filters_glossaries(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $matching = Glossary::factory()->create(['internal_name' => 'specific-term']);
         $other = Glossary::factory()->create(['internal_name' => 'other-term']);
@@ -49,8 +47,7 @@ class IndexGlossaryTest extends TestCase
 
     public function test_index_pagination_works(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         Glossary::factory()->count(30)->create();
 

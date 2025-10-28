@@ -7,17 +7,16 @@ namespace Tests\Feature\Web\Glossary;
 use App\Models\Glossary;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class UpdateGlossaryTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     public function test_update_modifies_glossary_with_valid_data(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create([
             'internal_name' => 'original-term',
@@ -43,8 +42,7 @@ class UpdateGlossaryTest extends TestCase
 
     public function test_update_validates_required_internal_name(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create(['internal_name' => 'original-term']);
 
@@ -63,8 +61,7 @@ class UpdateGlossaryTest extends TestCase
 
     public function test_update_validates_unique_internal_name_except_itself(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $other = Glossary::factory()->create(['internal_name' => 'other-term']);
         $glossary = Glossary::factory()->create(['internal_name' => 'original-term']);
@@ -84,8 +81,7 @@ class UpdateGlossaryTest extends TestCase
 
     public function test_update_allows_same_internal_name(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create([
             'internal_name' => 'same-term',

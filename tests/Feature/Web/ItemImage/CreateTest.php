@@ -7,12 +7,12 @@ use App\Models\Item;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class CreateTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     protected Item $item;
 
@@ -25,7 +25,7 @@ class CreateTest extends TestCase
 
     public function test_authenticated_user_can_view_attach_image_form(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
 
         $response = $this->actingAs($user)
@@ -41,7 +41,7 @@ class CreateTest extends TestCase
 
     public function test_create_form_displays_available_images(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $availableImage1 = AvailableImage::factory()->create(['comment' => 'Test Image 1']);
         $availableImage2 = AvailableImage::factory()->create(['comment' => 'Test Image 2']);
@@ -58,7 +58,7 @@ class CreateTest extends TestCase
 
     public function test_create_form_shows_empty_state_when_no_available_images(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
 
         $response = $this->actingAs($user)

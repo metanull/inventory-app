@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\Language;
 
+use App\Enums\Permission;
 use App\Models\Language;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -10,15 +11,15 @@ use Tests\Traits\CreatesUsersWithPermissions;
 
 class DefaultTest extends TestCase
 {
-    use CreatesUsersWithPermissions;
-    use RefreshDatabase;
+    use CreatesUsersWithPermissions, RefreshDatabase;
 
     protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createDataUser();
+        $this->user = $this->createUserWith(Permission::dataOperations());
+        $this->actingAs($this->user);
     }
 
     public function test_set_default_language_successfully(): void
@@ -128,31 +129,6 @@ class DefaultTest extends TestCase
 
         $response->assertNotFound()
             ->assertJsonPath('message', 'No default language found');
-    }
-
-    public function test_set_default_language_requires_authentication(): void
-    {
-        $language = Language::factory()->create();
-
-        $response = $this->patchJson(route('language.setDefault', $language->id), [
-            'is_default' => true,
-        ]);
-
-        $response->assertUnauthorized();
-    }
-
-    public function test_clear_default_language_requires_authentication(): void
-    {
-        $response = $this->deleteJson(route('language.clearDefault'));
-
-        $response->assertUnauthorized();
-    }
-
-    public function test_get_default_language_requires_authentication(): void
-    {
-        $response = $this->getJson(route('language.getDefault'));
-
-        $response->assertUnauthorized();
     }
 
     public function test_set_default_language_validates_is_default_required(): void

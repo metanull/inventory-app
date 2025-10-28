@@ -18,7 +18,7 @@ class UpdateTest extends TestCase
     {
         parent::setUp();
         // Create user with UPDATE_DATA permission for update operations
-        $this->user = $this->createUserWithPermissions(['update data']);
+        $this->user = $this->createUserWith(['update data']);
         $this->actingAs($this->user);
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\PartnerTranslation;
 
+use App\Enums\Permission;
 use App\Models\Context;
 use App\Models\Language;
 use App\Models\Partner;
@@ -17,12 +18,12 @@ class UpdateTest extends TestCase
 {
     use CreatesUsersWithPermissions, RefreshDatabase;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createDataUser();
+        $this->user = $this->createUserWith(Permission::dataOperations());
         $this->actingAs($this->user);
     }
 

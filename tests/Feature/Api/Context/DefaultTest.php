@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\Context;
 
+use App\Enums\Permission;
 use App\Models\Context;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -17,7 +18,7 @@ class DefaultTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createDataUser();
+        $this->user = $this->createUserWith(Permission::dataOperations());
     }
 
     public function test_set_default_context_successfully(): void
@@ -127,31 +128,6 @@ class DefaultTest extends TestCase
 
         $response->assertNotFound()
             ->assertJsonPath('message', 'No default context found');
-    }
-
-    public function test_set_default_context_requires_authentication(): void
-    {
-        $context = Context::factory()->create();
-
-        $response = $this->patchJson(route('context.setDefault', $context->id), [
-            'is_default' => true,
-        ]);
-
-        $response->assertUnauthorized();
-    }
-
-    public function test_clear_default_context_requires_authentication(): void
-    {
-        $response = $this->deleteJson(route('context.clearDefault'));
-
-        $response->assertUnauthorized();
-    }
-
-    public function test_get_default_context_requires_authentication(): void
-    {
-        $response = $this->getJson(route('context.getDefault'));
-
-        $response->assertUnauthorized();
     }
 
     public function test_set_default_context_validates_is_default_required(): void

@@ -7,16 +7,16 @@ namespace Tests\Feature\Web\Tags;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class StoreTagTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
-    public function test_store_creates_tag_with_valid_data(): void
+    public function test_store_creates_tag_and_redirects(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(\App\Enums\Permission::dataOperations());
         $this->actingAs($user);
 
         $data = [
@@ -40,7 +40,7 @@ class StoreTagTest extends TestCase
 
     public function test_store_validates_required_internal_name(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(\App\Enums\Permission::dataOperations());
         $this->actingAs($user);
 
         $data = [
@@ -55,7 +55,7 @@ class StoreTagTest extends TestCase
 
     public function test_store_validates_required_description(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(\App\Enums\Permission::dataOperations());
         $this->actingAs($user);
 
         $data = [
@@ -70,7 +70,7 @@ class StoreTagTest extends TestCase
 
     public function test_store_allows_optional_backward_compatibility(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(\App\Enums\Permission::dataOperations());
         $this->actingAs($user);
 
         $data = [
@@ -88,7 +88,7 @@ class StoreTagTest extends TestCase
 
     public function test_store_validates_unique_internal_name(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(\App\Enums\Permission::dataOperations());
         $this->actingAs($user);
 
         Tag::factory()->create(['internal_name' => 'duplicate-tag']);

@@ -7,17 +7,17 @@ namespace Tests\Feature\Web\Countries;
 use App\Models\Country;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class ShowTest extends TestCase
 {
     use RefreshDatabase;
-    use RequiresDataPermissions;
+    use CreatesUsersWithPermissions;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
     }
 
     public function test_country_show_page_displays_core_fields(): void

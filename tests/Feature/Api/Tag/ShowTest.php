@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\Tag;
 
+use App\Enums\Permission;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,7 +20,7 @@ class ShowTest extends TestCase
     {
         parent::setUp();
         // Create user with VIEW_DATA permission for show operations
-        $this->user = $this->createVisitorUser();
+        $this->user = $this->createUserWith([Permission::VIEW_DATA->value]);
         $this->actingAs($this->user);
     }
 

@@ -10,17 +10,17 @@ use App\Models\Context;
 use App\Models\Language;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class IndexTest extends TestCase
 {
     use RefreshDatabase;
-    use RequiresDataPermissions;
+    use CreatesUsersWithPermissions;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
     }
 
     public function test_index_lists_collection_translations_with_pagination(): void

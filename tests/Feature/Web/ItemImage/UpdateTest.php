@@ -7,12 +7,12 @@ use App\Models\ItemImage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class UpdateTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     protected Item $item;
 
@@ -28,7 +28,7 @@ class UpdateTest extends TestCase
 
     public function test_authenticated_user_can_update_alt_text(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
 
         $response = $this->actingAs($user)
@@ -47,7 +47,7 @@ class UpdateTest extends TestCase
 
     public function test_alt_text_can_be_null(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $this->itemImage->update(['alt_text' => 'Some text']);
 
@@ -66,7 +66,7 @@ class UpdateTest extends TestCase
 
     public function test_alt_text_cannot_exceed_255_characters(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
 
         $response = $this->actingAs($user)
@@ -79,7 +79,7 @@ class UpdateTest extends TestCase
 
     public function test_cannot_update_image_from_different_item(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $otherItem = Item::factory()->create();
         $otherItemImage = ItemImage::factory()->for($otherItem)->create();

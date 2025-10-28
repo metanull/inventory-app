@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\GlossaryTranslation;
 
+use App\Enums\Permission;
 use App\Models\Glossary;
 use App\Models\Language;
 use App\Models\User;
@@ -14,13 +15,13 @@ class StoreTest extends TestCase
 {
     use CreatesUsersWithPermissions, RefreshDatabase, WithFaker;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createDataUser();
-        $this->actingAs($this->user, 'sanctum');
+        $this->user = $this->createUserWith(Permission::dataOperations());
+        $this->actingAs($this->user);
     }
 
     /**

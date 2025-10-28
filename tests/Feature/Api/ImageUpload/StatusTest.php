@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\ImageUpload;
 
+use App\Enums\Permission;
 use App\Models\AvailableImage;
 use App\Models\ImageUpload;
 use App\Models\User;
@@ -22,7 +23,7 @@ class StatusTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createVisitorUser();
+        $this->user = $this->createUserWith([Permission::VIEW_DATA->value]);
         $this->actingAs($this->user);
 
         Storage::fake('local');

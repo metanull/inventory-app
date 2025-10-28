@@ -2,7 +2,8 @@
 
 namespace Tests\Feature\Api\Theme;
 
-use App\Models\Exhibition;
+use App\Enums\Permission;
+use App\Models\Collection;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -12,20 +13,20 @@ class StoreTest extends TestCase
 {
     use CreatesUsersWithPermissions, RefreshDatabase;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createDataUser();
+        $this->user = $this->createUserWith(Permission::dataOperations());
         $this->actingAs($this->user);
     }
 
     public function it_creates_a_theme(): void
     {
-        $exhibition = Exhibition::factory()->create();
+        $collection = Collection::factory()->create();
         $data = [
-            'exhibition_id' => $exhibition->id,
+            'collection_id' => $collection->id,
             'internal_name' => 'unique-theme',
         ];
         $response = $this->postJson(route('theme.store'), $data);

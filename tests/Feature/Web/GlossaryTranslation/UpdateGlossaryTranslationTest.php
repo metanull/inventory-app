@@ -9,17 +9,16 @@ use App\Models\GlossaryTranslation;
 use App\Models\Language;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class UpdateGlossaryTranslationTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     public function test_update_modifies_translation_with_valid_data(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create();
         $language = Language::factory()->create();
@@ -46,8 +45,7 @@ class UpdateGlossaryTranslationTest extends TestCase
 
     public function test_update_validates_required_definition(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create();
         $language = Language::factory()->create();

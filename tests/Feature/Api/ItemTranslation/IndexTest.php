@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\ItemTranslation;
 
+use App\Enums\Permission;
 use App\Models\Item;
 use App\Models\ItemTranslation;
 use App\Models\User;
@@ -13,13 +14,12 @@ class IndexTest extends TestCase
 {
     use CreatesUsersWithPermissions, RefreshDatabase;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->user = $this->createVisitorUser();
+        $this->user = $this->createUserWith([Permission::VIEW_DATA->value]);
         $this->actingAs($this->user);
     }
 

@@ -4,7 +4,6 @@ namespace Tests\Feature\Api\Auth;
 
 use App\Models\AvailableImage;
 use App\Models\Collection;
-use App\Models\CollectionImage;
 use App\Models\CollectionTranslation;
 use App\Models\Context;
 use App\Models\Country;
@@ -13,7 +12,6 @@ use App\Models\GlossarySpelling;
 use App\Models\GlossaryTranslation;
 use App\Models\ImageUpload;
 use App\Models\Item;
-use App\Models\ItemImage;
 use App\Models\ItemTranslation;
 use App\Models\Language;
 use App\Models\Location;
@@ -34,10 +32,10 @@ use Tests\TestCase;
 
 /**
  * Test that API routes are properly protected by auth:sanctum middleware.
- * 
+ *
  * This test ensures that all API endpoints requiring authentication
  * properly reject unauthenticated requests with 401 status.
- * 
+ *
  * Replaces 60+ individual AnonymousTest.php files with centralized testing.
  */
 class ApiAuthenticationMiddlewareTest extends TestCase
@@ -46,7 +44,7 @@ class ApiAuthenticationMiddlewareTest extends TestCase
 
     /**
      * Data provider for protected API index routes.
-     * 
+     *
      * @return array<string, array{route: string}>
      */
     public static function protectedIndexRoutesProvider(): array
@@ -54,7 +52,6 @@ class ApiAuthenticationMiddlewareTest extends TestCase
         return [
             'available-image.index' => ['route' => 'available-image.index'],
             'collection.index' => ['route' => 'collection.index'],
-            'collection-image.index' => ['route' => 'collection-image.index'],
             'collection-translation.index' => ['route' => 'collection-translation.index'],
             'context.index' => ['route' => 'context.index'],
             'country.index' => ['route' => 'country.index'],
@@ -63,7 +60,6 @@ class ApiAuthenticationMiddlewareTest extends TestCase
             'glossary-translation.index' => ['route' => 'glossary-translation.index'],
             'image-upload.index' => ['route' => 'image-upload.index'],
             'item.index' => ['route' => 'item.index'],
-            'item-image.index' => ['route' => 'item-image.index'],
             'item-translation.index' => ['route' => 'item-translation.index'],
             'language.index' => ['route' => 'language.index'],
             'location.index' => ['route' => 'location.index'],
@@ -83,7 +79,7 @@ class ApiAuthenticationMiddlewareTest extends TestCase
 
     /**
      * Data provider for protected API show routes.
-     * 
+     *
      * @return array<string, array{route: string, model: string}>
      */
     public static function protectedShowRoutesProvider(): array
@@ -91,7 +87,6 @@ class ApiAuthenticationMiddlewareTest extends TestCase
         return [
             'available-image.show' => ['route' => 'available-image.show', 'model' => AvailableImage::class],
             'collection.show' => ['route' => 'collection.show', 'model' => Collection::class],
-            'collection-image.show' => ['route' => 'collection-image.show', 'model' => CollectionImage::class],
             'collection-translation.show' => ['route' => 'collection-translation.show', 'model' => CollectionTranslation::class],
             'context.show' => ['route' => 'context.show', 'model' => Context::class],
             'country.show' => ['route' => 'country.show', 'model' => Country::class],
@@ -100,7 +95,6 @@ class ApiAuthenticationMiddlewareTest extends TestCase
             'glossary-translation.show' => ['route' => 'glossary-translation.show', 'model' => GlossaryTranslation::class],
             'image-upload.show' => ['route' => 'image-upload.show', 'model' => ImageUpload::class],
             'item.show' => ['route' => 'item.show', 'model' => Item::class],
-            'item-image.show' => ['route' => 'item-image.show', 'model' => ItemImage::class],
             'item-translation.show' => ['route' => 'item-translation.show', 'model' => ItemTranslation::class],
             'language.show' => ['route' => 'language.show', 'model' => Language::class],
             'location.show' => ['route' => 'location.show', 'model' => Location::class],
@@ -120,15 +114,13 @@ class ApiAuthenticationMiddlewareTest extends TestCase
 
     /**
      * Data provider for protected API create/store routes.
-     * 
+     *
      * @return array<string, array{route: string}>
      */
     public static function protectedStoreRoutesProvider(): array
     {
         return [
-            'available-image.store' => ['route' => 'available-image.store'],
             'collection.store' => ['route' => 'collection.store'],
-            'collection-image.store' => ['route' => 'collection-image.store'],
             'collection-translation.store' => ['route' => 'collection-translation.store'],
             'context.store' => ['route' => 'context.store'],
             'country.store' => ['route' => 'country.store'],
@@ -137,7 +129,6 @@ class ApiAuthenticationMiddlewareTest extends TestCase
             'glossary-translation.store' => ['route' => 'glossary-translation.store'],
             'image-upload.store' => ['route' => 'image-upload.store'],
             'item.store' => ['route' => 'item.store'],
-            'item-image.store' => ['route' => 'item-image.store'],
             'item-translation.store' => ['route' => 'item-translation.store'],
             'language.store' => ['route' => 'language.store'],
             'location.store' => ['route' => 'location.store'],
@@ -156,42 +147,100 @@ class ApiAuthenticationMiddlewareTest extends TestCase
     }
 
     /**
+     * Data provider for protected special PATCH routes (setDefault, setEnabled, setLaunched).
+     *
+     * @return array<string, array{route: string, param: string, data: array<string, mixed>}>
+     */
+    public static function protectedSpecialPatchRoutesProvider(): array
+    {
+        return [
+            'language.setDefault' => [
+                'route' => 'language.setDefault',
+                'model' => Language::class,
+                'data' => ['is_default' => true],
+            ],
+            'context.setDefault' => [
+                'route' => 'context.setDefault',
+                'model' => Context::class,
+                'data' => ['is_default' => true],
+            ],
+            'project.setEnabled' => [
+                'route' => 'project.setEnabled',
+                'model' => Project::class,
+                'data' => ['enabled' => true],
+            ],
+            'project.setLaunched' => [
+                'route' => 'project.setLaunched',
+                'model' => Project::class,
+                'data' => ['launched' => true],
+            ],
+        ];
+    }
+
+    /**
+     * Data provider for protected special GET routes (getDefault, enabled list).
+     *
+     * @return array<string, array{route: string}>
+     */
+    public static function protectedSpecialGetRoutesProvider(): array
+    {
+        return [
+            'language.getDefault' => ['route' => 'language.getDefault'],
+            'context.getDefault' => ['route' => 'context.getDefault'],
+            'project.enabled' => ['route' => 'project.enabled'],
+        ];
+    }
+
+    /**
+     * Data provider for protected special DELETE routes (clearDefault).
+     *
+     * @return array<string, array{route: string}>
+     */
+    public static function protectedSpecialDeleteRoutesProvider(): array
+    {
+        return [
+            'language.clearDefault' => ['route' => 'language.clearDefault'],
+            'context.clearDefault' => ['route' => 'context.clearDefault'],
+        ];
+    }
+
+    /**
      * Test that unauthenticated requests to index routes return 401.
-     * 
+     *
      * @dataProvider protectedIndexRoutesProvider
      */
     public function test_unauthenticated_index_requests_return_401(string $route): void
     {
         $response = $this->getJson(route($route));
-        
+
         $response->assertStatus(401)
             ->assertJson(['message' => 'Unauthenticated.']);
     }
 
     /**
      * Test that unauthenticated requests to show routes return 401.
-     * 
+     *
      * @dataProvider protectedShowRoutesProvider
      */
     public function test_unauthenticated_show_requests_return_401(string $route, string $model): void
     {
         $instance = $model::factory()->create();
-        
+
         $response = $this->getJson(route($route, $instance));
-        
+
         $response->assertStatus(401)
             ->assertJson(['message' => 'Unauthenticated.']);
     }
 
     /**
      * Test that unauthenticated requests to store routes return 401.
-     * 
+     *
      * @dataProvider protectedStoreRoutesProvider
      */
     public function test_unauthenticated_store_requests_return_401(string $route): void
     {
         $response = $this->postJson(route($route), []);
-        
+
         $response->assertStatus(401)
             ->assertJson(['message' => 'Unauthenticated.']);
     }
@@ -203,14 +252,14 @@ class ApiAuthenticationMiddlewareTest extends TestCase
     public function test_authenticated_requests_pass_middleware(): void
     {
         $user = User::factory()->create();
-        
+
         // Test a sample of routes
         $response = $this->actingAs($user, 'sanctum')->getJson(route('item.index'));
         $this->assertNotEquals(401, $response->status(), 'Authenticated request should not return 401');
-        
+
         $response = $this->actingAs($user, 'sanctum')->getJson(route('collection.index'));
         $this->assertNotEquals(401, $response->status(), 'Authenticated request should not return 401');
-        
+
         $response = $this->actingAs($user, 'sanctum')->getJson(route('partner.index'));
         $this->assertNotEquals(401, $response->status(), 'Authenticated request should not return 401');
     }
@@ -221,10 +270,51 @@ class ApiAuthenticationMiddlewareTest extends TestCase
     public function test_unauthenticated_requests_return_json_not_redirect(): void
     {
         $response = $this->getJson(route('item.index'));
-        
+
         $response->assertStatus(401);
         $response->assertHeader('Content-Type', 'application/json');
         $this->assertNull($response->headers->get('Location'), 'API should not redirect');
+    }
+
+    /**
+     * Test that unauthenticated requests to special PATCH routes return 401.
+     *
+     * @dataProvider protectedSpecialPatchRoutesProvider
+     */
+    public function test_unauthenticated_special_patch_requests_return_401(string $route, string $model, array $data): void
+    {
+        $instance = $model::factory()->create();
+
+        $response = $this->patchJson(route($route, $instance), $data);
+
+        $response->assertStatus(401)
+            ->assertJson(['message' => 'Unauthenticated.']);
+    }
+
+    /**
+     * Test that unauthenticated requests to special GET routes return 401.
+     *
+     * @dataProvider protectedSpecialGetRoutesProvider
+     */
+    public function test_unauthenticated_special_get_requests_return_401(string $route): void
+    {
+        $response = $this->getJson(route($route));
+
+        $response->assertStatus(401)
+            ->assertJson(['message' => 'Unauthenticated.']);
+    }
+
+    /**
+     * Test that unauthenticated requests to special DELETE routes return 401.
+     *
+     * @dataProvider protectedSpecialDeleteRoutesProvider
+     */
+    public function test_unauthenticated_special_delete_requests_return_401(string $route): void
+    {
+        $response = $this->deleteJson(route($route));
+
+        $response->assertStatus(401)
+            ->assertJson(['message' => 'Unauthenticated.']);
     }
 
     /**
@@ -235,10 +325,10 @@ class ApiAuthenticationMiddlewareTest extends TestCase
         // Info endpoints
         $response = $this->getJson(route('info.index'));
         $response->assertStatus(200);
-        
+
         $response = $this->getJson(route('info.health'));
         $response->assertStatus(200);
-        
+
         $response = $this->getJson(route('info.version'));
         $response->assertStatus(200);
     }
@@ -252,7 +342,7 @@ class ApiAuthenticationMiddlewareTest extends TestCase
             'markdown' => '# Test',
         ]);
         $response->assertStatus(200);
-        
+
         $response = $this->getJson(route('markdown.allowedElements'));
         $response->assertStatus(200);
     }

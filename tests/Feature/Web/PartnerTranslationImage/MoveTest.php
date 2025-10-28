@@ -7,12 +7,12 @@ use App\Models\PartnerTranslationImage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class MoveTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     protected PartnerTranslation $partnerTranslation;
 
@@ -36,7 +36,7 @@ class MoveTest extends TestCase
 
     public function test_authenticated_user_can_move_image_up(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $originalOrder = $this->image2->display_order;
 
@@ -52,7 +52,7 @@ class MoveTest extends TestCase
 
     public function test_authenticated_user_can_move_image_down(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $originalOrder = $this->image2->display_order;
 
@@ -68,7 +68,7 @@ class MoveTest extends TestCase
 
     public function test_cannot_move_image_from_different_partner_translation(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $otherPartnerTranslation = PartnerTranslation::factory()->create();
         $otherPartnerTranslationImage = PartnerTranslationImage::factory()->for($otherPartnerTranslation, 'partnerTranslation')->create();

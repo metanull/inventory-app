@@ -10,17 +10,16 @@ use App\Models\GlossaryTranslation;
 use App\Models\Language;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class ShowGlossaryTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     public function test_show_displays_glossary(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create();
 
@@ -34,8 +33,7 @@ class ShowGlossaryTest extends TestCase
 
     public function test_show_displays_translations(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create();
         $language = Language::factory()->create();
@@ -52,8 +50,7 @@ class ShowGlossaryTest extends TestCase
 
     public function test_show_displays_spellings(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create();
         $language = Language::factory()->create();
@@ -70,8 +67,7 @@ class ShowGlossaryTest extends TestCase
 
     public function test_show_displays_synonyms(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary1 = Glossary::factory()->create(['internal_name' => 'primary-term']);
         $glossary2 = Glossary::factory()->create(['internal_name' => 'synonym-term']);

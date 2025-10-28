@@ -1,31 +1,52 @@
 <?php
 
+namespace Tests\Feature\Profile;
+
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Jetstream\Features;
 use Laravel\Jetstream\Http\Livewire\DeleteUserForm;
 use Livewire\Livewire;
+use Tests\TestCase;
 
-test('user accounts can be deleted', function () {
-    $this->actingAs($user = User::factory()->create());
+class DeleteAccountTest extends TestCase
+{
+    use RefreshDatabase;
 
-    Livewire::test(DeleteUserForm::class)
-        ->set('password', 'password')
-        ->call('deleteUser');
+    protected User $user;
 
-    expect($user->fresh())->toBeNull();
-})->skip(function () {
-    return ! Features::hasAccountDeletionFeatures();
-}, 'Account deletion is not enabled.');
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Account deletion only requires authentication, no specific permissions
+        $this->user = User::factory()->create(['email_verified_at' => now()]);
+        $this->actingAs($this->user);
+    }
 
-test('correct password must be provided before account can be deleted', function () {
-    $this->actingAs($user = User::factory()->create());
+    public function test_user_accounts_can_be_deleted(): void
+    {
+        if (! Features::hasAccountDeletionFeatures()) {
+            $this->markTestSkipped('Account deletion is not enabled.');
+        }
 
-    Livewire::test(DeleteUserForm::class)
-        ->set('password', 'wrong-password')
-        ->call('deleteUser')
-        ->assertHasErrors(['password']);
+        Livewire::test(DeleteUserForm::class)
+            ->set('password', 'password')
+            ->call('deleteUser');
 
-    expect($user->fresh())->not->toBeNull();
-})->skip(function () {
-    return ! Features::hasAccountDeletionFeatures();
-}, 'Account deletion is not enabled.');
+        $this->assertNull($this->user->fresh());
+    }
+
+    public function test_correct_password_must_be_provided_before_account_can_be_deleted(): void
+    {
+        if (! Features::hasAccountDeletionFeatures()) {
+            $this->markTestSkipped('Account deletion is not enabled.');
+        }
+
+        Livewire::test(DeleteUserForm::class)
+            ->set('password', 'wrong-password')
+            ->call('deleteUser')
+            ->assertHasErrors(['password']);
+
+        $this->assertNotNull($this->user->fresh());
+    }
+}

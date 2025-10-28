@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\Item;
 
+use App\Enums\Permission;
 use App\Models\Item;
 use App\Models\ItemImage;
 use App\Models\User;
@@ -18,7 +19,7 @@ class ShowTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createVisitorUser();
+        $this->user = $this->createUserWith([Permission::VIEW_DATA->value]);
         $this->actingAs($this->user);
     }
 

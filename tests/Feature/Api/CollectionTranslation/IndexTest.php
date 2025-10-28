@@ -1,7 +1,6 @@
-<?php
-
 namespace Tests\Feature\Api\CollectionTranslation;
 
+use App\Enums\Permission;
 use App\Models\Collection;
 use App\Models\CollectionTranslation;
 use App\Models\User;
@@ -13,13 +12,12 @@ class IndexTest extends TestCase
 {
     use CreatesUsersWithPermissions, RefreshDatabase;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->user = $this->createVisitorUser();
+        $this->user = $this->createUserWith([Permission::VIEW_DATA->value]);
         $this->actingAs($this->user);
     }
 

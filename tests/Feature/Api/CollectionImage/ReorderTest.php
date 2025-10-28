@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\CollectionImage;
 
+use App\Enums\Permission;
 use App\Models\Collection;
 use App\Models\CollectionImage;
 use App\Models\User;
@@ -13,12 +14,12 @@ class ReorderTest extends TestCase
 {
     use CreatesUsersWithPermissions, RefreshDatabase;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createDataUser();
+        $this->user = $this->createUserWith(Permission::dataOperations());
         $this->actingAs($this->user);
     }
 

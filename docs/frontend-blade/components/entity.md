@@ -16,15 +16,16 @@ The `<x-entity.header>` component creates consistent page headers with entity-sp
 
 ### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `entity` | string | Yes | Entity key (items, partners, collections, etc.) |
-| `title` | string | No | Page title (auto-generated from entity if not provided) |
-| `icon` | string | No | Override default icon |
+| Prop     | Type   | Required | Description                                             |
+| -------- | ------ | -------- | ------------------------------------------------------- |
+| `entity` | string | Yes      | Entity key (items, partners, collections, etc.)         |
+| `title`  | string | No       | Page title (auto-generated from entity if not provided) |
+| `icon`   | string | No       | Override default icon                                   |
 
 ### Usage
 
 {% raw %}
+
 ```blade
 <x-entity.header entity="items" title="Items">
     <a href="{{ route('items.create') }}" class="inline-flex items-center px-3 py-2 rounded-md {{ $c['button'] }} text-sm font-medium">
@@ -33,6 +34,7 @@ The `<x-entity.header>` component creates consistent page headers with entity-sp
     </a>
 </x-entity.header>
 ```
+
 {% endraw %}
 
 ### Features
@@ -62,6 +64,7 @@ $iconMap = [
 Access entity colors using the `$entityColor()` helper:
 
 {% raw %}
+
 ```blade
 @php($c = $entityColor('items'))
 
@@ -72,6 +75,7 @@ Access entity colors using the `$entityColor()` helper:
 <div class="{{ $c['badge'] }}">Badge</div>
 <div class="{{ $c['accentLink'] }}">Link</div>
 ```
+
 {% endraw %}
 
 ### Available Color Classes
@@ -88,16 +92,16 @@ Each entity provides these color variants:
 
 ### Entity Color Palette
 
-| Entity | Primary Color | Usage |
-|--------|--------------|-------|
-| items | Teal | `bg-teal-600` |
-| partners | Yellow | `bg-yellow-500` |
-| collections | Purple | `bg-purple-600` |
-| countries | Indigo | `bg-indigo-600` |
-| languages | Fuchsia | `bg-fuchsia-600` |
-| tags | Green | `bg-green-600` |
-| glossaries | Blue | `bg-blue-600` |
-| contexts | Gray | `bg-gray-600` |
+| Entity      | Primary Color | Usage            |
+| ----------- | ------------- | ---------------- |
+| items       | Teal          | `bg-teal-600`    |
+| partners    | Yellow        | `bg-yellow-500`  |
+| collections | Purple        | `bg-purple-600`  |
+| countries   | Indigo        | `bg-indigo-600`  |
+| languages   | Fuchsia       | `bg-fuchsia-600` |
+| tags        | Green         | `bg-green-600`   |
+| glossaries  | Blue          | `bg-blue-600`    |
+| contexts    | Gray          | `bg-gray-600`    |
 
 ## Display Badge
 
@@ -106,6 +110,7 @@ The `<x-display.badge>` component creates entity-colored badges.
 ### Usage
 
 {% raw %}
+
 ```blade
 <x-display.badge entity="items">
     Legacy: {{ $item->backward_compatibility }}
@@ -115,6 +120,7 @@ The `<x-display.badge>` component creates entity-colored badges.
     Type: {{ $partner->type }}
 </x-display.badge>
 ```
+
 {% endraw %}
 
 ## Best Practices

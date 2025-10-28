@@ -1,35 +1,48 @@
 <?php
 
+namespace Tests\Feature\Profile;
+
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-test('profile page can be accessed under web prefix', function () {
-    $user = User::factory()->create();
-    $this->actingAs($user);
+class ProfilePageTest extends TestCase
+{
+    use RefreshDatabase;
 
-    $response = $this->get(route('web.profile.show'));
-    $response->assertOk();
+    protected User $user;
 
-    // Check that the page contains profile content
-    $response->assertSee('Profile');
-    $response->assertSee($user->name);
-    $response->assertSee($user->email);
-});
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Profile pages only require authentication, no specific permissions
+        $this->user = User::factory()->create(['email_verified_at' => now()]);
+        $this->actingAs($this->user);
+    }
 
-test('old profile route still works for backward compatibility', function () {
-    $user = User::factory()->create();
-    $this->actingAs($user);
+    public function test_profile_page_can_be_accessed_under_web_prefix(): void
+    {
+        $response = $this->get(route('web.profile.show'));
+        $response->assertOk();
 
-    $response = $this->get(route('web.profile.show'));
-    $response->assertOk();
-});
+        // Check that the page contains profile content
+        $response->assertSee('Profile');
+        $response->assertSee($this->user->name);
+        $response->assertSee($this->user->email);
+    }
 
-test('profile page shows two factor authentication section', function () {
-    $user = User::factory()->create();
-    $this->actingAs($user);
+    public function test_old_profile_route_still_works_for_backward_compatibility(): void
+    {
+        $response = $this->get(route('web.profile.show'));
+        $response->assertOk();
+    }
 
-    $response = $this->get(route('web.profile.show'));
-    $response->assertOk();
+    public function test_profile_page_shows_two_factor_authentication_section(): void
+    {
+        $response = $this->get(route('web.profile.show'));
+        $response->assertOk();
 
-    // Check that 2FA section is present
-    $response->assertSee('Two Factor Authentication');
-});
+        // Check that 2FA section is present
+        $response->assertSee('Two Factor Authentication');
+    }
+}

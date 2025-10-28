@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\AvailableImage;
 
+use App\Enums\Permission;
 use App\Models\AvailableImage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,7 +17,7 @@ class UpdateTest extends TestCase
 {
     use CreatesUsersWithPermissions, RefreshDatabase, WithFaker;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
@@ -25,7 +26,7 @@ class UpdateTest extends TestCase
         Storage::fake('public');
         Event::fake();
         Http::fake();
-        $this->user = $this->createDataUser();
+        $this->user = $this->createUserWith(Permission::dataOperations());
         $this->actingAs($this->user);
     }
 

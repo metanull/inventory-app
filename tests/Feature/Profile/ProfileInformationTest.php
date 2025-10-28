@@ -1,26 +1,43 @@
 <?php
 
+namespace Tests\Feature\Profile;
+
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Jetstream\Http\Livewire\UpdateProfileInformationForm;
 use Livewire\Livewire;
+use Tests\TestCase;
 
-test('current profile information is available', function () {
-    $this->actingAs($user = User::factory()->create());
+class ProfileInformationTest extends TestCase
+{
+    use RefreshDatabase;
 
-    $component = Livewire::test(UpdateProfileInformationForm::class);
+    protected User $user;
 
-    expect($component->state['name'])->toEqual($user->name);
-    expect($component->state['email'])->toEqual($user->email);
-});
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Profile management only requires authentication, no specific permissions
+        $this->user = User::factory()->create(['email_verified_at' => now()]);
+        $this->actingAs($this->user);
+    }
 
-test('profile information can be updated', function () {
-    $this->actingAs($user = User::factory()->create());
+    public function test_current_profile_information_is_available(): void
+    {
+        $component = Livewire::test(UpdateProfileInformationForm::class);
 
-    Livewire::test(UpdateProfileInformationForm::class)
-        ->set('state', ['name' => 'Test Name', 'email' => 'test@example.com'])
-        ->call('updateProfileInformation');
+        $this->assertEquals($this->user->name, $component->state['name']);
+        $this->assertEquals($this->user->email, $component->state['email']);
+    }
 
-    expect($user->fresh())
-        ->name->toEqual('Test Name')
-        ->email->toEqual('test@example.com');
-});
+    public function test_profile_information_can_be_updated(): void
+    {
+        Livewire::test(UpdateProfileInformationForm::class)
+            ->set('state', ['name' => 'Test Name', 'email' => 'test@example.com'])
+            ->call('updateProfileInformation');
+
+        $updatedUser = $this->user->fresh();
+        $this->assertEquals('Test Name', $updatedUser->name);
+        $this->assertEquals('test@example.com', $updatedUser->email);
+    }
+}

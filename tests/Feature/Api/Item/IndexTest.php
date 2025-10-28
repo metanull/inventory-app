@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\Item;
 
+use App\Enums\Permission;
 use App\Models\Item;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,30 +13,19 @@ class IndexTest extends TestCase
 {
     use CreatesUsersWithPermissions, RefreshDatabase;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createVisitorUser();
+        $this->user = $this->createUserWith([Permission::VIEW_DATA->value]);
         $this->actingAs($this->user);
-    }
-
-    public function test_index_allows_authenticated_users(): void
-    {
-        $response = $this->getJson(route('item.index'));
-        $response->assertOk();
     }
 
     public function test_index_returns_ok_when_no_data(): void
     {
         $response = $this->getJson(route('item.index'));
         $response->assertOk();
-    }
-
-    public function test_index_returns_an_empty_array_when_no_data(): void
-    {
-        $response = $this->getJson(route('item.index'));
         $response->assertJsonCount(0, 'data');
     }
 

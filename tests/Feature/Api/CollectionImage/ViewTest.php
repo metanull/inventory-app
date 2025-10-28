@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\CollectionImage;
 
+use App\Enums\Permission;
 use App\Models\Collection;
 use App\Models\CollectionImage;
 use App\Models\User;
@@ -19,7 +20,7 @@ class ViewTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createVisitorUser();
+        $this->user = $this->createUserWith([Permission::VIEW_DATA->value]);
         $this->actingAs($this->user);
 
         // Set up a fake storage disk for testing

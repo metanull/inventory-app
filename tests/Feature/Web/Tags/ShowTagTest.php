@@ -7,16 +7,16 @@ namespace Tests\Feature\Web\Tags;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class ShowTagTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     public function test_show_displays_tag(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
+        $user = $this->createUserWith(\App\Enums\Permission::dataOperations());
         $this->actingAs($user);
 
         $tag = Tag::factory()->create();

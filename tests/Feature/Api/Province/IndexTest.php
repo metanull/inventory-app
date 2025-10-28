@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\Province;
 
+use App\Enums\Permission;
 use App\Models\Country;
 use App\Models\Language;
 use App\Models\Province;
@@ -15,13 +16,12 @@ class IndexTest extends TestCase
     use CreatesUsersWithPermissions;
     use RefreshDatabase;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->user = $this->createVisitorUser();
+        $this->user = $this->createUserWith([Permission::VIEW_DATA->value]);
         $this->actingAs($this->user);
     }
 

@@ -1,109 +1,133 @@
 <?php
 
+namespace Tests\Feature\Auth;
+
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Features;
 use PragmaRX\Google2FA\Google2FA;
+use Tests\TestCase;
 
-test('totp two factor authentication setup generates qr code', function () {
-    $this->actingAs($user = User::factory()->create());
+class TotpTwoFactorTest extends TestCase
+{
+    use RefreshDatabase;
 
-    $this->withSession(['auth.password_confirmed_at' => time()]);
+    protected User $user;
 
-    // Enable 2FA
-    $response = $this->post('/web/user/two-factor-authentication');
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // 2FA setup/verification only requires authentication, no specific permissions
+        $this->user = User::factory()->create(['email_verified_at' => now()]);
+        $this->actingAs($this->user);
+    }
 
-    $user = $user->fresh();
-    expect($user->two_factor_secret)->not->toBeNull();
+    public function test_totp_two_factor_authentication_setup_generates_qr_code(): void
+    {
+        if (! Features::canManageTwoFactorAuthentication()) {
+            $this->markTestSkipped('Two factor authentication is not enabled.');
+        }
 
-    // Test QR code generation
-    $qrResponse = $this->get('/web/user/two-factor-qr-code');
-    $qrResponse->assertOk();
-    expect($qrResponse->headers->get('content-type'))->toContain('application/json');
+        $this->withSession(['auth.password_confirmed_at' => time()]);
 
-    $qrData = json_decode($qrResponse->getContent(), true);
-    expect($qrData)->toHaveKey('svg');
-    expect($qrData['svg'])->toContain('<svg');
-})->skip(function () {
-    return ! Features::canManageTwoFactorAuthentication();
-}, 'Two factor authentication is not enabled.');
+        // Enable 2FA
+        $response = $this->post('/web/user/two-factor-authentication');
 
-test('totp two factor authentication generates recovery codes', function () {
-    $this->actingAs($user = User::factory()->create());
+        $updatedUser = $this->user->fresh();
+        $this->assertNotNull($updatedUser->two_factor_secret);
 
-    $this->withSession(['auth.password_confirmed_at' => time()]);
+        // Test QR code generation
+        $qrResponse = $this->get('/web/user/two-factor-qr-code');
+        $qrResponse->assertOk();
+        $this->assertStringContainsString('application/json', $qrResponse->headers->get('content-type'));
 
-    // Enable 2FA
-    $response = $this->post('/web/user/two-factor-authentication');
+        $qrData = json_decode($qrResponse->getContent(), true);
+        $this->assertArrayHasKey('svg', $qrData);
+        $this->assertStringContainsString('<svg', $qrData['svg']);
+    }
 
-    $user = $user->fresh();
-    expect($user->recoveryCodes())->toHaveCount(8);
+    public function test_totp_two_factor_authentication_generates_recovery_codes(): void
+    {
+        if (! Features::canManageTwoFactorAuthentication()) {
+            $this->markTestSkipped('Two factor authentication is not enabled.');
+        }
 
-    // Get recovery codes
-    $codesResponse = $this->get('/web/user/two-factor-recovery-codes');
-    $codesResponse->assertOk();
+        $this->withSession(['auth.password_confirmed_at' => time()]);
 
-    $codes = json_decode($codesResponse->getContent(), true);
-    expect($codes)->toHaveCount(8);
-})->skip(function () {
-    return ! Features::canManageTwoFactorAuthentication();
-}, 'Two factor authentication is not enabled.');
+        // Enable 2FA
+        $response = $this->post('/web/user/two-factor-authentication');
 
-test('totp two factor authentication can verify valid codes', function () {
-    $this->actingAs($user = User::factory()->create());
+        $updatedUser = $this->user->fresh();
+        $this->assertCount(8, $updatedUser->recoveryCodes());
 
-    $this->withSession(['auth.password_confirmed_at' => time()]);
+        // Get recovery codes
+        $codesResponse = $this->get('/web/user/two-factor-recovery-codes');
+        $codesResponse->assertOk();
 
-    // Enable 2FA
-    $this->post('/web/user/two-factor-authentication');
+        $codes = json_decode($codesResponse->getContent(), true);
+        $this->assertCount(8, $codes);
+    }
 
-    $user = $user->fresh();
+    public function test_totp_two_factor_authentication_can_verify_valid_codes(): void
+    {
+        if (! Features::canManageTwoFactorAuthentication()) {
+            $this->markTestSkipped('Two factor authentication is not enabled.');
+        }
 
-    // Generate a valid TOTP code
-    $google2fa = new Google2FA;
-    $secret = decrypt($user->two_factor_secret);
-    $validCode = $google2fa->getCurrentOtp($secret);
+        $this->withSession(['auth.password_confirmed_at' => time()]);
 
-    // Confirm 2FA with valid code
-    $response = $this->post('/web/user/confirmed-two-factor-authentication', [
-        'code' => $validCode,
-    ]);
+        // Enable 2FA
+        $this->post('/web/user/two-factor-authentication');
 
-    $response->assertRedirect();
+        $updatedUser = $this->user->fresh();
 
-    $user = $user->fresh();
-    expect($user->two_factor_confirmed_at)->not->toBeNull();
-})->skip(function () {
-    return ! Features::canManageTwoFactorAuthentication();
-}, 'Two factor authentication is not enabled.');
+        // Generate a valid TOTP code
+        $google2fa = new Google2FA;
+        $secret = decrypt($updatedUser->two_factor_secret);
+        $validCode = $google2fa->getCurrentOtp($secret);
 
-test('totp two factor authentication requires password confirmation', function () {
-    $this->actingAs($user = User::factory()->create());
+        // Confirm 2FA with valid code
+        $response = $this->post('/web/user/confirmed-two-factor-authentication', [
+            'code' => $validCode,
+        ]);
 
-    // Try to enable 2FA without password confirmation
-    $response = $this->post('/web/user/two-factor-authentication');
+        $response->assertRedirect();
 
-    $response->assertRedirect('/web/user/confirm-password');
-})->skip(function () {
-    return ! Features::canManageTwoFactorAuthentication();
-}, 'Two factor authentication is not enabled.');
+        $confirmedUser = $this->user->fresh();
+        $this->assertNotNull($confirmedUser->two_factor_confirmed_at);
+    }
 
-test('two factor secret key can be retrieved', function () {
-    $this->actingAs($user = User::factory()->create());
+    public function test_totp_two_factor_authentication_requires_password_confirmation(): void
+    {
+        if (! Features::canManageTwoFactorAuthentication()) {
+            $this->markTestSkipped('Two factor authentication is not enabled.');
+        }
 
-    $this->withSession(['auth.password_confirmed_at' => time()]);
+        // Try to enable 2FA without password confirmation
+        $response = $this->post('/web/user/two-factor-authentication');
 
-    // Enable 2FA
-    $this->post('/web/user/two-factor-authentication');
+        $response->assertRedirect('/web/user/confirm-password');
+    }
 
-    $user = $user->fresh();
+    public function test_two_factor_secret_key_can_be_retrieved(): void
+    {
+        if (! Features::canManageTwoFactorAuthentication()) {
+            $this->markTestSkipped('Two factor authentication is not enabled.');
+        }
 
-    // Get secret key
-    $secretResponse = $this->get('/web/user/two-factor-secret-key');
-    $secretResponse->assertOk();
+        $this->withSession(['auth.password_confirmed_at' => time()]);
 
-    $secretData = json_decode($secretResponse->getContent(), true);
-    expect($secretData['secretKey'])->toBeString();
-    expect(strlen($secretData['secretKey']))->toBeGreaterThan(0);
-})->skip(function () {
-    return ! Features::canManageTwoFactorAuthentication();
-}, 'Two factor authentication is not enabled.');
+        // Enable 2FA
+        $this->post('/web/user/two-factor-authentication');
+
+        $updatedUser = $this->user->fresh();
+
+        // Get secret key
+        $secretResponse = $this->get('/web/user/two-factor-secret-key');
+        $secretResponse->assertOk();
+
+        $secretData = json_decode($secretResponse->getContent(), true);
+        $this->assertIsString($secretData['secretKey']);
+        $this->assertGreaterThan(0, strlen($secretData['secretKey']));
+    }
+}

@@ -6,12 +6,26 @@ use App\Enums\Permission as PermissionEnum;
 use App\Models\User;
 use Spatie\Permission\Models\Permission;
 
+/**
+ * Standardized user creation for tests
+ *
+ * This trait provides consistent methods to create and authenticate users
+ * with specific permissions.
+ *
+ * Usage:
+ * - Use actingAsVisitor(), actingAsDataUser(), actingAsUserManager(), actingAsAdmin() for authenticated users
+ * - Use createUserWith([...permissions]) for custom permission sets
+ * - Use actingAsUnprivileged() for users with no permissions
+ */
 trait CreatesUsersWithPermissions
 {
     /**
-     * Create a user with specific permissions (feature-based testing)
+     * Create a user with specific permissions
+     *
+     * @param  array  $permissions  Array of permission names/values
+     * @param  bool  $verified  Whether the user's email is verified (default: true)
      */
-    protected function createUserWithPermissions(array $permissions): User
+    protected function createUserWith(array $permissions, bool $verified = true): User
     {
         // Create permissions if they don't exist
         foreach ($permissions as $permission) {
@@ -21,64 +35,66 @@ trait CreatesUsersWithPermissions
         // Reset cached permissions to ensure they're available
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'email_verified_at' => $verified ? now() : null,
+        ]);
         $user->givePermissionTo($permissions);
 
         return $user;
     }
 
     /**
-     * Create user with visitor (read-only) permissions
+     * Create and authenticate as a visitor (read-only) user
      */
-    protected function createVisitorUser(): User
+    protected function actingAsVisitor(): self
     {
-        return $this->createUserWithPermissions([PermissionEnum::VIEW_DATA->value]);
+        $user = $this->createUserWith([PermissionEnum::VIEW_DATA->value]);
+        $this->actingAs($user);
+
+        return $this;
     }
 
     /**
-     * Create user with data management permissions
+     * Create and authenticate as a data user (CRUD operations)
      */
-    protected function createDataUser(): User
+    protected function actingAsDataUser(): self
     {
-        return $this->createUserWithPermissions(PermissionEnum::dataOperations());
+        $user = $this->createUserWith(PermissionEnum::dataOperations());
+        $this->actingAs($user);
+
+        return $this;
     }
 
     /**
-     * Create user with user management permissions
+     * Create and authenticate as a user manager
      */
-    protected function createUserManagerUser(): User
+    protected function actingAsUserManager(): self
     {
-        return $this->createUserWithPermissions(PermissionEnum::userManagement());
+        $user = $this->createUserWith(PermissionEnum::userManagement());
+        $this->actingAs($user);
+
+        return $this;
     }
 
     /**
-     * Create user with administrative permissions
+     * Create and authenticate as an admin user
      */
-    protected function createAdminUser(): User
+    protected function actingAsAdmin(): self
     {
-        return $this->createUserWithPermissions(PermissionEnum::administrative());
+        $user = $this->createUserWith(PermissionEnum::administrative());
+        $this->actingAs($user);
+
+        return $this;
     }
 
     /**
-     * Create user with no permissions
+     * Create and authenticate as an unprivileged user (no permissions)
      */
-    protected function createUnprivilegedUser(): User
+    protected function actingAsUnprivileged(): self
     {
-        return User::factory()->create();
-    }
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $this->actingAs($user);
 
-    /**
-     * Create user with specific feature permissions
-     */
-    protected function createUserWithFeatures(array $features): User
-    {
-        $permissions = [];
-        foreach ($features as $feature) {
-            if (method_exists(PermissionEnum::class, $feature)) {
-                $permissions = array_merge($permissions, PermissionEnum::$feature());
-            }
-        }
-
-        return $this->createUserWithPermissions($permissions);
+        return $this;
     }
 }

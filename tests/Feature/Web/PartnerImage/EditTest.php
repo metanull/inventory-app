@@ -7,12 +7,12 @@ use App\Models\PartnerImage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class EditTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
     protected Partner $partner;
 
@@ -28,7 +28,7 @@ class EditTest extends TestCase
 
     public function test_authenticated_user_can_view_edit_form(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
 
         $response = $this->actingAs($user)
@@ -43,7 +43,7 @@ class EditTest extends TestCase
 
     public function test_edit_form_displays_current_alt_text(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $this->partnerImage->update(['alt_text' => 'Test Alt Text']);
 
@@ -56,7 +56,7 @@ class EditTest extends TestCase
 
     public function test_edit_form_displays_display_order(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
 
         $response = $this->actingAs($user)
@@ -69,7 +69,7 @@ class EditTest extends TestCase
 
     public function test_cannot_edit_image_from_different_partner(): void
     {
-        $this->actAsRegularUser();
+        $this->actingAsDataUser();
         $user = User::find(1);
         $otherPartner = Partner::factory()->create();
         $otherPartnerImage = PartnerImage::factory()->for($otherPartner)->create();

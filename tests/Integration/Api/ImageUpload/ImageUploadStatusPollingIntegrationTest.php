@@ -2,6 +2,7 @@
 
 namespace Tests\Integration\Api\ImageUpload;
 
+use App\Enums\Permission;
 use App\Events\ImageUploadEvent;
 use App\Listeners\ImageUploadListener;
 use App\Models\AvailableImage;
@@ -25,13 +26,12 @@ class ImageUploadStatusPollingIntegrationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createDataUser();
-        $this->actingAs($this->user);
-
         Storage::fake('local');
         Storage::fake('public');
         Event::fake();
         Http::fake();
+        $this->user = $this->createUserWith(Permission::dataOperations());
+        $this->actingAs($this->user);
     }
 
     public function test_complete_image_upload_status_polling_workflow(): void

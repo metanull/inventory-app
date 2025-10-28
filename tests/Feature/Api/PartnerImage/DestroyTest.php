@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\PartnerImage;
 
+use App\Enums\Permission;
 use App\Models\Partner;
 use App\Models\PartnerImage;
 use App\Models\User;
@@ -13,12 +14,12 @@ class DestroyTest extends TestCase
 {
     use CreatesUsersWithPermissions, RefreshDatabase;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createDataUser();
+        $this->user = $this->createUserWith(Permission::dataOperations());
         $this->actingAs($this->user);
     }
 

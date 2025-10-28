@@ -7,17 +7,16 @@ use App\Models\GlossaryTranslation;
 use App\Models\Language;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\RequiresDataPermissions;
+use Tests\Traits\CreatesUsersWithPermissions;
 
 class UniqueConstraintTest extends TestCase
 {
+    use CreatesUsersWithPermissions;
     use RefreshDatabase;
-    use RequiresDataPermissions;
 
-    public function test_cannot_create_translation_for_same_language_twice(): void
+    public function test_unique_constraint_prevents_duplicate_glossary_language_context(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create();
         $language = Language::factory()->create();
@@ -37,8 +36,7 @@ class UniqueConstraintTest extends TestCase
 
     public function test_can_create_translations_for_different_languages(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create();
         $language1 = Language::factory()->create();
@@ -64,8 +62,7 @@ class UniqueConstraintTest extends TestCase
 
     public function test_can_update_translation_keeping_same_language(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create();
         $language = Language::factory()->create();
@@ -82,8 +79,7 @@ class UniqueConstraintTest extends TestCase
 
     public function test_cannot_update_translation_to_use_existing_language(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create();
         $language1 = Language::factory()->create();
@@ -104,8 +100,7 @@ class UniqueConstraintTest extends TestCase
 
     public function test_used_languages_are_disabled_in_create_form(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create();
         $usedLanguage = Language::factory()->create(['internal_name' => 'English']);
@@ -125,8 +120,7 @@ class UniqueConstraintTest extends TestCase
 
     public function test_used_languages_are_disabled_in_edit_form_except_current(): void
     {
-        $user = $this->createAuthenticatedUserWithDataPermissions();
-        $this->actingAs($user);
+        $this->actingAsDataUser();
 
         $glossary = Glossary::factory()->create();
         $language1 = Language::factory()->create(['internal_name' => 'English']);

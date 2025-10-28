@@ -42,13 +42,13 @@ Validates code quality, runs tests, and ensures the application builds correctly
 
 **Workflow properties**
 
-| Property | Value |
-| --- | --- |
-| **Workflow** | `continuous-integration.yml` |
-| **Trigger** | Pull requests to `main` branch (opened, synchronize, reopened) |
-| **Manual trigger** | Yes (`workflow_dispatch`) |
-| **Runner** | `windows-latest` (GitHub-hosted) |
-| **Concurrency** | Group: `ci-${{ github.ref }}`, cancel-in-progress: `true` |
+| Property           | Value                                                          |
+| ------------------ | -------------------------------------------------------------- |
+| **Workflow**       | `continuous-integration.yml`                                   |
+| **Trigger**        | Pull requests to `main` branch (opened, synchronize, reopened) |
+| **Manual trigger** | Yes (`workflow_dispatch`)                                      |
+| **Runner**         | `windows-latest` (GitHub-hosted)                               |
+| **Concurrency**    | Group: `ci-${{ github.ref }}`, cancel-in-progress: `true`      |
 
 **Jobs**
 
@@ -90,8 +90,8 @@ This workflow runs automatically on pull requests. For manual testing:
 
 **Links**
 
-| Reference | URL |
-| --- | --- |
+| Reference                        | URL                                                                                                                                                                                                      |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | GitHub Actions workflow_dispatch | [https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch) |
 
 ---
@@ -104,13 +104,13 @@ Builds the Laravel application and deploys it to a production environment using 
 
 **Workflow properties**
 
-| Property | Value |
-| --- | --- |
-| **Workflow** | `continuous-deployment.yml` |
-| **Trigger** | Push to `main` branch |
-| **Manual trigger** | No |
-| **Runner** | `[self-hosted, windows]` |
-| **Environment** | `MWNF-SVR` |
+| Property           | Value                       |
+| ------------------ | --------------------------- |
+| **Workflow**       | `continuous-deployment.yml` |
+| **Trigger**        | Push to `main` branch       |
+| **Manual trigger** | No                          |
+| **Runner**         | `[self-hosted, windows]`    |
+| **Environment**    | `MWNF-SVR`                  |
 
 **Jobs**
 
@@ -141,38 +141,39 @@ Builds the Laravel application and deploys it to a production environment using 
 
 **Environment Variables** (set in GitHub environment `MWNF-SVR`)
 
-| Variable | Description | Default |
-| --- | --- | --- |
-| `PHP_PATH` | Path to PHP executable | `C:\Program Files\PHP\php.exe` |
-| `COMPOSER_PATH` | Path to Composer executable | `C:\ProgramData\ComposerSetup\bin\composer.bat` |
-| `NODE_PATH` | Path to Node.js executable | `C:\Program Files\nodejs\node.exe` |
-| `NPM_PATH` | Path to npm executable | `C:\Program Files\nodejs\npm.ps1` |
-| `MARIADB_PATH` | Path to MariaDB client | `C:\Program Files\MariaDB 10.5\bin\mysql.exe` |
-| `DEPLOY_PATH` | Deployment base directory | `C:\Apache24\htdocs\inventory-app` |
-| `WEBSERVER_PATH` | Symlink location for webserver | `C:\Apache24\htdocs\inventory-app` |
-| `APP_NAME` | Application name | `inventory-app` |
-| `APP_ENV` | Environment (production/staging) | `production` |
-| `APP_DEBUG` | Enable debug mode | `false` |
-| `APP_URL` | Application URL | `http://localhost` |
-| `DB_CONNECTION` | Database driver | `mysql` |
-| `DB_HOST` | Database host | `127.0.0.1` |
-| `DB_PORT` | Database port | `3306` |
-| `API_DOCS_ENABLED` | Enable API documentation | `false` |
-| `APACHE_SERVICE_USER` | Apache service user | `SYSTEM` |
-| `TRUSTED_PROXIES` | Comma-separated proxy IPs/CIDR | (empty) |
+| Variable              | Description                      | Default                                         |
+| --------------------- | -------------------------------- | ----------------------------------------------- |
+| `PHP_PATH`            | Path to PHP executable           | `C:\Program Files\PHP\php.exe`                  |
+| `COMPOSER_PATH`       | Path to Composer executable      | `C:\ProgramData\ComposerSetup\bin\composer.bat` |
+| `NODE_PATH`           | Path to Node.js executable       | `C:\Program Files\nodejs\node.exe`              |
+| `NPM_PATH`            | Path to npm executable           | `C:\Program Files\nodejs\npm.ps1`               |
+| `MARIADB_PATH`        | Path to MariaDB client           | `C:\Program Files\MariaDB 10.5\bin\mysql.exe`   |
+| `DEPLOY_PATH`         | Deployment base directory        | `C:\Apache24\htdocs\inventory-app`              |
+| `WEBSERVER_PATH`      | Symlink location for webserver   | `C:\Apache24\htdocs\inventory-app`              |
+| `APP_NAME`            | Application name                 | `inventory-app`                                 |
+| `APP_ENV`             | Environment (production/staging) | `production`                                    |
+| `APP_DEBUG`           | Enable debug mode                | `false`                                         |
+| `APP_URL`             | Application URL                  | `http://localhost`                              |
+| `DB_CONNECTION`       | Database driver                  | `mysql`                                         |
+| `DB_HOST`             | Database host                    | `127.0.0.1`                                     |
+| `DB_PORT`             | Database port                    | `3306`                                          |
+| `API_DOCS_ENABLED`    | Enable API documentation         | `false`                                         |
+| `APACHE_SERVICE_USER` | Apache service user              | `SYSTEM`                                        |
+| `TRUSTED_PROXIES`     | Comma-separated proxy IPs/CIDR   | (empty)                                         |
 
 **Environment Secrets** (set in GitHub environment `MWNF-SVR`)
 
-| Secret | Description |
-| --- | --- |
-| `APP_KEY` | Laravel application key (generate with `php artisan key:generate --show`) |
-| `MARIADB_DATABASE` | Database name |
-| `MARIADB_USER` | Database username |
-| `MARIADB_SECRET` | Database password |
+| Secret             | Description                                                               |
+| ------------------ | ------------------------------------------------------------------------- |
+| `APP_KEY`          | Laravel application key (generate with `php artisan key:generate --show`) |
+| `MARIADB_DATABASE` | Database name                                                             |
+| `MARIADB_USER`     | Database username                                                         |
+| `MARIADB_SECRET`   | Database password                                                         |
 
 **Deployment Strategy**
 
 This workflow uses a **symlink-based zero-downtime deployment**:
+
 1. Build artifact is downloaded to a timestamped staging directory
 2. Application is put into maintenance mode
 3. A temporary symlink is created pointing to the new staging directory
@@ -191,9 +192,9 @@ This workflow runs automatically when changes are pushed to `main`.
 
 **Links**
 
-| Reference | URL |
-| --- | --- |
-| Laravel Deployment | [https://laravel.com/docs/12.x/deployment](https://laravel.com/docs/12.x/deployment) |
+| Reference           | URL                                                                                                                                                                                                                                  |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Laravel Deployment  | [https://laravel.com/docs/12.x/deployment](https://laravel.com/docs/12.x/deployment)                                                                                                                                                 |
 | GitHub Environments | [https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) |
 
 ---
@@ -206,13 +207,13 @@ See [/docs/README.md](/development/documentation-site) for complete Jekyll site 
 
 **Workflow properties**
 
-| Property | Value |
-| --- | --- |
-| **Workflow** | `continuous-deployment_github-pages.yml` |
-| **Trigger** | Push to `main` branch |
-| **Manual trigger** | Yes (`workflow_dispatch`) |
-| **Runner** | `ubuntu-latest` (GitHub-hosted) |
-| **Concurrency** | Group: `pages-deploy`, cancel-in-progress: `true` |
+| Property           | Value                                             |
+| ------------------ | ------------------------------------------------- |
+| **Workflow**       | `continuous-deployment_github-pages.yml`          |
+| **Trigger**        | Push to `main` branch                             |
+| **Manual trigger** | Yes (`workflow_dispatch`)                         |
+| **Runner**         | `ubuntu-latest` (GitHub-hosted)                   |
+| **Concurrency**    | Group: `pages-deploy`, cancel-in-progress: `true` |
 
 **Jobs**
 
@@ -241,6 +242,7 @@ See [/docs/README.md](/development/documentation-site) for complete Jekyll site 
 **Scripts called**
 
 This workflow depends on the following scripts:
+
 - `generate-commit-docs.py` - Converts Git commit history into Jekyll markdown pages. See [/scripts/README.md](/development/scripts#generating-the-git-commit-history)
 - `generate-client-docs.py` - Converts TypeScript API client docs into Jekyll markdown pages. See [/scripts/README.md](/development/scripts#generating-the-api-client-npm-packages-static-documentation)
 
@@ -256,11 +258,11 @@ This workflow runs automatically on push to `main`. For manual deployment:
 
 **Links**
 
-| Reference | URL |
-| --- | --- |
-| GitHub Pages | [https://pages.github.com/](https://pages.github.com/) |
-| Documentation Site | [https://metanull.github.io/inventory-app](https://metanull.github.io/inventory-app) |
-| Jekyll Documentation | [https://jekyllrb.com/docs/](https://jekyllrb.com/docs/) |
+| Reference            | URL                                                                                  |
+| -------------------- | ------------------------------------------------------------------------------------ |
+| GitHub Pages         | [https://pages.github.com/](https://pages.github.com/)                               |
+| Documentation Site   | [https://metanull.github.io/inventory-app](https://metanull.github.io/inventory-app) |
+| Jekyll Documentation | [https://jekyllrb.com/docs/](https://jekyllrb.com/docs/)                             |
 
 ---
 
@@ -270,12 +272,12 @@ Publishes the TypeScript API client package to GitHub Packages when a release is
 
 **Workflow properties**
 
-| Property | Value |
-| --- | --- |
-| **Workflow** | `publish-npm-github-package.yml` |
-| **Trigger** | Release created |
-| **Manual trigger** | Yes (`workflow_dispatch`) |
-| **Runner** | `ubuntu-latest` (GitHub-hosted) |
+| Property           | Value                            |
+| ------------------ | -------------------------------- |
+| **Workflow**       | `publish-npm-github-package.yml` |
+| **Trigger**        | Release created                  |
+| **Manual trigger** | Yes (`workflow_dispatch`)        |
+| **Runner**         | `ubuntu-latest` (GitHub-hosted)  |
 
 **Jobs**
 
@@ -299,6 +301,7 @@ Publishes the TypeScript API client package to GitHub Packages when a release is
 **Prerequisites**
 
 Before this workflow can run successfully:
+
 1. API client must be generated using `generate-api-client.ps1`. See [/scripts/README.md](/development/scripts#generating-the-api-client-npm-package)
 2. Package version should be updated appropriately
 3. A release must be created in GitHub
@@ -320,10 +323,10 @@ Alternatively, you can publish manually using the script:
 
 **Links**
 
-| Reference | URL |
-| --- | --- |
-| GitHub Packages | [https://github.com/features/packages](https://github.com/features/packages) |
-| API Client Package | [https://github.com/metanull/inventory-app/pkgs/npm/inventory-app-api-client](https://github.com/metanull/inventory-app/pkgs/npm/inventory-app-api-client) |
+| Reference                   | URL                                                                                                                                                                    |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GitHub Packages             | [https://github.com/features/packages](https://github.com/features/packages)                                                                                           |
+| API Client Package          | [https://github.com/metanull/inventory-app/pkgs/npm/inventory-app-api-client](https://github.com/metanull/inventory-app/pkgs/npm/inventory-app-api-client)             |
 | Publishing Node.js Packages | [https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages](https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages) |
 
 ---
@@ -336,13 +339,13 @@ Automatically bumps the project version based on merged pull request labels afte
 
 **Workflow properties**
 
-| Property | Value |
-| --- | --- |
-| **Workflow** | `version-bump.yml` |
-| **Trigger** | After `Continuous Integration` workflow completes successfully on `main` |
-| **Manual trigger** | Yes (`workflow_dispatch`) |
-| **Runner** | `windows-latest` (GitHub-hosted) |
-| **Concurrency** | Group: `version-bump-${{ github.ref }}`, cancel-in-progress: `true` |
+| Property           | Value                                                                    |
+| ------------------ | ------------------------------------------------------------------------ |
+| **Workflow**       | `version-bump.yml`                                                       |
+| **Trigger**        | After `Continuous Integration` workflow completes successfully on `main` |
+| **Manual trigger** | Yes (`workflow_dispatch`)                                                |
+| **Runner**         | `windows-latest` (GitHub-hosted)                                         |
+| **Concurrency**    | Group: `version-bump-${{ github.ref }}`, cancel-in-progress: `true`      |
 
 **Job: version-bump**
 
@@ -374,15 +377,16 @@ This workflow runs automatically after CI completes successfully. For manual ver
 **PR Labeling Guide**
 
 To control version bumping, apply these labels to your pull requests:
+
 - `breaking-change` - For breaking API changes (major version)
 - `feature` - For new features (minor version)
 - `bugfix` - For bug fixes (patch version)
 
 **Links**
 
-| Reference | URL |
-| --- | --- |
-| Semantic Versioning | [https://semver.org/](https://semver.org/) |
+| Reference                   | URL                                                                                                                                                                                            |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Semantic Versioning         | [https://semver.org/](https://semver.org/)                                                                                                                                                     |
 | GitHub Actions workflow_run | [https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run) |
 
 ---
@@ -393,13 +397,13 @@ Automatically approves and enables auto-merge for Dependabot pull requests that 
 
 **Workflow properties**
 
-| Property | Value |
-| --- | --- |
-| **Workflow** | `merge-dependabot-pr.yml` |
-| **Trigger** | `pull_request_target` (any PR opened) |
-| **Manual trigger** | No |
-| **Runner** | `ubuntu-latest` (GitHub-hosted) |
-| **Condition** | Only runs if PR author is `dependabot[bot]` |
+| Property           | Value                                       |
+| ------------------ | ------------------------------------------- |
+| **Workflow**       | `merge-dependabot-pr.yml`                   |
+| **Trigger**        | `pull_request_target` (any PR opened)       |
+| **Manual trigger** | No                                          |
+| **Runner**         | `ubuntu-latest` (GitHub-hosted)             |
+| **Condition**      | Only runs if PR author is `dependabot[bot]` |
 
 **Job: dependabot**
 
@@ -424,10 +428,10 @@ This workflow runs automatically when Dependabot opens a pull request. No manual
 
 **Links**
 
-| Reference | URL |
-| --- | --- |
-| Dependabot | [https://docs.github.com/en/code-security/dependabot](https://docs.github.com/en/code-security/dependabot) |
-| dependabot/fetch-metadata | [https://github.com/dependabot/fetch-metadata](https://github.com/dependabot/fetch-metadata) |
+| Reference                 | URL                                                                                                        |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Dependabot                | [https://docs.github.com/en/code-security/dependabot](https://docs.github.com/en/code-security/dependabot) |
+| dependabot/fetch-metadata | [https://github.com/dependabot/fetch-metadata](https://github.com/dependabot/fetch-metadata)               |
 
 ---
 
@@ -435,14 +439,14 @@ This workflow runs automatically when Dependabot opens a pull request. No manual
 
 Several workflows interact with scripts and other workflows:
 
-| Workflow | Depends On | Triggers |
-| --- | --- | --- |
-| `continuous-integration.yml` | - | `version-bump.yml` |
-| `continuous-deployment.yml` | - | - |
-| `continuous-deployment_github-pages.yml` | [/scripts/README.md](/development/scripts) scripts | - |
-| `publish-npm-github-package.yml` | API client generation | - |
-| `version-bump.yml` | `continuous-integration.yml` | - |
-| `merge-dependabot-pr.yml` | - | - |
+| Workflow                                 | Depends On                                         | Triggers           |
+| ---------------------------------------- | -------------------------------------------------- | ------------------ |
+| `continuous-integration.yml`             | -                                                  | `version-bump.yml` |
+| `continuous-deployment.yml`              | -                                                  | -                  |
+| `continuous-deployment_github-pages.yml` | [/scripts/README.md](/development/scripts) scripts | -                  |
+| `publish-npm-github-package.yml`         | API client generation                              | -                  |
+| `version-bump.yml`                       | `continuous-integration.yml`                       | -                  |
+| `merge-dependabot-pr.yml`                | -                                                  | -                  |
 
 **Scripts used by workflows:**
 

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\ImageUpload;
 
+use App\Enums\Permission;
 use App\Models\ImageUpload;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,12 +17,12 @@ class DestroyTest extends TestCase
     use CreatesUsersWithPermissions;
     use RefreshDatabase;
 
-    protected ?User $user = null;
+    protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createDataUser();
+        $this->user = $this->createUserWith(Permission::dataOperations());
         $this->actingAs($this->user);
 
         Storage::fake('local');

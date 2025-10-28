@@ -17,6 +17,7 @@ The `<x-display.badge>` component creates colored badges for labels and status i
 ### Usage
 
 {% raw %}
+
 ```blade
 <x-display.badge entity="items">
     Legacy: {{ $item->backward_compatibility }}
@@ -26,6 +27,7 @@ The `<x-display.badge>` component creates colored badges for labels and status i
     {{ $tag->internal_name }}
 </x-display.badge>
 ```
+
 {% endraw %}
 
 ## System Properties
@@ -34,20 +36,22 @@ The `<x-system-properties>` component displays metadata like created/updated tim
 
 ### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `created` | datetime | No | Created timestamp |
-| `updated` | datetime | No | Updated timestamp |
+| Prop      | Type     | Required | Description       |
+| --------- | -------- | -------- | ----------------- |
+| `created` | datetime | No       | Created timestamp |
+| `updated` | datetime | No       | Updated timestamp |
 
 ### Usage
 
 {% raw %}
+
 ```blade
-<x-system-properties 
+<x-system-properties
     :created="$item->created_at"
     :updated="$item->updated_at"
 />
 ```
+
 {% endraw %}
 
 ## Format Components
@@ -57,6 +61,7 @@ Format components are in `resources/views/components/format/`:
 ### Date Formatting
 
 {% raw %}
+
 ```blade
 <!-- Display formatted date -->
 {{ $item->created_at?->format('Y-m-d H:i') }}
@@ -64,6 +69,7 @@ Format components are in `resources/views/components/format/`:
 <!-- Or use Carbon methods -->
 {{ $item->created_at?->diffForHumans() }}
 ```
+
 {% endraw %}
 
 ## Related Documentation

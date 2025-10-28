@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\Item;
 
+use App\Enums\Permission;
 use App\Models\Item;
 use App\Models\Tag;
 use App\Models\User;
@@ -21,7 +22,8 @@ class ScopeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->createVisitorUser();
+        // Create user with VIEW_DATA permission for scope testing
+        $this->user = $this->createUserWith([Permission::VIEW_DATA->value]);
         $this->actingAs($this->user);
     }
 
