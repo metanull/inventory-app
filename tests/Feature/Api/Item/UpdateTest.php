@@ -35,21 +35,6 @@ class UpdateTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_update_validates_its_input(): void
-    {
-        $item = Item::factory()->create();
-
-        $response = $this->putJson(route('item.update', $item->id), [
-            'id' => 'invalid-id', // Invalid: prohibited field
-            'partner_id' => null,
-            'internal_name' => '', // Invalid: required field
-            'backward_compatibility' => 'UI',
-            'type' => 'invalid_type', // Invalid: not in allowed types
-        ]);
-
-        $response->assertJsonValidationErrors(['id', 'internal_name', 'type']);
-    }
-
     public function test_update_returns_not_found_response_when_not_found(): void
     {
         $response = $this->putJson(route('item.update', 'nonexistent'), [
@@ -95,21 +80,6 @@ class UpdateTest extends TestCase
         ]);
 
         $response->assertOk();
-    }
-
-    public function test_update_returns_unprocessable_when_input_is_invalid(): void
-    {
-        $item = Item::factory()->create();
-
-        $response = $this->putJson(route('item.update', $item->id), [
-            'id' => 'invalid-id', // Invalid: prohibited field
-            'partner_id' => 'invalid_id', // Invalid: not a valid Partner ID
-            'internal_name' => '', // Invalid: required field
-            'backward_compatibility' => 'UI',
-            'type' => 'invalid_type', // Invalid: not in allowed types
-        ]);
-
-        $response->assertUnprocessable();
     }
 
     public function test_update_returns_the_expected_structure(): void

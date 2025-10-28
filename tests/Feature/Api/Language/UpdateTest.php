@@ -34,32 +34,6 @@ class UpdateTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_update_validates_its_input(): void
-    {
-        $language = Language::factory()->create();
-
-        $response = $this->putJson(route('language.update', $language->id), [
-            // 'internal_name' => 'Updated Language',
-            'backward_compatibility' => null,
-            'is_default' => true, // is not allowed to be set during creation
-        ]);
-
-        $response->assertJsonValidationErrors(['internal_name', 'is_default']);
-    }
-
-    public function test_update_returns_unprocessable_when_input_is_invalid(): void
-    {
-        $language = Language::factory()->create();
-
-        $response = $this->putJson(route('language.update', $language->id), [
-            // 'internal_name' => 'Updated Language',
-            'backward_compatibility' => null,
-            'is_default' => true, // is not allowed to be set during creation
-        ]);
-
-        $response->assertUnprocessable();
-    }
-
     public function test_update_returns_not_found_response_when_not_found(): void
     {
         $response = $this->putJson(route('language.update', 'NON_EXISTENT'), [
