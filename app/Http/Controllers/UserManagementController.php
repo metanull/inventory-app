@@ -83,7 +83,6 @@ class UserManagementController extends Controller
         }
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User created successfully.')
             ->with('generated_password', $generatedPassword)
             ->with('user_name', $user->name)
             ->with('user_email', $user->email);
@@ -149,16 +148,15 @@ class UserManagementController extends Controller
             $user->save();
         }
 
-        $redirect = redirect()->route('admin.users.index')
-            ->with('success', 'User updated successfully.');
-
         if ($generatedPassword) {
-            $redirect->with('generated_password', $generatedPassword)
+            return redirect()->route('admin.users.index')
+                ->with('generated_password', $generatedPassword)
                 ->with('user_name', $user->name)
                 ->with('user_email', $user->email);
         }
 
-        return $redirect;
+        return redirect()->route('admin.users.index')
+            ->with('success', 'User updated successfully.');
     }
 
     /**

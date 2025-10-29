@@ -1,4 +1,7 @@
-<x-layout.create-page entity="collections">
-    @include('collections._form', ['collection' => null])
-</x-layout.create-page>
+@extends('layouts.app')
 
+@section('content')
+    <x-layout.create-page entity="collections">
+        @include('collections._form', ['collection' => null])
+    </x-layout.create-page>
+@endsection

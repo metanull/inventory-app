@@ -24,6 +24,7 @@ The /scripts directory contains automation and helper scripts used for documenta
       - [Image seeding](#image-seeding)
       - [Migration testing](#migration-testing)
       - [Validation of the Workflow files](#validation-of-the-workflow-files)
+      - [Running tests in parallel](#running-tests-in-parallel)
 
 ## Notes
 
@@ -394,4 +395,24 @@ Validates all YAML workflow files.
 
 ```powershell
 node scripts/validate-workflows.cjs
+```
+
+#### Running tests in parallel
+
+Run all tests suites in parallel.
+
+**Script properties**
+
+| Property | Value |
+| --- | --- |
+| Script | `Start-Tests.ps1` |
+| Invoker | Invoked by the developer to efficiently run all tests after a **change** to the **code** |
+| Input | /tests, /resource/js/**/__tests__ */ |
+| Output | **N/A** - The script writes to the terminal |
+| Log | **N/A** - The script writes to the terminal |
+
+**Usage**
+
+```powershell
+.\Scripts\Start-Tests.ps1
 ```

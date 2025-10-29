@@ -1,1 +1,5 @@
-<x-layout.index-page entity="authors" />
+@extends('layouts.app')
+
+@section('content')
+    <x-layout.index-page entity="authors" />
+@endsection

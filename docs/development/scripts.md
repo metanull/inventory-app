@@ -43,9 +43,10 @@ The /scripts directory contains automation and helper scripts used for documenta
 
 ### Auto-generation of the static documentation website
 
-These scripts are triggered by the CI/CD Workflow action `.github/workflows/continuous-deployment_github-pages.yml` responsible for deploying the static documentation website to [github.io](https://metanull.github.io). 
+These scripts are triggered by the CI/CD Workflow action `.github/workflows/continuous-deployment_github-pages.yml` responsible for deploying the static documentation website to [github.io](https://metanull.github.io).
 
 See:
+
 - [/.github/workflows/README.md](/development/workflows#deploy-documentation-to-github-pages) for workflow details
 - [/docs/README.md](/development/documentation-site) for Jekyll site documentation
 
@@ -55,29 +56,31 @@ Converts Git commit history into Jekyll-compatible markdown pages.
 
 These files are integrated by Jekyll into the static documentation website under `/inventory-app/development/archive`.
 
-The script is called by CI workflows on push to main. 
+The script is called by CI workflows on push to main.
 
 See:
+
 - [/.github/workflows/README.md](/development/workflows#deploy-documentation-to-github-pages) for workflow details
 - [/docs/README.md](/development/documentation-site#script-generate-commit-documentation) for Jekyll integration
 
 **Script properties**
 
-| Property | Value |
-| --- | --- |
-| **Script** | `generate-commit-docs.py` |
+| Property    | Value                                                                                                                                                                                          |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Script**  | `generate-commit-docs.py`                                                                                                                                                                      |
 | **Invoker** | Invoked by `.github/workflows/continuous-deployment_github-pages.yml` on **push** to **main**. See [/.github/workflows/README.md](/development/workflows#deploy-documentation-to-github-pages) |
-| **Input** | It reads from git directly |
-| **Output** | `/docs/_docs/**/*.md` |
-| **Log** | `/docs/commit-docs.log` |
+| **Input**   | It reads from git directly                                                                                                                                                                     |
+| **Output**  | `/docs/_docs/**/*.md`                                                                                                                                                                          |
+| **Log**     | `/docs/commit-docs.log`                                                                                                                                                                        |
 
 **Links**
 
-| Reference | Url |
-| --- | --- |
+| Reference          | Url                                                                                                                          |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | Git Commit History | [https://metanull.github.io/inventory-app/development/archive](https://metanull.github.io/inventory-app/development/archive) |
 
 **Usage:**
+
 ```bash
 # Run from project root
 python scripts/generate-commit-docs.py
@@ -89,29 +92,31 @@ Transforms the TypeScript API Client markdown files (auto-generated) into Jekyll
 
 These files are integrated by Jekyll into the static documentation website under `/inventory-app/api-client/`.
 
-The script is called by CI workflows on push to main. 
+The script is called by CI workflows on push to main.
 
 See:
+
 - [/.github/workflows/README.md](/development/workflows#deploy-documentation-to-github-pages) for workflow details
 - [/docs/README.md](/development/documentation-site#script-generate-api-client-documentation) for Jekyll integration
 
 **Script properties**
 
-| Property | Value |
-| --- | --- |
-| Script | `generate-client-docs.py` |
-| Invoker | Invoked by `.github/workflows/continuous-deployment_github-pages.yml` on **push** to **main**. See [/.github/workflows/README.md](/development/workflows#deploy-documentation-to-github-pages) |
-| Input | `/api-client/docs/*.md` - These files are auto-generated during development and not directly suitable for integration by Jekyll. See [Generating the API client npm package](#generating-the-api-client-npm-package) |
-| Output | `/docs/api-client/*.md` |
-| Log | `/docs/client-docs.log` |
+| Property | Value                                                                                                                                                                                                                |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Script   | `generate-client-docs.py`                                                                                                                                                                                            |
+| Invoker  | Invoked by `.github/workflows/continuous-deployment_github-pages.yml` on **push** to **main**. See [/.github/workflows/README.md](/development/workflows#deploy-documentation-to-github-pages)                       |
+| Input    | `/api-client/docs/*.md` - These files are auto-generated during development and not directly suitable for integration by Jekyll. See [Generating the API client npm package](#generating-the-api-client-npm-package) |
+| Output   | `/docs/api-client/*.md`                                                                                                                                                                                              |
+| Log      | `/docs/client-docs.log`                                                                                                                                                                                              |
 
 **Links**
 
-| Reference | Url |
-| --- | --- |
+| Reference                                          | Url                                                                                                          |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | Static documentation of the API client npm package | [https://metanull.github.io/inventory-app/api-client/](https://metanull.github.io/inventory-app/api-client/) |
 
 **Usage:**
+
 ```bash
 # Requires TypeScript client to be generated first
 # See: (Generating the API client npm package)
@@ -130,13 +135,13 @@ Configures authentication with GitHub Packages by creating or updating the `.npm
 
 **Script properties**
 
-| Property | Value |
-| --- | --- |
-| Script | `Setup-GithubPackages.ps1` |
-| Invoker | Invoked by the developer **once**, or after changing their **Personal Access Token** |
-| Input | The script prompts information from the user |
-| Output | `/.npmrc` |
-| Log | **N/A** - The script writes to the terminal |
+| Property | Value                                                                                |
+| -------- | ------------------------------------------------------------------------------------ |
+| Script   | `Setup-GithubPackages.ps1`                                                           |
+| Invoker  | Invoked by the developer **once**, or after changing their **Personal Access Token** |
+| Input    | The script prompts information from the user                                         |
+| Output   | `/.npmrc`                                                                            |
+| Log      | **N/A** - The script writes to the terminal                                          |
 
 **Usage**
 
@@ -147,36 +152,37 @@ Configures authentication with GitHub Packages by creating or updating the `.npm
 #### Generating the API client npm package
 
 Reads the specifications of the API exposed by the Laravel project, and generates:
+
 - an OpenApi documentation - `/docs/_openapi/api.json`
 - an API client npm package - `/api-client/*`.
 - static documentation of the npm package - `/api-client/docs/*.md`
 
 **Script properties**
 
-| Property | Value |
-| --- | --- |
-| Script | `generate-api-client.ps1` |
-| Invoker | Invoked by the developer after **change** to the **api** |
-| Input 1 | `/app` - The source code of the Laravel application |
-| Input 2 | `/scripts/api-client-config.psd1` - Configuration of API client generation scripts |
-| Output 1 | `/docs/_openapi/api.json` |
-| Output 2 | `/api-client/package.json`, `/api-client/*.ts` |
-| Output 3 | `/api-client/docs/*.md` |
-| Log | **N/A** - The script writes to the terminal |
+| Property | Value                                                                              |
+| -------- | ---------------------------------------------------------------------------------- |
+| Script   | `generate-api-client.ps1`                                                          |
+| Invoker  | Invoked by the developer after **change** to the **api**                           |
+| Input 1  | `/app` - The source code of the Laravel application                                |
+| Input 2  | `/scripts/api-client-config.psd1` - Configuration of API client generation scripts |
+| Output 1 | `/docs/_openapi/api.json`                                                          |
+| Output 2 | `/api-client/package.json`, `/api-client/*.ts`                                     |
+| Output 3 | `/api-client/docs/*.md`                                                            |
+| Log      | **N/A** - The script writes to the terminal                                        |
 
 **Links**
 
-| Reference | Url |
-| --- | --- |
-| Documentation | [https://metanull.github.io/inventory-app/api/](https://metanull.github.io/inventory-app/api/) |
-| API's OpenAPI specification (*api.json*) | [https://metanull.github.io/inventory-app/api.json](https://metanull.github.io/inventory-app/api.json) |
-| Swagger UI for the API's OpenAPI specification | [https://metanull.github.io/inventory-app/swagger-ui.html](https://metanull.github.io/inventory-app/swagger-ui.html) |
-| API client npm package | [https://github.com/metanull?tab=packages&repo_name=inventory-app](https://github.com/metanull?tab=packages&repo_name=inventory-app) |
-| Static documentation of the API client npm package | [https://metanull.github.io/inventory-app/api-client/](https://metanull.github.io/inventory-app/api-client/) |
+| Reference                                          | Url                                                                                                                                  |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Documentation                                      | [https://metanull.github.io/inventory-app/api/](https://metanull.github.io/inventory-app/api/)                                       |
+| API's OpenAPI specification (_api.json_)           | [https://metanull.github.io/inventory-app/api.json](https://metanull.github.io/inventory-app/api.json)                               |
+| Swagger UI for the API's OpenAPI specification     | [https://metanull.github.io/inventory-app/swagger-ui.html](https://metanull.github.io/inventory-app/swagger-ui.html)                 |
+| API client npm package                             | [https://github.com/metanull?tab=packages&repo_name=inventory-app](https://github.com/metanull?tab=packages&repo_name=inventory-app) |
+| Static documentation of the API client npm package | [https://metanull.github.io/inventory-app/api-client/](https://metanull.github.io/inventory-app/api-client/)                         |
 
 **Usage**
 
-**IMPORTANT**: **DO** use the composer command `composer ci-openapi-doc`, as it **first** generates up to date *api.json* **then** calls *generate-api-client.ps1*
+**IMPORTANT**: **DO** use the composer command `composer ci-openapi-doc`, as it **first** generates up to date _api.json_ **then** calls _generate-api-client.ps1_
 
 ```powershell
 composer ci-openapi-doc
@@ -198,22 +204,22 @@ Publishes the API client npm package to the [GitHub Packages](https://docs.githu
 
 **Script properties**
 
-| Property | Value |
-| --- | --- |
-| Script | `publish-api-client.ps1` |
-| Invoker | Invoked by the developer after [Generating the API client npm package](#generating-the-api-client-npm-package) |
-| Input 1 |  `/api-client/package.json`, `/api-client/*.ts`. See [Generating the API client npm package](#generating-the-api-client-npm-package) |
-| Input 2 | User's GitHub personal access token, with adequate permissions |
-| Output | [https://github.com/metanull/inventory-app/pkgs/npm/inventory-app-api-client](https://github.com/metanull/inventory-app/pkgs/npm/inventory-app-api-client) |
-| Log | **N/A** - The script writes to the terminal |
+| Property | Value                                                                                                                                                      |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Script   | `publish-api-client.ps1`                                                                                                                                   |
+| Invoker  | Invoked by the developer after [Generating the API client npm package](#generating-the-api-client-npm-package)                                             |
+| Input 1  | `/api-client/package.json`, `/api-client/*.ts`. See [Generating the API client npm package](#generating-the-api-client-npm-package)                        |
+| Input 2  | User's GitHub personal access token, with adequate permissions                                                                                             |
+| Output   | [https://github.com/metanull/inventory-app/pkgs/npm/inventory-app-api-client](https://github.com/metanull/inventory-app/pkgs/npm/inventory-app-api-client) |
+| Log      | **N/A** - The script writes to the terminal                                                                                                                |
 
 **Links**
 
-| Reference | Url |
-| --- | --- |
-| GitHub Packages | [https://docs.github.com/en/packages](https://docs.github.com/en/packages) |
-| *@metanull/inventory-app-api-client* | [https://github.com/metanull/inventory-app/pkgs/npm/inventory-app-api-client](https://github.com/metanull/inventory-app/pkgs/npm/inventory-app-api-client) |
-| GitHub Packages in inventory-app | [https://github.com/metanull?tab=packages&repo_name=inventory-app](https://github.com/metanull?tab=packages&repo_name=inventory-app) |
+| Reference                            | Url                                                                                                                                                        |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GitHub Packages                      | [https://docs.github.com/en/packages](https://docs.github.com/en/packages)                                                                                 |
+| _@metanull/inventory-app-api-client_ | [https://github.com/metanull/inventory-app/pkgs/npm/inventory-app-api-client](https://github.com/metanull/inventory-app/pkgs/npm/inventory-app-api-client) |
+| GitHub Packages in inventory-app     | [https://github.com/metanull?tab=packages&repo_name=inventory-app](https://github.com/metanull?tab=packages&repo_name=inventory-app)                       |
 
 **Usage**
 
@@ -233,13 +239,13 @@ See [/docs/README.md](/development/documentation-site#building-the-site) for Jek
 
 **Script properties**
 
-| Property | Value |
-| --- | --- |
-| **Script** | `jekyll-build.ps1` |
+| Property    | Value                                                        |
+| ----------- | ------------------------------------------------------------ |
+| **Script**  | `jekyll-build.ps1`                                           |
 | **Invoker** | Invoked by the developer after **change** to `/docs/**/*.md` |
-| **Input** | `/docs` |
-| **Output** | `/docs/_site/**` |
-| Log | **N/A** - The script writes to the terminal |
+| **Input**   | `/docs`                                                      |
+| **Output**  | `/docs/_site/**`                                             |
+| Log         | **N/A** - The script writes to the terminal                  |
 
 **Usage**
 
@@ -255,6 +261,7 @@ See [/docs/README.md](/development/documentation-site#building-the-site) for Jek
 ```
 
 **Requirements**
+
 - WSL (Windows Subsystem for Linux) installed
 - Ruby installed in WSL (user-installed required)
 - Jekyll and bundler gems installed
@@ -267,19 +274,19 @@ See [/docs/README.md](/development/documentation-site#building-the-site) for Jek
 
 **Script properties**
 
-| Property | Value |
-| --- | --- |
-| **Script** | `jekyll-serve.ps1` |
-| **Invoker** | Invoked by the developer after **change** to `/docs/**/*.md` |
-| **Input** | `/docs` |
-| **Output 1** | `/docs/_site/**` |
-| **Output 2** | [http://localhost:4000](http://localhost:4000) |
-| Log | **N/A** - The script writes to the terminal |
+| Property     | Value                                                        |
+| ------------ | ------------------------------------------------------------ |
+| **Script**   | `jekyll-serve.ps1`                                           |
+| **Invoker**  | Invoked by the developer after **change** to `/docs/**/*.md` |
+| **Input**    | `/docs`                                                      |
+| **Output 1** | `/docs/_site/**`                                             |
+| **Output 2** | [http://localhost:4000](http://localhost:4000)               |
+| Log          | **N/A** - The script writes to the terminal                  |
 
 **Links**
 
-| Reference | Url |
-| --- | --- |
+| Reference                          | Url                                            |
+| ---------------------------------- | ---------------------------------------------- |
 | Local static documentation website | [http://localhost:4000](http://localhost:4000) |
 
 **Usage**
@@ -299,6 +306,7 @@ See [/docs/README.md](/development/documentation-site#building-the-site) for Jek
 ```
 
 **Requirements**
+
 - WSL (Windows Subsystem for Linux) installed
 - Ruby installed in WSL (user-installed required)
 - Jekyll and bundler gems installed
@@ -309,13 +317,13 @@ Auto-generates markdown documentation for Laravel models (schemas, relations, fi
 
 **Script properties**
 
-| Property | Value |
-| --- | --- |
-| **Script** | `generate-model-documentation.ps1` |
+| Property    | Value                                                       |
+| ----------- | ----------------------------------------------------------- |
+| **Script**  | `generate-model-documentation.ps1`                          |
 | **Invoker** | Invoked by the developer after **change** to the **models** |
-| **Input** | `/app` |
-| **Output** | `/docs/_model/**` |
-| Log | **N/A** - The script writes to the terminal |
+| **Input**   | `/app`                                                      |
+| **Output**  | `/docs/_model/**`                                           |
+| Log         | **N/A** - The script writes to the terminal                 |
 
 **Usage**
 
@@ -335,18 +343,18 @@ Downloads and stores a set of images from the internet to avoid repeating this t
 
 **Script properties**
 
-| Property | Value |
-| --- | --- |
-| Script | `download-seed-images.ps1` |
-| Invoker | Invoked by the developer **once** |
-| Input | [https://picsum.photos](https://picsum.photos) |
-| Output | `/database/seeders/data/images` |
-| Log | **N/A** - The script writes to the terminal |
+| Property | Value                                          |
+| -------- | ---------------------------------------------- |
+| Script   | `download-seed-images.ps1`                     |
+| Invoker  | Invoked by the developer **once**              |
+| Input    | [https://picsum.photos](https://picsum.photos) |
+| Output   | `/database/seeders/data/images`                |
+| Log      | **N/A** - The script writes to the terminal    |
 
 **Links**
 
-| Reference | Url |
-| --- | --- |
+| Reference                                 | Url                                            |
+| ----------------------------------------- | ---------------------------------------------- |
 | Lorem Picsum, The Lorem Ipsum for photos. | [https://picsum.photos](https://picsum.photos) |
 
 **Usage**
@@ -362,13 +370,13 @@ It uses an array of environment files to run the tests in multiple environments.
 
 **Script properties**
 
-| Property | Value |
-| --- | --- |
-| Script | `test-migrations.ps1` |
-| Invoker | Invoked by the developer after a **change** to the **migrations** |
-| Input | `/database/migrations` |
-| Output | **N/A** - The script writes to the terminal |
-| Log | **N/A** - The script writes to the terminal |
+| Property | Value                                                             |
+| -------- | ----------------------------------------------------------------- |
+| Script   | `test-migrations.ps1`                                             |
+| Invoker  | Invoked by the developer after a **change** to the **migrations** |
+| Input    | `/database/migrations`                                            |
+| Output   | **N/A** - The script writes to the terminal                       |
+| Log      | **N/A** - The script writes to the terminal                       |
 
 **Usage**
 
@@ -382,18 +390,18 @@ Validates all YAML workflow files.
 
 **Script properties**
 
-| Property | Value |
-| --- | --- |
-| Script | `validate-workflows.cjs` |
-| Invoker | Invoked by the developer after a **change** to workflow's **`*.yml`** files using `node ./scripts/validate-workflows.cjs`. See [/.github/workflows/README.md](/development/workflows) |
-| Input | `/.github/workflows` |
-| Output | **N/A** - The script writes to the terminal |
-| Log | **N/A** - The script writes to the terminal |
+| Property | Value                                                                                                                                                                                 |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Script   | `validate-workflows.cjs`                                                                                                                                                              |
+| Invoker  | Invoked by the developer after a **change** to workflow's **`*.yml`** files using `node ./scripts/validate-workflows.cjs`. See [/.github/workflows/README.md](/development/workflows) |
+| Input    | `/.github/workflows`                                                                                                                                                                  |
+| Output   | **N/A** - The script writes to the terminal                                                                                                                                           |
+| Log      | **N/A** - The script writes to the terminal                                                                                                                                           |
 
 **Links**
 
-| Reference | Url |
-| --- | --- |
+| Reference                                             | Url                                                                                                    |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | npx, Run a command from a local or remote npm package | [https://docs.npmjs.com/cli/v9/commands/npx?v=true](https://docs.npmjs.com/cli/v9/commands/npx?v=true) |
 
 **Usage**

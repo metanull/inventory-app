@@ -49,7 +49,6 @@ This documentation website is built with Jekyll and automatically generated from
 
 > Read more about it in [Development / Documentation Site]({{ '/development/documentation-site/' | relative_url }})
 
-
 ## Documentation Sections
 
 ### [Blade/Livewire Frontend]({{ '/frontend-blade/' | relative_url }})
@@ -95,7 +94,7 @@ Sample Vue.js application demonstrating API integration.
 
 - [GitHub Repository](https://github.com/metanull/inventory-app) - Source code and issue tracking
 - [GitHub Issues](https://github.com/metanull/inventory-app/issues) - Bug reports and feature requests
-- [GitHub Page](https://metanull.github.io/inventory-app/) - *This* documentation website
+- [GitHub Page](https://metanull.github.io/inventory-app/) - _This_ documentation website
 - [Development Archive]({{ '/development/archive' | relative_url }}) - Complete commit history
 
 ## License

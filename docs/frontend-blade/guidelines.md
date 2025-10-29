@@ -20,6 +20,7 @@ This guide documents coding standards and best practices for Blade templates and
 ### Template Structure
 
 {% raw %}
+
 ```blade
 {{-- Comments --}}
 @extends('layouts.app')
@@ -30,6 +31,7 @@ This guide documents coding standards and best practices for Blade templates and
     </div>
 @endsection
 ```
+
 {% endraw %}
 
 ### Avoid Shorthand Notation
@@ -37,6 +39,7 @@ This guide documents coding standards and best practices for Blade templates and
 **Critical**: Do not use shorthand component notation as it can cause parsing issues.
 
 {% raw %}
+
 ```blade
 <!-- Good: Full syntax -->
 <x-slot name="header">Header Content</x-slot>
@@ -44,6 +47,7 @@ This guide documents coding standards and best practices for Blade templates and
 <!-- Bad: Shorthand -->
 <x-slot:header>Header Content</x-slot:header>
 ```
+
 {% endraw %}
 
 ### Variable Usage in Components
@@ -51,6 +55,7 @@ This guide documents coding standards and best practices for Blade templates and
 Use variables instead of string interpolation to avoid nesting issues:
 
 {% raw %}
+
 ```blade
 <!-- Good: Variable -->
 @php($routePrefix = 'items')
@@ -59,6 +64,7 @@ Use variables instead of string interpolation to avoid nesting issues:
 <!-- Bad: String interpolation in component -->
 <x-component route="{{ $entity }}.create" />
 ```
+
 {% endraw %}
 
 ### Blade Directives
@@ -66,6 +72,7 @@ Use variables instead of string interpolation to avoid nesting issues:
 #### Control Structures
 
 {% raw %}
+
 ```blade
 @if($condition)
     {{-- Content --}}
@@ -85,11 +92,13 @@ Use variables instead of string interpolation to avoid nesting issues:
     <p>No items found.</p>
 @endforelse
 ```
+
 {% endraw %}
 
 #### Authentication
 
 {% raw %}
+
 ```blade
 @auth
     {{-- User is authenticated --}}
@@ -99,11 +108,13 @@ Use variables instead of string interpolation to avoid nesting issues:
     {{-- User is not authenticated --}}
 @endguest
 ```
+
 {% endraw %}
 
 #### Authorization
 
 {% raw %}
+
 ```blade
 @can(\App\Enums\Permission::VIEW_DATA->value)
     <a href="{{ route('items.index') }}">View Items</a>
@@ -113,6 +124,7 @@ Use variables instead of string interpolation to avoid nesting issues:
     <p>You cannot delete items.</p>
 @endcannot
 ```
+
 {% endraw %}
 
 ### PHP in Blade
@@ -120,21 +132,24 @@ Use variables instead of string interpolation to avoid nesting issues:
 Keep PHP blocks at the top of sections:
 
 {% raw %}
+
 ```blade
 @section('content')
     @php($c = $entityColor('items'))
     @php($title = 'Items List')
-    
+
     <div class="{{ $c['bg'] }}">
         <h1>{{ $title }}</h1>
     </div>
 @endsection
 ```
+
 {% endraw %}
 
 **Don't nest `@php` blocks** inside control structures:
 
 {% raw %}
+
 ```blade
 <!-- Bad: PHP block inside @if -->
 @if($condition)
@@ -148,6 +163,7 @@ Keep PHP blocks at the top of sections:
     {{ $variable }}
 @endif
 ```
+
 {% endraw %}
 
 ## Component Development
@@ -192,6 +208,7 @@ Use prop validation for required props:
 Use named slots for complex components:
 
 {% raw %}
+
 ```blade
 <x-modal>
     <x-slot name="title">Modal Title</x-slot>
@@ -199,6 +216,7 @@ Use named slots for complex components:
     <x-slot name="footer">Modal Footer</x-slot>
 </x-modal>
 ```
+
 {% endraw %}
 
 ## Livewire Component Conventions
@@ -267,6 +285,7 @@ public function updatedSearch()
 Always use the entity color helper:
 
 {% raw %}
+
 ```blade
 @php($c = $entityColor('items'))
 
@@ -274,6 +293,7 @@ Always use the entity color helper:
 <a href="#" class="{{ $c['accentLink'] }}">Link</a>
 <button class="{{ $c['button'] }}">Button</button>
 ```
+
 {% endraw %}
 
 ### Available Color Properties
@@ -319,11 +339,13 @@ Always use the entity color helper:
 Display validation errors automatically with form components:
 
 {% raw %}
+
 ```blade
 <x-form.field label="Name" name="internal_name">
     <x-form.input name="internal_name" :value="old('internal_name')" />
 </x-form.field>
 ```
+
 {% endraw %}
 
 ### Flash Messages
@@ -331,11 +353,13 @@ Display validation errors automatically with form components:
 Show success/error messages:
 
 {% raw %}
+
 ```blade
 @if(session('status'))
     <x-ui.alert :message="session('status')" type="success" entity="items" />
 @endif
 ```
+
 {% endraw %}
 
 ## Performance
@@ -377,11 +401,13 @@ protected $fillable = ['internal_name', 'type'];
 Always include CSRF token in forms:
 
 {% raw %}
+
 ```blade
 <form method="POST">
     @csrf
 </form>
 ```
+
 {% endraw %}
 
 ### Authorization
@@ -389,11 +415,13 @@ Always include CSRF token in forms:
 Check permissions in views:
 
 {% raw %}
+
 ```blade
 @can(\App\Enums\Permission::CREATE_DATA->value)
     <a href="{{ route('items.create') }}">Add Item</a>
 @endcan
 ```
+
 {% endraw %}
 
 ## Best Practices

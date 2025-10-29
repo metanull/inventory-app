@@ -29,19 +29,19 @@ class GlossaryController extends Controller
     {
         [$glossaries, $search] = $this->searchAndPaginate(Glossary::query(), $request);
 
-        return view('glossary.index', compact('glossaries', 'search'));
+        return view('glossaries.index', compact('glossaries', 'search'));
     }
 
     public function show(Glossary $glossary): View
     {
         $glossary->load(['translations.language', 'spellings.language', 'synonyms']);
 
-        return view('glossary.show', compact('glossary'));
+        return view('glossaries.show', compact('glossary'));
     }
 
     public function create(): View
     {
-        return view('glossary.create');
+        return view('glossaries.create');
     }
 
     public function store(StoreGlossaryRequest $request): RedirectResponse
@@ -55,7 +55,7 @@ class GlossaryController extends Controller
     {
         $glossary->load(['translations.language', 'spellings.language', 'synonyms']);
 
-        return view('glossary.edit', compact('glossary'));
+        return view('glossaries.edit', compact('glossary'));
     }
 
     public function update(UpdateGlossaryRequest $request, Glossary $glossary): RedirectResponse

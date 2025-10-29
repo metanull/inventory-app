@@ -23,28 +23,34 @@ Heroicons provides two styles:
 ### Outline Icons
 
 {% raw %}
+
 ```blade
 <x-heroicon-o-home class="w-6 h-6" />
 <x-heroicon-o-user class="w-5 h-5 text-gray-500" />
 <x-heroicon-o-cog class="w-4 h-4 mr-2" />
 ```
+
 {% endraw %}
 
 ### Solid Icons
 
 {% raw %}
+
 ```blade
 <x-heroicon-s-check-circle class="w-5 h-5 text-green-500" />
 <x-heroicon-s-x-circle class="w-5 h-5 text-red-500" />
 ```
+
 {% endraw %}
 
 ### Mini Icons
 
 {% raw %}
+
 ```blade
 <x-heroicon-m-star class="w-5 h-5 text-yellow-500" />
 ```
+
 {% endraw %}
 
 ## Common Icons
@@ -52,6 +58,7 @@ Heroicons provides two styles:
 ### Navigation
 
 {% raw %}
+
 ```blade
 <x-heroicon-o-home class="w-5 h-5" />              <!-- Home -->
 <x-heroicon-o-squares-2x2 class="w-5 h-5" />       <!-- Grid/Dashboard -->
@@ -60,11 +67,13 @@ Heroicons provides two styles:
 <x-heroicon-o-photo class="w-5 h-5" />             <!-- Images -->
 <x-heroicon-o-cog-6-tooth class="w-5 h-5" />       <!-- Settings -->
 ```
+
 {% endraw %}
 
 ### Actions
 
 {% raw %}
+
 ```blade
 <x-heroicon-o-plus class="w-5 h-5" />              <!-- Add -->
 <x-heroicon-o-pencil-square class="w-4 h-4" />     <!-- Edit -->
@@ -73,27 +82,32 @@ Heroicons provides two styles:
 <x-heroicon-o-arrow-down-tray class="w-5 h-5" />   <!-- Download -->
 <x-heroicon-o-arrow-up-tray class="w-5 h-5" />     <!-- Upload -->
 ```
+
 {% endraw %}
 
 ### Status/Feedback
 
 {% raw %}
+
 ```blade
 <x-heroicon-o-check-circle class="w-5 h-5 text-green-500" />     <!-- Success -->
 <x-heroicon-o-x-circle class="w-5 h-5 text-red-500" />           <!-- Error -->
 <x-heroicon-o-exclamation-triangle class="w-5 h-5 text-yellow-500" />  <!-- Warning -->
 <x-heroicon-o-information-circle class="w-5 h-5 text-blue-500" />  <!-- Info -->
 ```
+
 {% endraw %}
 
 ### Sorting
 
 {% raw %}
+
 ```blade
 <x-heroicon-o-chevron-up class="w-4 h-4" />        <!-- Sort ascending -->
 <x-heroicon-o-chevron-down class="w-4 h-4" />      <!-- Sort descending -->
 <x-heroicon-o-arrows-up-down class="w-4 h-4" />    <!-- Sortable -->
 ```
+
 {% endraw %}
 
 ## Icon Sizing
@@ -113,6 +127,7 @@ class="w-8 h-8"   <!-- 32px - Extra Large -->
 Each entity has a specific icon:
 
 {% raw %}
+
 ```blade
 <!-- Items -->
 <x-heroicon-o-archive-box class="w-5 h-5" />
@@ -135,6 +150,7 @@ Each entity has a specific icon:
 <!-- Glossary -->
 <x-heroicon-o-book-open class="w-5 h-5" />
 ```
+
 {% endraw %}
 
 ## Icon with Text
@@ -142,23 +158,27 @@ Each entity has a specific icon:
 ### Leading Icon
 
 {% raw %}
+
 ```blade
 <a href="#" class="flex items-center gap-2">
     <x-heroicon-o-plus class="w-5 h-5" />
     <span>Add Item</span>
 </a>
 ```
+
 {% endraw %}
 
 ### Trailing Icon
 
 {% raw %}
+
 ```blade
 <button class="flex items-center gap-2">
     <span>Continue</span>
     <x-heroicon-o-arrow-right class="w-5 h-5" />
 </button>
 ```
+
 {% endraw %}
 
 ## Entity Header Icons
@@ -166,11 +186,13 @@ Each entity has a specific icon:
 The `<x-entity.header>` component automatically includes icons:
 
 {% raw %}
+
 ```blade
 <x-entity.header entity="items" title="Items">
     <!-- Icon is automatically rendered -->
 </x-entity.header>
 ```
+
 {% endraw %}
 
 ## Best Practices
