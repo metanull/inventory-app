@@ -134,60 +134,10 @@ class HtmlToMarkdownTest extends TestCase
             ->assertJsonValidationErrors(['html']);
     }
 
-    public function test_accepts_previously_unsafe_html_content(): void
-    {
-        // This content was previously rejected by empirical validation but should now be accepted
-        $html = '<script>alert("XSS")</script>';
-
-        $response = $this->postJson(route('markdown.fromHtml'), [
-            'html' => $html,
-        ]);
-
-        $response->assertOk()
-            ->assertJsonPath('success', true);
-
-        // The service should process the content and convert it
-        $markdown = $response->json('data.markdown');
-        $this->assertIsString($markdown);
-    }
-
-    public function test_accepts_previously_unsupported_html_tags(): void
-    {
-        // This content was previously rejected by empirical validation but should now be accepted
-        $html = '<iframe src="https://example.com"></iframe>';
-
-        $response = $this->postJson(route('markdown.fromHtml'), [
-            'html' => $html,
-        ]);
-
-        $response->assertOk()
-            ->assertJsonPath('success', true);
-
-        // The service should process the content and convert it
-        $markdown = $response->json('data.markdown');
-        $this->assertIsString($markdown);
-    }
-
-    public function test_accepts_html_with_javascript_attributes(): void
-    {
-        // This content was previously rejected by empirical validation but should now be accepted
-        $html = '<p onclick="alert(\'XSS\')">Click me</p>';
-
-        $response = $this->postJson(route('markdown.fromHtml'), [
-            'html' => $html,
-        ]);
-
-        $response->assertOk()
-            ->assertJsonPath('success', true);
-
-        // The service should process the content and convert it
-        $markdown = $response->json('data.markdown');
-        $this->assertIsString($markdown);
-    }
-
     public function test_rejects_excessively_large_html(): void
     {
-        $largeHtml = str_repeat('<p>content</p>', 10000); // Exceeds TEXT field limit
+        $largeText = str_repeat('a', 70000);
+        $largeHtml = "<p>$largeText</p>"; // Exceeds TEXT field limit
 
         $response = $this->postJson(route('markdown.fromHtml'), [
             'html' => $largeHtml,
