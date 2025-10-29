@@ -51,7 +51,7 @@
             @if(session('success') || session('error') || session('warning') || session('info'))
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
                     @if(session('success'))
-                        <x-ui.notification type="success" :message="session('success')" />
+                        <x-ui.notification type="success" :message="session('success')" :autoClose="5000" />
                     @endif
                     
                     @if(session('error'))
@@ -59,11 +59,11 @@
                     @endif
                     
                     @if(session('warning'))
-                        <x-ui.notification type="warning" :message="session('warning')" :autoClose="3000" />
+                        <x-ui.notification type="warning" :message="session('warning')" :autoClose="5000" />
                     @endif
                     
                     @if(session('info'))
-                        <x-ui.notification type="info" :message="session('info')" :autoClose="3000" />
+                        <x-ui.notification type="info" :message="session('info')" :autoClose="5000" />
                     @endif
                 </div>
             @endif

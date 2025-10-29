@@ -25,12 +25,15 @@ The `<x-app-nav>` component is the main application navigation bar.
 ### Structure
 
 {% raw %}
+
 ```blade
 <x-app-nav />
 ```
+
 {% endraw %}
 
 The component includes:
+
 - Logo and home link
 - Primary navigation (Items, Partners, Collections)
 - Reference Data dropdown (Countries, Languages, Contexts, Glossary, Tags)
@@ -44,19 +47,21 @@ The `<x-nav-link>` component creates navigation links with active states.
 
 ### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `href` | string | Yes | Link URL |
-| `active` | boolean | No | Whether link is active |
+| Prop     | Type    | Required | Description            |
+| -------- | ------- | -------- | ---------------------- |
+| `href`   | string  | Yes      | Link URL               |
+| `active` | boolean | No       | Whether link is active |
 
 ### Usage
 
 {% raw %}
+
 ```blade
 <x-nav-link href="{{ route('items.index') }}" :active="request()->routeIs('items.*')">
     Items
 </x-nav-link>
 ```
+
 {% endraw %}
 
 ## Responsive Nav Link
@@ -64,11 +69,13 @@ The `<x-nav-link>` component creates navigation links with active states.
 For mobile navigation menus:
 
 {% raw %}
+
 ```blade
 <x-responsive-nav-link href="{{ route('items.index') }}" :active="request()->routeIs('items.*')">
     Items
 </x-responsive-nav-link>
 ```
+
 {% endraw %}
 
 ## Dropdown Navigation
@@ -76,17 +83,18 @@ For mobile navigation menus:
 Dropdown menus use Alpine.js for interactivity:
 
 {% raw %}
+
 ```blade
 <div x-data="{ openMenu: null }">
     <!-- Trigger -->
     <button @click="openMenu = openMenu === 'reference' ? null : 'reference'">
         Reference Data
     </button>
-    
+
     <!-- Dropdown Menu -->
-    <div x-show="openMenu === 'reference'" 
-         x-transition 
-         x-cloak 
+    <div x-show="openMenu === 'reference'"
+         x-transition
+         x-cloak
          @click.outside="openMenu = null"
          class="absolute mt-2 w-56 rounded-md bg-white shadow-lg">
         <a href="{{ route('countries.index') }}">Countries</a>
@@ -94,6 +102,7 @@ Dropdown menus use Alpine.js for interactivity:
     </div>
 </div>
 ```
+
 {% endraw %}
 
 ## Dropdown Link
@@ -101,11 +110,13 @@ Dropdown menus use Alpine.js for interactivity:
 The `<x-dropdown-link>` component creates dropdown menu items:
 
 {% raw %}
+
 ```blade
 <x-dropdown-link href="{{ route('profile.show') }}">
     Profile
 </x-dropdown-link>
 ```
+
 {% endraw %}
 
 ## Breadcrumb Navigation
@@ -113,6 +124,7 @@ The `<x-dropdown-link>` component creates dropdown menu items:
 Breadcrumbs are rendered in the default layout:
 
 {% raw %}
+
 ```blade
 <nav class="text-sm text-gray-600 mb-6">
     <a href="{{ '/api/' | relative_url }}">API Documentation</a>
@@ -121,6 +133,7 @@ Breadcrumbs are rendered in the default layout:
     <!-- ... more breadcrumb links -->
 </nav>
 ```
+
 {% endraw %}
 
 ## Related Documentation

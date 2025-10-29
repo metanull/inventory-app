@@ -24,21 +24,22 @@ Route::resource('items', ItemController::class)
 
 This creates the following routes:
 
-| Verb | URI | Action | Route Name |
-|------|-----|--------|------------|
-| GET | `/items` | index | items.index |
-| GET | `/items/create` | create | items.create |
-| POST | `/items` | store | items.store |
-| GET | `/items/{item}` | show | items.show |
-| GET | `/items/{item}/edit` | edit | items.edit |
-| PUT/PATCH | `/items/{item}` | update | items.update |
-| DELETE | `/items/{item}` | destroy | items.destroy |
+| Verb      | URI                  | Action  | Route Name    |
+| --------- | -------------------- | ------- | ------------- |
+| GET       | `/items`             | index   | items.index   |
+| GET       | `/items/create`      | create  | items.create  |
+| POST      | `/items`             | store   | items.store   |
+| GET       | `/items/{item}`      | show    | items.show    |
+| GET       | `/items/{item}/edit` | edit    | items.edit    |
+| PUT/PATCH | `/items/{item}`      | update  | items.update  |
+| DELETE    | `/items/{item}`      | destroy | items.destroy |
 
 ## Route Naming Conventions
 
 Always use named routes for consistency:
 
 {% raw %}
+
 ```blade
 <!-- Good: Named route -->
 <a href="{{ route('items.index') }}">Items</a>
@@ -47,6 +48,7 @@ Always use named routes for consistency:
 <!-- Bad: Hard-coded URL -->
 <a href="/items">Items</a>
 ```
+
 {% endraw %}
 
 ## Route Prefixes
@@ -58,7 +60,7 @@ Route::prefix('web')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/', function () {
         return view('home');
     })->name('home');
-    
+
     Route::resource('items', ItemController::class);
     Route::resource('partners', PartnerController::class);
     // ...
@@ -116,26 +118,32 @@ Route::delete('items/{item}/images/{image}', [ItemImageController::class, 'destr
 ### Required Parameters
 
 {% raw %}
+
 ```blade
 <a href="{{ route('items.show', $item) }}">View</a>
 <a href="{{ route('items.edit', $item->id) }}">Edit</a>
 ```
+
 {% endraw %}
 
 ### Multiple Parameters
 
 {% raw %}
+
 ```blade
 <a href="{{ route('items.tags.detach', [$item, $tag]) }}">Remove Tag</a>
 ```
+
 {% endraw %}
 
 ### Query Parameters
 
 {% raw %}
+
 ```blade
 <a href="{{ route('items.index', ['search' => 'query', 'page' => 2]) }}">Search</a>
 ```
+
 {% endraw %}
 
 ## Redirects
@@ -146,7 +154,7 @@ After form submissions, redirect with flash messages:
 public function store(StoreItemRequest $request)
 {
     $item = Item::create($request->validated());
-    
+
     return redirect()
         ->route('items.show', $item)
         ->with('status', 'Item created successfully.');
@@ -155,7 +163,7 @@ public function store(StoreItemRequest $request)
 public function update(UpdateItemRequest $request, Item $item)
 {
     $item->update($request->validated());
-    
+
     return redirect()
         ->route('items.show', $item)
         ->with('status', 'Item updated successfully.');
@@ -164,7 +172,7 @@ public function update(UpdateItemRequest $request, Item $item)
 public function destroy(Item $item)
 {
     $item->delete();
-    
+
     return redirect()
         ->route('items.index')
         ->with('status', 'Item deleted successfully.');

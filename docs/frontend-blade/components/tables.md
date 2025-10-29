@@ -25,6 +25,7 @@ resources/views/components/table/
 ## Basic Table Structure
 
 {% raw %}
+
 ```blade
 <div class="bg-white shadow sm:rounded-lg overflow-hidden">
     <div class="overflow-x-auto">
@@ -66,13 +67,14 @@ resources/views/components/table/
     </div>
 
     <!-- Pagination -->
-    <x-layout.pagination 
-        :paginator="$items" 
+    <x-layout.pagination
+        :paginator="$items"
         entity="items"
         param-page="page"
     />
 </div>
 ```
+
 {% endraw %}
 
 ## Row Actions Component
@@ -81,20 +83,21 @@ The `<x-table.row-actions>` component provides View, Edit, and Delete buttons wi
 
 ### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `view` | string | No | URL for view action |
-| `edit` | string | No | URL for edit action |
-| `delete` | string | No | URL for delete action (form submit) |
-| `deleteConfirm` | string | No | Confirmation message (default: "Delete this record?") |
-| `deleteLabel` | string | No | Delete button label (default: "Delete") |
-| `entity` | string | No | Entity key for color theming |
-| `recordId` | string/int | Yes | Unique identifier for the record |
-| `recordName` | string | Yes | Display name for the record |
+| Prop            | Type       | Required | Description                                           |
+| --------------- | ---------- | -------- | ----------------------------------------------------- |
+| `view`          | string     | No       | URL for view action                                   |
+| `edit`          | string     | No       | URL for edit action                                   |
+| `delete`        | string     | No       | URL for delete action (form submit)                   |
+| `deleteConfirm` | string     | No       | Confirmation message (default: "Delete this record?") |
+| `deleteLabel`   | string     | No       | Delete button label (default: "Delete")               |
+| `entity`        | string     | No       | Entity key for color theming                          |
+| `recordId`      | string/int | Yes      | Unique identifier for the record                      |
+| `recordName`    | string     | Yes      | Display name for the record                           |
 
 ### Usage
 
 {% raw %}
+
 ```blade
 <x-table.row-actions
     :view="route('items.show', $item)"
@@ -106,11 +109,13 @@ The `<x-table.row-actions>` component provides View, Edit, and Delete buttons wi
     :record-name="$item->internal_name"
 />
 ```
+
 {% endraw %}
 
 ### Permissions
 
 Each action respects the following permissions:
+
 - **View**: `Permission::VIEW_DATA`
 - **Edit**: `Permission::UPDATE_DATA`
 - **Delete**: `Permission::DELETE_DATA`
@@ -122,10 +127,12 @@ The `<x-table.delete-modal>` component provides a confirmation dialog for table 
 ### Usage
 
 {% raw %}
+
 ```blade
 <!-- At the end of your table component -->
 <x-table.delete-modal />
 ```
+
 {% endraw %}
 
 ### JavaScript Integration
@@ -134,22 +141,22 @@ The delete modal is triggered via JavaScript:
 
 ```javascript
 function openTableDeleteModal(id, entity, name, action) {
-    const modalId = 'table-delete-modal';
-    currentTableDeleteModal = modalId;
-    currentTableDeleteAction = action;
-    
-    // Update modal content
-    const modal = document.getElementById(modalId);
-    const title = modal.querySelector('h3');
-    const message = modal.querySelector('p');
-    const form = document.getElementById(modalId + '-form');
-    
-    title.textContent = `Delete ${entity.replace(/[-_]/g, ' ')}`;
-    message.textContent = `Are you sure you want to delete "${name}"? This action cannot be undone.`;
-    form.action = action;
-    
-    // Show modal
-    modal.classList.remove('hidden');
+  const modalId = "table-delete-modal";
+  currentTableDeleteModal = modalId;
+  currentTableDeleteAction = action;
+
+  // Update modal content
+  const modal = document.getElementById(modalId);
+  const title = modal.querySelector("h3");
+  const message = modal.querySelector("p");
+  const form = document.getElementById(modalId + "-form");
+
+  title.textContent = `Delete ${entity.replace(/[-_]/g, " ")}`;
+  message.textContent = `Are you sure you want to delete "${name}"? This action cannot be undone.`;
+  form.action = action;
+
+  // Show modal
+  modal.classList.remove("hidden");
 }
 ```
 
@@ -159,17 +166,18 @@ For mobile devices, tables can use the `<x-table.mobile-card>` component for bet
 
 ### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `title` | string | Yes | Card title/heading |
-| `subtitle` | string | No | Optional subtitle |
-| `fields` | array | No | Array of field data ['label' => 'value'] |
-| `actions` | slot | No | Action buttons slot |
-| `entity` | string | No | Entity for color theming |
+| Prop       | Type   | Required | Description                              |
+| ---------- | ------ | -------- | ---------------------------------------- |
+| `title`    | string | Yes      | Card title/heading                       |
+| `subtitle` | string | No       | Optional subtitle                        |
+| `fields`   | array  | No       | Array of field data ['label' => 'value'] |
+| `actions`  | slot   | No       | Action buttons slot                      |
+| `entity`   | string | No       | Entity for color theming                 |
 
 ### Usage
 
 {% raw %}
+
 ```blade
 <x-table.mobile-card
     :title="$item->internal_name"
@@ -193,6 +201,7 @@ For mobile devices, tables can use the `<x-table.mobile-card>` component for bet
     </x-slot>
 </x-table.mobile-card>
 ```
+
 {% endraw %}
 
 ## Livewire Tables
@@ -214,6 +223,7 @@ livewire/tables/
 ### Sortable Columns
 
 {% raw %}
+
 ```blade
 <th wire:click="sortBy('internal_name')" class="cursor-pointer px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hover:bg-gray-100">
     Name
@@ -226,6 +236,7 @@ livewire/tables/
     @endif
 </th>
 ```
+
 {% endraw %}
 
 ### Livewire Table Component Example
@@ -306,9 +317,11 @@ Tables automatically adapt to mobile devices:
 ### Clickable Rows
 
 {% raw %}
+
 ```blade
 <tr onclick="window.location='{{ route('items.show', $item) }}'" class="cursor-pointer hover:bg-gray-50">
 ```
+
 {% endraw %}
 
 ## Best Practices

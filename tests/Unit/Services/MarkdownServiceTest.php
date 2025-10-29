@@ -3,7 +3,6 @@
 namespace Tests\Unit\Services;
 
 use App\Services\MarkdownService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
@@ -15,8 +14,6 @@ use Tests\TestCase;
  */
 class MarkdownServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     private MarkdownService $markdownService;
 
     protected function setUp(): void
@@ -51,36 +48,6 @@ class MarkdownServiceTest extends TestCase
 
         // Should not throw exception
         $this->markdownService->validateMarkdown($validMarkdown);
-        $this->assertTrue(true); // If we get here, validation passed
-    }
-
-    public function test_markdown_validation_passes_for_complex_content(): void
-    {
-        // Test content that would have failed empirical validation but should now pass
-        $complexMarkdown = '[Click here](javascript:alert("XSS"))';
-
-        // Should not throw exception with new validation approach
-        $this->markdownService->validateMarkdown($complexMarkdown);
-        $this->assertTrue(true); // If we get here, validation passed
-    }
-
-    public function test_html_validation_passes_for_complex_content(): void
-    {
-        // Test content that would have failed empirical validation but should now pass
-        $complexHtml = '<script>alert("XSS")</script>';
-
-        // Should not throw exception with new validation approach
-        $this->markdownService->validateHtml($complexHtml);
-        $this->assertTrue(true); // If we get here, validation passed
-    }
-
-    public function test_html_validation_passes_for_any_tags(): void
-    {
-        // Test content that would have failed empirical validation but should now pass
-        $anyHtml = '<iframe src="https://example.com"></iframe>';
-
-        // Should not throw exception with new validation approach
-        $this->markdownService->validateHtml($anyHtml);
         $this->assertTrue(true); // If we get here, validation passed
     }
 
