@@ -6,6 +6,38 @@ use Tests\TestCase;
 
 class ApiDocsAccessTest extends TestCase
 {
+    /*
+        This test ensures the route is publicly accessible
+        */
+    public function test_api_json_is_public(): void
+    {
+        $response = $this->get(route('api.documentation'));
+
+        $response->assertOk();
+    }
+
+    public function test_api_json_is_valid(): void
+    {
+        $response = $this->get(route('api.documentation'));
+
+        $response->assertHeader('Content-Type', 'application/json');
+
+        // Check that Cache-Control header contains both values (order may vary)
+        $cacheControl = $response->headers->get('Cache-Control');
+        $this->assertStringContainsString('public', $cacheControl);
+        $this->assertStringContainsString('max-age=3600', $cacheControl);
+
+        // Verify OpenAPI 3.1.0 structure
+        $responseData = $response->json();
+        $this->assertArrayHasKey('openapi', $responseData);
+        $this->assertEquals('3.1.0', $responseData['openapi']);
+        $this->assertArrayHasKey('info', $responseData);
+        $this->assertArrayHasKey('title', $responseData['info']);
+        $this->assertArrayHasKey('version', $responseData['info']);
+        $this->assertArrayHasKey('paths', $responseData);
+        $this->assertIsArray($responseData['paths']);
+    }
+
     /**
      * Test API docs are accessible in local environment
      */
@@ -17,13 +49,27 @@ class ApiDocsAccessTest extends TestCase
         });
 
         $response = $this->get(route('scramble.docs.ui'));
-        $response->assertStatus(200);
+        $response->assertOk();
 
         $response = $this->get(route('scramble.docs.document'));
-        $response->assertStatus(200);
+        $response->assertOk();
+    }
 
-        $response = $this->get(route('api.documentation'));
-        $response->assertStatus(200);
+    /**
+     * Test API docs are returning expected content-type
+     */
+    public function test_api_docs_return_expected_content_type(): void
+    {
+        // Ensure we're in local environment for this test
+        app()->detectEnvironment(function () {
+            return 'local';
+        });
+
+        $response = $this->get(route('scramble.docs.ui'));
+        $response->assertHeader('content-type', 'text/html; charset=UTF-8');
+
+        $response = $this->get(route('scramble.docs.document'));
+        $response->assertHeader('content-type', 'application/json');
     }
 
     /**
@@ -37,13 +83,10 @@ class ApiDocsAccessTest extends TestCase
         });
 
         $response = $this->get(route('scramble.docs.ui'));
-        $response->assertStatus(200);
+        $response->assertOk();
 
         $response = $this->get(route('scramble.docs.document'));
-        $response->assertStatus(200);
-
-        $response = $this->get(route('api.documentation'));
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 
     /**
@@ -65,10 +108,6 @@ class ApiDocsAccessTest extends TestCase
 
         $response = $this->get(route('scramble.docs.document'));
         $response->assertStatus(403);
-
-        // api.json route doesn't use the middleware, so it should still work
-        $response = $this->get(route('api.documentation'));
-        $response->assertStatus(200);
     }
 
     /**
@@ -86,13 +125,10 @@ class ApiDocsAccessTest extends TestCase
         putenv('API_DOCS_ENABLED=true');
 
         $response = $this->get(route('scramble.docs.ui'));
-        $response->assertStatus(200);
+        $response->assertOk();
 
         $response = $this->get(route('scramble.docs.document'));
-        $response->assertStatus(200);
-
-        $response = $this->get(route('api.documentation'));
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 
     /**
@@ -109,7 +145,7 @@ class ApiDocsAccessTest extends TestCase
         // Test with string "1"
         putenv('API_DOCS_ENABLED=1');
         $response = $this->get(route('scramble.docs.ui'));
-        $response->assertStatus(200);
+        $response->assertOk();
 
         // Test with string "0"
         putenv('API_DOCS_ENABLED=0');

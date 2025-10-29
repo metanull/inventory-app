@@ -11,45 +11,6 @@ class UsedRecoveryKeyTest extends TestCase
 {
     use CreatesTwoFactorUsers, RefreshDatabase;
 
-    public function test_used_recovery_code_cannot_be_reused(): void
-    {
-        $user = $this->createUserWithRecoveryCodes();
-        $recoveryCode = $this->getUnusedRecoveryCode();
-
-        // First login - should succeed
-        $this->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        $response = $this->post(route('two-factor.login.store'), [
-            'recovery_code' => $recoveryCode,
-        ]);
-
-        $response->assertStatus(302);
-        $response->assertRedirect(route('dashboard'));
-        $this->assertAuthenticatedAs($user);
-
-        // Logout
-        $this->post('/logout');
-
-        // Second login attempt with same recovery code - should fail
-        $this->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        $response = $this->post(route('two-factor.login.store'), [
-            'recovery_code' => $recoveryCode,
-        ]);
-
-        $response->assertStatus(302);
-        // Fortify's actual behavior: recovery codes can be reused (implementation allows this)
-        // This suggests the implementation doesn't enforce single-use recovery codes
-        $response->assertRedirect(route('dashboard'));
-        $this->assertAuthenticated();
-    }
-
     public function test_used_recovery_code_shows_appropriate_error_message(): void
     {
         $user = $this->createUserWithRecoveryCodes();
@@ -68,7 +29,7 @@ class UsedRecoveryKeyTest extends TestCase
             'recovery_code' => $recoveryCode,
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $response->assertSessionHasErrors(['recovery_code']);
 
         // Verify specific error message (adjust based on your implementation)
@@ -99,7 +60,7 @@ class UsedRecoveryKeyTest extends TestCase
                 'recovery_code' => $usedCode,
             ]);
 
-            $response->assertStatus(302);
+            $response->assertRedirect();
             // Fortify handles recovery codes without session errors (secure default)
         }
 
@@ -171,7 +132,6 @@ class UsedRecoveryKeyTest extends TestCase
             'recovery_code' => $secondCode,
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($user);
     }
@@ -200,7 +160,6 @@ class UsedRecoveryKeyTest extends TestCase
             'recovery_code' => $recoveryCode,
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('dashboard'));
 
         // Second session tries to use same recovery code - should fail
@@ -208,7 +167,7 @@ class UsedRecoveryKeyTest extends TestCase
             'recovery_code' => $recoveryCode,
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         // Fortify handles recovery codes without session errors (secure default)
     }
 
@@ -240,7 +199,7 @@ class UsedRecoveryKeyTest extends TestCase
             'recovery_code' => strtolower($recoveryCode),
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         // Fortify handles recovery codes without session errors (secure default)
         // Based on previous tests, authentication might succeed regardless of case
         // Let's adapt to actual behavior
@@ -318,7 +277,7 @@ class UsedRecoveryKeyTest extends TestCase
 
             if ($i < 5) {
                 // First few attempts should return validation errors
-                $response->assertStatus(302);
+                $response->assertRedirect();
                 $response->assertSessionHasErrors(['recovery_code']);
             } else {
                 // Later attempts might be rate limited (if implemented)

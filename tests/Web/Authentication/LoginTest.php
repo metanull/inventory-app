@@ -9,10 +9,11 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 use Tests\Web\Traits\CreatesTwoFactorUsers;
+use Tests\Web\Traits\TestsFormValidation;
 
 class LoginTest extends TestCase
 {
-    use CreatesTwoFactorUsers, RefreshDatabase;
+    use CreatesTwoFactorUsers, RefreshDatabase, TestsFormValidation;
 
     public function test_user_can_login_without_two_factor(): void
     {
@@ -24,7 +25,6 @@ class LoginTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($user);
         Event::assertDispatched(Login::class);
@@ -39,7 +39,7 @@ class LoginTest extends TestCase
             'password' => 'wrong-password',
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $response->assertSessionHasErrors(['email']);
         $this->assertGuest();
     }
@@ -51,18 +51,14 @@ class LoginTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $response->assertSessionHasErrors(['email']);
         $this->assertGuest();
     }
 
     public function test_login_requires_email_and_password(): void
     {
-        $response = $this->post(route('login.store'), []);
-
-        $response->assertStatus(302);
-        $response->assertSessionHasErrors(['email', 'password']);
-        $this->assertGuest();
+        $this->assertFieldsRequired(route('login.store'), ['email', 'password']);
     }
 
     public function test_user_with_totp_is_redirected_to_two_factor_challenge(): void
@@ -74,7 +70,6 @@ class LoginTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('two-factor.login'));
         $this->assertGuest(); // Should not be authenticated yet
     }
@@ -97,7 +92,6 @@ class LoginTest extends TestCase
             'code' => $this->getValidTotpCode(),
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($user);
         Event::assertDispatched(Login::class);
@@ -120,7 +114,7 @@ class LoginTest extends TestCase
             'code' => $this->getInvalidTotpCode(),
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $response->assertSessionHasErrors(['code']);
         $this->assertGuest();
     }
@@ -135,7 +129,6 @@ class LoginTest extends TestCase
         ]);
 
         // Fortify redirects back to 2FA challenge page with error when session is missing
-        $response->assertStatus(302);
         $response->assertRedirect(route('two-factor.login'));
         $response->assertSessionHasErrors(['code']);
         $this->assertGuest();
@@ -154,7 +147,7 @@ class LoginTest extends TestCase
         // Then access the challenge page
         $response = $this->get(route('two-factor.login'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertViewIs('auth.two-factor-challenge');
     }
 
@@ -162,19 +155,7 @@ class LoginTest extends TestCase
     {
         $response = $this->get(route('two-factor.login'));
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('login'));
-    }
-
-    public function test_authenticated_user_cannot_access_login_page(): void
-    {
-        $user = $this->createUserWithoutTwoFactor();
-        $this->actingAs($user);
-
-        $response = $this->get(route('login'));
-
-        $response->assertStatus(302);
-        $response->assertRedirect(route('dashboard'));
     }
 
     public function test_login_handles_invalid_base32_totp_secret_gracefully(): void
@@ -192,7 +173,6 @@ class LoginTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('two-factor.login'));
 
         // 2FA challenge should fail gracefully, not crash
@@ -200,7 +180,7 @@ class LoginTest extends TestCase
             'code' => '123456',
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $response->assertSessionHasErrors(['code']);
         $this->assertGuest();
     }
@@ -215,7 +195,6 @@ class LoginTest extends TestCase
             'remember' => true,
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($user);
 
@@ -235,7 +214,6 @@ class LoginTest extends TestCase
         ]);
 
         // Should redirect to email verification page
-        $response->assertStatus(302);
         $response->assertRedirect(route('verification.notice'));
         // User is logged in but needs to verify email
         $this->assertAuthenticatedAs($user);

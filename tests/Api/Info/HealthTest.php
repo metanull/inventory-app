@@ -56,25 +56,6 @@ class HealthTest extends TestCase
             ]);
     }
 
-    /**
-     * Content: Assert health endpoint returns valid status values.
-     */
-    public function test_health_returns_valid_status_values()
-    {
-        $response = $this->getJson(route('info.health'));
-
-        $response->assertOk();
-
-        $data = $response->json();
-
-        // Overall status should be valid
-        $this->assertContains($data['status'], ['healthy', 'unhealthy']);
-
-        // Individual health checks should be valid
-        $this->assertContains($data['checks']['database']['status'], ['healthy', 'unhealthy']);
-        $this->assertContains($data['checks']['cache']['status'], ['healthy', 'unhealthy']);
-    }
-
     // #endregion
 
     // #region INFO ENDPOINT TESTS

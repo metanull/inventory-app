@@ -6,20 +6,20 @@ use App\Jobs\SyncItemTranslationSpellings;
 use App\Jobs\SyncSpellingToItemTranslations;
 use App\Models\GlossarySpelling;
 use App\Models\ItemTranslation;
-use App\Models\Language;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Integration\Traits\TestsGlossaryRelationships;
 use Tests\TestCase;
 
 class ConcurrencyAndEdgeCasesTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, TestsGlossaryRelationships;
 
     /**
      * Test job uniqueness prevents duplicate processing.
      */
     public function test_job_uniqueness_prevents_duplicate_processing()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $itemTranslation = ItemTranslation::factory()->create([
             'language_id' => $language->id,
             'name' => 'Test Item',
@@ -38,7 +38,7 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
      */
     public function test_spelling_job_uniqueness()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'pottery',
@@ -56,7 +56,7 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
      */
     public function test_rapid_create_update_delete_sequence()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'pottery',
@@ -69,27 +69,24 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
         ]);
 
         // Sync the creation
-        $job = new SyncItemTranslationSpellings($translation->id);
-        $job->handle();
+        $this->syncItemTranslationSpellings($translation);
 
-        $this->assertTrue($translation->fresh()->spellings->contains($spelling));
+        $this->assertTranslationHasSpellings($translation, [$spelling]);
 
         // Update
         $translation->update(['name' => 'Modern Pottery']);
 
         // Sync the update
-        $job = new SyncItemTranslationSpellings($translation->id);
-        $job->handle();
+        $this->syncItemTranslationSpellings($translation);
 
-        $this->assertTrue($translation->fresh()->spellings->contains($spelling));
+        $this->assertTranslationHasSpellings($translation, [$spelling]);
 
         // Delete
+        $translationId = $translation->id;
         $translation->delete();
 
         // Verify all links are removed
-        $this->assertDatabaseMissing('item_translation_spelling', [
-            'item_translation_id' => $translation->id,
-        ]);
+        $this->assertAllSpellingLinksRemoved($translationId);
     }
 
     /**
@@ -97,7 +94,7 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
      */
     public function test_jobs_use_database_transactions_for_atomicity()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'artifact',
@@ -109,15 +106,14 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
         ]);
 
         // Run the job
-        $job = new SyncItemTranslationSpellings($translation->id);
-        $job->handle();
+        $this->syncItemTranslationSpellings($translation);
 
         // The link should be created atomically
-        $this->assertTrue($translation->fresh()->spellings->contains($spelling));
+        $this->assertTranslationHasSpellings($translation, [$spelling]);
 
         // Run again - should be idempotent
-        $job->handle();
-        $this->assertTrue($translation->fresh()->spellings->contains($spelling));
+        $this->syncItemTranslationSpellings($translation);
+        $this->assertTranslationHasSpellings($translation, [$spelling]);
         $this->assertCount(1, $translation->fresh()->spellings);
     }
 
@@ -126,27 +122,21 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
      */
     public function test_simultaneous_updates_to_different_item_translations()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'pottery',
         ]);
 
-        $translations = ItemTranslation::factory()->count(10)->create([
-            'language_id' => $language->id,
-            'name' => 'Ancient Pottery',
-        ]);
+        $translations = $this->createItemTranslationsWithPattern('pottery', $language, 10);
 
         // Process all translations simultaneously (simulating concurrent workers)
         foreach ($translations as $translation) {
-            $job = new SyncItemTranslationSpellings($translation->id);
-            $job->handle();
+            $this->syncItemTranslationSpellings($translation);
         }
 
         // All should be linked to the spelling
-        foreach ($translations as $translation) {
-            $this->assertTrue($translation->fresh()->spellings->contains($spelling));
-        }
+        $this->assertSpellingLinksIntact($spelling, $translations);
     }
 
     /**
@@ -154,13 +144,9 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
      */
     public function test_simultaneous_updates_to_different_spellings()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
 
-        $spellings = collect(['pottery', 'ceramic', 'artifact', 'ancient', 'tool'])
-            ->map(fn ($word) => GlossarySpelling::factory()->create([
-                'language_id' => $language->id,
-                'spelling' => $word,
-            ]));
+        $spellings = $this->createSpellings(['pottery', 'ceramic', 'artifact', 'ancient', 'tool'], $language);
 
         $translation = ItemTranslation::factory()->create([
             'language_id' => $language->id,
@@ -170,18 +156,12 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
 
         // Process all spellings simultaneously
         foreach ($spellings as $spelling) {
-            $job = new SyncSpellingToItemTranslations($spelling->id);
-            $job->handle();
+            $this->syncSpellingToItemTranslations($spelling);
         }
 
         // Should be linked to pottery, ceramic, artifact, ancient, tool
-        $linkedSpellings = $translation->fresh()->spellings->pluck('spelling')->toArray();
-        $this->assertContains('pottery', $linkedSpellings);
-        $this->assertContains('ceramic', $linkedSpellings);
-        $this->assertContains('artifact', $linkedSpellings);
-        $this->assertContains('ancient', $linkedSpellings);
-        $this->assertContains('tool', $linkedSpellings);
-        $this->assertCount(5, $linkedSpellings);
+        $this->assertTranslationHasSpellings($translation, $spellings);
+        $this->assertCount(5, $translation->fresh()->spellings);
     }
 
     /**
@@ -189,7 +169,7 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
      */
     public function test_empty_null_fields_dont_cause_errors()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'pottery',
@@ -204,8 +184,7 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
             'owner' => '',
         ]);
 
-        $job = new SyncItemTranslationSpellings($translation->id);
-        $job->handle();
+        $this->syncItemTranslationSpellings($translation);
 
         $this->assertCount(0, $translation->fresh()->spellings);
     }
@@ -215,7 +194,7 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
      */
     public function test_special_characters_in_spelling_dont_break_regex()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'pottery+ceramics',
@@ -226,10 +205,9 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
             'name' => 'Found pottery+ceramics vessel',
         ]);
 
-        $job = new SyncItemTranslationSpellings($translation->id);
-        $job->handle();
+        $this->syncItemTranslationSpellings($translation);
 
-        $this->assertTrue($translation->fresh()->spellings->contains($spelling));
+        $this->assertTranslationHasSpellings($translation, [$spelling]);
     }
 
     /**
@@ -237,7 +215,7 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
      */
     public function test_unicode_characters_are_handled_correctly()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'céramique',
@@ -248,10 +226,9 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
             'name' => 'Collection de céramique ancienne',
         ]);
 
-        $job = new SyncItemTranslationSpellings($translation->id);
-        $job->handle();
+        $this->syncItemTranslationSpellings($translation);
 
-        $this->assertTrue($translation->fresh()->spellings->contains($spelling));
+        $this->assertTranslationHasSpellings($translation, [$spelling]);
     }
 
     /**
@@ -259,7 +236,7 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
      */
     public function test_very_long_text_doesnt_cause_performance_issues()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'pottery',
@@ -275,13 +252,12 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
         ]);
 
         $start = microtime(true);
-        $job = new SyncItemTranslationSpellings($translation->id);
-        $job->handle();
+        $this->syncItemTranslationSpellings($translation);
         $duration = microtime(true) - $start;
 
         // Should complete in reasonable time (< 1 second)
         $this->assertLessThan(1.0, $duration);
-        $this->assertTrue($translation->fresh()->spellings->contains($spelling));
+        $this->assertTranslationHasSpellings($translation, [$spelling]);
     }
 
     /**
@@ -289,34 +265,18 @@ class ConcurrencyAndEdgeCasesTest extends TestCase
      */
     public function test_multiple_spellings_with_overlapping_text()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
 
-        $spelling1 = GlossarySpelling::factory()->create([
-            'language_id' => $language->id,
-            'spelling' => 'pot',
-        ]);
-        $spelling2 = GlossarySpelling::factory()->create([
-            'language_id' => $language->id,
-            'spelling' => 'pottery',
-        ]);
-        $spelling3 = GlossarySpelling::factory()->create([
-            'language_id' => $language->id,
-            'spelling' => 'pots',
-        ]);
+        $spellings = $this->createSpellings(['pot', 'pottery', 'pots'], $language);
 
         $translation = ItemTranslation::factory()->create([
             'language_id' => $language->id,
             'name' => 'Ancient pot and pottery with many pots',
         ]);
 
-        $job = new SyncItemTranslationSpellings($translation->id);
-        $job->handle();
-
-        $linkedSpellings = $translation->fresh()->spellings->pluck('spelling')->toArray();
+        $this->syncItemTranslationSpellings($translation);
 
         // All three should match (word boundary matching)
-        $this->assertContains('pot', $linkedSpellings);
-        $this->assertContains('pottery', $linkedSpellings);
-        $this->assertContains('pots', $linkedSpellings);
+        $this->assertTranslationHasSpellings($translation, $spellings);
     }
 }

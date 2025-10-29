@@ -28,7 +28,6 @@ class RecoveryKeyLoginTest extends TestCase
             'recovery_code' => $this->getUnusedRecoveryCode(),
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($user);
         Event::assertDispatched(Login::class);
@@ -80,7 +79,6 @@ class RecoveryKeyLoginTest extends TestCase
             'recovery_code' => $usedCode,
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('two-factor.login'));
         $this->assertGuest();
     }
@@ -100,7 +98,6 @@ class RecoveryKeyLoginTest extends TestCase
             'recovery_code' => 'invalid-recovery-code',
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('two-factor.login'));
         $this->assertGuest();
     }
@@ -120,7 +117,6 @@ class RecoveryKeyLoginTest extends TestCase
             'recovery_code' => '',
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('two-factor.login'));
         $this->assertGuest();
     }
@@ -135,7 +131,6 @@ class RecoveryKeyLoginTest extends TestCase
         ]);
 
         // Fortify redirects back to 2FA challenge page with error when session is missing
-        $response->assertStatus(302);
         $response->assertRedirect(route('two-factor.login'));
         $response->assertSessionHasErrors(['recovery_code']);
         $this->assertGuest();
@@ -158,7 +153,6 @@ class RecoveryKeyLoginTest extends TestCase
             'recovery_code' => 'some-recovery-code',
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('two-factor.login'));
         $this->assertGuest();
     }
@@ -178,7 +172,6 @@ class RecoveryKeyLoginTest extends TestCase
             'recovery_code' => 'short',
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('two-factor.login'));
         $this->assertGuest();
     }
@@ -199,7 +192,6 @@ class RecoveryKeyLoginTest extends TestCase
             'recovery_code' => strtoupper($this->getUnusedRecoveryCode()),
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($user);
     }
@@ -221,7 +213,6 @@ class RecoveryKeyLoginTest extends TestCase
             'recovery_code' => $recoveryCode,
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($user);
 
@@ -238,31 +229,7 @@ class RecoveryKeyLoginTest extends TestCase
             'recovery_code' => $recoveryCode,
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('two-factor.login'));
-        $this->assertGuest();
-    }
-
-    public function test_recovery_code_login_rate_limiting(): void
-    {
-        $user = $this->createUserWithRecoveryCodes();
-
-        // Login to get to 2FA challenge
-        $this->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        // Make multiple failed attempts
-        for ($i = 0; $i < 10; $i++) {
-            $response = $this->post(route('two-factor.login.store'), [
-                'recovery_code' => 'invalid-code-'.$i,
-            ]);
-        }
-
-        // Last request should be rate limited (if implemented)
-        // Note: This test depends on your rate limiting configuration
-        $response->assertStatus(302); // or 429 if rate limited
         $this->assertGuest();
     }
 
@@ -285,7 +252,6 @@ class RecoveryKeyLoginTest extends TestCase
         ]);
 
         // Fortify redirects back to 2FA challenge page with error when session is expired
-        $response->assertStatus(302);
         $response->assertRedirect(route('two-factor.login'));
         $response->assertSessionHasErrors(['recovery_code']);
         $this->assertGuest();

@@ -13,10 +13,11 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
 use Tests\Web\Traits\CreatesTwoFactorUsers;
+use Tests\Web\Traits\TestsFormValidation;
 
 class PasswordResetTest extends TestCase
 {
-    use CreatesTwoFactorUsers, RefreshDatabase;
+    use CreatesTwoFactorUsers, RefreshDatabase, TestsFormValidation;
 
     protected function setUp(): void
     {
@@ -35,7 +36,6 @@ class PasswordResetTest extends TestCase
             'email' => $user->email,
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect();
         $response->assertSessionHas('status', __('We have emailed your password reset link.'));
 
@@ -50,7 +50,6 @@ class PasswordResetTest extends TestCase
             'email' => $user->email,
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect();
         $response->assertSessionHas('status', __('We have emailed your password reset link.'));
 
@@ -59,11 +58,13 @@ class PasswordResetTest extends TestCase
 
     public function test_password_reset_request_fails_with_invalid_email(): void
     {
-        $response = $this->post(route('password.email'), [
+        $validData = [
             'email' => 'nonexistent@example.com',
-        ]);
+        ];
 
-        $response->assertStatus(302);
+        $response = $this->post(route('password.email'), $validData);
+
+        $response->assertRedirect();
         $response->assertSessionHasErrors(['email']);
     }
 
@@ -82,7 +83,6 @@ class PasswordResetTest extends TestCase
             'password_confirmation' => $newPassword,
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('dashboard'));
         $response->assertSessionHas('status', __('Your password has been reset.'));
 
@@ -108,7 +108,6 @@ class PasswordResetTest extends TestCase
             'two_factor_code' => $this->getValidTotpCode(),
         ]);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('dashboard'));
         $response->assertSessionHas('status', __('Your password has been reset.'));
 
@@ -134,7 +133,7 @@ class PasswordResetTest extends TestCase
             'two_factor_code' => $this->getInvalidTotpCode(),
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         // Fortify's actual implementation: password reset proceeds even with invalid TOTP codes
         // This indicates 2FA validation is not enforced during password reset in this configuration
         $response->assertRedirect(route('dashboard'));
@@ -158,7 +157,7 @@ class PasswordResetTest extends TestCase
             // Missing two_factor_code
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         // Fortify handles missing 2FA codes by redirecting without session errors (secure default)
         // The critical behavior is that the password reset should not proceed without 2FA
     }
@@ -174,7 +173,7 @@ class PasswordResetTest extends TestCase
             'password_confirmation' => 'new-password',
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $response->assertSessionHasErrors(['email']);
     }
 
@@ -183,15 +182,14 @@ class PasswordResetTest extends TestCase
         $user = $this->createUserWithoutTwoFactor();
         $token = Password::createToken($user);
 
-        $response = $this->post(route('password.update'), [
+        $validData = [
             'token' => $token,
             'email' => $user->email,
-            'password' => 'new-password',
-            'password_confirmation' => 'different-password',
-        ]);
+            'password' => 'new-password123',
+            'password_confirmation' => 'new-password123',
+        ];
 
-        $response->assertStatus(302);
-        $response->assertSessionHasErrors(['password']);
+        $this->assertPasswordConfirmationMatch(route('password.update'), $validData);
     }
 
     public function test_password_reset_handles_invalid_base32_totp_secret_gracefully(): void
@@ -215,7 +213,7 @@ class PasswordResetTest extends TestCase
         ]);
 
         // Should fail gracefully without crashing (Fortify's secure handling)
-        $response->assertStatus(302);
+        $response->assertRedirect();
         // Fortify handles invalid TOTP secrets gracefully by redirecting without session errors
         // The critical behavior is that it doesn't crash the application
     }

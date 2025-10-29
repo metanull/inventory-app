@@ -176,7 +176,7 @@ class CreateUserWebInterfaceTest extends TestCase
 
         $response = $this->actingAs($admin)->get(route('admin.users.create'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('Create User');
         $response->assertSee('Password Generation');
         $response->assertSee('A secure password will be automatically generated');
@@ -198,7 +198,7 @@ class CreateUserWebInterfaceTest extends TestCase
         // Check that the index page shows the notification
         $response = $this->actingAs($admin)->get(route('admin.users.index'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('Password Generated Successfully');
         $response->assertSee('Notification Test User');
         $response->assertSee('notification@example.com');

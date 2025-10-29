@@ -25,7 +25,7 @@ class NonVerifiedUserAuthorizationTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('web.welcome'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('Account Under Review');
         $response->assertSee('Your account has been successfully created, but it requires verification');
         $response->assertSee('Please wait for an administrator');
@@ -40,7 +40,7 @@ class NonVerifiedUserAuthorizationTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('web.welcome'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertDontSee('Items');
         $response->assertDontSee('Partners');
         $response->assertDontSee('Projects');
@@ -83,7 +83,7 @@ class NonVerifiedUserAuthorizationTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('web.welcome'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('Items');
         $response->assertSee('Partners');
         $response->assertSee('Projects');
@@ -112,7 +112,7 @@ class NonVerifiedUserAuthorizationTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('items.index'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 
     /**
@@ -130,7 +130,7 @@ class NonVerifiedUserAuthorizationTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('web.welcome'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('Administration');
         $response->assertSee('User Management');
         $response->assertDontSee('Items');
@@ -179,6 +179,6 @@ class NonVerifiedUserAuthorizationTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('admin.users.index'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 }

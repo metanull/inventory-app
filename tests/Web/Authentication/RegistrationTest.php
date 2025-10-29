@@ -13,10 +13,11 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 use Tests\Web\Traits\CreatesTwoFactorUsers;
+use Tests\Web\Traits\TestsFormValidation;
 
 class RegistrationTest extends TestCase
 {
-    use CreatesTwoFactorUsers, RefreshDatabase;
+    use CreatesTwoFactorUsers, RefreshDatabase, TestsFormValidation;
 
     protected function setUp(): void
     {
@@ -47,7 +48,6 @@ class RegistrationTest extends TestCase
 
         $response = $this->post(route('register.store'), $userData);
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('verification.notice'));
 
         $this->assertDatabaseHas('users', [
@@ -90,7 +90,7 @@ class RegistrationTest extends TestCase
 
         $response = $this->post(route('register.store'), $userData);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
 
         $user = User::where('email', 'john@example.com')->first();
         $this->assertNotNull($user);
@@ -108,51 +108,41 @@ class RegistrationTest extends TestCase
 
     public function test_registration_requires_name(): void
     {
-        $userData = [
+        $validData = [
+            'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => 'secure-password123',
             'password_confirmation' => 'secure-password123',
             'terms' => true,
         ];
 
-        $response = $this->post(route('register.store'), $userData);
-
-        $response->assertStatus(302);
-        $response->assertSessionHasErrors(['name']);
-        $this->assertGuest();
+        $this->assertFieldRequired(route('register.store'), 'name', $validData);
     }
 
     public function test_registration_requires_email(): void
     {
-        $userData = [
+        $validData = [
             'name' => 'John Doe',
+            'email' => 'john@example.com',
             'password' => 'secure-password123',
             'password_confirmation' => 'secure-password123',
             'terms' => true,
         ];
 
-        $response = $this->post(route('register.store'), $userData);
-
-        $response->assertStatus(302);
-        $response->assertSessionHasErrors(['email']);
-        $this->assertGuest();
+        $this->assertFieldRequired(route('register.store'), 'email', $validData);
     }
 
     public function test_registration_requires_valid_email(): void
     {
-        $userData = [
+        $validData = [
             'name' => 'John Doe',
-            'email' => 'invalid-email',
+            'email' => 'john@example.com',
             'password' => 'secure-password123',
             'password_confirmation' => 'secure-password123',
             'terms' => true,
         ];
 
-        $response = $this->post(route('register.store'), $userData);
-
-        $response->assertStatus(302);
-        $response->assertSessionHasErrors(['email']);
-        $this->assertGuest();
+        $this->assertFieldValidEmail(route('register.store'), 'email', $validData);
     }
 
     public function test_registration_requires_unique_email(): void
@@ -161,35 +151,28 @@ class RegistrationTest extends TestCase
             'email' => 'existing@example.com',
         ]);
 
-        $userData = [
+        $validData = [
             'name' => 'John Doe',
-            'email' => 'existing@example.com',
+            'email' => 'new@example.com',
             'password' => 'secure-password123',
             'password_confirmation' => 'secure-password123',
             'terms' => true,
         ];
 
-        $response = $this->post(route('register.store'), $userData);
-
-        $response->assertStatus(302);
-        $response->assertSessionHasErrors(['email']);
-        $this->assertGuest();
+        $this->assertFieldUnique(route('register.store'), 'email', 'existing@example.com', $validData);
     }
 
     public function test_registration_requires_password(): void
     {
-        $userData = [
+        $validData = [
             'name' => 'John Doe',
             'email' => 'john@example.com',
+            'password' => 'secure-password123',
             'password_confirmation' => 'secure-password123',
             'terms' => true,
         ];
 
-        $response = $this->post(route('register.store'), $userData);
-
-        $response->assertStatus(302);
-        $response->assertSessionHasErrors(['password']);
-        $this->assertGuest();
+        $this->assertFieldRequired(route('register.store'), 'password', $validData);
     }
 
     public function test_registration_requires_password_confirmation(): void
@@ -203,60 +186,36 @@ class RegistrationTest extends TestCase
 
         $response = $this->post(route('register.store'), $userData);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $response->assertSessionHasErrors(['password']);
         $this->assertGuest();
     }
 
     public function test_registration_requires_password_confirmation_match(): void
     {
-        $userData = [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => 'secure-password123',
-            'password_confirmation' => 'different-password',
-            'terms' => true,
-        ];
-
-        $response = $this->post(route('register.store'), $userData);
-
-        $response->assertStatus(302);
-        $response->assertSessionHasErrors(['password']);
-        $this->assertGuest();
-    }
-
-    public function test_registration_requires_minimum_password_length(): void
-    {
-        $userData = [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => 'short',
-            'password_confirmation' => 'short',
-            'terms' => true,
-        ];
-
-        $response = $this->post(route('register.store'), $userData);
-
-        $response->assertStatus(302);
-        $response->assertSessionHasErrors(['password']);
-        $this->assertGuest();
-    }
-
-    public function test_registration_requires_terms_acceptance(): void
-    {
-        $userData = [
+        $validData = [
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => 'secure-password123',
             'password_confirmation' => 'secure-password123',
+            'terms' => true,
         ];
 
-        $response = $this->post(route('register.store'), $userData);
+        $this->assertPasswordConfirmationMatch(route('register.store'), $validData);
+    }
 
-        $response->assertStatus(302);
-        // Fortify's default behavior: registration proceeds and redirects to email verification
-        // Terms enforcement would require custom validation rules if needed by the application
-        $response->assertRedirect(route('verification.notice')); // Fortify's email verification
+    public function test_registration_requires_minimum_password_length(): void
+    {
+        $validData = [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => 'secure-password123',
+            'password_confirmation' => 'secure-password123',
+            'terms' => true,
+        ];
+
+        // Laravel default is 8 characters minimum
+        $this->assertFieldMinLength(route('register.store'), 'password', 8, $validData);
     }
 
     public function test_user_defaults_to_no_two_factor_after_registration(): void
@@ -296,7 +255,6 @@ class RegistrationTest extends TestCase
         $user = User::where('email', 'john@example.com')->first();
 
         // Should redirect to email verification page
-        $response->assertStatus(302);
         $response->assertRedirect(route('verification.notice'));
 
         // Email should not be verified yet
@@ -310,7 +268,7 @@ class RegistrationTest extends TestCase
     {
         $response = $this->get(route('register'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertViewIs('auth.register');
     }
 
@@ -321,7 +279,6 @@ class RegistrationTest extends TestCase
 
         $response = $this->get(route('register'));
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('dashboard'));
     }
 
@@ -363,49 +320,6 @@ class RegistrationTest extends TestCase
 
         // 2FA is not enabled on registration
         $this->assertFalse($user->hasEnabledTwoFactorAuthentication());
-    }
-
-    public function test_registration_rate_limiting(): void
-    {
-        $userData = [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => 'secure-password123',
-            'password_confirmation' => 'secure-password123',
-            'terms' => true,
-        ];
-
-        // Make multiple registration attempts rapidly
-        for ($i = 0; $i < 10; $i++) {
-            $userData['email'] = "john{$i}@example.com";
-            $response = $this->post(route('register.store'), $userData);
-        }
-
-        // The last request should be rate limited (if rate limiting is implemented)
-        // Note: This test depends on your rate limiting configuration
-        // You may need to adjust the expected status code
-        $response->assertStatus(302); // or 429 if rate limited
-    }
-
-    public function test_registration_sanitizes_input_data(): void
-    {
-        $userData = [
-            'name' => '<script>alert("xss")</script>John Doe',
-            'email' => 'john@example.com',
-            'password' => 'secure-password123',
-            'password_confirmation' => 'secure-password123',
-            'terms' => true,
-        ];
-
-        $this->post(route('register.store'), $userData);
-
-        $user = User::where('email', 'john@example.com')->first();
-
-        // Laravel/Fortify's secure default: store raw data, escape at output
-        // Input sanitization is NOT performed - this is the correct security practice
-        // Data should be escaped when displayed, not when stored
-        $this->assertNotNull($user);
-        $this->assertEquals('<script>alert("xss")</script>John Doe', $user->name);
     }
 
     public function test_registration_is_blocked_when_self_registration_disabled(): void

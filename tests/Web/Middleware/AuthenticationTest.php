@@ -96,7 +96,7 @@ class AuthenticationTest extends TestCase
     {
         $response = $this->{strtolower($method)}(route($route));
 
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 
     /**

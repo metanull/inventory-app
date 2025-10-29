@@ -13,7 +13,7 @@ trait TestsWebLivewire
     {
         $component = \Livewire\Livewire::test($this->getComponentClass());
 
-        $component->assertStatus(200);
+        $component->assertOk();
     }
 
     public function test_component_can_load_data(): void
@@ -38,7 +38,7 @@ trait TestsWebLivewire
 
         foreach ($this->getSortableFields() as $field) {
             $component->call('sortBy', $field)
-                ->assertStatus(200);
+                ->assertOk();
         }
     }
 
@@ -52,7 +52,7 @@ trait TestsWebLivewire
 
         foreach ($this->getFilterableFields() as $field => $value) {
             $component->set($field, $value)
-                ->assertStatus(200);
+                ->assertOk();
         }
     }
 

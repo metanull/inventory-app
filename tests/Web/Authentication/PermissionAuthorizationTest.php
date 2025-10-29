@@ -48,7 +48,7 @@ class PermissionAuthorizationTest extends TestCase
 
         $response = $this->actingAs($user)->get('/web/items');
 
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 
     /**
@@ -66,7 +66,7 @@ class PermissionAuthorizationTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('admin.users.index'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 
     /**
@@ -99,7 +99,7 @@ class PermissionAuthorizationTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('settings.index'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 
     /**
@@ -136,7 +136,7 @@ class PermissionAuthorizationTest extends TestCase
 
         // View user can access data routes
         $response = $this->actingAs($viewUser)->get('/web/items');
-        $response->assertStatus(200);
+        $response->assertOk();
 
         // View user cannot access admin routes
         $response = $this->actingAs($viewUser)->get(route('admin.users.index'));
@@ -144,7 +144,7 @@ class PermissionAuthorizationTest extends TestCase
 
         // Manage user can access admin routes
         $response = $this->actingAs($manageUser)->get(route('admin.users.index'));
-        $response->assertStatus(200);
+        $response->assertOk();
 
         // Manage user cannot access data routes (no view data permission)
         $response = $this->actingAs($manageUser)->get('/web/items');
@@ -167,9 +167,9 @@ class PermissionAuthorizationTest extends TestCase
 
         // Can access both data and admin routes
         $response = $this->actingAs($user)->get('/web/items');
-        $response->assertStatus(200);
+        $response->assertOk();
 
         $response = $this->actingAs($user)->get(route('admin.users.index'));
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 }

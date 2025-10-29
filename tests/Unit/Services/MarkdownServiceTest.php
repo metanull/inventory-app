@@ -3,7 +3,6 @@
 namespace Tests\Unit\Services;
 
 use App\Services\MarkdownService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
@@ -15,8 +14,6 @@ use Tests\TestCase;
  */
 class MarkdownServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     private MarkdownService $markdownService;
 
     protected function setUp(): void

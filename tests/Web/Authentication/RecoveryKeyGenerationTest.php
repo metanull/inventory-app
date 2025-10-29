@@ -23,7 +23,7 @@ class RecoveryKeyGenerationTest extends TestCase
         $response = $this->post(route('two-factor.regenerate-recovery-codes'));
 
         // Fortify redirects after generation (standard behavior)
-        $response->assertStatus(302);
+        $response->assertRedirect();
 
         // Verify recovery codes were generated
         $user->refresh();
@@ -52,7 +52,7 @@ class RecoveryKeyGenerationTest extends TestCase
         $response = $this->post(route('two-factor.regenerate-recovery-codes'));
 
         // Fortify redirects after processing (standard behavior)
-        $response->assertStatus(302);
+        $response->assertRedirect();
 
         // Check if recovery codes were generated (Fortify's actual behavior)
         $user->refresh();
@@ -84,7 +84,7 @@ class RecoveryKeyGenerationTest extends TestCase
         $response = $this->post(route('two-factor.regenerate-recovery-codes'));
 
         // Fortify redirects after generation (standard behavior)
-        $response->assertStatus(302);
+        $response->assertRedirect();
 
         // Verify new codes are different
         $user->refresh();
@@ -100,7 +100,6 @@ class RecoveryKeyGenerationTest extends TestCase
     {
         $response = $this->post(route('two-factor.regenerate-recovery-codes'));
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('login'));
     }
 
@@ -113,7 +112,6 @@ class RecoveryKeyGenerationTest extends TestCase
         $response = $this->post(route('two-factor.regenerate-recovery-codes'));
 
         // Fortify redirects to password confirmation (secure behavior)
-        $response->assertStatus(302);
         $response->assertRedirect(route('password.confirm'));
     }
 
@@ -130,7 +128,7 @@ class RecoveryKeyGenerationTest extends TestCase
         $response = $this->post(route('two-factor.regenerate-recovery-codes'));
 
         // Fortify redirects after generation (standard behavior)
-        $response->assertStatus(302);
+        $response->assertRedirect();
 
         $user->refresh();
 

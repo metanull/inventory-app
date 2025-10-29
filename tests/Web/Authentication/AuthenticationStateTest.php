@@ -22,7 +22,7 @@ class AuthenticationStateTest extends TestCase
     {
         $response = $this->get(route('web.welcome'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertDontSee('API Documentation');
         $response->assertDontSee('REST endpoints, schemas and integration notes.');
     }
@@ -34,7 +34,7 @@ class AuthenticationStateTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('web.welcome'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('API Documentation');
         $response->assertSee('REST endpoints, schemas and integration notes.');
     }
@@ -46,7 +46,7 @@ class AuthenticationStateTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('verification.notice'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('Before continuing, could you verify your email address');
     }
 
@@ -56,7 +56,7 @@ class AuthenticationStateTest extends TestCase
         $user->assignRole('Regular User');
 
         $verifyResponse = $this->actingAs($user)->get(route('verification.notice'));
-        $verifyResponse->assertStatus(200);
+        $verifyResponse->assertOk();
         $verifyResponse->assertSee('Edit Profile');
 
         // Test that the profile link works (might redirect to verification notice, which is acceptable)
@@ -93,7 +93,7 @@ class AuthenticationStateTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('items.index'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 
     public function test_regular_users_cannot_access_admin_pages(): void
@@ -113,7 +113,7 @@ class AuthenticationStateTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('admin.users.index'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 
     public function test_admin_user_edit_page_loads(): void
@@ -126,7 +126,7 @@ class AuthenticationStateTest extends TestCase
 
         $response = $this->actingAs($adminUser)->get(route('admin.users.edit', $targetUser));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('Edit User');
         $response->assertSee($targetUser->name);
     }
@@ -141,7 +141,7 @@ class AuthenticationStateTest extends TestCase
 
         $response = $this->actingAs($adminUser)->get(route('admin.users.edit', $targetUser));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('Edit User');
         $response->assertSee('Role Assignment');
         $response->assertSee('Email Verification');
@@ -155,7 +155,7 @@ class AuthenticationStateTest extends TestCase
 
         // Test unauthenticated navigation
         $response = $this->get(route('web.welcome'));
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('Inventory Portal');
         $response->assertSee('Login');
         $response->assertSee('Register');
@@ -170,7 +170,7 @@ class AuthenticationStateTest extends TestCase
         if ($response->getStatusCode() === 302) {
             $response->assertRedirect();
         } else {
-            $response->assertStatus(200);
+            $response->assertOk();
             $response->assertDontSee('Login');
             $response->assertDontSee('Register');
         }
@@ -189,7 +189,7 @@ class AuthenticationStateTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('web.profile.show'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('Profile Information');
     }
 }

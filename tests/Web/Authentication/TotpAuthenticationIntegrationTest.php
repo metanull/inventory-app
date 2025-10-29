@@ -51,7 +51,6 @@ class TotpAuthenticationIntegrationTest extends TestCase
         ]);
 
         // Should redirect to 2FA challenge
-        $response->assertStatus(302);
         $response->assertRedirect(route('two-factor.login'));
 
         // Second step: Submit valid TOTP code
@@ -60,7 +59,6 @@ class TotpAuthenticationIntegrationTest extends TestCase
         ]);
 
         // Should redirect to dashboard and be authenticated
-        $response->assertStatus(302);
         $response->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($this->user);
     }
@@ -79,7 +77,7 @@ class TotpAuthenticationIntegrationTest extends TestCase
         ]);
 
         // Should stay on 2FA challenge page with error
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $response->assertSessionHasErrors(['code']);
         $this->assertGuest();
     }
@@ -98,7 +96,7 @@ class TotpAuthenticationIntegrationTest extends TestCase
         ]);
 
         // Should stay on 2FA challenge page with error
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $response->assertSessionHasErrors(['code']);
         $this->assertGuest();
     }
@@ -189,7 +187,7 @@ class TotpAuthenticationIntegrationTest extends TestCase
             'Authorization' => 'Bearer '.$token,
         ])->getJson('/api/user');
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertJson([
             'id' => $this->user->id,
             'email' => $this->user->email,
@@ -203,7 +201,7 @@ class TotpAuthenticationIntegrationTest extends TestCase
             'password' => 'test-password',
         ]);
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertJson([
             'data' => [
                 'two_factor_enabled' => true,

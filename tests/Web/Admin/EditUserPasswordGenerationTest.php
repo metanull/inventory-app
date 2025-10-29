@@ -130,7 +130,7 @@ class EditUserPasswordGenerationTest extends TestCase
 
         $response = $this->actingAs($admin)->get(route('admin.users.edit', $targetUser));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('Password Management');
         $response->assertSee('Generate New Password');
         $response->assertSee('Check this box to generate a new secure password');
@@ -172,7 +172,7 @@ class EditUserPasswordGenerationTest extends TestCase
         // Check notification appears in index
         $response = $this->actingAs($admin)->get(route('admin.users.index'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('Password Generated Successfully');
         $response->assertSee($targetUser->name);
         $response->assertSee($targetUser->email);

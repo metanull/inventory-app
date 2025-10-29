@@ -248,7 +248,7 @@ class MobileAuthenticationTest extends TestCase
             'Authorization' => 'Bearer '.$token,
         ])->getJson('/api/user');
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertJson([
             'id' => $user->id,
             'email' => $user->email,
@@ -314,7 +314,7 @@ class MobileAuthenticationTest extends TestCase
             'Authorization' => 'Bearer '.$token,
         ])->getJson('/api/user');
 
-        $response->assertStatus(200);
+        $response->assertOk();
 
         // Revoke all tokens for user using Sanctum's method
         $user->tokens()->delete();
@@ -357,12 +357,12 @@ class MobileAuthenticationTest extends TestCase
         $response = $this->withHeaders([
             'Authorization' => 'Bearer '.$token1,
         ])->getJson('/api/user');
-        $response->assertStatus(200);
+        $response->assertOk();
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer '.$token2,
         ])->getJson('/api/user');
-        $response->assertStatus(200);
+        $response->assertOk();
 
         // Verify both tokens exist in database
         $this->assertEquals(2, $user->tokens()->count());

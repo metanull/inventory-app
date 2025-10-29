@@ -10,11 +10,12 @@ use App\Models\Language;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use Tests\Integration\Traits\TestsGlossaryRelationships;
 use Tests\TestCase;
 
 class AtomicDeletionTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, TestsGlossaryRelationships;
 
     protected function setUp(): void
     {
@@ -28,34 +29,25 @@ class AtomicDeletionTest extends TestCase
      */
     public function test_deleting_item_translation_is_atomic()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'pottery',
         ]);
 
-        $translation = ItemTranslation::factory()->create([
-            'language_id' => $language->id,
-            'name' => 'Ancient Pottery',
-        ]);
+        $translation = $this->createLinkedItemTranslation($spelling);
 
-        // Link spelling to translation
-        $translation->spellings()->attach($spelling->id);
-        $this->assertDatabaseHas('item_translation_spelling', [
-            'item_translation_id' => $translation->id,
-            'spelling_id' => $spelling->id,
-        ]);
+        $this->assertSpellingLinksIntact($spelling, [$translation]);
 
         // Delete the translation
+        $translationId = $translation->id;
         $translation->delete();
 
         // Both the translation AND the spelling links should be gone
         $this->assertDatabaseMissing('item_translations', [
-            'id' => $translation->id,
+            'id' => $translationId,
         ]);
-        $this->assertDatabaseMissing('item_translation_spelling', [
-            'item_translation_id' => $translation->id,
-        ]);
+        $this->assertAllSpellingLinksRemoved($translationId);
     }
 
     /**
@@ -63,19 +55,13 @@ class AtomicDeletionTest extends TestCase
      */
     public function test_deleting_item_translation_rolls_back_on_failure()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'artifact',
         ]);
 
-        $translation = ItemTranslation::factory()->create([
-            'language_id' => $language->id,
-            'name' => 'Ancient Artifact',
-        ]);
-
-        // Link spelling
-        $translation->spellings()->attach($spelling->id);
+        $translation = $this->createLinkedItemTranslation($spelling);
 
         // Attempt to delete but simulate a failure by using a database trigger
         // Since we can't easily simulate a real failure in tests, we verify the transaction wrapping
@@ -95,10 +81,7 @@ class AtomicDeletionTest extends TestCase
         $this->assertDatabaseHas('item_translations', [
             'id' => $translation->id,
         ]);
-        $this->assertDatabaseHas('item_translation_spelling', [
-            'item_translation_id' => $translation->id,
-            'spelling_id' => $spelling->id,
-        ]);
+        $this->assertSpellingLinksIntact($spelling, [$translation]);
     }
 
     /**
@@ -106,44 +89,26 @@ class AtomicDeletionTest extends TestCase
      */
     public function test_deleting_glossary_spelling_is_atomic()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'ceramic',
         ]);
 
-        $translation1 = ItemTranslation::factory()->create([
-            'language_id' => $language->id,
-            'name' => 'Ceramic Bowl',
-        ]);
-        $translation2 = ItemTranslation::factory()->create([
-            'language_id' => $language->id,
-            'name' => 'Ceramic Vase',
-        ]);
+        $translation1 = $this->createLinkedItemTranslation($spelling);
+        $translation2 = $this->createLinkedItemTranslation($spelling);
 
-        // Link spelling to multiple translations
-        $translation1->spellings()->attach($spelling->id);
-        $translation2->spellings()->attach($spelling->id);
-
-        $this->assertDatabaseHas('item_translation_spelling', [
-            'spelling_id' => $spelling->id,
-            'item_translation_id' => $translation1->id,
-        ]);
-        $this->assertDatabaseHas('item_translation_spelling', [
-            'spelling_id' => $spelling->id,
-            'item_translation_id' => $translation2->id,
-        ]);
+        $this->assertSpellingLinksIntact($spelling, [$translation1, $translation2]);
 
         // Delete the spelling
+        $spellingId = $spelling->id;
         $spelling->delete();
 
         // The spelling AND all its links should be gone
         $this->assertDatabaseMissing('glossary_spellings', [
-            'id' => $spelling->id,
+            'id' => $spellingId,
         ]);
-        $this->assertDatabaseMissing('item_translation_spelling', [
-            'spelling_id' => $spelling->id,
-        ]);
+        $this->assertAllItemTranslationLinksRemoved($spellingId);
 
         // But the translations should still exist
         $this->assertDatabaseHas('item_translations', [
@@ -159,7 +124,7 @@ class AtomicDeletionTest extends TestCase
      */
     public function test_deleting_glossary_is_atomic()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $glossary = Glossary::factory()->create();
 
         // Create spellings
@@ -187,21 +152,20 @@ class AtomicDeletionTest extends TestCase
 
         // Verify setup
         $this->assertDatabaseHas('glossaries', ['id' => $glossary->id]);
-        $this->assertDatabaseHas('glossary_spellings', ['id' => $spelling1->id]);
-        $this->assertDatabaseHas('glossary_spellings', ['id' => $spelling2->id]);
-        $this->assertDatabaseHas('item_translation_spelling', ['spelling_id' => $spelling1->id]);
-        $this->assertDatabaseHas('item_translation_spelling', ['spelling_id' => $spelling2->id]);
+        $this->assertTranslationHasSpellings($translation, [$spelling1, $spelling2]);
         $this->assertDatabaseHas('glossary_synonyms', ['glossary_id' => $glossary->id]);
 
         // Delete the glossary
+        $spelling1Id = $spelling1->id;
+        $spelling2Id = $spelling2->id;
         $glossary->delete();
 
         // Everything related should be gone
         $this->assertDatabaseMissing('glossaries', ['id' => $glossary->id]);
-        $this->assertDatabaseMissing('glossary_spellings', ['id' => $spelling1->id]);
-        $this->assertDatabaseMissing('glossary_spellings', ['id' => $spelling2->id]);
-        $this->assertDatabaseMissing('item_translation_spelling', ['spelling_id' => $spelling1->id]);
-        $this->assertDatabaseMissing('item_translation_spelling', ['spelling_id' => $spelling2->id]);
+        $this->assertDatabaseMissing('glossary_spellings', ['id' => $spelling1Id]);
+        $this->assertDatabaseMissing('glossary_spellings', ['id' => $spelling2Id]);
+        $this->assertAllItemTranslationLinksRemoved($spelling1Id);
+        $this->assertAllItemTranslationLinksRemoved($spelling2Id);
         $this->assertDatabaseMissing('glossary_synonyms', ['glossary_id' => $glossary->id]);
 
         // But the translation should still exist
@@ -272,40 +236,26 @@ class AtomicDeletionTest extends TestCase
      */
     public function test_multiple_item_translations_deletion_independence()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'pottery',
         ]);
 
-        $translation1 = ItemTranslation::factory()->create([
-            'language_id' => $language->id,
-            'name' => 'Pottery 1',
-        ]);
-        $translation2 = ItemTranslation::factory()->create([
-            'language_id' => $language->id,
-            'name' => 'Pottery 2',
-        ]);
-
-        // Link the same spelling to both translations
-        $translation1->spellings()->attach($spelling->id);
-        $translation2->spellings()->attach($spelling->id);
+        $translation1 = $this->createLinkedItemTranslation($spelling);
+        $translation2 = $this->createLinkedItemTranslation($spelling);
 
         // Delete translation1
+        $translation1Id = $translation1->id;
         $translation1->delete();
 
         // Translation1 and its link should be gone
-        $this->assertDatabaseMissing('item_translations', ['id' => $translation1->id]);
-        $this->assertDatabaseMissing('item_translation_spelling', [
-            'item_translation_id' => $translation1->id,
-        ]);
+        $this->assertDatabaseMissing('item_translations', ['id' => $translation1Id]);
+        $this->assertAllSpellingLinksRemoved($translation1Id);
 
         // But translation2 and its link should still exist
         $this->assertDatabaseHas('item_translations', ['id' => $translation2->id]);
-        $this->assertDatabaseHas('item_translation_spelling', [
-            'item_translation_id' => $translation2->id,
-            'spelling_id' => $spelling->id,
-        ]);
+        $this->assertSpellingLinksIntact($spelling, [$translation2]);
     }
 
     /**
@@ -313,7 +263,7 @@ class AtomicDeletionTest extends TestCase
      */
     public function test_deleting_item_translation_with_no_spellings()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $translation = ItemTranslation::factory()->create([
             'language_id' => $language->id,
             'name' => 'No Spellings',
@@ -323,10 +273,11 @@ class AtomicDeletionTest extends TestCase
         $this->assertCount(0, $translation->spellings);
 
         // Delete should still work
+        $translationId = $translation->id;
         $result = $translation->delete();
         $this->assertTrue($result);
 
-        $this->assertDatabaseMissing('item_translations', ['id' => $translation->id]);
+        $this->assertDatabaseMissing('item_translations', ['id' => $translationId]);
     }
 
     /**
@@ -334,7 +285,7 @@ class AtomicDeletionTest extends TestCase
      */
     public function test_deleting_glossary_spelling_with_no_item_translations()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'orphan',
@@ -344,9 +295,10 @@ class AtomicDeletionTest extends TestCase
         $this->assertCount(0, $spelling->itemTranslations);
 
         // Delete should still work
+        $spellingId = $spelling->id;
         $result = $spelling->delete();
         $this->assertTrue($result);
 
-        $this->assertDatabaseMissing('glossary_spellings', ['id' => $spelling->id]);
+        $this->assertDatabaseMissing('glossary_spellings', ['id' => $spellingId]);
     }
 }

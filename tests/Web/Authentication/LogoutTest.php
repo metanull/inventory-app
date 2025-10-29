@@ -20,7 +20,6 @@ class LogoutTest extends TestCase
 
         $response = $this->post(route('logout'));
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('root'));
         $this->assertGuest();
         Event::assertDispatched(Logout::class);
@@ -34,7 +33,6 @@ class LogoutTest extends TestCase
 
         $response = $this->post(route('logout'));
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('root'));
         $this->assertGuest();
         Event::assertDispatched(Logout::class);
@@ -44,7 +42,6 @@ class LogoutTest extends TestCase
     {
         $response = $this->post(route('logout'));
 
-        $response->assertStatus(302);
         $response->assertRedirect(route('login'));
         $this->assertGuest();
     }
@@ -61,7 +58,7 @@ class LogoutTest extends TestCase
 
         $response = $this->post(route('logout'));
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $this->assertGuest();
 
         // Remember token should be cleared
@@ -90,7 +87,7 @@ class LogoutTest extends TestCase
 
         // Note: This depends on your logout implementation
         // If your app doesn't support custom redirect, this test may need adjustment
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $this->assertGuest();
     }
 
@@ -105,7 +102,7 @@ class LogoutTest extends TestCase
 
         $response = $this->post(route('logout'));
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $this->assertGuest();
 
         // Session data should be cleared
@@ -126,7 +123,7 @@ class LogoutTest extends TestCase
         // Logout
         $response = $this->post(route('logout'));
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $this->assertGuest();
         Event::assertDispatched(Logout::class);
 
@@ -146,12 +143,12 @@ class LogoutTest extends TestCase
 
         // Should be in 2FA challenge state
         $response = $this->get(route('two-factor.login'));
-        $response->assertStatus(200);
+        $response->assertOk();
 
         // Logout during challenge
         $response = $this->post(route('logout'));
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
         // After logout, guests are redirected to login page
         $response->assertRedirect(route('login'));
         $this->assertGuest();
@@ -181,7 +178,7 @@ class LogoutTest extends TestCase
 
         // In the current implementation, logout redirects even without CSRF token
         // This might be due to test environment CSRF handling or application configuration
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $this->assertGuest(); // User gets logged out regardless
     }
 
@@ -192,12 +189,11 @@ class LogoutTest extends TestCase
 
         // First logout
         $response = $this->post(route('logout'));
-        $response->assertStatus(302);
+        $response->assertRedirect();
         $this->assertGuest();
 
         // Second logout attempt (should not cause errors)
         $response = $this->post(route('logout'));
-        $response->assertStatus(302);
         $response->assertRedirect(route('login')); // Redirected to login since not authenticated
         $this->assertGuest();
     }

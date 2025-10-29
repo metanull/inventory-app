@@ -8,11 +8,12 @@ use App\Models\ItemTranslation;
 use App\Models\Language;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
+use Tests\Integration\Traits\TestsGlossaryRelationships;
 use Tests\TestCase;
 
 class ItemTranslationSpellingLinkMaintenanceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, TestsGlossaryRelationships;
 
     protected function setUp(): void
     {
@@ -25,7 +26,7 @@ class ItemTranslationSpellingLinkMaintenanceTest extends TestCase
      */
     public function test_creating_item_translation_dispatches_sync_job()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
 
         $itemTranslation = ItemTranslation::factory()->create([
             'language_id' => $language->id,
@@ -62,29 +63,22 @@ class ItemTranslationSpellingLinkMaintenanceTest extends TestCase
      */
     public function test_deleting_item_translation_detaches_spellings_synchronously()
     {
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'artifact',
         ]);
 
-        $itemTranslation = ItemTranslation::factory()->create([
-            'language_id' => $language->id,
-            'name' => 'Ancient Artifact',
-        ]);
+        $itemTranslation = $this->createLinkedItemTranslation($spelling);
 
-        // Manually attach spelling
-        $itemTranslation->spellings()->attach($spelling->id);
-        $this->assertCount(1, $itemTranslation->spellings);
+        $this->assertTranslationHasSpellings($itemTranslation, [$spelling]);
 
         // Delete the item translation
+        $translationId = $itemTranslation->id;
         $itemTranslation->delete();
 
         // The spelling link should be gone
-        $this->assertDatabaseMissing('item_translation_spelling', [
-            'item_translation_id' => $itemTranslation->id,
-            'spelling_id' => $spelling->id,
-        ]);
+        $this->assertAllSpellingLinksRemoved($translationId);
     }
 
     /**
@@ -188,7 +182,7 @@ class ItemTranslationSpellingLinkMaintenanceTest extends TestCase
     {
         Queue::fake([]); // Don't fake the queue to test real behavior
 
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'ceramic',
@@ -200,11 +194,10 @@ class ItemTranslationSpellingLinkMaintenanceTest extends TestCase
         ]);
 
         // Manually dispatch the job (simulating queue worker)
-        $job = new SyncItemTranslationSpellings($itemTranslation->id);
-        $job->handle();
+        $this->syncItemTranslationSpellings($itemTranslation);
 
         // Verify the link was created
-        $this->assertTrue($itemTranslation->fresh()->spellings->contains($spelling));
+        $this->assertTranslationHasSpellings($itemTranslation, [$spelling]);
     }
 
     /**
@@ -214,7 +207,7 @@ class ItemTranslationSpellingLinkMaintenanceTest extends TestCase
     {
         Queue::fake([]);
 
-        $language = Language::factory()->create();
+        $language = $this->createLanguageForGlossary();
         $spelling1 = GlossarySpelling::factory()->create([
             'language_id' => $language->id,
             'spelling' => 'pottery',
@@ -230,20 +223,18 @@ class ItemTranslationSpellingLinkMaintenanceTest extends TestCase
         ]);
 
         // Initial sync
-        $job = new SyncItemTranslationSpellings($itemTranslation->id);
-        $job->handle();
+        $this->syncItemTranslationSpellings($itemTranslation);
 
-        $this->assertTrue($itemTranslation->fresh()->spellings->contains($spelling1));
-        $this->assertFalse($itemTranslation->fresh()->spellings->contains($spelling2));
+        $this->assertTranslationHasSpellings($itemTranslation, [$spelling1]);
+        $this->assertTranslationDoesNotHaveSpellings($itemTranslation, [$spelling2]);
 
         // Update to include ceramic instead
         $itemTranslation->update(['name' => 'Ceramic Bowl']);
 
         // Sync again
-        $job = new SyncItemTranslationSpellings($itemTranslation->id);
-        $job->handle();
+        $this->syncItemTranslationSpellings($itemTranslation);
 
-        $this->assertFalse($itemTranslation->fresh()->spellings->contains($spelling1));
-        $this->assertTrue($itemTranslation->fresh()->spellings->contains($spelling2));
+        $this->assertTranslationDoesNotHaveSpellings($itemTranslation, [$spelling1]);
+        $this->assertTranslationHasSpellings($itemTranslation, [$spelling2]);
     }
 }

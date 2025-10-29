@@ -67,7 +67,7 @@ class ItemsTableTest extends TestCase
 public function test_component_can_render(): void
 {
     $component = \Livewire\Livewire::test($this->getComponentClass());
-    $component->assertStatus(200);
+    $component->assertOk();
 }
 ```
 
@@ -99,7 +99,7 @@ public function test_component_can_sort(): void
     $component = \Livewire\Livewire::test($this->getComponentClass());
     
     foreach ($this->getSortableFields() as $field) {
-        $component->call('sortBy', $field)->assertStatus(200);
+        $component->call('sortBy', $field)->assertOk();
     }
 }
 ```
@@ -124,7 +124,7 @@ public function test_component_can_filter(): void
     $component = \Livewire\Livewire::test($this->getComponentClass());
     
     foreach ($this->getFilterableFields() as $field => $value) {
-        $component->set($field, $value)->assertStatus(200);
+        $component->set($field, $value)->assertOk();
     }
 }
 ```

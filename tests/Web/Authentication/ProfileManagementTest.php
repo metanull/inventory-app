@@ -36,7 +36,7 @@ class ProfileManagementTest extends TestCase
         $response = $this->actingAs($user)
             ->get(route('web.profile.show'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('User Roles & Permissions');
         $response->assertSee('Test Role');
         $response->assertSee(Permission::VIEW_DATA->value);
@@ -50,7 +50,7 @@ class ProfileManagementTest extends TestCase
         $response = $this->actingAs($user)
             ->get(route('web.profile.show'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSee('No Roles Assigned');
         $response->assertSee('Please contact an administrator');
     }

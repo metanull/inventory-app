@@ -144,6 +144,6 @@ class AuthorizationMiddlewareTest extends TestCase
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/test-role');
 
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 }
