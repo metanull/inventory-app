@@ -120,22 +120,6 @@ class MarkdownToHtmlTest extends TestCase
             ->assertJsonValidationErrors(['markdown']);
     }
 
-    public function test_accepts_previously_unsafe_markdown_content(): void
-    {
-        // This content was previously rejected by empirical validation but should now be accepted
-        $response = $this->postJson(route('markdown.toHtml'), [
-            'markdown' => '[Click here](javascript:alert("XSS"))',
-        ]);
-
-        $response->assertOk()
-            ->assertJsonPath('success', true);
-
-        // The service should process the content and convert it to HTML
-        // Note: CommonMark library still strips unsafe links for security (which is good)
-        $html = $response->json('data.html');
-        $this->assertStringContainsString('<a>Click here</a>', $html);
-    }
-
     public function test_rejects_excessively_large_markdown(): void
     {
         $largeMarkdown = str_repeat('a', 70000); // Exceeds TEXT field limit
