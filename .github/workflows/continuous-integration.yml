@@ -19,8 +19,8 @@ concurrency:
 
 jobs:
   
-  backend-validation:
-    name: Backend Validation (PHP/Laravel)
+  backend-lint:
+    name: Backend Linting and Validation
     runs-on: windows-latest
 
     steps:
@@ -31,8 +31,7 @@ jobs:
         with:
           # php-version: '8.2'  # If not specified, setup-php will use the version defined in composer.lock
           extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
-          coverage: xdebug
-          tools: pint, phpunit, pest
+          tools: pint
 
       - name: "Check > Composer > Check requirements"
         run: |
@@ -76,26 +75,59 @@ jobs:
         run: |
           ./vendor/bin/pint --bail
 
-      - name: "Check > Laravel > Run CI/CD Tests"
+  backend-tests:
+    name: Backend Tests (${{ matrix.suite }})
+    runs-on: windows-latest
+    
+    strategy:
+      fail-fast: true  # Stop running other suites as soon as one fails
+      matrix:
+        suite:
+          - Unit
+          - Api
+          - Web
+          - Configuration
+          - Console
+          - Event
+          - Integration
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: "Setup > Image > Install php"
+        uses: shivammathur/setup-php@v2
+        with:
+          # php-version: '8.2'  # If not specified, setup-php will use the version defined in composer.lock
+          extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
+          coverage: xdebug
+          tools: phpunit, pest
+
+      - name: "Setup > Composer > Install Dependencies"
+        run: |
+          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: "Setup > Laravel > Create .env file from example"
+        run: |
+          if(-not(Test-Path ".env.local.example")) {
+            throw "No .env.local.example file found!"
+          }
+          if(-not(Test-Path ".env")) {
+            Copy-Item .env.local.example .env -ErrorAction Stop
+          }
+
+      - name: "Setup > Laravel > Generate application key"
+        run: |
+          php artisan key:generate
+
+      - name: "Setup > Laravel > Create database"
+        run: |
+          php artisan migrate --force
+
+      - name: "Check > Laravel > Run ${{ matrix.suite }} Tests"
         env:
           DB_CONNECTION: sqlite
-          # DB_DATABASE: database/database.sqlite
         run: |
-          php artisan test --testsuite=CiCd --coverage --parallel --no-ansi --stop-on-failure
-      
-      - name: "Check > Laravel > Run Unit Tests"
-        env:
-          DB_CONNECTION: sqlite
-          # DB_DATABASE: database/database.sqlite
-        run: |
-          php artisan test --testsuite=Unit --coverage --parallel --no-ansi --stop-on-failure
-      
-      - name: "Check > Laravel > Run Feature Tests"
-        env:
-          DB_CONNECTION: sqlite
-          # DB_DATABASE: database/database.sqlite
-        run: |
-          php artisan test --testsuite=Feature --coverage --parallel --no-ansi --stop-on-failure
+          php artisan test --testsuite=${{ matrix.suite }} --coverage --parallel --no-ansi --stop-on-failure
 
   frontend-validation:
     name: Frontend Validation (Node.js/Vue)
@@ -135,16 +167,20 @@ jobs:
   ci-success:
     name: CI Success
     runs-on: windows-latest
-    needs: [backend-validation, frontend-validation]
+    needs: [backend-lint, backend-tests, frontend-validation]
     if: always()
 
     steps:
       - name: Check all jobs succeeded
         run: |
-          $backendResult = "${{ needs.backend-validation.result }}"
+          $backendLintResult = "${{ needs.backend-lint.result }}"
+          $backendTestsResult = "${{ needs.backend-tests.result }}"
           $frontendResult = "${{ needs.frontend-validation.result }}"
           
-          if ($backendResult -ne "success" -or $frontendResult -ne "success") {
+          if ($backendLintResult -ne "success" -or $backendTestsResult -ne "success" -or $frontendResult -ne "success") {
             Write-Output "One or more validation jobs failed"
+            Write-Output "Backend Lint: $backendLintResult"
+            Write-Output "Backend Tests: $backendTestsResult"
+            Write-Output "Frontend: $frontendResult"
             exit 1
           }

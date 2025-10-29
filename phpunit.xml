@@ -5,18 +5,26 @@
          colors="true"
 >
     <testsuites>
-        <!-- Core API tests (backend only) -->
+        <!-- Core tests -->
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>
-        <testsuite name="Feature">
-            <directory>tests/Feature</directory>
+        <testsuite name="Api">
+            <directory>tests/Api</directory>
         </testsuite>
-        <testsuite name="CiCd">
-            <directory>tests/CiCd</directory>
+        <testsuite name="Web">
+            <directory>tests/Web</directory>
         </testsuite>
-        
-        <!-- Frontend integration tests (requires npm run build) -->
+        <testsuite name="Configuration">
+            <directory>tests/Configuration</directory>
+        </testsuite>
+        <testsuite name="Console">
+            <directory>tests/Console</directory>
+        </testsuite>
+        <testsuite name="Event">
+            <directory>tests/Event</directory>
+        </testsuite>
+
         <testsuite name="Integration">
             <directory>tests/Integration</directory>
         </testsuite>

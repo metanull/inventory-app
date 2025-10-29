@@ -91,6 +91,7 @@ The laravel application exposes several components via distinct classes of route
   - Use Laravel Pint for PHP code and ESLint for other code (npm run lint is configured to handle js, ts, md, etc.).
 - Code must be covered by tests before push/PR.
   - Use PHPUnit for backend code and Vitest for frontend code.
+    - **CRITICAL**: Uses modern PHPUnit 11/12 attribute syntax instead of docblock annotations.
   - Tests must be run via VS Code testing features.
   - All tests must pass locally and without warnings before push/PR.
   - Tests must be simple, single-purpose, deterministic, independent, and explicit about their dependencies.

@@ -135,6 +135,7 @@ docs/Gemfile.lock
 # Temporary MD files
 **/temp_*.md
 **/temp_*.json
+**/temp_*.txt
 
 # Debug scripts
 debug_*.php
