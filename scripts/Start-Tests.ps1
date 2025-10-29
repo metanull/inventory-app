@@ -23,7 +23,7 @@ $ErrorActionPreference = "Stop"
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
 # Define all test suites
-$laravelSuites = @('Unit', 'Api', 'Web', 'Configuration', 'Console', 'Event')
+$laravelSuites = @('Api','Configuration','Console','Event','Integration','Unit','Web')
 $allJobs = @()
 $totalJobs = $laravelSuites.Count + 1  # Laravel suites + npm tests
 $completedJobs = 0
