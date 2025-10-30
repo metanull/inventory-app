@@ -20,15 +20,12 @@ trait TestsWebNestedCrud
     abstract protected function getParentRouteParam();
 
     /**
-     * Get the route parameters (parent + model)
+     * Get the foreign key name that links to parent (e.g., 'source_id', 'glossary_id')
+     * Override if different from 'source_id'
      */
-    protected function getRouteParams($model = null): array
+    protected function getParentForeignKeyName(): string
     {
-        if ($model === null) {
-            return [$this->getParentRouteParam()];
-        }
-
-        return [$this->getParentRouteParam(), $model];
+        return 'source_id';
     }
 
     public function test_index_page_displays(): void
@@ -55,7 +52,7 @@ trait TestsWebNestedCrud
     {
         $parent = $this->getParentModelClass()::factory()->create();
         $modelClass = $this->getModelClass();
-        $model = $modelClass::factory()->create(['source_id' => $parent->id] ?? []);
+        $model = $modelClass::factory()->create([$this->getParentForeignKeyName() => $parent->id]);
 
         $response = $this->get(route($this->getRouteName().'.show', [$parent, $model]));
 
@@ -67,7 +64,7 @@ trait TestsWebNestedCrud
     {
         $parent = $this->getParentModelClass()::factory()->create();
         $modelClass = $this->getModelClass();
-        $model = $modelClass::factory()->create(['source_id' => $parent->id] ?? []);
+        $model = $modelClass::factory()->create([$this->getParentForeignKeyName() => $parent->id]);
 
         $response = $this->get(route($this->getRouteName().'.edit', [$parent, $model]));
 
@@ -90,7 +87,7 @@ trait TestsWebNestedCrud
     {
         $parent = $this->getParentModelClass()::factory()->create();
         $modelClass = $this->getModelClass();
-        $model = $modelClass::factory()->create(['source_id' => $parent->id] ?? []);
+        $model = $modelClass::factory()->create([$this->getParentForeignKeyName() => $parent->id]);
         $data = $this->getFormData();
 
         $response = $this->put(route($this->getRouteName().'.update', [$parent, $model]), $data);
@@ -103,7 +100,7 @@ trait TestsWebNestedCrud
     {
         $parent = $this->getParentModelClass()::factory()->create();
         $modelClass = $this->getModelClass();
-        $model = $modelClass::factory()->create(['source_id' => $parent->id] ?? []);
+        $model = $modelClass::factory()->create([$this->getParentForeignKeyName() => $parent->id]);
 
         $response = $this->delete(route($this->getRouteName().'.destroy', [$parent, $model]));
 
