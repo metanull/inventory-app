@@ -11,10 +11,11 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.ts'])
+        <!-- SPA Build Assets -->
+        <link rel="stylesheet" href="{{ asset('spa-build/style.css') }}" />
     </head>
     <body class="font-sans antialiased">
         <div id="app"></div>
+        <script type="module" src="{{ asset('spa-build/index.js') }}"></script>
     </body>
 </html>
