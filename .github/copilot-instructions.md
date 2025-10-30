@@ -2,12 +2,12 @@
 
 ## Project Overview
 
-The **Inventory Management API** is a comprehensive Laravel 12 + Vue.js 3 application providing RESTful APIs for museum inventory management at Museum With No Frontiers. This is a monorepo containing:
+The **Inventory Management API** is a comprehensive Laravel 12 backend application for museum inventory management at Museum With No Frontiers. This is a monorepo containing:
 
-- **Backend API**: Laravel 12 (PHP 8.2+) with Sanctum authentication
-- **Frontend SPA**: Vue 3 + TypeScript with Pinia state management  
+- **Backend Application**: Laravel 12 (PHP 8.2+) providing both REST API and server-rendered frontend (the main UI)
 - **Documentation Site**: Jekyll-based static site in `/docs/`
-- **TypeScript API Client**: Auto-generated from OpenAPI spec in `/api-client/`
+- **TypeScript API Client**: Auto-generated from OpenAPI spec and published to npm (source in `/api-client/`)
+- **SPA Demo**: Vue 3 + TypeScript example application demonstrating API client usage
 
 ### Key Technologies
 
@@ -38,22 +38,30 @@ The **Inventory Management API** is a comprehensive Laravel 12 + Vue.js 3 applic
 
 ### Application Components
 
-1. **REST API Backend** (`/api` routes)
-   - Pure API backend with no frontend code
+1. **Backend Application** - Main Laravel application with two interfaces:
+   
+   **REST API** (`/api` routes)
+   - RESTful endpoints for programmatic access
    - Sanctum authentication for all endpoints
    - Resource controllers with Form Request validation
    - OpenAPI/Swagger documentation at `/api/docs`
-
-2. **Web Frontend** (`/web` routes)
+   
+   **Server-Rendered Frontend** (`/web` routes) - **Main UI**
    - Server-rendered Blade templates with Livewire
    - Direct Laravel model/controller interactions (NOT via API)
    - Alpine.js and Tailwind CSS
+   - Primary interface for end users
 
-3. **SPA Demo** (`/cli` routes)
-   - Vue 3 + TypeScript SPA demonstrating API usage
-   - Source in `/resources/js/`
-   - Uses generated TypeScript API client exclusively
-   - Pinia for state management
+2. **Documentation Site** (`/docs/`)
+   - Jekyll-based static site deployed to GitHub Pages
+   - Auto-generated API documentation and commit history
+
+3. **SPA Demo** (`/cli` routes) - Example application only
+   - Vue 3 + TypeScript demonstrating API client usage
+   - Source code in `/resources/js/`
+   - Uses the **published npm package** `@metanull/inventory-app-api-client` from GitHub Packages
+   - Does NOT use the local `/api-client/` directory directly
+   - Serves as reference implementation for external API consumers
 
 ## Development Standards
 
@@ -135,7 +143,9 @@ Additional endpoints for models with scopes:
 - Keep validation rules aligned with Model, Factory, and Migration constraints
 - Never use vendor-specific code when Laravel offers built-in features
 
-## Vue.js Frontend Conventions
+## Vue.js Frontend Conventions (SPA Demo Only)
+
+**Note**: These conventions apply to the SPA Demo in `/resources/js/` - a reference implementation for external API consumers.
 
 ### Component Structure
 
@@ -148,7 +158,7 @@ Additional endpoints for models with scopes:
 
 - **Pinia stores**: For ALL shared state (never use component `data` or `reactive`)
 - **Store patterns**: Follow existing patterns in `/resources/js/stores/`
-- **API calls**: Use generated client from `/api-client/` - NEVER use `fetch` or `axios` directly
+- **API calls**: Use the **published npm package** `@metanull/inventory-app-api-client` - NEVER use `fetch`, `axios`, or the local `/api-client/` directory directly
 
 ### Reusable Components
 
@@ -214,11 +224,11 @@ Test requirements:
 - **Explicit mocking**: All external dependencies faked/mocked per-test
 - **Reference example**: Use `Contexts.test.ts` as canonical pattern
 
-## API Client Generation
+## API Client Generation & Publishing
 
-The TypeScript client in `/api-client/` is auto-generated - **NEVER edit manually**.
+The TypeScript client is auto-generated and published to npm. The local `/api-client/` directory contains the generated source - **NEVER edit manually**.
 
-### Generation Process
+### Generation & Publishing Process
 
 ```powershell
 # Generate client from OpenAPI spec
@@ -231,10 +241,17 @@ The TypeScript client in `/api-client/` is auto-generated - **NEVER edit manuall
 Steps performed:
 1. Generate OpenAPI spec: `composer ci-openapi-doc` → `docs/_openapi/api.json`
 2. Generate TypeScript client: `openapi-generator-cli` → `/api-client/`
+3. Publish to GitHub Packages as `@metanull/inventory-app-api-client`
 
-### Using the Client
+### Using the Published Client
+
+**The SPA Demo uses the published npm package**, not the local `/api-client/` directory:
 
 ```typescript
+// Install from GitHub Packages
+npm install @metanull/inventory-app-api-client
+
+// Use in your application
 import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client';
 
 const api = new DefaultApi(new Configuration({ basePath: 'https://api.url' }));
@@ -320,7 +337,7 @@ For detailed language and framework-specific guidelines, see:
 ## Common Pitfalls to Avoid
 
 - ❌ Editing files in `/api-client/` (auto-generated)
-- ❌ Using `fetch` or `axios` in Vue SPA (use generated client)
+- ❌ Using `fetch`, `axios`, or local `/api-client/` in SPA Demo (use published npm package)
 - ❌ Altering existing migrations (create new ones)
 - ❌ Using `any` type in TypeScript
 - ❌ Direct file system access (use Laravel Storage)
