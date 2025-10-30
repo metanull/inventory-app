@@ -77,26 +77,6 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "eslint:run",
-			"type": "shell",
-			"command": "npm",
-			"args": [
-				"--prefix",
-				"./spa",
-				"run",
-				"lint"
-			],
-			"group": "build",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"presentation": {
-				"reveal": "always",
-				"panel": "shared"
-			},
-			"problemMatcher": []
-		},
-		{
 			"label": "spa:lint",
 			"type": "shell",
 			"command": "npm",
@@ -191,7 +171,7 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "npm:build:spa",
+			"label": "spa:build",
 			"type": "shell",
 			"command": "npm",
 			"args": [
@@ -212,7 +192,7 @@
 			"label": "npm:build:all",
 			"dependsOn": [
 				"npm:build",
-				"npm:build:spa"
+				"spa:build"
 			],
 			"dependsOrder": "sequence",
 			"group": "build",
@@ -230,7 +210,7 @@
 				"spa:lint",
 				"spa:typecheck",
 				"npm:build",
-				"npm:build:spa"
+				"spa:build"
 			],
 			"dependsOrder": "sequence",
 			"group": "build",
