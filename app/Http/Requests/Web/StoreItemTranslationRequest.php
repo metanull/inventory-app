@@ -11,6 +11,16 @@ class StoreItemTranslationRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    public function prepareForValidation(): void
+    {
+        // Convert extra array to JSON if present
+        if ($this->has('extra') && is_array($this->extra)) {
+            $this->merge([
+                'extra' => empty($this->extra) ? null : json_encode($this->extra),
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [
