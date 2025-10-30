@@ -66,7 +66,6 @@
                     placeholder="City name to display (may differ from actual address)"
                 />
             </x-form.field>
-        </div>
     </x-form.section>
 
     {{-- Address Information --}}
@@ -103,7 +102,6 @@
                     placeholder="Additional address information or directions"
                 />
             </x-form.field>
-        </div>
     </x-form.section>
 
     {{-- Contact Information --}}
@@ -159,7 +157,6 @@
                     placeholder="Additional contact information"
                 />
             </x-form.field>
-        </div>
     </x-form.section>
 
     {{-- Advanced --}}
@@ -171,7 +168,6 @@
                     placeholder="Legacy system reference"
                 />
             </x-form.field>
-        </div>
     </x-form.section>
 </div>
 
