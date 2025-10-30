@@ -251,14 +251,14 @@ Before submitting your PR, ensure you've followed our guidelines:
 
 - [ ] Code follows our [coding standards](guidelines/coding-guidelines/)
 - [ ] All [quality controls](guidelines/coding-guidelines/#quality-controls) pass
-- [ ] No linting errors (`composer ci-lint`)
+- [ ] No linting errors (`.\vendor\bin\pint`, `npm run lint`)
 - [ ] PHP syntax is valid
-- [ ] Build completes without errors (`composer ci-build`)
+- [ ] Build completes without errors (`npm run build`)
 
 ### Testing
 
 - [ ] Tests written for new functionality (see [testing guidelines](guidelines/testing/))
-- [ ] All tests pass (`composer ci-test`)
+- [ ] All tests pass (`php artisan test --parallel`, `npm run test`)
 - [ ] Test coverage maintained (aim for 80%+ on new code)
 - [ ] Database migrations tested
 

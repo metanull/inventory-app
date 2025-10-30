@@ -186,6 +186,22 @@ class Item extends Model
     }
 
     /**
+     * Get all outgoing links (where this item is the source).
+     */
+    public function outgoingLinks(): HasMany
+    {
+        return $this->hasMany(ItemItemLink::class, 'source_id');
+    }
+
+    /**
+     * Get all incoming links (where this item is the target).
+     */
+    public function incomingLinks(): HasMany
+    {
+        return $this->hasMany(ItemItemLink::class, 'target_id');
+    }
+
+    /**
      * Get all collections this item is attached to via many-to-many relationship.
      */
     public function attachedToCollections(): BelongsToMany

@@ -15,6 +15,7 @@ use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\InfoController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemImageController;
+use App\Http\Controllers\ItemItemLinkController;
 use App\Http\Controllers\ItemTranslationController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\LocationController;
@@ -119,6 +120,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('item-image/{itemImage}/view', [ItemImageController::class, 'view'])->name('item-image.view');
         Route::get('item-image/{itemImage}', [ItemImageController::class, 'show'])->name('item-image.show');
 
+        // ItemItemLink routes (read)
+        Route::get('item-item-link/{itemItemLink}', [ItemItemLinkController::class, 'show'])->name('item-item-link.show');
+        Route::get('item-item-link', [ItemItemLinkController::class, 'index'])->name('item-item-link.index');
+
         // Image upload routes (read)
         Route::get('image-upload/{id}/status', [ImageUploadController::class, 'status'])->name('image-upload.status');
         Route::get('image-upload/{image_upload}', [ImageUploadController::class, 'show'])->name('image-upload.show');
@@ -185,6 +190,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('item/{item}/attach-image', [ItemImageController::class, 'attachFromAvailable'])->name('item.attachImage');
         Route::post('item/{item}/attach-tag', [ItemController::class, 'attachTag'])->name('item.attachTag');
         Route::post('item/{item}/attach-tags', [ItemController::class, 'attachTags'])->name('item.attachTags');
+        Route::post('item-item-link', [ItemItemLinkController::class, 'store'])->name('item-item-link.store');
         Route::post('project', [ProjectController::class, 'store'])->name('project.store');
         Route::post('image-upload', [ImageUploadController::class, 'store'])->name('image-upload.store');
         Route::post('province', [ProvinceController::class, 'store'])->name('province.store');
@@ -262,6 +268,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::patch('item-image/{itemImage}/move-down', [ItemImageController::class, 'moveDown'])->name('item-image.moveDown');
         Route::patch('item-image/{itemImage}/tighten-ordering', [ItemImageController::class, 'tightenOrdering'])->name('item-image.tightenOrdering');
 
+        Route::patch('item-item-link/{itemItemLink}', [ItemItemLinkController::class, 'update'])->name('item-item-link.update');
+        Route::put('item-item-link/{itemItemLink}', [ItemItemLinkController::class, 'update']);
+
         Route::patch('collection-image/{collectionImage}', [CollectionImageController::class, 'update'])->name('collection-image.update');
         Route::put('collection-image/{collectionImage}', [CollectionImageController::class, 'update']);
         Route::patch('collection-image/{collectionImage}/move-up', [CollectionImageController::class, 'moveUp'])->name('collection-image.moveUp');
@@ -317,6 +326,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('item/{item}/detach-tags', [ItemController::class, 'detachTags'])->name('item.detachTags');
         Route::delete('item-image/{itemImage}', [ItemImageController::class, 'destroy'])->name('item-image.destroy');
         Route::post('item-image/{itemImage}/detach', [ItemImageController::class, 'detachToAvailable'])->name('item-image.detach');
+        Route::delete('item-item-link/{itemItemLink}', [ItemItemLinkController::class, 'destroy'])->name('item-item-link.destroy');
         Route::delete('collection-image/{collectionImage}', [CollectionImageController::class, 'destroy'])->name('collection-image.destroy');
         Route::post('collection-image/{collectionImage}/detach', [CollectionImageController::class, 'detachToAvailable'])->name('collection-image.detach');
         Route::delete('project/{project}', [ProjectController::class, 'destroy'])->name('project.destroy');

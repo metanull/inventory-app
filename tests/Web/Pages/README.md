@@ -146,7 +146,7 @@ protected function getDatabaseAssertions(array $data): array
 
 ## Adding a New Page Test
 
-1. Create new test file: `tests-new/Web/Pages/{ModelName}Test.php`
+1. Create new test file: `tests/Web/Pages/{ModelName}Test.php`
 2. Use `AuthenticatesWebRequests` + `RefreshDatabase` + `TestsWebCrud` traits
 3. Implement three required methods: `getRouteName()`, `getModelClass()`, `getFormData()`
 4. Add resource to `Web/Middleware/AuthenticationTest` and `PermissionsTest`

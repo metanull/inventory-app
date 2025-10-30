@@ -313,17 +313,10 @@ composer dev
 ### 5.2 Code Quality
 
 ```bash
-# Run tests
-composer ci-test
-
 # Check code style
-composer ci-lint
-
-# Fix code style
-./vendor/bin/pint
-
-# Run all quality checks
-composer ci-before:pull-request
+.\vendor\bin\pint
+npm run lint
+npm run type-check
 ```
 
 ### 5.3 Database Management

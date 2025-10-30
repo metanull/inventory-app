@@ -268,10 +268,12 @@ Before submitting code, ensure all quality controls pass:
 
 ```bash
 # Run PHP CS Fixer (Pint)
-composer ci-lint
+`.\vendor\bin\pint`
+`npm run lint`
 
 # Run static analysis (if configured)
-composer ci-audit
+`composer audit`
+`npm audit`
 ```
 
 ````
