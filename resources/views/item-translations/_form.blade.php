@@ -56,13 +56,13 @@
             />
         </x-form.field>
 
-        <x-form.field label="Description" name="description" variant="gray">
-            <x-form.textarea 
-                name="description" 
-                :value="old('description', $itemTranslation->description ?? '')"
-                rows="4"
-            />
-        </x-form.field>
+        <x-form.markdown-editor 
+            name="description"
+            label="Description"
+            :value="old('description', $itemTranslation->description ?? '')"
+            rows="6"
+            helpText="Use Markdown formatting. Preview updates in real-time."
+        />
     </x-form.section>
 
     {{-- Object Details --}}

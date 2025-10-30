@@ -16,7 +16,9 @@
     <x-display.description-list>
         <x-display.field label="Glossary Entry" :value="$glossary->internal_name" />
         <x-display.field label="Language" :value="$translation->language->internal_name" />
-        <x-display.field label="Definition" :value="$translation->definition" />
+        <x-display.field label="Definition">
+            <x-display.markdown :content="$translation->definition" />
+        </x-display.field>
     </x-display.description-list>
 </x-layout.show-page>
 @endsection

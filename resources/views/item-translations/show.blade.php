@@ -26,7 +26,9 @@
             <x-display.field label="Context">
                 <x-display.context-reference :context="$itemTranslation->context" />
             </x-display.field>
-            <x-display.field label="Description" :value="$itemTranslation->description" full-width />
+            <x-display.field label="Description" full-width>
+                <x-display.markdown :content="$itemTranslation->description" />
+            </x-display.field>
             <x-display.field label="Type" :value="$itemTranslation->type" />
             <x-display.field label="Holder" :value="$itemTranslation->holder" full-width />
             <x-display.field label="Owner" :value="$itemTranslation->owner" />

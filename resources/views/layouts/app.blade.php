@@ -20,7 +20,7 @@
 
         <!-- Scripts -->
         @if(!app()->environment('testing') && config('app.env') !== 'testing')
-            @vite(['resources/css/app.css'])
+            @vite(['resources/css/app.css', 'resources/js/app.ts'])
         @else
             <!-- Testing environment: Skip Vite assets -->
             <style>
@@ -89,7 +89,22 @@
 
     @livewireScripts
 
+    <!-- marked.js for Markdown Editor component -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        // Configure marked.js options
+        if (typeof window.marked !== 'undefined') {
+            window.marked.setOptions({
+                breaks: true,
+                gfm: true,
+                headerIds: false,
+                mangle: false,
+            });
+        }
+    </script>
+
     <!-- App Footer Component -->
     <x-app-footer />
     </body>
 </html>
+

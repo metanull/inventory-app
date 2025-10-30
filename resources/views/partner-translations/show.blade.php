@@ -29,7 +29,9 @@
             <x-display.field label="Context">
                 <x-display.context-reference :context="$partnerTranslation->context" />
             </x-display.field>
-            <x-display.field label="Description" :value="$partnerTranslation->description" full-width />
+            <x-display.field label="Description" full-width>
+                <x-display.markdown :content="$partnerTranslation->description" />
+            </x-display.field>
             <x-display.field label="City (Display)" :value="$partnerTranslation->city_display" />
             
             {{-- Address Section --}}

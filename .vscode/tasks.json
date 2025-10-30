@@ -37,10 +37,136 @@
       "problemMatcher": []
     },
     {
-      "label": "tests:php-then-js",
-      "dependsOn": ["phpunit:run", "vitest:run"],
+      "label": "pint:run",
+      "type": "shell",
+      "command": "vendor\\bin\\pint",
+      "args": ["--no-interaction","--parallel"],
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "composer:audit",
+      "type": "shell",
+      "command": "composer",
+      "args": ["audit"],
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "eslint:run",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "lint"],
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "typecheck:run",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "type-check"],
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "npm:audit",
+      "type": "shell",
+      "command": "npm",
+      "args": ["audit"],
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "npm:build",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "build"],
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "javascript:validate",
+      "dependsOn": [
+        "npm:audit",
+        "eslint:run",
+        "typecheck:run",
+        "npm:build"
+      ],
       "dependsOrder": "sequence",
-      "group": "test",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+    ,
+    {
+      "label": "php:validate",
+      "dependsOn": [
+        "composer:audit",
+        "pint:run"
+      ],
+      "dependsOrder": "sequence",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+    ,
+    {
+      "label": "composer:dev",
+      "type": "shell",
+      "command": "composer",
+      "args": ["dev"],
+      "group": "none",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
       "presentation": {
         "reveal": "always",
         "panel": "shared"

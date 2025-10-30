@@ -63,14 +63,39 @@
                 @php
                     $inventoryCards = [
                         ['route' => 'items.index', 'title' => 'Items', 'description' => 'Create, browse and maintain collection item records.', 'entity' => 'items', 'icon' => 'archive-box'],
-                        ['route' => 'item-translations.index', 'title' => 'Item Translations', 'description' => 'Manage translations for items across different languages and contexts.', 'entity' => 'item_translations', 'icon' => 'language'],
                         ['route' => 'partners.index', 'title' => 'Partners', 'description' => 'Manage institutions, collaborators and contributors.', 'entity' => 'partners', 'icon' => 'user-group'],
                         ['route' => 'projects.index', 'title' => 'Projects', 'description' => 'Feature flags and visibility of app domains.', 'entity' => 'projects', 'icon' => 'rocket-launch'],
                         ['route' => 'collections.index', 'title' => 'Collections', 'description' => 'Group and present curated item sets.', 'entity' => 'collections', 'icon' => 'rectangle-stack'],
-                        ['route' => 'collection-translations.index', 'title' => 'Collection Translations', 'description' => 'Manage translations for collections across different languages and contexts.', 'entity' => 'collection_translations', 'icon' => 'language'],
                     ];
                 @endphp
                 @foreach($inventoryCards as $card)
+                    <x-ui.card 
+                        href="{{ route($card['route']) }}"
+                        :title="$card['title']"
+                        :description="$card['description']"
+                        :entity="$card['entity']"
+                        padding="p-5">
+                        <x-slot:icon>
+                            <x-dynamic-component :component="'heroicon-o-' . $card['icon']" class="w-6 h-6" />
+                        </x-slot:icon>
+                        Open
+                    </x-ui.card>
+                @endforeach
+            </div>
+        </section>
+
+        {{-- Translations Group (if authenticated and has data permissions) --}}
+        <section class="space-y-4">
+            <h2 class="text-sm font-semibold tracking-wide text-gray-500 uppercase">Translations</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @php
+                    $translationCards = [
+                        ['route' => 'item-translations.index', 'title' => 'Item Translations', 'description' => 'Manage translations for items across different languages and contexts.', 'entity' => 'item_translations', 'icon' => 'language'],
+                        ['route' => 'partner-translations.index', 'title' => 'Partner Translations', 'description' => 'Manage translations for partners across different languages and contexts.', 'entity' => 'partner_translations', 'icon' => 'language'],
+                        ['route' => 'collection-translations.index', 'title' => 'Collection Translations', 'description' => 'Manage translations for collections across different languages and contexts.', 'entity' => 'collection_translations', 'icon' => 'language'],
+                    ];
+                @endphp
+                @foreach($translationCards as $card)
                     <x-ui.card 
                         href="{{ route($card['route']) }}"
                         :title="$card['title']"

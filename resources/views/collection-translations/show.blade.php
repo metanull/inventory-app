@@ -25,7 +25,9 @@
             <x-display.field label="Context">
                 <x-display.context-reference :context="$collectionTranslation->context" />
             </x-display.field>
-            <x-display.field label="Description" :value="$collectionTranslation->description" full-width />
+            <x-display.field label="Description" full-width>
+                <x-display.markdown :content="$collectionTranslation->description" />
+            </x-display.field>
             <x-display.field label="URL" :value="$collectionTranslation->url" full-width />
             
             @if($collectionTranslation->extra)
