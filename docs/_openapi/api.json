@@ -15,6 +15,52 @@
         }
     ],
     "paths": {
+        "/user": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "`User`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/.json": {
+            "get": {
+                "operationId": "documentation",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "public, max-age=3600"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/available-image/{availableImage}/download": {
             "get": {
                 "operationId": "available-image.download",
@@ -2395,7 +2441,17 @@
                                     "type": "object",
                                     "properties": {
                                         "message": {
-                                            "type": "string"
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        ""
+                                                    ]
+                                                }
+                                            ]
                                         }
                                     },
                                     "required": [
@@ -7329,6 +7385,435 @@
                 }
             }
         },
+        "/item-item-link/{itemItemLink}": {
+            "get": {
+                "operationId": "item-item-link.show",
+                "summary": "Display the specified resource",
+                "tags": [
+                    "ItemItemLink"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemItemLink",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ItemItemLinkResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemItemLinkResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "item-item-link.update",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "ItemItemLink"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemItemLink",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateItemItemLinkRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ItemItemLinkResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemItemLinkResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "itemItemLink.update_2",
+                "summary": "Update the specified resource in storage",
+                "tags": [
+                    "ItemItemLink"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemItemLink",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateItemItemLinkRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ItemItemLinkResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemItemLinkResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "item-item-link.destroy",
+                "summary": "Remove the specified resource from storage",
+                "tags": [
+                    "ItemItemLink"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemItemLink",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/item-item-link": {
+            "get": {
+                "operationId": "item-item-link.index",
+                "summary": "Display a listing of the resource",
+                "tags": [
+                    "ItemItemLink"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "source_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "target_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "context_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "item_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated set of `ItemItemLinkResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ItemItemLinkResource"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "first": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "last": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "prev": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "next": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "first",
+                                                "last",
+                                                "prev",
+                                                "next"
+                                            ]
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer"
+                                                },
+                                                "from": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "last_page": {
+                                                    "type": "integer"
+                                                },
+                                                "links": {
+                                                    "type": "array",
+                                                    "description": "Generated paginator links.",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "url": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "label": {
+                                                                "type": "string"
+                                                            },
+                                                            "active": {
+                                                                "type": "boolean"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "url",
+                                                            "label",
+                                                            "active"
+                                                        ]
+                                                    }
+                                                },
+                                                "path": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "description": "Base path for paginator generated URLs."
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "description": "Number of items shown per page."
+                                                },
+                                                "to": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ],
+                                                    "description": "Number of the last item in the slice."
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "description": "Total number of items being paginated."
+                                                }
+                                            },
+                                            "required": [
+                                                "current_page",
+                                                "from",
+                                                "last_page",
+                                                "links",
+                                                "path",
+                                                "per_page",
+                                                "to",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "links",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "item-item-link.store",
+                "summary": "Store a newly created resource in storage",
+                "tags": [
+                    "ItemItemLink"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreItemItemLinkRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ItemItemLinkResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemItemLinkResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
         "/language/default": {
             "get": {
                 "operationId": "language.getDefault",
@@ -7363,7 +7848,17 @@
                                     "type": "object",
                                     "properties": {
                                         "message": {
-                                            "type": "string"
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        ""
+                                                    ]
+                                                }
+                                            ]
                                         }
                                     },
                                     "required": [
@@ -7443,7 +7938,17 @@
                                     "type": "object",
                                     "properties": {
                                         "message": {
-                                            "type": "string"
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        ""
+                                                    ]
+                                                }
+                                            ]
                                         }
                                     },
                                     "required": [
@@ -8813,7 +9318,14 @@
                                     "type": "object",
                                     "properties": {
                                         "success": {
-                                            "type": "string"
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "boolean"
+                                                }
+                                            ]
                                         },
                                         "message": {
                                             "type": "string"
@@ -8948,10 +9460,26 @@
                                     "type": "object",
                                     "properties": {
                                         "token": {
-                                            "type": "string"
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         },
                                         "user": {
-                                            "type": "string"
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "minItems": 0,
+                                                    "maxItems": 0,
+                                                    "additionalItems": false
+                                                }
+                                            ]
                                         }
                                     },
                                     "required": [
@@ -8970,16 +9498,49 @@
                                     "type": "object",
                                     "properties": {
                                         "requires_two_factor": {
-                                            "type": "string"
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "boolean"
+                                                }
+                                            ]
                                         },
                                         "available_methods": {
-                                            "type": "string"
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "minItems": 0,
+                                                    "maxItems": 0,
+                                                    "additionalItems": false
+                                                }
+                                            ]
                                         },
                                         "primary_method": {
-                                            "type": "string"
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         },
                                         "message": {
-                                            "type": "string"
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "Two-factor authentication required."
+                                                    ]
+                                                }
+                                            ]
                                         }
                                     },
                                     "required": [
@@ -9025,10 +9586,26 @@
                                     "type": "object",
                                     "properties": {
                                         "token": {
-                                            "type": "string"
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         },
                                         "user": {
-                                            "type": "string"
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "minItems": 0,
+                                                    "maxItems": 0,
+                                                    "additionalItems": false
+                                                }
+                                            ]
                                         }
                                     },
                                     "required": [
@@ -14806,17 +15383,21 @@
                         }
                     },
                     "items_count": {
-                        "type": "string",
-                        "description": "The number of items in this collection (computed)"
+                        "type": "integer",
+                        "description": "The number of items in this collection (computed)",
+                        "minimum": 0
                     },
                     "attached_items_count": {
-                        "type": "string"
+                        "type": "integer",
+                        "minimum": 0
                     },
                     "partners_count": {
-                        "type": "string"
+                        "type": "integer",
+                        "minimum": 0
                     },
                     "translations_count": {
-                        "type": "string"
+                        "type": "integer",
+                        "minimum": 0
                     }
                 },
                 "required": [
@@ -14976,7 +15557,14 @@
                 "type": "object",
                 "properties": {
                     "success": {
-                        "type": "string"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "boolean"
+                            }
+                        ]
                     },
                     "message": {
                         "type": "string"
@@ -15378,6 +15966,64 @@
                     "updated_at"
                 ],
                 "title": "ItemImageResource"
+            },
+            "ItemItemLinkResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier (GUID)"
+                    },
+                    "source_id": {
+                        "type": "string",
+                        "description": "The source item ID (the item initiating the link)"
+                    },
+                    "target_id": {
+                        "type": "string",
+                        "description": "The target item ID (the item receiving the link)"
+                    },
+                    "context_id": {
+                        "type": "string",
+                        "description": "The context ID (the context in which the link exists)"
+                    },
+                    "source": {
+                        "description": "The source item (ItemResource)",
+                        "$ref": "#/components/schemas/ItemResource"
+                    },
+                    "target": {
+                        "description": "The target item (ItemResource)",
+                        "$ref": "#/components/schemas/ItemResource"
+                    },
+                    "context": {
+                        "description": "The context (ContextResource)",
+                        "$ref": "#/components/schemas/ContextResource"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "The date of creation of the resource (managed by the system)"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "The date of last modification of the resource (managed by the system)"
+                    }
+                },
+                "required": [
+                    "id",
+                    "source_id",
+                    "target_id",
+                    "context_id",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ItemItemLinkResource"
             },
             "ItemResource": {
                 "type": "object",
@@ -15908,7 +16554,17 @@
                 "type": "object",
                 "properties": {
                     "message": {
-                        "type": "string"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "string",
+                                "enum": [
+                                    ""
+                                ]
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -15920,10 +16576,27 @@
                 "type": "object",
                 "properties": {
                     "success": {
-                        "type": "string"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "boolean"
+                            }
+                        ]
                     },
                     "message": {
-                        "type": "string"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "Operation completed successfully"
+                                ]
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -15954,24 +16627,35 @@
                         "type": "string"
                     },
                     "size": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "alt_text": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "display_order": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "partner": {
                         "description": "Relationships",
                         "$ref": "#/components/schemas/PartnerResource"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "Timestamps"
                     },
                     "updated_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -16015,14 +16699,20 @@
                         "$ref": "#/components/schemas/CountryResource"
                     },
                     "latitude": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "GPS Location"
                     },
                     "longitude": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "map_zoom": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "project": {
                         "description": "Relationships",
@@ -16050,7 +16740,7 @@
                         }
                     },
                     "visible": {
-                        "type": "string",
+                        "type": "boolean",
                         "description": "Visibility"
                     },
                     "created_at": {
@@ -16106,24 +16796,35 @@
                         "type": "string"
                     },
                     "size": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "alt_text": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "display_order": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "partner_translation": {
                         "description": "Relationships",
                         "$ref": "#/components/schemas/PartnerTranslationResource"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "Timestamps"
                     },
                     "updated_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -16162,48 +16863,92 @@
                         "description": "Core partner info"
                     },
                     "description": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "city_display": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "Address fields (embedded)"
                     },
                     "address_line_1": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "address_line_2": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "postal_code": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "address_notes": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "contact_name": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "Contact fields (semi-structured)"
                     },
                     "contact_email_general": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "contact_email_press": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "contact_phone": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "contact_website": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "contact_notes": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "contact_emails": {
-                        "type": "string"
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {}
                     },
                     "contact_phones": {
-                        "type": "string"
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {}
                     },
                     "partner": {
                         "description": "Relationships",
@@ -16222,18 +16967,32 @@
                         }
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "Metadata"
                     },
                     "extra": {
-                        "type": "string"
+                        "type": [
+                            "object",
+                            "null"
+                        ]
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "Timestamps"
                     },
                     "updated_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -16795,6 +17554,38 @@
                     "size"
                 ],
                 "title": "StoreItemImageRequest"
+            },
+            "StoreItemItemLinkRequest": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "source_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "target_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "context_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "source_id",
+                    "target_id",
+                    "context_id"
+                ],
+                "title": "StoreItemItemLinkRequest"
             },
             "StoreItemRequest": {
                 "type": "object",
@@ -17907,16 +18698,46 @@
                 "type": "object",
                 "properties": {
                     "two_factor_enabled": {
-                        "type": "string"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "boolean"
+                            }
+                        ]
                     },
                     "available_methods": {
-                        "type": "string"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "minItems": 0,
+                                "maxItems": 0,
+                                "additionalItems": false
+                            }
+                        ]
                     },
                     "primary_method": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "requires_two_factor": {
-                        "type": "string"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "boolean"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -18203,6 +19024,38 @@
                     }
                 },
                 "title": "UpdateItemImageRequest"
+            },
+            "UpdateItemItemLinkRequest": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "source_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "target_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "context_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "source_id",
+                    "target_id",
+                    "context_id"
+                ],
+                "title": "UpdateItemItemLinkRequest"
             },
             "UpdateItemRequest": {
                 "type": "object",
@@ -19060,11 +19913,93 @@
                 },
                 "title": "UpdateThemeTranslationRequest"
             },
+            "User": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "email_verified_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "two_factor_confirmed_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "current_team_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "profile_photo_path": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "profile_photo_url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "email",
+                    "email_verified_at",
+                    "two_factor_confirmed_at",
+                    "current_team_id",
+                    "profile_photo_path",
+                    "created_at",
+                    "updated_at",
+                    "profile_photo_url"
+                ],
+                "title": "User"
+            },
             "UserPermissionsResource": {
                 "type": "object",
                 "properties": {
                     "permissions": {
-                        "type": "string"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "minItems": 0,
+                                "maxItems": 0,
+                                "additionalItems": false
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -19112,22 +20047,47 @@
                 "type": "object",
                 "properties": {
                     "repository": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "build_timestamp": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "repository_url": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "api_client_version": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "app_version": {
-                        "type": "string"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "1.0.0-dev"
+                                ]
+                            }
+                        ]
                     },
                     "commit_sha": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 },
                 "required": [

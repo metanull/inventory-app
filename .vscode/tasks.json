@@ -1,177 +1,265 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "phpunit:run",
-      "type": "shell",
-      "command": "php",
-      "args": [
-        "artisan",
-        "test",
-        "--parallel",
-        "--compact"
-      ],
-      "group": "test",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "vitest:run",
-      "type": "shell",
-      "command": "npm",
-      "args": ["run", "test:unit"],
-      "group": "test",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "silent",
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "pint:run",
-      "type": "shell",
-      "command": "vendor\\bin\\pint",
-      "args": ["--no-interaction","--parallel"],
-      "group": "build",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "composer:audit",
-      "type": "shell",
-      "command": "composer",
-      "args": ["audit"],
-      "group": "build",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "eslint:run",
-      "type": "shell",
-      "command": "npm",
-      "args": ["run", "lint"],
-      "group": "build",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "typecheck:run",
-      "type": "shell",
-      "command": "npm",
-      "args": ["run", "type-check"],
-      "group": "build",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "npm:audit",
-      "type": "shell",
-      "command": "npm",
-      "args": ["audit"],
-      "group": "build",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "npm:build",
-      "type": "shell",
-      "command": "npm",
-      "args": ["run", "build"],
-      "group": "build",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "javascript:validate",
-      "dependsOn": [
-        "npm:audit",
-        "eslint:run",
-        "typecheck:run",
-        "npm:build"
-      ],
-      "dependsOrder": "sequence",
-      "group": "build",
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    }
-    ,
-    {
-      "label": "php:validate",
-      "dependsOn": [
-        "composer:audit",
-        "pint:run"
-      ],
-      "dependsOrder": "sequence",
-      "group": "build",
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    }
-    ,
-    {
-      "label": "composer:dev",
-      "type": "shell",
-      "command": "composer",
-      "args": ["dev"],
-      "group": "none",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    }
-  ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "phpunit:run",
+			"type": "shell",
+			"command": "php",
+			"args": [
+				"artisan",
+				"test",
+				"--parallel",
+				"--compact"
+			],
+			"group": "test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "spa:test",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"./spa",
+				"run",
+				"test"
+			],
+			"group": "test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "silent",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "pint:run",
+			"type": "shell",
+			"command": "vendor\\bin\\pint",
+			"args": [
+				"--no-interaction",
+				"--parallel"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "composer:audit",
+			"type": "shell",
+			"command": "composer",
+			"args": [
+				"audit"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "spa:lint",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"./spa",
+				"run",
+				"lint"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "spa:typecheck",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"./spa",
+				"run",
+				"type-check"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "npm:audit",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"audit"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "spa:audit",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"./spa",
+				"audit"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "npm:build",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "spa:build",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"spa:build"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "npm:build:all",
+			"dependsOn": [
+				"npm:build",
+				"spa:build"
+			],
+			"dependsOrder": "sequence",
+			"group": "build",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "javascript:validate",
+			"dependsOn": [
+				"npm:audit",
+				"spa:audit",
+				"spa:lint",
+				"spa:typecheck",
+				"npm:build",
+				"spa:build"
+			],
+			"dependsOrder": "sequence",
+			"group": "build",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "php:validate",
+			"dependsOn": [
+				"composer:audit",
+				"pint:run"
+			],
+			"dependsOrder": "sequence",
+			"group": "build",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "composer:dev",
+			"type": "shell",
+			"command": "composer",
+			"args": [
+				"dev"
+			],
+			"group": "none",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"type": "npm",
+			"script": "lint",
+			"path": "spa",
+			"problemMatcher": [
+				"$eslint-compact"
+			],
+			"label": "npm: lint - spa",
+			"detail": "eslint . --fix"
+		}
+	]
 }

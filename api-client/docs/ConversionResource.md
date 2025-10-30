@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**success** | **string** |  | [default to undefined]
+**success** | [**MarkdownPreview422ResponseSuccess**](MarkdownPreview422ResponseSuccess.md) |  | [default to undefined]
 **message** | **string** |  | [default to undefined]
 **data** | **string** |  | [default to undefined]
 **error** | **string** |  | [default to undefined]

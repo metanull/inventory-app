@@ -8,7 +8,7 @@ import configPrettier from 'eslint-config-prettier'
 export default [
   {
     name: 'app/files-to-lint',
-    files: ['resources/js/**/*.{ts,mts,tsx,vue}'],
+    files: ['src/**/*.{ts,mts,tsx,vue}'],
   },
 
   {
@@ -22,8 +22,10 @@ export default [
       '**/vendor/**',
       '**/storage/**',
       '**/bootstrap/cache/**',
-      '**/public/build/**',
-      '**/temp-vue-app/**'
+      '**/public/**',
+      '**/node_modules/**',
+      '**/coverage/**',
+      '**/*.log'
     ],
   },
 

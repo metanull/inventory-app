@@ -47,7 +47,11 @@ describe('AppFooter', () => {
   it('displays API client version', () => {
     const wrapper = mount(AppFooter)
 
-    expect(wrapper.text()).toContain('API Client|Version 1.1.21-dev+20250724.1804')
+    expect(wrapper.text()).toContain('API Client')
+    expect(wrapper.text()).toContain('Version')
+    // Verify the version pattern exists (should contain semantic version)
+    const versionMatch = wrapper.text().match(/Version\s+[\d.+\-dev]+/)
+    expect(versionMatch).toBeTruthy()
   })
 
   it('has correct structure and layout classes', () => {

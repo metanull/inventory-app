@@ -5,10 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**requires_two_factor** | **string** |  | [default to undefined]
-**available_methods** | **string** |  | [default to undefined]
+**requires_two_factor** | [**MarkdownPreview422ResponseSuccess**](MarkdownPreview422ResponseSuccess.md) |  | [default to undefined]
+**available_methods** | [**TokenAcquire202ResponseAvailableMethods**](TokenAcquire202ResponseAvailableMethods.md) |  | [default to undefined]
 **primary_method** | **string** |  | [default to undefined]
-**message** | **string** |  | [default to undefined]
+**message** | [**TokenAcquire202ResponseMessage**](TokenAcquire202ResponseMessage.md) |  | [default to undefined]
 
 ## Example
 

@@ -360,6 +360,38 @@ All endpoints support:
 
 ## Quick Start
 
+### Project Structure
+
+This project is organized as a **monorepo** with the following structure:
+
+```
+inventory-app/
+├── app/                      # Laravel backend application
+├── routes/                   # API and web routes  
+├── resources/
+│   ├── css/                 # Blade/Tailwind styles
+│   └── views/               # Laravel Blade templates
+├── database/                # Migrations, factories, seeders
+├── tests/                   # Backend tests (PHPUnit)
+├── public/
+│   ├── build/              # Backend build output (Blade CSS)
+│   └── spa-build/          # SPA build output (Vue 3)
+├── spa/                     # Vue 3 SPA Demo (separate app)
+│   ├── src/                # Vue application source
+│   ├── package.json        # SPA-specific dependencies
+│   ├── vite.config.js      # SPA build configuration
+│   └── README.md           # SPA documentation
+├── docs/                    # Jekyll documentation site
+├── package.json            # Backend/Blade dependencies
+└── composer.json           # PHP dependencies
+```
+
+**Key Points:**
+- **Backend**: Laravel 12 with server-rendered Blade templates (main production UI)
+- **SPA Demo**: Vue 3 + TypeScript demo application at `/cli/` route (reference implementation)
+- **Separate Builds**: Backend and SPA build independently into `/public/build/` and `/public/spa-build/`
+- **Independent Development**: Each application has its own `package.json`, configs, and dependency trees
+
 ### Prerequisites
 
 - **PHP 8.2+** - Modern PHP version with latest features
@@ -382,20 +414,35 @@ All endpoints support:
     composer install
     ```
 
-3. **Install Node.js dependencies**
+3. **Install Node.js dependencies (Backend/Blade)**
 
     ```bash
     npm install
     ```
 
-4. **Environment setup**
+4. **Install Node.js dependencies (SPA)**
+
+    ```bash
+    cd spa
+    npm install
+    cd ..
+    ```
+
+5. **Environment setup**
 
     ```bash
     cp .env.example .env
     php artisan key:generate
     ```
 
-5. **Database setup**
+5. **Environment setup**
+
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+
+6. **Database setup**
 
     ```bash
     # Standard seeding (slower, network-dependent)
@@ -415,24 +462,29 @@ All endpoints support:
 
     > 🚀 **Performance Note**: The optimized seeding is **99.4% faster** for image operations and eliminates network dependencies. See [Seeding Optimization Guide](docs/SEEDING_OPTIMIZATION.md) for details.
 
-6. **Build frontend assets**
+7. **Build frontend assets**
 
     ```bash
+    # Build backend (Blade) assets
     npm run build
+    
+    # Build SPA assets
+    npm --prefix spa run build
     ```
 
 7. **Start development environment**
 
     ```bash
-    # Quick start with integrated development script
+    # Quick start with all services
     composer dev-start
     
     # OR: Start with database reset
     composer dev-start -- --reset
     
-    # OR: Traditional method (requires two terminals)
-    php artisan serve        # Terminal 1: Laravel API
-    npm run dev             # Terminal 2: Vite frontend server
+    # OR: Traditional method (requires three terminals)
+    php artisan serve                    # Terminal 1: Laravel API (port 8000)
+    npm run dev                          # Terminal 2: Backend Vite (port 5173)
+    npm --prefix spa run dev            # Terminal 3: SPA Vite (port 5174)
     ```
 
     The `composer dev-start` command automatically:
@@ -440,8 +492,14 @@ All endpoints support:
     - ✅ Handles port conflicts and cleanup
     - ✅ Provides clear status information
     - ✅ Supports database reset option
+    - ✅ Note: For SPA development, run `npm --prefix spa run dev` in a separate terminal
 
-    Access your application at: **http://localhost:8000**
+    **Access your application:**
+    - **Main UI (Blade)**: http://localhost:8000/web
+    - **SPA Demo**: http://localhost:8000/cli
+    - **API Documentation**: http://localhost:8000/docs/api
+    - **Backend Vite**: http://localhost:5173 (auto-reload for Blade styles)
+    - **SPA Vite**: http://localhost:5174 (auto-reload for Vue components)
 
 ### 📚 Comprehensive Documentation
 

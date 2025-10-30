@@ -115,7 +115,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **tokenVerifyTwoFactor**
-> TokenAcquire201Response tokenVerifyTwoFactor(verifyTwoFactorMobileAppAuthenticationRequest)
+> TokenVerifyTwoFactor201Response tokenVerifyTwoFactor(verifyTwoFactorMobileAppAuthenticationRequest)
 
 
 ### Example
@@ -146,7 +146,7 @@ const { status, data } = await apiInstance.tokenVerifyTwoFactor(
 
 ### Return type
 
-**TokenAcquire201Response**
+**TokenVerifyTwoFactor201Response**
 
 ### Authorization
 

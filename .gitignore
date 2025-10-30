@@ -1,6 +1,5 @@
 # Laravel specific
 /.phpunit.cache
-/public/build
 /public/hot
 /public/storage
 /storage/*.key
@@ -26,16 +25,15 @@ scripts/MetaNull.LaravelUtils/build/
 
 # Dependencies
 node_modules/
+spa/node_modules/
 /.pnp
 .pnp.js
 
 # Production build
 /dist
 /build
-
-# Testing
-/coverage
-/test-results
+/public/build
+/public/spa-build
 
 # Logs
 logs

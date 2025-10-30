@@ -1,15 +1,12 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
     plugins: [
-        vue(),
         laravel({
             input: [
-                'resources/css/app.css', 
-                'resources/js/app.ts'
+                'resources/css/app.css',
             ],
             refresh: true,
         }),
@@ -66,8 +63,7 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./resources/js', import.meta.url)),
-            '@metanull/inventory-app-api-client': fileURLToPath(new URL('./api-client', import.meta.url)),
+            '@': fileURLToPath(new URL('./resources', import.meta.url)),
         },
     },
     server: {
@@ -82,11 +78,10 @@ export default defineConfig({
     build: {
         target: 'esnext',
         sourcemap: true,
-        outDir: 'public/build', // Ensures assets and manifest are placed correctly
-        manifest: 'manifest.json', // Place manifest directly in build dir, not .vite subdir
+        outDir: 'public/build',
+        manifest: 'manifest.json',
         rollupOptions: {
             input: [
-                'resources/js/app.ts',
                 'resources/css/app.css',
             ],
         },

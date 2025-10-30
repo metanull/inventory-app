@@ -118,7 +118,11 @@
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const availableMethods = computed(() => props.challenge.available_methods)
+  const availableMethods = computed(() => {
+    // Cast the API response to an array of strings
+    const methods = props.challenge.available_methods
+    return Array.isArray(methods) ? methods : (Object.values(methods) as string[])
+  })
   const showCodeInput = computed(() => {
     return selectedMethod.value === 'totp'
   })

@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **token** | **string** |  | [default to undefined]
-**user** | **string** |  | [default to undefined]
+**user** | [**TokenAcquire201ResponseUser**](TokenAcquire201ResponseUser.md) |  | [default to undefined]
 
 ## Example
 
