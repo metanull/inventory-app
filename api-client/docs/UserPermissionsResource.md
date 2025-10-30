@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**permissions** | **string** |  | [default to undefined]
+**permissions** | [**TokenAcquire202ResponseAvailableMethods**](TokenAcquire202ResponseAvailableMethods.md) |  | [default to undefined]
 
 ## Example
 

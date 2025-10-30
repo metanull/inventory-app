@@ -335,10 +335,10 @@ export interface CollectionResource {
     /**
      * The number of items in this collection (computed)
      */
-    'items_count'?: string;
-    'attached_items_count'?: string;
-    'partners_count'?: string;
-    'translations_count'?: string;
+    'items_count'?: number;
+    'attached_items_count'?: number;
+    'partners_count'?: number;
+    'translations_count'?: number;
 }
 export interface CollectionShow200Response {
     'data': CollectionResource;
@@ -416,7 +416,9 @@ export interface ContextGetDefault200Response {
     'data': ContextResource;
 }
 export interface ContextGetDefault404Response {
-    'message': string;
+    'message': ContextGetDefault404ResponseMessage;
+}
+export interface ContextGetDefault404ResponseMessage {
 }
 export interface ContextIndex200Response {
     'data': Array<ContextResource>;
@@ -450,7 +452,7 @@ export interface ContextResource {
     'updated_at': string | null;
 }
 export interface ConversionResource {
-    'success': string;
+    'success': MarkdownPreview422ResponseSuccess;
     'message': string;
     'data': string;
     'error': string;
@@ -730,6 +732,52 @@ export interface ItemIndex200Response {
     'data': Array<ItemResource>;
     'links': AvailableImageIndex200ResponseLinks;
     'meta': AvailableImageIndex200ResponseMeta;
+}
+export interface ItemItemLinkIndex200Response {
+    'data': Array<ItemItemLinkResource>;
+    'links': AvailableImageIndex200ResponseLinks;
+    'meta': AvailableImageIndex200ResponseMeta;
+}
+export interface ItemItemLinkResource {
+    /**
+     * The unique identifier (GUID)
+     */
+    'id': string;
+    /**
+     * The source item ID (the item initiating the link)
+     */
+    'source_id': string;
+    /**
+     * The target item ID (the item receiving the link)
+     */
+    'target_id': string;
+    /**
+     * The context ID (the context in which the link exists)
+     */
+    'context_id': string;
+    /**
+     * The source item (ItemResource)
+     */
+    'source'?: ItemResource;
+    /**
+     * The target item (ItemResource)
+     */
+    'target'?: ItemResource;
+    /**
+     * The context (ContextResource)
+     */
+    'context'?: ContextResource;
+    /**
+     * The date of creation of the resource (managed by the system)
+     */
+    'created_at': string | null;
+    /**
+     * The date of last modification of the resource (managed by the system)
+     */
+    'updated_at': string | null;
+}
+export interface ItemItemLinkShow200Response {
+    'data': ItemItemLinkResource;
 }
 export interface ItemResource {
     /**
@@ -1073,21 +1121,25 @@ export interface MarkdownIsMarkdownRequest {
     'content': string;
 }
 export interface MarkdownPreview422Response {
-    'success': string;
+    'success': MarkdownPreview422ResponseSuccess;
     'message': string;
     'data': string;
     'error': string;
     'errors': string;
 }
+export interface MarkdownPreview422ResponseSuccess {
+}
 export interface MarkdownToHtmlRequest {
     'markdown': string;
 }
 export interface MessageResource {
-    'message': string;
+    'message': ContextGetDefault404ResponseMessage;
 }
 export interface OperationSuccessResource {
-    'success': string;
-    'message': string;
+    'success': MarkdownPreview422ResponseSuccess;
+    'message': OperationSuccessResourceMessage;
+}
+export interface OperationSuccessResourceMessage {
 }
 export interface PartnerImageIndex200Response {
     'data': Array<PartnerImageResource>;
@@ -1109,9 +1161,9 @@ export interface PartnerImageResource {
     'path': string;
     'original_name': string;
     'mime_type': string;
-    'size': string;
-    'alt_text': string;
-    'display_order': string;
+    'size': number;
+    'alt_text': string | null;
+    'display_order': number;
     /**
      * Relationships
      */
@@ -1119,8 +1171,8 @@ export interface PartnerImageResource {
     /**
      * Timestamps
      */
-    'created_at': string;
-    'updated_at': string;
+    'created_at': string | null;
+    'updated_at': string | null;
 }
 export interface PartnerImageShow200Response {
     'data': PartnerImageResource;
@@ -1154,9 +1206,9 @@ export interface PartnerResource {
     /**
      * GPS Location
      */
-    'latitude': string;
-    'longitude': string;
-    'map_zoom': string;
+    'latitude': string | null;
+    'longitude': string | null;
+    'map_zoom': number;
     /**
      * Relationships
      */
@@ -1168,7 +1220,7 @@ export interface PartnerResource {
     /**
      * Visibility
      */
-    'visible': string;
+    'visible': boolean;
     /**
      * The date of creation of the resource (managed by the system)
      */
@@ -1201,9 +1253,9 @@ export interface PartnerTranslationImageResource {
     'path': string;
     'original_name': string;
     'mime_type': string;
-    'size': string;
-    'alt_text': string;
-    'display_order': string;
+    'size': number;
+    'alt_text': string | null;
+    'display_order': number;
     /**
      * Relationships
      */
@@ -1211,8 +1263,8 @@ export interface PartnerTranslationImageResource {
     /**
      * Timestamps
      */
-    'created_at': string;
-    'updated_at': string;
+    'created_at': string | null;
+    'updated_at': string | null;
 }
 export interface PartnerTranslationImageShow200Response {
     'data': PartnerTranslationImageResource;
@@ -1237,26 +1289,26 @@ export interface PartnerTranslationResource {
      * Core partner info
      */
     'name': string;
-    'description': string;
+    'description': string | null;
     /**
      * Address fields (embedded)
      */
-    'city_display': string;
-    'address_line_1': string;
-    'address_line_2': string;
-    'postal_code': string;
-    'address_notes': string;
+    'city_display': string | null;
+    'address_line_1': string | null;
+    'address_line_2': string | null;
+    'postal_code': string | null;
+    'address_notes': string | null;
     /**
      * Contact fields (semi-structured)
      */
-    'contact_name': string;
-    'contact_email_general': string;
-    'contact_email_press': string;
-    'contact_phone': string;
-    'contact_website': string;
-    'contact_notes': string;
-    'contact_emails': string;
-    'contact_phones': string;
+    'contact_name': string | null;
+    'contact_email_general': string | null;
+    'contact_email_press': string | null;
+    'contact_phone': string | null;
+    'contact_website': string | null;
+    'contact_notes': string | null;
+    'contact_emails': Array<any> | null;
+    'contact_phones': Array<any> | null;
     /**
      * Relationships
      */
@@ -1267,13 +1319,13 @@ export interface PartnerTranslationResource {
     /**
      * Metadata
      */
-    'backward_compatibility': string;
-    'extra': string;
+    'backward_compatibility': string | null;
+    'extra': object | null;
     /**
      * Timestamps
      */
-    'created_at': string;
-    'updated_at': string;
+    'created_at': string | null;
+    'updated_at': string | null;
 }
 export interface PartnerTranslationShow200Response {
     'data': PartnerTranslationResource;
@@ -1483,6 +1535,14 @@ export interface StoreItemImageRequest {
     'size': number;
     'alt_text'?: string | null;
     'display_order'?: number;
+}
+export interface StoreItemItemLinkRequest {
+    'id'?: string;
+    'source_id': string;
+    'target_id': string;
+    'context_id': string;
+    'created_at'?: string;
+    'updated_at'?: string;
 }
 export interface StoreItemRequest {
     'id'?: string;
@@ -1813,27 +1873,37 @@ export interface ThemeTranslationShow200Response {
     'data': ThemeTranslationResource;
 }
 export interface TokenAcquire201Response {
-    'token': string;
-    'user': string;
+    'token': string | null;
+    'user': TokenAcquire201ResponseUser;
+}
+export interface TokenAcquire201ResponseUser {
 }
 export interface TokenAcquire202Response {
-    'requires_two_factor': string;
-    'available_methods': string;
-    'primary_method': string;
-    'message': string;
+    'requires_two_factor': MarkdownPreview422ResponseSuccess;
+    'available_methods': TokenAcquire202ResponseAvailableMethods;
+    'primary_method': string | null;
+    'message': TokenAcquire202ResponseMessage;
+}
+export interface TokenAcquire202ResponseAvailableMethods {
+}
+export interface TokenAcquire202ResponseMessage {
 }
 export interface TokenTwoFactorStatus200Response {
     'data': TwoFactorStatusResource;
+}
+export interface TokenVerifyTwoFactor201Response {
+    'token': string | null;
+    'user': TokenAcquire202ResponseAvailableMethods;
 }
 export interface TwoFactorStatusMobileAppAuthenticationRequest {
     'email': string;
     'password': string;
 }
 export interface TwoFactorStatusResource {
-    'two_factor_enabled': string;
-    'available_methods': string;
-    'primary_method': string;
-    'requires_two_factor': string;
+    'two_factor_enabled': MarkdownPreview422ResponseSuccess;
+    'available_methods': TokenAcquire202ResponseAvailableMethods;
+    'primary_method': string | null;
+    'requires_two_factor': MarkdownPreview422ResponseSuccess;
 }
 export interface UpdateAvailableImageRequest {
     'id'?: string;
@@ -1916,6 +1986,14 @@ export interface UpdateItemImageRequest {
     'alt_text'?: string | null;
     'display_order'?: number;
     'include'?: string;
+}
+export interface UpdateItemItemLinkRequest {
+    'id'?: string;
+    'source_id': string;
+    'target_id': string;
+    'context_id': string;
+    'created_at'?: string;
+    'updated_at'?: string;
 }
 export interface UpdateItemRequest {
     'id'?: string;
@@ -2118,11 +2196,23 @@ export interface UpdateThemeTranslationRequest {
     'backward_compatibility'?: string | null;
     'extra'?: string | null;
 }
+export interface User {
+    'id': number;
+    'name': string;
+    'email': string;
+    'email_verified_at': string | null;
+    'two_factor_confirmed_at': string | null;
+    'current_team_id': number | null;
+    'profile_photo_path': string | null;
+    'created_at': string | null;
+    'updated_at': string | null;
+    'profile_photo_url': string;
+}
 export interface UserPermissions200Response {
     'data': UserPermissionsResource;
 }
 export interface UserPermissionsResource {
-    'permissions': string;
+    'permissions': TokenAcquire202ResponseAvailableMethods;
 }
 export interface VerifyTwoFactorMobileAppAuthenticationRequest {
     'email': string;
@@ -2141,12 +2231,14 @@ export const VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum = {
 export type VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum = typeof VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum[keyof typeof VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum];
 
 export interface VersionResource {
-    'repository': string;
-    'build_timestamp': string;
-    'repository_url': string;
-    'api_client_version': string;
-    'app_version': string;
-    'commit_sha': string;
+    'repository': string | null;
+    'build_timestamp': string | null;
+    'repository_url': string | null;
+    'api_client_version': string | null;
+    'app_version': VersionResourceAppVersion;
+    'commit_sha': string | null;
+}
+export interface VersionResourceAppVersion {
 }
 export interface WithAllTagsItemRequest {
     'include'?: string;
@@ -7000,6 +7092,161 @@ export class CountryApi extends BaseAPI {
 
 
 /**
+ * DefaultApi - axios parameter creator
+ */
+export const DefaultApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        documentation: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/.json`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        userGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/user`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * DefaultApi - functional programming interface
+ */
+export const DefaultApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = DefaultApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async documentation(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.documentation(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.documentation']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async userGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<User>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.userGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.userGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * DefaultApi - factory interface
+ */
+export const DefaultApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = DefaultApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        documentation(options?: RawAxiosRequestConfig): AxiosPromise<string> {
+            return localVarFp.documentation(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        userGet(options?: RawAxiosRequestConfig): AxiosPromise<User> {
+            return localVarFp.userGet(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * DefaultApi - object-oriented interface
+ */
+export class DefaultApi extends BaseAPI {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public documentation(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).documentation(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public userGet(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).userGet(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
  * GlossaryApi - axios parameter creator
  */
 export const GlossaryApiAxiosParamCreator = function (configuration?: Configuration) {
@@ -11719,6 +11966,532 @@ export class ItemImageApi extends BaseAPI {
 
 
 /**
+ * ItemItemLinkApi - axios parameter creator
+ */
+export const ItemItemLinkApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} itemItemLink 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkDestroy: async (itemItemLink: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemItemLink' is not null or undefined
+            assertParamExists('itemItemLinkDestroy', 'itemItemLink', itemItemLink)
+            const localVarPath = `/item-item-link/{itemItemLink}`
+                .replace(`{${"itemItemLink"}}`, encodeURIComponent(String(itemItemLink)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [sourceId] 
+         * @param {string} [targetId] 
+         * @param {string} [contextId] 
+         * @param {string} [itemId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkIndex: async (page?: number, perPage?: number, sourceId?: string, targetId?: string, contextId?: string, itemId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/item-item-link`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (sourceId !== undefined) {
+                localVarQueryParameter['source_id'] = sourceId;
+            }
+
+            if (targetId !== undefined) {
+                localVarQueryParameter['target_id'] = targetId;
+            }
+
+            if (contextId !== undefined) {
+                localVarQueryParameter['context_id'] = contextId;
+            }
+
+            if (itemId !== undefined) {
+                localVarQueryParameter['item_id'] = itemId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} itemItemLink 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkShow: async (itemItemLink: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemItemLink' is not null or undefined
+            assertParamExists('itemItemLinkShow', 'itemItemLink', itemItemLink)
+            const localVarPath = `/item-item-link/{itemItemLink}`
+                .replace(`{${"itemItemLink"}}`, encodeURIComponent(String(itemItemLink)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreItemItemLinkRequest} storeItemItemLinkRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkStore: async (storeItemItemLinkRequest: StoreItemItemLinkRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storeItemItemLinkRequest' is not null or undefined
+            assertParamExists('itemItemLinkStore', 'storeItemItemLinkRequest', storeItemItemLinkRequest)
+            const localVarPath = `/item-item-link`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storeItemItemLinkRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} itemItemLink 
+         * @param {UpdateItemItemLinkRequest} updateItemItemLinkRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkUpdate: async (itemItemLink: string, updateItemItemLinkRequest: UpdateItemItemLinkRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemItemLink' is not null or undefined
+            assertParamExists('itemItemLinkUpdate', 'itemItemLink', itemItemLink)
+            // verify required parameter 'updateItemItemLinkRequest' is not null or undefined
+            assertParamExists('itemItemLinkUpdate', 'updateItemItemLinkRequest', updateItemItemLinkRequest)
+            const localVarPath = `/item-item-link/{itemItemLink}`
+                .replace(`{${"itemItemLink"}}`, encodeURIComponent(String(itemItemLink)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateItemItemLinkRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} itemItemLink 
+         * @param {UpdateItemItemLinkRequest} updateItemItemLinkRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkUpdate2: async (itemItemLink: string, updateItemItemLinkRequest: UpdateItemItemLinkRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemItemLink' is not null or undefined
+            assertParamExists('itemItemLinkUpdate2', 'itemItemLink', itemItemLink)
+            // verify required parameter 'updateItemItemLinkRequest' is not null or undefined
+            assertParamExists('itemItemLinkUpdate2', 'updateItemItemLinkRequest', updateItemItemLinkRequest)
+            const localVarPath = `/item-item-link/{itemItemLink}`
+                .replace(`{${"itemItemLink"}}`, encodeURIComponent(String(itemItemLink)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateItemItemLinkRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ItemItemLinkApi - functional programming interface
+ */
+export const ItemItemLinkApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ItemItemLinkApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} itemItemLink 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkDestroy(itemItemLink: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkDestroy(itemItemLink, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkApi.itemItemLinkDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [sourceId] 
+         * @param {string} [targetId] 
+         * @param {string} [contextId] 
+         * @param {string} [itemId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkIndex(page?: number, perPage?: number, sourceId?: string, targetId?: string, contextId?: string, itemId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkIndex(page, perPage, sourceId, targetId, contextId, itemId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkApi.itemItemLinkIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} itemItemLink 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkShow(itemItemLink: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkShow(itemItemLink, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkApi.itemItemLinkShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreItemItemLinkRequest} storeItemItemLinkRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkStore(storeItemItemLinkRequest: StoreItemItemLinkRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkStore(storeItemItemLinkRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkApi.itemItemLinkStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} itemItemLink 
+         * @param {UpdateItemItemLinkRequest} updateItemItemLinkRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkUpdate(itemItemLink: string, updateItemItemLinkRequest: UpdateItemItemLinkRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkUpdate(itemItemLink, updateItemItemLinkRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkApi.itemItemLinkUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} itemItemLink 
+         * @param {UpdateItemItemLinkRequest} updateItemItemLinkRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkUpdate2(itemItemLink: string, updateItemItemLinkRequest: UpdateItemItemLinkRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkUpdate2(itemItemLink, updateItemItemLinkRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkApi.itemItemLinkUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ItemItemLinkApi - factory interface
+ */
+export const ItemItemLinkApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ItemItemLinkApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} itemItemLink 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkDestroy(itemItemLink: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.itemItemLinkDestroy(itemItemLink, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [sourceId] 
+         * @param {string} [targetId] 
+         * @param {string} [contextId] 
+         * @param {string} [itemId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkIndex(page?: number, perPage?: number, sourceId?: string, targetId?: string, contextId?: string, itemId?: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkIndex200Response> {
+            return localVarFp.itemItemLinkIndex(page, perPage, sourceId, targetId, contextId, itemId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} itemItemLink 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkShow(itemItemLink: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkShow200Response> {
+            return localVarFp.itemItemLinkShow(itemItemLink, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreItemItemLinkRequest} storeItemItemLinkRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkStore(storeItemItemLinkRequest: StoreItemItemLinkRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkShow200Response> {
+            return localVarFp.itemItemLinkStore(storeItemItemLinkRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} itemItemLink 
+         * @param {UpdateItemItemLinkRequest} updateItemItemLinkRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkUpdate(itemItemLink: string, updateItemItemLinkRequest: UpdateItemItemLinkRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkShow200Response> {
+            return localVarFp.itemItemLinkUpdate(itemItemLink, updateItemItemLinkRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} itemItemLink 
+         * @param {UpdateItemItemLinkRequest} updateItemItemLinkRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkUpdate2(itemItemLink: string, updateItemItemLinkRequest: UpdateItemItemLinkRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkShow200Response> {
+            return localVarFp.itemItemLinkUpdate2(itemItemLink, updateItemItemLinkRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ItemItemLinkApi - object-oriented interface
+ */
+export class ItemItemLinkApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified resource from storage
+     * @param {string} itemItemLink 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkDestroy(itemItemLink: string, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkApiFp(this.configuration).itemItemLinkDestroy(itemItemLink, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of the resource
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [sourceId] 
+     * @param {string} [targetId] 
+     * @param {string} [contextId] 
+     * @param {string} [itemId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkIndex(page?: number, perPage?: number, sourceId?: string, targetId?: string, contextId?: string, itemId?: string, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkApiFp(this.configuration).itemItemLinkIndex(page, perPage, sourceId, targetId, contextId, itemId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified resource
+     * @param {string} itemItemLink 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkShow(itemItemLink: string, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkApiFp(this.configuration).itemItemLinkShow(itemItemLink, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created resource in storage
+     * @param {StoreItemItemLinkRequest} storeItemItemLinkRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkStore(storeItemItemLinkRequest: StoreItemItemLinkRequest, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkApiFp(this.configuration).itemItemLinkStore(storeItemItemLinkRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} itemItemLink 
+     * @param {UpdateItemItemLinkRequest} updateItemItemLinkRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkUpdate(itemItemLink: string, updateItemItemLinkRequest: UpdateItemItemLinkRequest, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkApiFp(this.configuration).itemItemLinkUpdate(itemItemLink, updateItemItemLinkRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} itemItemLink 
+     * @param {UpdateItemItemLinkRequest} updateItemItemLinkRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkUpdate2(itemItemLink: string, updateItemItemLinkRequest: UpdateItemItemLinkRequest, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkApiFp(this.configuration).itemItemLinkUpdate2(itemItemLink, updateItemItemLinkRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
  * ItemTranslationApi - axios parameter creator
  */
 export const ItemTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
@@ -15631,7 +16404,7 @@ export const MobileAppAuthenticationApiFp = function(configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async tokenVerifyTwoFactor(verifyTwoFactorMobileAppAuthenticationRequest: VerifyTwoFactorMobileAppAuthenticationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TokenAcquire201Response>> {
+        async tokenVerifyTwoFactor(verifyTwoFactorMobileAppAuthenticationRequest: VerifyTwoFactorMobileAppAuthenticationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TokenVerifyTwoFactor201Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.tokenVerifyTwoFactor(verifyTwoFactorMobileAppAuthenticationRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MobileAppAuthenticationApi.tokenVerifyTwoFactor']?.[localVarOperationServerIndex]?.url;
@@ -15685,7 +16458,7 @@ export const MobileAppAuthenticationApiFactory = function (configuration?: Confi
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tokenVerifyTwoFactor(verifyTwoFactorMobileAppAuthenticationRequest: VerifyTwoFactorMobileAppAuthenticationRequest, options?: RawAxiosRequestConfig): AxiosPromise<TokenAcquire201Response> {
+        tokenVerifyTwoFactor(verifyTwoFactorMobileAppAuthenticationRequest: VerifyTwoFactorMobileAppAuthenticationRequest, options?: RawAxiosRequestConfig): AxiosPromise<TokenVerifyTwoFactor201Response> {
             return localVarFp.tokenVerifyTwoFactor(verifyTwoFactorMobileAppAuthenticationRequest, options).then((request) => request(axios, basePath));
         },
         /**

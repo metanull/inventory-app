@@ -19,10 +19,10 @@ Name | Type | Description | Notes
 **partners** | [**Array&lt;PartnerResource&gt;**](PartnerResource.md) | Partners associated with this collection (PartnerResource[]) | [optional] [default to undefined]
 **items** | [**Array&lt;ItemResource&gt;**](ItemResource.md) | Items associated with this collection - primary relationship (ItemResource[]) | [optional] [default to undefined]
 **attachedItems** | [**Array&lt;ItemResource&gt;**](ItemResource.md) | Items attached to this collection via many-to-many relationship (ItemResource[]) | [optional] [default to undefined]
-**items_count** | **string** | The number of items in this collection (computed) | [optional] [default to undefined]
-**attached_items_count** | **string** |  | [optional] [default to undefined]
-**partners_count** | **string** |  | [optional] [default to undefined]
-**translations_count** | **string** |  | [optional] [default to undefined]
+**items_count** | **number** | The number of items in this collection (computed) | [optional] [default to undefined]
+**attached_items_count** | **number** |  | [optional] [default to undefined]
+**partners_count** | **number** |  | [optional] [default to undefined]
+**translations_count** | **number** |  | [optional] [default to undefined]
 
 ## Example
 

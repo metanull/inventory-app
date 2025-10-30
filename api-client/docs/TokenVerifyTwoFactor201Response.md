@@ -1,4 +1,4 @@
-# TokenAcquire201Response
+# TokenVerifyTwoFactor201Response
 
 
 ## Properties
@@ -6,14 +6,14 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **token** | **string** |  | [default to undefined]
-**user** | [**TokenAcquire201ResponseUser**](TokenAcquire201ResponseUser.md) |  | [default to undefined]
+**user** | [**TokenAcquire202ResponseAvailableMethods**](TokenAcquire202ResponseAvailableMethods.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { TokenAcquire201Response } from './api';
+import { TokenVerifyTwoFactor201Response } from './api';
 
-const instance: TokenAcquire201Response = {
+const instance: TokenVerifyTwoFactor201Response = {
     token,
     user,
 };

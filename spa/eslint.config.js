@@ -23,6 +23,9 @@ export default [
       '**/storage/**',
       '**/bootstrap/cache/**',
       '**/public/**',
+      '**/node_modules/**',
+      '**/coverage/**',
+      '**/*.log'
     ],
   },
 

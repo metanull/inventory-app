@@ -22,12 +22,14 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "vitest:run",
+			"label": "spa:test",
 			"type": "shell",
 			"command": "npm",
 			"args": [
+				"--prefix",
+				"./spa",
 				"run",
-				"test:unit"
+				"test"
 			],
 			"group": "test",
 			"options": {
@@ -79,6 +81,8 @@
 			"type": "shell",
 			"command": "npm",
 			"args": [
+				"--prefix",
+				"./spa",
 				"run",
 				"lint"
 			],
@@ -93,10 +97,32 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "typecheck:run",
+			"label": "spa:lint",
 			"type": "shell",
 			"command": "npm",
 			"args": [
+				"--prefix",
+				"./spa",
+				"run",
+				"lint"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "spa:typecheck",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"./spa",
 				"run",
 				"type-check"
 			],
@@ -128,6 +154,25 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "spa:audit",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"./spa",
+				"audit"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
 			"label": "npm:build",
 			"type": "shell",
 			"command": "npm",
@@ -146,12 +191,46 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "npm:build:spa",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"spa:build"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "npm:build:all",
+			"dependsOn": [
+				"npm:build",
+				"npm:build:spa"
+			],
+			"dependsOrder": "sequence",
+			"group": "build",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
 			"label": "javascript:validate",
 			"dependsOn": [
 				"npm:audit",
-				"eslint:run",
-				"typecheck:run",
-				"npm:build"
+				"spa:audit",
+				"spa:lint",
+				"spa:typecheck",
+				"npm:build",
+				"npm:build:spa"
 			],
 			"dependsOrder": "sequence",
 			"group": "build",
@@ -193,16 +272,14 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "spa:test",
-			"type": "shell",
-			"command": "npm",
-			"args": [
-				"--prefix",
-				"./spa",
-				"run",
-				"test"
+			"type": "npm",
+			"script": "lint",
+			"path": "spa",
+			"problemMatcher": [
+				"$eslint-compact"
 			],
-			"group": "test"
+			"label": "npm: lint - spa",
+			"detail": "eslint . --fix"
 		}
 	]
 }

@@ -1,19 +1,19 @@
-# ContextGetDefault404Response
+# ItemItemLinkShow200Response
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**message** | [**ContextGetDefault404ResponseMessage**](ContextGetDefault404ResponseMessage.md) |  | [default to undefined]
+**data** | [**ItemItemLinkResource**](ItemItemLinkResource.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ContextGetDefault404Response } from './api';
+import { ItemItemLinkShow200Response } from './api';
 
-const instance: ContextGetDefault404Response = {
-    message,
+const instance: ItemItemLinkShow200Response = {
+    data,
 };
 ```
 

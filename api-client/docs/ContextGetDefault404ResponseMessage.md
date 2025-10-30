@@ -1,19 +1,17 @@
-# ContextGetDefault404Response
+# ContextGetDefault404ResponseMessage
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**message** | [**ContextGetDefault404ResponseMessage**](ContextGetDefault404ResponseMessage.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ContextGetDefault404Response } from './api';
+import { ContextGetDefault404ResponseMessage } from './api';
 
-const instance: ContextGetDefault404Response = {
-    message,
+const instance: ContextGetDefault404ResponseMessage = {
 };
 ```
 
