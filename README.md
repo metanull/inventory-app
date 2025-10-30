@@ -536,24 +536,6 @@ php artisan test --coverage
 - **Authentication Testing** - Complete user authentication and authorization testing
 - **Validation Testing** - Comprehensive input validation and error handling tests
 
-### Enhanced Composer Commands
-
-The application provides enhanced composer commands that accept additional parameters for flexible development workflows:
-
-#### Testing Commands
-
-```bash
-# Standard test execution
-composer ci-test
-```
-
-#### Linting Commands
-
-```bash
-# Standard linting
-composer ci-lint
-```
-
 #### Environment Variable Usage
 
 The enhanced commands support the `COMPOSER_ARGS` environment variable to pass additional parameters:

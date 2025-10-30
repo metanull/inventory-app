@@ -92,7 +92,7 @@ php artisan serve        # Laravel API (port 8000)
 npm run dev             # Vite frontend
 
 # Linting
-composer ci-lint        # Laravel Pint (PHP)
+.\vendor\bin\pint        # Laravel Pint (PHP)
 npm run lint           # ESLint + Prettier (JS/TS/Vue)
 
 # Testing
