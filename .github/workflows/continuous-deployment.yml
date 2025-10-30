@@ -144,8 +144,9 @@ jobs:
         run: |
           # Configure npm authentication for GitHub Packages
           Write-Host "::group::Setting up npm authentication"
-          & "$env:NPM_PATH" config set @metanull:registry https://npm.pkg.github.com/
-          & "$env:NPM_PATH" config set //npm.pkg.github.com/:_authToken $env:GITHUB_TOKEN
+          & "$env:NPM_PATH" config set registry https://registry.npmjs.org/
+          & "$env:NPM_PATH" config set @metanull:registry https://npm.pkg.github.com
+          & "$env:NPM_PATH" config set "//npm.pkg.github.com/:_authToken" $env:GITHUB_TOKEN
           Write-Host "::endgroup::"
           Write-Host "npm authentication configured for GitHub Packages."
         env:
@@ -182,9 +183,9 @@ jobs:
             exit $global:LASTEXITCODE
           }
           Write-Host "::endgroup::"
-          Write-Host "✓ Backend assets built successfully to public/build/"
+          Write-Host "Backend assets built successfully to public/build/"
           
-          Write-Host "::group::Building SPA assets (Vue 3)"
+          Write-Host "::group::Building SPA assets"
           $global:LASTEXITCODE = 0
           & "$env:NPM_PATH" run spa:build
           if ($global:LASTEXITCODE -ne 0) {
@@ -192,9 +193,9 @@ jobs:
             exit $global:LASTEXITCODE
           }
           Write-Host "::endgroup::"
-          Write-Host "✓ SPA assets built successfully to public/spa-build/"
+          Write-Host "SPA assets built successfully to public/spa-build/"
           
-          Write-Host "::notice::Both frontend assets built successfully"
+          Write-Host "Both frontend assets built successfully"
         shell: powershell
 
       - name: Prepare deployment package
