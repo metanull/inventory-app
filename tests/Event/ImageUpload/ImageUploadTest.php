@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Event\ImageUpload;
+namespace Tests\Event\ImageUpload;
 
 use App\Enums\Permission;
 use App\Events\AvailableImageEvent;

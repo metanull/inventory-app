@@ -5,10 +5,14 @@ import { useAuthStore } from '@/stores/auth'
 
 // Mock the API client module
 vi.mock('@metanull/inventory-app-api-client', () => ({
-  Configuration: vi.fn().mockImplementation(config => ({
-    basePath: config?.basePath || 'http://127.0.0.1:8000/api',
-    accessToken: config?.accessToken || null,
-  })),
+  Configuration: class {
+    constructor(config: any) {
+      return {
+        basePath: config?.basePath || 'http://127.0.0.1:8000/api',
+        accessToken: config?.accessToken || null,
+      }
+    }
+  },
   LanguageApi: vi.fn(),
   CollectionApi: vi.fn(),
   ContextApi: vi.fn(),

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Actions\Fortify;
+namespace Tests\Integration\Actions\Fortify;
 
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Models\User;

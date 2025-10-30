@@ -30,7 +30,11 @@ const mockLanguageApi = {
 }
 
 vi.mock('@metanull/inventory-app-api-client', () => ({
-  LanguageApi: vi.fn().mockImplementation(() => mockLanguageApi),
+  LanguageApi: class {
+    constructor() {
+      return mockLanguageApi
+    }
+  },
   Configuration: vi.fn(),
 }))
 

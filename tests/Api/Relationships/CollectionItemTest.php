@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Api\Traits\AuthenticatesApiRequests;
 use Tests\TestCase;
 
-class CollectionItemAttachTest extends TestCase
+class CollectionItemTest extends TestCase
 {
     use AuthenticatesApiRequests, RefreshDatabase;
 

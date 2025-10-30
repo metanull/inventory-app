@@ -16,7 +16,11 @@ const mockProjectApi = {
 }
 
 vi.mock('@metanull/inventory-app-api-client', () => ({
-  ProjectApi: vi.fn().mockImplementation(() => mockProjectApi),
+  ProjectApi: class {
+    constructor() {
+      return mockProjectApi
+    }
+  },
   Configuration: vi.fn(),
 }))
 

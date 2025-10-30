@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Glossary;
+namespace Tests\Integration\Glossary;
 
 use App\Jobs\SyncSpellingToItemTranslations;
 use App\Models\GlossarySpelling;

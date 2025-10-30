@@ -16,11 +16,15 @@ vi.mock('vue', async () => {
 // Mock the API client
 vi.mock('@metanull/inventory-app-api-client', () => ({
   Configuration: vi.fn(),
-  InfoApi: vi.fn().mockImplementation(() => ({
-    infoHealth: vi.fn(),
-    infoVersion: vi.fn(),
-    infoIndex: vi.fn(),
-  })),
+  InfoApi: class {
+    constructor() {
+      return {
+        infoHealth: vi.fn(),
+        infoVersion: vi.fn(),
+        infoIndex: vi.fn(),
+      }
+    }
+  },
 }))
 
 describe('useApiStatus', () => {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Health;
+namespace Tests\Web;
 
 use Tests\TestCase;
 

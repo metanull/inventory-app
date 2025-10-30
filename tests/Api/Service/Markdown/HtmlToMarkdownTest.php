@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Api\Markdown;
+namespace Tests\Api\Service\Markdown;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
