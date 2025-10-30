@@ -21,10 +21,9 @@
     </x-form.field>
 
     <x-form.field label="Definition" name="definition" variant="gray" required>
-        <x-form.textarea 
+        <x-form.markdown-editor 
             name="definition" 
             :value="old('definition', ($translation ?? null)?->definition ?? '')"
-            rows="6"
             required
         />
     </x-form.field>

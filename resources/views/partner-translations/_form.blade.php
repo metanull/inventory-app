@@ -51,11 +51,9 @@
             </x-form.field>
 
             <x-form.field label="Description" name="description" variant="gray">
-                <x-form.textarea 
+                <x-form.markdown-editor 
                     name="description" 
                     :value="old('description', $partnerTranslation->description ?? '')"
-                    rows="4"
-                    placeholder="Partner description"
                 />
             </x-form.field>
 

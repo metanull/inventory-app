@@ -12,7 +12,7 @@
                 @can(\App\Enums\Permission::VIEW_DATA->value)
                 <!-- Inventory Dropdown -->
                 <div class="relative" @mouseenter="openMenu='inventory'" @mouseleave="openMenu=null">
-                    <button @click="openMenu = openMenu==='inventory'? null : 'inventory'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('items.*') || request()->routeIs('partners.*') || request()->routeIs('projects.*') || request()->routeIs('collections.*') || request()->routeIs('item-translations.*') || request()->routeIs('collection-translations.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
+                    <button @click="openMenu = openMenu==='inventory'? null : 'inventory'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('items.*') || request()->routeIs('partners.*') || request()->routeIs('projects.*') || request()->routeIs('collections.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
                         <x-heroicon-o-squares-2x2 class="w-4 h-4" />
                         Inventory
                         <span class="w-4 h-4 transition" x-bind:class="openMenu==='inventory' ? 'rotate-180' : ''">
@@ -26,13 +26,6 @@
                             entity="items"
                             icon="archive-box"
                             label="Items"
-                        />
-                        <x-nav.menu-item 
-                            :route="route('item-translations.index')"
-                            routePattern="item-translations.*"
-                            entity="item-translations"
-                            icon="language"
-                            label="Item Translations"
                         />
                         <x-nav.menu-item 
                             :route="route('partners.index')"
@@ -55,12 +48,46 @@
                             icon="rectangle-stack"
                             label="Collections"
                         />
+                    </div>
+                </div>
+
+                <!-- Translations Dropdown -->
+                <div class="relative" @mouseenter="openMenu='translations'" @mouseleave="openMenu=null">
+                    <button @click="openMenu = openMenu==='translations'? null : 'translations'" type="button" class="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium {{ request()->routeIs('item-translations.*') || request()->routeIs('partner-translations.*') || request()->routeIs('project-translations.*') || request()->routeIs('collection-translations.*') ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' }}">
+                        <x-heroicon-o-language class="w-4 h-4" />
+                        Translations
+                        <span class="w-4 h-4 transition" x-bind:class="openMenu==='translations' ? 'rotate-180' : ''">
+                            <x-heroicon-o-chevron-down class="w-4 h-4" />
+                        </span>
+                    </button>
+                    <div x-show="openMenu==='translations'" x-transition x-cloak @click.outside="openMenu=null" class="absolute z-30 mt-2 w-56 rounded-md border border-gray-200 bg-white shadow-lg py-2">
+                        <x-nav.menu-item 
+                            :route="route('item-translations.index')"
+                            routePattern="item-translations.*"
+                            entity="item_translations"
+                            icon="language"
+                            label="Items"
+                        />
+                        <x-nav.menu-item 
+                            :route="route('partner-translations.index')"
+                            routePattern="partner-translations.*"
+                            entity="partner_translations"
+                            icon="language"
+                            label="Partners"
+                        />
+                        <x-nav.menu-item 
+                            :route="route('project-translations.index')"
+                            routePattern="project-translations.*"
+                            entity="project_translations"
+                            icon="language"
+                            label="Projects"
+                        />
                         <x-nav.menu-item 
                             :route="route('collection-translations.index')"
                             routePattern="collection-translations.*"
-                            entity="collection-translations"
+                            entity="collection_translations"
                             icon="language"
-                            label="Collection Translations"
+                            label="Collections"
                         />
                     </div>
                 </div>
@@ -260,13 +287,6 @@
                     mobile
                 />
                 <x-nav.menu-item 
-                    :route="route('item-translations.index')"
-                    routePattern="item-translations.*"
-                    entity="item-translations"
-                    label="Item Translations"
-                    mobile
-                />
-                <x-nav.menu-item 
                     :route="route('partners.index')"
                     routePattern="partners.*"
                     entity="partners"
@@ -287,11 +307,35 @@
                     label="Collections"
                     mobile
                 />
+            </div>
+            <div class="space-y-2">
+                <p class="text-[11px] font-semibold text-gray-400 uppercase">Translations</p>
+                <x-nav.menu-item 
+                    :route="route('item-translations.index')"
+                    routePattern="item-translations.*"
+                    entity="item_translations"
+                    label="Items"
+                    mobile
+                />
+                <x-nav.menu-item 
+                    :route="route('partner-translations.index')"
+                    routePattern="partner-translations.*"
+                    entity="partner_translations"
+                    label="Partners"
+                    mobile
+                />
+                <x-nav.menu-item 
+                    :route="route('project-translations.index')"
+                    routePattern="project-translations.*"
+                    entity="project_translations"
+                    label="Projects"
+                    mobile
+                />
                 <x-nav.menu-item 
                     :route="route('collection-translations.index')"
                     routePattern="collection-translations.*"
-                    entity="collection-translations"
-                    label="Collection Translations"
+                    entity="collection_translations"
+                    label="Collections"
                     mobile
                 />
             </div>
