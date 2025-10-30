@@ -11,9 +11,9 @@
     "require": {
         "php": "^8.2",
         "blade-ui-kit/blade-heroicons": "^2.6",
-        "dedoc/scramble": "^0.12.35",
+        "dedoc/scramble": "^0.13.1",
         "intervention/image": "^3.11",
-        "laravel/framework": "^12.31",
+        "laravel/framework": "^12.35.1",
         "laravel/jetstream": "^5.3",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
@@ -39,7 +39,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "exclude-from-classmap": [
+            "vendor/laravel/pint/app/"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

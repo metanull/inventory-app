@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Api\Traits\AuthenticatesApiRequests;
 use Tests\TestCase;
 
-class GlossarySynonymAttachTest extends TestCase
+class GlossarySynonymTest extends TestCase
 {
     use AuthenticatesApiRequests, RefreshDatabase;
 

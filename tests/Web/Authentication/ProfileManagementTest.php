@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Auth;
+namespace Tests\Web\Authentication;
 
 use App\Enums\Permission;
 use App\Models\User;

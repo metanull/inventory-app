@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Console;
+namespace Tests\Console;
 
 use App\Enums\Permission as PermissionEnum;
 use Illuminate\Foundation\Testing\RefreshDatabase;

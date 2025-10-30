@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Config;
+namespace Tests\Configuration;
 
 use Illuminate\Http\Request;
 use Tests\TestCase;

@@ -17,7 +17,11 @@ const mockCountryApi = {
 }
 
 vi.mock('@metanull/inventory-app-api-client', () => ({
-  CountryApi: vi.fn().mockImplementation(() => mockCountryApi),
+  CountryApi: class {
+    constructor() {
+      return mockCountryApi
+    }
+  },
   Configuration: vi.fn(),
 }))
 

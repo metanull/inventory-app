@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Web\Admin;
+namespace Tests\Web\Admin;
 
 use App\Enums\Permission as PermissionEnum;
 use App\Models\User;

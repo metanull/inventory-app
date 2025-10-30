@@ -32,7 +32,11 @@ const mockItemImageApi = {
 }
 
 vi.mock('@metanull/inventory-app-api-client', () => ({
-  ItemImageApi: vi.fn().mockImplementation(() => mockItemImageApi),
+  ItemImageApi: class {
+    constructor() {
+      return mockItemImageApi
+    }
+  },
   Configuration: vi.fn(),
 }))
 

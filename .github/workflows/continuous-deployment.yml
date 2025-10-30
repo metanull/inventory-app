@@ -305,7 +305,7 @@ jobs:
       - name: Create deployment artifact
         env:
           BUILD_OUTPUT_DIR: ${{ runner.temp }}/deployment-package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: laravel-app-${{ github.sha }}
           path: ${{ env.BUILD_OUTPUT_DIR }}
@@ -326,7 +326,7 @@ jobs:
       WEBSERVER_PATH: ${{ vars.WEBSERVER_PATH || 'C:\\Apache24\\htdocs\\inventory-app' }}
     steps:
       - name: Download deployment artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: laravel-app-${{ github.sha }}
           path: deployment-package/
