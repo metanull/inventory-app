@@ -1,145 +1,341 @@
-# Copilot Coding Agent Instructions (concise)
-
-## General Guidelines
-
-**CRITICAL**: When the context window is full, reload the copilot-instructions.md file not to lose context.
-**CRITICAL**: Use VS Code testing to run tests.
-**CRITICAL**: Use VS Code tools instead of terminal when possible.
-  - **CRITICAL**: **Never modify content of files through terminal scripts**. It is hazardous! Only do explicit code edits using VS Code tools such as `grep_search` or `repolace_string_in_file`. **No exceptions!**
-  - To delete files and directories, first save the list of files in a temporary text file then run a terminal command that reads the list from that file, and delete all the files in a loop.
-**CRITICAL**: Maintain consistency with existing code patterns and conventions.
-  - Verify existing implementation before changeing to ensure alignment with project's patterns and standards.
-  - If new issues are found, even if not directly related to the user request, fix them as part of the task.
-**CRITICAL**: The project is in active development; breaking changes are accepted, there is no need to preserve backward compatibility.
-**CRITICAL**: Always implement the entire user request (do not prioritize, do not take shortcuts, do not postpone tasks)
-**CRITICAL**: All warnings and all errors must be addressed, none are acceptable.
-**CRITICAL**: The terminal tool uses Windows PowerShell; never use *nix commands; use windows powershell compatbile escaping.
-**CRITICAL**: Never delete then re-create a file! Instead, edit or replace its content using VS Code tools.
-**CRITICAL**: If, in a test for a blade template you find the error `unexpected token "else", expecting end of file`, it can typically be resolved by verifying the source (not the cached version) carfully from the start of the file making sure that:
-  - It does not not use shorthand notation (e.g. for components use <x-slot name="action"> instead of x-slot:action)
-  - It uses variables like "$routePrefix" instead of string interpolation like "{$entity}.images.create" in blade components
-  - All variables are defined in a single @php/@endphp block BEFORE the start of the section using them, and there are no duplicated variable definitions.
-  - The wrapping of @if/@else and @php/@endphp is correct (as @php interrupts control flow, it must not appear inside control flow blocks (e.g. @if/@else) nor inside other @php/@endphp).
-  - Nested @foreach and @if are correctly closed in the right order.
-  - Examples:
-      - Wrong:
-        ```
-        @if($items->count() > 0)
-            @php ... @endphp       ← PHP block is INSIDE the @if
-            <element class="{$entity}-xyz">  ← Opening div + string interpolation
-                @foreach...
-                @endforeach
-            </element>                 ← Closing div is AFTER @endforeach but BEFORE @else
-        @else
-        ```
-      - Correct:
-        ```
-        @php
-            $variableEntity = "{$entity}.images.create";  ← All variable definitions are in a single PHP block BEFORE the control flow
-        @endphp
-        @if(...)
-          <element class="{{ $variableEntity }}">  ← Opening div with variable usage (no string interpolation)
-            @foreach...
-            @endforeach
-          </element>
-        @else
-        ```
+# Inventory Management API - Copilot Instructions
 
 ## Project Overview
 
-This is a Laravel 12 project powered by PHP 8.2. **CRITICAL**: Always use the right version of their documentation.
-**CRITICAL**: Always follow Laravel conventions and best practices.
-**CRITICAL**: Avoid adding new dependencies unless absolutely necessary.
+The **Inventory Management API** is a comprehensive Laravel 12 + Vue.js 3 application providing RESTful APIs for museum inventory management at Museum With No Frontiers. This is a monorepo containing:
 
-### Project Structure & Key Components
+- **Backend API**: Laravel 12 (PHP 8.2+) with Sanctum authentication
+- **Frontend SPA**: Vue 3 + TypeScript with Pinia state management  
+- **Documentation Site**: Jekyll-based static site in `/docs/`
+- **TypeScript API Client**: Auto-generated from OpenAPI spec in `/api-client/`
 
-This project contains several distinct elements:
-- "/" directory: A standard Laravel application using Sanctum, Fortify and Jetstream
-- "/api-client" directory - An automatically generated TypeScript API client for the Laravel backend API.
-  - Never directly modify files in this directory; they are auto-generated.
-  - Use `composer ci-openapi-doc` to generate the OpenAPI specification (docs/_openapi/api.json) and the TypeScript client in `/api-client/`
-  - Use `.\scripts\publish-api-client.ps1 -Credential (Get-Secret github-package)` to publish the TypeScript client to our private github package registry.
-- "/docs" directory - A distinct documentation website powered by Jekyll (Ruby)
-  - It is deployed separately on GitHub Pages by CI/CD workflows
-  - It contains auto generated elements maintained by CI/CD workflows (e.g. git commit history)
-  - It contains manually maintained documentation pages (e.g. /docs/index.md, /docs/guidelines/*.md, etc.) that are transformed by Jekyll into static HTML pages by CI/CD workflows.
-  - To test the documentation locally, use WSL to run Ruby/Jekyll commands.
-- "/resources/js" directory - A sample SPA frontend application demonstrating usage of the API backend via the generated TypeScript API client.
-  - It is totally independent from the main Laravel application.
+### Key Technologies
 
-### Key web routes and components
+- **Backend**: Laravel 12, PHP 8.2+, Eloquent ORM, Sanctum, Blade templates
+- **Frontend**: TypeScript, Vue 3, Vite, Pinia, Tailwind CSS
+- **Database**: SQLite (development), MariaDB (production) with UUID primary keys
+- **Testing**: PHPUnit (backend), Vitest (frontend) - 560+ tests, 100% reliable
+- **Tooling**: Composer, npm, Laravel Pint, ESLint, Prettier, GitHub Actions
 
-The laravel application exposes several components via distinct classes of routes:
-  - "/api" route - The REST API backend
-    - It aims to be a pure API backend, with no frontend code.
-  - "/web" route - A server-rendered Blade frontend using Livewire, Alpine.js, and Tailwind CSS
-    - **CRITICAL**: It NEVER uses the API backend for data interactions; all data interactions are done via Laravel models and controllers directly.
-    - It is the main frontend for end users.
-  - "/cli" route - A sample "api client" SPA frontend implementation. It aims at demonstrating usage of the API backend from a SPA application.
-    - It is totally independent from the main frontend.
-    - Its source code is in /resources/js
-    - It uses Vue 3 + TypeScript, with Pinia.
-    - **CRITICAL**: It NEVER uses direct HTTP calls (fetch, axios, etc.) to interact with the API backend.
-    - **CRITICAL**: It uses exclusively the api-client from our github package repository to interact with the API.
-     generated API client in /api-client for all API interactions.
-  - "/api/docs" route - An auto-generated OpenAPI documentation page powered by swagger-ui.
-    - It is generated by Laravel automatically, no manual maintenance is needed.
+## Architecture & Structure
 
-### Quality Standards
+### Directory Layout
 
-- Code must be linted and formatted according to project standards before push/PR.
-  - Use Laravel Pint for PHP code and ESLint for other code (npm run lint is configured to handle js, ts, md, etc.).
-- Code must be covered by tests before push/PR.
-  - Use PHPUnit for backend code and Vitest for frontend code.
-    - **CRITICAL**: Uses modern PHPUnit 11/12 attribute syntax instead of docblock annotations.
-  - Tests must be run via VS Code testing features.
-  - All tests must pass locally and without warnings before push/PR.
-  - Tests must be simple, single-purpose, deterministic, independent, and explicit about their dependencies.
-  - Tests must consistently use mocking/faking for all external dependencies.
-  - Tests must consistently follow existing project patterns and directory structures; use existing tests as examples.
-  - Tests must be exempt from assumptions and flaky behavior; they must test the actual implementation and the intended behavior reliably.
-- All TypeScript code must be free of warnings and errors before push/PR.
-- Source control rules:
-  - Never push/commit directly to `main`. Changes must be transmitted via Pull Requests.
-  - Create a dedicated branch when starting to work on a new request. Always ensure that you're working on the latest code before handling a new request.
+```
+/app/                   # Laravel application code (Models, Controllers, etc.)
+/routes/api.php         # REST API route definitions
+/resources/js/          # Vue 3 SPA frontend application
+  /components/          # Reusable Vue components
+  /stores/              # Pinia state management stores
+  /views/               # Page-level Vue components
+  /__tests__/          # Vitest test suites
+/database/             # Migrations, factories, seeders
+/tests/                # PHPUnit backend tests
+/docs/                 # Jekyll documentation site (Ruby-based)
+/api-client/           # Auto-generated TypeScript API client (DO NOT EDIT)
+/.github/instructions/ # File-specific coding guidelines
+```
 
-### Coding Conventions & Patterns
+### Application Components
 
-- Conventions for the main Laravel application:
-  - Every new model must include Migration, Resource, Controller, Factory, Seeder and Tests.
-  - Controllers must use dedicated Request and Resource classes for input validation and output formatting.
-  - Never alter existing migrations; create new migrations for schema changes.
-  - UUID primary keys are used for all models (with the only exception of Language and Country that are using 3 character long iso codes).
-  - **CRITICAL**: Do not use shorthand notation (e.g. for components use <x-slot name="action"> instead of <x-slot:action>)
-  - **CRITICAL**: in blade components use variables like "$routePrefix" instead of string interpolation like "{$entity}.images.create". To avoid issue when nesting.
-  - Code must respect the DRY principle.
-- Conventions for the Sample SPA application:
-  - Use Pinia for state management
-  - Use Vue 3 Composition API with TypeScript for all components.
-  - Use Tailwind CSS for styling; do not use custom CSS unless absolutely necessary.
-  - Use components to avoid code duplication; do not repeat code across multiple components.
-  - Use the generated API client in `api-client/` for all API interactions; do not use `fetch` or `axios` directly.
-  - Follow existing store patterns for actions, getters, and state organization.
-- Conventions for the documentation site (Jekyll):
-  - The main configuration for Jekyll is in `_config.yml`.
-  - The site uses just-the-docs theme as base.
-  - All md files must include proper front matter with layout, title, nav_order, and other relevant fields (e.g. parent, permalink and has_children must be added when applicable).
-  - Any directory that is part of the documentation must contain an `index.md`.
-  - Keep the navigation structure in sync with the actual files and their front matter.
-  - Hyperlinks are transformed by Jekyll during site generation; follow these rules when creating links in markdown files:
-      - Links to a directory must include the trailing slash. e.g. `[API Models](api-models/)` is a valid link to the directory `/docs/api-models/` and will point to `/docs/api-models/index.md`
-      - Links to a file must omit the trailing extension. e.g. `[guidelines](guidelines)` is a valid link to the file `/docs/guidelines.md`
-      - For cross-references between sections, use front matter permalinks.
-      - Links must always omit the `/docs/` prefix.
-      - Never extrapolate how the link target will be transformed; always use the exact path as per the rules above.
-      - Always use "absolute links", starting with `/` (where / is the root of the documentation and maps to our /docs/ directory). E.g. `[Guidelines](/guidelines)` is an absolute link mapping to our `/docs/guidelines` directory (and more precisely to its index.md file).
-      - Create links to non-markdown files (e.g. json, images, etc.) by creating a markdown placeholder file, with `permalink` and `layout: null` frontmatter fields. 
-        -By example, to create publish our /docs/_openapi/api.json file as '/api.json' on the generated website: create a file `docs/api.json.md` with the following content:
-            ```
-            ---
-            layout: null
-            permalink: /api.json
-            ---
-            {% include_relative _openapi/api.json %}
-            ```
-        - To create an hyperlink to that file, use its front matter permalink's value. e.g. `[OpenAPI Spec](/api.json)`.
+1. **REST API Backend** (`/api` routes)
+   - Pure API backend with no frontend code
+   - Sanctum authentication for all endpoints
+   - Resource controllers with Form Request validation
+   - OpenAPI/Swagger documentation at `/api/docs`
+
+2. **Web Frontend** (`/web` routes)
+   - Server-rendered Blade templates with Livewire
+   - Direct Laravel model/controller interactions (NOT via API)
+   - Alpine.js and Tailwind CSS
+
+3. **SPA Demo** (`/cli` routes)
+   - Vue 3 + TypeScript SPA demonstrating API usage
+   - Source in `/resources/js/`
+   - Uses generated TypeScript API client exclusively
+   - Pinia for state management
+
+## Development Standards
+
+### Code Quality Requirements
+
+- **All code must pass linting**: Laravel Pint (PHP), ESLint (JS/TS)
+- **All tests must pass**: No failing tests allowed in PRs
+- **No TypeScript errors or warnings**: Must pass `npx tsc --noEmit`
+- **No unused variables or imports**: Enforced by linters
+- **Explicit typing**: Never use `any` type in TypeScript
+
+### Essential Commands
+
+```bash
+# Install dependencies
+composer install
+npm ci --no-audit --no-fund
+
+# Database setup
+php artisan migrate --seed
+
+# Build frontend
+npm run build
+
+# Development servers
+php artisan serve        # Laravel API (port 8000)
+npm run dev             # Vite frontend
+
+# Linting
+composer ci-lint        # Laravel Pint (PHP)
+npm run lint           # ESLint + Prettier (JS/TS/Vue)
+
+# Testing
+php artisan test --parallel    # Backend tests
+npm run test                   # Frontend tests
+```
+
+### Git Workflow
+
+- **Never commit directly to `main`**: Use feature branches with PRs
+- **Branch naming**: Use `feature/` or `fix/` prefix
+- **Before starting**: Always pull latest `main` to work on current code
+- **Before PR**: Ensure all lints pass and all tests pass locally
+
+## Laravel Backend Conventions
+
+### Model Requirements
+
+Every new model must include:
+- Migration (never alter existing migrations, create new ones)
+- Factory with comprehensive test coverage
+- Seeder for development data
+- Resource for API output formatting
+- Controller with Form Request validation
+- Complete test suite (see Testing section)
+
+### Primary Keys
+
+- **UUID**: Used for all models (via `HasUuids` trait)
+- **Exceptions**: `Language` and `Country` use ISO code strings (3 characters)
+- **User model**: Uses Laravel default integer keys for auth compatibility
+
+### Controller Patterns
+
+All controllers follow standard patterns:
+- `index()` - List all records
+- `show($id)` - Show single record
+- `store(Request)` - Create new record
+- `update(Request, $id)` - Update existing record
+- `destroy($id)` - Delete record
+
+Additional endpoints for models with scopes:
+- Example: `Language::default()` scope → `GET /api/language/default`
+
+### Validation & Resources
+
+- Use Form Request classes for input validation
+- Use Resource classes for output formatting
+- Keep validation rules aligned with Model, Factory, and Migration constraints
+- Never use vendor-specific code when Laravel offers built-in features
+
+## Vue.js Frontend Conventions
+
+### Component Structure
+
+- **Always use**: `<script setup lang="ts">` for all SFCs
+- **Composition API only**: Use `ref`, `computed`, `watch`, etc.
+- **Type everything**: Props, emits, state - never use `any`
+- **Scoped styles**: `<style scoped>` for component-specific CSS
+
+### State Management
+
+- **Pinia stores**: For ALL shared state (never use component `data` or `reactive`)
+- **Store patterns**: Follow existing patterns in `/resources/js/stores/`
+- **API calls**: Use generated client from `/api-client/` - NEVER use `fetch` or `axios` directly
+
+### Reusable Components
+
+Extract repeated UI patterns into shared components. Key component categories:
+
+- **Layout**: ListView, DetailView, AppHeader, AppFooter
+- **Cards**: Card, NavigationCard, StatusCard, InformationCard
+- **Forms**: FormInput, GenericDropdown, Toggle
+- **Display**: DisplayText, InternalName, DateDisplay, Title, Uuid
+- **Tables**: TableElement, TableHeader, TableRow, TableCell
+
+See `/resources/js/components/` for complete component library.
+
+### Styling
+
+- **Tailwind CSS**: Primary styling method
+- **Responsive design**: Use Tailwind breakpoints (`sm:`, `md:`, `lg:`, `xl:`)
+- **Entity colors**: Consistent across navigation, pages, and components
+  - Items: `teal`, Partners: `yellow`, Languages: `purple`
+  - Countries: `blue`, Contexts: `green`, Projects: `orange`
+
+### Icons
+
+- **Heroicons ONLY**: Import from `@heroicons/vue/24/solid` or `/24/outline`
+- **NO inline SVG**: Never create custom icon components
+- **Semantic aliases**: Use descriptive names (e.g., `import { CogIcon as ContextIcon }`)
+
+## Testing Standards
+
+### Backend Tests (PHPUnit)
+
+Test organization in `/tests/`:
+- `/Unit/` - Factory tests, model validation
+- `/Feature/` - API endpoint tests organized by model
+
+Every model requires test files:
+- `AnonymousTest.php` - Unauthorized access scenarios
+- `IndexTest.php` - List operations
+- `ShowTest.php` - Single record retrieval
+- `StoreTest.php` - Record creation
+- `UpdateTest.php` - Record updates
+- `DestroyTest.php` - Record deletion
+
+Test requirements:
+- Use `RefreshDatabase` trait
+- Use factories for test data (`.create()` for DB, `.make()->toArray()` for requests)
+- Authenticate with Sanctum: `$this->actingAs(User::factory()->create())`
+- Validate with `assertJsonStructure`, `assertJsonPath`, `assertOk`, etc.
+
+### Frontend Tests (Vitest)
+
+Test organization in `/resources/js/__tests__/`:
+- `/feature/` - Component functionality and behavior
+- `/integration/` - Component integration and workflows
+- `/logic/` - Business logic and computations
+- `/resource_integration/` - API resource integration (`.tests.ts` suffix)
+- `/consistency/` - Cross-entity consistency validation
+
+Test requirements:
+- **Small and focused**: Single objective per test
+- **Deterministic**: No randomness or time-based dependencies
+- **Independent**: No reliance on other test state
+- **Explicit mocking**: All external dependencies faked/mocked per-test
+- **Reference example**: Use `Contexts.test.ts` as canonical pattern
+
+## API Client Generation
+
+The TypeScript client in `/api-client/` is auto-generated - **NEVER edit manually**.
+
+### Generation Process
+
+```powershell
+# Generate client from OpenAPI spec
+.\scripts\generate-api-client.ps1
+
+# Publish to GitHub Packages (requires PAT)
+.\scripts\publish-api-client.ps1 -Credential (Get-Credential)
+```
+
+Steps performed:
+1. Generate OpenAPI spec: `composer ci-openapi-doc` → `docs/_openapi/api.json`
+2. Generate TypeScript client: `openapi-generator-cli` → `/api-client/`
+
+### Using the Client
+
+```typescript
+import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client';
+
+const api = new DefaultApi(new Configuration({ basePath: 'https://api.url' }));
+api.addressIndex().then(response => console.log(response.data));
+```
+
+## Documentation Site (Jekyll)
+
+The `/docs/` directory contains a Jekyll-based documentation site deployed to GitHub Pages.
+
+### Key Files
+
+- `_config.yml` - Main Jekyll configuration
+- `index.md` - Homepage (requires front matter)
+- Auto-generated content maintained by CI/CD (e.g., commit history)
+
+### Front Matter Requirements
+
+All Markdown files must include:
+```yaml
+---
+layout: default
+title: Page Title
+nav_order: 1
+---
+```
+
+Optional fields: `description`, `permalink`, `parent`, `has_children`
+
+### Link Conventions
+
+- **Directory links**: Include trailing slash - `[API Models](api-models/)`
+- **File links**: Omit extension - `[Guidelines](guidelines)`
+- **Absolute links**: Start with `/`, omit `/docs/` prefix - `[Guidelines](/guidelines)`
+- **Non-markdown files**: Create placeholder with `permalink` and `layout: null`
+
+### Local Testing
+
+Use WSL for Ruby/Jekyll commands:
+```bash
+wsl bash -c 'cd /path/to/project/docs && bundle exec jekyll serve'
+```
+
+## Code Consistency Patterns
+
+### Adding New Features
+
+When adding new models, controllers, or components:
+
+1. **Study existing implementation**: Review similar existing code first
+2. **Follow patterns exactly**: Naming, structure, validation, tests
+3. **Use canonical examples**:
+   - Backend: `Context` model, controller, tests in `/tests/Feature/Api/Context/`
+   - Frontend: `Contexts.vue` page and `Contexts.test.ts` tests
+4. **Maintain alignment**: Validation in Controller, Model, Factory, Migration
+
+### DRY Principle
+
+- Extract common logic into helpers or traits
+- Reuse components instead of duplicating code
+- Follow established patterns for similar functionality
+
+## Security & Best Practices
+
+- **No hardcoded secrets**: Use environment variables
+- **Laravel abstractions**: Use framework features (Storage, Config, etc.)
+- **Input validation**: Always validate with Form Requests
+- **SQL injection prevention**: Use Eloquent exclusively
+- **Authentication**: Sanctum tokens for API, standard Laravel auth for web
+
+## File-Specific Instructions
+
+For detailed language and framework-specific guidelines, see:
+
+- `php.instructions.md` - PHP/Laravel standards
+- `ts.instructions.md` - TypeScript standards
+- `vue.instructions.md` - Vue.js component patterns
+- `test-php.instructions.md` - Backend testing guidelines
+- `test-vuejs.instructions.md` - Frontend testing guidelines
+- `md.instructions.md` - Documentation writing standards
+- `ps1.instructions.md` - PowerShell scripting guidelines
+
+## Common Pitfalls to Avoid
+
+- ❌ Editing files in `/api-client/` (auto-generated)
+- ❌ Using `fetch` or `axios` in Vue SPA (use generated client)
+- ❌ Altering existing migrations (create new ones)
+- ❌ Using `any` type in TypeScript
+- ❌ Direct file system access (use Laravel Storage)
+- ❌ Committing directly to `main` branch
+- ❌ Inline SVG or custom icon components (use Heroicons)
+- ❌ Creating components without tests
+- ❌ Ignoring lint warnings or test failures
+
+## Additional Resources
+
+- **Live Documentation**: https://metanull.github.io/inventory-app/
+- **API Documentation**: http://localhost:8000/docs/api (when running locally)
+- **README**: Comprehensive project information in `/README.md`
+- **Deployment Guides**: `/deployment/` directory
+
+---
+
+**Remember**: This is an active development project with consistent patterns throughout. When in doubt, find a similar existing implementation and follow its pattern exactly.
