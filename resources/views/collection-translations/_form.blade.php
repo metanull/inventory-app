@@ -67,7 +67,6 @@
                     placeholder="https://example.com/collection"
                 />
             </x-form.field>
-        </div>
     </x-form.section>
 
     {{-- Additional Information --}}
@@ -89,7 +88,6 @@
                     placeholder="Optional legacy identifier"
                 />
             </x-form.field>
-        </div>
     </x-form.section>
 </div>
 
