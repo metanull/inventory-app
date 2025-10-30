@@ -175,7 +175,7 @@ Components typically require authentication to render, so this trait is essentia
 ## Adding a New Component Test
 
 1. Identify the Livewire component class (e.g., `App\Livewire\Tables\ItemsTable`)
-2. Create test file: `tests-new/Web/Components/{ComponentName}Test.php`
+2. Create test file: `tests/Web/Components/{ComponentName}Test.php`
 3. Use `AuthenticatesWebRequests` + `RefreshDatabase` + `TestsWebLivewire` traits
 4. Implement three required methods:
    - `getComponentClass()` - Livewire component class

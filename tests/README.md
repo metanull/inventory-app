@@ -5,7 +5,7 @@ This directory contains the reorganized test suite following Laravel best practi
 ## Directory Structure
 
 ```
-tests-new/
+tests/
 ├── Api/                              # REST API Backend Tests
 │   ├── Resources/                    # Resource/endpoint tests (one file per resource)
 │   │   ├── ItemTest.php             # All Item API tests (index, show, store, update, destroy, tags, scopes)

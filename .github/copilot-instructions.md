@@ -31,6 +31,7 @@ The **Inventory Management API** is a comprehensive Laravel 12 backend applicati
   /__tests__/          # Vitest test suites
 /database/             # Migrations, factories, seeders
 /tests/                # PHPUnit backend tests
+  /README.md           # Testing guidelines and directory structure
 /docs/                 # Jekyll documentation site (Ruby-based)
 /api-client/           # Auto-generated TypeScript API client (DO NOT EDIT)
 /.github/instructions/ # File-specific coding guidelines
@@ -192,21 +193,25 @@ See `/resources/js/components/` for complete component library.
 
 Test organization in `/tests/`:
 - `/Unit/` - Factory tests, model validation
-- `/Feature/` - API endpoint tests organized by model
-
-Every model requires test files:
-- `AnonymousTest.php` - Unauthorized access scenarios
-- `IndexTest.php` - List operations
-- `ShowTest.php` - Single record retrieval
-- `StoreTest.php` - Record creation
-- `UpdateTest.php` - Record updates
-- `DestroyTest.php` - Record deletion
+- `/Requests/Web` - Form Request validation tests for the web UI
+- `/Requests/Api` - Form Request validation tests for the API
+- `/Api/` - REST API resource tests
+- `/Integration/` - Cross-cutting integration tests
+- `/Events/` - Event and listener tests
+- `/Console/` - Artisan command tests
+- `/Services/` - Service class tests
 
 Test requirements:
+- DRY principle, Tests must use reusable traits where possible
+- Follow existing patterns exactly when adding new tests - they must respect the existing directory structure
+- Only test custom business logic - don't test the framework: only add tests for custom business logic
 - Use `RefreshDatabase` trait
 - Use factories for test data (`.create()` for DB, `.make()->toArray()` for requests)
 - Authenticate with Sanctum: `$this->actingAs(User::factory()->create())`
 - Validate with `assertJsonStructure`, `assertJsonPath`, `assertOk`, etc.
+
+Examples:
+For a better understanding, inspect the existing, e.g. tests related to ItemTranslation.
 
 ### Frontend Tests (Vitest)
 
@@ -345,6 +350,10 @@ For detailed language and framework-specific guidelines, see:
 - ❌ Inline SVG or custom icon components (use Heroicons)
 - ❌ Creating components without tests
 - ❌ Ignoring lint warnings or test failures
+- ❌ Using Terminal instead of VS Code tools
+- ❌ Using terminal to run tests instead of VS Code testing features
+- ❌ Creating scripts to alter files instead of using VS Code refactoring tools
+- ❌ Using linux commands and escaping in Terminal instead of native Windows commands in PowerShell
 
 ## Additional Resources
 

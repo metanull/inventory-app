@@ -20,10 +20,13 @@ class AllowList
                 'partner', 'country', 'project', 'collection',
                 'parent', 'children', 'itemImages',
                 'artists', 'workshops', 'tags', 'translations',
-                'attachedToCollections',
+                'attachedToCollections', 'outgoingLinks', 'incomingLinks',
             ],
             'itemImage' => [
                 'item',
+            ],
+            'item_item_link' => [
+                'source', 'target', 'context',
             ],
             'item_translation' => [
                 'item', 'language', 'context', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor',

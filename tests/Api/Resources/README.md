@@ -104,7 +104,7 @@ This means:
 
 ## Adding a New Resource Test
 
-1. Create new test file: `tests-new/Api/Resources/{ModelName}Test.php`
+1. Create new test file: `tests/Api/Resources/{ModelName}Test.php`
 2. Use appropriate traits based on resource type:
    - Standard resource → `TestsApiCrud`
    - Taggable resource → Add `TestsApiTagManagement`
