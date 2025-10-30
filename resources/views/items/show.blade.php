@@ -34,6 +34,9 @@
         <!-- Translations Section -->
         <x-entity.translations-section entity="items" :model="$item" translationRoute="item-translations" />
 
+        <!-- Links Section -->
+        <x-entity.links-section :model="$item" />
+
         <!-- Tags Section -->
         <x-entity.tags-section :model="$item" />
 

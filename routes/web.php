@@ -13,6 +13,7 @@ use App\Http\Controllers\Web\GlossaryTranslationController as WebGlossaryTransla
 use App\Http\Controllers\Web\ImageUploadController as WebImageUploadController;
 use App\Http\Controllers\Web\ItemController as WebItemController;
 use App\Http\Controllers\Web\ItemImageController as WebItemImageController;
+use App\Http\Controllers\Web\ItemItemLinkController as WebItemItemLinkController;
 use App\Http\Controllers\Web\ItemTranslationController as WebItemTranslationController;
 use App\Http\Controllers\Web\LanguageController as WebLanguageController;
 use App\Http\Controllers\Web\PartnerController as WebPartnerController;
@@ -63,6 +64,17 @@ Route::prefix('web')->group(function () {
         // Item Tags - nested routes for attaching/detaching tags
         Route::post('items/{item}/tags', [WebItemController::class, 'attachTag'])->name('items.tags.attach');
         Route::delete('items/{item}/tags/{tag}', [WebItemController::class, 'detachTag'])->name('items.tags.detach');
+
+        // Item Links - nested routes
+        Route::prefix('items/{item}/links')->name('item-links.')->group(function () {
+            Route::get('/', [WebItemItemLinkController::class, 'index'])->name('index');
+            Route::get('/create', [WebItemItemLinkController::class, 'create'])->name('create');
+            Route::post('/', [WebItemItemLinkController::class, 'store'])->name('store');
+            Route::get('/{itemItemLink}', [WebItemItemLinkController::class, 'show'])->name('show');
+            Route::get('/{itemItemLink}/edit', [WebItemItemLinkController::class, 'edit'])->name('edit');
+            Route::put('/{itemItemLink}', [WebItemItemLinkController::class, 'update'])->name('update');
+            Route::delete('/{itemItemLink}', [WebItemItemLinkController::class, 'destroy'])->name('destroy');
+        });
 
         Route::resource('item-translations', WebItemTranslationController::class);
         Route::resource('collection-translations', WebCollectionTranslationController::class);
