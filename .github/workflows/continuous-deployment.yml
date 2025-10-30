@@ -172,16 +172,29 @@ jobs:
           VITE_API_BASE_URL: ${{ vars.APP_URL || 'http://localhost' }}/api
           VITE_APP_TITLE: ${{ vars.APP_NAME || 'Inventory App' }}
         run: |
-          # Build frontend assets using Vite
-          Write-Host "::group::Running npm run build"
+          # Build BOTH backend and SPA frontend assets
+          
+          Write-Host "::group::Building backend assets (Blade/Tailwind)"
           $global:LASTEXITCODE = 0
           & "$env:NPM_PATH" run build
           if ($global:LASTEXITCODE -ne 0) {
-            Write-Host "::error::NPM build failed with exit code $global:LASTEXITCODE"
+            Write-Host "::error::Backend build failed with exit code $global:LASTEXITCODE"
             exit $global:LASTEXITCODE
           }
           Write-Host "::endgroup::"
-          Write-Host "Frontend assets built successfully."
+          Write-Host "✓ Backend assets built successfully to public/build/"
+          
+          Write-Host "::group::Building SPA assets (Vue 3)"
+          $global:LASTEXITCODE = 0
+          & "$env:NPM_PATH" run spa:build
+          if ($global:LASTEXITCODE -ne 0) {
+            Write-Host "::error::SPA build failed with exit code $global:LASTEXITCODE"
+            exit $global:LASTEXITCODE
+          }
+          Write-Host "::endgroup::"
+          Write-Host "✓ SPA assets built successfully to public/spa-build/"
+          
+          Write-Host "::notice::Both frontend assets built successfully"
         shell: powershell
 
       - name: Prepare deployment package
