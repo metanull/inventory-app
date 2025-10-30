@@ -1,13 +1,16 @@
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
+import path from 'node:path'
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@metanull/inventory-app-api-client': fileURLToPath(new URL('../api-client', import.meta.url)),
+      '@metanull/inventory-app-api-client': fileURLToPath(new URL('./node_modules/@metanull/inventory-app-api-client', import.meta.url)),
     },
   },
   define: {
@@ -65,6 +68,9 @@ export default defineConfig({
         },
       },
     },
-    setupFiles: ['./vitest.setup.ts', './src/__tests__/test-utils.ts'],
+    setupFiles: [
+      path.resolve(__dirname, './vitest.setup.ts'),
+      path.resolve(__dirname, './src/__tests__/test-utils.ts'),
+    ],
   },
 })
