@@ -76,13 +76,6 @@
                             label="Partners"
                         />
                         <x-nav.menu-item 
-                            :route="route('project-translations.index')"
-                            routePattern="project-translations.*"
-                            entity="project_translations"
-                            icon="language"
-                            label="Projects"
-                        />
-                        <x-nav.menu-item 
                             :route="route('collection-translations.index')"
                             routePattern="collection-translations.*"
                             entity="collection_translations"
@@ -322,13 +315,6 @@
                     routePattern="partner-translations.*"
                     entity="partner_translations"
                     label="Partners"
-                    mobile
-                />
-                <x-nav.menu-item 
-                    :route="route('project-translations.index')"
-                    routePattern="project-translations.*"
-                    entity="project_translations"
-                    label="Projects"
                     mobile
                 />
                 <x-nav.menu-item 

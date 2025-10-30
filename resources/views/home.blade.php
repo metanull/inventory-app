@@ -92,7 +92,6 @@
                     $translationCards = [
                         ['route' => 'item-translations.index', 'title' => 'Item Translations', 'description' => 'Manage translations for items across different languages and contexts.', 'entity' => 'item_translations', 'icon' => 'language'],
                         ['route' => 'partner-translations.index', 'title' => 'Partner Translations', 'description' => 'Manage translations for partners across different languages and contexts.', 'entity' => 'partner_translations', 'icon' => 'language'],
-                        ['route' => 'project-translations.index', 'title' => 'Project Translations', 'description' => 'Manage translations for projects across different languages and contexts.', 'entity' => 'project_translations', 'icon' => 'language'],
                         ['route' => 'collection-translations.index', 'title' => 'Collection Translations', 'description' => 'Manage translations for collections across different languages and contexts.', 'entity' => 'collection_translations', 'icon' => 'language'],
                     ];
                 @endphp
