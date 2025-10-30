@@ -3,6 +3,9 @@ import { ref, computed } from 'vue'
 import {
   type AcquireTokenMobileAppAuthenticationRequest,
   type TokenAcquire202Response,
+  type TokenAcquire202ResponseAvailableMethods,
+  type TokenAcquire202ResponseMessage,
+  type MarkdownPreview422ResponseSuccess,
   type VerifyTwoFactorMobileAppAuthenticationRequest,
   type VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum,
   type TwoFactorStatusMobileAppAuthenticationRequest,
@@ -12,17 +15,17 @@ import { usePermissionsStore } from './permissions'
 import { clearAuthCookies } from '@/utils/cookies'
 
 export interface TwoFactorChallenge {
-  requires_two_factor: string
-  available_methods: string
-  primary_method: string
-  message: string
+  requires_two_factor: MarkdownPreview422ResponseSuccess
+  available_methods: TokenAcquire202ResponseAvailableMethods
+  primary_method: string | null
+  message: TokenAcquire202ResponseMessage
 }
 
 export interface TwoFactorStatus {
-  two_factor_enabled: string
-  available_methods: string
-  primary_method: string
-  requires_two_factor: string
+  two_factor_enabled: MarkdownPreview422ResponseSuccess
+  available_methods: TokenAcquire202ResponseAvailableMethods
+  primary_method: string | null
+  requires_two_factor: MarkdownPreview422ResponseSuccess
 }
 
 export const useAuthStore = defineStore('auth', () => {
