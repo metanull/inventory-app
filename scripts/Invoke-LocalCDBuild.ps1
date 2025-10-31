@@ -124,6 +124,13 @@ try {
         Write-Error "ERROR: Composer install failed" -ErrorAction Stop
     }
 
+    # Pint tests (root)
+    Write-Verbose "Running: .\vendor\bin\pint (backend)"
+    & .\vendor\bin\pint --test
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "ERROR: Pint tests failed (backend)" -ErrorAction Stop
+    }
+
     # NPM install (root)
     Write-Verbose "Running: npm install --no-audit --no-fund (backend)"
     & npm install --no-audit --no-fund
@@ -138,6 +145,37 @@ try {
         & npm install --no-audit --no-fund
         if ($LASTEXITCODE -ne 0) {
             Write-Error "ERROR: install failed (SPA)" -ErrorAction Stop
+        }
+    } finally {
+        Pop-Location
+    }
+
+    # eslint check (root)
+    Write-Verbose "Running: eslint . (backend)"
+    & eslint .
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "ERROR: lint check failed (backend)" -ErrorAction Stop
+    }
+
+    # eslint check (SPA)
+    Write-Verbose "Running: eslint . (SPA)"
+    try {
+        Push-Location ./spa
+        & eslint .
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "ERROR: lint check failed (SPA)" -ErrorAction Stop
+        }
+    } finally {
+        Pop-Location
+    }
+
+    # TypeScript check (SPA)
+    Write-Verbose "Running: vue-tsc --noEmit (SPA)"
+    try {
+        Push-Location ./spa
+        & vue-tsc --noEmit
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "ERROR: TypeScript check failed (SPA)" -ErrorAction Stop
         }
     } finally {
         Pop-Location
