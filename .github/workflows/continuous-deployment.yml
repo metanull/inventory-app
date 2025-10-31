@@ -1,0 +1,111 @@
+name: Continuous Deployment (simple)
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to deploy (e.g., v1.0.0). Omit to use the release tag from event.'
+        required: false
+        type: string
+      environment:
+        description: 'Deployment environment'
+        required: false
+        default: production
+
+jobs:
+  deploy:
+    name: Deploy to self-hosted Windows runner
+    runs-on: [self-hosted, windows, production]
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Resolve tag
+        id: resolve
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $inputTag = '${{ github.event.inputs.tag }}'
+          $eventTag = '${{ github.event.release.tag_name }}'
+          if ($inputTag -and $inputTag -ne '') { $tag = $inputTag } elseif ($eventTag -and $eventTag -ne '') { $tag = $eventTag } else { Write-Error 'No tag provided or available from event'; exit 1 }
+          Write-Output "tag=$tag" >> $env:GITHUB_OUTPUT
+
+      - name: Download and extract tag archive
+        id: download
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = '${{ steps.resolve.outputs.tag }}'
+          $workspace = Join-Path $env:TEMP "deploy-$($env:GITHUB_RUN_ID)-$tag"
+          New-Item -Path $workspace -ItemType Directory -Force | Out-Null
+          $zipPath = Join-Path $workspace "$((Split-Path -Leaf $env:GITHUB_REPOSITORY))-$tag.zip"
+          $url = "https://github.com/${{ github.repository }}/archive/refs/tags/$tag.zip"
+          Write-Host "Downloading $url to $zipPath"
+          Write-Output "packagePath=$zipPath" >> $env:GITHUB_OUTPUT
+
+          # Invoke-WebRequest -Uri $url -OutFile $zipPath -UseBasicParsing -ErrorAction Stop
+          # $extractPath = Join-Path $workspace 'release'
+          # Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+          # { $appDir = Get-ChildItem -Path $extractPath -Directory | Where-Object { Test-Path (Join-Path $_.FullName 'artisan') } | Select-Object -First 1
+          # { if (-not $appDir) { Write-Error 'Could not locate Laravel app directory in archive'; exit 1 }
+          # Write-Output "packagePath=$($appDir.FullName)" >> $env:GITHUB_OUTPUT
+          Write-Output "workdir=$workspace" >> $env:GITHUB_OUTPUT
+
+      - name: Deploy with Deploy-Application.ps1
+        shell: pwsh
+        env:
+          APP_KEY: ${{ secrets.APP_KEY }}
+          APP_URL: ${{ secrets.APP_URL }}
+          APP_NAME: ${{ secrets.APP_NAME }}
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          WEBSERVER_PATH_PROD: ${{ secrets.WEBSERVER_PATH_PROD }}
+          SHARED_STORAGE_ROOT: ${{ secrets.SHARED_STORAGE_ROOT }}
+          PHP_PATH: ${{ secrets.PHP_PATH }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $package = '${{ steps.download.outputs.packagePath }}'
+          $workspace = '${{ steps.download.outputs.workdir }}'
+          $log = Join-Path $workspace 'deploy.log'
+
+          $deployScript = Join-Path $env:GITHUB_WORKSPACE 'scripts\Deploy-Application.ps1'
+          if (-not (Test-Path $deployScript)) { Write-Error "Deploy script not found: $deployScript"; exit 1 }
+
+          Add-Content -Path $log -Value "Starting deployment: $(Get-Date -Format o)"
+
+          $dbPass = ConvertTo-SecureString -String $env:DATABASE_PASSWORD -AsPlainText -Force
+          $dbCred = New-Object System.Management.Automation.PSCredential($env:DATABASE_USERNAME, $dbPass)
+
+          & $deployScript `
+            -DeploymentPackagePath $package `
+            -WebserverPath $env:WEBSERVER_PATH_PROD `
+            -SharedStorageRoot $env:SHARED_STORAGE_ROOT `
+            -PhpPath $env:PHP_PATH `
+            -AppUrl $env:APP_URL `
+            -AppName $env:APP_NAME `
+            -AppEnv 'production' `
+            -AppKey $env:APP_KEY `
+            -DatabaseHost $env:DATABASE_HOST `
+            -DatabasePort ([int]$env:DATABASE_PORT) `
+            -DatabaseName $env:DATABASE_NAME `
+            -DatabaseCredential $dbCred `
+            -Verbose *>&1 | Tee-Object -FilePath $log -Append
+
+          if ($LASTEXITCODE -ne 0) { Write-Error 'Deploy-Application.ps1 failed - check log'; exit 1 }
+
+      - name: Upload deploy log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-log-${{ github.run_id }}
+          path: ${{ steps.download.outputs.workdir }}/deploy.log
+
