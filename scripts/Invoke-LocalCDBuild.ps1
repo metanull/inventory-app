@@ -124,12 +124,14 @@ try {
         Write-Error "ERROR: Composer install failed" -ErrorAction Stop
     }
 
+    <# Not available on production build (needs dev dependencies)
     # Pint tests (root)
     Write-Verbose "Running: .\vendor\bin\pint (backend)"
     & .\vendor\bin\pint --test
     if ($LASTEXITCODE -ne 0) {
         Write-Error "ERROR: Pint tests failed (backend)" -ErrorAction Stop
     }
+    #>
 
     # NPM install (root)
     Write-Verbose "Running: npm install --no-audit --no-fund (backend)"
@@ -150,13 +152,16 @@ try {
         Pop-Location
     }
 
+    <# Not available on production build (needs dev dependencies)
     # eslint check (root)
     Write-Verbose "Running: eslint . (backend)"
     & eslint .
     if ($LASTEXITCODE -ne 0) {
         Write-Error "ERROR: lint check failed (backend)" -ErrorAction Stop
     }
+    #>
 
+    <# Not available on production build (needs dev dependencies)
     # eslint check (SPA)
     Write-Verbose "Running: eslint . (SPA)"
     try {
@@ -168,7 +173,9 @@ try {
     } finally {
         Pop-Location
     }
+    #>
 
+    <# Not available on production build (needs dev dependencies)
     # TypeScript check (SPA)
     Write-Verbose "Running: vue-tsc --noEmit (SPA)"
     try {
@@ -180,6 +187,7 @@ try {
     } finally {
         Pop-Location
     }
+    #>
 
     # Build backend
     Write-Verbose "Running: npm run build (backend)"
@@ -210,6 +218,6 @@ finally {
     # Cleanup
     if (Test-Path $tempDir) {
         Write-Verbose "Cleaning up temp directory..."
-        Remove-Item $tempDir -Recurse -Confirm -ErrorAction SilentlyContinue
+        Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
