@@ -2,10 +2,8 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
-
 export default defineConfig({
+    root: './',
     plugins: [
         vue(),
     ],
@@ -27,11 +25,9 @@ export default defineConfig({
     build: {
         target: 'esnext',
         sourcemap: true,
-        outDir: fileURLToPath(new URL('../public/spa-build', import.meta.url)),
+        outDir: '../public/spa-build',
+        emptyOutDir: true,
         manifest: 'manifest.json',
-        rollupOptions: {
-            input: fileURLToPath(new URL('./index.html', import.meta.url)),
-        },
         assetsInlineLimit: 0,
     },
 });
