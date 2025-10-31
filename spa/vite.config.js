@@ -29,7 +29,13 @@ export default defineConfig({
         manifest: 'manifest.json',
         rollupOptions: {
             input: 'index.html',
+            output: {
+                entryFileNames: '[name]-[hash].js',
+                chunkFileNames: '[name]-[hash].js',
+                assetFileNames: '[name]-[hash][extname]',
+            },
         },
         assetsInlineLimit: 0,
+        emptyOutDir: true,
     },
 });
