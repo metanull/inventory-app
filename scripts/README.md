@@ -20,6 +20,7 @@ The /scripts directory contains automation and helper scripts used for documenta
       - [Generating the static documentation website locally](#generating-the-static-documentation-website-locally)
       - [Running the static documentation website locally](#running-the-static-documentation-website-locally)
       - [Auto-generating the Model documentation](#auto-generating-the-model-documentation)
+    - [Local CI/CD Build Simulation](#local-cicd-build-simulation)
     - [Development helpers](#development-helpers)
       - [Image seeding](#image-seeding)
       - [Migration testing](#migration-testing)
@@ -321,6 +322,55 @@ Auto-generates markdown documentation for Laravel models (schemas, relations, fi
 # Force regenerate all documentation
 . ./scripts/generate-model-documentation.ps1 -Force
 ```
+
+### Local CI/CD Build Simulation
+
+Simulates the GitHub continuous deployment build pipeline locally, allowing validation that changes will build successfully before pushing to GitHub.
+
+**Script properties**
+
+| Property | Value |
+| --- | --- |
+| **Script** | `Invoke-LocalCDBuild.ps1` |
+| **Invoker** | Invoked by the developer after **code changes** to validate the build |
+| **Input** | Git repository, branch name, `.npmrc` file (all auto-detected) |
+| **Output** | **N/A** - Temp directory is cleaned up automatically |
+| **Log** | **N/A** - The script writes to the terminal |
+
+**Usage**
+
+All parameters are auto-detected from your current working directory if not provided:
+
+```powershell
+# Run with all parameters auto-detected from current git repo
+./scripts/Invoke-LocalCDBuild.ps1
+
+# Or specify parameters explicitly
+./scripts/Invoke-LocalCDBuild.ps1 `
+  -RepositoryUrl "https://github.com/metanull/inventory-app.git" `
+  -BranchName "main" `
+  -NpmrcPath "$HOME\.npmrc"
+```
+
+**Parameters**
+
+- **RepositoryUrl** (optional): Git repository URL. Auto-detected from `git remote origin` if not provided.
+- **BranchName** (optional): Branch name to checkout. Auto-detected from current branch if not provided.
+- **NpmrcPath** (optional): Path to `.npmrc` file. Defaults to `$HOME\.npmrc` if not provided.
+
+**What it does**
+1. Checks for uncommitted or staged changes (fails if any exist)
+2. Verifies `.npmrc` file exists
+3. Clones repository to temp directory
+4. Checks out the specified branch
+5. Installs PHP and NPM dependencies (production flags)
+6. Builds backend assets
+7. Builds SPA assets
+8. Cleans up temporary files
+
+**Exit codes**
+- **0**: Success
+- **1**: Failure (see error message)
 
 ### Development helpers
 
