@@ -469,7 +469,9 @@ inventory-app/
     npm run build
     
     # Build SPA assets
-    npm --prefix spa run build
+    pushd spa
+    npm run build
+    popd
     ```
 
 7. **Start development environment**
@@ -482,9 +484,14 @@ inventory-app/
     composer dev-start -- --reset
     
     # OR: Traditional method (requires three terminals)
-    php artisan serve                    # Terminal 1: Laravel API (port 8000)
-    npm run dev                          # Terminal 2: Backend Vite (port 5173)
-    npm --prefix spa run dev            # Terminal 3: SPA Vite (port 5174)
+    # Terminal 1: Laravel API (port 8000)
+    php artisan serve                    
+    # Terminal 2: Backend Vite (port 5173)
+    npm run dev                          
+    # Terminal 3: SPA Vite (port 5174)
+    pushd spa                            
+    npm run dev                          
+    popd
     ```
 
     The `composer dev-start` command automatically:
@@ -492,7 +499,7 @@ inventory-app/
     - ✅ Handles port conflicts and cleanup
     - ✅ Provides clear status information
     - ✅ Supports database reset option
-    - ✅ Note: For SPA development, run `npm --prefix spa run dev` in a separate terminal
+    - ✅ Note: For SPA development, run `cd spa; npm run dev` in a separate terminal
 
     **Access your application:**
     - **Main UI (Blade)**: http://localhost:8000/web
