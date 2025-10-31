@@ -181,84 +181,25 @@ jobs:
         run: |
           npm audit --audit-level moderate
 
-      - name: "Check > npm > Build SPA"
-        working-directory: spa
-        run: |
-          npm run build
-
       - name: "Check > npm > Linting (SPA)"
         working-directory: spa
         run: |
           npm run lint
+
+      - name: "Check > npm > Build (SPA)"
+        working-directory: spa
+        run: |
+          npm run build
 
       - name: "Check > npm > Run Tests (SPA)"
         working-directory: spa
         run: |
           npm run test:all
 
-  integration-validation:
-    name: Integration Validation - Both Apps
-    runs-on: windows-latest
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: "Setup > Image > Install Node.js"
-        uses: actions/setup-node@v6
-        with:
-          node-version: "22.17.0"
-          registry-url: https://npm.pkg.github.com/
-
-      - name: "Setup > npm > Install Root Dependencies"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        run: |
-          npm ci --no-audit --no-fund
-
-      - name: "Setup > npm > Install SPA Dependencies"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        working-directory: spa
-        run: |
-          npm ci --no-audit --no-fund
-
-      - name: "Integration > Build Both Apps Together"
-        run: |
-          # This verifies that both apps can be built in the same workflow
-          # which simulates the deployment process
-          Write-Host "::group::Building backend assets"
-          npm run build
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "::error::Backend build failed"
-            exit 1
-          }
-          Write-Host "::endgroup::"
-          
-          Write-Host "::group::Building SPA assets"
-          npm run spa:build
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "::error::SPA build failed"
-            exit 1
-          }
-          Write-Host "::endgroup::"
-          
-          # Verify output directories exist
-          if (-not (Test-Path "public/build")) {
-            Write-Host "::error::Backend build output directory 'public/build' not found"
-            exit 1
-          }
-          if (-not (Test-Path "public/spa-build")) {
-            Write-Host "::error::SPA build output directory 'public/spa-build' not found"
-            exit 1
-          }
-          
-          Write-Host "::notice::✓ Both apps built successfully and output directories verified"
-        shell: pwsh
-
   ci-success:
     name: CI Success
     runs-on: windows-latest
-    needs: [backend-lint, backend-tests, backend-frontend-validation, spa-frontend-validation, integration-validation]
+    needs: [backend-lint, backend-tests, backend-frontend-validation, spa-frontend-validation]
     if: always()
 
     steps:
@@ -268,14 +209,12 @@ jobs:
           $backendTestsResult = "${{ needs.backend-tests.result }}"
           $backendFrontendResult = "${{ needs.backend-frontend-validation.result }}"
           $spaFrontendResult = "${{ needs.spa-frontend-validation.result }}"
-          $integrationResult = "${{ needs.integration-validation.result }}"
-          
-          if ($backendLintResult -ne "success" -or $backendTestsResult -ne "success" -or $backendFrontendResult -ne "success" -or $spaFrontendResult -ne "success" -or $integrationResult -ne "success") {
+
+          if ($backendLintResult -ne "success" -or $backendTestsResult -ne "success" -or $backendFrontendResult -ne "success" -or $spaFrontendResult -ne "success") {
             Write-Output "One or more validation jobs failed"
             Write-Output "Backend Lint: $backendLintResult"
             Write-Output "Backend Tests: $backendTestsResult"
             Write-Output "Backend Frontend: $backendFrontendResult"
             Write-Output "SPA Frontend: $spaFrontendResult"
-            Write-Output "Integration Validation: $integrationResult"
             exit 1
           }

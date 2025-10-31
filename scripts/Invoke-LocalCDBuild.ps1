@@ -124,34 +124,80 @@ try {
         Write-Error "ERROR: Composer install failed" -ErrorAction Stop
     }
 
+    # Pint tests (root)
+    Write-Verbose "Running: .\vendor\bin\pint (backend)"
+    & .\vendor\bin\pint --test
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "ERROR: Pint tests failed (backend)" -ErrorAction Stop
+    }
+
     # NPM install (root)
-    Write-Verbose "Running: npm install --no-audit --no-fund"
+    Write-Verbose "Running: npm install --no-audit --no-fund (backend)"
     & npm install --no-audit --no-fund
     if ($LASTEXITCODE -ne 0) {
-        Write-Error "ERROR: Root npm install failed" -ErrorAction Stop
+        Write-Error "ERROR: install failed (backend)" -ErrorAction Stop
     }
 
     # NPM install (SPA)
-    Write-Verbose "Running: npm --prefix ./spa install --no-audit --no-fund"
-    & npm --prefix ./spa install --no-audit --no-fund
+    Write-Verbose "Running: npm install --no-audit --no-fund (SPA)"
+    try {
+        Push-Location ./spa
+        & npm install --no-audit --no-fund
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "ERROR: install failed (SPA)" -ErrorAction Stop
+        }
+    } finally {
+        Pop-Location
+    }
+
+    # eslint check (root)
+    Write-Verbose "Running: eslint . (backend)"
+    & eslint .
     if ($LASTEXITCODE -ne 0) {
-        Write-Error "ERROR: SPA npm install failed" -ErrorAction Stop
+        Write-Error "ERROR: lint check failed (backend)" -ErrorAction Stop
+    }
+
+    # eslint check (SPA)
+    Write-Verbose "Running: eslint . (SPA)"
+    try {
+        Push-Location ./spa
+        & eslint .
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "ERROR: lint check failed (SPA)" -ErrorAction Stop
+        }
+    } finally {
+        Pop-Location
+    }
+
+    # TypeScript check (SPA)
+    Write-Verbose "Running: vue-tsc --noEmit (SPA)"
+    try {
+        Push-Location ./spa
+        & vue-tsc --noEmit
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "ERROR: TypeScript check failed (SPA)" -ErrorAction Stop
+        }
+    } finally {
+        Pop-Location
     }
 
     # Build backend
-    Write-Verbose "Running: npm run build"
+    Write-Verbose "Running: npm run build (backend)"
     & npm run build
     if ($LASTEXITCODE -ne 0) {
-        Write-Error "ERROR: Backend build failed" -ErrorAction Stop
+        Write-Error "ERROR: build failed (backend)" -ErrorAction Stop
     }
-    Write-Verbose "OK"
-    Write-Verbose ""
 
     # Build SPA
-    Write-Verbose "Running: npm run spa:build"
-    & npm run spa:build
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "ERROR: SPA build failed" -ErrorAction Stop
+    Write-Verbose "Running: npm run build (SPA)"
+    try {
+        Push-Location ./spa
+        & npm run build
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "ERROR: build failed (SPA)" -ErrorAction Stop
+        }
+    } finally {
+        Pop-Location
     }
     Write-Verbose "SUCCESS: All build steps completed successfully"
 }

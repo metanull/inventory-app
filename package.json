@@ -1,32 +1,21 @@
 {
     "name": "inventory-app",
-    "version": "6.0.0",
+    "version": "6.0.1",
     "private": true,
     "type": "module",
     "scripts": {
         "build": "vite build",
         "dev": "vite --host 127.0.0.1",
+        "lint": "eslint . --fix",
+        "lint:check": "eslint .",
         "preview": "vite preview",
-        "spa:build": "npm --prefix ./spa run build",
-        "spa:dev": "npm --prefix ./spa run dev",
-        "spa:test": "npm --prefix ./spa run test",
-        "spa:test:unit": "npm --prefix ./spa run test:unit",
-        "spa:test:watch": "npm --prefix ./spa run test:watch",
-        "spa:test:ui": "npm --prefix ./spa run test:ui",
-        "spa:lint": "npm --prefix ./spa run lint",
-        "spa:lint:check": "npm --prefix ./spa run lint:check",
-        "spa:format": "npm --prefix ./spa run format",
-        "spa:format:check": "npm --prefix ./spa run format:check",
-        "spa:type-check": "npm --prefix ./spa run type-check",
-        "spa:quality-check": "npm --prefix ./spa run quality-check",
-        "build:all": "npm run build && npm run spa:build",
-        "dev:all": "concurrently \"npm run dev\" \"npm run spa:dev\"",
         "quality-check:report": "powershell -ExecutionPolicy Bypass -File ./scripts/Check-Issues.ps1",
         "scan:tailwind-colors": "node ./scripts/scan-tailwind-colors.js",
         "test:yml": "node ./scripts/validate-workflows.cjs"
     },
     "dependencies": {
-        "glob": "^11.0.3"
+        "glob": "^11.0.3",
+        "marked": "^16.4.1"
     },
     "devDependencies": {
         "@tailwindcss/postcss": "^4.1.16",
