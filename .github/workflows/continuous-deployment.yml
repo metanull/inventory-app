@@ -127,20 +127,22 @@ jobs:
 
       - name: Install PHP dependencies
         run: |
-          # Install Composer dependencies
-
-          Write-Host "::group::Running composer install"
-          $global:LASTEXITCODE = 0
           & "$env:COMPOSER_PATH" install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-          if ($global:LASTEXITCODE -ne 0) {
-            Write-Host "::error::Composer install failed with exit code $global:LASTEXITCODE"
-            exit $global:LASTEXITCODE
-          }
-          Write-Host "::endgroup::"
-          Write-Host "Composer dependencies installed successfully."
         shell: powershell
 
-      - name: Setup npm authentication for GitHub Packages
+      - name: Install Node.js dependencies (backend)
+        run: |
+          & "$env:NPM_PATH" install --no-audit --no-fund
+
+      - name: Build frontend assets (backend)
+        env:
+          VITE_API_BASE_URL: ${{ vars.APP_URL || 'http://localhost' }}/api
+          VITE_APP_TITLE: ${{ vars.APP_NAME || 'Inventory App' }}
+        run: |
+          & "$env:NPM_PATH" run build
+        shell: powershell
+
+      - name: Setup npm authentication for GitHub Packages (SPA)
         run: |
           # Configure npm authentication for GitHub Packages
           Write-Host "::group::Setting up npm authentication"
@@ -151,68 +153,27 @@ jobs:
           Write-Host "npm authentication configured for GitHub Packages."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: spa
         shell: powershell
 
-      - name: Install Node.js dependencies
+      - name: Install Node.js dependencies (SPA)
         run: |
-          # Install NPM dependencies at root (backend/Blade)
-
-          Write-Host "::group::Installing root npm dependencies"
-          $global:LASTEXITCODE = 0
           & "$env:NPM_PATH" install --no-audit --no-fund
-          if ($global:LASTEXITCODE -ne 0) {
-            Write-Host "::error::Root npm install failed with exit code $global:LASTEXITCODE"
-            exit $global:LASTEXITCODE
-          }
-          Write-Host "::endgroup::"
-          Write-Host "Root npm dependencies installed successfully."
-          
-          # Install SPA dependencies
-          Write-Host "::group::Installing SPA npm dependencies"
-          $global:LASTEXITCODE = 0
-          & "$env:NPM_PATH" --prefix ./spa install --no-audit --no-fund
-          if ($global:LASTEXITCODE -ne 0) {
-            Write-Host "::error::SPA npm install failed with exit code $global:LASTEXITCODE"
-            exit $global:LASTEXITCODE
-          }
-          Write-Host "::endgroup::"
-          Write-Host "SPA npm dependencies installed successfully."
+        working-directory: spa
         shell: powershell
 
-      - name: Build frontend assets
+      - name: Build frontend assets (SPA)
         env:
           VITE_API_BASE_URL: ${{ vars.APP_URL || 'http://localhost' }}/api
           VITE_APP_TITLE: ${{ vars.APP_NAME || 'Inventory App' }}
         run: |
-          # Build BOTH backend and SPA frontend assets
-          
-          Write-Host "::group::Building backend assets (Blade/Tailwind)"
-          $global:LASTEXITCODE = 0
           & "$env:NPM_PATH" run build
-          if ($global:LASTEXITCODE -ne 0) {
-            Write-Host "::error::Backend build failed with exit code $global:LASTEXITCODE"
-            exit $global:LASTEXITCODE
-          }
-          Write-Host "::endgroup::"
-          Write-Host "Backend assets built successfully to public/build/"
-          
-          Write-Host "::group::Building SPA assets"
-          $global:LASTEXITCODE = 0
-          & "$env:NPM_PATH" run spa:build
-          if ($global:LASTEXITCODE -ne 0) {
-            Write-Host "::error::SPA build failed with exit code $global:LASTEXITCODE"
-            exit $global:LASTEXITCODE
-          }
-          Write-Host "::endgroup::"
-          Write-Host "SPA assets built successfully to public/spa-build/"
-          
-          Write-Host "Both frontend assets built successfully"
+        working-directory: spa
         shell: powershell
 
-      - name: Prepare deployment package
+      - name: Prepare deployment package - Create output directory
         env:
           BUILD_OUTPUT_DIR: ${{ runner.temp }}/deployment-package
-          DEFAULT_VERSION: '1.0.0'
         run: |
           # Prepare deployment package
           
@@ -236,8 +197,15 @@ jobs:
             Write-Host "::error::Failed to create deployment directory $deployDir. $_"
             exit 1
           }
+        shell: powershell
 
+      - name: Prepare deployment package - Copy application files
+        env:
+          BUILD_OUTPUT_DIR: ${{ runner.temp }}/deployment-package
+          DEFAULT_VERSION: '1.0.0'
+        run: |
           # Copy application files (excluding dev dependencies and build artifacts)
+
           # IMPORTANT: storage/app is excluded because it will be symlinked to a shared persistent location
           $excludeDirs = @('.git', 'node_modules', 'tests', '.github', 'docs', 'storage/app', 'storage/logs', 'storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views')
           $excludeFiles = @('*.log', '.env*', 'composer.lock', 'package-lock.json', 'webpack.mix.js', 'vite.config.js')
@@ -288,7 +256,13 @@ jobs:
             }
           }
           Write-Host "::endgroup::"
+        shell: powershell
 
+      - name: Prepare deployment package - Create VERSION file
+        env:
+          BUILD_OUTPUT_DIR: ${{ runner.temp }}/deployment-package
+          DEFAULT_VERSION: '1.0.0'
+        run: |
           # Create a VERSION file in the deployment package
           Write-Host "::group::Creating VERSION file in $deployDir"
           # Attempt to read versions from package.json files, fallback to DEFAULT_VERSION
@@ -301,6 +275,7 @@ jobs:
             Write-Host "::warning::Could not read app version from package.json. $_"
             $AppVersion = $env:DEFAULT_VERSION
           }
+
           try{ 
             $ApiClientVersion = Get-Content 'api-client/package.json' -ErrorAction stop | ConvertFrom-Json -ErrorAction stop | Select-Object -ExpandProperty Version -ErrorAction Stop
             Write-Host "api_client_version=$ApiClientVersion" >> "$GITHUB_ENV"
@@ -310,6 +285,7 @@ jobs:
             Write-Host "::warning::Could not read api-client version from api-client/package.json. $_"
             $ApiClientVersion = $env:DEFAULT_VERSION
           }
+
           $VersionObject = @{
             "app_version" = $AppVersion
             "api_client_version" = $ApiClientVersion
