@@ -155,17 +155,28 @@ jobs:
 
       - name: Install Node.js dependencies
         run: |
-          # Install NPM dependencies
+          # Install NPM dependencies at root (backend/Blade)
 
-          Write-Host "::group::Running npm install"
+          Write-Host "::group::Installing root npm dependencies"
           $global:LASTEXITCODE = 0
           & "$env:NPM_PATH" install --no-audit --no-fund
           if ($global:LASTEXITCODE -ne 0) {
-            Write-Host "::error::NPM install failed with exit code $global:LASTEXITCODE"
+            Write-Host "::error::Root npm install failed with exit code $global:LASTEXITCODE"
             exit $global:LASTEXITCODE
           }
           Write-Host "::endgroup::"
-          Write-Host "NPM dependencies installed successfully."
+          Write-Host "Root npm dependencies installed successfully."
+          
+          # Install SPA dependencies
+          Write-Host "::group::Installing SPA npm dependencies"
+          $global:LASTEXITCODE = 0
+          & "$env:NPM_PATH" --prefix ./spa install --no-audit --no-fund
+          if ($global:LASTEXITCODE -ne 0) {
+            Write-Host "::error::SPA npm install failed with exit code $global:LASTEXITCODE"
+            exit $global:LASTEXITCODE
+          }
+          Write-Host "::endgroup::"
+          Write-Host "SPA npm dependencies installed successfully."
         shell: powershell
 
       - name: Build frontend assets
