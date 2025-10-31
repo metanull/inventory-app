@@ -24,7 +24,6 @@ jobs:
           clean: true
 
       - name: Deploy with Deploy-Application.ps1
-        shell: pwsh
         env:
           APP_KEY: ${{ secrets.APP_KEY }}
           APP_URL: ${{ secrets.APP_URL }}
