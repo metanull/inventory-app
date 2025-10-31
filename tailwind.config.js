@@ -6,7 +6,7 @@ export default {
     './resources/**/*.ts',
     './resources/**/*.vue',
     './index.html',
-    './src/**/*.{vue,js,ts,jsx,tsx}'
+    './src/**/*.{vue,js,ts,jsx,tsx}',
   ],
   darkMode: 'class', // Enable dark mode with class strategy
   theme: {
@@ -44,4 +44,4 @@ export default {
     disableColorOpacityUtilitiesByDefault: true,
   },
   plugins: [],
-};
+}
