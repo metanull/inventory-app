@@ -1,27 +1,51 @@
-name: Continuous Deployment
+name: Manual Deployment (by TAG)
 
 permissions:
   contents: read
   packages: read   # Need read permissions for GitHub Packages
 
 on:
-  push:
-    branches: ["main"]
   
   workflow_dispatch:
-    
+    inputs:
+      tag:
+        description: 'Release tag to deploy (e.g., v1.0.0).'
+        required: true
+        type: string
+      environment:
+        description: 'Deployment environment'
+        required: false
+        default: 'MWNF-SVR'
+
 jobs:
   deploy:
     name: Deploy to self-hosted Windows runner
     runs-on: [self-hosted, windows]
     environment: 
-      name: MWNF-SVR
+      name: ${{ github.event.inputs.environment || 'MWNF-SVR' }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
           clean: true
+
+      - name: Download tag archive
+        id: download
+        run: |
+          $url = "https://github.com/${{ github.repository }}/archive/refs/tags/${{ github.event.inputs.tag }}.zip"
+          $workspace = Join-Path "$env:TEMP" "deploy-${{ github.run_id }}-${{ github.event.inputs.tag }}"
+          $repoName = Split-Path -Leaf "${{ github.repository }}"
+          $zipName = "$repoName-${{ github.event.inputs.tag }}.zip"
+          $zipPath = Join-Path $workspace $zipName
+          
+          New-Item -Path $workspace -ItemType Directory -Force -ErrorAction Stop | Out-Null
+          
+          Write-Host "Downloading $url to $zipPath"
+          Invoke-WebRequest -Uri $url -OutFile $zipPath -UseBasicParsing -ErrorAction Stop
+
+          Write-Output "packagePath=$zipPath" >> $env:GITHUB_OUTPUT
+          Write-Output "workdir=$workspace" >> $env:GITHUB_OUTPUT
 
       - name: Deploy with Deploy-Application.ps1
         shell: pwsh
@@ -39,8 +63,8 @@ jobs:
           PHP_PATH: ${{ secrets.PHP_PATH }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $directory = Resolve-Path '.' | Select-Object -ExpandProperty Path
-          $log = Join-Path $directory 'deploy.log'
+          $package = '${{ steps.download.outputs.packagePath }}'
+          $log = Join-Path '${{ steps.download.outputs.workdir }}' 'deploy.log'
 
           $ErrorActionPreference = 'Stop'
           Add-Content -Path $log -Value "Starting deployment: $(Get-Date -Format o)"
@@ -53,7 +77,7 @@ jobs:
 
           Add-Content -Path $log -Value "Deploying application..."
           .\scripts\Deploy-Application.ps1 `
-            -DeploymentPackagePath $directory `
+            -DeploymentPackagePath $package `
             -WebserverPath $env:WEBSERVER_PATH_PROD `
             -SharedStorageRoot $env:SHARED_STORAGE_ROOT `
             -PhpPath $env:PHP_PATH `
