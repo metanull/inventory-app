@@ -163,7 +163,7 @@ finally {
     
     # Cleanup
     if (Test-Path $tempDir) {
-        Write-Verbose "Cleaning up temp directory...."
+        Write-Verbose "Cleaning up temp directory..."
         Remove-Item $tempDir -Recurse -Confirm -ErrorAction SilentlyContinue
     }
 }
