@@ -29,7 +29,6 @@
         "@metanull/inventory-app-api-client": "1.0.1-dev.1030.2045",
         "@vueuse/core": "^14.0.0",
         "axios": "^1.13.0",
-        "inventory-app": "file:..",
         "pinia": "^3.0.3",
         "uuid": "^13.0.0",
         "vue": "^3.5.21",
