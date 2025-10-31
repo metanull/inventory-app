@@ -1,0 +1,755 @@
+
+
+# Deploy Laravel App
+#
+# TRIGGER: This workflow runs automatically when the "Continuous Integration" workflow
+# completes successfully on the main branch.
+#
+# NOTE: This workflow uses the GitHub environment "MWNF-SVR" for deployment.
+# Set the following environment variables and secrets in the MWNF-SVR environment:
+#
+# Variables:
+#   PHP_PATH, COMPOSER_PATH, NODE_PATH, NPM_PATH, MARIADB_PATH
+#   DEPLOY_PATH, WEBSERVER_PATH (symlink location)
+#   APP_NAME, APP_ENV, APP_DEBUG, APP_URL
+#   DB_CONNECTION, DB_HOST, DB_PORT
+#   API_DOCS_ENABLED (optional, defaults to false)
+#   APACHE_SERVICE_USER (optional, defaults to SYSTEM)
+#   TRUSTED_PROXIES (optional, comma-separated list of proxy IPs/CIDR blocks)
+#
+# Secrets:
+#   APP_KEY, MARIADB_DATABASE, MARIADB_USER, MARIADB_SECRET
+#
+# IMPORTANT: Make sure APP_URL is set correctly in the MWNF-SVR environment
+#            as it's used to configure the Vue.js API endpoint (VITE_API_BASE_URL)
+#
+# DEPLOYMENT STRATEGY:
+#   This workflow uses a symlink-based deployment strategy:
+#   1. Downloads the build artifact
+#   2. Creates a timestamped staging directory (staging-YYYYMMDD-HHMMSS)
+#   3. Creates/updates a symlink (WEBSERVER_PATH) pointing to the new staging directory
+#   4. Keeps the last 3 staging directories for rollback capability
+#   5. Atomic deployment via symlink update (minimal downtime)
+#
+# Do NOT hardcode sensitive or server-specific paths in this file for production.
+
+name: Continuous Deployment
+
+permissions:
+  contents: read
+  packages: read   # Need read permissions for GitHub Packages
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: [self-hosted, windows]
+    environment:
+      name: MWNF-SVR
+    env:
+      PHP_PATH: ${{ vars.PHP_PATH || 'C:\\Program Files\\PHP\\php.exe' }}
+      COMPOSER_PATH: ${{ vars.COMPOSER_PATH || 'C:\\ProgramData\\ComposerSetup\\bin\\composer.bat' }}
+      NODE_PATH: ${{ vars.NODE_PATH || 'C:\\Program Files\\nodejs\\node.exe' }}
+      NPM_PATH: ${{ vars.NPM_PATH || 'C:\\Program Files\\nodejs\\npm.ps1' }}
+      MARIADB_PATH: ${{ vars.MARIADB_PATH || 'C:\\Program Files\\MariaDB 10.5\\bin\\mysql.exe' }}
+      APP_KEY: ${{ secrets.APP_KEY || 'base64:random_generated_key' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          clean: true
+
+      - name: Check required environment variables
+        run: |
+          # Validate required paths
+
+          Write-Host "::add-mask::$env:APP_KEY"
+
+          $missing = @()
+          if (-not (Test-Path $env:PHP_PATH)) { Write-Host "::error::PHP_PATH ($env:PHP_PATH) is invalid. PHP not found."; $missing += "PHP" }
+          if (-not (Test-Path $env:COMPOSER_PATH)) { Write-Host "::error::COMPOSER_PATH ($env:COMPOSER_PATH) is invalid. Composer not found."; $missing += "Composer" }
+          if (-not (Test-Path $env:NODE_PATH)) { Write-Host "::error::NODE_PATH ($env:NODE_PATH) is invalid. Node.js not found."; $missing += "Node.js" }
+          if (-not (Test-Path $env:NPM_PATH)) { Write-Host "::error::NPM_PATH ($env:NPM_PATH) is invalid. NPM not found."; $missing += "NPM" }
+          if (-not (Test-Path $env:MARIADB_PATH)) { Write-Host "::error::MARIADB_PATH ($env:MARIADB_PATH) is invalid. MariaDB not found."; $missing += "MariaDB" }
+          if (-not $env:APP_KEY -or $env:APP_KEY -eq "" -or $env:APP_KEY -eq "base64:random_generated_key") {
+            Write-Host "::warning::APP_KEY secret is missing or empty."
+            Write-Host "::notice::You must generate an application key ('php artisan key:generate --show' and store it in the APP_KEY secret) before deploying to production."
+          }
+
+          if ($missing.Count -gt 0) {
+            Write-Host "::error::Missing required executables: $($missing -join ', ')"
+            exit 1
+          }
+        shell: powershell
+
+      - name: Check PHP version
+        run: |
+          # Ensure PHP 8.2 or higher is used
+
+          if ((& "$env:PHP_PATH" -r "echo version_compare(PHP_VERSION, '8.2', '>=');") -ne 1) {
+            Write-Host "::error::PHP 8.2 or higher is required."
+            exit 1
+          }
+
+          # Print the PHP Version
+          & "$env:PHP_PATH" -v
+        shell: powershell
+
+      - name: Check Composer
+        run: |
+          # Check Composer version
+
+          & "$env:COMPOSER_PATH" --version
+        shell: powershell
+
+      - name: Check Node.js
+        run: |
+          # Check Node.js version
+          
+          & "$env:NODE_PATH" --version
+        shell: powershell
+
+      - name: Check NPM
+        run: |
+          # Check NPM version
+          
+          & "$env:NPM_PATH" --version
+        shell: powershell
+
+      - name: Check MariaDB
+        run: |
+          # Check MariaDB client version
+
+          & "$env:MARIADB_PATH" --version
+        shell: powershell
+
+      - name: Install PHP dependencies
+        run: |
+          & "$env:COMPOSER_PATH" install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+        shell: powershell
+
+      - name: Install Node.js dependencies (backend)
+        run: |
+          & "$env:NPM_PATH" install --no-audit --no-fund
+
+      - name: Build frontend assets (backend)
+        env:
+          VITE_API_BASE_URL: ${{ vars.APP_URL || 'http://localhost' }}/api
+          VITE_APP_TITLE: ${{ vars.APP_NAME || 'Inventory App' }}
+        run: |
+          & "$env:NPM_PATH" run build
+        shell: powershell
+
+      - name: Setup npm authentication for GitHub Packages (SPA)
+        run: |
+          # Configure npm authentication for GitHub Packages
+          Write-Host "::group::Setting up npm authentication"
+          & "$env:NPM_PATH" config set registry https://registry.npmjs.org/
+          & "$env:NPM_PATH" config set @metanull:registry https://npm.pkg.github.com
+          & "$env:NPM_PATH" config set "//npm.pkg.github.com/:_authToken" $env:GITHUB_TOKEN
+          Write-Host "::endgroup::"
+          Write-Host "npm authentication configured for GitHub Packages."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: spa
+        shell: powershell
+
+      - name: Install Node.js dependencies (SPA)
+        run: |
+          & "$env:NPM_PATH" install --no-audit --no-fund
+        working-directory: spa
+        shell: powershell
+
+      - name: Build frontend assets (SPA)
+        env:
+          VITE_API_BASE_URL: ${{ vars.APP_URL || 'http://localhost' }}/api
+          VITE_APP_TITLE: ${{ vars.APP_NAME || 'Inventory App' }}
+        run: |
+          & "$env:NPM_PATH" run build
+        working-directory: spa
+        shell: powershell
+
+      - name: Prepare deployment package - Create output directory
+        env:
+          BUILD_OUTPUT_DIR: ${{ runner.temp }}/deployment-package
+        run: |
+          # Prepare deployment package
+          
+          # Create deployment directory
+          $deployDir = "$env:BUILD_OUTPUT_DIR"
+          Write-Host "package_dir=$deployDir" >> "$GITHUB_ENV"
+          
+          if (Test-Path $deployDir) {
+            try {
+              Remove-Item $deployDir -Recurse -Force -ErrorAction Stop
+              Write-Host "Existing deployment directory $deployDir removed."
+            } catch {
+              Write-Host "::error::Failed to remove existing deployment directory $deployDir. $_"
+              exit 1
+            }
+          }
+          try {
+            New-Item -ItemType Directory -Path $deployDir -ErrorAction Stop | Out-Null
+            Write-Host "Deployment directory created at $deployDir."
+          } catch {
+            Write-Host "::error::Failed to create deployment directory $deployDir. $_"
+            exit 1
+          }
+        shell: powershell
+
+      - name: Prepare deployment package - Copy application files
+        env:
+          BUILD_OUTPUT_DIR: ${{ runner.temp }}/deployment-package
+          DEFAULT_VERSION: '1.0.0'
+        run: |
+          # Copy application files (excluding dev dependencies and build artifacts)
+
+          # IMPORTANT: storage/app is excluded because it will be symlinked to a shared persistent location
+          $excludeDirs = @('.git', 'node_modules', 'tests', '.github', 'docs', 'storage/app', 'storage/logs', 'storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views')
+          $excludeFiles = @('*.log', '.env*', 'composer.lock', 'package-lock.json', 'webpack.mix.js', 'vite.config.js')
+
+          Write-Host "::group::Copying application files to $deployDir"
+          Get-ChildItem -Path . | Where-Object { 
+            $_.Name -notin $excludeDirs -and 
+            $_.Name -notlike ".*" -and
+            $_.Name -ne $deployDir
+          } | Foreach-Object { 
+            try {
+              Write-Host "* $_"
+              $_ | Copy-Item -Destination $deployDir -Recurse -Force -ErrorAction Stop
+            } catch {
+              Write-Host "::error::Failed to copy $($_.FullName). $_"
+              exit 1
+            }
+          }
+          Write-Host "::endgroup::"
+          Write-Host "Application files copied successfully."
+
+          # Copy specific required files
+          Write-Host "::group::Copying required files to $deployDir"
+          $RequiredFiles = @("composer.lock", "package-lock.json", ".env.example")
+          foreach ($file in $RequiredFiles) {
+            if( -not (Test-Path $file)) {
+              Write-Host "::error::'$file' is missing from the build."
+              exit 1
+            }
+            try {
+              Copy-Item $file "$deployDir/$file" -Force -ErrorAction Stop
+              Write-Host "$file copied successfully."
+            } catch {
+              Write-Host "::error::Failed to copy $file. $_"
+              exit 1
+            }
+          }
+          Write-Host "::endgroup::"
+
+          # Create required directories in package
+          Write-Host "::group::Creating required directories in $deployDir"
+          @('storage/logs', 'storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views', 'bootstrap/cache') | ForEach-Object {
+            try {
+              New-Item -ItemType Directory -Path "$deployDir/$_" -Force | Out-Null
+              Write-Host "$_ directory created."
+            } catch {
+              Write-Host "::warning::Failed to create directory $_. $_"
+            }
+          }
+          Write-Host "::endgroup::"
+        shell: powershell
+
+      - name: Prepare deployment package - Create VERSION file
+        env:
+          BUILD_OUTPUT_DIR: ${{ runner.temp }}/deployment-package
+          DEFAULT_VERSION: '1.0.0'
+        run: |
+          # Create a VERSION file in the deployment package
+          Write-Host "::group::Creating VERSION file in $deployDir"
+          # Attempt to read versions from package.json files, fallback to DEFAULT_VERSION
+          try{ 
+            $AppVersion = Get-Content 'package.json' -ErrorAction stop | ConvertFrom-Json -ErrorAction stop | Select-Object -ExpandProperty Version -ErrorAction Stop
+            Write-Host "app_version=$AppVersion" >> "$GITHUB_ENV"
+            Write-Host "App version read from package.json: $AppVersion"
+          } catch {
+            Write-Host "app_version=$env:DEFAULT_VERSION" >> "$GITHUB_ENV"
+            Write-Host "::warning::Could not read app version from package.json. $_"
+            $AppVersion = $env:DEFAULT_VERSION
+          }
+
+          try{ 
+            $ApiClientVersion = Get-Content 'api-client/package.json' -ErrorAction stop | ConvertFrom-Json -ErrorAction stop | Select-Object -ExpandProperty Version -ErrorAction Stop
+            Write-Host "api_client_version=$ApiClientVersion" >> "$GITHUB_ENV"
+            Write-Host "API client version read from api-client/package.json: $ApiClientVersion"
+          } catch {
+            Write-Host "api_client_version=$env:DEFAULT_VERSION" >> "$GITHUB_ENV"
+            Write-Host "::warning::Could not read api-client version from api-client/package.json. $_"
+            $ApiClientVersion = $env:DEFAULT_VERSION
+          }
+
+          $VersionObject = @{
+            "app_version" = $AppVersion
+            "api_client_version" = $ApiClientVersion
+            "commit_sha" = "${{ github.sha }}"
+            "build_timestamp" = (Get-Date)
+            "repository" = "${{ github.repository }}"
+            "repository_url" = "${{ github.server_url }}/${{ github.repository }}"
+          }
+          try {
+            Set-Content -Path "$deployDir/VERSION" -Value ($VersionObject | ConvertTo-Json -Depth 1 -Compress) -Encoding UTF8 -NoNewline -ErrorAction Stop
+            Write-Host "VERSION created (app: $AppVersion, api-client: $ApiClientVersion)."
+          } catch {
+            Write-Host "::warning::Could not create VERSION file in $deployDir. $_"
+          }
+          Write-Host "::endgroup::"
+        shell: powershell
+
+      - name: Create deployment artifact
+        env:
+          BUILD_OUTPUT_DIR: ${{ runner.temp }}/deployment-package
+        uses: actions/upload-artifact@v5
+        with:
+          name: laravel-app-${{ github.sha }}
+          path: ${{ env.BUILD_OUTPUT_DIR }}
+          retention-days: 7
+          compression-level: 9
+          overwrite: true
+          include-hidden-files: true
+
+  deploy:
+    needs: build
+    runs-on: [self-hosted, windows]
+    environment:
+      name: MWNF-SVR
+    env:
+      PHP_PATH: ${{ vars.PHP_PATH || 'C:\\Program Files\\PHP\\php.exe' }}
+      COMPOSER_PATH: ${{ vars.COMPOSER_PATH || 'C:\\ProgramData\\ComposerSetup\\bin\\composer.exe' }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH || 'C:\\Apache24\\htdocs\\inventory-app' }}
+      WEBSERVER_PATH: ${{ vars.WEBSERVER_PATH || 'C:\\Apache24\\htdocs\\inventory-app' }}
+    steps:
+      - name: Download deployment artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: laravel-app-${{ github.sha }}
+          path: deployment-package/
+
+      - name: Deploy to incremental staging directory
+        run: |
+          # Create timestamped staging directory
+          $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+          $stagingDir = "staging-$timestamp"
+          $stagingPath = Join-Path (Split-Path $env:WEBSERVER_PATH -Parent) $stagingDir
+          
+          try {
+            Copy-Item "deployment-package" -Destination $stagingPath -Recurse -Force -ErrorAction Stop
+            Write-Host "Successfully deployed to staging directory ($stagingPath)."
+          } catch {
+            Write-Host "::error::Failed to deploy to staging directory ($stagingPath): $_"
+            exit 1
+          }
+          
+          # Store staging path for next step
+          echo "STAGING_PATH=$stagingPath" >> $env:GITHUB_ENV
+        shell: powershell
+
+      - name: Setup shared persistent storage
+        run: |
+          # Create shared storage directory for persistent data (images, uploads, etc.)
+          # This directory is shared across all deployments to preserve uploaded files
+          
+          $sharedStoragePath = Join-Path (Split-Path $env:WEBSERVER_PATH -Parent) "shared-storage"
+          $storageAppPath = Join-Path $sharedStoragePath "app"
+          
+          # Create shared storage directory if it doesn't exist
+          if (-not (Test-Path $storageAppPath)) {
+            try {
+              New-Item -ItemType Directory -Path $storageAppPath -Force -ErrorAction Stop | Out-Null
+              Write-Host "Created shared storage directory: $storageAppPath"
+              
+              # Create required subdirectories
+              @('private', 'public', 'public/images') | ForEach-Object {
+                $subDir = Join-Path $storageAppPath $_
+                New-Item -ItemType Directory -Path $subDir -Force -ErrorAction Stop | Out-Null
+                Write-Host "Created storage subdirectory: $subDir"
+              }
+            } catch {
+              Write-Host "::error::Failed to create shared storage directory: $_"
+              exit 1
+            }
+          } else {
+            Write-Host "Shared storage directory already exists: $storageAppPath"
+          }
+          
+          # Create symlink from staging directory to shared storage
+          $stagingStorageAppPath = Join-Path $env:STAGING_PATH "storage\app"
+          
+          # Remove the placeholder storage/app directory from staging if it exists
+          if (Test-Path $stagingStorageAppPath) {
+            try {
+              Remove-Item $stagingStorageAppPath -Recurse -Force -ErrorAction Stop
+              Write-Host "Removed placeholder storage/app from staging directory"
+            } catch {
+              Write-Host "::error::Failed to remove placeholder storage/app directory: $_"
+              exit 1
+            }
+          }
+          
+          # Create symlink
+          try {
+            New-Item -ItemType SymbolicLink -Path $stagingStorageAppPath -Target $storageAppPath -ErrorAction Stop | Out-Null
+            Write-Host "Created symlink: $stagingStorageAppPath -> $storageAppPath"
+          } catch {
+            Write-Host "::error::Failed to create storage symlink: $_"
+            exit 1
+          }
+        shell: powershell
+
+      - name: Shutdown the old application
+        run: |
+          # Gracefully shutdown the old application if running
+          if ((Test-Path -Path "$env:WEBSERVER_PATH")) {
+            try {
+              Push-Location $env:WEBSERVER_PATH
+              & "$env:PHP_PATH" artisan down --retry=120
+              Write-Host "Old application at '$env:WEBSERVER_PATH' put into maintenance mode."
+            } catch {
+              Write-Host "::warning::Failed to put old application into maintenance mode: $_"
+            } finally {
+              Pop-Location
+            }
+          }
+        shell: powershell
+
+      - name: Cleanup temporary symlinks if any
+        run: |
+          # Remove any existing temporary symlinks from previous failed runs
+          $SwapPath = "{0}_swap" -f "$env:WEBSERVER_PATH"
+          if ((Test-Path -Path $SwapPath)) {
+            try {
+              [System.IO.Directory]::Delete($SwapPath, $false)
+              Write-Host "Removed symlink ($SwapPath) successfully."
+            } catch {
+              Write-Host "::error::Symlink ($SwapPath) exists but can't be removed: $_"
+              exit 1
+            }
+          }
+          $TempPath = "{0}_swap" -f "$env:STAGING_PATH"
+          if ((Test-Path -Path $TempPath)) {
+            try {
+              [System.IO.Directory]::Delete($TempPath, $false)
+              Write-Host "Removed symlink ($TempPath) successfully."
+            } catch {
+              Write-Host "::error::Symlink ($TempPath) exists but can't be removed: $_"
+              exit 1
+            }
+          }
+          echo "SYMLINK_SWAP_PATH=$SwapPath" >> $env:GITHUB_ENV
+          echo "SYMLINK_TEMP_PATH=$TempPath" >> $env:GITHUB_ENV
+        shell: powershell
+
+      - name: Create symbolic link
+        run: |
+          # Create a temporary symlink pointing to the new staging directory
+          try {
+            New-Item -ItemType SymbolicLink -Path "$env:SYMLINK_TEMP_PATH" -Target "$env:STAGING_PATH" -ErrorAction Stop | Out-Null
+            Write-Host "Created symbolic link '$env:SYMLINK_TEMP_PATH' -> '$env:STAGING_PATH'"
+          } catch {
+            Write-Host "::error::Failed to create symbolic link: $_"
+            exit 1
+          }
+        shell: powershell
+
+      - name: Swap symbolic links
+        run: |
+          # Atomically swap the symlink to point to the new deployment
+          $CanRollback = $false
+          if ((Test-Path -Path "$env:WEBSERVER_PATH")) {
+            try {
+              Rename-Item -Path "$env:WEBSERVER_PATH" -NewName "$env:SYMLINK_SWAP_PATH" -ErrorAction Stop
+              Write-Host "Symbolic link '$env:WEBSERVER_PATH' successfully renamed into '$env:SYMLINK_SWAP_PATH'"
+              $CanRollback = $true
+            } catch {
+              Write-Host "::error::Failed to rename symbolic link '$env:WEBSERVER_PATH': $_"
+              exit 1
+            }
+          }
+          try {
+            Rename-Item -Path "$env:SYMLINK_TEMP_PATH" -NewName "$env:WEBSERVER_PATH" -ErrorAction Stop
+            Write-Host "Symbolic link '$env:WEBSERVER_PATH' now points to the new deployment."
+          } catch {
+            Write-Host "::error::Failed to rename symbolic link '$env:SYMLINK_TEMP_PATH' to '$env:WEBSERVER_PATH': $_"
+            
+            # Attempt to rollback if necessary
+            if ($CanRollback) {
+              Write-Host "::group::Rolling back symbolic links"
+              try {
+                Rename-Item -Path "$env:SYMLINK_SWAP_PATH" -NewName "$env:WEBSERVER_PATH" -ErrorAction Stop
+                Write-Host "Symbolic links successfully rolled back."
+                Write-Host "$env:WEBSERVER_PATH now points back to the previous deployment."
+              } catch {
+                Write-Host "::error::Failed to rename symbolic links '$env:SYMLINK_SWAP_PATH' to '$env:WEBSERVER_PATH': $_"
+                exit 1
+              }
+              Write-Host "::endgroup::"
+
+              # Attempt to put the old application back into operation
+              try {
+                Push-Location $env:WEBSERVER_PATH
+                & "$env:PHP_PATH" artisan up
+                Write-Host "Old application restored and put into operation."
+              } catch {
+                Write-Host "::warning::Failed to put old application into operation: $_"
+              } finally {
+                Pop-Location
+              }
+            }
+            exit 1
+          }
+        shell: powershell
+
+      - name: Cleanup symbolic links
+        run: |
+          # Remove any temporary symlinks
+          try {
+            if ((Test-Path -Path "$env:SYMLINK_SWAP_PATH")) {
+              [System.IO.Directory]::Delete("$env:SYMLINK_SWAP_PATH", $false)
+              Write-Host "Symbolic link '$env:SYMLINK_SWAP_PATH' removed successfully."
+            }
+          } catch {
+              Write-Host "::warning::Couldn't delete symbolic link: $env:SYMLINK_SWAP_PATH"
+          }
+          try {
+            if ((Test-Path -Path "$env:SYMLINK_TEMP_PATH")) {
+              [System.IO.Directory]::Delete("$env:SYMLINK_TEMP_PATH", $false)
+              Write-Host "Symbolic link '$env:SYMLINK_TEMP_PATH' removed successfully."
+            }
+          } catch {
+              Write-Host "::warning::Couldn't delete symbolic link: $env:SYMLINK_TEMP_PATH"
+          }
+        shell: powershell
+
+      - name: Cleanup staging directories
+        run: |
+          # Cleanup old staging directories, keep only the last 3
+          $toKeep = 3
+
+          $stagingParent = Split-Path $env:WEBSERVER_PATH -Parent
+          $stagingDirs = Get-ChildItem -Path $stagingParent -Directory | Where-Object { 
+            $_.Name -match '^staging-\d{8}-\d{6}$' 
+          } | Sort-Object CreationTime -Descending
+          $toRemove = $stagingDirs | Select-Object -Skip $toKeep
+
+          Write-Host "::group::Cleaning up obsolete staging directories"
+          foreach ($dir in $toRemove) {
+            try {
+              [System.IO.Directory]::Delete($dir.FullName, $true)
+              Write-Host "$($dir.FullName) deleted successfully."
+            } catch {
+              Write-Host "::warning::Failed to delete $($dir.FullName): $_"
+            }
+          }
+          Write-Host "::endgroup::"
+        shell: powershell
+
+  configure:
+    needs: deploy
+    runs-on: [self-hosted, windows]
+    environment:
+      name: MWNF-SVR
+    env:
+      PHP_PATH: ${{ vars.PHP_PATH || 'C:\\Program Files\\PHP\\php.exe' }}
+      WEBSERVER_PATH: ${{ vars.WEBSERVER_PATH || 'C:\\Apache24\\htdocs\\inventory-app' }}
+      APACHE_SERVICE_USER: ${{ vars.APACHE_SERVICE_USER || 'SYSTEM' }}
+      # Laravel environment variables
+      APP_NAME: ${{ vars.APP_NAME || 'inventory-app' }}
+      APP_ENV: ${{ vars.APP_ENV || 'production' }}
+      APP_KEY: ${{ secrets.APP_KEY || 'base64:YOUR_DEFAULT_APP_KEY_HERE' }}  
+      APP_DEBUG: ${{ vars.APP_DEBUG || 'false' }}
+      APP_URL: ${{ vars.APP_URL || 'http://localhost' }}
+      # API Documentation
+      API_DOCS_ENABLED: ${{ vars.API_DOCS_ENABLED || 'false' }}
+      # Database configuration
+      DB_CONNECTION: ${{ vars.DB_CONNECTION || 'mysql'}}
+      DB_HOST: ${{ vars.DB_HOST || '127.0.0.1' }}
+      DB_PORT: ${{ vars.DB_PORT || '3306' }}
+      DB_DATABASE: ${{ secrets.MARIADB_DATABASE }}
+      DB_USERNAME: ${{ secrets.MARIADB_USER }}
+      DB_PASSWORD: ${{ secrets.MARIADB_SECRET }}
+      # Default user for initial login
+      APP_DEFAULT_USER_EMAIL: ${{ vars.APP_DEFAULT_USER_EMAIL || 'user@example.com' }}
+      APP_DEFAULT_USER_USERNAME: ${{ vars.APP_DEFAULT_USER_USERNAME || 'user' }}
+      APP_DEFAULT_USER_PASSWORD: ${{ vars.APP_DEFAULT_USER_PASSWORD || 'password' }}
+      # Mail configuration
+      MAIL_MAILER: ${{ vars.MAIL_MAILER || 'log' }}
+      MAIL_HOST: ${{ vars.MAIL_HOST || '127.0.0.1' }}
+      MAIL_PORT: ${{ vars.MAIL_PORT || '25' }}
+      MAIL_USERNAME: ${{ vars.MAIL_USERNAME || 'null' }}
+      MAIL_PASSWORD: ${{ vars.MAIL_PASSWORD || 'null' }}
+      MAIL_ENCRYPTION: ${{ vars.MAIL_ENCRYPTION || 'null' }}
+      MAIL_FROM_ADDRESS: ${{ vars.MAIL_FROM_ADDRESS || 'user@example.com' }}
+      MAIL_FROM_NAME: ${{ vars.MAIL_FROM_NAME || 'Inventory App' }}
+      # Trusted Proxies configuration
+      TRUSTED_PROXIES: ${{ vars.TRUSTED_PROXIES || '' }}
+      # Vue.js environment
+      VITE_API_BASE_URL: ${{ vars.APP_URL || 'http://localhost' }}/api
+      VITE_APP_TITLE: ${{ vars.APP_NAME || 'Inventory App' }}
+
+    steps:
+      - name: Masking secrets
+        run: |
+          # Mask sensitive environment variables in logs
+
+          Write-Host "::add-mask::$env:APP_KEY"
+          Write-Host "::add-mask::$env:DB_USERNAME"
+          Write-Host "::add-mask::$env:DB_PASSWORD"
+          Write-Host "::add-mask::$env:APP_DEFAULT_USER_USERNAME"
+          Write-Host "::add-mask::$env:APP_DEFAULT_USER_PASSWORD"
+          Write-Host "::add-mask::$env:MAIL_PASSWORD"
+        shell: powershell
+
+      - name: Generate production .env file
+        run: |
+          # Generate the production .env file from .env.example using environment variables
+
+          # Work with the symlink path - PowerShell will follow it automatically
+          $envExamplePath = Join-Path $env:WEBSERVER_PATH ".env.example"
+          $envPath = Join-Path $env:WEBSERVER_PATH ".env"
+          Write-Host "APP_ENV_PATH=$envPath" >> $env:GITHUB_ENV
+          
+          # Copy .env.example as base
+          if (-not (Test-Path $envExamplePath)) {
+            Write-Host "::error::.env.example not found in deployment package"
+            exit 1
+          }
+          try {
+            Copy-Item $envExamplePath $envPath -Force -ErrorAction Stop
+            Write-Host ".env.example copied to .env successfully."
+          } catch {
+            Write-Host "::error::Failed to copy .env.example to .env. $_"
+            exit 1
+          }
+          
+          # Read the .env content
+          $envContent = Get-Content $envPath -Raw
+          
+          # Replace environment-specific values using environment variables
+          $replacements = @{
+            'APP_NAME=Inventory-App' = "APP_NAME=""$env:APP_NAME"""
+            'APP_ENV=production' = "APP_ENV=$env:APP_ENV"
+            'APP_KEY=' = "APP_KEY=$env:APP_KEY"
+            'APP_DEBUG=false' = "APP_DEBUG=$env:APP_DEBUG"
+            'APP_URL=http://localhost' = "APP_URL=$env:APP_URL"
+            'VITE_API_BASE_URL="http://localhost/api"' = "VITE_API_BASE_URL=""$env:APP_URL/api"""
+            'VITE_APP_TITLE="Inventory app (example)"' = "VITE_APP_TITLE=""$env:APP_NAME"""
+            'LOG_LEVEL=debug' = "LOG_LEVEL=error"
+            'DB_CONNECTION=mysql' = "DB_CONNECTION=$env:DB_CONNECTION"
+            'DB_HOST=127.0.0.1' = "DB_HOST=$env:DB_HOST"
+            'DB_PORT=3306' = "DB_PORT=$env:DB_PORT"
+            'DB_DATABASE=laravel' = "DB_DATABASE=$env:DB_DATABASE"
+            'DB_USERNAME=root' = "DB_USERNAME=$env:DB_USERNAME"
+            'DB_PASSWORD=' = "DB_PASSWORD=$env:DB_PASSWORD"
+            'API_DOCS_ENABLED=false' = "API_DOCS_ENABLED=$env:API_DOCS_ENABLED"
+            'APP_DEFAULT_USER_EMAIL=user@example.com' = "APP_DEFAULT_USER_EMAIL=$env:APP_DEFAULT_USER_EMAIL"
+            'APP_DEFAULT_USER_USERNAME=user' = "APP_DEFAULT_USER_USERNAME=$env:APP_DEFAULT_USER_USERNAME"
+            'APP_DEFAULT_USER_PASSWORD=password' = "APP_DEFAULT_USER_PASSWORD=$env:APP_DEFAULT_USER_PASSWORD"
+            'MAIL_MAILER=log' = "MAIL_MAILER=$env:MAIL_MAILER"
+            'MAIL_HOST=127.0.0.1' = "MAIL_HOST=$env:MAIL_HOST"
+            'MAIL_PORT=25' = "MAIL_PORT=$env:MAIL_PORT"
+            'MAIL_USERNAME=null' = "MAIL_USERNAME=$env:MAIL_USERNAME"
+            'MAIL_PASSWORD=null' = "MAIL_PASSWORD=$env:MAIL_PASSWORD"
+            'MAIL_ENCRYPTION=null' = "MAIL_ENCRYPTION=$env:MAIL_ENCRYPTION"
+            'MAIL_FROM_ADDRESS="user@example.com"' = "MAIL_FROM_ADDRESS=`"$env:MAIL_FROM_ADDRESS`""
+            'TRUSTED_PROXIES=' = "TRUSTED_PROXIES=$env:TRUSTED_PROXIES"
+          }
+          
+          Write-Host "::group::Environment variable replacements"
+          foreach ($key in $replacements.Keys) {
+            Write-Host "Replacing $key with $($replacements[$key])"
+            $envContent = $envContent -replace [regex]::Escape($key), $replacements[$key]
+          }
+          Write-Host "::endgroup::"
+          
+          # Write updated content back to .env
+          try {
+            Set-Content -Path $envPath -Value $envContent -Encoding UTF8 -NoNewline
+            Write-Host "Production .env file created from template: $envPath"
+          } catch {
+            Write-Host "::error::Failed to write to .env file. $_"
+            exit 1
+          }
+        shell: powershell
+
+      #- name: Set file permissions
+      #  run: |
+      #    # Set appropriate permissions for Laravel directories
+      #    $paths = @(
+      #      "storage",
+      #      "bootstrap/cache"
+      #    )
+      #    
+      #    $serviceUser = $env:APACHE_SERVICE_USER
+      #    Write-Host "Setting permissions for Apache service user: $serviceUser"
+      #    
+      #    foreach ($path in $paths) {
+      #      $fullPath = Join-Path $env:WEBSERVER_PATH $path
+      #      if (Test-Path $fullPath) {
+      #        # Grant full access to the Apache service account and Administrators
+      #        icacls $fullPath /grant "${serviceUser}:(OI)(CI)F" /T
+      #        icacls $fullPath /grant "Administrators:(OI)(CI)F" /T
+      #        # icacls $fullPath /grant "$($env:USERNAME):(OI)(CI)F" /T
+      #        Write-Host "Permissions set for: $fullPath"
+      #      }
+      #    }
+      #  shell: powershell
+
+      - name: Run database migrations
+        run: |
+          # Run Laravel database migrations
+
+          Write-Host "::group::Running database migrations"
+          Push-Location $env:WEBSERVER_PATH
+          try {
+            & "$env:PHP_PATH" artisan migrate --force
+          } catch {
+            Write-Host "::error::Database migrations failed: $_"
+            exit 1
+          } finally {
+            Pop-Location
+          }
+          Write-Host "::endgroup::"
+          Write-Host "Database migrations completed successfully."
+        shell: powershell
+
+      - name: Sync permissions and roles
+        run: |
+          # Sync permissions and roles from application definitions
+
+          Write-Host "::group::Syncing permissions and roles"
+          Push-Location $env:WEBSERVER_PATH
+          try {
+            & "$env:PHP_PATH" artisan permissions:sync --production
+          } catch {
+            Write-Host "::error::Failed to sync permissions and roles: $_"
+            exit 1
+          } finally {
+            Pop-Location
+          }
+          Write-Host "::endgroup::"
+          Write-Host "Permissions and roles synced successfully."
+        shell: powershell
+
+      - name: Cache Laravel configuration
+        run: |
+          # Cache Laravel configuration, routes, and views for performance
+          
+          Push-Location $env:WEBSERVER_PATH
+          try {
+            & "$env:PHP_PATH" artisan config:cache
+            & "$env:PHP_PATH" artisan route:cache
+            & "$env:PHP_PATH" artisan view:cache
+          } catch {
+            Write-Host "::error::Failed to cache Laravel configuration: $_"
+            exit 1
+          } finally {
+            Pop-Location
+          }
+        shell: powershell

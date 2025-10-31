@@ -7,6 +7,7 @@ The /scripts directory contains automation and helper scripts used for documenta
 - [Scripts](#scripts)
   - [Table of contents](#table-of-contents)
   - [Notes](#notes)
+  - [Deployment Scripts](#deployment-scripts)
   - [Scripts used in CI/CD Workflows](#scripts-used-in-cicd-workflows)
     - [Auto-generation of the static documentation website](#auto-generation-of-the-static-documentation-website)
       - [Generating the Git Commit History](#generating-the-git-commit-history)
@@ -34,6 +35,110 @@ The /scripts directory contains automation and helper scripts used for documenta
 - **Node.js scripts** require Node.js 16+
 - All scripts should be run from the **project root directory**
 - GitHub Actions automatically set up required dependencies
+
+## Deployment Scripts
+
+PowerShell-based deployment automation for Windows servers with persistent storage, atomic symlink swapping, and automatic rollback.
+
+### Overview
+
+The deployment system provides a production-ready deployment solution for Windows servers:
+
+- **Persistent Storage** - Symlinks preserve logs, cache, sessions across deployments
+- **Atomic Swaps** - Safe production switchover with automatic rollback
+- **Comprehensive Validation** - Pre-deployment checks for system prerequisites
+- **Easy Rollback** - Previous deployments available for quick restoration
+
+**Required**: Windows Server 2016+, PowerShell 5.0+, Administrator privileges, PHP 8.2+, MySQL/MariaDB
+
+### Scripts
+
+| Script | Purpose |
+| --- | --- |
+| `Deploy-Application.ps1` | Main deployment entry point |
+| `InventoryApp.Deployment/InventoryApp.Deployment.psm1` | Core deployment module with all functions |
+| `InventoryApp.Deployment/InventoryApp.Deployment.psd1` | Module manifest |
+
+### Quick Start
+
+```powershell
+# Prepare database password
+$dbPassword = ConvertTo-SecureString "password" -AsPlainText -Force
+
+# Run deployment
+.\scripts\Deploy-Application.ps1 `
+    -DeploymentPackagePath "C:\temp\inventory-app-release" `
+    -WebserverPath "C:\Apache24\htdocs\inventory-app" `
+    -SharedStorageRoot "C:\mwnf-server\github-apps" `
+    -PhpPath "C:\php\php.exe" `
+    -AppUrl "https://inventory.museumwnf.org" `
+    -AppName "Inventory App" `
+    -AppEnv "production" `
+    -AppKey "base64:xxxxx..." `
+    -DatabaseHost "127.0.0.1" `
+    -DatabasePort 3306 `
+    -DatabaseName "inventory_db" `
+    -DatabaseUsername "app" `
+    -DatabasePassword $dbPassword `
+    -Verbose
+```
+
+### Deployment Phases
+
+1. **Validation** - System and package integrity
+2. **Staging Preparation** - Create timestamped directory
+3. **Persistent Storage** - Setup symlinks
+4. **Application Down** - Maintenance mode
+5. **Production Swap** - Atomic symlink switch
+6. **Configuration** - Generate `.env`
+7. **Laravel Setup** - Migrations and caching
+8. **Cleanup** - Remove old deployments
+
+### Directory Structure
+
+```
+C:\mwnf-server\github-apps\
+├─ production/                  (symlink → staging-YYYYMMDD-HHMMSS)
+├─ staging-20251031-041516/     (current active)
+│  └─ storage/                  (symlink → ../shared-storage/storage)
+├─ staging-20251030-123456/     (previous - for rollback)
+└─ shared-storage/storage/      (persistent data)
+   ├─ logs/                     (preserved across deployments)
+   ├─ framework/cache/
+   ├─ framework/sessions/
+   └─ framework/views/
+```
+
+### Rollback
+
+**Automatic**: If deployment fails after production swap, previous version is automatically restored.
+
+**Manual**: 
+```powershell
+# List available versions
+Get-ChildItem -Path "C:\mwnf-server\github-apps" -Directory -Filter "staging-*" |
+    Sort-Object -Property Name -Descending
+
+# Restore specific version
+Remove-Item "C:\Apache24\htdocs\inventory-app" -Force
+New-Item -ItemType Junction `
+    -Path "C:\Apache24\htdocs\inventory-app" `
+    -Target "C:\mwnf-server\github-apps\staging-PREVIOUS-VERSION"
+```
+
+### Documentation
+
+- **[Deployment Guide](/docs/deployment.md)** - Comprehensive documentation with troubleshooting
+- **[Quick Start](/docs/deployment-quick-start.md)** - Common deployment scenarios
+
+### References
+
+| Reference | Url |
+| --- | --- |
+| Deployment Guide | [/docs/deployment.md](/docs/deployment.md) |
+| Quick Start Guide | [/docs/deployment-quick-start.md](/docs/deployment-quick-start.md) |
+| Release Artifacts | [https://github.com/metanull/inventory-app/releases](https://github.com/metanull/inventory-app/releases) |
+| GitHub Actions Workflow | [/.github/workflows/release-deployment.yml](../.github/workflows/release-deployment.yml) |
 
 ## Scripts used in CI/CD Workflows
 
