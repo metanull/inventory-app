@@ -1,0 +1,119 @@
+name: Continuous Deployment
+
+permissions:
+  contents: read
+  packages: read   # Need read permissions for GitHub Packages
+
+on:
+  push:
+    branches: ["main"]
+  
+  workflow_dispatch:
+    
+jobs:
+  deploy:
+    name: Deploy to self-hosted Windows runner
+    runs-on: [self-hosted, windows]
+    environment: 
+      name: MWNF-SVR
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          clean: true
+
+      - name: Deploy with Deploy-Application.ps1
+        id: deploy
+        env:
+          APP_KEY: ${{ secrets.APP_KEY }}
+          APP_URL: ${{ secrets.APP_URL }}
+          APP_NAME: ${{ secrets.APP_NAME }}
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          WEBSERVER_PATH_PROD: ${{ secrets.WEBSERVER_PATH_PROD }}
+          SHARED_STORAGE_ROOT: ${{ secrets.SHARED_STORAGE_ROOT }}
+          PHP_PATH: ${{ secrets.PHP_PATH }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        #        env:
+        #          WEBSERVER_PATH: ${{ vars.WEBSERVER_PATH || 'C:\\Apache24\\htdocs\\inventory-app' }}
+        #          PHP_PATH: ${{ vars.PHP_PATH || 'C:\\Program Files\\PHP\\php.exe' }}
+        #          APP_NAME: ${{ vars.APP_NAME || 'inventory-app' }}
+        #          APP_ENV: ${{ vars.APP_ENV || 'production' }}
+        #          APP_KEY: ${{ secrets.APP_KEY || 'base64:YOUR_DEFAULT_APP_KEY_HERE' }}  
+        #          APACHE_SERVICE_USER: ${{ vars.APACHE_SERVICE_USER || 'SYSTEM' }}
+        #          # Laravel environment variables
+        #          APP_DEBUG: ${{ vars.APP_DEBUG || 'false' }}
+        #          APP_URL: ${{ vars.APP_URL || 'http://localhost' }}
+        #          # API Documentation
+        #          API_DOCS_ENABLED: ${{ vars.API_DOCS_ENABLED || 'false' }}
+        #          # Database configuration
+        #          DB_CONNECTION: ${{ vars.DB_CONNECTION || 'mysql'}}
+        #          DB_HOST: ${{ vars.DB_HOST || '127.0.0.1' }}
+        #          DB_PORT: ${{ vars.DB_PORT || '3306' }}
+        #          DB_DATABASE: ${{ secrets.MARIADB_DATABASE }}
+        #          DB_USERNAME: ${{ secrets.MARIADB_USER }}
+        #          DB_PASSWORD: ${{ secrets.MARIADB_SECRET }}
+        #          # Default user for initial login
+        #          APP_DEFAULT_USER_EMAIL: ${{ vars.APP_DEFAULT_USER_EMAIL || 'user@example.com' }}
+        #          APP_DEFAULT_USER_USERNAME: ${{ vars.APP_DEFAULT_USER_USERNAME || 'user' }}
+        #          APP_DEFAULT_USER_PASSWORD: ${{ vars.APP_DEFAULT_USER_PASSWORD || 'password' }}
+        #          # Mail configuration
+        #          MAIL_MAILER: ${{ vars.MAIL_MAILER || 'log' }}
+        #          MAIL_HOST: ${{ vars.MAIL_HOST || '127.0.0.1' }}
+        #          MAIL_PORT: ${{ vars.MAIL_PORT || '25' }}
+        #          MAIL_USERNAME: ${{ vars.MAIL_USERNAME || 'null' }}
+        #          MAIL_PASSWORD: ${{ vars.MAIL_PASSWORD || 'null' }}
+        #          MAIL_ENCRYPTION: ${{ vars.MAIL_ENCRYPTION || 'null' }}
+        #          MAIL_FROM_ADDRESS: ${{ vars.MAIL_FROM_ADDRESS || 'user@example.com' }}
+        #          MAIL_FROM_NAME: ${{ vars.MAIL_FROM_NAME || 'Inventory App' }}
+        #          # Trusted Proxies configuration
+        #          TRUSTED_PROXIES: ${{ vars.TRUSTED_PROXIES || '' }}
+        #          # Vue.js environment
+        #          VITE_API_BASE_URL: ${{ vars.APP_URL || 'http://localhost' }}/api
+        #          VITE_APP_TITLE: ${{ vars.APP_NAME || 'Inventory App' }}
+        run: |
+          $sourcePath = Resolve-Path '.' | Select-Object -ExpandProperty Path
+          $targetPath = $env:WEBSERVER_PATH
+          $sharedStoragePath = Join-Path (Split-Path $env:WEBSERVER_PATH -Parent) "shared-storage"
+          $logPath = Join-Path $sourcePath 'deploy.log'
+
+          $ErrorActionPreference = 'Stop'
+          Add-Content -Path $logPath -Value "Starting deployment: $(Get-Date -Format o)"
+
+          Add-Content -Path $logPath -Value "Securing database password..."
+          $dbCred = New-Object System.Management.Automation.PSCredential(
+            $env:DATABASE_USERNAME, 
+            (ConvertTo-SecureString -String $env:DATABASE_PASSWORD -AsPlainText -Force)
+          )
+
+          Add-Content -Path $logPath -Value "Deploying application..."
+          .\scripts\Deploy-Application.ps1 `
+            -DeploymentPackagePath $directory `
+            -WebserverPath $targetPath `
+            -SharedStorageRoot $sharedStoragePath `
+            -PhpPath $env:PHP_PATH `
+            -AppUrl $env:APP_URL `
+            -AppName $env:APP_NAME `
+            -AppEnv 'production' `
+            -AppKey $env:APP_KEY `
+            -DatabaseHost $env:DATABASE_HOST `
+            -DatabasePort ([int]$env:DATABASE_PORT) `
+            -DatabaseName $env:DATABASE_NAME `
+            -DatabaseCredential $dbCred `
+            -Verbose *>&1 | Tee-Object -FilePath $logPath -Append
+
+          Add-Content -Path $logPath -Value "Deployment finished: $(Get-Date -Format o)"
+
+          Write-Output "logPath=$logPath" >> $env:GITHUB_OUTPUT
+
+      - name: Upload deploy log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-log-${{ github.run_id }}
+          path: ${{ steps.deploy.outputs.logPath }}
+
