@@ -57,7 +57,7 @@ Validates code quality, runs tests, and ensures the application builds correctly
    - Runs test suites: CI/CD, Unit, and Feature tests with coverage
 
 2. **frontend-validation** - Validates Node.js/Vue frontend
-   - Installs Node.js 22.17.0
+   - Installs Node.js lts\Krypton (24.x)
    - Installs npm dependencies with `npm ci`
    - Audits npm packages for vulnerabilities
    - Builds frontend assets with `npm run build`
