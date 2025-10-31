@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
+import path from 'node:path';
 
 export default defineConfig({
     plugins: [
@@ -24,7 +25,7 @@ export default defineConfig({
     build: {
         target: 'esnext',
         sourcemap: true,
-        outDir: '../public/spa-build',
+        outDir: path.resolve(__dirname, '../public/spa-build'),
         manifest: 'manifest.json',
         rollupOptions: {
             input: 'index.html',
