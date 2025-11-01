@@ -83,6 +83,8 @@ jobs:
       shell: bash
 
     - name: Create deployment package
+      env:
+        COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
       run: |
         # Create deployment package with all production dependencies
         
@@ -179,7 +181,7 @@ jobs:
           --arg app_version "$appVersion" \
           --arg api_client_version "$apiclientVersion" \
           --arg commit_sha '${{ github.sha }}' \
-          --arg commit_message '${{ github.event.head_commit.message }}' \
+          --arg commit_message "$COMMIT_MESSAGE" \
           --arg build_timestamp "$buildTimestamp" \
           --arg build_number '${{ github.run_number }}' \
           --arg repository '${{ github.repository }}' \
@@ -230,7 +232,7 @@ jobs:
           ${{ github.event.head_commit.message }}
         files: ${{ env.PACKAGE_ZIP }}
         draft: false
-        prerelease: false
+        prerelease: true
         generate_release_notes: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
