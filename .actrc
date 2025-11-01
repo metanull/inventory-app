@@ -1,0 +1,25 @@
+# act configuration file
+# This file is used by act to configure default settings for running GitHub Actions locally
+
+# Use Ubuntu image for Linux-based workflows
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+
+# ⚠️ WARNING: Windows/self-hosted workflows cannot be tested with act locally!
+# These workflows run PowerShell scripts that modify directories, install to specific paths, etc.
+# They are designed to run on the actual self-hosted runner in production.
+# 
+# For local testing, only test ubuntu-latest workflows (CI, build, GitHub Pages)
+# For deployment testing, use the actual self-hosted runner or staging environment
+#
+# Commented out to prevent accidental execution on local machine:
+# -P windows-latest=-self-hosted
+# -P self-hosted=-self-hosted
+
+# Default secrets file (create this file with your secrets)
+--secret-file .secrets
+
+# Use .env.local.example for environment variables (prevents local .env from polluting CI tests)
+--env-file .env.ci
+
+# Container architecture
+--container-architecture linux/amd64

@@ -1,0 +1,241 @@
+name: Build (cloud-hosted runner)
+
+permissions:
+  contents: write  # To create releases
+  packages: read   # Need read permissions for GitHub Packages
+
+on:
+  push:
+    branches: ["main"]
+    tags:
+      - "v*.*.*"
+
+  workflow_dispatch:
+    # Allow manual triggering
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  build:
+    name: Build and Package Application
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        clean: true
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        # php-version: '8.2'  # Let it empty so that it uses the version defined in composer.lock
+        extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
+        tools: pint
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: "lts/Krypton"
+        registry-url: https://npm.pkg.github.com/
+        cache: "npm"
+    
+    - name: Install PHP dependencies
+      run: |
+        composer install --no-dev --no-interaction --optimize-autoloader --no-scripts --prefer-dist
+
+    - name: Install backend dependencies
+      run: |
+        npm ci --no-audit --no-fund
+
+    - name: Build backend assets
+      run: |
+        npm run build
+
+    - name: Install SPA demo dependencies
+      working-directory: spa
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      run: |
+        npm ci --no-audit --no-fund
+
+    - name: Build SPA demo application
+      working-directory: spa
+      run: |
+        npm run build
+    
+    - name: Validate Build
+      run: |
+        assetPaths=(
+          "public/build"
+          "public/spa-build"
+        )
+        for path in "${assetPaths[@]}"; do
+          if [ -d "$path" ]; then
+            echo "  ✅ Asset path exists: $path"
+          else
+            echo "::error::Asset path missing: $path"
+            exit 1
+          fi
+        done
+      shell: bash
+
+    - name: Create deployment package
+      run: |
+        # Create deployment package with all production dependencies
+        
+        echo "::group::Preparing deployment directory"
+        deployDir="${{ runner.temp }}/deployment-package"
+        echo "DEPLOY_DIR=$deployDir" >> $GITHUB_ENV
+        if [ -d "$deployDir" ]; then
+          rm -rf "$deployDir"
+        fi
+        mkdir -p "$deployDir"
+        echo "Deployment directory created at $deployDir"
+        echo "::endgroup::"
+        
+        echo "::group::Copying application code"
+        appDirs=(
+            'app'
+            'bootstrap'
+            'config'
+            'database'
+            'public'
+            'resources'
+            'routes'
+            'vendor'
+        )
+        for dir in "${appDirs[@]}"; do
+          if [ -d "$dir" ]; then
+            cp -r "$dir" "$deployDir/"
+            echo "  ✅ $dir"
+          else
+            echo "::error::⚠️ $dir not found"
+            exit 1
+          fi
+        done
+        echo "::endgroup::"
+        
+        echo "::group::Copying configuration files"
+        configFiles=(
+          'composer.json'
+          'composer.lock'
+          'artisan'
+          '.env.example'
+          'package.json'
+          'package-lock.json'
+        )
+        for file in "${configFiles[@]}"; do
+          if [ -f "$file" ]; then
+            cp "$file" "$deployDir/"
+            echo "  ✅ $file"
+          else
+            echo "::error::⚠️ $file not found"
+            exit 1
+          fi
+        done
+        echo "::endgroup::"
+        
+        echo "::group::Structure application storage directory"
+        storageDirs=('storage')
+        for dir in "${storageDirs[@]}"; do
+          if [ -d "$dir" ]; then
+            find "$dir" -type d | while read -r subdir; do
+              relativePath="${subdir#$dir/}"
+              fullPath="$deployDir/storage/$relativePath"
+              if [ ! -d "$fullPath" ]; then
+                mkdir -p "$fullPath"
+                echo "  ✅ $relativePath"
+              fi
+            done
+          else
+            echo "::error::⚠️ Error creating $dir structure"
+            exit 1
+          fi
+        done
+        echo "::endgroup::"
+        
+        echo "::group::Creating VERSION file"
+        if [ -f "package.json" ]; then
+          appVersion=$(jq -r '.version' package.json)
+          echo "  ✅ Version: $appVersion"
+          echo "APP_VERSION=$appVersion" >> $GITHUB_ENV
+        else
+          echo "::error::⚠️ Error reading version from package.json"
+          exit 1
+        fi
+        if [ -f "api-client/package.json" ]; then
+          apiclientVersion=$(jq -r '.version' api-client/package.json)
+          echo "  ✅ API client version: $apiclientVersion"
+          echo "api_client_version=$apiclientVersion" >> $GITHUB_ENV
+        else
+          echo "::error::⚠️ Error reading version from api-client/package.json"
+          exit 1
+        fi
+        buildTimestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        jq -n \
+          --arg app_version "$appVersion" \
+          --arg api_client_version "$apiclientVersion" \
+          --arg commit_sha "${{ github.sha }}" \
+          --arg commit_message "${{ github.event.head_commit.message }}" \
+          --arg build_timestamp "$buildTimestamp" \
+          --arg build_number "${{ github.run_number }}" \
+          --arg repository "${{ github.repository }}" \
+          --arg repository_url "${{ github.server_url }}/${{ github.repository }}" \
+          --arg branch "${{ github.ref_name }}" \
+          '{app_version: $app_version, api_client_version: $api_client_version, commit_sha: $commit_sha, commit_message: $commit_message, build_timestamp: $build_timestamp, build_number: $build_number, repository: $repository, repository_url: $repository_url, branch: $branch}' \
+          > "$deployDir/VERSION"
+        echo "  ✅ VERSION file created"
+        echo "::endgroup::"
+        
+        echo "::group::Creating deployment archive"
+        archivePath="${{ runner.temp }}/deployment-package.zip"
+        cd "$deployDir"
+        zip -r "$archivePath" .
+        cd -
+        echo "  ✅ Archive created at $archivePath"
+        echo "PACKAGE_ZIP=$archivePath" >> $GITHUB_ENV
+        echo "::endgroup::"
+      shell: bash
+
+    - name: Generate Tag
+      run: |
+        tag="$(date -u +'%Y.%m.%d')-v${{ env.APP_VERSION }}-build${{ github.run_number }}"
+        echo "  ✅ Release tag: $tag"
+        echo "RELEASE_TAG=$tag" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ env.RELEASE_TAG }}
+        name: Release ${{ env.RELEASE_TAG }}
+        body: |
+          🚀 **Automated Deployment**
+          
+          **Version:** ${{ env.APP_VERSION }}
+          **Commit:** ${{ github.sha }}
+          **Message:** ${{ github.event.head_commit.message }}
+          **Author:** ${{ github.actor }}
+          **Timestamp:** ${{ github.event.head_commit.timestamp }}
+          
+          ---
+          
+          ### 📦 Deployment Package
+          Download `deployment-package.zip` and extract to your server.
+        
+          ### 🔄 Changes:
+          ${{ github.event.head_commit.message }}
+        files: ${{ env.PACKAGE_ZIP }}
+        draft: false
+        prerelease: false
+        generate_release_notes: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Done
+      run: |
+        echo "✅ Release created: ${{ env.RELEASE_TAG }}"
+      shell: bash

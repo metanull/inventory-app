@@ -10,20 +10,22 @@ The `/.github/workflows` directory contains GitHub Actions workflows for continu
 
 ## Table of contents
 
-- [Workflows](#workflows)
-  - [Table of contents](#table-of-contents)
-  - [Notes](#notes)
-  - [Continuous Integration and Testing](#continuous-integration-and-testing)
-    - [Continuous Integration](#continuous-integration)
-  - [Continuous Deployment](#continuous-deployment)
-    - [Deploy Laravel Application](#deploy-laravel-application)
-    - [Deploy Documentation to GitHub Pages](#deploy-documentation-to-github-pages)
-    - [Publish API Client Package](#publish-api-client-package)
-  - [Automation Workflows](#automation-workflows)
-    - [Version Bump](#version-bump)
-    - [Merge Dependabot PR](#merge-dependabot-pr)
-  - [Workflow Dependencies](#workflow-dependencies)
-  - [Contributing](#contributing)
+- [Table of contents](#table-of-contents)
+- [Notes](#notes)
+- [Local Testing with Act](#local-testing-with-act)
+  - [Configuration](#configuration)
+  - [Common Commands](#common-commands)
+  - [VS Code Tasks](#vs-code-tasks)
+- [Continuous Integration and Testing](#continuous-integration-and-testing)
+  - [Continuous Integration](#continuous-integration)
+  - [Build](#build)
+- [Continuous Deployment](#continuous-deployment)
+  - [Deploy Laravel Application](#deploy-laravel-application)
+  - [Deploy Documentation to GitHub Pages](#deploy-documentation-to-github-pages)
+- [Automation Workflows](#automation-workflows)
+  - [Merge Dependabot PR](#merge-dependabot-pr)
+- [Workflow Dependencies](#workflow-dependencies)
+- [Contributing](#contributing)
 
 ## Notes
 
@@ -33,6 +35,135 @@ The `/.github/workflows` directory contains GitHub Actions workflows for continu
 - Most workflows use **concurrency groups** to prevent duplicate runs and conserve resources
 - Workflows are triggered by push events, pull requests, releases, or manual dispatch (`workflow_dispatch`)
 - Several workflows interact with scripts in [/scripts/README.md](/development/scripts)
+
+## Local Testing with Act
+
+[Act](https://github.com/nektos/act) runs GitHub Actions workflows locally using Docker. This allows testing workflows before pushing to GitHub.
+
+### Configuration
+
+**`.actrc` - Act Configuration File**
+
+Located at project root, contains default flags for all `act` commands:
+
+```bash
+# Use Ubuntu image for Linux-based workflows
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+
+# Use host machine for Windows workflows (no container)
+-P windows-latest=-self-hosted
+-P self-hosted=-self-hosted
+
+# Default secrets file
+--secret-file .secrets
+
+# Use CI environment variables (prevents local .env from polluting tests)
+--env-file .env.local.example
+
+# Container architecture
+--container-architecture linux/amd64
+```
+
+**Environment Variable Handling**
+
+Act loads environment variables from your local `.env` file by default, which can cause issues when the local environment differs from CI. The `.actrc` file specifies `--env-file .env.local.example` to use CI-appropriate values (e.g., `DB_CONNECTION=sqlite` instead of your local `mariadb`).
+
+### Common Commands
+
+**Run all jobs in a workflow:**
+
+```powershell
+act pull_request -W .github/workflows/continuous-integration.yml
+```
+
+**Run a specific job:**
+
+```powershell
+act pull_request -W .github/workflows/continuous-integration.yml --job backend-lint
+```
+
+**Offline mode** (skip Docker image pulls, uses cached images):
+
+```powershell
+act pull_request -W .github/workflows/continuous-integration.yml --action-offline-mode
+```
+
+**Disable image pulling** (faster subsequent runs):
+
+```powershell
+act pull_request -W .github/workflows/continuous-integration.yml --pull=false
+```
+
+**Override environment variables:**
+
+```powershell
+act pull_request -W .github/workflows/continuous-integration.yml --env DB_CONNECTION=sqlite
+```
+
+**Use custom env file:**
+
+```powershell
+act pull_request -W .github/workflows/continuous-integration.yml --env-file .env.testing
+```
+
+**List available workflows and jobs:**
+
+```powershell
+act -l
+```
+
+### VS Code Tasks
+
+Pre-configured tasks are available via **Terminal > Run Task** or `Ctrl+Shift+P` → "Tasks: Run Task":
+
+**Build & Quality Checks:**
+- `install` - Install all dependencies (Composer + npm for both main app and SPA)
+- `check` - Run all linters and audits (Pint, ESLint, Composer/npm audit)
+- `build` - Full build pipeline (check + build assets)
+- `pint:run` - PHP linting with Laravel Pint
+- `npm-lint:run` / `npm-lint:run:spa` - JavaScript/TypeScript linting
+
+**Testing:**
+- `test` - Run all tests (build + PHPUnit + Vitest)
+- `phpunit:run` - Backend tests only (parallel)
+- `npm-test:run:spa` - SPA frontend tests only
+
+**Development Servers:**
+- `dev` - Start Laravel development server
+- `composer-dev:run` - Same as `dev`
+- `npm-dev:run:spa` - Start Vite dev server for SPA
+
+**Local Workflow Testing (Act):**
+- `act:continuous-integration` - Run full CI workflow locally
+- `act:continuous-integration:backend-lint` - Run backend linting job only
+- `act:continuous-integration:backend-test` - Run backend tests job only
+- `act:continuous-integration:spa-test` - Run SPA tests job only
+- `act:build` - Run build workflow locally
+- `act:github-pages` - Run GitHub Pages deployment workflow locally
+
+**Act Task Configuration:**
+
+All `act:*` tasks:
+- Run `build` task as dependency first
+- Use `--action-offline-mode` flag (skip Docker pulls)
+- Use `--env-file .env.ci` (consistent CI environment)
+- Use `-W` flag to specify workflow file
+
+Example task definition:
+```json
+{
+  "label": "act:continuous-integration:backend-lint",
+  "type": "shell",
+  "command": "act",
+  "args": [
+    "pull_request",
+    "-W", ".github/workflows/continuous-integration.yml",
+    "--action-offline-mode",
+    "--env-file", ".env.ci",
+    "--job", "backend-lint"
+  ]
+}
+```
 
 ## Continuous Integration and Testing
 
@@ -47,45 +178,80 @@ Validates code quality, runs tests, and ensures the application builds correctly
 | **Workflow**       | `continuous-integration.yml`                                   |
 | **Trigger**        | Pull requests to `main` branch (opened, synchronize, reopened) |
 | **Manual trigger** | Yes (`workflow_dispatch`)                                      |
-| **Runner**         | `windows-latest` (GitHub-hosted)                               |
+| **Runner**         | `ubuntu-latest` (GitHub-hosted)                                |
 | **Concurrency**    | Group: `ci-${{ github.ref }}`, cancel-in-progress: `true`      |
 
 **Jobs**
 
-1. **backend-validation** - Validates PHP/Laravel backend
-   - Installs PHP 8.2+ with extensions (fileinfo, zip, sqlite3, pdo_sqlite, gd, exif)
+1. **backend-lint** - Validates PHP/Laravel backend code quality
+   - Installs PHP 8.4+ with extensions (fileinfo, zip, sqlite3, pdo_sqlite, gd, exif)
    - Validates `composer.json` and checks platform requirements
-   - Installs dependencies with `composer install`
-   - Audits dependencies for security vulnerabilities
+   - Installs dependencies with `composer install --no-scripts`
+   - Audits dependencies for security vulnerabilities with `composer audit`
    - Creates `.env` file from `.env.local.example`
-   - Runs database migrations (up and rollback tests)
+   - Generates application key with `php artisan key:generate`
+   - Runs database migrations with in-memory SQLite
    - Lints code with Laravel Pint
-   - Runs test suites: CI/CD, Unit, and Feature tests with coverage
 
-2. **frontend-validation** - Validates Node.js/Vue frontend
-   - Installs Node.js 24.11.0
+2. **backend-tests** - Runs backend test suites
+   - Matrix strategy runs 7 parallel test suites:
+     - Unit, Api, Web, Configuration, Console, Event, Integration
+   - Uses in-memory SQLite database (`:memory:`)
+   - Runs tests with coverage and parallel execution
+   - Environment variables: `DB_CONNECTION=sqlite`, `DB_DATABASE=:memory:`
+
+3. **backend-rendered-frontend-validation** - Validates Blade/Tailwind frontend
+   - Installs Node.js (LTS Krypton)
    - Installs npm dependencies with `npm ci`
-   - Audits npm packages for vulnerabilities
-   - Builds frontend assets with `npm run build`
+   - Audits npm packages with `npm audit --audit-level moderate`
+   - Builds backend assets with `npm run build`
+
+4. **spa-frontend-validation** - Validates Vue 3 SPA
+   - Installs Node.js (LTS Krypton)
+   - Installs SPA dependencies from `spa/` directory
+   - Audits dependencies with `npm audit`
    - Lints code with `npm run lint`
+   - Type-checks with TypeScript
+   - Builds SPA with `npm run build`
    - Runs all tests with `npm run test:all`
 
-3. **ci-success** - Aggregates results
-   - Checks that both backend and frontend validation jobs succeeded
-   - Fails the workflow if either validation job failed
+5. **ci-success** - Aggregates results
+   - Waits for all jobs to complete
+   - Fails if any job failed
+   - Provides summary of all job results
+
+**Environment Variables**
+
+Job-level environment variables override Docker container defaults:
+
+```yaml
+backend-lint:
+  env:
+    DB_CONNECTION: sqlite
+    DB_DATABASE: ':memory:'
+
+backend-tests:
+  env:
+    DB_CONNECTION: sqlite
+    DB_DATABASE: ':memory:'
+```
 
 **Permissions**
 
 - `contents: write` - For potential version bumps
 - `pull-requests: write` - For PR comments and labels
-- `packages: read` - For accessing GitHub Packages
+- `packages: read` - For accessing GitHub Packages (SPA dependencies)
 
-**Usage**
-
-This workflow runs automatically on pull requests. For manual testing:
+**Local Testing**
 
 ```powershell
-# Trigger via GitHub UI: Actions > Continuous Integration > Run workflow
+# Run full workflow
+act pull_request -W .github/workflows/continuous-integration.yml --action-offline-mode
+
+# Run specific job
+act pull_request -W .github/workflows/continuous-integration.yml --job backend-lint --action-offline-mode
+
+# Or use VS Code tasks: Terminal > Run Task > act:continuous-integration
 ```
 
 **Links**
@@ -93,6 +259,47 @@ This workflow runs automatically on pull requests. For manual testing:
 | Reference                        | URL                                                                                                                                                                                                      |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | GitHub Actions workflow_dispatch | [https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch) |
+| Act (Local Testing)              | [https://github.com/nektos/act](https://github.com/nektos/act)                                                                                                                                           |
+
+---
+
+### Build
+
+Builds the Laravel application package for deployment. Creates a deployment-ready artifact with all dependencies and compiled assets.
+
+**Workflow properties**
+
+| Property           | Value                     |
+| ------------------ | ------------------------- |
+| **Workflow**       | `build.yml`               |
+| **Trigger**        | Push to `main` branch     |
+| **Manual trigger** | Yes (`workflow_dispatch`) |
+| **Runner**         | `ubuntu-latest`           |
+
+**Jobs**
+
+1. **build** - Creates deployment package
+   - Installs PHP 8.4+ with production extensions
+   - Installs Composer dependencies with `--no-dev --optimize-autoloader`
+   - Installs Node.js dependencies
+   - Builds frontend assets with Vite
+   - Generates `VERSION` file with commit information
+   - Uploads deployment artifact with 90-day retention
+
+**Artifact Structure**
+
+The deployment package includes:
+- Production-optimized Composer dependencies (no dev packages)
+- Compiled frontend assets (`public/build/`)
+- Application source code
+- VERSION file with build metadata
+
+**Local Testing**
+
+```powershell
+act push -W .github/workflows/build.yml --action-offline-mode
+# Or use VS Code task: act:build
+```
 
 ---
 
@@ -100,31 +307,22 @@ This workflow runs automatically on pull requests. For manual testing:
 
 ### Deploy Laravel Application
 
-Builds the Laravel application and deploys it to a production environment using a symlink-based deployment strategy.
+Deploys the Laravel application to a production environment using a symlink-based deployment strategy. Downloads pre-built artifact from the build workflow.
 
 **Workflow properties**
 
-| Property           | Value                       |
-| ------------------ | --------------------------- |
-| **Workflow**       | `continuous-deployment.yml` |
-| **Trigger**        | Push to `main` branch       |
-| **Manual trigger** | No                          |
-| **Runner**         | `[self-hosted, windows]`    |
-| **Environment**    | `MWNF-SVR`                  |
+| Property           | Value                    |
+| ------------------ | ------------------------ |
+| **Workflow**       | `deploy.yml`             |
+| **Trigger**        | Push to `main` branch    |
+| **Manual trigger** | Yes (`workflow_dispatch`) |
+| **Runner**         | `[self-hosted, windows]` |
+| **Environment**    | `MWNF-SVR`               |
 
 **Jobs**
 
-1. **build** - Builds deployment package
-   - Validates environment variables and paths (PHP, Composer, Node.js, npm, MariaDB)
-   - Installs PHP dependencies with `composer install --no-dev --optimize-autoloader`
-   - Configures npm authentication for GitHub Packages
-   - Installs Node.js dependencies with `npm install`
-   - Builds frontend assets with Vite (`npm run build`)
-   - Creates deployment package excluding dev dependencies
-   - Generates `VERSION` file with app version, commit SHA, and timestamps
-   - Uploads deployment artifact (`laravel-app-${{ github.sha }}`) with 7-day retention
-
-2. **deploy** - Deploys to staging directory with symlink swap
+1. **deploy** - Deploys to staging directory with symlink swap
+   - Downloads pre-built deployment artifact from build workflow
    - Downloads deployment artifact
    - Creates timestamped staging directory (`staging-YYYYMMDD-HHMMSS`)
    - Puts old application into maintenance mode (`php artisan down`)
@@ -266,130 +464,7 @@ This workflow runs automatically on push to `main`. For manual deployment:
 
 ---
 
-### Publish API Client Package
-
-Publishes the TypeScript API client package to GitHub Packages when a release is created.
-
-**Workflow properties**
-
-| Property           | Value                            |
-| ------------------ | -------------------------------- |
-| **Workflow**       | `publish-npm-github-package.yml` |
-| **Trigger**        | Release created                  |
-| **Manual trigger** | Yes (`workflow_dispatch`)        |
-| **Runner**         | `ubuntu-latest` (GitHub-hosted)  |
-
-**Jobs**
-
-1. **build** - Builds and tests the package
-   - Checks out repository
-   - Sets up Node.js 20
-   - Installs dependencies with `npm ci`
-   - Runs tests with `npm test`
-
-2. **publish-gpr** - Publishes to GitHub Packages
-   - Checks out repository
-   - Sets up Node.js 20 with GitHub Packages registry
-   - Installs dependencies with `npm ci`
-   - Publishes package with `npm publish`
-
-**Permissions**
-
-- `contents: read` - For reading repository contents
-- `packages: write` - For publishing to GitHub Packages
-
-**Prerequisites**
-
-Before this workflow can run successfully:
-
-1. API client must be generated using `generate-api-client.ps1`. See [/scripts/README.md](/development/scripts#generating-the-api-client-npm-package)
-2. Package version should be updated appropriately
-3. A release must be created in GitHub
-
-**Usage**
-
-This workflow runs automatically when a GitHub release is created. For manual publishing:
-
-```bash
-# Trigger via GitHub UI: Actions > Package @metanull/inventory-app-api-client > Run workflow
-```
-
-Alternatively, you can publish manually using the script:
-
-```powershell
-# See: /scripts/README.md#publishing-the-api-client-npm-package-to-the-github-packages-npm-registry
-. ./scripts/publish-api-client.ps1 -Credential (Get-Credential)
-```
-
-**Links**
-
-| Reference                   | URL                                                                                                                                                                    |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GitHub Packages             | [https://github.com/features/packages](https://github.com/features/packages)                                                                                           |
-| API Client Package          | [https://github.com/metanull/inventory-app/pkgs/npm/inventory-app-api-client](https://github.com/metanull/inventory-app/pkgs/npm/inventory-app-api-client)             |
-| Publishing Node.js Packages | [https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages](https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages) |
-
----
-
 ## Automation Workflows
-
-### Version Bump
-
-Automatically bumps the project version based on merged pull request labels after successful CI runs.
-
-**Workflow properties**
-
-| Property           | Value                                                                    |
-| ------------------ | ------------------------------------------------------------------------ |
-| **Workflow**       | `version-bump.yml`                                                       |
-| **Trigger**        | After `Continuous Integration` workflow completes successfully on `main` |
-| **Manual trigger** | Yes (`workflow_dispatch`)                                                |
-| **Runner**         | `windows-latest` (GitHub-hosted)                                         |
-| **Concurrency**    | Group: `version-bump-${{ github.ref }}`, cancel-in-progress: `true`      |
-
-**Job: version-bump**
-
-1. Checks out repository with full Git history
-2. Sets up Node.js 20.x
-3. Checks if commit is already a version bump (skips if so)
-4. Retrieves merged PR information and labels
-5. Determines version bump type based on labels:
-   - `breaking-change` → **major** version bump
-   - `feature` → **minor** version bump
-   - `bugfix` → **patch** version bump
-   - Default: **patch** version bump
-6. Bumps version in `package.json` using `npm version`
-7. Commits and pushes version bump to `main` branch
-
-**Permissions**
-
-- `contents: write` - For committing version bumps
-- `pull-requests: read` - For reading PR metadata
-
-**Usage**
-
-This workflow runs automatically after CI completes successfully. For manual version bumping:
-
-```bash
-# Trigger via GitHub UI: Actions > Version Bump > Run workflow
-```
-
-**PR Labeling Guide**
-
-To control version bumping, apply these labels to your pull requests:
-
-- `breaking-change` - For breaking API changes (major version)
-- `feature` - For new features (minor version)
-- `bugfix` - For bug fixes (patch version)
-
-**Links**
-
-| Reference                   | URL                                                                                                                                                                                            |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Semantic Versioning         | [https://semver.org/](https://semver.org/)                                                                                                                                                     |
-| GitHub Actions workflow_run | [https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run) |
-
----
 
 ### Merge Dependabot PR
 
@@ -439,14 +514,13 @@ This workflow runs automatically when Dependabot opens a pull request. No manual
 
 Several workflows interact with scripts and other workflows:
 
-| Workflow                                 | Depends On                                         | Triggers           |
-| ---------------------------------------- | -------------------------------------------------- | ------------------ |
-| `continuous-integration.yml`             | -                                                  | `version-bump.yml` |
-| `continuous-deployment.yml`              | -                                                  | -                  |
-| `continuous-deployment_github-pages.yml` | [/scripts/README.md](/development/scripts) scripts | -                  |
-| `publish-npm-github-package.yml`         | API client generation                              | -                  |
-| `version-bump.yml`                       | `continuous-integration.yml`                       | -                  |
-| `merge-dependabot-pr.yml`                | -                                                  | -                  |
+| Workflow                                 | Depends On                                         | Triggers      |
+| ---------------------------------------- | -------------------------------------------------- | ------------- |
+| `continuous-integration.yml`             | -                                                  | -             |
+| `build.yml`                              | -                                                  | `deploy.yml`  |
+| `deploy.yml`                             | `build.yml` (downloads artifact)                   | -             |
+| `continuous-deployment_github-pages.yml` | [/scripts/README.md](/development/scripts) scripts | -             |
+| `merge-dependabot-pr.yml`                | -                                                  | -             |
 
 **Scripts used by workflows:**
 

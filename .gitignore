@@ -89,6 +89,7 @@ coverage
 !.env.example
 !.env.local.example
 !.env.testing
+!.env.ci
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -148,3 +149,7 @@ temp-vue-app
 VERSION
 # npm authentication (contains tokens)
 .npmrc
+
+# act secrets file (contains sensitive tokens)
+.secrets
+.github/.workflows-backup/**/*
