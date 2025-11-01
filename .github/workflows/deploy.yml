@@ -1,4 +1,4 @@
-name: Deploy (self-hosted)
+name: Deploy
 
 permissions:
   contents: read
@@ -53,7 +53,7 @@ jobs:
             exit 1
           }
           $sizeInMB = [math]::Round($packageAsset.size / 1MB, 2)
-          Write-Host "📦 Found asset: $($packageAsset.name) ($sizeInMB MB)"
+          Write-Host "📦 Found asset: $($packageAsset.name) ($($sizeInMB) MB)"
           $downloadPath = "${{ runner.temp }}\deployment-package.zip"
           $headers = @{
             "Authorization" = "Bearer ${{ secrets.GITHUB_TOKEN }}"
