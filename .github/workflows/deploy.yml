@@ -17,7 +17,7 @@ on:
     # Allow manual triggering for testing
     inputs:
       release_tag:
-        description: 'Release tag to deploy (e.g., v1.0.0)'
+        description: 'Release tag to deploy (e.g., v1.0.0.1)'
         required: true
         type: string
 
@@ -52,7 +52,8 @@ jobs:
             $assets | ForEach-Object { Write-Host "  - $($_.name)" }
             exit 1
           }
-          Write-Host "📦 Found asset: $($packageAsset.name) ($([math]::Round($packageAsset.size / 1MB, 2)) MB)"
+          $sizeInMB = [math]::Round($packageAsset.size / 1MB, 2)
+          Write-Host "📦 Found asset: $($packageAsset.name) ($sizeInMB MB)"
           $downloadPath = "${{ runner.temp }}\deployment-package.zip"
           $headers = @{
             "Authorization" = "Bearer ${{ secrets.GITHUB_TOKEN }}"
@@ -63,7 +64,8 @@ jobs:
           
           if (Test-Path $downloadPath) {
             $size = (Get-Item $downloadPath).Length / 1MB
-            Write-Host "✅ Downloaded successfully: $([math]::Round($size, 2)) MB"
+            $sizeRounded = [math]::Round($size, 2)
+            Write-Host "✅ Downloaded successfully: $sizeRounded MB"
             Write-Host "PACKAGE_PATH=$downloadPath" >> $env:GITHUB_ENV
             Write-Host "RELEASE_TAG=$releaseTag" >> $env:GITHUB_ENV
             # Set output for other jobs
