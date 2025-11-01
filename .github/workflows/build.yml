@@ -178,13 +178,13 @@ jobs:
         jq -n \
           --arg app_version "$appVersion" \
           --arg api_client_version "$apiclientVersion" \
-          --arg commit_sha "${{ github.sha }}" \
-          --arg commit_message "${{ github.event.head_commit.message }}" \
+          --arg commit_sha '${{ github.sha }}' \
+          --arg commit_message '${{ github.event.head_commit.message }}' \
           --arg build_timestamp "$buildTimestamp" \
-          --arg build_number "${{ github.run_number }}" \
-          --arg repository "${{ github.repository }}" \
-          --arg repository_url "${{ github.server_url }}/${{ github.repository }}" \
-          --arg branch "${{ github.ref_name }}" \
+          --arg build_number '${{ github.run_number }}' \
+          --arg repository '${{ github.repository }}' \
+          --arg repository_url '${{ github.server_url }}/${{ github.repository }}' \
+          --arg branch '${{ github.ref_name }}' \
           '{app_version: $app_version, api_client_version: $api_client_version, commit_sha: $commit_sha, commit_message: $commit_message, build_timestamp: $build_timestamp, build_number: $build_number, repository: $repository, repository_url: $repository_url, branch: $branch}' \
           > "$deployDir/VERSION"
         echo "  ✅ VERSION file created"
