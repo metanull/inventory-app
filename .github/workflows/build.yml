@@ -202,7 +202,7 @@ jobs:
 
     - name: Generate Tag
       run: |
-        tag="$(date -u +'%Y.%m.%d')-v${{ env.APP_VERSION }}-build${{ github.run_number }}"
+        tag="${{ env.APP_VERSION }}.${{ github.run_number }}"
         echo "  ✅ Release tag: $tag"
         echo "RELEASE_TAG=$tag" >> $GITHUB_ENV
       shell: bash
