@@ -44,7 +44,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  cleanup:
     runs-on: [self-hosted, windows]
     environment:
       name: MWNF-SVR
@@ -56,6 +56,31 @@ jobs:
       MARIADB_PATH: ${{ vars.MARIADB_PATH || 'C:\\Program Files\\MariaDB 10.5\\bin\\mysql.exe' }}
       APP_KEY: ${{ secrets.APP_KEY || 'base64:random_generated_key' }}
     steps:
+      - name: Clean up
+        run: |
+          @('./vendor', './node_modules', 'spa/node_modules') | ForEach-Object {
+            Write-Host "::group::Cleaning $_"
+            if (Test-Path $_) {
+              Remove-Item -Recurse -Force $_ -ErrorAction Stop
+              Write-Host "Cleaned $_"
+            }
+            Write-Host "::endgroup::"
+          }
+        shell: powershell
+
+  build:
+    runs-on: [self-hosted, windows]
+    needs: [cleanup]
+    environment:
+      name: MWNF-SVR
+    env:
+      PHP_PATH: ${{ vars.PHP_PATH || 'C:\\Program Files\\PHP\\php.exe' }}
+      COMPOSER_PATH: ${{ vars.COMPOSER_PATH || 'C:\\ProgramData\\ComposerSetup\\bin\\composer.bat' }}
+      NODE_PATH: ${{ vars.NODE_PATH || 'C:\\Program Files\\nodejs\\node.exe' }}
+      NPM_PATH: ${{ vars.NPM_PATH || 'C:\\Program Files\\nodejs\\npm.ps1' }}
+      MARIADB_PATH: ${{ vars.MARIADB_PATH || 'C:\\Program Files\\MariaDB 10.5\\bin\\mysql.exe' }}
+      APP_KEY: ${{ secrets.APP_KEY || 'base64:random_generated_key' }}
+    steps:      
       - name: Checkout code
         uses: actions/checkout@v5
         with:
