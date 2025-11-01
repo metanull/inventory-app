@@ -1,4 +1,4 @@
-name: Continuous Deployment to GitHub Pages
+name: Documentation
 
 on:
   push:

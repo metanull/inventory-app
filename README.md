@@ -1,9 +1,10 @@
 # Inventory Management API
 
 [![Continuous Integration](https://github.com/metanull/inventory-app/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/continuous-integration.yml)
-[![Continuous Deployment](https://github.com/metanull/inventory-app/actions/workflows/continuous-deployment.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/continuous-deployment.yml)
-[![Continuous Deployment to GitHub Pages](https://github.com/metanull/inventory-app/actions/workflows/continuous-deployment_github-pages.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/continuous-deployment_github-pages.yml)
-[![Publish npm github package @metanull/inventory-app-api-client](https://github.com/metanull/inventory-app/actions/workflows/publish-npm-github-package.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/publish-npm-github-package.yml)
+[![Build](https://github.com/metanull/inventory-app/actions/workflows/build.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/build.yml)
+[![Deploy](https://github.com/metanull/inventory-app/actions/workflows/deploy.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/deploy.yml)
+[![GitHub Pages](https://github.com/metanull/inventory-app/actions/workflows/continuous-deployment_github-pages.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/continuous-deployment_github-pages.yml)
+[![Publish @metanull/inventory-app-api-client](https://github.com/metanull/inventory-app/actions/workflows/publish-npm-github-package.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/publish-npm-github-package.yml)
 [![CodeQL](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql)
 [![Dependabot](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates)
 

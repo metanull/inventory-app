@@ -1,4 +1,4 @@
-name: Build (cloud-hosted runner)
+name: Build
 
 permissions:
   contents: write  # To create releases
