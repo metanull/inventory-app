@@ -21,7 +21,11 @@ jobs:
   
   backend-lint:
     name: Backend Linting and Validation
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
+    
+    env:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ':memory:'
 
     steps:
       - uses: actions/checkout@v5
@@ -51,12 +55,27 @@ jobs:
 
       - name: "Setup > Laravel > Create .env file from example"
         run: |
-          if(-not(Test-Path ".env.local.example")) {
-            throw "No .env.local.example file found!"
-          }
-          if(-not(Test-Path ".env")) {
-            Copy-Item .env.local.example .env -ErrorAction Stop
-          }
+          if [ ! -f ".env.local.example" ]; then
+            echo "::error::No .env.local.example file found!"
+            exit 1
+          fi
+          if [ ! -f ".env" ]; then
+            echo "::info::Creating .env file from .env.local.example"
+            cp .env.local.example .env
+          else
+            echo "::info::.env file already exists, skipping creation"
+          fi
+          echo "::info::Removing cached files"
+          rm -rf bootstrap/cache/*.php || true
+          
+          echo "::group::Debug Environment"
+          echo "=== DB_CONNECTION environment variable:"
+          echo "DB_CONNECTION=${DB_CONNECTION:-NOT SET}"
+          echo "=== All DB_* environment variables:"
+          env | grep "^DB_" || echo "No DB_* environment variables found"
+          echo "=== From .env file:"
+          grep "^DB_CONNECTION=" .env || echo "DB_CONNECTION not in .env"
+          echo "::endgroup::"
 
       - name: "Setup > Laravel > Generate application key"
         run: |
@@ -64,12 +83,14 @@ jobs:
 
       - name: "Setup > Laravel > Create database"
         run: |
+          echo "::group::Create the database and run migrations"
           php artisan migrate --force
+          echo "::endgroup::"
 
-      - name: "Setup > Laravel > Validate migrations"
-        run: |
+          echo "::group::Validate migrations by rolling back and reapplying"
           php artisan migrate:rollback
           php artisan migrate
+          echo "::endgroup::"
 
       - name: "Check > Laravel > Linting"
         run: |
@@ -77,7 +98,11 @@ jobs:
 
   backend-tests:
     name: Backend Tests (${{ matrix.suite }})
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
+    
+    env:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ':memory:'
     
     strategy:
       fail-fast: true  # Stop running other suites as soon as one fails
@@ -108,12 +133,18 @@ jobs:
 
       - name: "Setup > Laravel > Create .env file from example"
         run: |
-          if(-not(Test-Path ".env.local.example")) {
-            throw "No .env.local.example file found!"
-          }
-          if(-not(Test-Path ".env")) {
-            Copy-Item .env.local.example .env -ErrorAction Stop
-          }
+          if [ ! -f ".env.local.example" ]; then
+            echo "::error::No .env.local.example file found!"
+            exit 1
+          fi
+          if [ ! -f ".env" ]; then
+            echo "::info::Creating .env file from .env.local.example"
+            cp .env.local.example .env
+          else
+            echo "::info::.env file already exists, skipping creation"
+          fi
+          echo "::info::Removing cached files"
+          rm -rf bootstrap/cache/*.php || true
 
       - name: "Setup > Laravel > Generate application key"
         run: |
@@ -124,14 +155,12 @@ jobs:
           php artisan migrate --force
 
       - name: "Check > Laravel > Run ${{ matrix.suite }} Tests"
-        env:
-          DB_CONNECTION: sqlite
         run: |
           php artisan test --testsuite=${{ matrix.suite }} --coverage --parallel --no-ansi --stop-on-failure
 
-  backend-frontend-validation:
-    name: Backend Frontend Validation (Blade/Tailwind)
-    runs-on: windows-latest
+  backend-rendered-frontend-validation:
+    name: Backend Rendered Frontend Validation (Blade/Tailwind)
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v5
@@ -160,7 +189,7 @@ jobs:
 
   spa-frontend-validation:
     name: Frontend Validation - SPA (Vue 3)
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v5
@@ -204,23 +233,23 @@ jobs:
 
   ci-success:
     name: CI Success
-    runs-on: windows-latest
-    needs: [backend-lint, backend-tests, backend-frontend-validation, spa-frontend-validation]
+    runs-on: ubuntu-latest
+    needs: [backend-lint, backend-tests, backend-rendered-frontend-validation, spa-frontend-validation]
     if: always()
 
     steps:
       - name: Check all jobs succeeded
         run: |
-          $backendLintResult = "${{ needs.backend-lint.result }}"
-          $backendTestsResult = "${{ needs.backend-tests.result }}"
-          $backendFrontendResult = "${{ needs.backend-frontend-validation.result }}"
-          $spaFrontendResult = "${{ needs.spa-frontend-validation.result }}"
+          backendLintResult="${{ needs.backend-lint.result }}"
+          backendTestsResult="${{ needs.backend-tests.result }}"
+          backendFrontendResult="${{ needs.backend-rendered-frontend-validation.result }}"
+          spaFrontendResult="${{ needs.spa-frontend-validation.result }}"
 
-          if ($backendLintResult -ne "success" -or $backendTestsResult -ne "success" -or $backendFrontendResult -ne "success" -or $spaFrontendResult -ne "success") {
-            Write-Output "One or more validation jobs failed"
-            Write-Output "Backend Lint: $backendLintResult"
-            Write-Output "Backend Tests: $backendTestsResult"
-            Write-Output "Backend Frontend: $backendFrontendResult"
-            Write-Output "SPA Frontend: $spaFrontendResult"
+          if [ "$backendLintResult" != "success" ] || [ "$backendTestsResult" != "success" ] || [ "$backendFrontendResult" != "success" ] || [ "$spaFrontendResult" != "success" ]; then
+            echo "One or more validation jobs failed"
+            echo "Backend Lint: $backendLintResult"
+            echo "Backend Tests: $backendTestsResult"
+            echo "Backend Frontend: $backendFrontendResult"
+            echo "SPA Frontend: $spaFrontendResult"
             exit 1
-          }
+          fi
