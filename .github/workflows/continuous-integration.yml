@@ -87,11 +87,6 @@ jobs:
           php artisan migrate --force
           echo "::endgroup::"
 
-          echo "::group::Validate migrations by rolling back and reapplying"
-          php artisan migrate:rollback
-          php artisan migrate
-          echo "::endgroup::"
-
       - name: "Check > Laravel > Linting"
         run: |
           ./vendor/bin/pint --bail

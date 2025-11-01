@@ -22,7 +22,7 @@
 		{
 			"label": "pint:run",
 			"type": "shell",
-			"command": "${workspaceFolder}\\vendor\\bin\\pint",
+			"command": "${workspaceFolder}/vendor/bin/pint",
 			"args": [
 				"--no-interaction",
 				"--parallel"
@@ -395,7 +395,7 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "act:continuous-integration:backend-test",
+			"label": "act:continuous-integration:backend-tests",
 			"dependsOn": [
 				"build"
 			],
@@ -410,7 +410,7 @@
 				"--env-file",
 				".env.ci",
 				"--job",
-				"backend-test"
+				"backend-tests"
 			],
 			"group": "build",
 			"options": {
