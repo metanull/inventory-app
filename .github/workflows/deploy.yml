@@ -4,8 +4,22 @@ permissions:
   contents: read
 
 on:
-  release:
-    types: [published]
+  #release:
+  #  types: [published, created]
+  
+  workflow_run:
+    # Trigger after build workflow completes successfully
+    workflows: ["Build and Package Application"]
+    types: [completed]
+    branches: [main]
+  
+  workflow_dispatch:
+    # Allow manual triggering for testing
+    inputs:
+      release_tag:
+        description: 'Release tag to deploy (e.g., v1.0.0)'
+        required: true
+        type: string
 
 concurrency:
   group: deploy-${{ github.ref }}
