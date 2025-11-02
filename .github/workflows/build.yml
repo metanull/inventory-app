@@ -89,7 +89,7 @@ jobs:
         # Create deployment package with all production dependencies
         
         echo "::group::Preparing deployment directory"
-        deployDir="${{ runner.temp }}/deployment-package"
+        deployDir="${{ runner.temp }}/inventory-app"
         echo "DEPLOY_DIR=$deployDir" >> $GITHUB_ENV
         if [ -d "$deployDir" ]; then
           rm -rf "$deployDir"
@@ -193,7 +193,7 @@ jobs:
         echo "::endgroup::"
         
         echo "::group::Creating deployment archive"
-        archivePath="${{ runner.temp }}/deployment-package.zip"
+        archivePath="${{ runner.temp }}/inventory-app.zip"
         cd "$deployDir"
         zip -r "$archivePath" .
         cd -
@@ -226,7 +226,7 @@ jobs:
           ---
           
           ### 📦 Deployment Package
-          Download `deployment-package.zip` and extract to your server.
+          Download `inventory-app.zip` and extract to your server.
         
           ### 🔄 Changes:
           ${{ github.event.head_commit.message }}

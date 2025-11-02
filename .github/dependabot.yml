@@ -30,6 +30,23 @@ updates:
         dependency-type: "development"
       node-prod-dependencies:
         dependency-type: "production"
+    registries:
+      - npm-github
+
+  - package-ecosystem: "npm"
+    directory: "/spa"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      spa-dev-dependencies:
+        dependency-type: "development"
+      spa-prod-dependencies:
+        dependency-type: "production"
+    registries:
+      - npm-github
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -41,3 +58,9 @@ updates:
       github-actions-dependencies:
         patterns:
           - ".*"
+
+registries:
+  npm-github:
+    type: npm-registry
+    url: https://npm.pkg.github.com
+    token: ${{secrets.DEPENDABOT_GITHUB_PACKAGES_TOKEN}}
