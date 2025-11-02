@@ -4,14 +4,8 @@ permissions:
   contents: read
 
 on:
-  #release:
-  #  types: [published, created]
-  
-  workflow_run:
-    # Trigger after build workflow completes successfully
-    workflows: ["Build and Package Application"]
-    types: [completed]
-    branches: [main]
+  release:
+    types: [published]
   
   workflow_dispatch:
     # Allow manual triggering for testing
@@ -37,15 +31,50 @@ jobs:
       PHP_PATH: ${{ vars.PHP_PATH || 'C:\\Program Files\\PHP\\php.exe' }}
       WEBSERVER_PATH: ${{ vars.WEBSERVER_PATH || 'C:\\Apache24\\htdocs\\inventory-app' }}
     steps:
+      - name: Determine release tag
+        run: |
+          if ("${{ github.event_name }}" -eq "release") {
+            $releaseTag = "${{ github.event.release.tag_name }}"
+            Write-Host "Using release tag from release event: $releaseTag"
+          } elseif ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $releaseTag = "${{ inputs.release_tag }}"
+            Write-Host "Using release tag from manual input: $releaseTag"
+          } else {
+            Write-Host "::error::Unsupported event type: ${{ github.event_name }}"
+            exit 1
+          }
+          
+          if ([string]::IsNullOrWhiteSpace($releaseTag)) {
+            Write-Host "::error::Release tag is empty"
+            exit 1
+          }
+          
+          Write-Host "Release tag determined: $releaseTag"
+          Write-Host "RELEASE_TAG=$releaseTag" >> $env:GITHUB_ENV
+        shell: powershell
+
       - name: Download release asset
         id: download_package
         run: |
-          Write-Host "::group::Downloading deployment package from release"
-          $releaseTag = "${{ github.event.release.tag_name }}"
-          $releaseName = "${{ github.event.release.name }}"
-          Write-Host "Release: $releaseName ($releaseTag)"
-          $assets = '${{ toJson(github.event.release.assets) }}' | ConvertFrom-Json
-          $packageAsset = $assets | Where-Object { $_.name -eq "deployment-package.zip" }
+          Write-Host "::group::Downloading deployment package from release ${{ env.RELEASE_TAG }}"
+          
+          # Fetch release details from GitHub API
+          $headers = @{
+            "Authorization" = "Bearer ${{ secrets.GITHUB_TOKEN }}"
+            "Accept" = "application/vnd.github+json"
+          }
+          $apiUrl = "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.RELEASE_TAG }}"
+          
+          try {
+            $release = Invoke-RestMethod -Uri $apiUrl -Headers $headers
+            Write-Host "Release: $($release.name) (${{ env.RELEASE_TAG }})"
+          } catch {
+            Write-Host "::error::Failed to fetch release ${{ env.RELEASE_TAG }}: $_"
+            exit 1
+          }
+          
+          # Find deployment package asset
+          $packageAsset = $release.assets | Where-Object { $_.name -eq "deployment-package.zip" }
           if (-not $packageAsset) {
             Write-Host "::error::deployment-package.zip not found in release assets"
             Write-Host "Available assets:"
@@ -67,9 +96,8 @@ jobs:
             $sizeRounded = [math]::Round($size, 2)
             Write-Host "✅ Downloaded successfully: $sizeRounded MB"
             Write-Host "PACKAGE_PATH=$downloadPath" >> $env:GITHUB_ENV
-            Write-Host "RELEASE_TAG=$releaseTag" >> $env:GITHUB_ENV
             # Set output for other jobs
-            Write-Output "release_tag=$releaseTag" >> $env:GITHUB_OUTPUT
+            Write-Output "release_tag=${{ env.RELEASE_TAG }}" >> $env:GITHUB_OUTPUT
           } else {
             Write-Host "::error::Download failed"
             exit 1
