@@ -74,6 +74,12 @@ jobs:
           node-version: '20'
           registry-url: 'https://npm.pkg.github.com'
 
+      - name: "Setup > Java"
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: "Artifact > Download OpenAPI spec"
         uses: actions/download-artifact@v4
         with:

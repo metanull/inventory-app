@@ -35,6 +35,12 @@ jobs:
           node-version: '20'
           registry-url: 'https://npm.pkg.github.com'
 
+      - name: "Setup > Java"
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: "Setup > Composer > Install Dependencies"
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
