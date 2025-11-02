@@ -182,11 +182,11 @@ Write-Information "Using version: $ClientVersion"
 # Generate the TypeScript client
 Write-Information "Generating TypeScript client..."
 try {
-    & npx openapi-generator-cli generate -i $OpenApiSpecPath -g $Config.Generator.Type -o $OutputDirectory
+    & npx @openapitools/openapi-generator-cli generate -i $OpenApiSpecPath -g $Config.Generator.Type -o $OutputDirectory
     if ($LASTEXITCODE -eq 0) {
         Write-Information "✔ Client generated in $OutputDirectory"
     } else {
-        throw "openapi-generator-cli failed with exit code: $LASTEXITCODE"
+        throw "@openapitools/openapi-generator-cli failed with exit code: $LASTEXITCODE"
     }
 } catch {
     Write-Error "Failed to generate client: $_"
