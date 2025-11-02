@@ -4,14 +4,8 @@ permissions:
   contents: read
 
 on:
-  #release:
-  #  types: [published, created]
-  
-  workflow_run:
-    # Trigger after build workflow completes successfully
-    workflows: ["Build and Package Application"]
-    types: [completed]
-    branches: [main]
+  release:
+    types: [published]
   
   workflow_dispatch:
     # Allow manual triggering for testing
@@ -37,19 +31,54 @@ jobs:
       PHP_PATH: ${{ vars.PHP_PATH || 'C:\\Program Files\\PHP\\php.exe' }}
       WEBSERVER_PATH: ${{ vars.WEBSERVER_PATH || 'C:\\Apache24\\htdocs\\inventory-app' }}
     steps:
+      - name: Determine release tag
+        run: |
+          if ("${{ github.event_name }}" -eq "release") {
+            $releaseTag = "${{ github.event.release.tag_name }}"
+            Write-Host "Using release tag from release event: $releaseTag"
+          } elseif ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $releaseTag = "${{ inputs.release_tag }}"
+            Write-Host "Using release tag from manual input: $releaseTag"
+          } else {
+            Write-Host "::error::Unsupported event type: ${{ github.event_name }}"
+            exit 1
+          }
+          
+          if ([string]::IsNullOrWhiteSpace($releaseTag)) {
+            Write-Host "::error::Release tag is empty"
+            exit 1
+          }
+          
+          Write-Host "Release tag determined: $releaseTag"
+          Write-Host "RELEASE_TAG=$releaseTag" >> $env:GITHUB_ENV
+        shell: powershell
+
       - name: Download release asset
         id: download_package
         run: |
-          Write-Host "::group::Downloading deployment package from release"
-          $releaseTag = "${{ github.event.release.tag_name }}"
-          $releaseName = "${{ github.event.release.name }}"
-          Write-Host "Release: $releaseName ($releaseTag)"
-          $assets = '${{ toJson(github.event.release.assets) }}' | ConvertFrom-Json
-          $packageAsset = $assets | Where-Object { $_.name -eq "deployment-package.zip" }
+          Write-Host "::group::Downloading deployment package from release ${{ env.RELEASE_TAG }}"
+          
+          # Fetch release details from GitHub API
+          $headers = @{
+            "Authorization" = "Bearer ${{ secrets.GITHUB_TOKEN }}"
+            "Accept" = "application/vnd.github+json"
+          }
+          $apiUrl = "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.RELEASE_TAG }}"
+          
+          try {
+            $release = Invoke-RestMethod -Uri $apiUrl -Headers $headers
+            Write-Host "Release: $($release.name) (${{ env.RELEASE_TAG }})"
+          } catch {
+            Write-Host "::error::Failed to fetch release ${{ env.RELEASE_TAG }}: $_"
+            exit 1
+          }
+          
+          # Find deployment package asset
+          $packageAsset = $release.assets | Where-Object { $_.name -eq "deployment-package.zip" }
           if (-not $packageAsset) {
             Write-Host "::error::deployment-package.zip not found in release assets"
             Write-Host "Available assets:"
-            $assets | ForEach-Object { Write-Host "  - $($_.name)" }
+            $release.assets | ForEach-Object { Write-Host "  - $($_.name)" }
             exit 1
           }
           $sizeInMB = [math]::Round($packageAsset.size / 1MB, 2)
@@ -67,9 +96,8 @@ jobs:
             $sizeRounded = [math]::Round($size, 2)
             Write-Host "✅ Downloaded successfully: $sizeRounded MB"
             Write-Host "PACKAGE_PATH=$downloadPath" >> $env:GITHUB_ENV
-            Write-Host "RELEASE_TAG=$releaseTag" >> $env:GITHUB_ENV
             # Set output for other jobs
-            Write-Output "release_tag=$releaseTag" >> $env:GITHUB_OUTPUT
+            Write-Output "release_tag=${{ env.RELEASE_TAG }}" >> $env:GITHUB_OUTPUT
           } else {
             Write-Host "::error::Download failed"
             exit 1
@@ -145,13 +173,32 @@ jobs:
       name: MWNF-SVR
     needs: down
     outputs:
-      symlink_swap_path: ${{ steps.setup_symlinks.outputs.symlink_swap_path }}
-      symlink_temp_path: ${{ steps.setup_symlinks.outputs.symlink_temp_path }}
+      symlink_swap_path: ${{ steps.calculate_paths.outputs.symlink_swap_path }}
+      symlink_temp_path: ${{ steps.calculate_paths.outputs.symlink_temp_path }}
     env:
       PHP_PATH: ${{ vars.PHP_PATH || 'C:\\Program Files\\PHP\\php.exe' }}
       WEBSERVER_PATH: ${{ vars.WEBSERVER_PATH || 'C:\\Apache24\\htdocs\\inventory-app' }}
       STAGING_PATH: ${{ needs.download.outputs.staging_path }}
     steps:
+      - name: Calculate deployment paths
+        id: calculate_paths
+        run: |
+          # Calculate symlink paths for atomic deployment swap
+          $SwapPath = "{0}_swap" -f "${{ env.WEBSERVER_PATH }}"
+          $TempPath = "{0}_swap" -f "${{ env.STAGING_PATH }}"
+          
+          Write-Host "Symlink swap path: $SwapPath"
+          Write-Host "Symlink temp path: $TempPath"
+          
+          # Set as environment variables for this job
+          Write-Host "SYMLINK_SWAP_PATH=$SwapPath" >> $env:GITHUB_ENV
+          Write-Host "SYMLINK_TEMP_PATH=$TempPath" >> $env:GITHUB_ENV
+          
+          # Set as outputs for other jobs
+          Write-Output "symlink_swap_path=$SwapPath" >> $env:GITHUB_OUTPUT
+          Write-Output "symlink_temp_path=$TempPath" >> $env:GITHUB_OUTPUT
+        shell: powershell
+
       - name: Setup shared persistent storage
         run: |
           # Create shared storage directory for persistent data (images, uploads, etc.)
@@ -207,28 +254,24 @@ jobs:
       - name: Cleanup temporary symlinks if any
         run: |
           # Remove any existing temporary symlinks from previous failed runs
-          $SwapPath = "{0}_swap" -f "${{ env.WEBSERVER_PATH }}"
-          if ((Test-Path -Path $SwapPath)) {
+          if ((Test-Path -Path "${{ env.SYMLINK_SWAP_PATH }}")) {
             try {
-              [System.IO.Directory]::Delete($SwapPath, $false)
-              Write-Host "Removed symlink ($SwapPath) successfully."
+              [System.IO.Directory]::Delete("${{ env.SYMLINK_SWAP_PATH }}", $false)
+              Write-Host "Removed old swap symlink successfully."
             } catch {
-              Write-Host "::error::Symlink ($SwapPath) exists but can't be removed: $_"
+              Write-Host "::error::Symlink exists but can't be removed: $_"
               exit 1
             }
           }
-          $TempPath = "{0}_swap" -f "${{ env.STAGING_PATH }}"
-          if ((Test-Path -Path $TempPath)) {
+          if ((Test-Path -Path "${{ env.SYMLINK_TEMP_PATH }}")) {
             try {
-              [System.IO.Directory]::Delete($TempPath, $false)
-              Write-Host "Removed symlink ($TempPath) successfully."
+              [System.IO.Directory]::Delete("${{ env.SYMLINK_TEMP_PATH }}", $false)
+              Write-Host "Removed old temp symlink successfully."
             } catch {
-              Write-Host "::error::Symlink ($TempPath) exists but can't be removed: $_"
+              Write-Host "::error::Symlink exists but can't be removed: $_"
               exit 1
             }
           }
-          Write-Host "SYMLINK_SWAP_PATH=$SwapPath" >> $env:GITHUB_ENV
-          Write-Host "SYMLINK_TEMP_PATH=$TempPath" >> $env:GITHUB_ENV
         shell: powershell
 
       - name: Create symbolic link
@@ -407,29 +450,6 @@ jobs:
             exit 1
           }
         shell: powershell
-
-      #- name: Set file permissions
-      #  run: |
-      #    # Set appropriate permissions for Laravel directories
-      #    $paths = @(
-      #      "storage",
-      #      "bootstrap/cache"
-      #    )
-      #    
-      #    $serviceUser = $env:APACHE_SERVICE_USER
-      #    Write-Host "Setting permissions for Apache service user: $serviceUser"
-      #    
-      #    foreach ($path in $paths) {
-      #      $fullPath = Join-Path $env:WEBSERVER_PATH $path
-      #      if (Test-Path $fullPath) {
-      #        # Grant full access to the Apache service account and Administrators
-      #        icacls $fullPath /grant "${serviceUser}:(OI)(CI)F" /T
-      #        icacls $fullPath /grant "Administrators:(OI)(CI)F" /T
-      #        # icacls $fullPath /grant "$($env:USERNAME):(OI)(CI)F" /T
-      #        Write-Host "Permissions set for: $fullPath"
-      #      }
-      #    }
-      #  shell: powershell
 
       - name: Run database migrations
         run: |
