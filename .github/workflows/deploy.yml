@@ -451,29 +451,6 @@ jobs:
           }
         shell: powershell
 
-      #- name: Set file permissions
-      #  run: |
-      #    # Set appropriate permissions for Laravel directories
-      #    $paths = @(
-      #      "storage",
-      #      "bootstrap/cache"
-      #    )
-      #    
-      #    $serviceUser = $env:APACHE_SERVICE_USER
-      #    Write-Host "Setting permissions for Apache service user: $serviceUser"
-      #    
-      #    foreach ($path in $paths) {
-      #      $fullPath = Join-Path $env:WEBSERVER_PATH $path
-      #      if (Test-Path $fullPath) {
-      #        # Grant full access to the Apache service account and Administrators
-      #        icacls $fullPath /grant "${serviceUser}:(OI)(CI)F" /T
-      #        icacls $fullPath /grant "Administrators:(OI)(CI)F" /T
-      #        # icacls $fullPath /grant "$($env:USERNAME):(OI)(CI)F" /T
-      #        Write-Host "Permissions set for: $fullPath"
-      #      }
-      #    }
-      #  shell: powershell
-
       - name: Run database migrations
         run: |
           # Run Laravel database migrations
