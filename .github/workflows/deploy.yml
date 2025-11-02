@@ -56,34 +56,35 @@ jobs:
       - name: Download release asset
         id: download_package
         run: |
-          Write-Host "::group::Downloading deployment package from release ${{ env.RELEASE_TAG }}"
+          $releaseTag = $env:RELEASE_TAG
+          Write-Host "::group::Downloading deployment package from release $releaseTag"
           
           # Fetch release details from GitHub API
           $headers = @{
             "Authorization" = "Bearer ${{ secrets.GITHUB_TOKEN }}"
             "Accept" = "application/vnd.github+json"
           }
-          $apiUrl = "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.RELEASE_TAG }}"
+          $apiUrl = "https://api.github.com/repos/${{ github.repository }}/releases/tags/$releaseTag"
           
           try {
             $release = Invoke-RestMethod -Uri $apiUrl -Headers $headers
-            Write-Host "Release: $($release.name) (${{ env.RELEASE_TAG }})"
+            Write-Host "Release: $($release.name) ($releaseTag)"
           } catch {
-            Write-Host "::error::Failed to fetch release ${{ env.RELEASE_TAG }}: $_"
+            Write-Host "::error::Failed to fetch release $releaseTag : $_"
             exit 1
           }
           
           # Find deployment package asset
-          $packageAsset = $release.assets | Where-Object { $_.name -eq "deployment-package.zip" }
+          $packageAsset = $release.assets | Where-Object { $_.name -eq "inventory-app.zip" }
           if (-not $packageAsset) {
-            Write-Host "::error::deployment-package.zip not found in release assets"
+            Write-Host "::error::inventory-app.zip not found in release assets"
             Write-Host "Available assets:"
             $release.assets | ForEach-Object { Write-Host "  - $($_.name)" }
             exit 1
           }
           $sizeInMB = [math]::Round($packageAsset.size / 1MB, 2)
           Write-Host "📦 Found asset: $($packageAsset.name) $sizeInMB MB"
-          $downloadPath = "${{ runner.temp }}\deployment-package.zip"
+          $downloadPath = "${{ runner.temp }}\inventory-app.zip"
           $headers = @{
             "Authorization" = "Bearer ${{ secrets.GITHUB_TOKEN }}"
             "Accept" = "application/octet-stream"
@@ -97,7 +98,7 @@ jobs:
             Write-Host "✅ Downloaded successfully: $sizeRounded MB"
             Write-Host "PACKAGE_PATH=$downloadPath" >> $env:GITHUB_ENV
             # Set output for other jobs
-            Write-Output "release_tag=${{ env.RELEASE_TAG }}" >> $env:GITHUB_OUTPUT
+            Write-Output "release_tag=$releaseTag" >> $env:GITHUB_OUTPUT
           } else {
             Write-Host "::error::Download failed"
             exit 1
@@ -108,14 +109,16 @@ jobs:
       
       - name: Extract deployment package
         run: |
+          $releaseTag = $env:RELEASE_TAG
+          $packagePath = $env:PACKAGE_PATH
           Write-Host "::group::Extracting deployment package"
-          $extractPath = "${{ runner.temp }}\deployment-package"
+          $extractPath = "${{ runner.temp }}\inventory-app"
 
           if (Test-Path $extractPath) {
             Remove-Item $extractPath -Recurse -Force -ErrorAction Continue
           }
-          Write-Host "Extracting ${{ env.RELEASE_TAG }} to: $extractPath"
-          Expand-Archive -Path "${{ env.PACKAGE_PATH }}" -DestinationPath $extractPath -Force
+          Write-Host "Extracting $releaseTag to: $extractPath"
+          Expand-Archive -Path $packagePath -DestinationPath $extractPath -Force
           Write-Host "✅ Package extracted successfully"
           Write-Host "DEPLOY_DIR=$extractPath" >> $env:GITHUB_ENV
           
@@ -128,10 +131,12 @@ jobs:
           # Create timestamped staging directory
           $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
           $stagingDir = "staging-$timestamp"
-          $stagingPath = Join-Path (Split-Path "${{ env.WEBSERVER_PATH }}" -Parent) $stagingDir
+          $webserverPath = "${{ env.WEBSERVER_PATH }}"
+          $deployDir = $env:DEPLOY_DIR
+          $stagingPath = Join-Path (Split-Path $webserverPath -Parent) $stagingDir
           
           try {
-            Copy-Item "${{ env.DEPLOY_DIR }}" -Destination $stagingPath -Recurse -Force -ErrorAction Stop
+            Copy-Item $deployDir -Destination $stagingPath -Recurse -Force -ErrorAction Stop
             Write-Host "Successfully deployed to staging directory ($stagingPath)."
           } catch {
             Write-Host "::error::Failed to deploy to staging directory ($stagingPath): $_"
