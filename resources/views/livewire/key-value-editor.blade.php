@@ -47,7 +47,7 @@
     <!-- Hidden inputs for form submission -->
     @foreach($pairs as $index => $pair)
         @if(!empty($pair['key']))
-            <input type="hidden" name="extra[{{ $pair['key'] }}]" value="{{ $pair['value'] }}" />
+            <input type="hidden" name="{{ 'extra['.e($pair['key']).']' }}" value="{{ $pair['value'] }}" />
         @endif
     @endforeach
 </div>

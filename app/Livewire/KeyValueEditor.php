@@ -10,8 +10,6 @@ class KeyValueEditor extends Component
 
     public string $componentName = '';
 
-    public ?string $maxDepth = '1';
-
     public function mount(?array $initialData = null, string $componentName = 'extra'): void
     {
         $this->componentName = $componentName;
