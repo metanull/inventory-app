@@ -223,15 +223,13 @@
 
     {{-- Additional Information --}}
     <x-form.section heading="Additional Information" :border="false">
-        <x-form.field label="Remarks" name="extra[remarks]" variant="gray">
-            <x-form.textarea 
-                name="extra[remarks]" 
-                :value="old('extra.remarks', $itemTranslation->extra->remarks ?? '')"
-                rows="4"
-                placeholder="Additional notes or comments..."
-            />
-            <p class="mt-1 text-xs text-gray-500">Additional notes or comments for this translation</p>
-        </x-form.field>
+        <x-form.key-value-editor 
+            label="Metadata (Key-Value Pairs)"
+            name="extra"
+            :value="$itemTranslation->extra ?? null"
+            variant="gray"
+        />
+        <p class="px-4 pb-4 text-xs text-gray-500 bg-gray-50">Enter key-value pairs for additional metadata. Values can be text or JSON arrays (e.g., ["tag1", "tag2"])</p>
 
         <x-form.field label="Legacy ID" name="backward_compatibility" variant="gray">
             <x-form.input 
