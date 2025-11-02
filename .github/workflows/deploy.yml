@@ -83,7 +83,7 @@ jobs:
             exit 1
           }
           $sizeInMB = [math]::Round($packageAsset.size / 1MB, 2)
-          Write-Host "📦 Found asset: $($packageAsset.name) $sizeInMB MB"
+          Write-Host "Found asset: $($packageAsset.name) $sizeInMB MB"
           $downloadPath = "${{ runner.temp }}\inventory-app.zip"
           $headers = @{
             "Authorization" = "Bearer ${{ secrets.GITHUB_TOKEN }}"
@@ -95,7 +95,7 @@ jobs:
           if (Test-Path $downloadPath) {
             $size = (Get-Item $downloadPath).Length / 1MB
             $sizeRounded = [math]::Round($size, 2)
-            Write-Host "✅ Downloaded successfully: $sizeRounded MB"
+            Write-Host "Downloaded successfully: $sizeRounded MB"
             Write-Host "PACKAGE_PATH=$downloadPath" >> $env:GITHUB_ENV
             # Set output for other jobs
             Write-Output "release_tag=$releaseTag" >> $env:GITHUB_OUTPUT
@@ -119,7 +119,7 @@ jobs:
           }
           Write-Host "Extracting $releaseTag to: $extractPath"
           Expand-Archive -Path $packagePath -DestinationPath $extractPath -Force
-          Write-Host "✅ Package extracted successfully"
+          Write-Host "Package extracted successfully"
           Write-Host "DEPLOY_DIR=$extractPath" >> $env:GITHUB_ENV
           
           Write-Host "::endgroup::"
