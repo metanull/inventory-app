@@ -173,13 +173,32 @@ jobs:
       name: MWNF-SVR
     needs: down
     outputs:
-      symlink_swap_path: ${{ steps.cleanup_symlinks.outputs.symlink_swap_path }}
-      symlink_temp_path: ${{ steps.cleanup_symlinks.outputs.symlink_temp_path }}
+      symlink_swap_path: ${{ steps.calculate_paths.outputs.symlink_swap_path }}
+      symlink_temp_path: ${{ steps.calculate_paths.outputs.symlink_temp_path }}
     env:
       PHP_PATH: ${{ vars.PHP_PATH || 'C:\\Program Files\\PHP\\php.exe' }}
       WEBSERVER_PATH: ${{ vars.WEBSERVER_PATH || 'C:\\Apache24\\htdocs\\inventory-app' }}
       STAGING_PATH: ${{ needs.download.outputs.staging_path }}
     steps:
+      - name: Calculate deployment paths
+        id: calculate_paths
+        run: |
+          # Calculate symlink paths for atomic deployment swap
+          $SwapPath = "{0}_swap" -f "${{ env.WEBSERVER_PATH }}"
+          $TempPath = "{0}_swap" -f "${{ env.STAGING_PATH }}"
+          
+          Write-Host "Symlink swap path: $SwapPath"
+          Write-Host "Symlink temp path: $TempPath"
+          
+          # Set as environment variables for this job
+          Write-Host "SYMLINK_SWAP_PATH=$SwapPath" >> $env:GITHUB_ENV
+          Write-Host "SYMLINK_TEMP_PATH=$TempPath" >> $env:GITHUB_ENV
+          
+          # Set as outputs for other jobs
+          Write-Output "symlink_swap_path=$SwapPath" >> $env:GITHUB_OUTPUT
+          Write-Output "symlink_temp_path=$TempPath" >> $env:GITHUB_OUTPUT
+        shell: powershell
+
       - name: Setup shared persistent storage
         run: |
           # Create shared storage directory for persistent data (images, uploads, etc.)
@@ -233,35 +252,26 @@ jobs:
         shell: powershell
 
       - name: Cleanup temporary symlinks if any
-        id: cleanup_symlinks
         run: |
           # Remove any existing temporary symlinks from previous failed runs
-          $SwapPath = "{0}_swap" -f "${{ env.WEBSERVER_PATH }}"
-          if ((Test-Path -Path $SwapPath)) {
+          if ((Test-Path -Path "${{ env.SYMLINK_SWAP_PATH }}")) {
             try {
-              [System.IO.Directory]::Delete($SwapPath, $false)
-              Write-Host "Removed symlink ($SwapPath) successfully."
+              [System.IO.Directory]::Delete("${{ env.SYMLINK_SWAP_PATH }}", $false)
+              Write-Host "Removed old swap symlink successfully."
             } catch {
-              Write-Host "::error::Symlink ($SwapPath) exists but can't be removed: $_"
+              Write-Host "::error::Symlink exists but can't be removed: $_"
               exit 1
             }
           }
-          $TempPath = "{0}_swap" -f "${{ env.STAGING_PATH }}"
-          if ((Test-Path -Path $TempPath)) {
+          if ((Test-Path -Path "${{ env.SYMLINK_TEMP_PATH }}")) {
             try {
-              [System.IO.Directory]::Delete($TempPath, $false)
-              Write-Host "Removed symlink ($TempPath) successfully."
+              [System.IO.Directory]::Delete("${{ env.SYMLINK_TEMP_PATH }}", $false)
+              Write-Host "Removed old temp symlink successfully."
             } catch {
-              Write-Host "::error::Symlink ($TempPath) exists but can't be removed: $_"
+              Write-Host "::error::Symlink exists but can't be removed: $_"
               exit 1
             }
           }
-          # Set as environment variables for this job
-          Write-Host "SYMLINK_SWAP_PATH=$SwapPath" >> $env:GITHUB_ENV
-          Write-Host "SYMLINK_TEMP_PATH=$TempPath" >> $env:GITHUB_ENV
-          # Set as outputs for other jobs
-          Write-Output "symlink_swap_path=$SwapPath" >> $env:GITHUB_OUTPUT
-          Write-Output "symlink_temp_path=$TempPath" >> $env:GITHUB_OUTPUT
         shell: powershell
 
       - name: Create symbolic link
