@@ -259,18 +259,21 @@ jobs:
       - name: Cleanup temporary symlinks if any
         run: |
           # Remove any existing temporary symlinks from previous failed runs
-          if ((Test-Path -Path "${{ env.SYMLINK_SWAP_PATH }}")) {
+          $symlinkSwapPath = $env:SYMLINK_SWAP_PATH
+          $symlinkTempPath = $env:SYMLINK_TEMP_PATH
+          
+          if ((Test-Path -Path $symlinkSwapPath)) {
             try {
-              [System.IO.Directory]::Delete("${{ env.SYMLINK_SWAP_PATH }}", $false)
+              [System.IO.Directory]::Delete($symlinkSwapPath, $false)
               Write-Host "Removed old swap symlink successfully."
             } catch {
               Write-Host "::error::Symlink exists but can't be removed: $_"
               exit 1
             }
           }
-          if ((Test-Path -Path "${{ env.SYMLINK_TEMP_PATH }}")) {
+          if ((Test-Path -Path $symlinkTempPath)) {
             try {
-              [System.IO.Directory]::Delete("${{ env.SYMLINK_TEMP_PATH }}", $false)
+              [System.IO.Directory]::Delete($symlinkTempPath, $false)
               Write-Host "Removed old temp symlink successfully."
             } catch {
               Write-Host "::error::Symlink exists but can't be removed: $_"
@@ -282,9 +285,12 @@ jobs:
       - name: Create symbolic link
         run: |
           # Create a temporary symlink pointing to the new staging directory
+          $symlinkTempPath = $env:SYMLINK_TEMP_PATH
+          $stagingPath = $env:STAGING_PATH
+          
           try {
-            New-Item -ItemType SymbolicLink -Path "${{ env.SYMLINK_TEMP_PATH }}" -Target "${{ env.STAGING_PATH }}" -ErrorAction Stop | Out-Null
-            Write-Host "Created symbolic link '${{ env.SYMLINK_TEMP_PATH }}' -> '${{ env.STAGING_PATH }}'"
+            New-Item -ItemType SymbolicLink -Path $symlinkTempPath -Target $stagingPath -ErrorAction Stop | Out-Null
+            Write-Host "Created symbolic link '$symlinkTempPath' -> '$stagingPath'"
           } catch {
             Write-Host "::error::Failed to create symbolic link: $_"
             exit 1
@@ -294,32 +300,36 @@ jobs:
       - name: Swap symbolic links
         run: |
           # Atomically swap the symlink to point to the new deployment
+          $webserverPath = "${{ env.WEBSERVER_PATH }}"
+          $symlinkSwapPath = $env:SYMLINK_SWAP_PATH
+          $symlinkTempPath = $env:SYMLINK_TEMP_PATH
+          
           $CanRollback = $false
-          if ((Test-Path -Path "${{ env.WEBSERVER_PATH }}")) {
+          if ((Test-Path -Path $webserverPath)) {
             try {
-              Rename-Item -Path "${{ env.WEBSERVER_PATH }}" -NewName "${{ env.SYMLINK_SWAP_PATH }}" -ErrorAction Stop
-              Write-Host "Symbolic link '${{ env.WEBSERVER_PATH }}' successfully renamed into '${{ env.SYMLINK_SWAP_PATH }}'"
+              Rename-Item -Path $webserverPath -NewName $symlinkSwapPath -ErrorAction Stop
+              Write-Host "Symbolic link '$webserverPath' successfully renamed into '$symlinkSwapPath'"
               $CanRollback = $true
             } catch {
-              Write-Host "::error::Failed to rename symbolic link '${{ env.WEBSERVER_PATH }}': $_"
+              Write-Host "::error::Failed to rename symbolic link '$webserverPath': $_"
               exit 1
             }
           }
           try {
-            Rename-Item -Path "${{ env.SYMLINK_TEMP_PATH }}" -NewName "${{ env.WEBSERVER_PATH }}" -ErrorAction Stop
-            Write-Host "Symbolic link '${{ env.WEBSERVER_PATH }}' now points to the new deployment."
+            Rename-Item -Path $symlinkTempPath -NewName $webserverPath -ErrorAction Stop
+            Write-Host "Symbolic link '$webserverPath' now points to the new deployment."
           } catch {
-            Write-Host "::error::Failed to rename symbolic link '${{ env.SYMLINK_TEMP_PATH }}' to '${{ env.WEBSERVER_PATH }}': $_"
+            Write-Host "::error::Failed to rename symbolic link '$symlinkTempPath' to '$webserverPath': $_"
 
             # Attempt to rollback if necessary
             if ($CanRollback) {
               Write-Host "::group::Rolling back symbolic links"
               try {
-                Rename-Item -Path "${{ env.SYMLINK_SWAP_PATH }}" -NewName "${{ env.WEBSERVER_PATH }}" -ErrorAction Stop
+                Rename-Item -Path $symlinkSwapPath -NewName $webserverPath -ErrorAction Stop
                 Write-Host "Symbolic links successfully rolled back."
-                Write-Host "${{ env.WEBSERVER_PATH }} now points back to the previous deployment."
+                Write-Host "$webserverPath now points back to the previous deployment."
               } catch {
-                Write-Host "::error::Failed to rename symbolic links '${{ env.SYMLINK_SWAP_PATH }}' to '${{ env.WEBSERVER_PATH }}': $_"
+                Write-Host "::error::Failed to rename symbolic links '$symlinkSwapPath' to '$webserverPath': $_"
                 exit 1
               }
               Write-Host "::endgroup::"
