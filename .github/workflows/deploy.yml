@@ -173,8 +173,8 @@ jobs:
       name: MWNF-SVR
     needs: down
     outputs:
-      symlink_swap_path: ${{ steps.setup_symlinks.outputs.symlink_swap_path }}
-      symlink_temp_path: ${{ steps.setup_symlinks.outputs.symlink_temp_path }}
+      symlink_swap_path: ${{ steps.cleanup_symlinks.outputs.symlink_swap_path }}
+      symlink_temp_path: ${{ steps.cleanup_symlinks.outputs.symlink_temp_path }}
     env:
       PHP_PATH: ${{ vars.PHP_PATH || 'C:\\Program Files\\PHP\\php.exe' }}
       WEBSERVER_PATH: ${{ vars.WEBSERVER_PATH || 'C:\\Apache24\\htdocs\\inventory-app' }}
@@ -233,6 +233,7 @@ jobs:
         shell: powershell
 
       - name: Cleanup temporary symlinks if any
+        id: cleanup_symlinks
         run: |
           # Remove any existing temporary symlinks from previous failed runs
           $SwapPath = "{0}_swap" -f "${{ env.WEBSERVER_PATH }}"
@@ -255,8 +256,12 @@ jobs:
               exit 1
             }
           }
+          # Set as environment variables for this job
           Write-Host "SYMLINK_SWAP_PATH=$SwapPath" >> $env:GITHUB_ENV
           Write-Host "SYMLINK_TEMP_PATH=$TempPath" >> $env:GITHUB_ENV
+          # Set as outputs for other jobs
+          Write-Output "symlink_swap_path=$SwapPath" >> $env:GITHUB_OUTPUT
+          Write-Output "symlink_temp_path=$TempPath" >> $env:GITHUB_OUTPUT
         shell: powershell
 
       - name: Create symbolic link
