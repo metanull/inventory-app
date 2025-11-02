@@ -23,3 +23,13 @@
 
 # Container architecture
 --container-architecture linux/amd64
+
+# Docker will trigger authentication errors if repeatedly pulling the same image.
+# Two solutions:
+# - enable `offline-mode` with `--action-offline-mode`
+# - turn `pull` off with `--pull=false`
+#
+# Enable off-line mode for docker
+# --action-offline-mode
+# Disable pulling docker imag at each run
+--pull=false
