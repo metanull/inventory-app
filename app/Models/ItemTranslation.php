@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\ItemTranslationSaved;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -128,6 +129,34 @@ class ItemTranslation extends Model
     public function uniqueIds(): array
     {
         return ['id'];
+    }
+
+    /**
+     * Get the extra field decoded as an associative array.
+     */
+    protected function extraDecoded(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (is_null($this->extra)) {
+                    return [];
+                }
+
+                if (is_array($this->extra)) {
+                    return $this->extra;
+                }
+
+                if (is_object($this->extra)) {
+                    return json_decode(json_encode($this->extra), true) ?? [];
+                }
+
+                if (is_string($this->extra)) {
+                    return json_decode($this->extra, true) ?? [];
+                }
+
+                return [];
+            }
+        );
     }
 
     /**
