@@ -4,8 +4,9 @@ permissions:
   contents: read
 
 on:
-  release:
-    types: [published, released]
+  # Deploy on release published (forbidden by github actions settings)
+  #release:
+  #  types: [published, released]
   
   workflow_dispatch:
     # Allow manual triggering for testing
@@ -176,7 +177,7 @@ jobs:
     runs-on: [self-hosted, windows]
     environment:
       name: MWNF-SVR
-    needs: down
+    needs: [download, down]
     outputs:
       symlink_swap_path: ${{ steps.calculate_paths.outputs.symlink_swap_path }}
       symlink_temp_path: ${{ steps.calculate_paths.outputs.symlink_temp_path }}
