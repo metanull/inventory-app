@@ -78,7 +78,7 @@ jobs:
           if (-not $packageAsset) {
             Write-Host "::error::deployment-package.zip not found in release assets"
             Write-Host "Available assets:"
-            $assets | ForEach-Object { Write-Host "  - $($_.name)" }
+            $release.assets | ForEach-Object { Write-Host "  - $($_.name)" }
             exit 1
           }
           $sizeInMB = [math]::Round($packageAsset.size / 1MB, 2)
