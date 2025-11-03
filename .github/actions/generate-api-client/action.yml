@@ -19,6 +19,18 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Setup > PHP"
+      uses: shivammathur/setup-php@v2
+      with:
+        extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
+
+    - name: "Setup > Composer > Install Dependencies"
+      shell: bash
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: ':memory:'
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
     - name: "Generate TypeScript client"
       id: generate
       shell: bash
@@ -52,9 +64,13 @@ runs:
         git diff --name-only
         echo "::endgroup::"
 
-        echo "::notice:: :gear: Create README.md and package.json"
+        echo "::notice:: :gear: Create api.json"
+        php artisan scramble:export --path=docs/_openapi/api.json --ansi
+
+        echo "::notice:: :gear: Create README.md"
         cp ./.github/templates/api-client/README.md ${{ inputs.output_directory }}/
-        # Update version in package.json template
+        
+        echo "::notice:: :gear: Create package.json"
         jq --arg ver "$FULL_VERSION" '.version = $ver' ./.github/templates/api-client/package.json > ${{ inputs.output_directory }}/package.json
 
         echo "::notice:: :gear: Generate the api-client"
@@ -82,13 +98,14 @@ runs:
         fi
         
         # Filter out the FILES metadata file that always change
-        SIGNIFICANT_CHANGES=$(echo "$CHANGED_FILES" | grep -v -E '^${{ inputs.output_directory }}/(FILES|README.md|package.json)$' || true)
+        CHANGED_FILES=$(echo "$CHANGED_FILES" | grep -v -E '^${{ inputs.output_directory }}/(FILES|README.md|package.json)$' || true)
+        CHANGED_FILES=$(echo "$CHANGED_FILES" | grep -v -E '^docs/_openapi/api.json$' || true)
 
-        echo "::group:: SIGNIFICANT CHANGES"
+        echo "::group:: CHANGED_FILES"
         echo "$CHANGED_FILES"
         echo "::endgroup::"
         
-        if [ -z "$SIGNIFICANT_CHANGES" ]; then
+        if [ -z "$CHANGED_FILES" ]; then
           echo ":x: No changes detected"
           echo "has-changes=false" >> $GITHUB_OUTPUT
         else
