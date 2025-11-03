@@ -2,13 +2,21 @@
 
 namespace App\Http\Requests\Web;
 
+use App\Http\Requests\Traits\PreparesPairsForValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StorePartnerTranslationRequest extends FormRequest
 {
+    use PreparesPairsForValidation;
+
     public function authorize(): bool
     {
         return $this->user() !== null;
+    }
+
+    public function prepareForValidation(): void
+    {
+        $this->preparePairsField('extra');
     }
 
     public function rules(): array

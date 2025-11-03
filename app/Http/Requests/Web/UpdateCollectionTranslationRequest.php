@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests\Web;
 
+use App\Http\Requests\Traits\PreparesPairsForValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCollectionTranslationRequest extends FormRequest
 {
+    use PreparesPairsForValidation;
+
     public function authorize(): bool
     {
         return $this->user() !== null;
@@ -13,12 +16,7 @@ class UpdateCollectionTranslationRequest extends FormRequest
 
     public function prepareForValidation(): void
     {
-        // Convert extra array to JSON if present
-        if ($this->has('extra') && is_array($this->extra)) {
-            $this->merge([
-                'extra' => empty($this->extra) ? null : json_encode($this->extra),
-            ]);
-        }
+        $this->preparePairsField('extra');
     }
 
     public function rules(): array

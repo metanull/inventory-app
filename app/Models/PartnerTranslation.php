@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\HasJsonFields;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +19,7 @@ use Illuminate\Support\Facades\DB;
  */
 class PartnerTranslation extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasJsonFields, HasUuids;
 
     /**
      * The table associated with the model.
@@ -76,6 +78,16 @@ class PartnerTranslation extends Model
     public function uniqueIds(): array
     {
         return ['id'];
+    }
+
+    /**
+     * Get the extra field decoded as an associative array.
+     */
+    protected function extraDecoded(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->normalizedJson('extra')
+        );
     }
 
     /**

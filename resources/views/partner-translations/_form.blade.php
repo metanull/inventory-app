@@ -159,6 +159,14 @@
 
     {{-- Advanced --}}
     <x-form.section heading="Advanced" :border="false">
+        <x-form.key-value-editor 
+            label="Metadata (Key-Value Pairs)"
+            name="extra"
+            :value="$partnerTranslation->extra ?? null"
+            variant="gray"
+        />
+        <p class="px-4 pb-4 text-xs text-gray-500 bg-gray-50">Enter key-value pairs for additional metadata. Values can be text or JSON arrays (e.g., ["tag1", "tag2"])</p>
+
         <x-form.field label="Backward Compatibility ID" name="backward_compatibility" variant="gray">
                 <x-form.input 
                     name="backward_compatibility" 
