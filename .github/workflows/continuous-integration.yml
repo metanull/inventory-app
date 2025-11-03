@@ -9,9 +9,6 @@ on:
   pull_request:
     branches: ["main"]
     types: [opened, synchronize, reopened]
-    paths-ignore:
-      - 'docs/**'
-      - 'scripts/**'
 
   workflow_dispatch:
     # Allow manual triggering
