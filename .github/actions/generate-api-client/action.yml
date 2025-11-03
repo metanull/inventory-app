@@ -56,12 +56,20 @@ runs:
         FULL_VERSION="${NEW_VERSION}-${PRE_RELEASE}+${BUILD_METADATA}"
         echo ":gear: New version: $FULL_VERSION"
 
-        echo "::notice:: :gear: Remove previous client"
-        rm -rf ${{ inputs.output_directory }}
+        echo "::notice:: :gear: Preserve previous client"
+        if [ -d "${{ inputs.output_directory }}" ]; then
+          OLD_DIR="${{ inputs.output_directory }}_old"
+          rm -rf "$OLD_DIR"
+          mv "${{ inputs.output_directory }}" "$OLD_DIR"
+        fi
         mkdir -p ${{ inputs.output_directory }}
 
-        echo "::group:: AFTER CLEANUP"
-        git diff --name-only
+        echo "::notice:: :gear: Generate the api-client"
+        echo "::group:: GENERATE"
+        npx @openapitools/openapi-generator-cli generate \
+          -i ${{ inputs.openapi_spec_path }} \
+          -g typescript-axios \
+          -o ${{ inputs.output_directory }} >/dev/null || cat
         echo "::endgroup::"
 
         echo "::notice:: :gear: Create api.json"
@@ -73,42 +81,34 @@ runs:
         echo "::notice:: :gear: Create package.json"
         jq --arg ver "$FULL_VERSION" '.version = $ver' ./.github/templates/api-client/package.json > ${{ inputs.output_directory }}/package.json
 
-        echo "::notice:: :gear: Generate the api-client"
-        echo "::group:: GENERATE"
-        npx @openapitools/openapi-generator-cli generate \
-          -i ${{ inputs.openapi_spec_path }} \
-          -g typescript-axios \
-          -o ${{ inputs.output_directory }} >/dev/null || cat
-        echo "::endgroup::"
-
-        echo "::group:: AFTER GENERATE"
-        git diff --name-only
-        echo "::endgroup::"
-
-        echo "::notice:: :gear: Get list of changed files"
-        CHANGED_FILES=$(git diff --name-only | grep '^${{ inputs.output_directory }}/' || true)
-        echo "::group:: CHANGED FILES"
-        echo "$CHANGED_FILES"
-        echo "::endgroup::"
-        
-        if [ -z "$CHANGED_FILES" ]; then
-          echo "No changes detected in ${{ inputs.output_directory }}"
-          echo "has-changes=false" >> $GITHUB_OUTPUT
+        echo "::notice:: :gear: Compare old and new clients"
+        if [ ! -d "$OLD_DIR" ]; then
+          echo ":white_check_mark: First time generation"
+          echo "has-changes=true" >> $GITHUB_OUTPUT
           exit 0
         fi
-        
-        # Filter out the FILES metadata file that always change
-        CHANGED_FILES=$(echo "$CHANGED_FILES" | grep -v -E '^${{ inputs.output_directory }}/(FILES|README.md|package.json)$' || true)
-        CHANGED_FILES=$(echo "$CHANGED_FILES" | grep -v -E '^docs/_openapi/api.json$' || true)
 
-        echo "::group:: CHANGED_FILES"
-        echo "$CHANGED_FILES"
-        echo "::endgroup::"
-        
-        if [ -z "$CHANGED_FILES" ]; then
-          echo ":x: No changes detected"
+        # Create tarballs excluding known changing files
+        tar -czf old.tgz -C "$OLD_DIR" \
+            --exclude="package.json" \
+            --exclude="README.md" \
+            --exclude=".openapi-generator/FILES" \
+            --sort=name .
+        tar -czf new.tgz -C "${{ inputs.output_directory }}" \
+            --exclude="package.json" \
+            --exclude="README.md" \
+            --exclude=".openapi-generator/FILES" \
+            --sort=name .
+
+        # Compare tarballs
+        if cmp -s old.tgz new.tgz; then
+          echo ":x: No API changes detected"
           echo "has-changes=false" >> $GITHUB_OUTPUT
         else
           echo ":white_check_mark: API client has significant changes"
           echo "has-changes=true" >> $GITHUB_OUTPUT
         fi
+
+        # Cleanup
+        rm -f old.tgz new.tgz
+        rm -rf "$OLD_DIR"
