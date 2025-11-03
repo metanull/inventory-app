@@ -35,7 +35,7 @@ runs:
       id: generate
       shell: bash
       run: |
-        echo "::notice:: :gear: Calculate next API client version (auto-increment strategy)"
+        echo ":gear: Calculate next API client version (auto-increment strategy)"
         EXISTING_PACKAGE="api-client/package.json"
         NEW_VERSION="1.0.1"
         if [ -f "$EXISTING_PACKAGE" ]; then
@@ -55,63 +55,50 @@ runs:
         FULL_VERSION="${NEW_VERSION}-dev.${TIMESTAMP}"
         echo ":gear: New version: $FULL_VERSION"
 
-        echo "::notice:: :gear: Preserve previous client"
         if [ -d "${{ inputs.output_directory }}" ]; then
-          echo "::notice:: :gear: Preserve previous client"
+          echo ":gear: Preserve previous client"
           OLD_DIR="${{ inputs.output_directory }}_old"
           rm -rf "$OLD_DIR"
           mv "${{ inputs.output_directory }}" "$OLD_DIR"
-
-          echo "::warning:: $OLD_DIR"
-          ls -lRa "$OLD_DIR"
         else
-          echo "::notice:: :x: THE DIRECTORY DID NOT EXIST"
+          echo "::warning:: Directory ${{ inputs.output_directory }} did not exist!"
         fi
         mkdir -p ${{ inputs.output_directory }}
 
-        echo "::notice:: :gear: Generate the api-client"
+        echo "::group::Generate the api-client"
         npx @openapitools/openapi-generator-cli generate \
           -i ${{ inputs.openapi_spec_path }} \
           -g typescript-axios \
-          -o ${{ inputs.output_directory }} >/dev/null || cat
+          -o ${{ inputs.output_directory }}
+        echo "::endgroup::"
 
-        echo "::warning:: ${{ inputs.output_directory }}"
-        ls -lRa "${{ inputs.output_directory }}"
-
-        echo "::notice:: :gear: Create api.json"
+        echo ":gear: Create api.json"
         php artisan scramble:export --path=docs/_openapi/api.json --ansi
 
-        echo "::notice:: :gear: Create README.md"
+        echo ":gear: Create README.md"
         cp ./.github/templates/api-client/README.md ${{ inputs.output_directory }}/
         
-        echo "::notice:: :gear: Create package.json"
+        echo ":gear: Create package.json"
         jq --arg ver "$FULL_VERSION" '.version = $ver' ./.github/templates/api-client/package.json > ${{ inputs.output_directory }}/package.json
 
-        echo "::notice:: :gear: Compare old and new clients"
-        if [ -d "$OLD_DIR" ]; then
-            # Compare only essential files in top directory
-            CORE_FILES="api.ts base.ts common.ts configuration.ts index.ts"
-            HAS_CHANGES=0
-
-            echo "::group::Checking core files"
-            for file in $CORE_FILES; do
-                if ! cmp -s "$OLD_DIR/$file" "${{ inputs.output_directory }}/$file"; then
-                    echo "Changed: $file"
-                    HAS_CHANGES=1
-                fi
-            done
-            echo "::endgroup::"
-
-            if [ $HAS_CHANGES -eq 1 ]; then
-                echo ":white_check_mark: API client has significant changes"
-                echo "has-changes=true" >> $GITHUB_OUTPUT
-            else
-                echo ":x: No API changes detected"
-                echo "has-changes=false" >> $GITHUB_OUTPUT
+        # Compare only essential files in top directory
+        echo "::group::Checking core files"
+        CORE_FILES="api.ts base.ts common.ts configuration.ts index.ts"
+        HAS_CHANGES=0
+        for file in $CORE_FILES; do
+            if ! cmp -s "$OLD_DIR/$file" "${{ inputs.output_directory }}/$file"; then
+                echo ":package: Change detected in $file"
+                HAS_CHANGES=1
             fi
-        else
-            echo ":white_check_mark: First time generation"
+        done
+        echo "::endgroup::"
+
+        if [ $HAS_CHANGES -eq 1 ]; then
+            echo ":white_check_mark: API client has significant changes, publishing"
             echo "has-changes=true" >> $GITHUB_OUTPUT
+        else
+            echo "::warning:: No API changes detected, skipping publish"
+            echo "has-changes=false" >> $GITHUB_OUTPUT
         fi
 
         # Always cleanup at the end
