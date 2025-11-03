@@ -23,7 +23,7 @@ runs:
           echo "is_act=true" >> $GITHUB_OUTPUT
           echo "is_github=false" >> $GITHUB_OUTPUT
           echo "environment=act" >> $GITHUB_OUTPUT
-          echo ":gear: Running in 'act' (local testing mode)"
+          echo "Running in 'act' (local testing mode)"
         else
           echo "is_act=false" >> $GITHUB_OUTPUT
           echo "is_github=true" >> $GITHUB_OUTPUT

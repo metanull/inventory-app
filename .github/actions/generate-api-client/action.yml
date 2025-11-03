@@ -35,7 +35,7 @@ runs:
       id: generate
       shell: bash
       run: |
-        echo ":gear: Calculate next API client version (auto-increment strategy)"
+        echo "Calculate next API client version (auto-increment strategy)"
         EXISTING_PACKAGE="api-client/package.json"
         NEW_VERSION="1.0.1"
         if [ -f "$EXISTING_PACKAGE" ]; then
@@ -53,10 +53,10 @@ runs:
         # Add pre-release identifier and timestamp (MMDD.HHMM)
         TIMESTAMP=$(date -u +"%m%d.%H%M")
         FULL_VERSION="${NEW_VERSION}-dev.${TIMESTAMP}"
-        echo ":gear: New version: $FULL_VERSION"
+        echo "New version: $FULL_VERSION"
 
         if [ -d "${{ inputs.output_directory }}" ]; then
-          echo ":gear: Preserve previous client"
+          echo "Preserve previous client"
           OLD_DIR="${{ inputs.output_directory }}_old"
           rm -rf "$OLD_DIR"
           mv "${{ inputs.output_directory }}" "$OLD_DIR"
@@ -72,13 +72,13 @@ runs:
           -o ${{ inputs.output_directory }}
         echo "::endgroup::"
 
-        echo ":gear: Create api.json"
+        echo "Create api.json"
         php artisan scramble:export --path=docs/_openapi/api.json --ansi
 
-        echo ":gear: Create README.md"
+        echo "Create README.md"
         cp ./.github/templates/api-client/README.md ${{ inputs.output_directory }}/
         
-        echo ":gear: Create package.json"
+        echo "Create package.json"
         jq --arg ver "$FULL_VERSION" '.version = $ver' ./.github/templates/api-client/package.json > ${{ inputs.output_directory }}/package.json
 
         # Compare only essential files in top directory
