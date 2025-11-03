@@ -31,8 +31,8 @@
             <x-display.field label="URL" :value="$collectionTranslation->url" full-width />
             
             @if($collectionTranslation->extra)
-                <x-display.field label="Extra Data" full-width>
-                    <pre class="text-xs bg-gray-50 p-2 rounded">{{ json_encode($collectionTranslation->extra, JSON_PRETTY_PRINT) }}</pre>
+                <x-display.field label="Metadata" full-width>
+                    <x-display.key-value :data="$collectionTranslation->extra_decoded" />
                 </x-display.field>
             @endif
         </x-display.description-list>

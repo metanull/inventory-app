@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Events\ItemTranslationSaved;
+use App\Traits\HasJsonFields;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +20,7 @@ use Illuminate\Support\Facades\DB;
  */
 class ItemTranslation extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasJsonFields, HasUuids;
 
     /**
      * The "booted" method of the model.
@@ -128,6 +130,16 @@ class ItemTranslation extends Model
     public function uniqueIds(): array
     {
         return ['id'];
+    }
+
+    /**
+     * Get the extra field decoded as an associative array.
+     */
+    protected function extraDecoded(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->normalizedJson('extra')
+        );
     }
 
     /**
