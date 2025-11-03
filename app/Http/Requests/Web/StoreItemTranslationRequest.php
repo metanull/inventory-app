@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests\Web;
 
+use App\Http\Requests\Traits\PreparesPairsForValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreItemTranslationRequest extends FormRequest
 {
+    use PreparesPairsForValidation;
+
     public function authorize(): bool
     {
         return $this->user() !== null;
@@ -13,23 +16,7 @@ class StoreItemTranslationRequest extends FormRequest
 
     public function prepareForValidation(): void
     {
-        // Handle Livewire key-value editor component data
-        if ($this->has('pairs')) {
-            $extra = [];
-            foreach ($this->input('pairs', []) as $pair) {
-                if (! empty($pair['key'])) {
-                    $extra[$pair['key']] = $pair['value'];
-                }
-            }
-            $this->merge(['extra' => empty($extra) ? null : json_encode($extra)]);
-        }
-
-        // Keep existing array-to-JSON conversion for backward compatibility
-        if ($this->has('extra') && is_array($this->extra)) {
-            $this->merge([
-                'extra' => empty($this->extra) ? null : json_encode($this->extra),
-            ]);
-        }
+        $this->preparePairsField('extra');
     }
 
     public function rules(): array
