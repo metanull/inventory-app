@@ -18,11 +18,16 @@
             <x-ui.alert :message="session('success')" type="success" entity="partner_translations" />
         @endif
 
+        <!-- Parent Entity Section -->
+        <x-display.parent-entity 
+            :parentEntity="$partnerTranslation->partner"
+            parentType="partner"
+            :showRoute="route('partners.show', $partnerTranslation->partner)"
+            :editRoute="route('partners.edit', $partnerTranslation->partner)"
+        />
+
         <x-display.description-list>
             <x-display.field label="Name" :value="$partnerTranslation->name" />
-            <x-display.field label="Partner">
-                <x-display.partner-reference :partner="$partnerTranslation->partner" />
-            </x-display.field>
             <x-display.field label="Language">
                 <x-display.language-reference :language="$partnerTranslation->language" />
             </x-display.field>

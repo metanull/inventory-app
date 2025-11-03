@@ -121,8 +121,8 @@
 
                                     <!-- Description Preview -->
                                     @if($descriptionField && ($translation->$descriptionField ?? false))
-                                        <div class="text-sm text-gray-700 mb-3 line-clamp-2">
-                                            {{ Str::limit($translation->$descriptionField, 200) }}
+                                        <div class="text-sm text-gray-700 mb-3 line-clamp-3 prose prose-sm">
+                                            <x-display.markdown :content="Str::limit($translation->$descriptionField, 300)" />
                                         </div>
                                     @endif
 

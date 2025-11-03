@@ -13,6 +13,7 @@
         'building-library' => 'heroicon-o-building-library',
         'folder' => 'heroicon-o-folder',
         'globe-alt' => 'heroicon-o-globe-alt',
+        'link' => 'heroicon-o-link',
     ];
 
     $iconComponent = $icon && isset($iconComponents[$icon]) ? $iconComponents[$icon] : null;
