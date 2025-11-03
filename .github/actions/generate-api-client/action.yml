@@ -23,7 +23,7 @@ runs:
       id: generate
       shell: bash
       run: |
-        # Calculate next API client version (auto-increment strategy)
+        echo "::notice:: :gear: Calculate next API client version (auto-increment strategy)"
         EXISTING_PACKAGE="api-client/package.json"
         NEW_VERSION="1.0.1"
         if [ -f "$EXISTING_PACKAGE" ]; then
@@ -44,23 +44,36 @@ runs:
         FULL_VERSION="${NEW_VERSION}-${PRE_RELEASE}+${BUILD_METADATA}"
         echo ":gear: New version: $FULL_VERSION"
 
-        # Remove previous client
+        echo "::notice:: :gear: Remove previous client"
         rm -rf ${{ inputs.output_directory }}
         mkdir -p ${{ inputs.output_directory }}
 
-        # Create README.md and package.json with updated version from templates
+        echo "::group:: AFTER CLEANUP"
+        git diff --name-only
+        echo "::endgroup::"
+
+        echo "::notice:: :gear: Create README.md and package.json"
         cp ./.github/templates/api-client/README.md ${{ inputs.output_directory }}/
         # Update version in package.json template
         jq --arg ver "$FULL_VERSION" '.version = $ver' ./.github/templates/api-client/package.json > ${{ inputs.output_directory }}/package.json
 
-        # Generate new client
+        echo "::notice:: :gear: Generate the api-client"
+        echo "::group:: GENERATE"
         npx @openapitools/openapi-generator-cli generate \
           -i ${{ inputs.openapi_spec_path }} \
           -g typescript-axios \
-          -o ${{ inputs.output_directory }}
+          -o ${{ inputs.output_directory }} >/dev/null || cat
+        echo "::endgroup::"
 
-        # Get list of changed files
+        echo "::group:: AFTER GENERATE"
+        git diff --name-only
+        echo "::endgroup::"
+
+        echo "::notice:: :gear: Get list of changed files"
         CHANGED_FILES=$(git diff --name-only | grep '^${{ inputs.output_directory }}/' || true)
+        echo "::group:: CHANGED FILES"
+        echo "$CHANGED_FILES"
+        echo "::endgroup::"
         
         if [ -z "$CHANGED_FILES" ]; then
           echo "No changes detected in ${{ inputs.output_directory }}"
@@ -70,6 +83,10 @@ runs:
         
         # Filter out the FILES metadata file that always change
         SIGNIFICANT_CHANGES=$(echo "$CHANGED_FILES" | grep -v -E '^${{ inputs.output_directory }}/(FILES|README.md|package.json)$' || true)
+
+        echo "::group:: SIGNIFICANT CHANGES"
+        echo "$CHANGED_FILES"
+        echo "::endgroup::"
         
         if [ -z "$SIGNIFICANT_CHANGES" ]; then
           echo ":x: No changes detected"

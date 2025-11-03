@@ -20,45 +20,18 @@ concurrency:
 
 jobs:
   
-  build-openapi-spec:
-    name: Build OpenAPI Specification
-    runs-on: ubuntu-latest
-    
-    outputs:
-      is_github: ${{ steps.env.outputs.is_github }}
-      is_act: ${{ steps.env.outputs.is_act }}
-    
-    env:
-      DB_CONNECTION: sqlite
-      DB_DATABASE: ':memory:'
-
-    steps:
-      - name: "Setup > Checkout Repository"
-        uses: actions/checkout@v5
-
-      - name: "Check > Detect environment"
-        id: env
-        uses: ./.github/actions/detect-environment
-
-      - name: "Build > Generate OpenAPI specification"
-        uses: ./.github/actions/generate-openapi-spec
-
-      - name: "Artifact > Upload OpenAPI spec"
-        if: steps.env.outputs.is_github == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: openapi-spec
-          path: docs/_openapi/api.json
-          retention-days: 1
-          if-no-files-found: error
-
   build-api-client:
     name: Build API Client Package
     runs-on: ubuntu-latest
-    needs: build-openapi-spec
     
     outputs:
       has-changes: ${{ steps.generate-client.outputs.has-changes }}
+      is_github: ${{ steps.env.outputs.is_github }}
+      is_act: ${{ steps.env.outputs.is_act }}
+
+    env:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ':memory:'
       
     steps:
       - name: "Setup > Checkout Repository"
@@ -80,15 +53,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: "Artifact > Download OpenAPI spec"
-        if: steps.env.outputs.is_github == 'true'
-        uses: actions/download-artifact@v4
-        with:
-          name: openapi-spec
-          path: docs/_openapi
-
-      - name: "Fallback > Generate OpenAPI spec (act only)"
-        if: steps.env.outputs.is_act == 'true'
+      - name: "Generate OpenAPI spec"
         uses: ./.github/actions/generate-openapi-spec
 
       - name: "Build > API Client > Generate"
@@ -109,9 +74,9 @@ jobs:
   publish-api-client:
     name: Publish API Client to GitHub Packages
     runs-on: ubuntu-latest
-    needs: [build-api-client, build-openapi-spec]
+    needs: build-api-client
     # Only run on GitHub and when there are changes
-    if: needs.build-api-client.outputs.has-changes == 'true' && needs.build-openapi-spec.outputs.is_github == 'true'
+    if: needs.build-api-client.outputs.has-changes == 'true' && needs.build-api-client.outputs.is_github == 'true'
     
     steps:
       - name: "Setup > Node.js"
