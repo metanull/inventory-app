@@ -13,7 +13,18 @@ class UpdateCollectionTranslationRequest extends FormRequest
 
     public function prepareForValidation(): void
     {
-        // Convert extra array to JSON if present
+        // Handle Livewire key-value editor component data
+        if ($this->has('pairs')) {
+            $extra = [];
+            foreach ($this->input('pairs', []) as $pair) {
+                if (! empty($pair['key'])) {
+                    $extra[$pair['key']] = $pair['value'];
+                }
+            }
+            $this->merge(['extra' => empty($extra) ? null : json_encode($extra)]);
+        }
+
+        // Keep existing array-to-JSON conversion for backward compatibility
         if ($this->has('extra') && is_array($this->extra)) {
             $this->merge([
                 'extra' => empty($this->extra) ? null : json_encode($this->extra),
