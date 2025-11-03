@@ -1,0 +1,45 @@
+name: 'Detect API Changes'
+description: 'Detects significant changes in the API client'
+
+inputs:
+  directory:
+    description: 'Directory to check for changes'
+    required: true
+    default: 'api-client'
+
+outputs:
+  has-changes:
+    description: 'Whether significant changes were detected'
+    value: ${{ steps.detect.outputs.has-changes }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Detect changes"
+      id: detect
+      shell: bash
+      run: |
+        # Check git status for changes
+        git add -N ${{ inputs.directory }}/
+        
+        # Get list of changed files
+        CHANGED_FILES=$(git diff --name-only | grep '^${{ inputs.directory }}/' || true)
+        
+        if [ -z "$CHANGED_FILES" ]; then
+          echo "No changes detected in ${{ inputs.directory }}"
+          echo "has-changes=false" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        
+        # Filter out the expected metadata files
+        SIGNIFICANT_CHANGES=$(echo "$CHANGED_FILES" | grep -v -E '^${{ inputs.directory }}/(package\.json|README\.md|\.openapi-generator)$' || true)
+        
+        if [ -z "$SIGNIFICANT_CHANGES" ]; then
+          echo "Only metadata files changed (package.json, README.md, .openapi-generator)"
+          echo "No significant changes detected"
+          echo "has-changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "Significant changes detected:"
+          echo "$SIGNIFICANT_CHANGES"
+          echo "has-changes=true" >> $GITHUB_OUTPUT
+        fi

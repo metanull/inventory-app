@@ -32,23 +32,15 @@ jobs:
       - name: "Setup > Checkout Repository"
         uses: actions/checkout@v5
 
-      - name: "Setup > PHP"
-        uses: shivammathur/setup-php@v2
-        with:
-          extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
+      - name: "Check > Detect environment"
+        id: env
+        uses: ./.github/actions/detect-environment
 
-      - name: "Setup > Composer > Install Dependencies"
-        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-
-      - name: "Build > OpenAPI > Create output directory"
-        run: |
-          mkdir -p docs/_openapi
-
-      - name: "Build > OpenAPI > Export specification"
-        run: |
-          php artisan scramble:export --path=docs/_openapi/api.json --ansi
+      - name: "Build > Generate OpenAPI specification"
+        uses: ./.github/actions/generate-openapi-spec
 
       - name: "Artifact > Upload OpenAPI spec"
+        if: steps.env.outputs.is_github == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: openapi-spec
@@ -62,14 +54,18 @@ jobs:
     needs: build-openapi-spec
     
     outputs:
-      has-changes: ${{ steps.check-changes.outputs.has-changes }}
+      has-changes: ${{ steps.detect-changes.outputs.has-changes }}
       
     steps:
       - name: "Setup > Checkout Repository"
         uses: actions/checkout@v5
 
+      - name: "Check > Detect environment"
+        id: env
+        uses: ./.github/actions/detect-environment
+
       - name: "Setup > Node.js"
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           registry-url: 'https://npm.pkg.github.com'
@@ -81,10 +77,15 @@ jobs:
           java-version: '17'
 
       - name: "Artifact > Download OpenAPI spec"
+        if: steps.env.outputs.is_github == 'true'
         uses: actions/download-artifact@v4
         with:
           name: openapi-spec
           path: docs/_openapi
+
+      - name: "Fallback > Generate OpenAPI spec (act only)"
+        if: steps.env.outputs.is_act == 'true'
+        uses: ./.github/actions/generate-openapi-spec
 
       - name: "Build > API Client > Clean previous build"
         run: |
@@ -93,154 +94,30 @@ jobs:
 
       - name: "Build > API Client > Calculate version"
         id: version
-        run: |
-          # Configuration (extracted from api-client-config.psd1)
-          BASE_VERSION="1.0.1"
-          PACKAGE_NAME="@metanull/inventory-app-api-client"
-          PACKAGE_MAIN="index.js"
-          PACKAGE_TYPES="index.d.ts"
-          PACKAGE_DESCRIPTION="TypeScript-Axios client for inventory-app API"
-          PACKAGE_REPOSITORY="https://github.com/metanull/inventory-app"
-          PACKAGE_AUTHOR="Pascal Havelange"
-          PACKAGE_LICENSE="MIT"
-          
-          # Version calculation (auto-increment strategy)
-          EXISTING_PACKAGE="api-client/package.json"
-          
-          if [ -f "$EXISTING_PACKAGE" ]; then
-            # Extract existing version using jq
-            EXISTING_VERSION=$(jq -r '.version' "$EXISTING_PACKAGE")
-            echo "Found existing version: $EXISTING_VERSION"
-            
-            # Parse version (remove any pre-release and build metadata for parsing)
-            if [[ $EXISTING_VERSION =~ ^([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
-              MAJOR="${BASH_REMATCH[1]}"
-              MINOR="${BASH_REMATCH[2]}"
-              PATCH="${BASH_REMATCH[3]}"
-              
-              # Increment patch version
-              PATCH=$((PATCH + 1))
-              NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
-            else
-              NEW_VERSION="$BASE_VERSION"
-            fi
-          else
-            NEW_VERSION="$BASE_VERSION"
-          fi
-          
-          # Add pre-release identifier and build metadata
-          PRE_RELEASE="dev"
-          BUILD_METADATA=$(date -u +"%Y%m%d.%H%M")
-          FULL_VERSION="${NEW_VERSION}-${PRE_RELEASE}+${BUILD_METADATA}"
-          
-          echo "Generated version: $FULL_VERSION"
-          echo "version=$FULL_VERSION" >> $GITHUB_OUTPUT
-          echo "base_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
-          echo "package_main=$PACKAGE_MAIN" >> $GITHUB_OUTPUT
-          echo "package_types=$PACKAGE_TYPES" >> $GITHUB_OUTPUT
-          echo "package_description=$PACKAGE_DESCRIPTION" >> $GITHUB_OUTPUT
-          echo "package_repository=$PACKAGE_REPOSITORY" >> $GITHUB_OUTPUT
-          echo "package_author=$PACKAGE_AUTHOR" >> $GITHUB_OUTPUT
-          echo "package_license=$PACKAGE_LICENSE" >> $GITHUB_OUTPUT
+        uses: ./.github/actions/calculate-api-client-version
 
-      - name: "Build > API Client > Generate TypeScript client"
-        run: |
-          npx @openapitools/openapi-generator-cli generate \
-            -i docs/_openapi/api.json \
-            -g typescript-axios \
-            -o api-client
-
-      - name: "Build > API Client > Create package.json"
-        run: |
-          cat > api-client/package.json << EOF
-          {
-            "name": "${{ steps.version.outputs.package_name }}",
-            "version": "${{ steps.version.outputs.version }}",
-            "main": "${{ steps.version.outputs.package_main }}",
-            "types": "${{ steps.version.outputs.package_types }}",
-            "description": "${{ steps.version.outputs.package_description }}",
-            "repository": {
-              "type": "git",
-              "url": "git+${{ steps.version.outputs.package_repository }}.git"
-            },
-            "author": "${{ steps.version.outputs.package_author }}",
-            "license": "${{ steps.version.outputs.package_license }}"
-          }
-          EOF
-
-      - name: "Build > API Client > Create README.md"
-        run: |
-          cat > api-client/README.md << 'EOF'
-          # ${{ steps.version.outputs.package_name }}
-
-          This is a generated TypeScript client for the inventory-app API using OpenAPI and Axios.
-
-          ## Installation
-
-          ```shell
-          npm install ${{ steps.version.outputs.package_name }}
-          ```
-
-          ## Usage Example
-
-          ```typescript
-          import { Configuration, DefaultApi } from '${{ steps.version.outputs.package_name }}';
-
-          const api = new DefaultApi(new Configuration({ basePath: 'https://your.api.url' }));
-          api.addressIndex().then(response => console.log(response.data));
-          ```
-
-          ## Versioning
-
-          This client uses automatic versioning to track API changes:
-          - **Auto-increment**: Patch version increases with each generation
-          - **Development versions**: Include `-dev` suffix and build metadata
-          - **API changes**: When the OpenAPI spec changes, a new version is generated
-
-          To check for updates:
-          ```shell
-          npm outdated ${{ steps.version.outputs.package_name }}
-          ```
-
-          ## Publishing
-
-          The package is automatically published to GitHub Packages when changes are detected.
-
-          ---
-          This client is auto-generated. For customizations, edit the OpenAPI spec and regenerate.
-          EOF
+      - name: "Build > API Client > Generate client"
+        uses: ./.github/actions/generate-api-client
+        with:
+          openapi_spec_path: 'docs/_openapi/api.json'
+          output_directory: 'api-client'
+          package_name: ${{ steps.version.outputs.package_name }}
+          version: ${{ steps.version.outputs.version }}
+          package_main: ${{ steps.version.outputs.package_main }}
+          package_types: ${{ steps.version.outputs.package_types }}
+          package_description: ${{ steps.version.outputs.package_description }}
+          package_repository: ${{ steps.version.outputs.package_repository }}
+          package_author: ${{ steps.version.outputs.package_author }}
+          package_license: ${{ steps.version.outputs.package_license }}
 
       - name: "Check > API Client > Detect changes"
-        id: check-changes
-        run: |
-          # Check git status for changes
-          git add -N api-client/
-          
-          # Get list of changed files
-          CHANGED_FILES=$(git diff --name-only | grep '^api-client/' || true)
-          
-          if [ -z "$CHANGED_FILES" ]; then
-            echo "No changes detected in api-client"
-            echo "has-changes=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          
-          # Filter out the expected metadata files
-          SIGNIFICANT_CHANGES=$(echo "$CHANGED_FILES" | grep -v -E '^api-client/(package\.json|README\.md|\.openapi-generator)$' || true)
-          
-          if [ -z "$SIGNIFICANT_CHANGES" ]; then
-            echo "Only metadata files changed (package.json, README.md, .openapi-generator)"
-            echo "No significant changes detected"
-            echo "has-changes=false" >> $GITHUB_OUTPUT
-          else
-            echo "Significant changes detected:"
-            echo "$SIGNIFICANT_CHANGES"
-            echo "has-changes=true" >> $GITHUB_OUTPUT
-          fi
+        id: detect-changes
+        uses: ./.github/actions/detect-api-changes
+        with:
+          directory: 'api-client'
 
       - name: "Artifact > Upload API Client"
-        if: steps.check-changes.outputs.has-changes == 'true'
+        if: steps.detect-changes.outputs.has-changes == 'true' && steps.env.outputs.is_github == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: api-client
@@ -256,7 +133,7 @@ jobs:
     
     steps:
       - name: "Setup > Node.js"
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           registry-url: 'https://npm.pkg.github.com'
@@ -267,149 +144,9 @@ jobs:
           name: api-client
           path: api-client
 
-      - name: "Publish > API Client > Read package info"
-        id: package-info
-        run: |
-          cd api-client
-          PACKAGE_NAME=$(jq -r '.name' package.json)
-          PACKAGE_VERSION=$(jq -r '.version' package.json)
-          echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
-          echo "package_version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
-          echo "Publishing: $PACKAGE_NAME@$PACKAGE_VERSION"
-
-      - name: "Publish > API Client > Configure authentication"
-        run: |
-          cd api-client
-          REGISTRY="https://npm.pkg.github.com/"
-          REGISTRY_HOST="npm.pkg.github.com"
-          
-          # Create .npmrc for authentication
-          cat > .npmrc << EOF
-          @metanull:registry=$REGISTRY
-          //$REGISTRY_HOST/:_authToken=\${NODE_AUTH_TOKEN}
-          EOF
-          
-          echo "Authentication configured for registry: $REGISTRY"
-
-      - name: "Publish > API Client > Verify authentication"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
-        run: |
-          cd api-client
-          REGISTRY="https://npm.pkg.github.com/"
-          
-          # Verify authentication
-          WHOAMI=$(npm whoami --registry "$REGISTRY" 2>&1 || true)
-          
-          if [ $? -eq 0 ]; then
-            echo "Authenticated as: $WHOAMI"
-          else
-            echo "Warning: Could not verify authentication (this may be normal for GitHub Actions)"
-          fi
-
-      - name: "Publish > API Client > Handle version with build metadata"
-        id: normalize-version
-        run: |
-          cd api-client
-          PACKAGE_VERSION="${{ steps.package-info.outputs.package_version }}"
-          ORIGINAL_VERSION="$PACKAGE_VERSION"
-          
-          echo "Original version: $PACKAGE_VERSION"
-          
-          # Handle version with build metadata (format: x.y.z-prerelease+buildmeta)
-          # npm doesn't support build metadata (+suffix), so we need to convert it
-          if [[ $PACKAGE_VERSION =~ ^(.+)\+(.+)$ ]]; then
-            CLEAN_VERSION="${BASH_REMATCH[1]}"
-            BUILD_METADATA="${BASH_REMATCH[2]}"
-            
-            echo "Found build metadata: $BUILD_METADATA"
-            
-            # Parse the date from build metadata (expected format: yyyyMMdd.HHmm)
-            if [[ $BUILD_METADATA =~ ([0-9]{8})\.([0-9]{4}) ]]; then
-              DATE_PART="${BASH_REMATCH[1]}"
-              TIME_PART="${BASH_REMATCH[2]}"
-              
-              # Create a unique suffix based on the build timestamp (mmdd.HHMM format)
-              UNIQUE_SUFFIX="${DATE_PART:4:4}.${TIME_PART}"
-              
-              # If it's already a prerelease version (has a dash), add the unique suffix after it
-              if [[ $CLEAN_VERSION =~ ^(.+)-(.+)$ ]]; then
-                VERSION_BASE="${BASH_REMATCH[1]}"
-                PRE_RELEASE_TAG="${BASH_REMATCH[2]}"
-                UNIQUE_VERSION="${VERSION_BASE}-${PRE_RELEASE_TAG}.${UNIQUE_SUFFIX}"
-              else
-                # Otherwise add it as a prerelease suffix
-                UNIQUE_VERSION="${CLEAN_VERSION}-${UNIQUE_SUFFIX}"
-              fi
-              
-              # Update package.json with the unique version
-              jq --arg version "$UNIQUE_VERSION" '.version = $version' package.json > package.json.tmp
-              mv package.json.tmp package.json
-              
-              echo "Modified version for npm compatibility: $UNIQUE_VERSION (from $ORIGINAL_VERSION)"
-              PACKAGE_VERSION="$UNIQUE_VERSION"
-            else
-              # Fallback if we can't parse the build metadata - just remove it
-              jq --arg version "$CLEAN_VERSION" '.version = $version' package.json > package.json.tmp
-              mv package.json.tmp package.json
-              
-              echo "Removed build metadata from version for npm compatibility: $CLEAN_VERSION"
-              PACKAGE_VERSION="$CLEAN_VERSION"
-            fi
-          fi
-          
-          echo "final_version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
-          echo "Final version to publish: $PACKAGE_VERSION"
-
-      - name: "Publish > API Client > Determine npm tag"
-        id: npm-tag
-        run: |
-          PACKAGE_VERSION="${{ steps.normalize-version.outputs.final_version }}"
-          
-          # Check if version contains a dash (prerelease indicator)
-          if [[ $PACKAGE_VERSION =~ - ]]; then
-            NPM_TAG="dev"
-            echo "Detected prerelease version, will use tag: dev"
-          else
-            NPM_TAG="latest"
-            echo "Detected stable version, will use tag: latest"
-          fi
-          
-          echo "npm_tag=$NPM_TAG" >> $GITHUB_OUTPUT
-
-      - name: "Publish > API Client > Publish to GitHub Packages"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
-        run: |
-          cd api-client
-          REGISTRY="https://npm.pkg.github.com/"
-          NPM_TAG="${{ steps.npm-tag.outputs.npm_tag }}"
-          PACKAGE_NAME="${{ steps.package-info.outputs.package_name }}"
-          FINAL_VERSION="${{ steps.normalize-version.outputs.final_version }}"
-          
-          echo "Publishing $PACKAGE_NAME@$FINAL_VERSION to $REGISTRY with tag: $NPM_TAG"
-          
-          # Publish to npm
-          npm publish --access public --registry "$REGISTRY" --tag "$NPM_TAG"
-          
-          if [ $? -eq 0 ]; then
-            echo "✔ Package published successfully!"
-            echo "Published: $PACKAGE_NAME@$FINAL_VERSION"
-            echo "Install with: npm install $PACKAGE_NAME"
-          else
-            echo "❌ npm publish failed"
-            exit 1
-          fi
-
-      - name: "Publish > API Client > Summary"
-        if: success()
-        run: |
-          echo "=== Publication Summary ==="
-          echo "Package: ${{ steps.package-info.outputs.package_name }}"
-          echo "Original Version: ${{ steps.package-info.outputs.package_version }}"
-          echo "Published Version: ${{ steps.normalize-version.outputs.final_version }}"
-          echo "NPM Tag: ${{ steps.npm-tag.outputs.npm_tag }}"
-          echo "Registry: https://npm.pkg.github.com/"
-          echo ""
-          echo "Installation:"
-          echo "  npm install ${{ steps.package-info.outputs.package_name }}"
+      - name: "Publish > API Client"
+        uses: ./.github/actions/publish-npm-package
+        with:
+          package_directory: 'api-client'
+          registry: 'https://npm.pkg.github.com/'
+          token: ${{ secrets.GH_PACKAGE_TOKEN }}
