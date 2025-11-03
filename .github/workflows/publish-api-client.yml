@@ -58,7 +58,7 @@ jobs:
     needs: build-openapi-spec
     
     outputs:
-      has-changes: ${{ steps.detect-changes.outputs.has-changes }}
+      has-changes: ${{ steps.generate-client.outputs.has-changes }}
       
     steps:
       - name: "Setup > Checkout Repository"
@@ -91,37 +91,14 @@ jobs:
         if: steps.env.outputs.is_act == 'true'
         uses: ./.github/actions/generate-openapi-spec
 
-      - name: "Build > API Client > Clean previous build"
-        run: |
-          rm -rf api-client
-          mkdir -p api-client
-
-      - name: "Build > API Client > Calculate version"
-        id: version
-        uses: ./.github/actions/calculate-api-client-version
-
-      - name: "Build > API Client > Generate client"
+      - name: "Build > API Client > Generate"
+        id: generate-client
         uses: ./.github/actions/generate-api-client
         with:
           openapi_spec_path: 'docs/_openapi/api.json'
-          output_directory: 'api-client'
-          package_name: ${{ steps.version.outputs.package_name }}
-          version: ${{ steps.version.outputs.version }}
-          package_main: ${{ steps.version.outputs.package_main }}
-          package_types: ${{ steps.version.outputs.package_types }}
-          package_description: ${{ steps.version.outputs.package_description }}
-          package_repository: ${{ steps.version.outputs.package_repository }}
-          package_author: ${{ steps.version.outputs.package_author }}
-          package_license: ${{ steps.version.outputs.package_license }}
-
-      - name: "Check > API Client > Detect changes"
-        id: detect-changes
-        uses: ./.github/actions/detect-api-changes
-        with:
-          directory: 'api-client'
 
       - name: "Artifact > Upload API Client"
-        if: steps.detect-changes.outputs.has-changes == 'true' && steps.env.outputs.is_github == 'true'
+        if: steps.generate-client.outputs.has-changes == 'true' && steps.env.outputs.is_github == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: api-client

@@ -1,6 +1,11 @@
 name: 'Generate API Client'
 description: 'Generates TypeScript API client from OpenAPI specification'
 
+outputs:
+  has-changes:
+    description: 'Whether significant changes were detected in the API client'
+    value: ${{ steps.generate.outputs.has-changes }}
+
 inputs:
   openapi_spec_path:
     description: 'Path to the OpenAPI specification file'
@@ -10,100 +15,66 @@ inputs:
     description: 'Output directory for generated client'
     required: true
     default: 'api-client'
-  package_name:
-    description: 'Package name'
-    required: true
-  version:
-    description: 'Package version'
-    required: true
-  package_main:
-    description: 'Main entry point'
-    required: true
-  package_types:
-    description: 'TypeScript definitions entry point'
-    required: true
-  package_description:
-    description: 'Package description'
-    required: true
-  package_repository:
-    description: 'Repository URL'
-    required: true
-  package_author:
-    description: 'Package author'
-    required: true
-  package_license:
-    description: 'Package license'
-    required: true
 
 runs:
   using: "composite"
   steps:
     - name: "Generate TypeScript client"
+      id: generate
       shell: bash
       run: |
+        # Calculate next API client version (auto-increment strategy)
+        EXISTING_PACKAGE="api-client/package.json"
+        NEW_VERSION="1.0.1"
+        if [ -f "$EXISTING_PACKAGE" ]; then
+          EXISTING_VERSION=$(jq -r '.version' "$EXISTING_PACKAGE")
+          echo "Current version: $EXISTING_VERSION"
+          # Parse version (remove any pre-release and build metadata for parsing)
+          if [[ $EXISTING_VERSION =~ ^([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+            MAJOR="${BASH_REMATCH[1]}"
+            MINOR="${BASH_REMATCH[2]}"
+            PATCH="${BASH_REMATCH[3]}"
+            PATCH=$((PATCH + 1))
+            NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          fi
+        fi
+        # Add pre-release identifier and build metadata
+        PRE_RELEASE="dev"
+        BUILD_METADATA=$(date -u +"%Y%m%d.%H%M")
+        FULL_VERSION="${NEW_VERSION}-${PRE_RELEASE}+${BUILD_METADATA}"
+        echo ":gear: New version: $FULL_VERSION"
+
+        # Remove previous client
+        rm -rf ${{ inputs.output_directory }}
+        mkdir -p ${{ inputs.output_directory }}
+
+        # Create README.md and package.json with updated version from templates
+        cp ./.github/templates/api-client/README.md ${{ inputs.output_directory }}/
+        # Update version in package.json template
+        jq --arg ver "$FULL_VERSION" '.version = $ver' ./.github/templates/api-client/package.json > ${{ inputs.output_directory }}/package.json
+
+        # Generate new client
         npx @openapitools/openapi-generator-cli generate \
           -i ${{ inputs.openapi_spec_path }} \
           -g typescript-axios \
           -o ${{ inputs.output_directory }}
 
-    - name: "Create package.json"
-      shell: bash
-      run: |
-        cat > ${{ inputs.output_directory }}/package.json << EOF
-        {
-          "name": "${{ inputs.package_name }}",
-          "version": "${{ inputs.version }}",
-          "main": "${{ inputs.package_main }}",
-          "types": "${{ inputs.package_types }}",
-          "description": "${{ inputs.package_description }}",
-          "repository": {
-            "type": "git",
-            "url": "git+${{ inputs.package_repository }}.git"
-          },
-          "author": "${{ inputs.package_author }}",
-          "license": "${{ inputs.package_license }}"
-        }
-        EOF
-
-    - name: "Create README.md"
-      shell: bash
-      run: |
-        cat > ${{ inputs.output_directory }}/README.md << 'EOF'
-        # ${{ inputs.package_name }}
-
-        This is a generated TypeScript client for the inventory-app API using OpenAPI and Axios.
-
-        ## Installation
-
-        ```shell
-        npm install ${{ inputs.package_name }}
-        ```
-
-        ## Usage Example
-
-        ```typescript
-        import { Configuration, DefaultApi } from '${{ inputs.package_name }}';
-
-        const api = new DefaultApi(new Configuration({ basePath: 'https://your.api.url' }));
-        api.addressIndex().then(response => console.log(response.data));
-        ```
-
-        ## Versioning
-
-        This client uses automatic versioning to track API changes:
-        - **Auto-increment**: Patch version increases with each generation
-        - **Development versions**: Include `-dev` suffix and build metadata
-        - **API changes**: When the OpenAPI spec changes, a new version is generated
-
-        To check for updates:
-        ```shell
-        npm outdated ${{ inputs.package_name }}
-        ```
-
-        ## Publishing
-
-        The package is automatically published to GitHub Packages when changes are detected.
-
-        ---
-        This client is auto-generated. For customizations, edit the OpenAPI spec and regenerate.
-        EOF
+        # Get list of changed files
+        CHANGED_FILES=$(git diff --name-only | grep '^${{ inputs.output_directory }}/' || true)
+        
+        if [ -z "$CHANGED_FILES" ]; then
+          echo "No changes detected in ${{ inputs.output_directory }}"
+          echo "has-changes=false" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        
+        # Filter out the FILES metadata file that always change
+        SIGNIFICANT_CHANGES=$(echo "$CHANGED_FILES" | grep -v -E '^${{ inputs.output_directory }}/(FILES|README.md|package.json)$' || true)
+        
+        if [ -z "$SIGNIFICANT_CHANGES" ]; then
+          echo ":x: No changes detected"
+          echo "has-changes=false" >> $GITHUB_OUTPUT
+        else
+          echo ":white_check_mark: API client has significant changes"
+          echo "has-changes=true" >> $GITHUB_OUTPUT
+        fi
