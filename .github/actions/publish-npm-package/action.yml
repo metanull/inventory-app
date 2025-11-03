@@ -132,11 +132,11 @@ runs:
         npm publish --access public --registry "$REGISTRY" --tag "$NPM_TAG"
         
         if [ $? -eq 0 ]; then
-          echo "✔ Package published successfully!"
-          echo "Published: $PACKAGE_NAME@$FINAL_VERSION"
-          echo "Install with: npm install $PACKAGE_NAME"
+          echo ":white_check_mark: Package published successfully!"
+          echo ":rocket: Published: $PACKAGE_NAME@$FINAL_VERSION"
+          echo ":package: Install with: npm install $PACKAGE_NAME"
         else
-          echo "❌ npm publish failed"
+          echo ":x: npm publish failed"
           exit 1
         fi
 

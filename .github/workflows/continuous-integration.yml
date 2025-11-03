@@ -60,12 +60,12 @@ jobs:
             exit 1
           fi
           if [ ! -f ".env" ]; then
-            echo "::info::Creating .env file from .env.local.example"
+            echo "Creating .env file from .env.local.example"
             cp .env.local.example .env
           else
-            echo "::info::.env file already exists, skipping creation"
+            echo ".env file already exists, skipping creation"
           fi
-          echo "::info::Removing cached files"
+          echo "Removing cached files"
           rm -rf bootstrap/cache/*.php || true
           
           echo "::group::Debug Environment"
@@ -133,12 +133,12 @@ jobs:
             exit 1
           fi
           if [ ! -f ".env" ]; then
-            echo "::info::Creating .env file from .env.local.example"
+            echo "Creating .env file from .env.local.example"
             cp .env.local.example .env
           else
-            echo "::info::.env file already exists, skipping creation"
+            echo ".env file already exists, skipping creation"
           fi
-          echo "::info::Removing cached files"
+          echo "Removing cached files"
           rm -rf bootstrap/cache/*.php || true
 
       - name: "Setup > Laravel > Generate application key"

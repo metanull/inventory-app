@@ -74,7 +74,7 @@ jobs:
         )
         for path in "${assetPaths[@]}"; do
           if [ -d "$path" ]; then
-            echo "  ✅ Asset path exists: $path"
+            echo "  :white_check_mark: Asset path exists: $path"
           else
             echo "::error::Asset path missing: $path"
             exit 1
@@ -112,9 +112,9 @@ jobs:
         for dir in "${appDirs[@]}"; do
           if [ -d "$dir" ]; then
             cp -r "$dir" "$deployDir/"
-            echo "  ✅ $dir"
+            echo "  :white_check_mark: $dir"
           else
-            echo "::error::⚠️ $dir not found"
+            echo "::error::$dir not found"
             exit 1
           fi
         done
@@ -132,9 +132,9 @@ jobs:
         for file in "${configFiles[@]}"; do
           if [ -f "$file" ]; then
             cp "$file" "$deployDir/"
-            echo "  ✅ $file"
+            echo "  :white_check_mark: $file"
           else
-            echo "::error::⚠️ $file not found"
+            echo "::error::$file not found"
             exit 1
           fi
         done
@@ -149,31 +149,31 @@ jobs:
               fullPath="$deployDir/storage/$relativePath"
               if [ ! -d "$fullPath" ]; then
                 mkdir -p "$fullPath"
-                echo "  ✅ $relativePath"
+                echo "  :white_check_mark: $relativePath"
               fi
             done
           else
-            echo "::error::⚠️ Error creating $dir structure"
+            echo "::error::Error creating $dir structure"
             exit 1
           fi
         done
         echo "::endgroup::"
         
         echo "::group::Creating VERSION file"
-        if [ -f "package.json" ]; then
-          appVersion=$(jq -r '.version' package.json)
-          echo "  ✅ Version: $appVersion"
+          if [ -f "package.json" ]; then
+            appVersion=$(jq -r '.version' package.json)
+            echo "  :white_check_mark: Version: $appVersion"
           echo "APP_VERSION=$appVersion" >> $GITHUB_ENV
         else
-          echo "::error::⚠️ Error reading version from package.json"
+          echo "::error::Error reading version from package.json"
           exit 1
         fi
-        if [ -f "api-client/package.json" ]; then
-          apiclientVersion=$(jq -r '.version' api-client/package.json)
-          echo "  ✅ API client version: $apiclientVersion"
+          if [ -f "api-client/package.json" ]; then
+            apiclientVersion=$(jq -r '.version' api-client/package.json)
+            echo "  :white_check_mark: API client version: $apiclientVersion"
           echo "api_client_version=$apiclientVersion" >> $GITHUB_ENV
         else
-          echo "::error::⚠️ Error reading version from api-client/package.json"
+          echo "::error::Error reading version from api-client/package.json"
           exit 1
         fi
         buildTimestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -189,7 +189,7 @@ jobs:
           --arg branch '${{ github.ref_name }}' \
           '{app_version: $app_version, api_client_version: $api_client_version, commit_sha: $commit_sha, commit_message: $commit_message, build_timestamp: $build_timestamp, build_number: $build_number, repository: $repository, repository_url: $repository_url, branch: $branch}' \
           > "$deployDir/VERSION"
-        echo "  ✅ VERSION file created"
+        echo "  :white_check_mark: VERSION file created"
         echo "::endgroup::"
         
         echo "::group::Creating deployment archive"
@@ -197,7 +197,7 @@ jobs:
         cd "$deployDir"
         zip -r "$archivePath" .
         cd -
-        echo "  ✅ Archive created at $archivePath"
+        echo "  :white_check_mark: Archive created at $archivePath"
         echo "PACKAGE_ZIP=$archivePath" >> $GITHUB_ENV
         echo "::endgroup::"
       shell: bash
@@ -205,7 +205,7 @@ jobs:
     - name: Generate Tag
       run: |
         tag="${{ env.APP_VERSION }}.${{ github.run_number }}"
-        echo "  ✅ Release tag: $tag"
+        echo "  :white_check_mark: Release tag: $tag"
         echo "RELEASE_TAG=$tag" >> $GITHUB_ENV
       shell: bash
 
@@ -215,7 +215,7 @@ jobs:
         tag_name: ${{ env.RELEASE_TAG }}
         name: Release ${{ env.RELEASE_TAG }}
         body: |
-          🚀 **Automated Deployment**
+          :rocket: **Automated Deployment**
           
           **Version:** ${{ env.APP_VERSION }}
           **Commit:** ${{ github.sha }}
@@ -225,10 +225,10 @@ jobs:
           
           ---
           
-          ### 📦 Deployment Package
+          ### :package: Deployment Package
           Download `inventory-app.zip` and extract to your server.
         
-          ### 🔄 Changes:
+          ### :arrows_counterclockwise: Changes:
           ${{ github.event.head_commit.message }}
         files: ${{ env.PACKAGE_ZIP }}
         draft: false
@@ -239,5 +239,5 @@ jobs:
 
     - name: Done
       run: |
-        echo "✅ Release created: ${{ env.RELEASE_TAG }}"
+        echo ":white_check_mark: Release created: ${{ env.RELEASE_TAG }}"
       shell: bash

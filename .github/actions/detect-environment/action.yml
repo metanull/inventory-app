@@ -23,10 +23,10 @@ runs:
           echo "is_act=true" >> $GITHUB_OUTPUT
           echo "is_github=false" >> $GITHUB_OUTPUT
           echo "environment=act" >> $GITHUB_OUTPUT
-          echo "⚙ Running in 'act' (local testing mode)"
+          echo ":gear: Running in 'act' (local testing mode)"
         else
           echo "is_act=false" >> $GITHUB_OUTPUT
           echo "is_github=true" >> $GITHUB_OUTPUT
           echo "environment=github" >> $GITHUB_OUTPUT
-          echo "✓ Running on GitHub Actions"
+          echo ":white_check_mark: Running on GitHub Actions"
         fi
