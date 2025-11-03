@@ -24,6 +24,10 @@ jobs:
     name: Build OpenAPI Specification
     runs-on: ubuntu-latest
     
+    outputs:
+      is_github: ${{ steps.env.outputs.is_github }}
+      is_act: ${{ steps.env.outputs.is_act }}
+    
     env:
       DB_CONNECTION: sqlite
       DB_DATABASE: ':memory:'
@@ -128,8 +132,9 @@ jobs:
   publish-api-client:
     name: Publish API Client to GitHub Packages
     runs-on: ubuntu-latest
-    needs: build-api-client
-    if: needs.build-api-client.outputs.has-changes == 'true'
+    needs: [build-api-client, build-openapi-spec]
+    # Only run on GitHub and when there are changes
+    if: needs.build-api-client.outputs.has-changes == 'true' && needs.build-openapi-spec.outputs.is_github == 'true'
     
     steps:
       - name: "Setup > Node.js"
