@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasJsonFields;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class CollectionTranslation extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasJsonFields, HasUuids;
 
     /**
      * The table associated with the model.
@@ -66,25 +67,7 @@ class CollectionTranslation extends Model
     protected function extraDecoded(): Attribute
     {
         return Attribute::make(
-            get: function () {
-                if (is_null($this->extra)) {
-                    return [];
-                }
-
-                if (is_array($this->extra)) {
-                    return $this->extra;
-                }
-
-                if (is_object($this->extra)) {
-                    return json_decode(json_encode($this->extra), true) ?? [];
-                }
-
-                if (is_string($this->extra)) {
-                    return json_decode($this->extra, true) ?? [];
-                }
-
-                return [];
-            }
+            get: fn () => $this->normalizedJson('extra')
         );
     }
 
