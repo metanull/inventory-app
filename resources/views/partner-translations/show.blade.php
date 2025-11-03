@@ -55,8 +55,8 @@
             <x-display.field label="Contact Notes" :value="$partnerTranslation->contact_notes" full-width />
             
             @if($partnerTranslation->extra)
-                <x-display.field label="Extra Data" full-width>
-                    <pre class="text-xs bg-gray-50 p-2 rounded">{{ json_encode($partnerTranslation->extra, JSON_PRETTY_PRINT) }}</pre>
+                <x-display.field label="Metadata" full-width>
+                    <x-display.key-value :data="$partnerTranslation->extra_decoded" />
                 </x-display.field>
             @endif
         </x-display.description-list>
