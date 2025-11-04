@@ -14,11 +14,16 @@
             <x-ui.alert :message="session('success')" type="success" entity="collection_translations" />
         @endif
 
+        <!-- Parent Entity Section -->
+        <x-display.parent-entity 
+            :parentEntity="$collectionTranslation->collection"
+            parentType="collection"
+            :showRoute="route('collections.show', $collectionTranslation->collection)"
+            :editRoute="route('collections.edit', $collectionTranslation->collection)"
+        />
+
         <x-display.description-list>
             <x-display.field label="Title" :value="$collectionTranslation->title" />
-            <x-display.field label="Collection">
-                <x-display.collection-reference :collection="$collectionTranslation->collection" />
-            </x-display.field>
             <x-display.field label="Language">
                 <x-display.language-reference :language="$collectionTranslation->language" />
             </x-display.field>

@@ -14,12 +14,17 @@
             <x-ui.alert :message="session('success')" type="success" entity="item_translations" />
         @endif
 
+        <!-- Parent Entity Section -->
+        <x-display.parent-entity 
+            :parentEntity="$itemTranslation->item"
+            parentType="item"
+            :showRoute="route('items.show', $itemTranslation->item)"
+            :editRoute="route('items.edit', $itemTranslation->item)"
+        />
+
         <x-display.description-list>
             <x-display.field label="Name" :value="$itemTranslation->name" />
             <x-display.field label="Alternate Name" :value="$itemTranslation->alternate_name" />
-            <x-display.field label="Item">
-                <x-display.item-reference :item="$itemTranslation->item" />
-            </x-display.field>
             <x-display.field label="Language">
                 <x-display.language-reference :language="$itemTranslation->language" />
             </x-display.field>
