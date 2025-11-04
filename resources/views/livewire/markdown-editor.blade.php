@@ -96,7 +96,7 @@
                     <dd class="text-blue-900 text-xs">Code block</dd>
                 </div>
                 <div class="col-span-2">
-                    <dt class="font-mono text-xs bg-white px-2 py-1 rounded border border-gray-200">| Col1 | Col2 |</dt>
+                    <dt class="font-mono text-xs bg-white px-2 py-1 rounded border border-gray-200">| Col1 | Col2 |<br>|------|------|</dt>
                     <dd class="text-blue-900 text-xs">Tables (GitHub Flavored Markdown)</dd>
                 </div>
             </dl>
