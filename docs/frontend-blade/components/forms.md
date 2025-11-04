@@ -87,6 +87,7 @@ The markdown editor provides a rich editing experience with live preview and hel
 ```
 
 **Features:**
+
 - **Edit/Preview Tabs** - Switch between editing and preview modes
 - **Live Preview** - See formatted output as you type (300ms debounce)
 - **Help Guide** - Built-in markdown syntax reference
@@ -94,6 +95,7 @@ The markdown editor provides a rich editing experience with live preview and hel
 - **Comprehensive Testing** - 18 test cases ensure reliability
 
 **Props:**
+
 - `name` - Field name (default: 'description')
 - `label` - Field label (default: 'Description')
 - `value` - Initial content
@@ -102,6 +104,7 @@ The markdown editor provides a rich editing experience with live preview and hel
 - `helpText` - Optional help text below the field
 
 **Implementation:**
+
 - Component: `App\Livewire\MarkdownEditor`
 - Wrapper: `resources/views/components/form/markdown-editor-livewire.blade.php`
 - Tests: `tests/Web/Livewire/MarkdownEditorTest.php`

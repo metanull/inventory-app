@@ -235,31 +235,31 @@ class MarkdownEditor extends Component
 {
     #[Modelable]
     public string $content = '';
-    
+
     public string $mode = 'edit'; // 'edit' or 'preview'
     public bool $showHelp = false;
-    
+
     public function switchToEdit(): void
     {
         $this->mode = 'edit';
     }
-    
+
     public function switchToPreview(): void
     {
         $this->mode = 'preview';
     }
-    
+
     public function toggleHelp(): void
     {
         $this->showHelp = !$this->showHelp;
     }
-    
+
     public function getPreviewProperty(): string
     {
         if (empty($this->content)) {
             return '<span class="text-gray-500 italic">Preview will appear here as you type...</span>';
         }
-        
+
         return app(MarkdownService::class)->markdownToHtml($this->content);
     }
 }
@@ -282,6 +282,7 @@ class MarkdownEditor extends Component
 {% endraw %}
 
 **Key Features:**
+
 - Edit/Preview mode switching
 - Live preview with 300ms debounce
 - Built-in markdown syntax help
@@ -326,6 +327,7 @@ The `KeyValueEditor` component manages key-value pairs for JSON data:
 {% endraw %}
 
 **Features:**
+
 - Dynamic add/remove pairs
 - JSON value support
 - Minimum one empty pair
@@ -352,9 +354,9 @@ class ConfirmationModal extends Component
     public string $color = 'red';
     public ?string $action = null;
     public string $method = 'DELETE';
-    
+
     protected $listeners = ['confirm-action' => 'showConfirmation'];
-    
+
     public function showConfirmation(array $data): void
     {
         $this->title = $data['title'] ?? 'Are you sure?';
@@ -366,7 +368,7 @@ class ConfirmationModal extends Component
         $this->method = $data['method'] ?? 'DELETE';
         $this->show = true;
     }
-    
+
     public function confirm(): void
     {
         $this->dispatch('confirmed', [
@@ -375,7 +377,7 @@ class ConfirmationModal extends Component
         ]);
         $this->close();
     }
-    
+
     public function close(): void
     {
         $this->show = false;
@@ -388,7 +390,7 @@ class ConfirmationModal extends Component
 {% raw %}
 
 ```blade
-<x-ui.confirm-button 
+<x-ui.confirm-button
     :action="route('items.destroy', $item)"
     method="DELETE"
     confirmMessage="Are you sure you want to delete this item?"
@@ -402,6 +404,7 @@ class ConfirmationModal extends Component
 {% endraw %}
 
 **Features:**
+
 - Global modal (added to `layouts/app.blade.php`)
 - Listens for `confirm-action` events
 - Customizable title, message, and button labels
@@ -411,6 +414,7 @@ class ConfirmationModal extends Component
 - 12 comprehensive tests
 
 **Testing:**
+
 ```php
 public function test_can_show_confirmation(): void
 {

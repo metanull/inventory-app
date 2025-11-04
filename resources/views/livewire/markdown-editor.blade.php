@@ -1,27 +1,17 @@
 <div class="space-y-2">
     <!-- Header with Tabs -->
     <div class="flex items-center gap-2 border-b border-gray-200">
-        <button 
-            type="button"
-            wire:click="switchToEdit"
-            class="px-4 py-2 font-medium text-sm transition {{ $mode === 'edit' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-500 hover:text-gray-700' }}"
-        >
+        <x-ui.tab-button wire:click="switchToEdit" :active="$mode === 'edit'">
             ✏️ Edit
-        </button>
-        <button 
-            type="button"
-            wire:click="switchToPreview"
-            class="px-4 py-2 font-medium text-sm transition {{ $mode === 'preview' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-500 hover:text-gray-700' }}"
-        >
+        </x-ui.tab-button>
+        
+        <x-ui.tab-button wire:click="switchToPreview" :active="$mode === 'preview'">
             👁️ Preview
-        </button>
-        <button 
-            type="button"
-            wire:click="toggleHelp"
-            class="ml-auto px-4 py-2 font-medium text-sm transition {{ $showHelp ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700' }}"
-        >
+        </x-ui.tab-button>
+        
+        <x-ui.tab-button wire:click="toggleHelp" :active="$showHelp" class="ml-auto">
             ❓ Help
-        </button>
+        </x-ui.tab-button>
     </div>
     
     <!-- Editor Section -->
@@ -63,42 +53,15 @@
         <div class="bg-blue-50 border border-blue-200 rounded-md p-4 text-sm space-y-3">
             <h4 class="font-semibold text-blue-900">Markdown Syntax Guide</h4>
             <dl class="grid grid-cols-2 gap-3">
-                <div>
-                    <dt class="font-mono text-xs bg-white px-2 py-1 rounded border border-gray-200">**bold**</dt>
-                    <dd class="text-blue-900 text-xs">Bold text</dd>
-                </div>
-                <div>
-                    <dt class="font-mono text-xs bg-white px-2 py-1 rounded border border-gray-200">*italic*</dt>
-                    <dd class="text-blue-900 text-xs">Italic text</dd>
-                </div>
-                <div>
-                    <dt class="font-mono text-xs bg-white px-2 py-1 rounded border border-gray-200"># Heading</dt>
-                    <dd class="text-blue-900 text-xs">Heading level 1</dd>
-                </div>
-                <div>
-                    <dt class="font-mono text-xs bg-white px-2 py-1 rounded border border-gray-200">## Heading 2</dt>
-                    <dd class="text-blue-900 text-xs">Heading level 2</dd>
-                </div>
-                <div>
-                    <dt class="font-mono text-xs bg-white px-2 py-1 rounded border border-gray-200">- Item</dt>
-                    <dd class="text-blue-900 text-xs">Bullet list</dd>
-                </div>
-                <div>
-                    <dt class="font-mono text-xs bg-white px-2 py-1 rounded border border-gray-200">1. Item</dt>
-                    <dd class="text-blue-900 text-xs">Numbered list</dd>
-                </div>
-                <div>
-                    <dt class="font-mono text-xs bg-white px-2 py-1 rounded border border-gray-200">[text](url)</dt>
-                    <dd class="text-blue-900 text-xs">Link</dd>
-                </div>
-                <div>
-                    <dt class="font-mono text-xs bg-white px-2 py-1 rounded border border-gray-200">```code```</dt>
-                    <dd class="text-blue-900 text-xs">Code block</dd>
-                </div>
-                <div class="col-span-2">
-                    <dt class="font-mono text-xs bg-white px-2 py-1 rounded border border-gray-200">| Col1 | Col2 |<br>|------|------|</dt>
-                    <dd class="text-blue-900 text-xs">Tables (GitHub Flavored Markdown)</dd>
-                </div>
+                <x-ui.help-item syntax="**bold**" description="Bold text" />
+                <x-ui.help-item syntax="*italic*" description="Italic text" />
+                <x-ui.help-item syntax="# Heading" description="Heading level 1" />
+                <x-ui.help-item syntax="## Heading 2" description="Heading level 2" />
+                <x-ui.help-item syntax="- Item" description="Bullet list" />
+                <x-ui.help-item syntax="1. Item" description="Numbered list" />
+                <x-ui.help-item syntax="[text](url)" description="Link" />
+                <x-ui.help-item syntax="```code```" description="Code block" />
+                <x-ui.help-item syntax="| Col1 | Col2 |<br>|------|------|" description="Tables (GitHub Flavored Markdown)" :colspan="true" />
             </dl>
         </div>
     @endif

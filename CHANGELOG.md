@@ -12,11 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Livewire Markdown Editor Component**: Migrated markdown editor from Alpine.js to Livewire implementation:
   - **Component**: `App\Livewire\MarkdownEditor` with full server-side rendering
   - **Features**:
-    - Edit/Preview mode switching
+    - Edit/Preview mode switching with tab buttons
     - Live preview with 300ms debounce (server-rendered)
     - Built-in markdown syntax help guide
     - Consistent rendering using `MarkdownService`
     - Form wrapper component for easy integration
+  - **Reusable UI Components**:
+    - `x-ui.tab-button` - Tab-style toggle buttons for Livewire components
+    - `x-ui.help-item` - Definition list items for help documentation
   - **Testing**: 18 comprehensive tests without browser automation (Dusk)
   - **Performance**: Removed marked.js dependency (~60KB), now uses server-side rendering
   - **Updated Forms**: All markdown editor usages migrated (item-translations, collection-translations, partner-translations, glossary-translation)
