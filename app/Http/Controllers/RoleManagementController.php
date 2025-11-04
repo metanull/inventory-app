@@ -75,7 +75,7 @@ class RoleManagementController extends Controller
      */
     public function show(Role $role)
     {
-        $role->load('permissions');
+        $role->load('permissions', 'users');
 
         return view('admin.roles.show', compact('role'));
     }
@@ -137,7 +137,7 @@ class RoleManagementController extends Controller
      */
     public function permissions(Role $role)
     {
-        $role->load('permissions');
+        $role->load('permissions', 'users');
         $permissions = Permission::all();
 
         return view('admin.roles.permissions', compact('role', 'permissions'));

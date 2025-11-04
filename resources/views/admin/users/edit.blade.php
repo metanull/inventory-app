@@ -32,20 +32,36 @@
                         <div class="space-y-4">
                             <h3 class="text-lg font-medium text-gray-900">{{ __('Basic Information') }}</h3>
                             
-                            <x-form.field 
-                                label="Name" 
-                                name="name" 
-                                :value="old('name', $user->name)" 
-                                required 
-                            />
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700">
+                                    {{ __('Name') }} <span class="text-red-500">*</span>
+                                </label>
+                                <x-form.input 
+                                    name="name" 
+                                    :value="old('name', $user->name)" 
+                                    required 
+                                    class="mt-1"
+                                />
+                                @error('name')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-                            <x-form.field 
-                                label="Email" 
-                                name="email" 
-                                type="email"
-                                :value="old('email', $user->email)" 
-                                required 
-                            />
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700">
+                                    {{ __('Email') }} <span class="text-red-500">*</span>
+                                </label>
+                                <x-form.input 
+                                    name="email" 
+                                    type="email"
+                                    :value="old('email', $user->email)" 
+                                    required 
+                                    class="mt-1"
+                                />
+                                @error('email')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
 
                             <div class="space-y-4">
                                 <h4 class="text-sm font-medium text-gray-900">{{ __('Password Management') }}</h4>
