@@ -49,7 +49,7 @@
                     <x-form.actions 
                         :cancel-route="route('web.welcome')"
                         entity="images"
-                        submit-text="Upload Image"
+                        save-label="Upload Image"
                     />
                 </form>
             </div>
