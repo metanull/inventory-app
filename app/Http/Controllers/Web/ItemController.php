@@ -35,7 +35,14 @@ class ItemController extends Controller
     public function show(Item $item): View
     {
         // Load translations with their relationships
-        $item->load(['translations.context', 'translations.language']);
+        $item->load([
+            'translations.context',
+            'translations.language',
+            'outgoingLinks.target.itemImages',
+            'outgoingLinks.context',
+            'incomingLinks.source.itemImages',
+            'incomingLinks.context',
+        ]);
 
         return view('items.show', compact('item'));
     }
