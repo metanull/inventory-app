@@ -51,7 +51,7 @@
             </x-form.field>
 
             <x-form.field label="Description" name="description" variant="gray">
-                <x-form.markdown-editor 
+                <x-form.markdown-editor-livewire 
                     name="description" 
                     :value="old('description', $partnerTranslation->description ?? '')"
                 />

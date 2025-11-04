@@ -50,7 +50,7 @@
                 />
             </x-form.field>
 
-            <x-form.markdown-editor 
+            <x-form.markdown-editor-livewire 
                 name="description"
                 label="Description"
                 :value="old('description', $collectionTranslation->description ?? '')"

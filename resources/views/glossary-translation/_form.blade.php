@@ -21,7 +21,7 @@
     </x-form.field>
 
     <x-form.field label="Definition" name="definition" variant="gray" required>
-        <x-form.markdown-editor 
+        <x-form.markdown-editor-livewire 
             name="definition" 
             :value="old('definition', ($translation ?? null)?->definition ?? '')"
             required

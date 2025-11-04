@@ -14,8 +14,7 @@
         "test:yml": "node ./scripts/validate-workflows.cjs"
     },
     "dependencies": {
-        "glob": "^11.0.3",
-        "marked": "^16.4.1"
+        "glob": "^11.0.3"
     },
     "devDependencies": {
         "@tailwindcss/postcss": "^4.1.16",

@@ -71,6 +71,44 @@ Form components provide consistent input handling and validation display.
 />
 ```
 
+### Markdown Editor (Livewire)
+
+The markdown editor provides a rich editing experience with live preview and help guide, powered by Livewire for server-side rendering:
+
+```blade
+<x-form.markdown-editor-livewire
+    name="description"
+    label="Description"
+    :value="old('description', $item->description ?? '')"
+    rows="6"
+    helpText="Use Markdown formatting. Preview updates in real-time."
+    required
+/>
+```
+
+**Features:**
+
+- **Edit/Preview Tabs** - Switch between editing and preview modes
+- **Live Preview** - See formatted output as you type (300ms debounce)
+- **Help Guide** - Built-in markdown syntax reference
+- **Server-side Rendering** - Uses `MarkdownService` for consistent preview
+- **Comprehensive Testing** - 18 test cases ensure reliability
+
+**Props:**
+
+- `name` - Field name (default: 'description')
+- `label` - Field label (default: 'Description')
+- `value` - Initial content
+- `rows` - Textarea height (default: 8)
+- `required` - Make field required (default: false)
+- `helpText` - Optional help text below the field
+
+**Implementation:**
+
+- Component: `App\Livewire\MarkdownEditor`
+- Wrapper: `resources/views/components/form/markdown-editor-livewire.blade.php`
+- Tests: `tests/Web/Livewire/MarkdownEditorTest.php`
+
 ### Checkbox
 
 ```blade
