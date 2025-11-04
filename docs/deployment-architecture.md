@@ -71,6 +71,7 @@ scripts/
 **Trigger**: `on: release: types: [published]`
 
 Steps:
+
 1. Checkout code
 2. Setup Node.js and PHP
 3. Install dependencies (Composer + npm)
@@ -84,6 +85,7 @@ Steps:
 ### 2. Continuous Deployment (`continuous-deployment.yml`)
 
 **Triggers**:
+
 - **Automatic**: When a release is published
 - **Manual**: `workflow_dispatch` with tag and environment selection
 
@@ -143,20 +145,20 @@ Steps:
 
 Configure these secrets in GitHub repository settings under **Settings → Secrets and variables → Actions**:
 
-| Secret | Description | Example |
-|--------|-------------|---------|
-| `APP_KEY` | Laravel APP_KEY (base64 encoded) | `base64:xxxxx...` |
-| `APP_URL` | Application URL | `https://inventory.museumwnf.org` |
-| `APP_NAME` | Display name | `Inventory App` |
-| `DATABASE_HOST` | Database hostname/IP | `127.0.0.1` or `db.example.com` |
-| `DATABASE_PORT` | Database port | `3306` |
-| `DATABASE_NAME` | Database name | `inventory_db` |
-| `DATABASE_USERNAME` | Database user | `app` |
-| `DATABASE_PASSWORD` | Database password | `secure_password` |
-| `WEBSERVER_PATH_PROD` | Production webserver path | `C:\Apache24\htdocs\inventory-app` |
-| `WEBSERVER_PATH_STAGING` | Staging webserver path | `C:\Apache24\htdocs\inventory-app-staging` |
-| `SHARED_STORAGE_ROOT` | Shared storage root path | `C:\mwnf-server\github-apps` |
-| `PHP_PATH` | PHP executable path | `C:\php\php.exe` |
+| Secret                   | Description                      | Example                                    |
+| ------------------------ | -------------------------------- | ------------------------------------------ |
+| `APP_KEY`                | Laravel APP_KEY (base64 encoded) | `base64:xxxxx...`                          |
+| `APP_URL`                | Application URL                  | `https://inventory.museumwnf.org`          |
+| `APP_NAME`               | Display name                     | `Inventory App`                            |
+| `DATABASE_HOST`          | Database hostname/IP             | `127.0.0.1` or `db.example.com`            |
+| `DATABASE_PORT`          | Database port                    | `3306`                                     |
+| `DATABASE_NAME`          | Database name                    | `inventory_db`                             |
+| `DATABASE_USERNAME`      | Database user                    | `app`                                      |
+| `DATABASE_PASSWORD`      | Database password                | `secure_password`                          |
+| `WEBSERVER_PATH_PROD`    | Production webserver path        | `C:\Apache24\htdocs\inventory-app`         |
+| `WEBSERVER_PATH_STAGING` | Staging webserver path           | `C:\Apache24\htdocs\inventory-app-staging` |
+| `SHARED_STORAGE_ROOT`    | Shared storage root path         | `C:\mwnf-server\github-apps`               |
+| `PHP_PATH`               | PHP executable path              | `C:\php\php.exe`                           |
 
 **Note**: GitHub tokens are provided automatically via `${{ secrets.GITHUB_TOKEN }}` and `${{ secrets.GITHUB_TOKEN }}` for package access.
 
@@ -212,7 +214,9 @@ PowerShell module providing deployment functions:
 ### Public Functions
 
 #### `Deploy-Application`
+
 Main deployment orchestration function
+
 - Creates staging directory
 - Sets up shared storage symlinks
 - Swaps production symlink (atomic)
@@ -220,32 +224,42 @@ Main deployment orchestration function
 - Handles error rollback
 
 #### `Test-SystemPrerequisites`
+
 Validates system prerequisites
+
 - PHP 8.2+ installed
 - Laravel app structure exists
 - Adequate disk space
 - Write permissions verified
 
 #### `Test-DeploymentPackage`
+
 Validates package integrity
+
 - Required files present
 - Directory structure intact
 - No corruption detected
 
 #### `New-StagingDirectory`
+
 Creates timestamped staging directory
+
 - Pattern: `staging-YYYYMMDD-HHMMSS`
 - Returns path for deployment
 
 #### `Invoke-LaravelSetup`
+
 Runs Laravel initialization
+
 - Database migrations
 - Permission sync
 - Configuration caching
 - Route/view caching
 
 #### `Swap-WebserverSymlink`
+
 Atomic production swap
+
 - Backs up current → `production_swap`
 - Activates new staging → `production`
 - Rollback capability on failure
@@ -281,6 +295,7 @@ C:\mwnf-server\github-apps\
 ```
 
 **Benefits**:
+
 - Logs, cache, sessions preserved across deployments
 - Easy rollback via symlink swap
 - Isolated deployment environments
@@ -310,15 +325,19 @@ cmd /c mklink /D C:\mwnf-server\github-apps\production C:\mwnf-server\github-app
 ### Common Issues
 
 **Issue**: Deployment fails with "PHP not found"
+
 - **Solution**: Verify `PHP_PATH` secret is set correctly and PHP is installed
 
 **Issue**: Database migration fails
+
 - **Solution**: Check database credentials in secrets, verify database is running and accessible
 
 **Issue**: Symlink swap fails with "permission denied"
+
 - **Solution**: Ensure GitHub Actions runner has Administrator privileges
 
 **Issue**: Health check fails but app is working
+
 - **Solution**: Verify `APP_URL` secret is correct and app is accessible from runner
 
 ## Local Testing

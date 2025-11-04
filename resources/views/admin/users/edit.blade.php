@@ -32,20 +32,22 @@
                         <div class="space-y-4">
                             <h3 class="text-lg font-medium text-gray-900">{{ __('Basic Information') }}</h3>
                             
-                            <x-form.field 
-                                label="Name" 
-                                name="name" 
-                                :value="old('name', $user->name)" 
-                                required 
-                            />
+                            <x-form.field label="{{ __('Name') }}" name="name" required>
+                                <x-form.input 
+                                    name="name" 
+                                    :value="old('name', $user->name)" 
+                                    required 
+                                />
+                            </x-form.field>
 
-                            <x-form.field 
-                                label="Email" 
-                                name="email" 
-                                type="email"
-                                :value="old('email', $user->email)" 
-                                required 
-                            />
+                            <x-form.field label="{{ __('Email') }}" name="email" variant="gray" required>
+                                <x-form.input 
+                                    name="email" 
+                                    type="email"
+                                    :value="old('email', $user->email)" 
+                                    required 
+                                />
+                            </x-form.field>
 
                             <div class="space-y-4">
                                 <h4 class="text-sm font-medium text-gray-900">{{ __('Password Management') }}</h4>

@@ -117,6 +117,7 @@ act -l
 Pre-configured tasks are available via **Terminal > Run Task** or `Ctrl+Shift+P` → "Tasks: Run Task":
 
 **Build & Quality Checks:**
+
 - `install` - Install all dependencies (Composer + npm for both main app and SPA)
 - `check` - Run all linters and audits (Pint, ESLint, Composer/npm audit)
 - `build` - Full build pipeline (check + build assets)
@@ -124,16 +125,19 @@ Pre-configured tasks are available via **Terminal > Run Task** or `Ctrl+Shift+P`
 - `npm-lint:run` / `npm-lint:run:spa` - JavaScript/TypeScript linting
 
 **Testing:**
+
 - `test` - Run all tests (build + PHPUnit + Vitest)
 - `phpunit:run` - Backend tests only (parallel)
 - `npm-test:run:spa` - SPA frontend tests only
 
 **Development Servers:**
+
 - `dev` - Start Laravel development server
 - `composer-dev:run` - Same as `dev`
 - `npm-dev:run:spa` - Start Vite dev server for SPA
 
 **Local Workflow Testing (Act):**
+
 - `act:continuous-integration` - Run full CI workflow locally
 - `act:continuous-integration:backend-lint` - Run backend linting job only
 - `act:continuous-integration:backend-test` - Run backend tests job only
@@ -144,12 +148,14 @@ Pre-configured tasks are available via **Terminal > Run Task** or `Ctrl+Shift+P`
 **Act Task Configuration:**
 
 All `act:*` tasks:
+
 - Run `build` task as dependency first
 - Use `--action-offline-mode` flag (skip Docker pulls)
 - Use `--env-file .env.ci` (consistent CI environment)
 - Use `-W` flag to specify workflow file
 
 Example task definition:
+
 ```json
 {
   "label": "act:continuous-integration:backend-lint",
@@ -157,10 +163,13 @@ Example task definition:
   "command": "act",
   "args": [
     "pull_request",
-    "-W", ".github/workflows/continuous-integration.yml",
+    "-W",
+    ".github/workflows/continuous-integration.yml",
     "--action-offline-mode",
-    "--env-file", ".env.ci",
-    "--job", "backend-lint"
+    "--env-file",
+    ".env.ci",
+    "--job",
+    "backend-lint"
   ]
 }
 ```
@@ -228,12 +237,12 @@ Job-level environment variables override Docker container defaults:
 backend-lint:
   env:
     DB_CONNECTION: sqlite
-    DB_DATABASE: ':memory:'
+    DB_DATABASE: ":memory:"
 
 backend-tests:
   env:
     DB_CONNECTION: sqlite
-    DB_DATABASE: ':memory:'
+    DB_DATABASE: ":memory:"
 ```
 
 **Permissions**
@@ -289,6 +298,7 @@ Builds the Laravel application package for deployment. Creates a deployment-read
 **Artifact Structure**
 
 The deployment package includes:
+
 - Production-optimized Composer dependencies (no dev packages)
 - Compiled frontend assets (`public/build/`)
 - Application source code
@@ -311,13 +321,13 @@ Deploys the Laravel application to a production environment using a symlink-base
 
 **Workflow properties**
 
-| Property           | Value                    |
-| ------------------ | ------------------------ |
-| **Workflow**       | `deploy.yml`             |
-| **Trigger**        | Push to `main` branch    |
+| Property           | Value                     |
+| ------------------ | ------------------------- |
+| **Workflow**       | `deploy.yml`              |
+| **Trigger**        | Push to `main` branch     |
 | **Manual trigger** | Yes (`workflow_dispatch`) |
-| **Runner**         | `[self-hosted, windows]` |
-| **Environment**    | `MWNF-SVR`               |
+| **Runner**         | `[self-hosted, windows]`  |
+| **Environment**    | `MWNF-SVR`                |
 
 **Jobs**
 
@@ -331,7 +341,7 @@ Deploys the Laravel application to a production environment using a symlink-base
    - Cleans up obsolete staging directories (keeps last 3)
    - Implements rollback capability if symlink swap fails
 
-3. **configure** - Configures Laravel application
+2. **configure** - Configures Laravel application
    - Generates production `.env` file from `.env.example` using environment variables
    - Runs database migrations (`php artisan migrate --force`)
    - Syncs permissions and roles (`php artisan permissions:sync --production`)
@@ -514,13 +524,13 @@ This workflow runs automatically when Dependabot opens a pull request. No manual
 
 Several workflows interact with scripts and other workflows:
 
-| Workflow                                 | Depends On                                         | Triggers      |
-| ---------------------------------------- | -------------------------------------------------- | ------------- |
-| `continuous-integration.yml`             | -                                                  | -             |
-| `build.yml`                              | -                                                  | `deploy.yml`  |
-| `deploy.yml`                             | `build.yml` (downloads artifact)                   | -             |
-| `continuous-deployment_github-pages.yml` | [/scripts/README.md](/development/scripts) scripts | -             |
-| `merge-dependabot-pr.yml`                | -                                                  | -             |
+| Workflow                                 | Depends On                                         | Triggers     |
+| ---------------------------------------- | -------------------------------------------------- | ------------ |
+| `continuous-integration.yml`             | -                                                  | -            |
+| `build.yml`                              | -                                                  | `deploy.yml` |
+| `deploy.yml`                             | `build.yml` (downloads artifact)                   | -            |
+| `continuous-deployment_github-pages.yml` | [/scripts/README.md](/development/scripts) scripts | -            |
+| `merge-dependabot-pr.yml`                | -                                                  | -            |
 
 **Scripts used by workflows:**
 

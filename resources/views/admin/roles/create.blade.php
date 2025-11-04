@@ -16,20 +16,21 @@
                     @csrf
 
                     <div class="space-y-6">
-                        <x-form.field 
-                            label="Role Name" 
-                            name="name" 
-                            :value="old('name')" 
-                            required 
-                        />
+                        <x-form.field label="Role Name" name="name" required>
+                            <x-form.input 
+                                name="name" 
+                                :value="old('name')" 
+                                required 
+                            />
+                        </x-form.field>
 
-                        <x-form.field 
-                            label="Description" 
-                            name="description" 
-                            type="textarea"
-                            :value="old('description')" 
-                            rows="3"
-                        />
+                        <x-form.field label="Description" name="description" variant="gray">
+                            <x-form.textarea 
+                                name="description" 
+                                :value="old('description')" 
+                                rows="3"
+                            />
+                        </x-form.field>
 
                         <!-- Permission Assignment -->
                         <div>

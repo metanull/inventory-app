@@ -24,21 +24,23 @@
                         <div class="space-y-4">
                             <h3 class="text-lg font-medium text-gray-900">{{ __('Basic Information') }}</h3>
                             
-                            <x-form.field 
-                                label="Name" 
-                                name="name" 
-                                type="text" 
-                                :value="old('name')" 
-                                required 
-                            />
+                            <x-form.field label="{{ __('Name') }}" name="name" required>
+                                <x-form.input 
+                                    name="name" 
+                                    type="text" 
+                                    :value="old('name')" 
+                                    required 
+                                />
+                            </x-form.field>
 
-                            <x-form.field 
-                                label="Email" 
-                                name="email" 
-                                type="email" 
-                                :value="old('email')" 
-                                required 
-                            />
+                            <x-form.field label="{{ __('Email') }}" name="email" variant="gray" required>
+                                <x-form.input 
+                                    name="email" 
+                                    type="email" 
+                                    :value="old('email')" 
+                                    required 
+                                />
+                            </x-form.field>
 
                             <x-ui.alert type="info" entity="users">
                                 <div>
