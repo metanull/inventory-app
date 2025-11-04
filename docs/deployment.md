@@ -108,7 +108,7 @@ Ensure your webserver is configured to serve from the deployment path. Example f
 <VirtualHost *:443>
     ServerName inventory.museumwnf.org
     DocumentRoot "C:\mwnf-server\github-apps\production\public"
-    
+
     <Directory "C:\mwnf-server\github-apps\production">
         AllowOverride All
         Require all granted
@@ -196,37 +196,44 @@ cd "C:\path\to\repository"
 The script executes in 8 phases with clear status reporting:
 
 ### Phase 1: Validation
+
 - Verifies PHP 8.2+ installation
 - Checks Laravel application structure
 - Validates disk space availability
 - Confirms write permissions
 
 ### Phase 2: Staging Preparation
+
 - Creates timestamped staging directory (`staging-YYYYMMDD-HHMMSS`)
 - Copies deployment package to staging
 - Validates package integrity
 
 ### Phase 3: Persistent Storage Configuration
+
 - Ensures shared storage directory exists
 - Creates required subdirectories (app, logs, framework/cache, framework/sessions, framework/views)
 - Creates symlink from staging to shared storage
 
 ### Phase 4: Application Transition
+
 - Executes `php artisan down` to enter maintenance mode
 - Prevents user access during deployment
 
 ### Phase 5: Production Swap
+
 - Backs up current production symlink as `production_swap` (for rollback)
 - Creates new production symlink pointing to new staging directory
 - Atomic operation with rollback capability
 
 ### Phase 6: Configuration
+
 - Copies `.env.example` to `.env`
 - Replaces environment variables with provided values
 - Validates all critical variables are set
 - Sets secure file permissions
 
 ### Phase 7: Application Initialization
+
 - Runs database migrations (`php artisan migrate --force`)
 - Syncs permissions (`php artisan permissions:sync --production`)
 - Caches configuration (`php artisan config:cache`)
@@ -235,6 +242,7 @@ The script executes in 8 phases with clear status reporting:
 - Brings application online (`php artisan up`)
 
 ### Phase 8: Cleanup
+
 - Removes old staging directories (keeps last 3)
 - Removes production swap backup
 
@@ -248,6 +256,7 @@ Get-Item -Path "C:\Apache24\htdocs\inventory-app" | Select-Object LinkType, Targ
 ```
 
 Expected output:
+
 ```
 LinkType Target
 -------- ------
@@ -290,6 +299,7 @@ If deployment issues are discovered, perform an immediate rollback:
 ### Automatic Rollback (During Deployment)
 
 If any error occurs during deployment after the production swap, the script automatically:
+
 1. Detects the error
 2. Restores `production_swap` as the active `production` symlink
 3. Rolls back to the previous deployment
@@ -322,6 +332,7 @@ Get-Item -Path "C:\Apache24\htdocs\inventory-app" | Select-Object LinkType, Targ
 **Error**: "PHP version must be 8.2 or higher"
 
 **Solution**:
+
 ```powershell
 # Update PHP_PATH in deployment parameters
 C:\php\php.exe --version  # Check current version
@@ -333,6 +344,7 @@ C:\php\php.exe --version  # Check current version
 **Error**: "SQLSTATE[HY000]: General error: 2006 MySQL server has gone away"
 
 **Solution**:
+
 ```powershell
 # Verify database credentials
 mysql -h 127.0.0.1 -u app -p inventory_db -e "SELECT 1;"
@@ -346,6 +358,7 @@ Get-Service | Where-Object {$_.Name -like "*MySQL*" -or $_.Name -like "*MariaDB*
 **Error**: "Failed to create storage symlink"
 
 **Solution**:
+
 ```powershell
 # Verify shared storage exists
 Test-Path "C:\mwnf-server\github-apps\shared-storage"
@@ -362,6 +375,7 @@ Get-Acl "C:\mwnf-server\github-apps" | Select-Object -ExpandProperty Access
 **Error**: "Insufficient disk space. Required: 5GB"
 
 **Solution**:
+
 ```powershell
 # Check available disk space
 Get-Volume -DriveLetter C | Select-Object SizeRemaining
@@ -383,24 +397,24 @@ Get-ChildItem -Path "C:\mwnf-server\github-apps" -Directory -Filter "staging-*" 
 
 The deployment script generates the following environment variables in `.env`:
 
-| Variable | Source | Example |
-|----------|--------|---------|
-| APP_NAME | $AppName | Inventory App |
-| APP_ENV | $AppEnv | production |
-| APP_DEBUG | auto-set | false (for production) |
-| APP_URL | $AppUrl | https://inventory.museumwnf.org |
-| APP_KEY | $AppKey | base64:xxxxx... |
-| DB_CONNECTION | hardcoded | mysql |
-| DB_HOST | $DatabaseHost | 127.0.0.1 |
-| DB_PORT | $DatabasePort | 3306 |
-| DB_DATABASE | $DatabaseName | inventory_db |
-| DB_USERNAME | $DatabaseUsername | app |
-| DB_PASSWORD | $DatabaseCredential | (from PSCredential) |
-| DB_SSLMODE | $DatabaseSslMode | prefer |
-| LOG_CHANNEL | auto-set | stack (for production) |
-| CACHE_DRIVER | hardcoded | file |
-| SESSION_DRIVER | hardcoded | file |
-| QUEUE_CONNECTION | hardcoded | sync |
+| Variable         | Source              | Example                         |
+| ---------------- | ------------------- | ------------------------------- |
+| APP_NAME         | $AppName            | Inventory App                   |
+| APP_ENV          | $AppEnv             | production                      |
+| APP_DEBUG        | auto-set            | false (for production)          |
+| APP_URL          | $AppUrl             | https://inventory.museumwnf.org |
+| APP_KEY          | $AppKey             | base64:xxxxx...                 |
+| DB_CONNECTION    | hardcoded           | mysql                           |
+| DB_HOST          | $DatabaseHost       | 127.0.0.1                       |
+| DB_PORT          | $DatabasePort       | 3306                            |
+| DB_DATABASE      | $DatabaseName       | inventory_db                    |
+| DB_USERNAME      | $DatabaseUsername   | app                             |
+| DB_PASSWORD      | $DatabaseCredential | (from PSCredential)             |
+| DB_SSLMODE       | $DatabaseSslMode    | prefer                          |
+| LOG_CHANNEL      | auto-set            | stack (for production)          |
+| CACHE_DRIVER     | hardcoded           | file                            |
+| SESSION_DRIVER   | hardcoded           | file                            |
+| QUEUE_CONNECTION | hardcoded           | sync                            |
 
 ## Advanced Configuration
 
@@ -442,11 +456,11 @@ $deploymentParams.GitHubToken = "ghp_xxxxx..."
 
 The deployment script returns the following exit codes:
 
-| Code | Meaning |
-|------|---------|
-| 0 | Successful deployment |
-| 1 | Deployment error (check logs) |
-| 2 | Prerequisites failed (missing PHP, permissions, etc.) |
+| Code | Meaning                                               |
+| ---- | ----------------------------------------------------- |
+| 0    | Successful deployment                                 |
+| 1    | Deployment error (check logs)                         |
+| 2    | Prerequisites failed (missing PHP, permissions, etc.) |
 
 ## See Also
 
