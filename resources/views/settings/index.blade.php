@@ -49,7 +49,7 @@
                         <x-form.actions 
                             :cancel-route="route('dashboard')"
                             entity="settings"
-                            submit-text="Save Settings"
+                            save-label="Save Settings"
                         />
                     </form>
                 </div>

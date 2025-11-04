@@ -155,7 +155,7 @@
                     <x-form.actions 
                         :cancel-route="route('admin.users.show', $user)" 
                         entity="users"
-                        submit-text="Update User"
+                        save-label="Update User"
                     />
                 </form>
             </div>

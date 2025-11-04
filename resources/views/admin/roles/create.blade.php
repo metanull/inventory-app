@@ -54,7 +54,7 @@
                     <x-form.actions 
                         :cancel-route="route('admin.roles.index')" 
                         entity="roles"
-                        submit-text="Create Role"
+                        save-label="Create Role"
                     />
                 </form>
             </div>
