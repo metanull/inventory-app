@@ -331,6 +331,100 @@ The `KeyValueEditor` component manages key-value pairs for JSON data:
 - Minimum one empty pair
 - Form integration via hidden inputs
 
+### Confirmation Modal
+
+The `ConfirmationModal` component provides a reusable confirmation dialog for destructive actions:
+
+```php
+<?php
+
+namespace App\Livewire;
+
+use Livewire\Component;
+
+class ConfirmationModal extends Component
+{
+    public bool $show = false;
+    public string $title = 'Are you sure?';
+    public string $message = 'This operation cannot be undone.';
+    public string $confirmLabel = 'Confirm';
+    public string $cancelLabel = 'Cancel';
+    public string $color = 'red';
+    public ?string $action = null;
+    public string $method = 'DELETE';
+    
+    protected $listeners = ['confirm-action' => 'showConfirmation'];
+    
+    public function showConfirmation(array $data): void
+    {
+        $this->title = $data['title'] ?? 'Are you sure?';
+        $this->message = $data['message'] ?? 'This operation cannot be undone.';
+        $this->confirmLabel = $data['confirmLabel'] ?? 'Confirm';
+        $this->cancelLabel = $data['cancelLabel'] ?? 'Cancel';
+        $this->color = $data['color'] ?? 'red';
+        $this->action = $data['action'] ?? null;
+        $this->method = $data['method'] ?? 'DELETE';
+        $this->show = true;
+    }
+    
+    public function confirm(): void
+    {
+        $this->dispatch('confirmed', [
+            'action' => $this->action,
+            'method' => $this->method,
+        ]);
+        $this->close();
+    }
+    
+    public function close(): void
+    {
+        $this->show = false;
+    }
+}
+```
+
+**Usage with Confirm Button:**
+
+{% raw %}
+
+```blade
+<x-ui.confirm-button 
+    :action="route('items.destroy', $item)"
+    method="DELETE"
+    confirmMessage="Are you sure you want to delete this item?"
+    variant="danger"
+    size="sm"
+    icon="trash">
+    Delete
+</x-ui.confirm-button>
+```
+
+{% endraw %}
+
+**Features:**
+- Global modal (added to `layouts/app.blade.php`)
+- Listens for `confirm-action` events
+- Customizable title, message, and button labels
+- Color variants (red for danger, indigo for warning)
+- Form submission on confirmation
+- Automatic state reset on close
+- 12 comprehensive tests
+
+**Testing:**
+```php
+public function test_can_show_confirmation(): void
+{
+    Livewire::test(ConfirmationModal::class)
+        ->dispatch('confirm-action', [
+            'title' => 'Delete Item',
+            'message' => 'This will delete the item permanently',
+        ])
+        ->assertSet('show', true)
+        ->assertSet('title', 'Delete Item')
+        ->assertSee('Delete Item');
+}
+```
+
 ## File Upload
 
 {% raw %}

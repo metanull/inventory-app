@@ -22,10 +22,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Updated Forms**: All markdown editor usages migrated (item-translations, collection-translations, partner-translations, glossary-translation)
   - **Documentation**: Updated forms.md and livewire/index.md with usage examples
 
+- **Livewire Confirmation Modal Component**: Migrated confirm button from Alpine.js to Livewire implementation:
+  - **Component**: `App\Livewire\ConfirmationModal` with global modal functionality
+  - **Features**:
+    - Reusable confirmation dialog for destructive actions
+    - Event-driven architecture (listens for `confirm-action` events)
+    - Customizable title, message, button labels, and colors
+    - Automatic state reset after close
+    - Form submission support with method override
+  - **Updated Component**: `x-ui.confirm-button` now Livewire-only (removed Alpine.js dual mode)
+  - **Testing**: 12 comprehensive tests covering show/hide, state management, and event dispatching
+  - **Integration**: Added to `layouts/app.blade.php` for global availability
+  - **Documentation**: Updated livewire/index.md with component usage and examples
+
 ### Removed
 
 - **Alpine.js Markdown Editor**: Replaced with Livewire implementation
 - **marked.js**: Removed npm dependency - now using server-side `MarkdownService`
+- **Alpine.js Confirm Button**: Removed dual-mode conditional - now pure Livewire implementation
 
 - **Partner System Enhancement**: Complete overhaul of Partner system with translations and images:
   - **Database Schema**:

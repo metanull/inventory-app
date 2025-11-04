@@ -87,6 +87,9 @@
 
         @stack('modals')
 
+        <!-- Confirmation Modal (Livewire) -->
+        @livewire('confirmation-modal')
+
     @livewireScripts
 
     <!-- App Footer Component -->
