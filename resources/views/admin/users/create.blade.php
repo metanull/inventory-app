@@ -24,37 +24,23 @@
                         <div class="space-y-4">
                             <h3 class="text-lg font-medium text-gray-900">{{ __('Basic Information') }}</h3>
                             
-                            <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700">
-                                    {{ __('Name') }} <span class="text-red-500">*</span>
-                                </label>
+                            <x-form.field label="{{ __('Name') }}" name="name" required>
                                 <x-form.input 
                                     name="name" 
                                     type="text" 
                                     :value="old('name')" 
                                     required 
-                                    class="mt-1"
                                 />
-                                @error('name')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
+                            </x-form.field>
 
-                            <div>
-                                <label for="email" class="block text-sm font-medium text-gray-700">
-                                    {{ __('Email') }} <span class="text-red-500">*</span>
-                                </label>
+                            <x-form.field label="{{ __('Email') }}" name="email" variant="gray" required>
                                 <x-form.input 
                                     name="email" 
                                     type="email" 
                                     :value="old('email')" 
                                     required 
-                                    class="mt-1"
                                 />
-                                @error('email')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
+                            </x-form.field>
 
                             <x-ui.alert type="info" entity="users">
                                 <div>

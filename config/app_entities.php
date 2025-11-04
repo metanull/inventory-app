@@ -14,6 +14,9 @@ return [
         'collections' => 'yellow',
         'glossary' => 'emerald',
         'glossaries' => 'emerald',
+        // Admin entities
+        'roles' => 'indigo',
+        'users' => 'indigo',
     ],
     // Utility mapping for commonly used fragments in Blade (derived from COLOR_MAP in SPA)
     'fragments' => [
