@@ -28,20 +28,33 @@
                     @method('PUT')
 
                     <div class="space-y-6">
-                        <x-form.field 
-                            label="Role Name" 
-                            name="name" 
-                            :value="old('name', $role->name)" 
-                            required 
-                        />
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">
+                                Role Name <span class="text-red-500">*</span>
+                            </label>
+                            <x-form.input 
+                                name="name" 
+                                :value="old('name', $role->name)" 
+                                required 
+                            />
+                            @error('name')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                        <x-form.field 
-                            label="Description" 
-                            name="description" 
-                            type="textarea"
-                            :value="old('description', $role->description)" 
-                            rows="3"
-                        />
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700">
+                                Description
+                            </label>
+                            <x-form.textarea 
+                                name="description" 
+                                :value="old('description', $role->description)" 
+                                rows="3"
+                            />
+                            @error('description')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
 
                         <!-- Permission Assignment -->
                         <div>

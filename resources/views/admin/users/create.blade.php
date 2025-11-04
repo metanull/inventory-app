@@ -24,21 +24,35 @@
                         <div class="space-y-4">
                             <h3 class="text-lg font-medium text-gray-900">{{ __('Basic Information') }}</h3>
                             
-                            <x-form.field 
-                                label="Name" 
-                                name="name" 
-                                type="text" 
-                                :value="old('name')" 
-                                required 
-                            />
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700">
+                                    Name <span class="text-red-500">*</span>
+                                </label>
+                                <x-form.input 
+                                    name="name" 
+                                    type="text" 
+                                    :value="old('name')" 
+                                    required 
+                                />
+                                @error('name')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-                            <x-form.field 
-                                label="Email" 
-                                name="email" 
-                                type="email" 
-                                :value="old('email')" 
-                                required 
-                            />
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700">
+                                    Email <span class="text-red-500">*</span>
+                                </label>
+                                <x-form.input 
+                                    name="email" 
+                                    type="email" 
+                                    :value="old('email')" 
+                                    required 
+                                />
+                                @error('email')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
 
                             <x-ui.alert type="info" entity="users">
                                 <div>
