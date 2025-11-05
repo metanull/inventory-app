@@ -105,18 +105,18 @@
             @csrf
             <div class="space-y-4">
                 <x-form.field label="Select Item" name="item_id" required>
-                    @livewire('searchable-select', [
-                        'name' => 'item_id',
-                        'modelClass' => \App\Models\Item::class,
-                        'displayField' => 'internal_name',
-                        'placeholder' => 'Select an item...',
-                        'searchPlaceholder' => 'Type to search items...',
-                        'entity' => 'items',
-                        'required' => true,
-                        'filterColumn' => 'id',
-                        'filterOperator' => 'NOT IN',
-                        'filterValue' => $model->attachedItems->pluck('id')->toArray(),
-                    ])
+                    <x-form.entity-select 
+                        name="item_id"
+                        :modelClass="\App\Models\Item::class"
+                        displayField="internal_name"
+                        placeholder="Select an item..."
+                        searchPlaceholder="Type to search items..."
+                        entity="items"
+                        :required="true"
+                        filterColumn="id"
+                        filterOperator="NOT IN"
+                        :filterValue="$model->attachedItems->pluck('id')->toArray()"
+                    />
                 </x-form.field>
             </div>
             <div class="mt-6 flex justify-end space-x-3">

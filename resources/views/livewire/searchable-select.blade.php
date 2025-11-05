@@ -38,11 +38,15 @@
     @if($open && $options->isNotEmpty())
         <div class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
             @foreach($options as $option)
+                @php
+                    $optionValue = is_object($option) ? ($option->{$valueField} ?? $option->id) : ($option[$valueField] ?? $option['id']);
+                    $optionDisplay = is_object($option) ? ($option->{$displayField} ?? '') : ($option[$displayField] ?? '');
+                @endphp
                 <div 
-                    wire:click="selectOption('{{ $option->id }}')" 
-                    class="cursor-pointer select-none relative py-2 px-3 hover:bg-gray-50 {{ $selectedId == $option->id ? 'bg-gray-100' : '' }}"
+                    wire:click="selectOption('{{ $optionValue }}')" 
+                    class="cursor-pointer select-none relative py-2 px-3 hover:bg-gray-50 {{ $selectedId == $optionValue ? 'bg-gray-100' : '' }}"
                 >
-                    <span class="block truncate font-medium">{{ $option->{$displayField} }}</span>
+                    <span class="block truncate font-medium">{{ $optionDisplay }}</span>
                 </div>
             @endforeach
         </div>

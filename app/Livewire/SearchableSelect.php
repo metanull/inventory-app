@@ -3,13 +3,12 @@
 namespace App\Livewire;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
 
 /**
- * Server-side searchable select component for large datasets
- * Replaces Alpine.js client-side filtering with Livewire server-side search
+ * Server-side searchable select component for both static and dynamic datasets
+ * Handles both static options arrays and dynamic DB queries with Livewire
  */
 class SearchableSelect extends Component
 {
@@ -23,9 +22,13 @@ class SearchableSelect extends Component
     // Configuration props
     public string $name = '';
 
-    public string $modelClass = '';
+    public $staticOptions = null; // For static options (e.g., type dropdown with 2 items)
+
+    public string $modelClass = ''; // For dynamic DB queries (e.g., items with 1000+ records)
 
     public string $displayField = 'internal_name';
+
+    public string $valueField = 'id'; // Field to use as value (for static options)
 
     public string $placeholder = 'Select...';
 
@@ -48,8 +51,10 @@ class SearchableSelect extends Component
     public function mount(
         $selectedId = '',
         string $name = '',
+        $staticOptions = null,
         string $modelClass = '',
         string $displayField = 'internal_name',
+        string $valueField = 'id',
         string $placeholder = 'Select...',
         string $searchPlaceholder = 'Type to search...',
         ?string $entity = null,
@@ -60,8 +65,10 @@ class SearchableSelect extends Component
     ): void {
         $this->selectedId = old($name, $selectedId);
         $this->name = $name;
+        $this->staticOptions = $staticOptions;
         $this->modelClass = $modelClass;
         $this->displayField = $displayField;
+        $this->valueField = $valueField;
         $this->placeholder = $placeholder;
         $this->searchPlaceholder = $searchPlaceholder;
         $this->entity = $entity;
@@ -89,22 +96,45 @@ class SearchableSelect extends Component
         $this->search = '';
     }
 
-    public function getOptionsProperty(): Collection
+    public function getOptionsProperty()
     {
-        $query = $this->modelClass::query();
+        // Static options mode: filter provided options
+        if ($this->staticOptions !== null) {
+            $options = collect($this->staticOptions);
 
-        // Apply filter if provided
-        if ($this->filterColumn && $this->filterValue !== null) {
-            $this->applyFilter($query);
+            $search = trim($this->search);
+            if ($search !== '') {
+                $options = $options->filter(function ($option) use ($search) {
+                    $displayValue = is_object($option)
+                        ? ($option->{$this->displayField} ?? '')
+                        : ($option[$this->displayField] ?? '');
+
+                    return stripos($displayValue, $search) !== false;
+                });
+            }
+
+            return $options;
         }
 
-        // Apply search
-        $search = trim($this->search);
-        if ($search !== '') {
-            $query->where($this->displayField, 'LIKE', "%{$search}%");
+        // Dynamic DB query mode
+        if ($this->modelClass) {
+            $query = $this->modelClass::query();
+
+            // Apply filter if provided
+            if ($this->filterColumn && $this->filterValue !== null) {
+                $this->applyFilter($query);
+            }
+
+            // Apply search
+            $search = trim($this->search);
+            if ($search !== '') {
+                $query->where($this->displayField, 'LIKE', "%{$search}%");
+            }
+
+            return $query->orderBy($this->displayField)->limit(50)->get();
         }
 
-        return $query->orderBy($this->displayField)->limit(50)->get();
+        return collect();
     }
 
     public function getSelectedOptionProperty()
@@ -113,7 +143,25 @@ class SearchableSelect extends Component
             return null;
         }
 
-        return $this->modelClass::find($this->selectedId);
+        // Static options mode
+        if ($this->staticOptions !== null) {
+            $options = collect($this->staticOptions);
+
+            return $options->first(function ($option) {
+                $value = is_object($option)
+                    ? ($option->{$this->valueField} ?? null)
+                    : ($option[$this->valueField] ?? null);
+
+                return $value == $this->selectedId;
+            });
+        }
+
+        // Dynamic DB query mode
+        if ($this->modelClass) {
+            return $this->modelClass::find($this->selectedId);
+        }
+
+        return null;
     }
 
     protected function applyFilter(Builder $query): void
