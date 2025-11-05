@@ -104,24 +104,17 @@
         <form action="{{ route('collections.attachItem', $model) }}" method="POST" class="px-6 py-4">
             @csrf
             <div class="space-y-4">
-                <div>
-                    <label for="item_id" class="block text-sm font-medium text-gray-700 mb-1">Select Item</label>
-                    <select 
+                <x-form.field label="Select Item" name="item_id" required>
+                    <x-form.entity-select 
                         name="item_id" 
-                        id="item_id" 
+                        :options="\App\Models\Item::whereNotIn('id', $model->attachedItems->pluck('id'))->orderBy('internal_name')->get()"
+                        displayField="internal_name"
+                        placeholder="Select an item..."
+                        searchPlaceholder="Type to search items..."
+                        entity="items"
                         required
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">-- Select an item --</option>
-                        @foreach(\App\Models\Item::whereNotIn('id', $model->attachedItems->pluck('id'))->orderBy('internal_name')->get() as $availableItem)
-                            <option value="{{ $availableItem->id }}">
-                                {{ $availableItem->internal_name }}
-                                @if($availableItem->backward_compatibility)
-                                    ({{ $availableItem->backward_compatibility }})
-                                @endif
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                    />
+                </x-form.field>
             </div>
             <div class="mt-6 flex justify-end space-x-3">
                 <button 
