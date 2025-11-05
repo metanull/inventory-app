@@ -127,15 +127,30 @@ class ItemController extends Controller
     public function setParent(Request $request, Item $item): RedirectResponse
     {
         $request->validate([
-            'parent_id' => ['required', 'exists:items,id', 'different:id'],
+            'parent_id' => ['required', 'exists:items,id'],
         ]);
 
-        // Prevent circular references
-        $potentialParent = Item::findOrFail($request->parent_id);
-        if ($potentialParent->parent_id === $item->id) {
+        // Prevent item from being its own parent
+        if ($request->parent_id === $item->id) {
             return redirect()->back()
-                ->withErrors(['parent_id' => 'Cannot create circular parent relationship'])
+                ->withErrors(['parent_id' => 'An item cannot be its own parent'])
                 ->withInput();
+        }
+
+        // Prevent circular references by checking if the potential parent
+        // has this item anywhere in its ancestry chain
+        $potentialParent = Item::findOrFail($request->parent_id);
+        $ancestor = $potentialParent;
+        while ($ancestor->parent_id !== null) {
+            if ($ancestor->parent_id === $item->id) {
+                return redirect()->back()
+                    ->withErrors(['parent_id' => 'Cannot create circular parent relationship'])
+                    ->withInput();
+            }
+            $ancestor = Item::find($ancestor->parent_id);
+            if (! $ancestor) {
+                break;
+            }
         }
 
         $item->update(['parent_id' => $request->parent_id]);
