@@ -65,6 +65,10 @@ Route::prefix('web')->group(function () {
         Route::post('items/{item}/tags', [WebItemController::class, 'attachTag'])->name('items.tags.attach');
         Route::delete('items/{item}/tags/{tag}', [WebItemController::class, 'detachTag'])->name('items.tags.detach');
 
+        // Item Parent - nested routes for parent/child relationships
+        Route::post('items/{item}/parent', [WebItemController::class, 'setParent'])->name('items.setParent');
+        Route::delete('items/{item}/parent', [WebItemController::class, 'removeParent'])->name('items.removeParent');
+
         // Item Links - nested routes
         Route::prefix('items/{item}/links')->name('item-links.')->group(function () {
             Route::get('/', [WebItemItemLinkController::class, 'index'])->name('index');

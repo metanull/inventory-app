@@ -42,14 +42,26 @@ class ItemController extends Controller
             'outgoingLinks.context',
             'incomingLinks.source.itemImages',
             'incomingLinks.context',
+            'parent.itemImages',
+            'children.itemImages',
         ]);
 
         return view('items.show', compact('item'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('items.create');
+        $parentId = $request->query('parent_id');
+        $parent = null;
+
+        if ($parentId) {
+            $parent = Item::find($parentId);
+            if (! $parent) {
+                abort(404, 'Parent item not found');
+            }
+        }
+
+        return view('items.create', compact('parent'));
     }
 
     public function store(StoreItemRequest $request): RedirectResponse
@@ -110,5 +122,33 @@ class ItemController extends Controller
 
         return redirect()->route('items.show', $item)
             ->with('success', $message);
+    }
+
+    public function setParent(Request $request, Item $item): RedirectResponse
+    {
+        $request->validate([
+            'parent_id' => ['required', 'exists:items,id', 'different:id'],
+        ]);
+
+        // Prevent circular references
+        $potentialParent = Item::findOrFail($request->parent_id);
+        if ($potentialParent->parent_id === $item->id) {
+            return redirect()->back()
+                ->withErrors(['parent_id' => 'Cannot create circular parent relationship'])
+                ->withInput();
+        }
+
+        $item->update(['parent_id' => $request->parent_id]);
+
+        return redirect()->route('items.show', $item)
+            ->with('success', 'Parent set successfully');
+    }
+
+    public function removeParent(Item $item): RedirectResponse
+    {
+        $item->update(['parent_id' => null]);
+
+        return redirect()->route('items.show', $item)
+            ->with('success', 'Parent relationship removed successfully');
     }
 }

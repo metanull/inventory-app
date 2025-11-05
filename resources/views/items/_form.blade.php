@@ -39,6 +39,32 @@
     />
 </x-form.field>
 
+<x-form.field label="Parent Item" name="parent_id">
+    @if(isset($parent) && $parent)
+        <div class="mb-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <p class="text-sm text-blue-800">
+                <strong>Parent:</strong> {{ $parent->internal_name }}
+                <span class="text-xs text-blue-600">(pre-filled)</span>
+            </p>
+        </div>
+        <input type="hidden" name="parent_id" value="{{ $parent->id }}" />
+    @else
+        <x-form.entity-select 
+            name="parent_id" 
+            :value="old('parent_id', $item->parent_id ?? null)"
+            :options="\App\Models\Item::when(isset($item), fn($q) => $q->where('id', '!=', $item->id))
+                ->orderBy('internal_name')->get()"
+            displayField="internal_name"
+            placeholder="No parent (top-level item)"
+            searchPlaceholder="Type to search..."
+            entity="items"
+        />
+        <x-slot name="help">
+            Optional: Select a parent item to create a hierarchical relationship
+        </x-slot>
+    @endif
+</x-form.field>
+
 <x-form.field label="Legacy ID" name="backward_compatibility">
     <x-form.input 
         name="backward_compatibility" 

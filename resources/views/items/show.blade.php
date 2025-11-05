@@ -28,6 +28,16 @@
             </x-display.field>
         </x-display.description-list>
 
+        <!-- Parent Item Section -->
+        @if($item->parent)
+            <x-entity.parent-item-section :model="$item" />
+        @else
+            <x-entity.set-parent-section :model="$item" />
+        @endif
+
+        <!-- Children Items Section -->
+        <x-entity.children-items-section :model="$item" />
+
         <!-- Images Section -->
         <x-entity.images-section entity="items" :model="$item" />
 
