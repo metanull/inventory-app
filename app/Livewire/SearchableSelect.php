@@ -24,7 +24,7 @@ class SearchableSelect extends Component
 
     public $staticOptions = null; // For static options (e.g., type dropdown with 2 items)
 
-    public string $modelClass = ''; // For dynamic DB queries (e.g., items with 1000+ records)
+    public ?string $modelClass = null; // For dynamic DB queries (e.g., items with 1000+ records)
 
     public string $displayField = 'internal_name';
 
@@ -52,7 +52,7 @@ class SearchableSelect extends Component
         $selectedId = '',
         string $name = '',
         $staticOptions = null,
-        string $modelClass = '',
+        ?string $modelClass = null,
         string $displayField = 'internal_name',
         string $valueField = 'id',
         string $placeholder = 'Select...',
