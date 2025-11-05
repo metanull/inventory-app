@@ -49,6 +49,23 @@ class ItemController extends Controller
         return view('items.show', compact('item'));
     }
 
+    public function showModern(Item $item): View
+    {
+        // Load translations with their relationships
+        $item->load([
+            'translations.context',
+            'translations.language',
+            'outgoingLinks.target.itemImages',
+            'outgoingLinks.context',
+            'incomingLinks.source.itemImages',
+            'incomingLinks.context',
+            'parent.itemImages',
+            'children.itemImages',
+        ]);
+
+        return view('items.show-modern', compact('item'));
+    }
+
     public function create(Request $request): View
     {
         $parentId = $request->query('parent_id');
