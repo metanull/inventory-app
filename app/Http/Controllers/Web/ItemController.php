@@ -35,14 +35,33 @@ class ItemController extends Controller
     public function show(Item $item): View
     {
         // Load translations with their relationships
-        $item->load(['translations.context', 'translations.language']);
+        $item->load([
+            'translations.context',
+            'translations.language',
+            'outgoingLinks.target.itemImages',
+            'outgoingLinks.context',
+            'incomingLinks.source.itemImages',
+            'incomingLinks.context',
+            'parent.itemImages',
+            'children.itemImages',
+        ]);
 
         return view('items.show', compact('item'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('items.create');
+        $parentId = $request->query('parent_id');
+        $parent = null;
+
+        if ($parentId) {
+            $parent = Item::find($parentId);
+            if (! $parent) {
+                abort(404, 'Parent item not found');
+            }
+        }
+
+        return view('items.create', compact('parent'));
     }
 
     public function store(StoreItemRequest $request): RedirectResponse
@@ -103,5 +122,48 @@ class ItemController extends Controller
 
         return redirect()->route('items.show', $item)
             ->with('success', $message);
+    }
+
+    public function setParent(Request $request, Item $item): RedirectResponse
+    {
+        $request->validate([
+            'parent_id' => ['required', 'exists:items,id'],
+        ]);
+
+        // Prevent item from being its own parent
+        if ($request->parent_id === $item->id) {
+            return redirect()->back()
+                ->withErrors(['parent_id' => 'An item cannot be its own parent'])
+                ->withInput();
+        }
+
+        // Prevent circular references by checking if the potential parent
+        // has this item anywhere in its ancestry chain
+        $potentialParent = Item::findOrFail($request->parent_id);
+        $ancestor = $potentialParent;
+        while ($ancestor->parent_id !== null) {
+            if ($ancestor->parent_id === $item->id) {
+                return redirect()->back()
+                    ->withErrors(['parent_id' => 'Cannot create circular parent relationship'])
+                    ->withInput();
+            }
+            $ancestor = Item::find($ancestor->parent_id);
+            if (! $ancestor) {
+                break;
+            }
+        }
+
+        $item->update(['parent_id' => $request->parent_id]);
+
+        return redirect()->route('items.show', $item)
+            ->with('success', 'Parent set successfully');
+    }
+
+    public function removeParent(Item $item): RedirectResponse
+    {
+        $item->update(['parent_id' => null]);
+
+        return redirect()->route('items.show', $item)
+            ->with('success', 'Parent relationship removed successfully');
     }
 }

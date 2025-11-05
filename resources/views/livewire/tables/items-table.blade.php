@@ -1,5 +1,17 @@
 <div class="space-y-4">
     <x-table.filter-bar wireModel="q" placeholder="Search internal name...">
+        <!-- Type Filter -->
+        <div class="flex items-center gap-2">
+            <label for="typeFilter" class="text-sm text-gray-700">Type:</label>
+            <select wire:model.live="typeFilter" id="typeFilter" class="rounded-md border-gray-300 {{ $c['focus'] ?? '' }} text-sm">
+                <option value="">All Types</option>
+                <option value="object">Object</option>
+                <option value="monument">Monument</option>
+                <option value="detail">Detail</option>
+                <option value="picture">Picture</option>
+            </select>
+        </div>
+
         <!-- Tag Filter with Multiselect Component -->
         <x-form.multiselect
             label="Filter by tags:"

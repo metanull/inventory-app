@@ -65,6 +65,10 @@ Route::prefix('web')->group(function () {
         Route::post('items/{item}/tags', [WebItemController::class, 'attachTag'])->name('items.tags.attach');
         Route::delete('items/{item}/tags/{tag}', [WebItemController::class, 'detachTag'])->name('items.tags.detach');
 
+        // Item Parent - nested routes for parent/child relationships
+        Route::post('items/{item}/parent', [WebItemController::class, 'setParent'])->name('items.setParent');
+        Route::delete('items/{item}/parent', [WebItemController::class, 'removeParent'])->name('items.removeParent');
+
         // Item Links - nested routes
         Route::prefix('items/{item}/links')->name('item-links.')->group(function () {
             Route::get('/', [WebItemItemLinkController::class, 'index'])->name('index');
@@ -140,6 +144,11 @@ Route::prefix('web')->group(function () {
         });
 
         Route::resource('collections', WebCollectionController::class);
+
+        // Collection Items - attach/detach
+        Route::post('collections/{collection}/items/attach', [WebCollectionController::class, 'attachItem'])->name('collections.attachItem');
+        Route::delete('collections/{collection}/items/{item}/detach', [WebCollectionController::class, 'detachItem'])->name('collections.detachItem');
+
         Route::resource('authors', \App\Http\Controllers\Web\AuthorController::class);
 
         // Collection Images - nested routes

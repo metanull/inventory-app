@@ -36,7 +36,13 @@ class CollectionController extends Controller
 
     public function show(Collection $collection): View
     {
-        $collection->load(['context', 'language', 'translations.context', 'translations.language']);
+        $collection->load([
+            'context',
+            'language',
+            'translations.context',
+            'translations.language',
+            'attachedItems.itemImages',
+        ]);
 
         return view('collections.show', compact('collection'));
     }
@@ -77,5 +83,26 @@ class CollectionController extends Controller
         $collection->delete();
 
         return redirect()->route('collections.index')->with('success', 'Collection deleted successfully');
+    }
+
+    public function attachItem(Request $request, Collection $collection): RedirectResponse
+    {
+        $request->validate([
+            'item_id' => ['required', 'exists:items,id'],
+        ]);
+
+        $item = \App\Models\Item::findOrFail($request->item_id);
+        $collection->attachItem($item);
+
+        return redirect()->route('collections.show', $collection)
+            ->with('success', 'Item attached successfully');
+    }
+
+    public function detachItem(Collection $collection, \App\Models\Item $item): RedirectResponse
+    {
+        $collection->detachItem($item);
+
+        return redirect()->route('collections.show', $collection)
+            ->with('success', 'Item detached successfully');
     }
 }

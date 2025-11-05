@@ -17,7 +17,7 @@
                 <option value="">All Languages</option>
                 <option value="default">Default Language Only</option>
                 @foreach($languages as $language)
-                    <option value="{{ $language->id }}">{{ $language->name }}</option>
+                    <option value="{{ $language->id }}">{{ $language->internal_name }}</option>
                 @endforeach
             </select>
         </div>

@@ -23,6 +23,8 @@ class ItemsTable extends Component
 
     public array $selectedTags = [];
 
+    public string $typeFilter = '';
+
     protected $queryString = [
         'q' => ['except' => ''],
         // Keep in sync with config('interface.pagination.default_per_page')
@@ -30,6 +32,7 @@ class ItemsTable extends Component
         'sortBy' => ['except' => 'created_at'],
         'sortDirection' => ['except' => 'desc'],
         'selectedTags' => ['except' => []],
+        'typeFilter' => ['except' => ''],
     ];
 
     public function mount(): void
@@ -54,6 +57,11 @@ class ItemsTable extends Component
     }
 
     public function updatingSelectedTags(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingTypeFilter(): void
     {
         $this->resetPage();
     }
@@ -121,6 +129,17 @@ class ItemsTable extends Component
                     $q->where('tags.id', $tagId);
                 });
             }
+        }
+
+        // Filter by type if selected
+        if ($this->typeFilter !== '') {
+            match ($this->typeFilter) {
+                'object' => $query->objects(),
+                'monument' => $query->monuments(),
+                'detail' => $query->details(),
+                'picture' => $query->pictures(),
+                default => null,
+            };
         }
 
         return $query->orderBy($this->sortBy, $this->sortDirection)->paginate($this->perPage)->withQueryString();

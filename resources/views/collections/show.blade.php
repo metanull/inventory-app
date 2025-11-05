@@ -27,6 +27,9 @@
 
         <x-entity.images-section entity="collections" :model="$collection" />
 
+        <!-- Items Section -->
+        <x-entity.collection-items-section :model="$collection" />
+
         <!-- Translations Section -->
         <x-entity.translations-section entity="collections" :model="$collection" translationRoute="collection-translations" />
 
