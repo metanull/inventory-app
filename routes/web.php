@@ -140,6 +140,11 @@ Route::prefix('web')->group(function () {
         });
 
         Route::resource('collections', WebCollectionController::class);
+
+        // Collection Items - attach/detach
+        Route::post('collections/{collection}/items/attach', [WebCollectionController::class, 'attachItem'])->name('collections.attachItem');
+        Route::delete('collections/{collection}/items/{item}/detach', [WebCollectionController::class, 'detachItem'])->name('collections.detachItem');
+
         Route::resource('authors', \App\Http\Controllers\Web\AuthorController::class);
 
         // Collection Images - nested routes

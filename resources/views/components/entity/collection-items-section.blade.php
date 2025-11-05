@@ -1,0 +1,142 @@
+@props(['model'])
+
+@php($tc = $entityColor('collections'))
+<div class="mt-8">
+    <x-layout.section title="Items in Collection" icon="cube">
+        @can(\App\Enums\Permission::UPDATE_DATA->value)
+            <x-slot name="action">
+                <button 
+                    type="button"
+                    onclick="document.getElementById('attachItemModal').classList.remove('hidden')"
+                    class="inline-flex items-center px-3 py-2 rounded-md {{ $tc['button'] }} text-sm font-medium">
+                    <x-heroicon-o-plus class="w-4 h-4 mr-2" />
+                    Add Item
+                </button>
+            </x-slot>
+        @endcan
+
+        @if($model->attachedItems->isEmpty())
+            <p class="text-sm text-gray-500 italic">No items in this collection</p>
+        @else
+            <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                <ul class="divide-y divide-gray-200">
+                    @foreach($model->attachedItems as $item)
+                        <li class="px-6 py-4 hover:bg-gray-50">
+                            <div class="flex items-start space-x-4">
+                                <!-- Thumbnail -->
+                                <div class="flex-shrink-0 w-12 h-12">
+                                    @if($image = $item->itemImages->first())
+                                        <img src="{{ Storage::url($image->image_path) }}" 
+                                             alt="{{ $item->internal_name }}"
+                                             class="w-12 h-12 rounded object-cover">
+                                    @else
+                                        <div class="w-12 h-12 rounded bg-gray-100 flex items-center justify-center">
+                                            <x-heroicon-o-photo class="w-6 h-6 text-gray-400" />
+                                        </div>
+                                    @endif
+                                </div>
+                                
+                                <!-- Content -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center space-x-2">
+                                        <a href="{{ route('items.show', $item) }}" 
+                                           class="text-blue-600 hover:text-blue-900 font-medium">
+                                            {{ $item->internal_name }}
+                                        </a>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                            @if($item->type === 'object')
+                                                <x-heroicon-s-cube class="w-3 h-3 mr-1" />
+                                            @elseif($item->type === 'monument')
+                                                <x-heroicon-s-building-office-2 class="w-3 h-3 mr-1" />
+                                            @elseif($item->type === 'detail')
+                                                <x-heroicon-s-magnifying-glass-plus class="w-3 h-3 mr-1" />
+                                            @else
+                                                <x-heroicon-s-photo class="w-3 h-3 mr-1" />
+                                            @endif
+                                            {{ ucfirst($item->type) }}
+                                        </span>
+                                    </div>
+                                    @if($item->backward_compatibility)
+                                        <p class="text-xs text-gray-500 mt-1">Legacy ID: {{ $item->backward_compatibility }}</p>
+                                    @endif
+                                </div>
+                                
+                                <!-- Actions -->
+                                @can(\App\Enums\Permission::UPDATE_DATA->value)
+                                    <div class="flex-shrink-0">
+                                        <form action="{{ route('collections.detachItem', [$model, $item]) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button 
+                                                type="submit"
+                                                onclick="return confirm('Remove this item from the collection?')"
+                                                class="text-red-600 hover:text-red-900">
+                                                <x-heroicon-o-x-mark class="w-5 h-5" />
+                                                <span class="sr-only">Remove</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endcan
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+    </x-layout.section>
+</div>
+
+<!-- Attach Item Modal -->
+@can(\App\Enums\Permission::UPDATE_DATA->value)
+<div id="attachItemModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">Add Item to Collection</h3>
+                <button 
+                    type="button"
+                    onclick="document.getElementById('attachItemModal').classList.add('hidden')"
+                    class="text-gray-400 hover:text-gray-500">
+                    <x-heroicon-o-x-mark class="w-6 h-6" />
+                </button>
+            </div>
+        </div>
+        <form action="{{ route('collections.attachItem', $model) }}" method="POST" class="px-6 py-4">
+            @csrf
+            <div class="space-y-4">
+                <div>
+                    <label for="item_id" class="block text-sm font-medium text-gray-700 mb-1">Select Item</label>
+                    <select 
+                        name="item_id" 
+                        id="item_id" 
+                        required
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">-- Select an item --</option>
+                        @foreach(\App\Models\Item::whereNotIn('id', $model->attachedItems->pluck('id'))->orderBy('internal_name')->get() as $availableItem)
+                            <option value="{{ $availableItem->id }}">
+                                {{ $availableItem->internal_name }}
+                                @if($availableItem->backward_compatibility)
+                                    ({{ $availableItem->backward_compatibility }})
+                                @endif
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button 
+                    type="button"
+                    onclick="document.getElementById('attachItemModal').classList.add('hidden')"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button 
+                    type="submit"
+                    class="px-4 py-2 text-sm font-medium text-white {{ $tc['button'] }} rounded-md">
+                    Add Item
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@endcan
