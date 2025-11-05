@@ -49,16 +49,19 @@
         </div>
         <input type="hidden" name="parent_id" value="{{ $parent->id }}" />
     @else
-        <x-form.entity-select 
-            name="parent_id" 
-            :value="old('parent_id', $item->parent_id ?? null)"
-            :options="\App\Models\Item::when(isset($item), fn($q) => $q->where('id', '!=', $item->id))
-                ->orderBy('internal_name')->get()"
-            displayField="internal_name"
-            placeholder="No parent (top-level item)"
-            searchPlaceholder="Type to search..."
-            entity="items"
-        />
+        @livewire('searchable-select', [
+            'selectedId' => old('parent_id', $item->parent_id ?? ''),
+            'name' => 'parent_id',
+            'modelClass' => \App\Models\Item::class,
+            'displayField' => 'internal_name',
+            'placeholder' => 'No parent (top-level item)',
+            'searchPlaceholder' => 'Type to search...',
+            'entity' => 'items',
+            'required' => false,
+            'filterColumn' => isset($item) ? 'id' : null,
+            'filterOperator' => '!=',
+            'filterValue' => isset($item) ? $item->id : null,
+        ])
         <x-slot name="help">
             Optional: Select a parent item to create a hierarchical relationship
         </x-slot>

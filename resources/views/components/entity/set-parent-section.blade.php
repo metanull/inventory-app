@@ -10,15 +10,18 @@
                 @csrf
                 
                 <x-form.field label="Select Parent Item" name="parent_id" required>
-                    <x-form.entity-select 
-                        name="parent_id" 
-                        :options="\App\Models\Item::where('id', '!=', $model->id)->orderBy('internal_name')->get()"
-                        displayField="internal_name"
-                        placeholder="Select a parent item..."
-                        searchPlaceholder="Type to search items..."
-                        entity="items"
-                        required
-                    />
+                    @livewire('searchable-select', [
+                        'name' => 'parent_id',
+                        'modelClass' => \App\Models\Item::class,
+                        'displayField' => 'internal_name',
+                        'placeholder' => 'Select a parent item...',
+                        'searchPlaceholder' => 'Type to search items...',
+                        'entity' => 'items',
+                        'required' => true,
+                        'filterColumn' => 'id',
+                        'filterOperator' => '!=',
+                        'filterValue' => $model->id,
+                    ])
                 </x-form.field>
                 
                 <div class="flex justify-end">
