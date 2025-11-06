@@ -13,10 +13,10 @@ class CustomUpCommand extends UpCommand
     /**
      * Execute the console command.
      */
-    public function handle(): int
+    public function handle(): void
     {
         // Call parent implementation to bring application out of maintenance mode
-        $result = parent::handle();
+        parent::handle();
 
         // Remove down.lock file from public directory
         try {
@@ -29,7 +29,5 @@ class CustomUpCommand extends UpCommand
         } catch (\Exception $e) {
             $this->components->warn('Failed to remove public/down.lock: '.$e->getMessage());
         }
-
-        return $result;
     }
 }
