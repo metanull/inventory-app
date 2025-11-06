@@ -14,7 +14,7 @@
                 
                 <x-slot name="actions">
                     @auth
-                        <x-welcome-cta-button href="{{ url('/cli') }}" variant="outline">
+                        <x-welcome-cta-button href="{{ config('interface.spa_url') }}" variant="outline">
                             <x-heroicon-o-squares-2x2 class="size-5 mr-2" />
                             Inventory Management Client
                         </x-welcome-cta-button>
@@ -79,7 +79,7 @@
 
                 {{-- SPA Client --}}
                 <x-ui.card 
-                    href="{{ url('/cli') }}"
+                    href="{{ config('interface.spa_url') }}"
                     title="SPA Client"
                     description="Vue.js single-page application sharing the same API backend."
                     :icon="'<x-heroicon-o-window class=\'w-6 h-6\' />'"
@@ -140,7 +140,7 @@
                             Sign In
                         </x-welcome-cta-button>
                     @else
-                        <x-welcome-cta-button href="{{ url('/cli') }}" variant="primary">
+                        <x-welcome-cta-button href="{{ config('interface.spa_url') }}" variant="primary">
                             <x-heroicon-o-squares-2x2 class="size-5 mr-2" />
                             Continue to the Inventory Management Client
                         </x-welcome-cta-button>

@@ -262,7 +262,7 @@
 
                 @if(config('interface.show_spa_link'))
                 <x-ui.card 
-                    href="{{ url('/cli') }}"
+                    href="{{ config('interface.spa_url') }}"
                     title="SPA Client"
                     description="Vue.js client showcasing reactive workflows."
                     iconColor="purple"
