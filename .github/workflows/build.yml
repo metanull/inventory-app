@@ -63,6 +63,8 @@ jobs:
 
     - name: Build SPA demo application
       working-directory: spa
+      env:
+        VITE_API_BASE_URL: ${{ vars.APP_URL || 'http://localhost:8000' }}/api
       run: |
         npm run build
     
