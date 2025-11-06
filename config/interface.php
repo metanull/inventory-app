@@ -25,7 +25,7 @@ return [
     | Set SPA_URL to the appropriate URL for your environment.
     |
     */
-    'spa_url' => env('SPA_URL', env('APP_ENV') === 'local' ? 'http://127.0.0.1:5174/cli/' : url('/cli')),
+    'spa_url' => env('SPA_URL', env('APP_ENV') === 'local' ? 'http://127.0.0.1:5174/cli/' : '/cli'),
 
     /*
     | Maximum page size exposed to both interfaces. Keep in sync with
