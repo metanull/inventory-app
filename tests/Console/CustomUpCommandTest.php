@@ -84,7 +84,7 @@ class CustomUpCommandTest extends TestCase
         // Create down.lock file manually (simulating orphaned lock file)
         file_put_contents($lockFilePath, json_encode([
             'timestamp' => now()->toIso8601String(),
-            'message' => 'Test maintenance',
+            'message' => 'Application is currently under maintenance',
         ]));
 
         $this->assertFileExists($lockFilePath);

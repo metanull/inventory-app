@@ -150,11 +150,16 @@ export const useVersionCheckStore = defineStore('versionCheck', () => {
   /**
    * Force reload the application
    * Clears all caches and performs a hard reload
+   *
+   * Note: Clears all localStorage and sessionStorage to ensure fresh state.
+   * This includes auth tokens and user preferences, forcing a clean reload.
+   * This is intentional to prevent version mismatch issues with stored data.
    */
   const reloadApplication = (): void => {
     console.log('[VersionCheck] Reloading application...')
 
-    // Clear all caches
+    // Clear all caches to ensure fresh state
+    // This is intentional - we want a completely clean slate after an update
     localStorage.clear()
     sessionStorage.clear()
 

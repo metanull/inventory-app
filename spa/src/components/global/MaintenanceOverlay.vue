@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, watch, onMounted } from 'vue'
+  import { computed, watch, onBeforeUnmount } from 'vue'
   import { storeToRefs } from 'pinia'
   import ModalOverlay from '@/components/global/ModalOverlay.vue'
   import { WrenchScrewdriverIcon, ArrowPathIcon } from '@heroicons/vue/24/outline'
@@ -125,11 +125,9 @@
   )
 
   // Cleanup on unmount
-  onMounted(() => {
-    return () => {
-      if (recoveryCheckInterval) {
-        clearInterval(recoveryCheckInterval)
-      }
+  onBeforeUnmount(() => {
+    if (recoveryCheckInterval) {
+      clearInterval(recoveryCheckInterval)
     }
   })
 </script>

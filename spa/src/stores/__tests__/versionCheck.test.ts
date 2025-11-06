@@ -304,8 +304,8 @@ describe('VersionCheck Store', () => {
         writable: true,
       })
 
-      const mockLocalStorageClear = vi.spyOn(Storage.prototype, 'clear')
-      const mockSessionStorageClear = vi.spyOn(Storage.prototype, 'clear')
+      const mockLocalStorageClear = vi.spyOn(localStorage, 'clear')
+      const mockSessionStorageClear = vi.spyOn(sessionStorage, 'clear')
 
       const store = useVersionCheckStore()
       store.reloadApplication()
