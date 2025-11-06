@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permission;
+use App\Http\Controllers\SpaController;
 use App\Http\Controllers\Web\AvailableImageController as WebAvailableImageController;
 use App\Http\Controllers\Web\CollectionController as WebCollectionController;
 use App\Http\Controllers\Web\CollectionImageController as WebCollectionImageController;
@@ -204,13 +205,12 @@ Route::prefix('web')->group(function () {
 // See app/Providers/FortifyServiceProvider.php for middleware configuration
 
 // Vue.js SPA Route - serves the client app at /cli (demo client)
-// For exact /cli (and /cli/) and all /cli/* routes, return the SPA index.html to enable client-side routing
-Route::get('/cli', function () {
-    return response()->file(public_path('cli/index.html'));
-})->name('spa');
-Route::get('/cli/{any?}', function () {
-    return response()->file(public_path('cli/index.html'));
-})->where('any', '.*')->name('spa');
+// IMPORTANT: This route works in PRODUCTION (Apache with .htaccess) but NOT with 'php artisan serve'
+// For development, use 'composer dev' which runs Vite dev server on port 5174
+// The optional parameter with .* constraint requires web server rewrites to work properly
+Route::get('/cli/{any?}', [SpaController::class, 'index'])
+    ->where('any', '.*')
+    ->name('spa');
 
 // Expose our OpenApi/Swagger documentation as JSON with caching
 Route::get('/api.json', function (Generator $generator) {

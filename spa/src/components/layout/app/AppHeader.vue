@@ -10,6 +10,7 @@
 
         <nav class="hidden md:flex space-x-8 items-center">
           <RouterLink
+            v-if="authStore.isAuthenticated"
             to="/"
             :class="[
               getThemeClass('navLinkColor'),
@@ -225,7 +226,7 @@
           </div>
 
           <!-- Tools Dropdown -->
-          <div class="relative" @mouseleave="closeToolsDropdown">
+          <div v-if="authStore.isAuthenticated" class="relative" @mouseleave="closeToolsDropdown">
             <button
               :class="[
                 getThemeClass('navLinkColor'),
@@ -298,6 +299,7 @@
       >
         <div class="flex flex-col space-y-2">
           <RouterLink
+            v-if="authStore.isAuthenticated"
             to="/"
             :class="[
               getThemeClass('mobileNavLinkColor'),
@@ -491,7 +493,7 @@
           </div>
 
           <!-- Mobile Tools Section -->
-          <div class="px-3">
+          <div v-if="authStore.isAuthenticated" class="px-3">
             <button
               :class="[
                 getThemeClass('mobileNavLinkColor'),
