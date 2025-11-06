@@ -178,7 +178,7 @@
                     </button>
                     <div x-show="openMenu==='resources'" x-transition x-cloak @click.outside="openMenu=null" class="absolute z-30 mt-2 w-60 rounded-md border border-gray-200 bg-white shadow-lg py-2">
                         @if(config('interface.show_spa_link'))
-                        <a href="{{ url('/cli') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                        <a href="{{ config('interface.spa_url') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
                             <x-heroicon-o-window class="w-4 h-4" /> SPA Client
                         </a>
                         @endif
@@ -372,7 +372,7 @@
             <div class="space-y-2">
                 <p class="text-[11px] font-semibold text-gray-400 uppercase">Resources</p>
                 @if(config('interface.show_spa_link'))
-                <a href="{{ url('/cli') }}" class="block px-2 py-1 rounded text-gray-600 hover:bg-gray-50 hover:text-gray-800">SPA Client</a>
+                <a href="{{ config('interface.spa_url') }}" class="block px-2 py-1 rounded text-gray-600 hover:bg-gray-50 hover:text-gray-800">SPA Client</a>
                 @endif
                 <a href="{{ url('/docs/api') }}" class="block px-2 py-1 rounded text-gray-600 hover:bg-gray-50 hover:text-gray-800">API Docs</a>
                 <a href="https://github.com/metanull/inventory-app" target="_blank" class="block px-2 py-1 rounded text-gray-600 hover:bg-gray-50 hover:text-gray-800">Source Code</a>
