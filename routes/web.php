@@ -204,8 +204,9 @@ Route::prefix('web')->group(function () {
 // See app/Providers/FortifyServiceProvider.php for middleware configuration
 
 // Vue.js SPA Route - serves the client app at /cli (demo client)
+// For all /cli/* routes, return the SPA index.html to enable client-side routing
 Route::get('/cli/{any?}', function () {
-    return view('app');
+    return response()->file(public_path('cli/index.html'));
 })->where('any', '.*')->name('spa');
 
 Route::get('/api.json', function (Generator $generator) {

@@ -33,7 +33,7 @@ spa/node_modules/
 /dist
 /build
 /public/build
-/public/spa-build
+/public/cli
 
 # Logs
 logs

@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
+    base: '/cli/',
     plugins: [
         vue(),
     ],
@@ -23,7 +24,7 @@ export default defineConfig({
     build: {
         target: 'esnext',
         sourcemap: true,
-        outDir: '../public/spa-build',
+        outDir: '../public/cli',
         manifest: 'manifest.json',
         rollupOptions: {
             input: 'index.html',

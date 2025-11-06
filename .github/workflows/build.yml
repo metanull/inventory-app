@@ -70,7 +70,7 @@ jobs:
       run: |
         assetPaths=(
           "public/build"
-          "public/spa-build"
+          "public/cli"
         )
         for path in "${assetPaths[@]}"; do
           if [ -d "$path" ]; then
