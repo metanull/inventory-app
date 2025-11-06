@@ -204,11 +204,15 @@ Route::prefix('web')->group(function () {
 // See app/Providers/FortifyServiceProvider.php for middleware configuration
 
 // Vue.js SPA Route - serves the client app at /cli (demo client)
-// For all /cli/* routes, return the SPA index.html to enable client-side routing
+// For exact /cli (and /cli/) and all /cli/* routes, return the SPA index.html to enable client-side routing
+Route::get('/cli', function () {
+    return response()->file(public_path('cli/index.html'));
+})->name('spa');
 Route::get('/cli/{any?}', function () {
     return response()->file(public_path('cli/index.html'));
 })->where('any', '.*')->name('spa');
 
+// Expose our OpenApi/Swagger documentation as JSON with caching
 Route::get('/api.json', function (Generator $generator) {
     $config = Scramble::getGeneratorConfig('default');
 
