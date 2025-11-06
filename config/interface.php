@@ -16,6 +16,18 @@ return [
     'show_blade_link' => env('SHOW_BLADE_LINK', true),
 
     /*
+    |--------------------------------------------------------------------------
+    | SPA URL Configuration
+    |--------------------------------------------------------------------------
+    |
+    | In development (composer dev), the SPA runs on Vite dev server with HMR.
+    | In production, Laravel serves the built SPA from /cli route.
+    | Set SPA_URL to the appropriate URL for your environment.
+    |
+    */
+    'spa_url' => env('SPA_URL', env('APP_ENV') === 'local' ? 'http://127.0.0.1:5174/cli/' : '/cli'),
+
+    /*
     | Maximum page size exposed to both interfaces. Keep in sync with
     | frontend constants; consider exporting via an artisan command if
     | the SPA needs this value at build time.
