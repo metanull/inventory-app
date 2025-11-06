@@ -12,10 +12,18 @@
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600&display=swap" rel="stylesheet" />
 
         <!-- SPA Build Assets -->
-        <link rel="stylesheet" href="{{ asset('spa-build/style.css') }}" />
+        @php
+            $manifest = json_decode(file_get_contents(public_path('cli/manifest.json')), true);
+            $entryAssets = $manifest['index.html'];
+            $jsFile = $entryAssets['file'];
+            $cssFiles = $entryAssets['css'] ?? [];
+        @endphp
+        @foreach($cssFiles as $cssFile)
+            <link rel="stylesheet" href="{{ asset('cli/' . $cssFile) }}" />
+        @endforeach
     </head>
     <body class="font-sans antialiased">
         <div id="app"></div>
-        <script type="module" src="{{ asset('spa-build/index.js') }}"></script>
+        <script type="module" src="{{ asset('cli/' . $jsFile) }}"></script>
     </body>
 </html>
