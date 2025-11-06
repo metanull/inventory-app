@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <x-layout.show-page 
+    <x-layout.show-page-with-sidebar 
         entity="items"
         :title="$item->internal_name"
         :back-route="route('items.index')"
@@ -14,13 +14,13 @@
             <x-ui.alert :message="session('status')" type="success" entity="items" />
         @endif
 
-        <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p class="text-sm text-blue-800">
-                <strong>Preview:</strong> 
-                <a href="{{ route('items.show-modern', $item) }}" class="underline hover:text-blue-700 font-medium">
-                    View new modern layout with sidebar
+        <div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <p class="text-sm text-amber-800">
+                <strong>Experimental Layout:</strong> 
+                <a href="{{ route('items.show', $item) }}" class="underline hover:text-amber-700 font-medium">
+                    View classic layout
                 </a>
-                (Currently in testing phase)
+                • Please provide feedback on this new design
             </p>
         </div>
 
@@ -60,12 +60,25 @@
         <!-- Tags Section -->
         <x-entity.tags-section :model="$item" />
 
-        <!-- System Properties -->
-        <x-system-properties 
-            :id="$item->id"
-            :backward-compatibility-id="$item->backward_compatibility"
-            :created-at="$item->created_at"
-            :updated-at="$item->updated_at"
-        />
-    </x-layout.show-page>
+        {{-- Sidebar --}}
+        <x-slot name="sidebar">
+            <x-sidebar.quick-actions 
+                entity="items" 
+                :edit-route="route('items.edit', $item)" 
+                :delete-route="route('items.destroy', $item)" 
+                delete-confirm="Are you sure you want to delete this item?"
+            />
+
+            <x-sidebar.navigation :back-route="route('items.index')" />
+
+            <x-sidebar.related-counts :model="$item" entity="items" />
+
+            <x-sidebar.system-properties 
+                :id="$item->id"
+                :backward-compatibility-id="$item->backward_compatibility"
+                :created-at="$item->created_at"
+                :updated-at="$item->updated_at"
+            />
+        </x-slot>
+    </x-layout.show-page-with-sidebar>
 @endsection

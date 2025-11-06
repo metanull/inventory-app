@@ -47,6 +47,9 @@ Route::prefix('web')->group(function () {
     Route::middleware(['auth', 'permission:'.Permission::VIEW_DATA->value])->group(function () {
         Route::resource('items', WebItemController::class);
 
+        // Item Modern Layout - preview of new sidebar layout (GitHub issue #509)
+        Route::get('items/{item}/modern', [WebItemController::class, 'showModern'])->name('items.show-modern');
+
         // Item Images - nested routes
         Route::prefix('items/{item}/images')->name('items.item-images.')->group(function () {
             Route::get('/create', [WebItemImageController::class, 'create'])->name('create');
