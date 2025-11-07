@@ -1,5 +1,6 @@
 import axios, { type AxiosInstance, type AxiosResponse, type AxiosError } from 'axios'
 import { useAuthStore } from '@/stores/auth'
+import { useVersionCheckStore } from '@/stores/versionCheck'
 import { ErrorHandler } from '@/utils/errorHandler'
 import { DEFAULT_PER_PAGE } from '@/utils/apiQueryParams'
 
@@ -50,7 +51,7 @@ export const createSessionAwareAxios = (): AxiosInstance => {
     },
   })
 
-  // Request interceptor: Attach current auth token
+  // Request interceptor: Attach current auth token and check version
   instance.interceptors.request.use(
     config => {
       const authStore = useAuthStore()
@@ -81,6 +82,16 @@ export const createSessionAwareAxios = (): AxiosInstance => {
         if (isList) {
           ;(config.params as Record<string, unknown>) = { ...params, per_page: DEFAULT_PER_PAGE }
         }
+      }
+
+      // Activity-based version checking: piggyback on API requests
+      // Check version on every request with debouncing (cooldown handled by store)
+      const versionStore = useVersionCheckStore()
+      if (versionStore.canCheck) {
+        // Non-blocking check - don't await
+        versionStore.checkVersion().catch(err => {
+          console.warn('[SessionAxios] Version check failed:', err)
+        })
       }
 
       return config

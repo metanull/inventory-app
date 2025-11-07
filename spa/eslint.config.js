@@ -109,6 +109,7 @@ export default [
         HTMLImageElement: 'readonly',
         Element: 'readonly',
         Node: 'readonly',
+        fetch: 'readonly',
       },
     },
     plugins: {
@@ -146,6 +147,7 @@ export default [
         expect: 'readonly',
         beforeEach: 'readonly',
         afterEach: 'readonly',
+        global: 'readonly',
         // Browser globals for tests
         window: 'readonly',
         document: 'readonly',
@@ -172,6 +174,7 @@ export default [
         HTMLImageElement: 'readonly',
         Element: 'readonly',
         Node: 'readonly',
+        fetch: 'readonly',
       },
     },
   },

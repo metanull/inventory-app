@@ -181,6 +181,7 @@ jobs:
           exit 1
         fi
         buildTimestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        uniqueBuildId="${appVersion}.${GITHUB_RUN_NUMBER}"
         jq -n \
           --arg app_version "$appVersion" \
           --arg api_client_version "$apiclientVersion" \
@@ -188,12 +189,17 @@ jobs:
           --arg commit_message "$COMMIT_MESSAGE" \
           --arg build_timestamp "$buildTimestamp" \
           --arg build_number '${{ github.run_number }}' \
+          --arg unique_build_id "$uniqueBuildId" \
           --arg repository '${{ github.repository }}' \
           --arg repository_url '${{ github.server_url }}/${{ github.repository }}' \
           --arg branch '${{ github.ref_name }}' \
-          '{app_version: $app_version, api_client_version: $api_client_version, commit_sha: $commit_sha, commit_message: $commit_message, build_timestamp: $build_timestamp, build_number: $build_number, repository: $repository, repository_url: $repository_url, branch: $branch}' \
+          '{app_version: $app_version, api_client_version: $api_client_version, commit_sha: $commit_sha, commit_message: $commit_message, build_timestamp: $build_timestamp, build_number: $build_number, unique_build_id: $unique_build_id, repository: $repository, repository_url: $repository_url, branch: $branch}' \
           > "$deployDir/VERSION"
         echo "  :white_check_mark: VERSION file created"
+        
+        # Copy VERSION to public/version.json for SPA access
+        cp "$deployDir/VERSION" "$deployDir/public/version.json"
+        echo "  :white_check_mark: VERSION copied to public/version.json"
         echo "::endgroup::"
         
         echo "::group::Creating deployment archive"
