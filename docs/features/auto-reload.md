@@ -35,6 +35,7 @@ During the build process, a `version.json` file is generated containing:
 ```
 
 The SPA:
+
 - Loads the initial version on app startup
 - Checks for version updates on every API request (with 15-second cooldown)
 - Automatically reloads when a version mismatch is detected
@@ -49,6 +50,7 @@ php artisan up      # Removes public/down.lock
 ```
 
 When `down.lock` is detected:
+
 - A maintenance overlay blocks all user interactions
 - The app polls every 10 seconds for recovery
 - Automatically reloads when maintenance mode ends
@@ -56,6 +58,7 @@ When `down.lock` is detected:
 ### Activity-Based Checking
 
 Version checks piggyback on API requests through the `sessionAwareAxios` interceptor:
+
 - Non-blocking checks (don't delay API calls)
 - Singleton pattern prevents parallel checks
 - 15-second cooldown prevents excessive polling
@@ -64,17 +67,20 @@ Version checks piggyback on API requests through the `sessionAwareAxios` interce
 ## User Experience
 
 ### Normal Operation
+
 - Version checking happens silently in the background
 - No impact on user workflow
 - No performance overhead
 
 ### Update Detected
+
 1. Maintenance overlay appears with update message
 2. Short delay (2 seconds) to inform user
 3. Automatic page reload
 4. Fresh application state with latest version
 
 ### Maintenance Mode
+
 1. Overlay appears with maintenance message
 2. All interactions blocked
 3. Automatic polling for recovery
@@ -85,16 +91,19 @@ Version checks piggyback on API requests through the `sessionAwareAxios` interce
 ### Frontend Components
 
 **Store**: `useVersionCheckStore` (Pinia)
+
 - Manages version state
 - Implements cooldown logic
 - Provides singleton checking pattern
 
 **Interceptor**: `sessionAwareAxios`
+
 - Integrates version checking with API calls
 - Non-blocking implementation
 - Respects cooldown period
 
 **Component**: `MaintenanceOverlay.vue`
+
 - Modal overlay with full-screen blocking
 - Dynamic messaging based on state
 - Auto-reload triggers
@@ -102,21 +111,25 @@ Version checks piggyback on API requests through the `sessionAwareAxios` interce
 ### Backend Components
 
 **Commands**:
+
 - `CustomDownCommand`: Extends Laravel's down command
 - `CustomUpCommand`: Extends Laravel's up command
 
 **Files**:
+
 - `public/version.json`: Version information
 - `public/down.lock`: Maintenance mode indicator
 
 ### Build Process
 
 The GitHub Actions build workflow:
+
 1. Generates `VERSION` file with build metadata
 2. Copies `VERSION` to `public/version.json`
 3. Deploys to production
 
 The deployment workflow:
+
 1. Runs `php artisan down` (creates `down.lock`)
 2. Swaps deployment symlinks
 3. Runs migrations and configuration
@@ -130,7 +143,7 @@ Adjust the cooldown in `versionCheck.ts`:
 
 ```typescript
 // Default: 15 seconds (15000ms)
-const COOLDOWN_PERIOD = 15000
+const COOLDOWN_PERIOD = 15000;
 ```
 
 ### Recovery Polling Interval
@@ -140,19 +153,21 @@ Adjust polling in `MaintenanceOverlay.vue`:
 ```typescript
 // Default: 10 seconds (10000ms)
 recoveryCheckInterval = window.setInterval(() => {
-  versionStore.checkVersion()
-}, 10000)
+  versionStore.checkVersion();
+}, 10000);
 ```
 
 ## Testing
 
 ### PHP Tests
+
 ```bash
 php artisan test --filter=CustomDownCommandTest
 php artisan test --filter=CustomUpCommandTest
 ```
 
 ### TypeScript Tests
+
 ```bash
 npm run test -- versionCheck.test.ts
 ```
@@ -164,12 +179,14 @@ npm run test -- versionCheck.test.ts
 **Symptom**: App doesn't reload after deployment
 
 **Possible Causes**:
+
 - Build workflow didn't copy `version.json`
 - Version file not accessible (check permissions)
 - Cooldown period too long
 - Browser caching `version.json`
 
 **Solutions**:
+
 - Verify `public/version.json` exists after build
 - Check file permissions
 - Clear browser cache
@@ -180,11 +197,13 @@ npm run test -- versionCheck.test.ts
 **Symptom**: Overlay doesn't disappear after `artisan up`
 
 **Possible Causes**:
+
 - `down.lock` file not removed
 - File permission issues
 - Polling interval too long
 
 **Solutions**:
+
 - Manually remove `public/down.lock`
 - Check file permissions
 - Reload page manually
@@ -194,10 +213,12 @@ npm run test -- versionCheck.test.ts
 **Symptom**: Overlay appears when not in maintenance
 
 **Possible Causes**:
+
 - Orphaned `down.lock` file
 - Deployment failure left file behind
 
 **Solutions**:
+
 - Remove `public/down.lock` manually
 - Run `php artisan up` to clean up
 
@@ -220,6 +241,7 @@ npm run test -- versionCheck.test.ts
 ## Future Enhancements
 
 Potential improvements:
+
 - WebSocket-based notifications (eliminate polling)
 - Service worker integration for offline detection
 - Progressive web app (PWA) support
