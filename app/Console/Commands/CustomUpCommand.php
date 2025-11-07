@@ -23,7 +23,7 @@ class CustomUpCommand extends UpCommand
         try {
             $disk = Storage::build([
                 'driver' => 'local',
-                'root' => base_path('public'),
+                'root' => public_path(),
             ]);
 
             if ($disk->exists('down.lock')) {

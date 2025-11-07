@@ -153,3 +153,6 @@ VERSION
 # act secrets file (contains sensitive tokens)
 .secrets
 .github/.workflows-backup/**/*
+
+# Custom Up/Down Commands' generated files
+public/down.lock

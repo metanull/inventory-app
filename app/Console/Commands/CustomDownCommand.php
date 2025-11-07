@@ -23,7 +23,7 @@ class CustomDownCommand extends DownCommand
         try {
             $disk = Storage::build([
                 'driver' => 'local',
-                'root' => base_path('public'),
+                'root' => public_path(),
             ]);
 
             $content = json_encode([
