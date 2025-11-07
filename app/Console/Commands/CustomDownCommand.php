@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Foundation\Console\DownCommand;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Extended down command that creates a public down.lock file
@@ -20,11 +21,17 @@ class CustomDownCommand extends DownCommand
 
         // Create down.lock file in public directory for SPA access
         try {
-            $lockFilePath = public_path('down.lock');
-            file_put_contents($lockFilePath, json_encode([
+            $disk = Storage::build([
+                'driver' => 'local',
+                'root' => base_path('public'),
+            ]);
+
+            $content = json_encode([
                 'timestamp' => now()->toIso8601String(),
                 'message' => 'Application is currently under maintenance',
-            ]));
+            ]);
+
+            $disk->put('down.lock', $content);
 
             $this->components->info('Created public/down.lock for SPA detection');
         } catch (\Exception $e) {

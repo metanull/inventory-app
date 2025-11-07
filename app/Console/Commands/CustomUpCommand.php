@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Foundation\Console\UpCommand;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Extended up command that removes the public down.lock file
@@ -20,10 +21,13 @@ class CustomUpCommand extends UpCommand
 
         // Remove down.lock file from public directory
         try {
-            $lockFilePath = public_path('down.lock');
+            $disk = Storage::build([
+                'driver' => 'local',
+                'root' => base_path('public'),
+            ]);
 
-            if (file_exists($lockFilePath)) {
-                unlink($lockFilePath);
+            if ($disk->exists('down.lock')) {
+                $disk->delete('down.lock');
                 $this->components->info('Removed public/down.lock');
             }
         } catch (\Exception $e) {
