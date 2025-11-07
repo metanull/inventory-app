@@ -10,6 +10,8 @@ describe('VersionCheck Store', () => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
     vi.useFakeTimers()
+    // Set fake time to a known value
+    vi.setSystemTime(new Date('2024-01-01T00:00:00.000Z'))
   })
 
   afterEach(() => {
@@ -87,8 +89,8 @@ describe('VersionCheck Store', () => {
     it('should skip check if in cooldown period', async () => {
       const store = useVersionCheckStore()
       store.currentVersion = '1.0.0.42'
-      
-      // Set lastCheckTime to current time to simulate just checked
+
+      // Set lastCheckTime to current time (within cooldown)
       store.lastCheckTime = Date.now()
 
       await store.checkVersion()
@@ -216,14 +218,14 @@ describe('VersionCheck Store', () => {
       await store.checkVersion()
 
       expect(global.fetch).toHaveBeenCalledTimes(2)
-      const firstCallCount = (global.fetch as ReturnType<typeof vi.fn>).mock.calls.length
+      vi.clearAllMocks()
 
       // Immediate second check (within cooldown) - should be skipped
       // Note: lastCheckTime was updated by checkVersion to current time
       await store.checkVersion()
 
-      // Should still be same number of calls
-      expect((global.fetch as ReturnType<typeof vi.fn>).mock.calls.length).toBe(firstCallCount)
+      // Should not have made any new calls
+      expect(global.fetch).not.toHaveBeenCalled()
 
       // Set lastCheckTime to past again to allow third check
       store.lastCheckTime = Date.now() - 20000
@@ -242,10 +244,8 @@ describe('VersionCheck Store', () => {
 
       await store.checkVersion()
 
-      // Now should have made additional calls
-      expect((global.fetch as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThan(
-        firstCallCount
-      )
+      // Now should have made new calls
+      expect(global.fetch).toHaveBeenCalledTimes(2)
     })
   })
 
@@ -295,26 +295,46 @@ describe('VersionCheck Store', () => {
       // Mock window.location.reload
       const mockReload = vi.fn()
       const originalLocation = window.location
-      delete (window as { location?: unknown }).location
-      window.location = { ...originalLocation, reload: mockReload } as Location
 
-      // Spy on storage clear methods
-      const clearLocalStorageSpy = vi.spyOn(Storage.prototype, 'clear')
+      // Use Object.defineProperty to properly mock window.location
+      Object.defineProperty(window, 'location', {
+        value: { reload: mockReload },
+        writable: true,
+        configurable: true,
+      })
+
+      // Mock localStorage and sessionStorage
+      const mockLocalStorageClear = vi.fn()
+      const mockSessionStorageClear = vi.fn()
+      Object.defineProperty(window, 'localStorage', {
+        value: { clear: mockLocalStorageClear },
+        writable: true,
+        configurable: true,
+      })
+      Object.defineProperty(window, 'sessionStorage', {
+        value: { clear: mockSessionStorageClear },
+        writable: true,
+        configurable: true,
+      })
 
       const store = useVersionCheckStore()
       store.reloadApplication()
 
-      // Verify localStorage.clear() and sessionStorage.clear() were called
-      expect(clearLocalStorageSpy).toHaveBeenCalledTimes(2)
+      expect(mockLocalStorageClear).toHaveBeenCalled()
+      expect(mockSessionStorageClear).toHaveBeenCalled()
       expect(mockReload).toHaveBeenCalled()
 
       // Restore
-      window.location = originalLocation
+      Object.defineProperty(window, 'location', {
+        value: originalLocation,
+        writable: true,
+        configurable: true,
+      })
     })
   })
 
   describe('reset', () => {
-    it('should reset all state', async () => {
+    it('should reset all state', () => {
       const store = useVersionCheckStore()
 
       // Set some state

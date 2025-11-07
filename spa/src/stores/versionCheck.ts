@@ -187,6 +187,7 @@ export const useVersionCheckStore = defineStore('versionCheck', () => {
     isInMaintenanceMode,
     isUpdateAvailable,
     isChecking,
+    lastCheckTime,
     canCheck,
 
     // Actions
