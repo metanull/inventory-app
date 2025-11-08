@@ -87,8 +87,6 @@ jobs:
       shell: bash
 
     - name: Create deployment package
-      env:
-        COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
       run: |
         # Create deployment package with all production dependencies
         
@@ -186,14 +184,13 @@ jobs:
           --arg app_version "$appVersion" \
           --arg api_client_version "$apiclientVersion" \
           --arg commit_sha '${{ github.sha }}' \
-          --arg commit_message "$COMMIT_MESSAGE" \
           --arg build_timestamp "$buildTimestamp" \
           --arg build_number '${{ github.run_number }}' \
           --arg unique_build_id "$uniqueBuildId" \
           --arg repository '${{ github.repository }}' \
           --arg repository_url '${{ github.server_url }}/${{ github.repository }}' \
           --arg branch '${{ github.ref_name }}' \
-          '{app_version: $app_version, api_client_version: $api_client_version, commit_sha: $commit_sha, commit_message: $commit_message, build_timestamp: $build_timestamp, build_number: $build_number, unique_build_id: $unique_build_id, repository: $repository, repository_url: $repository_url, branch: $branch}' \
+          '{app_version: $app_version, api_client_version: $api_client_version, commit_sha: $commit_sha, build_timestamp: $build_timestamp, build_number: $build_number, unique_build_id: $unique_build_id, repository: $repository, repository_url: $repository_url, branch: $branch}' \
           > "$deployDir/VERSION"
         echo "  :white_check_mark: VERSION file created"
         

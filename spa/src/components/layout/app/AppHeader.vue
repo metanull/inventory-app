@@ -226,7 +226,7 @@
           </div>
 
           <!-- Tools Dropdown -->
-          <div v-if="authStore.isAuthenticated" class="relative" @mouseleave="closeToolsDropdown">
+          <div v-if="showTools" class="relative" @mouseleave="closeToolsDropdown">
             <button
               :class="[
                 getThemeClass('navLinkColor'),
@@ -267,8 +267,19 @@
 
         <!-- Desktop Actions -->
         <div class="hidden md:flex items-center space-x-4">
+          <RouterLink
+            v-if="!authStore.isAuthenticated"
+            to="/login"
+            :class="[
+              getThemeClass('primaryButton'),
+              'px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2',
+            ]"
+          >
+            <ArrowRightOnRectangleIcon class="w-4 h-4" />
+            Login
+          </RouterLink>
           <button
-            v-if="authStore.isAuthenticated"
+            v-else
             :class="[
               getThemeClass('navLinkColor'),
               'px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2',
@@ -493,7 +504,7 @@
           </div>
 
           <!-- Mobile Tools Section -->
-          <div v-if="authStore.isAuthenticated" class="px-3">
+          <div v-if="showTools" class="px-3">
             <button
               :class="[
                 getThemeClass('mobileNavLinkColor'),
@@ -525,9 +536,21 @@
             </div>
           </div>
 
-          <!-- Mobile Logout -->
+          <!-- Mobile Login/Logout -->
+          <RouterLink
+            v-if="!authStore.isAuthenticated"
+            to="/login"
+            :class="[
+              getThemeClass('primaryButton'),
+              'text-center px-3 py-2 rounded-md text-base font-medium flex items-center justify-center gap-2 mx-3',
+            ]"
+            @click="closeMobileMenu"
+          >
+            <ArrowRightOnRectangleIcon class="w-5 h-5" />
+            Login
+          </RouterLink>
           <button
-            v-if="authStore.isAuthenticated"
+            v-else
             :class="[
               getThemeClass('mobileNavLinkColor'),
               'text-left px-3 py-2 rounded-md text-base font-medium flex items-center gap-2',
@@ -576,6 +599,10 @@
   // Computed properties for permissions
   const canViewData = computed(() => permissionsStore.hasPermission('view data'))
   const canCreateData = computed(() => permissionsStore.hasPermission('create data'))
+  
+  // Only show Tools menu when user is authenticated AND permissions have been loaded
+  // This prevents 403 errors when clearing cache before permissions are fetched
+  const showTools = computed(() => authStore.isAuthenticated && permissionsStore.permissions.length > 0)
 
   // Theme colors for header icons (proof-of-concept)
   const itemsColors = useThemeColors('items')

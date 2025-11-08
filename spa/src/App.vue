@@ -1,21 +1,15 @@
 <template>
   <div id="app" :class="['min-h-screen', getThemeClass('modalActionsBg')]">
-    <!-- Application Header -->
-    <AppHeader />
+    <!-- Application Header - only show when permissions are ready -->
+    <AppHeader v-if="!requiresAuth || permissionsReady" />
     <!-- Global Component: Error Display -->
     <ErrorDisplay />
     <!-- Application Body -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <template v-if="!requiresAuth || isAuthenticated">
-        <RouterView />
-      </template>
-      <template v-else>
-        <!-- Keep it lean: small placeholder while redirecting to login -->
-        <div class="text-sm text-gray-500">Redirecting to login…</div>
-      </template>
+      <RouterView v-if="!requiresAuth || (isAuthenticated && permissionsReady)" />
     </main>
-    <!-- Application Footer -->
-    <AppFooter />
+    <!-- Application Footer - only show when permissions are ready -->
+    <AppFooter v-if="!requiresAuth || permissionsReady" />
 
     <!-- Global Component: Loading spinner -->
     <LoadingOverlay />
@@ -30,7 +24,7 @@
 
 <script setup lang="ts">
   import { RouterView } from 'vue-router'
-  import { computed, onMounted } from 'vue'
+  import { computed, onMounted, ref } from 'vue'
   import AppHeader from '@/components/layout/app/AppHeader.vue'
   import AppFooter from '@/components/layout/app/AppFooter.vue'
   import LoadingOverlay from '@/components/global/LoadingOverlay.vue'
@@ -41,18 +35,42 @@
   import { getThemeClass } from '@/composables/useColors'
   import { storeToRefs } from 'pinia'
   import { useAuthStore } from '@/stores/auth'
+  import { usePermissionsStore } from '@/stores/permissions'
   import { useVersionCheckStore } from '@/stores/versionCheck'
+  import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
   import { useRoute } from 'vue-router'
 
   const auth = useAuthStore()
+  const permissionsStore = usePermissionsStore()
+  const loadingStore = useLoadingOverlayStore()
   const { isAuthenticated } = storeToRefs(auth)
   const route = useRoute()
   const requiresAuth = computed(() => route.meta?.requiresAuth === true)
+  const permissionsReady = ref(false)
 
-  // Initialize version checking on app mount
-  const versionStore = useVersionCheckStore()
+  // Initialize app on mount
   onMounted(async () => {
-    // Load initial version from server
+    // Load permissions if authenticated
+    if (isAuthenticated.value) {
+      loadingStore.show('Loading permissions...')
+      try {
+        await permissionsStore.fetchPermissions()
+        permissionsReady.value = true
+      } catch (error) {
+        console.error('Failed to load permissions:', error)
+        // If permissions fail to load, still mark as ready to avoid infinite loading
+        // The user will see an empty interface but can logout
+        permissionsReady.value = true
+      } finally {
+        loadingStore.hide()
+      }
+    } else {
+      // Not authenticated, permissions not needed
+      permissionsReady.value = true
+    }
+
+    // Initialize version checking
+    const versionStore = useVersionCheckStore()
     await versionStore.loadInitialVersion()
   })
 </script>

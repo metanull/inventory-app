@@ -30,7 +30,7 @@
           class="flex transition-transform duration-300 ease-in-out"
           :style="{ transform: `translateX(-${currentGroup * 100}%)` }"
         >
-          <div v-for="group in groups" :key="group.id" class="w-full flex-shrink-0">
+          <div v-for="group in groups" :key="group.id" class="w-full shrink-0">
             <div class="mb-6">
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <component

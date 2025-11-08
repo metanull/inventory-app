@@ -19,19 +19,17 @@ class CustomUpCommand extends UpCommand
         // Call parent implementation to bring application out of maintenance mode
         parent::handle();
 
-        // Remove down.lock file from public directory
+        // Remove lock file from public directory
         try {
-            $disk = Storage::build([
-                'driver' => 'local',
-                'root' => public_path(),
-            ]);
+            $disk = Storage::disk(config('maintenance.public_lock_disk'));
+            $filename = config('maintenance.public_lock_file');
 
-            if ($disk->exists('down.lock')) {
-                $disk->delete('down.lock');
-                $this->components->info('Removed public/down.lock');
+            if ($disk->exists($filename)) {
+                $disk->delete($filename);
+                $this->components->info("Removed public/{$filename}");
             }
         } catch (\Exception $e) {
-            $this->components->warn('Failed to remove public/down.lock: '.$e->getMessage());
+            $this->components->warn('Failed to remove public lock file: '.$e->getMessage());
         }
     }
 }

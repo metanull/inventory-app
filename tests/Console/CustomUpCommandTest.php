@@ -2,116 +2,79 @@
 
 namespace Tests\Console;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
+/**
+ * Unit tests for CustomUpCommand.
+ *
+ * These tests focus on our custom business logic: removing the public lock
+ * file via Storage. We use Storage::fake() for complete isolation and don't test
+ * Laravel's maintenance mode functionality (framework responsibility).
+ */
 class CustomUpCommandTest extends TestCase
 {
-    use RefreshDatabase;
+    private string $disk;
+
+    private string $filename;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Ensure app is up before each test
-        if (app()->isDownForMaintenance()) {
-            $this->artisan('up');
-        }
+        $this->disk = config('maintenance.public_lock_disk');
+        $this->filename = config('maintenance.public_lock_file');
     }
 
-    protected function tearDown(): void
+    public function test_command_removes_existing_lock_file(): void
     {
-        // Clean up down.lock file after each test
-        $lockFilePath = public_path('down.lock');
-        if (file_exists($lockFilePath)) {
-            unlink($lockFilePath);
-        }
+        Storage::fake($this->disk);
 
-        // Ensure app is up
-        if (app()->isDownForMaintenance()) {
-            $this->artisan('up');
-        }
-
-        parent::tearDown();
-    }
-
-    public function test_command_removes_down_lock_file(): void
-    {
-        $lockFilePath = public_path('down.lock');
-
-        // Put app in maintenance mode (creates down.lock)
-        $this->artisan('down');
-        $this->assertFileExists($lockFilePath);
-
-        // Bring app back up
-        $this->artisan('up');
-
-        // Verify down.lock was removed
-        $this->assertFileDoesNotExist($lockFilePath);
-    }
-
-    public function test_command_brings_application_out_of_maintenance_mode(): void
-    {
-        // Put app in maintenance mode
-        $this->artisan('down');
-        $this->assertTrue(app()->isDownForMaintenance());
-
-        // Bring app back up
-        $this->artisan('up');
-
-        $this->assertFalse(app()->isDownForMaintenance());
-    }
-
-    public function test_command_succeeds_when_down_lock_does_not_exist(): void
-    {
-        $lockFilePath = public_path('down.lock');
-
-        // Ensure down.lock doesn't exist
-        if (file_exists($lockFilePath)) {
-            unlink($lockFilePath);
-        }
-
-        // Command should still succeed
-        $this->artisan('up');
-
-        $this->assertFileDoesNotExist($lockFilePath);
-    }
-
-    public function test_command_succeeds_when_app_not_in_maintenance_mode(): void
-    {
-        $lockFilePath = public_path('down.lock');
-
-        // Create down.lock file manually (simulating orphaned lock file)
-        file_put_contents($lockFilePath, json_encode([
+        // Create a lock file first
+        Storage::disk($this->disk)->put($this->filename, json_encode([
             'timestamp' => now()->toIso8601String(),
             'message' => 'Application is currently under maintenance',
         ]));
 
-        $this->assertFileExists($lockFilePath);
-        $this->assertFalse(app()->isDownForMaintenance());
+        $this->assertTrue(Storage::disk($this->disk)->exists($this->filename));
 
-        // Command should clean up the orphaned lock file
+        // Run up command
         $this->artisan('up');
 
-        $this->assertFileDoesNotExist($lockFilePath);
+        // Verify file was deleted
+        $this->assertFalse(Storage::disk($this->disk)->exists($this->filename));
     }
 
-    public function test_down_and_up_cycle_works_correctly(): void
+    public function test_command_succeeds_when_lock_file_does_not_exist(): void
     {
-        $lockFilePath = public_path('down.lock');
+        Storage::fake($this->disk);
 
-        // Initial state
-        $this->assertFalse(app()->isDownForMaintenance());
-        $this->assertFileDoesNotExist($lockFilePath);
+        // Ensure file doesn't exist
+        $this->assertFalse(Storage::disk($this->disk)->exists($this->filename));
 
-        // Put down
-        $this->artisan('down');
-        $this->assertTrue(app()->isDownForMaintenance());
-        $this->assertFileExists($lockFilePath);
+        // Command should succeed without errors
+        $this->artisan('up')->assertSuccessful();
 
-        // Bring back up
+        // File should still not exist
+        $this->assertFalse(Storage::disk($this->disk)->exists($this->filename));
+    }
+
+    public function test_command_removes_orphaned_lock_file(): void
+    {
+        Storage::fake($this->disk);
+
+        // Create an orphaned lock file (simulating leftover from crashed maintenance)
+        Storage::disk($this->disk)->put($this->filename, json_encode([
+            'timestamp' => now()->subHours(2)->toIso8601String(),
+            'message' => 'Old maintenance message',
+        ]));
+
+        $this->assertTrue(Storage::disk($this->disk)->exists($this->filename));
+
+        // Run up command to clean up
         $this->artisan('up');
-        $this->assertFalse(app()->isDownForMaintenance());
-        $this->assertFileDoesNotExist($lockFilePath);
+
+        // Verify orphaned file was removed
+        $this->assertFalse(Storage::disk($this->disk)->exists($this->filename));
     }
 }
