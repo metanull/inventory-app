@@ -19,23 +19,21 @@ class CustomDownCommand extends DownCommand
         // Call parent implementation to execute standard Laravel maintenance mode
         parent::handle();
 
-        // Create down.lock file in public directory for SPA access
+        // Create lock file in public directory for SPA access
         try {
-            $disk = Storage::build([
-                'driver' => 'local',
-                'root' => public_path(),
-            ]);
+            $disk = Storage::disk(config('maintenance.public_lock_disk'));
+            $filename = config('maintenance.public_lock_file');
 
             $content = json_encode([
                 'timestamp' => now()->toIso8601String(),
                 'message' => 'Application is currently under maintenance',
             ]);
 
-            $disk->put('down.lock', $content);
+            $disk->put($filename, $content);
 
-            $this->components->info('Created public/down.lock for SPA detection');
+            $this->components->info("Created public/{$filename} for SPA detection");
         } catch (\Exception $e) {
-            $this->components->warn('Failed to create public/down.lock: '.$e->getMessage());
+            $this->components->warn('Failed to create public lock file: '.$e->getMessage());
         }
     }
 }

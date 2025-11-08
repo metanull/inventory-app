@@ -2,54 +2,46 @@
 
 namespace Tests\Console;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
+/**
+ * Unit tests for CustomDownCommand.
+ *
+ * These tests focus on our custom business logic: creating the public lock
+ * file via Storage. We use Storage::fake() for complete isolation and don't test
+ * Laravel's maintenance mode functionality (framework responsibility).
+ */
 class CustomDownCommandTest extends TestCase
 {
-    use RefreshDatabase;
+    private string $disk;
 
-    protected function tearDown(): void
+    private string $filename;
+
+    protected function setUp(): void
     {
-        // Clean up down.lock file after each test
-        $lockFilePath = public_path('down.lock');
-        if (file_exists($lockFilePath)) {
-            unlink($lockFilePath);
-        }
+        parent::setUp();
 
-        // Bring app back up if it was put down
-        if (app()->isDownForMaintenance()) {
-            $this->artisan('up');
-        }
-
-        parent::tearDown();
+        $this->disk = config('maintenance.public_lock_disk');
+        $this->filename = config('maintenance.public_lock_file');
     }
 
-    public function test_command_creates_down_lock_file(): void
+    public function test_command_creates_lock_file(): void
     {
-        $lockFilePath = public_path('down.lock');
-
-        // Ensure file doesn't exist before test
-        if (file_exists($lockFilePath)) {
-            unlink($lockFilePath);
-        }
+        Storage::fake($this->disk);
 
         $this->artisan('down');
 
-        // Verify down.lock file was created
-        $this->assertFileExists($lockFilePath);
+        $this->assertTrue(Storage::disk($this->disk)->exists($this->filename));
     }
 
-    public function test_down_lock_file_contains_valid_json(): void
+    public function test_lock_file_contains_valid_json(): void
     {
-        $lockFilePath = public_path('down.lock');
+        Storage::fake($this->disk);
 
         $this->artisan('down');
 
-        $this->assertFileExists($lockFilePath);
-
-        // Verify file contains valid JSON
-        $content = file_get_contents($lockFilePath);
+        $content = Storage::disk($this->disk)->get($this->filename);
         $data = json_decode($content, true);
 
         $this->assertIsArray($data);
@@ -57,13 +49,13 @@ class CustomDownCommandTest extends TestCase
         $this->assertArrayHasKey('message', $data);
     }
 
-    public function test_down_lock_file_contains_timestamp(): void
+    public function test_lock_file_contains_valid_timestamp(): void
     {
-        $lockFilePath = public_path('down.lock');
+        Storage::fake($this->disk);
 
         $this->artisan('down');
 
-        $content = file_get_contents($lockFilePath);
+        $content = Storage::disk($this->disk)->get($this->filename);
         $data = json_decode($content, true);
 
         $this->assertNotEmpty($data['timestamp']);
@@ -73,44 +65,15 @@ class CustomDownCommandTest extends TestCase
         $this->assertInstanceOf(\Carbon\Carbon::class, $timestamp);
     }
 
-    public function test_down_lock_file_contains_message(): void
+    public function test_lock_file_contains_correct_message(): void
     {
-        $lockFilePath = public_path('down.lock');
+        Storage::fake($this->disk);
 
         $this->artisan('down');
 
-        $content = file_get_contents($lockFilePath);
+        $content = Storage::disk($this->disk)->get($this->filename);
         $data = json_decode($content, true);
 
         $this->assertEquals('Application is currently under maintenance', $data['message']);
-    }
-
-    public function test_command_puts_application_in_maintenance_mode(): void
-    {
-        $this->assertFalse(app()->isDownForMaintenance());
-
-        $this->artisan('down');
-
-        $this->assertTrue(app()->isDownForMaintenance());
-    }
-
-    public function test_command_works_with_retry_option(): void
-    {
-        $lockFilePath = public_path('down.lock');
-
-        $this->artisan('down', ['--retry' => 60]);
-
-        $this->assertFileExists($lockFilePath);
-        $this->assertTrue(app()->isDownForMaintenance());
-    }
-
-    public function test_command_works_with_secret_option(): void
-    {
-        $lockFilePath = public_path('down.lock');
-
-        $this->artisan('down', ['--secret' => 'test-secret']);
-
-        $this->assertFileExists($lockFilePath);
-        $this->assertTrue(app()->isDownForMaintenance());
     }
 }
