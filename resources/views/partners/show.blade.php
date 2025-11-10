@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <x-layout.show-page 
+    <x-layout.show-page-v2
         entity="partners"
         title="Partner Detail"
         :back-route="route('partners.index')"
@@ -14,6 +14,7 @@
             <x-ui.alert :message="session('status')" type="success" entity="partners" />
         @endif
 
+        <!-- Main Content Area -->
         <x-display.description-list>
             <x-display.field label="Internal Name" :value="$partner->internal_name" />
             <x-display.field label="Type" :value="$partner->type" />
@@ -31,9 +32,6 @@
             <x-display.field label="Project">
                 <x-display.project-reference :project="$partner->project" />
             </x-display.field>
-            <x-display.field label="Monument Item">
-                <x-display.item-reference :item="$partner->monumentItem" />
-            </x-display.field>
         </x-display.description-list>
 
         <!-- Images Section -->
@@ -42,12 +40,18 @@
         <!-- Translations Section -->
         <x-entity.translations-section entity="partners" :model="$partner" translationRoute="partner-translations" />
 
-        <!-- System Properties -->
-        <x-system-properties 
-            :id="$partner->id"
-            :backward-compatibility-id="$partner->backward_compatibility"
-            :created-at="$partner->created_at"
-            :updated-at="$partner->updated_at"
-        />
-    </x-layout.show-page>
+        <!-- Sidebar Content -->
+        <x-slot name="sidebar">
+            <!-- Monument Item Card -->
+            <x-sidebar.monument-item-card :partner="$partner" />
+
+            <!-- System Properties Card -->
+            <x-sidebar.system-properties-card
+                :id="$partner->id"
+                :backward-compatibility-id="$partner->backward_compatibility"
+                :created-at="$partner->created_at"
+                :updated-at="$partner->updated_at"
+            />
+        </x-slot>
+    </x-layout.show-page-v2>
 @endsection

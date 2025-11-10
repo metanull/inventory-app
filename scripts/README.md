@@ -8,6 +8,13 @@ The /scripts directory contains automation and helper scripts used for documenta
   - [Table of contents](#table-of-contents)
   - [Notes](#notes)
   - [Deployment Scripts](#deployment-scripts)
+    - [Overview](#overview)
+    - [Scripts](#scripts-1)
+    - [Quick Start](#quick-start)
+    - [Deployment Phases](#deployment-phases)
+    - [Directory Structure](#directory-structure)
+    - [Rollback](#rollback)
+    - [References](#references)
   - [Scripts used in CI/CD Workflows](#scripts-used-in-cicd-workflows)
     - [Auto-generation of the static documentation website](#auto-generation-of-the-static-documentation-website)
       - [Generating the Git Commit History](#generating-the-git-commit-history)
@@ -126,17 +133,11 @@ New-Item -ItemType Junction `
     -Target "C:\mwnf-server\github-apps\staging-PREVIOUS-VERSION"
 ```
 
-### Documentation
-
-- **[Deployment Guide](/docs/deployment.md)** - Comprehensive documentation with troubleshooting
-- **[Quick Start](/docs/deployment-quick-start.md)** - Common deployment scenarios
-
 ### References
 
 | Reference | Url |
 | --- | --- |
-| Deployment Guide | [/docs/deployment.md](/docs/deployment.md) |
-| Quick Start Guide | [/docs/deployment-quick-start.md](/docs/deployment-quick-start.md) |
+| Deployment Guide | [https://metanull.github.io/inventory-app/deployment/](https://metanull.github.io/inventory-app/deployment/) |
 | Release Artifacts | [https://github.com/metanull/inventory-app/releases](https://github.com/metanull/inventory-app/releases) |
 | GitHub Actions Workflow | [/.github/workflows/release-deployment.yml](../.github/workflows/release-deployment.yml) |
 

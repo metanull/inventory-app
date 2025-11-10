@@ -2,6 +2,38 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "laravel:up",
+			"type": "shell",
+			"command": "php",
+			"args": [
+				"artisan",
+				"up"
+			],
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": [],
+			"detail": "php artisan up"
+		},
+		{
+			"label": "laravel:down",
+			"type": "shell",
+			"command": "php",
+			"args": [
+				"artisan",
+				"down"
+			],
+			"group": "none",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": [],
+			"detail": "php artisan down"
+		},
+		{
 			"label": "composer-install:run",
 			"type": "shell",
 			"command": "composer",

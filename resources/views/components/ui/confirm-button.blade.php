@@ -17,14 +17,23 @@
         'red' => 'border-red-200 text-red-600 hover:text-red-700 hover:bg-red-50',
         'indigo' => 'border-indigo-200 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50',
         'gray' => 'border-gray-200 text-gray-600 hover:text-gray-800 hover:bg-gray-50',
+        'white' => 'bg-white/90 text-red-600 hover:bg-white hover:text-red-700 shadow-sm',
     ];
     $color = $variant === 'danger' ? 'red' : ($variant === 'warning' ? 'indigo' : 'gray');
-    $classes = ($sizes[$size] ?? $sizes['sm']).' inline-flex items-center rounded-md border bg-white font-medium transition '.$palette[$color];
+    $hasSlot = trim($slot ?? '') !== '';
+    $iconOnly = !$hasSlot;
+    
+    $baseClasses = 'inline-flex items-center rounded-md font-medium transition';
+    if ($iconOnly) {
+        $classes = $baseClasses.' p-1 '.$palette[$color];
+    } else {
+        $classes = $baseClasses.' border '.($sizes[$size] ?? $sizes['sm']).' '.$palette[$color];
+    }
 @endphp
 
 <button type="button" 
         x-data 
-        @click="window.Livewire.dispatch('confirm-action', {
+        @click="$dispatch('confirm-action', {
             title: @js($confirmMessage),
             message: 'This operation cannot be undone.',
             confirmLabel: 'Delete',
@@ -35,6 +44,12 @@
         })" 
         class="{{ $classes }}"
         {{ $attributes }}>
-    @if($icon === 'trash')<x-heroicon-o-trash class="w-4 h-4 mr-1" />@endif
-    <span>{{ $slot }}</span>
+    @if($icon === 'trash')
+        <x-heroicon-o-trash class="w-4 h-4{{ $hasSlot ? ' mr-1' : '' }}" />
+    @elseif($icon === 'x-mark')
+        <x-heroicon-o-x-mark class="w-4 h-4{{ $hasSlot ? ' mr-1' : '' }}" />
+    @endif
+    @if($hasSlot)
+        <span>{{ $slot }}</span>
+    @endif
 </button>

@@ -21,7 +21,7 @@ class PartnerController extends Controller
         $this->middleware('auth');
         $this->middleware('permission:'.Permission::VIEW_DATA->value)->only(['index', 'show']);
         $this->middleware('permission:'.Permission::CREATE_DATA->value)->only(['create', 'store']);
-        $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update']);
+        $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update', 'setMonument', 'removeMonument']);
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
@@ -73,5 +73,25 @@ class PartnerController extends Controller
         $partner->delete();
 
         return redirect()->route('partners.index')->with('success', 'Partner deleted successfully');
+    }
+
+    public function setMonument(Request $request, Partner $partner): RedirectResponse
+    {
+        $request->validate([
+            'monument_item_id' => ['required', 'exists:items,id'],
+        ]);
+
+        $partner->update(['monument_item_id' => $request->monument_item_id]);
+
+        return redirect()->route('partners.show', $partner)
+            ->with('success', 'Monument item set successfully');
+    }
+
+    public function removeMonument(Partner $partner): RedirectResponse
+    {
+        $partner->update(['monument_item_id' => null]);
+
+        return redirect()->route('partners.show', $partner)
+            ->with('success', 'Monument item removed successfully');
     }
 }

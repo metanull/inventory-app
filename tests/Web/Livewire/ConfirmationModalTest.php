@@ -26,10 +26,10 @@ class ConfirmationModalTest extends TestCase
     public function test_can_show_confirmation(): void
     {
         Livewire::test(ConfirmationModal::class)
-            ->dispatch('confirm-action', [
-                'title' => 'Delete Item',
-                'message' => 'This will delete the item permanently',
-            ])
+            ->dispatch('confirm-action', 
+                title: 'Delete Item',
+                message: 'This will delete the item permanently'
+            )
             ->assertSet('show', true)
             ->assertSet('title', 'Delete Item')
             ->assertSee('Delete Item');
@@ -57,7 +57,7 @@ class ConfirmationModalTest extends TestCase
     public function test_uses_default_values_when_not_provided(): void
     {
         Livewire::test(ConfirmationModal::class)
-            ->dispatch('confirm-action', [])
+            ->dispatch('confirm-action')
             ->assertSet('title', 'Are you sure?')
             ->assertSet('message', 'This operation cannot be undone.')
             ->assertSet('confirmLabel', 'Confirm')
@@ -68,10 +68,10 @@ class ConfirmationModalTest extends TestCase
     public function test_respects_custom_labels(): void
     {
         Livewire::test(ConfirmationModal::class)
-            ->dispatch('confirm-action', [
-                'confirmLabel' => 'Delete Forever',
-                'cancelLabel' => 'Keep It',
-            ])
+            ->dispatch('confirm-action',
+                confirmLabel: 'Delete Forever',
+                cancelLabel: 'Keep It'
+            )
             ->assertSet('confirmLabel', 'Delete Forever')
             ->assertSet('cancelLabel', 'Keep It')
             ->assertSee('Delete Forever')
@@ -81,17 +81,17 @@ class ConfirmationModalTest extends TestCase
     public function test_supports_different_colors(): void
     {
         Livewire::test(ConfirmationModal::class)
-            ->dispatch('confirm-action', ['color' => 'indigo'])
+            ->dispatch('confirm-action', color: 'indigo')
             ->assertSet('color', 'indigo');
     }
 
     public function test_stores_action_and_method(): void
     {
         Livewire::test(ConfirmationModal::class)
-            ->dispatch('confirm-action', [
-                'action' => '/items/123',
-                'method' => 'DELETE',
-            ])
+            ->dispatch('confirm-action',
+                action: '/items/123',
+                method: 'DELETE'
+            )
             ->assertSet('action', '/items/123')
             ->assertSet('method', 'DELETE');
     }
@@ -99,15 +99,15 @@ class ConfirmationModalTest extends TestCase
     public function test_resets_state_after_close(): void
     {
         Livewire::test(ConfirmationModal::class)
-            ->dispatch('confirm-action', [
-                'title' => 'Custom Title',
-                'message' => 'Custom Message',
-                'confirmLabel' => 'Custom Confirm',
-                'cancelLabel' => 'Custom Cancel',
-                'color' => 'indigo',
-                'action' => '/test',
-                'method' => 'POST',
-            ])
+            ->dispatch('confirm-action',
+                title: 'Custom Title',
+                message: 'Custom Message',
+                confirmLabel: 'Custom Confirm',
+                cancelLabel: 'Custom Cancel',
+                color: 'indigo',
+                action: '/test',
+                method: 'POST'
+            )
             ->call('close')
             ->assertSet('title', 'Are you sure?')
             ->assertSet('message', 'This operation cannot be undone.')
@@ -121,9 +121,9 @@ class ConfirmationModalTest extends TestCase
     public function test_displays_custom_message(): void
     {
         Livewire::test(ConfirmationModal::class)
-            ->dispatch('confirm-action', [
-                'message' => 'This is a custom warning message',
-            ])
+            ->dispatch('confirm-action',
+                message: 'This is a custom warning message'
+            )
             ->assertSee('This is a custom warning message');
     }
 
@@ -132,14 +132,14 @@ class ConfirmationModalTest extends TestCase
         $component = Livewire::test(ConfirmationModal::class);
 
         // First cycle
-        $component->dispatch('confirm-action', ['title' => 'First'])
+        $component->dispatch('confirm-action', title: 'First')
             ->assertSet('show', true)
             ->assertSee('First')
             ->call('close')
             ->assertSet('show', false);
 
         // Second cycle
-        $component->dispatch('confirm-action', ['title' => 'Second'])
+        $component->dispatch('confirm-action', title: 'Second')
             ->assertSet('show', true)
             ->assertSee('Second')
             ->call('close')

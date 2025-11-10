@@ -70,6 +70,10 @@ Route::prefix('web')->group(function () {
         Route::post('items/{item}/parent', [WebItemController::class, 'setParent'])->name('items.setParent');
         Route::delete('items/{item}/parent', [WebItemController::class, 'removeParent'])->name('items.removeParent');
 
+        // Item Children - nested routes for adding/removing children
+        Route::post('items/{item}/children', [WebItemController::class, 'addChild'])->name('items.addChild');
+        Route::delete('items/{item}/children/{child}', [WebItemController::class, 'removeChild'])->name('items.removeChild');
+
         // Item Links - nested routes
         Route::prefix('items/{item}/links')->name('item-links.')->group(function () {
             Route::get('/', [WebItemItemLinkController::class, 'index'])->name('index');
@@ -84,6 +88,10 @@ Route::prefix('web')->group(function () {
         Route::resource('item-translations', WebItemTranslationController::class);
         Route::resource('collection-translations', WebCollectionTranslationController::class);
         Route::resource('partners', WebPartnerController::class);
+
+        // Partner Monument Item - nested routes for setting/removing monument
+        Route::post('partners/{partner}/monument', [WebPartnerController::class, 'setMonument'])->name('partners.setMonument');
+        Route::delete('partners/{partner}/monument', [WebPartnerController::class, 'removeMonument'])->name('partners.removeMonument');
 
         // Partner Images - nested routes
         Route::prefix('partners/{partner}/images')->name('partners.partner-images.')->group(function () {

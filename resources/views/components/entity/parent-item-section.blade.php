@@ -20,7 +20,7 @@
         
         <div class="flex items-start space-x-4 p-4 bg-gray-50 rounded-md">
             <!-- Thumbnail -->
-            <div class="flex-shrink-0 w-12 h-12">
+            <div class="shrink-0 w-12 h-12">
                 @if($image = $model->parent->itemImages->first())
                     <img src="{{ Storage::url($image->image_path) }}" 
                          alt="{{ $model->parent->internal_name }}"
@@ -40,15 +40,7 @@
                 </a>
                 <div class="mt-1">
                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                        @if($model->parent->type === 'object')
-                            <x-heroicon-s-cube class="w-3 h-3 mr-1" />
-                        @elseif($model->parent->type === 'monument')
-                            <x-heroicon-s-building-office-2 class="w-3 h-3 mr-1" />
-                        @elseif($model->parent->type === 'detail')
-                            <x-heroicon-s-magnifying-glass-plus class="w-3 h-3 mr-1" />
-                        @else
-                            <x-heroicon-s-photo class="w-3 h-3 mr-1" />
-                        @endif
+                        <x-display.item-type-icon :type="$model->parent->type" class="w-3 h-3 mr-1" />
                         {{ ucfirst($model->parent->type) }}
                     </span>
                 </div>

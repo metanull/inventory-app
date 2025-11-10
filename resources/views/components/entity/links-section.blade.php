@@ -31,7 +31,7 @@
                                 <li class="px-6 py-4">
                                     <div class="flex items-start space-x-4">
                                         <!-- Thumbnail -->
-                                        <div class="flex-shrink-0 w-12 h-12">
+                                        <div class="shrink-0 w-12 h-12">
                                             @if($image = $link->target->itemImages->first())
                                                 <img src="{{ Storage::url($image->image_path) }}" 
                                                      alt="{{ $link->target->internal_name }}"
@@ -51,15 +51,7 @@
                                                     {{ $link->target->internal_name }}
                                                 </a>
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                                                    @if($link->target->type === 'object')
-                                                        <x-heroicon-s-cube class="w-3 h-3 mr-1" />
-                                                    @elseif($link->target->type === 'monument')
-                                                        <x-heroicon-s-building-office-2 class="w-3 h-3 mr-1" />
-                                                    @elseif($link->target->type === 'detail')
-                                                        <x-heroicon-s-magnifying-glass-plus class="w-3 h-3 mr-1" />
-                                                    @else
-                                                        <x-heroicon-s-photo class="w-3 h-3 mr-1" />
-                                                    @endif
+                                                    <x-display.item-type-icon :type="$link->target->type" class="w-3 h-3 mr-1" />
                                                     {{ ucfirst($link->target->type) }}
                                                 </span>
                                             </div>
@@ -67,7 +59,7 @@
                                         
                                         <!-- Actions -->
                                         @can(\App\Enums\Permission::UPDATE_DATA->value)
-                                            <div class="flex-shrink-0">
+                                            <div class="shrink-0">
                                                 <x-ui.confirm-button 
                                                     action="{{ route('item-links.destroy', [$model, $link]) }}"
                                                     method="DELETE"
@@ -110,7 +102,7 @@
                                 <li class="px-6 py-4">
                                     <div class="flex items-start space-x-4">
                                         <!-- Thumbnail -->
-                                        <div class="flex-shrink-0 w-12 h-12">
+                                        <div class="shrink-0 w-12 h-12">
                                             @if($image = $link->source->itemImages->first())
                                                 <img src="{{ Storage::url($image->image_path) }}" 
                                                      alt="{{ $link->source->internal_name }}"
@@ -130,15 +122,7 @@
                                                     {{ $link->source->internal_name }}
                                                 </a>
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                                                    @if($link->source->type === 'object')
-                                                        <x-heroicon-s-cube class="w-3 h-3 mr-1" />
-                                                    @elseif($link->source->type === 'monument')
-                                                        <x-heroicon-s-building-office-2 class="w-3 h-3 mr-1" />
-                                                    @elseif($link->source->type === 'detail')
-                                                        <x-heroicon-s-magnifying-glass-plus class="w-3 h-3 mr-1" />
-                                                    @else
-                                                        <x-heroicon-s-photo class="w-3 h-3 mr-1" />
-                                                    @endif
+                                                    <x-display.item-type-icon :type="$link->source->type" class="w-3 h-3 mr-1" />
                                                     {{ ucfirst($link->source->type) }}
                                                 </span>
                                             </div>
@@ -146,7 +130,7 @@
                                         
                                         <!-- Actions -->
                                         @can(\App\Enums\Permission::UPDATE_DATA->value)
-                                            <div class="flex-shrink-0">
+                                            <div class="shrink-0">
                                                 <x-ui.confirm-button 
                                                     action="{{ route('item-links.destroy', [$link->source, $link]) }}"
                                                     method="DELETE"

@@ -56,6 +56,15 @@ class ItemItemLinkController extends Controller
 
         $link = ItemItemLink::create($validated);
 
+        // Return to item show page if coming from sidebar, otherwise show link detail
+        $returnTo = $request->query('return_to', 'detail');
+
+        if ($returnTo === 'item') {
+            return redirect()
+                ->route('items.show', $item)
+                ->with('success', 'Item link created successfully');
+        }
+
         return redirect()
             ->route('item-links.show', ['item' => $item, 'itemItemLink' => $link])
             ->with('success', 'Item link created successfully');

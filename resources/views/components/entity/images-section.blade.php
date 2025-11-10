@@ -38,75 +38,66 @@
         @else
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($images as $image)
-                    <div class="bg-white rounded-lg overflow-hidden border border-gray-200">
+                    <div class="bg-white rounded-lg overflow-hidden border border-gray-200 relative group">
                         <!-- Image -->
-                        <div class="aspect-square bg-gray-200">
+                        <div class="aspect-square bg-gray-200 relative">
                             <img src="{{ route($routePrefix . '.view', [$model, $image]) }}" 
                                  alt="{{ $image->alt_text ?? ucfirst($entitySingular) . ' image' }}"
                                  class="w-full h-full object-cover">
+                            
+                            <!-- Detach Button (overlaid on image) -->
+                            @can(\App\Enums\Permission::UPDATE_DATA->value)
+                                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <x-ui.confirm-button 
+                                        :action="route($routePrefix . '.detach', [$model, $image])"
+                                        confirmMessage="Detach this image?"
+                                        variant="danger"
+                                        icon="x-mark"
+                                        entity="{{ $entity }}"
+                                        class="bg-white/90! hover:bg-white! shadow-md">
+                                    </x-ui.confirm-button>
+                                </div>
+                            @endcan
                         </div>
 
-                        <!-- Info & Actions -->
-                        <div class="p-4 space-y-3">
-                            <!-- Alt Text -->
-                            <div>
-                                <p class="text-xs font-medium text-gray-500 uppercase">Alt Text</p>
-                                <p class="text-sm text-gray-900">
-                                    {{ $image->alt_text ?: 'No alt text' }}
-                                </p>
-                            </div>
+                        <!-- Alt Text with Controls -->
+                        <div class="p-3 relative">
+                            <div class="flex items-start gap-2">
+                                <!-- Move Up/Down -->
+                                @can(\App\Enums\Permission::UPDATE_DATA->value)
+                                    <form method="POST" action="{{ route($routePrefix . '.move-up', [$model, $image]) }}" class="shrink-0">
+                                        @csrf
+                                        <button type="submit" class="text-gray-400 hover:text-gray-600 transition-colors" title="Move up">
+                                            <x-heroicon-o-chevron-left class="w-4 h-4" />
+                                        </button>
+                                    </form>
+                                @endcan
 
-                            <!-- Display Order -->
-                            <div>
-                                <p class="text-xs font-medium text-gray-500 uppercase">Display Order</p>
-                                <p class="text-sm text-gray-900">{{ $image->display_order }}</p>
-                            </div>
-
-                            <!-- Actions -->
-                            <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-200">
-                                <!-- Edit -->
-                                <x-ui.button 
-                                    href="{{ route($routePrefix . '.edit', [$model, $image]) }}" 
-                                    variant="edit"
-                                    size="sm"
-                                    icon="pencil">
-                                    Edit
-                                </x-ui.button>
-
-                                <!-- Move Up -->
-                                <form method="POST" action="{{ route($routePrefix . '.move-up', [$model, $image]) }}" class="inline">
-                                    @csrf
-                                    <x-ui.button 
-                                        type="submit"
-                                        variant="ghost"
-                                        size="sm"
-                                        icon="arrow-up">
-                                        Up
-                                    </x-ui.button>
-                                </form>
+                                <!-- Alt Text -->
+                                <div class="flex-1 min-w-0 relative">
+                                    <p class="text-sm text-gray-900">
+                                        {{ $image->alt_text ?: 'No alt text' }}
+                                    </p>
+                                    
+                                    <!-- Edit Button (overlaid on text) -->
+                                    @can(\App\Enums\Permission::UPDATE_DATA->value)
+                                        <a href="{{ route($routePrefix . '.edit', [$model, $image]) }}" 
+                                           class="absolute top-0 right-0 text-gray-400 hover:text-blue-600 transition-colors opacity-0 group-hover:opacity-100"
+                                           title="Edit">
+                                            <x-heroicon-o-pencil class="w-3 h-3" />
+                                        </a>
+                                    @endcan
+                                </div>
 
                                 <!-- Move Down -->
-                                <form method="POST" action="{{ route($routePrefix . '.move-down', [$model, $image]) }}" class="inline">
-                                    @csrf
-                                    <x-ui.button 
-                                        type="submit"
-                                        variant="ghost"
-                                        size="sm"
-                                        icon="arrow-down">
-                                        Down
-                                    </x-ui.button>
-                                </form>
-
-                                <!-- Detach -->
-                                <x-ui.confirm-button 
-                                    :action="route($routePrefix . '.detach', [$model, $image])"
-                                    confirmMessage="Detach this image and return it to available images?"
-                                    variant="warning"
-                                    size="sm"
-                                    icon="arrows-up-down"
-                                    entity="{{ $entity }}">
-                                    Detach
-                                </x-ui.confirm-button>
+                                @can(\App\Enums\Permission::UPDATE_DATA->value)
+                                    <form method="POST" action="{{ route($routePrefix . '.move-down', [$model, $image]) }}" class="shrink-0">
+                                        @csrf
+                                        <button type="submit" class="text-gray-400 hover:text-gray-600 transition-colors" title="Move down">
+                                            <x-heroicon-o-chevron-right class="w-4 h-4" />
+                                        </button>
+                                    </form>
+                                @endcan
                             </div>
                         </div>
                     </div>
