@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 /**
  * Tests for SearchableSelect Livewire Component
- * 
+ *
  * Tests custom business logic only, not framework functionality.
  * Focuses on: static options, dynamic DB queries, filtering, and search.
  */
@@ -21,8 +21,8 @@ class SearchableSelectTest extends TestCase
     public function test_component_renders_with_static_options(): void
     {
         $options = collect([
-            (object)['id' => '1', 'internal_name' => 'Option One'],
-            (object)['id' => '2', 'internal_name' => 'Option Two'],
+            (object) ['id' => '1', 'internal_name' => 'Option One'],
+            (object) ['id' => '2', 'internal_name' => 'Option Two'],
         ]);
 
         Livewire::test(SearchableSelect::class, [
@@ -47,9 +47,9 @@ class SearchableSelectTest extends TestCase
     public function test_search_filters_static_options(): void
     {
         $options = collect([
-            (object)['id' => '1', 'internal_name' => 'Alpha'],
-            (object)['id' => '2', 'internal_name' => 'Beta'],
-            (object)['id' => '3', 'internal_name' => 'Gamma'],
+            (object) ['id' => '1', 'internal_name' => 'Alpha'],
+            (object) ['id' => '2', 'internal_name' => 'Beta'],
+            (object) ['id' => '3', 'internal_name' => 'Gamma'],
         ]);
 
         $component = Livewire::test(SearchableSelect::class, [
@@ -57,7 +57,7 @@ class SearchableSelectTest extends TestCase
             'name' => 'test_field',
         ])
             ->set('search', 'alph');
-        
+
         $filteredOptions = $component->get('options');
         $this->assertTrue($filteredOptions->contains('internal_name', 'Alpha'));
         $this->assertFalse($filteredOptions->contains('internal_name', 'Beta'));
@@ -73,7 +73,7 @@ class SearchableSelectTest extends TestCase
             'name' => 'item_id',
         ])
             ->set('search', 'Alpha');
-        
+
         $filteredOptions = $component->get('options');
         $this->assertTrue($filteredOptions->contains('internal_name', 'Alpha Item'));
         $this->assertFalse($filteredOptions->contains('internal_name', 'Beta Item'));
@@ -121,7 +121,7 @@ class SearchableSelectTest extends TestCase
 
         // Access the computed property to check filtering
         $options = $component->get('options');
-        
+
         $this->assertFalse($options->contains('id', $item1->id));
         $this->assertTrue($options->contains('id', $item2->id));
     }
@@ -141,7 +141,7 @@ class SearchableSelectTest extends TestCase
         ]);
 
         $options = $component->get('options');
-        
+
         $this->assertFalse($options->contains('id', $item1->id));
         $this->assertFalse($options->contains('id', $item2->id));
         $this->assertTrue($options->contains('id', $item3->id));
@@ -158,7 +158,7 @@ class SearchableSelectTest extends TestCase
         ]);
 
         $selectedOption = $component->get('selectedOption');
-        
+
         $this->assertNotNull($selectedOption);
         $this->assertEquals($item->id, $selectedOption->id);
         $this->assertEquals('Test Item', $selectedOption->internal_name);
@@ -167,8 +167,8 @@ class SearchableSelectTest extends TestCase
     public function test_selected_option_with_static_options(): void
     {
         $options = collect([
-            (object)['id' => '1', 'internal_name' => 'Option One'],
-            (object)['id' => '2', 'internal_name' => 'Option Two'],
+            (object) ['id' => '1', 'internal_name' => 'Option One'],
+            (object) ['id' => '2', 'internal_name' => 'Option Two'],
         ]);
 
         $component = Livewire::test(SearchableSelect::class, [
@@ -178,7 +178,7 @@ class SearchableSelectTest extends TestCase
         ]);
 
         $selectedOption = $component->get('selectedOption');
-        
+
         $this->assertEquals('2', $selectedOption->id);
         $this->assertEquals('Option Two', $selectedOption->internal_name);
     }
@@ -207,16 +207,16 @@ class SearchableSelectTest extends TestCase
         ]);
 
         $options = $component->get('options');
-        
+
         $this->assertLessThanOrEqual(50, $options->count());
     }
 
     public function test_empty_search_shows_all_static_options(): void
     {
         $options = collect([
-            (object)['id' => '1', 'internal_name' => 'Alpha'],
-            (object)['id' => '2', 'internal_name' => 'Beta'],
-            (object)['id' => '3', 'internal_name' => 'Gamma'],
+            (object) ['id' => '1', 'internal_name' => 'Alpha'],
+            (object) ['id' => '2', 'internal_name' => 'Beta'],
+            (object) ['id' => '3', 'internal_name' => 'Gamma'],
         ]);
 
         $component = Livewire::test(SearchableSelect::class, [

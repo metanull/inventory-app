@@ -26,7 +26,7 @@ class ConfirmationModalTest extends TestCase
     public function test_can_show_confirmation(): void
     {
         Livewire::test(ConfirmationModal::class)
-            ->dispatch('confirm-action', 
+            ->dispatch('confirm-action',
                 title: 'Delete Item',
                 message: 'This will delete the item permanently'
             )

@@ -11,7 +11,7 @@ use Tests\Web\Traits\AuthenticatesWebRequests;
 
 /**
  * Tests for Sidebar Blade Components
- * 
+ *
  * These tests verify that sidebar components render without errors.
  * We don't test framework functionality, only our custom business logic.
  */
