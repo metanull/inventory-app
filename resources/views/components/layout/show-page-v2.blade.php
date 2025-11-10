@@ -14,7 +14,7 @@
 <div class="min-h-screen bg-gray-50">
     <div class="bg-white border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-            <div>
+            <div class="flex items-center justify-between gap-4">
                 <div class="flex-1">
                     @if($backRoute)
                         <a href="{{ $backRoute }}" class="text-sm {{ $c['accentLink'] }} mb-4 inline-block">&larr; Back to list</a>
@@ -36,10 +36,6 @@
                             @endcan
                         @endif
                         
-                        @if($backwardCompatibility)
-                            <x-display.badge :entity="$entity">Legacy: {{ $backwardCompatibility }}</x-display.badge>
-                        @endif
-                        
                         @foreach($badges as $badge)
                             <x-display.badge :entity="$entity">{{ $badge }}</x-display.badge>
                         @endforeach
@@ -49,13 +45,34 @@
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         @if(session('status'))
-            <x-ui.alert :message="session('status')" type="success" entity="$entity" />
+            <x-ui.alert :message="session('status')" type="success" :entity="$entity" />
         @endif
-
-        {{ $slot }}
+        <div class="grid gap-8" style="grid-template-columns: 1fr; grid-template-areas: 'main' 'sidebar';">
+            <div class="space-y-6" style="grid-area: main;">
+                {{ $slot }}
+            </div>
+            <div style="grid-area: sidebar;">
+                <div class="space-y-6">
+                    {{ $sidebar ?? '' }}
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <style>
+        @media (min-width: 1024px) {
+            .max-w-7xl > .grid {
+                grid-template-columns: 3fr 1fr !important;
+                grid-template-areas: 'main sidebar' !important;
+            }
+            .max-w-7xl > .grid > div[style*="sidebar"] > div {
+                position: sticky;
+                top: 2rem;
+            }
+        }
+    </style>
 
     @if($deleteRoute)
         <x-ui.delete-modal 

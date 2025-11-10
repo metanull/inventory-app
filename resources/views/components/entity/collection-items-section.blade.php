@@ -24,8 +24,9 @@
                         <li class="px-6 py-4 hover:bg-gray-50">
                             <div class="flex items-start space-x-4">
                                 <!-- Thumbnail -->
-                                <div class="flex-shrink-0 w-12 h-12">
-                                    @if($image = $item->itemImages->first())
+                                                        <!-- Thumbnail -->
+                        <div class="shrink-0 w-12 h-12">
+                            @if($image = $item->itemImages->first())
                                         <img src="{{ Storage::url($image->image_path) }}" 
                                              alt="{{ $item->internal_name }}"
                                              class="w-12 h-12 rounded object-cover">
@@ -44,15 +45,7 @@
                                             {{ $item->internal_name }}
                                         </a>
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                                            @if($item->type === 'object')
-                                                <x-heroicon-s-cube class="w-3 h-3 mr-1" />
-                                            @elseif($item->type === 'monument')
-                                                <x-heroicon-s-building-office-2 class="w-3 h-3 mr-1" />
-                                            @elseif($item->type === 'detail')
-                                                <x-heroicon-s-magnifying-glass-plus class="w-3 h-3 mr-1" />
-                                            @else
-                                                <x-heroicon-s-photo class="w-3 h-3 mr-1" />
-                                            @endif
+                                            <x-display.item-type-icon :type="$item->type" class="w-3 h-3 mr-1" />
                                             {{ ucfirst($item->type) }}
                                         </span>
                                     </div>
@@ -62,8 +55,8 @@
                                 </div>
                                 
                                 <!-- Actions -->
-                                @can(\App\Enums\Permission::UPDATE_DATA->value)
-                                    <div class="flex-shrink-0">
+                                <div class="shrink-0">
+                                    @can(\App\Enums\Permission::UPDATE_DATA->value)
                                         <form action="{{ route('collections.detachItem', [$model, $item]) }}" method="POST" class="inline">
                                             @csrf
                                             @method('DELETE')
@@ -88,7 +81,7 @@
 
 <!-- Attach Item Modal -->
 @can(\App\Enums\Permission::UPDATE_DATA->value)
-<div id="attachItemModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+<div id="attachItemModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="px-6 py-4 border-b border-gray-200">
             <div class="flex items-center justify-between">

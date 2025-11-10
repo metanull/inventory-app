@@ -166,4 +166,59 @@ class ItemController extends Controller
         return redirect()->route('items.show', $item)
             ->with('success', 'Parent relationship removed successfully');
     }
+
+    public function addChild(Request $request, Item $item): RedirectResponse
+    {
+        $request->validate([
+            'child_id' => ['required', 'exists:items,id'],
+        ]);
+
+        // Prevent item from being its own child
+        if ($request->child_id === $item->id) {
+            return redirect()->back()
+                ->withErrors(['child_id' => 'An item cannot be its own child'])
+                ->withInput();
+        }
+
+        $child = Item::findOrFail($request->child_id);
+
+        // Check if already a child (idempotent)
+        if ($child->parent_id === $item->id) {
+            return redirect()->route('items.show', $item)
+                ->with('info', 'This item is already a child of the selected parent');
+        }
+
+        // Prevent circular references by checking if item is a descendant of the potential child
+        $ancestor = $item;
+        while ($ancestor->parent_id !== null) {
+            if ($ancestor->parent_id === $child->id) {
+                return redirect()->back()
+                    ->withErrors(['child_id' => 'Cannot create circular child relationship'])
+                    ->withInput();
+            }
+            $ancestor = Item::find($ancestor->parent_id);
+            if (! $ancestor) {
+                break;
+            }
+        }
+
+        $child->update(['parent_id' => $item->id]);
+
+        return redirect()->route('items.show', $item)
+            ->with('success', 'Child item added successfully');
+    }
+
+    public function removeChild(Item $item, Item $child): RedirectResponse
+    {
+        // Verify the child relationship exists
+        if ($child->parent_id !== $item->id) {
+            return redirect()->route('items.show', $item)
+                ->withErrors('This item is not a child of the selected parent');
+        }
+
+        $child->update(['parent_id' => null]);
+
+        return redirect()->route('items.show', $item)
+            ->with('success', 'Child relationship removed successfully');
+    }
 }

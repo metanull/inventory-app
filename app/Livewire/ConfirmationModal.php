@@ -24,15 +24,22 @@ class ConfirmationModal extends Component
 
     protected $listeners = ['confirm-action' => 'showConfirmation'];
 
-    public function showConfirmation(array $data): void
-    {
-        $this->title = $data['title'] ?? 'Are you sure?';
-        $this->message = $data['message'] ?? 'This operation cannot be undone.';
-        $this->confirmLabel = $data['confirmLabel'] ?? 'Confirm';
-        $this->cancelLabel = $data['cancelLabel'] ?? 'Cancel';
-        $this->color = $data['color'] ?? 'red';
-        $this->action = $data['action'] ?? null;
-        $this->method = $data['method'] ?? 'DELETE';
+    public function showConfirmation(
+        ?string $title = null,
+        ?string $message = null,
+        ?string $confirmLabel = null,
+        ?string $cancelLabel = null,
+        ?string $color = null,
+        ?string $action = null,
+        ?string $method = null
+    ): void {
+        $this->title = $title ?? 'Are you sure?';
+        $this->message = $message ?? 'This operation cannot be undone.';
+        $this->confirmLabel = $confirmLabel ?? 'Confirm';
+        $this->cancelLabel = $cancelLabel ?? 'Cancel';
+        $this->color = $color ?? 'red';
+        $this->action = $action;
+        $this->method = $method ?? 'DELETE';
         $this->show = true;
     }
 

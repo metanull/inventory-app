@@ -24,33 +24,7 @@ Detailed web server configuration for Apache and Nginx, including security, perf
 
 ### Basic Virtual Host Setup
 
-The `deployment/apache.conf` and `deployment/apache-windows.conf` files provide ready-to-use configurations. Here's how to customize them for your environment:
-
-#### Linux/Unix Setup
-
-```apache
-<VirtualHost *:80>
-    ServerName inventory-app.your-domain.com
-    ServerAlias www.inventory-app.your-domain.com
-    DocumentRoot /var/www/inventory-app/public
-
-    <Directory /var/www/inventory-app/public>
-        AllowOverride All
-        Require all granted
-        Options -Indexes +FollowSymLinks
-
-        # Laravel URL rewriting
-        RewriteEngine On
-        RewriteCond %{REQUEST_FILENAME} !-f
-        RewriteCond %{REQUEST_FILENAME} !-d
-        RewriteRule ^(.*)$ index.php [QSA,L]
-    </Directory>
-
-    # Logging
-    ErrorLog ${APACHE_LOG_DIR}/inventory-app-error.log
-    CustomLog ${APACHE_LOG_DIR}/inventory-app-access.log combined
-</VirtualHost>
-```
+The `deployment/apache.conf` files provide ready-to-use configurations. Here's how to customize them for your environment:
 
 #### Windows Setup
 

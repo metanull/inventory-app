@@ -22,7 +22,7 @@
                         <li class="px-6 py-4 hover:bg-gray-50">
                             <div class="flex items-start space-x-4">
                                 <!-- Thumbnail -->
-                                <div class="flex-shrink-0 w-12 h-12">
+                                <div class="shrink-0 w-12 h-12">
                                     @if($image = $child->itemImages->first())
                                         <img src="{{ Storage::url($image->image_path) }}" 
                                              alt="{{ $child->internal_name }}"
@@ -42,15 +42,7 @@
                                     </a>
                                     <div class="mt-1">
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                                            @if($child->type === 'object')
-                                                <x-heroicon-s-cube class="w-3 h-3 mr-1" />
-                                            @elseif($child->type === 'monument')
-                                                <x-heroicon-s-building-office-2 class="w-3 h-3 mr-1" />
-                                            @elseif($child->type === 'detail')
-                                                <x-heroicon-s-magnifying-glass-plus class="w-3 h-3 mr-1" />
-                                            @else
-                                                <x-heroicon-s-photo class="w-3 h-3 mr-1" />
-                                            @endif
+                                            <x-display.item-type-icon :type="$child->type" class="w-3 h-3 mr-1" />
                                             {{ ucfirst($child->type) }}
                                         </span>
                                     </div>

@@ -88,81 +88,79 @@
                         @foreach($translations as $translation)
                             <div class="bg-white rounded-lg overflow-hidden border border-gray-200">
                                 <div class="p-4">
-                                    <div class="flex items-start justify-between mb-3">
-                                        <div class="flex items-center space-x-2">
-                                            <x-heroicon-o-language class="h-5 w-5 text-blue-500" />
-                                            <div class="flex flex-wrap gap-2">
-                                                <x-ui.badge color="blue" variant="pill">
-                                                    {{ $translation->language->internal_name ?? $translation->language_id }}
+                                    <!-- Badge and Language Info -->
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <x-heroicon-o-language class="h-4 w-4 text-blue-500 shrink-0" />
+                                        <div class="flex flex-wrap gap-2">
+                                            <x-ui.badge color="blue" variant="pill">
+                                                {{ $translation->language->internal_name ?? $translation->language_id }}
+                                            </x-ui.badge>
+                                            @if($groupByContext && $translation->context)
+                                                <x-ui.badge color="gray" variant="pill">
+                                                    {{ $translation->context->internal_name }}
                                                 </x-ui.badge>
-                                                @if($groupByContext && $translation->context)
-                                                    <x-ui.badge color="gray" variant="pill">
-                                                        {{ $translation->context->internal_name }}
-                                                    </x-ui.badge>
-                                                @endif
-                                            </div>
+                                            @endif
                                         </div>
                                     </div>
 
-                                    <!-- Translation Content -->
-                                    <div class="mb-2">
-                                        @if($translation->$primaryField ?? false)
-                                            <h4 class="text-base font-semibold text-gray-900">
+                                    <!-- Title Row with Actions -->
+                                    @if($translation->$primaryField ?? false)
+                                        <div class="flex items-start justify-between gap-4 mb-1">
+                                            <h4 class="text-base font-semibold text-gray-900 flex-1 min-w-0">
                                                 {{ $translation->$primaryField }}
                                             </h4>
-                                        @endif
-                                        
-                                        @if($secondaryField && ($translation->$secondaryField ?? false))
-                                            <p class="text-sm text-gray-600">
-                                                {{ $translation->$secondaryField }}
-                                            </p>
-                                        @endif
-                                    </div>
+                                            <!-- Compact Actions on Same Line -->
+                                            <div class="flex items-center gap-2 shrink-0">
+                                                <a href="{{ route($translationRoute . '.show', $entity === 'glossary' ? ['glossary' => $model->id, 'translation' => $translation->id] : $translation) }}" 
+                                                   class="text-gray-400 hover:text-blue-600 transition-colors" title="View">
+                                                    <x-heroicon-o-eye class="w-4 h-4" />
+                                                </a>
+                                                <a href="{{ route($translationRoute . '.edit', $entity === 'glossary' ? ['glossary' => $model->id, 'translation' => $translation->id] : $translation) }}" 
+                                                   class="text-gray-400 hover:text-yellow-600 transition-colors" title="Edit">
+                                                    <x-heroicon-o-pencil class="w-4 h-4" />
+                                                </a>
+                                                <button type="button" 
+                                                        x-data 
+                                                        @click="$dispatch('confirm-action', {
+                                                            title: 'Delete this translation?',
+                                                            message: 'This operation cannot be undone.',
+                                                            confirmLabel: 'Delete',
+                                                            cancelLabel: 'Cancel',
+                                                            action: '{{ route($translationRoute . '.destroy', $entity === 'glossary' ? ['glossary' => $model->id, 'translation' => $translation->id] : $translation) }}',
+                                                            method: 'DELETE',
+                                                            color: 'red'
+                                                        })" 
+                                                        class="text-gray-400 hover:text-red-600 transition-colors" title="Delete">
+                                                    <x-heroicon-o-trash class="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endif
+                                            
+                                    @if($secondaryField && ($translation->$secondaryField ?? false))
+                                        <p class="text-sm text-gray-600 mb-2">
+                                            {{ $translation->$secondaryField }}
+                                        </p>
+                                    @endif
 
                                     <!-- Description Preview -->
                                     @if($descriptionField && ($translation->$descriptionField ?? false))
-                                        <div class="text-sm text-gray-700 mb-3 line-clamp-3 prose prose-sm">
+                                        <div class="text-sm text-gray-700 mb-2 line-clamp-3 prose prose-sm">
                                             <x-display.markdown :content="Str::limit($translation->$descriptionField, 300)" />
                                         </div>
                                     @endif
 
                                     <!-- Metadata -->
-                                    <div class="flex items-center text-xs text-gray-500 space-x-4 mb-3">
-                                        @if($translation->type ?? false)
-                                            <span>Type: {{ $translation->type }}</span>
-                                        @endif
-                                        @if($translation->dates ?? false)
-                                            <span>Dates: {{ $translation->dates }}</span>
-                                        @endif
-                                    </div>
-
-                                    <!-- Actions -->
-                                    <div class="flex flex-wrap gap-2 pt-3 border-t border-gray-200">
-                                        <!-- View/Edit -->
-                                        <x-ui.button 
-                                            href="{{ route($translationRoute . '.show', $entity === 'glossary' ? ['glossary' => $model->id, 'translation' => $translation->id] : $translation) }}" 
-                                            variant="edit"
-                                            size="sm"
-                                            icon="eye">
-                                            View
-                                        </x-ui.button>
-                                        <x-ui.button 
-                                            href="{{ route($translationRoute . '.edit', $entity === 'glossary' ? ['glossary' => $model->id, 'translation' => $translation->id] : $translation) }}" 
-                                            variant="warning"
-                                            size="sm"
-                                            icon="pencil">
-                                            Edit
-                                        </x-ui.button>
-                                        <!-- Delete -->
-                                        <x-ui.confirm-button 
-                                            action="{{ route($translationRoute . '.destroy', $entity === 'glossary' ? ['glossary' => $model->id, 'translation' => $translation->id] : $translation) }}"
-                                            confirmMessage="Are you sure you want to delete this translation?"
-                                            variant="danger"
-                                            size="sm"
-                                            icon="trash">
-                                            Delete
-                                        </x-ui.confirm-button>
-                                    </div>
+                                    @if(($translation->type ?? false) || ($translation->dates ?? false))
+                                        <div class="flex items-center text-xs text-gray-500 space-x-4">
+                                            @if($translation->type ?? false)
+                                                <span>Type: {{ $translation->type }}</span>
+                                            @endif
+                                            @if($translation->dates ?? false)
+                                                <span>Dates: {{ $translation->dates }}</span>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
