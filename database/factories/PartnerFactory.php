@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ItemType;
 use App\Models\Country;
 use App\Models\Item;
 use App\Models\Project;
@@ -100,7 +101,7 @@ class PartnerFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'monument_item_id' => Item::factory()->monument(),
+                'monument_item_id' => Item::factory()->Monument(),
             ];
         });
     }

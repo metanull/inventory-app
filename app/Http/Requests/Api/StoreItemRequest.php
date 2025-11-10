@@ -38,45 +38,4 @@ class StoreItemRequest extends FormRequest
         ];
     }
 
-    /**
-     * Configure the validator instance.
-     */
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
-            $this->validateHierarchicalRules($validator);
-        });
-    }
-
-    /**
-     * Validate hierarchical business rules.
-     */
-    protected function validateHierarchicalRules($validator)
-    {
-        $type = $this->input('type');
-        $parentId = $this->input('parent_id');
-
-        // Business rules for hierarchical relationships
-        if (in_array($type, [ItemType::OBJECT->value, ItemType::MONUMENT->value]) && $parentId !== null) {
-            $validator->errors()->add('parent_id', 'Items of type "object" or "monument" should not have a parent.');
-        }
-
-        if ($type === ItemType::DETAIL->value && $parentId === null) {
-            $validator->errors()->add('parent_id', 'Items of type "detail" must have a parent of type "object" or "monument".');
-        } elseif ($type === ItemType::DETAIL->value && $parentId !== null) {
-            $parent = Item::find($parentId);
-            if ($parent && ! in_array($parent->type, [ItemType::OBJECT, ItemType::MONUMENT])) {
-                $validator->errors()->add('parent_id', 'Items of type "detail" must have a parent of type "object" or "monument".');
-            }
-        }
-
-        if ($type === ItemType::PICTURE->value && $parentId === null) {
-            $validator->errors()->add('parent_id', 'Items of type "picture" must have a parent of type "object", "monument", or "detail".');
-        } elseif ($type === ItemType::PICTURE->value && $parentId !== null) {
-            $parent = Item::find($parentId);
-            if ($parent && ! in_array($parent->type, [ItemType::OBJECT, ItemType::MONUMENT, ItemType::DETAIL])) {
-                $validator->errors()->add('parent_id', 'Items of type "picture" can only have a parent of type "object", "monument", or "detail".');
-            }
-        }
-    }
 }

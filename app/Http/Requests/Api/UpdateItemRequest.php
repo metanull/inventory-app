@@ -44,52 +44,13 @@ class UpdateItemRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $this->validateHierarchicalRules($validator);
+            // Prevent circular references
+            $item = $this->route('item');
+            $parentId = $this->input('parent_id');
+            
+            if ($this->has('parent_id') && $parentId !== null && $parentId === $item->id) {
+                $validator->errors()->add('parent_id', 'An item cannot be its own parent.');
+            }
         });
-    }
-
-    /**
-     * Validate hierarchical business rules.
-     */
-    protected function validateHierarchicalRules($validator)
-    {
-        $type = $this->input('type');
-        $parentId = $this->input('parent_id');
-
-        // Only validate if type or parent_id is being updated
-        if (! $this->has('type') && ! $this->has('parent_id')) {
-            return;
-        }
-
-        // Get current item to check existing values
-        $item = $this->route('item');
-        $currentType = $type ?? $item->type;
-        $currentParentId = $this->has('parent_id') ? $parentId : $item->parent_id;
-
-        // Business rules for hierarchical relationships
-        if (in_array($currentType, [ItemType::OBJECT, ItemType::MONUMENT]) && $currentParentId !== null) {
-            $validator->errors()->add('parent_id', 'Items of type "object" or "monument" should not have a parent.');
-        }
-
-        if ($currentType === ItemType::DETAIL && $currentParentId === null) {
-            $validator->errors()->add('parent_id', 'Items of type "detail" must have a parent of type "object" or "monument".');
-        } elseif ($currentType === ItemType::DETAIL && $currentParentId !== null) {
-            $parent = Item::find($currentParentId);
-            if ($parent && ! in_array($parent->type, [ItemType::OBJECT, ItemType::MONUMENT])) {
-                $validator->errors()->add('parent_id', 'Items of type "detail" must have a parent of type "object" or "monument".');
-            }
-        }
-
-        if ($currentType === ItemType::PICTURE && $currentParentId !== null) {
-            $parent = Item::find($currentParentId);
-            if ($parent && ! in_array($parent->type, [ItemType::OBJECT, ItemType::MONUMENT, ItemType::DETAIL])) {
-                $validator->errors()->add('parent_id', 'Items of type "picture" can only have a parent of type "object", "monument", or "detail".');
-            }
-        }
-
-        // Prevent circular references
-        if ($currentParentId !== null && $currentParentId === $item->id) {
-            $validator->errors()->add('parent_id', 'An item cannot be its own parent.');
-        }
     }
 }
