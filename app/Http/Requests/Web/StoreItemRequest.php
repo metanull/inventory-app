@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Web;
 
+use App\Enums\ItemType;
 use App\Models\Item;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -47,26 +48,26 @@ class StoreItemRequest extends FormRequest
         $parentId = $this->input('parent_id');
 
         // Business rules for hierarchical relationships
-        if ($type === Item::TYPE_OBJECT && $parentId !== null) {
+        if ($type === ItemType::OBJECT->value && $parentId !== null) {
             $validator->errors()->add('parent_id', 'Items of type "object" should not have a parent.');
         }
 
-        if ($type === Item::TYPE_MONUMENT && $parentId !== null) {
+        if ($type === ItemType::MONUMENT->value && $parentId !== null) {
             $validator->errors()->add('parent_id', 'Items of type "monument" should not have a parent.');
         }
 
-        if ($type === Item::TYPE_DETAIL && $parentId === null) {
+        if ($type === ItemType::DETAIL->value && $parentId === null) {
             $validator->errors()->add('parent_id', 'Items of type "detail" must have a parent of type "object" or "monument".');
-        } elseif ($type === Item::TYPE_DETAIL && $parentId !== null) {
+        } elseif ($type === ItemType::DETAIL->value && $parentId !== null) {
             $parent = Item::find($parentId);
-            if ($parent && ! in_array($parent->type, [Item::TYPE_OBJECT, Item::TYPE_MONUMENT])) {
+            if ($parent && ! in_array($parent->type, [ItemType::OBJECT, ItemType::MONUMENT])) {
                 $validator->errors()->add('parent_id', 'Items of type "detail" must have a parent of type "object" or "monument".');
             }
         }
 
-        if ($type === Item::TYPE_PICTURE && $parentId !== null) {
+        if ($type === ItemType::PICTURE->value && $parentId !== null) {
             $parent = Item::find($parentId);
-            if ($parent && ! in_array($parent->type, [Item::TYPE_OBJECT, Item::TYPE_MONUMENT, Item::TYPE_DETAIL])) {
+            if ($parent && ! in_array($parent->type, [ItemType::OBJECT, ItemType::MONUMENT, ItemType::DETAIL])) {
                 $validator->errors()->add('parent_id', 'Items of type "picture" can only have a parent of type "object", "monument", or "detail".');
             }
         }

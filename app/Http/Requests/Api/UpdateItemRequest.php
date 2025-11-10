@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Enums\ItemType;
 use App\Models\Item;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -66,22 +67,22 @@ class UpdateItemRequest extends FormRequest
         $currentParentId = $this->has('parent_id') ? $parentId : $item->parent_id;
 
         // Business rules for hierarchical relationships
-        if (in_array($currentType, [Item::TYPE_OBJECT, Item::TYPE_MONUMENT]) && $currentParentId !== null) {
+        if (in_array($currentType, [ItemType::OBJECT, ItemType::MONUMENT]) && $currentParentId !== null) {
             $validator->errors()->add('parent_id', 'Items of type "object" or "monument" should not have a parent.');
         }
 
-        if ($currentType === Item::TYPE_DETAIL && $currentParentId === null) {
+        if ($currentType === ItemType::DETAIL && $currentParentId === null) {
             $validator->errors()->add('parent_id', 'Items of type "detail" must have a parent of type "object" or "monument".');
-        } elseif ($currentType === Item::TYPE_DETAIL && $currentParentId !== null) {
+        } elseif ($currentType === ItemType::DETAIL && $currentParentId !== null) {
             $parent = Item::find($currentParentId);
-            if ($parent && ! in_array($parent->type, [Item::TYPE_OBJECT, Item::TYPE_MONUMENT])) {
+            if ($parent && ! in_array($parent->type, [ItemType::OBJECT, ItemType::MONUMENT])) {
                 $validator->errors()->add('parent_id', 'Items of type "detail" must have a parent of type "object" or "monument".');
             }
         }
 
-        if ($currentType === Item::TYPE_PICTURE && $currentParentId !== null) {
+        if ($currentType === ItemType::PICTURE && $currentParentId !== null) {
             $parent = Item::find($currentParentId);
-            if ($parent && ! in_array($parent->type, [Item::TYPE_OBJECT, Item::TYPE_MONUMENT, Item::TYPE_DETAIL])) {
+            if ($parent && ! in_array($parent->type, [ItemType::OBJECT, ItemType::MONUMENT, ItemType::DETAIL])) {
                 $validator->errors()->add('parent_id', 'Items of type "picture" can only have a parent of type "object", "monument", or "detail".');
             }
         }
