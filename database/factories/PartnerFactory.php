@@ -100,7 +100,7 @@ class PartnerFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'monument_item_id' => Item::factory()->monument(),
+                'monument_item_id' => Item::factory()->Monument(),
             ];
         });
     }

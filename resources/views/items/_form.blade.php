@@ -13,10 +13,7 @@
     <x-form.entity-select 
         name="type" 
         :value="old('type', $item->type ?? '')"
-        :options="collect([
-            (object)['id' => 'object', 'name' => 'Object'],
-            (object)['id' => 'monument', 'name' => 'Monument']
-        ])"
+        :options="collect(\App\Enums\ItemType::options())"
         displayField="name"
         valueField="id"
         placeholder="Select type..."

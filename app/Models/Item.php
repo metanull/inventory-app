@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ItemType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,15 +18,6 @@ class Item extends Model
     use HasUuids;
 
     // No model-level eager loads. Use request-scoped includes in controllers.
-
-    // Type constants
-    public const TYPE_OBJECT = 'object';
-
-    public const TYPE_MONUMENT = 'monument';
-
-    public const TYPE_DETAIL = 'detail';
-
-    public const TYPE_PICTURE = 'picture';
 
     /**
      * Delete the model from the database.
@@ -95,6 +87,10 @@ class Item extends Model
         'collection_id',
         'owner_reference',
         'mwnf_reference',
+    ];
+
+    protected $casts = [
+        'type' => ItemType::class,
     ];
 
     /**
@@ -252,7 +248,7 @@ class Item extends Model
      */
     public function scopeObjects(Builder $query): Builder
     {
-        return $query->where('type', self::TYPE_OBJECT);
+        return $query->where('type', ItemType::OBJECT);
     }
 
     /**
@@ -260,7 +256,7 @@ class Item extends Model
      */
     public function scopeMonuments(Builder $query): Builder
     {
-        return $query->where('type', self::TYPE_MONUMENT);
+        return $query->where('type', ItemType::MONUMENT);
     }
 
     /**
@@ -268,7 +264,7 @@ class Item extends Model
      */
     public function scopeDetails(Builder $query): Builder
     {
-        return $query->where('type', self::TYPE_DETAIL);
+        return $query->where('type', ItemType::DETAIL);
     }
 
     /**
@@ -276,7 +272,7 @@ class Item extends Model
      */
     public function scopePictures(Builder $query): Builder
     {
-        return $query->where('type', self::TYPE_PICTURE);
+        return $query->where('type', ItemType::PICTURE);
     }
 
     /**

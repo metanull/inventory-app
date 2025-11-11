@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ItemType;
 use App\Models\Country;
 use App\Models\Partner;
 use App\Models\Project;
@@ -25,7 +26,7 @@ class ItemFactory extends Factory
             'parent_id' => null, // This should be set for detail and picture types
             'internal_name' => $this->faker->unique()->words(3, true),
             'backward_compatibility' => $this->faker->lexify('???'),
-            'type' => $this->faker->randomElement(['object', 'monument']), // Default to top-level types
+            'type' => $this->faker->randomElement([ItemType::OBJECT, ItemType::MONUMENT]), // Default to top-level types
             'project_id' => null, // This should be set to a valid project ID if needed
             'country_id' => null, // This should be set to a valid country ID if needed
             'owner_reference' => $this->faker->bothify('???##'),
@@ -63,30 +64,30 @@ class ItemFactory extends Factory
     public function Object(): self
     {
         return $this->state(fn (array $attributes) => [
-            'type' => 'object',
+            'type' => ItemType::OBJECT,
         ]);
     }
 
     public function Monument(): self
     {
         return $this->state(fn (array $attributes) => [
-            'type' => 'monument',
+            'type' => ItemType::MONUMENT,
         ]);
     }
 
     public function Detail(): self
     {
         return $this->state(fn (array $attributes) => [
-            'type' => 'detail',
-            'parent_id' => \App\Models\Item::factory()->Object(), // Details must have a parent
+            'type' => ItemType::DETAIL,
+            'parent_id' => \App\Models\Item::factory()->Object(),
         ]);
     }
 
     public function Picture(): self
     {
         return $this->state(fn (array $attributes) => [
-            'type' => 'picture',
-            'parent_id' => \App\Models\Item::factory(), // Pictures can have any type of parent
+            'type' => ItemType::PICTURE,
+            'parent_id' => \App\Models\Item::factory(),
         ]);
     }
 

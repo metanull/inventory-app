@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Models;
 
+use App\Enums\ItemType;
 use App\Models\Item;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -32,8 +33,8 @@ class ItemFactoryTest extends TestCase
         $object = Item::factory()->Object()->create();
         $monument = Item::factory()->Monument()->create();
 
-        $this->assertEquals('object', $object->type);
-        $this->assertEquals('monument', $monument->type);
+        $this->assertEquals(ItemType::OBJECT, $object->type);
+        $this->assertEquals(ItemType::MONUMENT, $monument->type);
     }
 
     public function test_factory_with_partner_creates_partner_relationship(): void

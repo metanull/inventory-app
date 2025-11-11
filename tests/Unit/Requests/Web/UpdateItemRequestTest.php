@@ -10,7 +10,10 @@ use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 /**
- * Tests for UpdateItemRequest hierarchical validation rules.
+ * Tests for Web UpdateItemRequest validation rules.
+ *
+ * Tests only custom business logic - does not test framework validation.
+ * Note: There are NO constraints on parent/child relationships for items.
  */
 class UpdateItemRequestTest extends TestCase
 {
@@ -66,54 +69,34 @@ class UpdateItemRequestTest extends TestCase
         $this->assertFalse($validator->errors()->any());
     }
 
-    public function test_object_type_cannot_have_parent(): void
-    {
-        $item = Item::factory()->create(['type' => 'monument']);
-        $parent = Item::factory()->create();
-
-        $this->assertValidationFails($item, [
-            'type' => 'object',
-            'parent_id' => $parent->id,
-        ], 'parent_id');
-    }
-
-    public function test_monument_type_cannot_have_parent(): void
-    {
-        $item = Item::factory()->create(['type' => 'object']);
-        $parent = Item::factory()->create();
-
-        $this->assertValidationFails($item, [
-            'type' => 'monument',
-            'parent_id' => $parent->id,
-        ], 'parent_id');
-    }
-
     public function test_cannot_set_item_as_its_own_parent(): void
     {
-        $item = Item::factory()->create(['type' => 'detail']);
+        $item = Item::factory()->create();
 
         $this->assertValidationFails($item, [
             'parent_id' => $item->id,
         ], 'parent_id');
     }
 
-    public function test_detail_type_must_have_valid_parent(): void
+    public function test_any_type_can_have_parent(): void
     {
-        $item = Item::factory()->create(['type' => 'object']);
-        $invalidParent = Item::factory()->create(['type' => 'picture']);
+        $parent = Item::factory()->create();
 
-        $this->assertValidationFails($item, [
-            'type' => 'detail',
-            'parent_id' => $invalidParent->id,
-        ], 'parent_id');
+        foreach (\App\Enums\ItemType::cases() as $type) {
+            $item = Item::factory()->create();
+
+            $this->assertValidationPasses($item, [
+                'type' => $type->value,
+                'parent_id' => $parent->id,
+            ]);
+        }
     }
 
-    public function test_validates_only_when_type_or_parent_changes(): void
+    public function test_can_update_without_changing_parent(): void
     {
-        $objectParent = Item::factory()->create(['type' => 'object']);
-        $item = Item::factory()->create(['type' => 'detail', 'parent_id' => $objectParent->id]);
+        $parent = Item::factory()->create();
+        $item = Item::factory()->create(['parent_id' => $parent->id]);
 
-        // Only updating name, should not trigger hierarchical validation
         $this->assertValidationPasses($item, [
             'internal_name' => 'New Name',
         ]);

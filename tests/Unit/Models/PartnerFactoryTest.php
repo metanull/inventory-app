@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Models;
 
+use App\Enums\ItemType;
 use App\Models\Partner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -76,6 +77,6 @@ class PartnerFactoryTest extends TestCase
 
         $this->assertNotNull($partner->monument_item_id);
         $this->assertInstanceOf(\App\Models\Item::class, $partner->monumentItem);
-        $this->assertEquals('monument', $partner->monumentItem->type);
+        $this->assertEquals(ItemType::MONUMENT, $partner->monumentItem->type);
     }
 }
