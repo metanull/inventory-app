@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\ItemType;
 use App\Models\Country;
 use App\Models\Item;
 use App\Models\Project;

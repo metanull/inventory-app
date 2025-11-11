@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests\Web;
 
-use App\Enums\ItemType;
-use App\Models\Item;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreItemRequest extends FormRequest
@@ -28,5 +26,4 @@ class StoreItemRequest extends FormRequest
             'mwnf_reference' => ['nullable', 'string', 'max:255'],
         ];
     }
-
 }

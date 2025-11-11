@@ -84,7 +84,7 @@ class UpdateItemRequestTest extends TestCase
 
         foreach (\App\Enums\ItemType::cases() as $type) {
             $item = Item::factory()->create();
-            
+
             $this->assertValidationPasses($item, [
                 'type' => $type->value,
                 'parent_id' => $parent->id,

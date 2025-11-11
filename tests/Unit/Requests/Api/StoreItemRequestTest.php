@@ -51,7 +51,7 @@ class StoreItemRequestTest extends TestCase
     {
         foreach (ItemType::cases() as $type) {
             $this->assertValidationPasses([
-                'internal_name' => 'Test ' . $type->value,
+                'internal_name' => 'Test '.$type->value,
                 'type' => $type->value,
             ]);
         }
@@ -63,7 +63,7 @@ class StoreItemRequestTest extends TestCase
 
         foreach (ItemType::cases() as $type) {
             $this->assertValidationPasses([
-                'internal_name' => 'Test ' . $type->value,
+                'internal_name' => 'Test '.$type->value,
                 'type' => $type->value,
                 'parent_id' => $parent->id,
             ]);
@@ -74,7 +74,7 @@ class StoreItemRequestTest extends TestCase
     {
         foreach (ItemType::cases() as $type) {
             $this->assertValidationPasses([
-                'internal_name' => 'Test ' . $type->value,
+                'internal_name' => 'Test '.$type->value,
                 'type' => $type->value,
                 'parent_id' => null,
             ]);

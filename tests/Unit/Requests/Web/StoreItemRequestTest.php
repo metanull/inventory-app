@@ -6,7 +6,6 @@ use App\Http\Requests\Web\StoreItemRequest;
 use App\Models\Item;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 /**
@@ -34,7 +33,7 @@ class StoreItemRequestTest extends TestCase
     {
         foreach (\App\Enums\ItemType::cases() as $type) {
             $this->assertValidationPasses([
-                'internal_name' => 'Test ' . $type->value,
+                'internal_name' => 'Test '.$type->value,
                 'type' => $type->value,
             ]);
         }
@@ -46,7 +45,7 @@ class StoreItemRequestTest extends TestCase
 
         foreach (\App\Enums\ItemType::cases() as $type) {
             $this->assertValidationPasses([
-                'internal_name' => 'Test ' . $type->value,
+                'internal_name' => 'Test '.$type->value,
                 'type' => $type->value,
                 'parent_id' => $parent->id,
             ]);
@@ -57,7 +56,7 @@ class StoreItemRequestTest extends TestCase
     {
         foreach (\App\Enums\ItemType::cases() as $type) {
             $this->assertValidationPasses([
-                'internal_name' => 'Test ' . $type->value,
+                'internal_name' => 'Test '.$type->value,
                 'type' => $type->value,
                 'parent_id' => null,
             ]);
