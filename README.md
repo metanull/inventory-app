@@ -40,6 +40,7 @@ The **Inventory Management API** (inventory-app) is a RESTful API designed to ma
       - [Image Features](#image-features)
       - [Image Features (COMING SOON)](#image-features-coming-soon)
     - [API Documentation](#api-documentation)
+    - [CI/CD Pipeline](#cicd-pipeline)
   - [Backend development](#backend-development)
     - [Developer's Quick Start](#developers-quick-start)
       - [Project Structure](#project-structure)
@@ -47,14 +48,10 @@ The **Inventory Management API** (inventory-app) is a RESTful API designed to ma
       - [Installation (Windows)](#installation-windows)
     - [Testing](#testing)
     - [Frontend developer's Quick Start](#frontend-developers-quick-start)
-      - [Installation](#installation)
-      - [Usage](#usage)
-      - [Package Information](#package-information)
   - [Deployment](#deployment)
     - [Production Environment](#production-environment)
-    - [Environment Configuration](#environment-configuration)
     - [Web Server Configuration](#web-server-configuration)
-    - [CI/CD Pipeline](#cicd-pipeline)
+    - [Environment Configuration](#environment-configuration)
   - [References](#references)
 
 ## Project Overview
@@ -222,6 +219,19 @@ PICTURES_PATH=pictures
 - **Swagger** - Interactive API documentation using `api.json`.
 - **api-client npm package** - Typescript client package generated via `@openapitools/openapi-generator-cli` to facilitate integration in front-end only applications.
 
+### CI/CD Pipeline
+
+The project includes a comprehensive **GitHub Actions** workflow for:
+
+- **Automated Testing** - Commits not passing all tests will be rejected
+- **Code Quality Checks** - Commits not passing Laravel Pint and eslint checks will be rejected
+- **Security Scanning** - Composer audit and CodeQL analysis
+- **Documentation & GitHub Pages 📚** - The project automatically generates and maintains comprehensive documentation through **GitHub Pages**:
+  - 🌐 **Live Documentation**: [https://metanull.github.io/inventory-app](https://metanull.github.io/inventory-app)
+  - 🔄 **CI/CD Integration** - Jekyll builds and deploys automatically
+  - 📊 **Commit Tracking** - Complete development history with diff statistics
+
+
 ---
 
 ## Backend development
@@ -334,22 +344,33 @@ inventory-app/
 As the developer of Front-end application consuming the API you will want to interact with the API.
 The most straightforward approach is to use the TypeScript-Axios client library that is automatically generated and published og Github Package.
 
-#### Installation
+1. **Setting up authentication for GitHub Package**
 
-```powershell
-npm install @metanull/inventory-app-api-client@latest
-```
+    Create or update `.npmrc` in your project root:
 
-#### Usage
+    ```powershell
+    @metanull:registry=https://npm.pkg.github.com
+    //npm.pkg.github.com/:_authToken={GITHUB_TOKEN}
+    ```
 
-```typescript
-import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client';
+    Replace `{GITHUB_TOKEN}` by your GitHub personal access token (it only needs the `package read` permission).
 
-const api = new DefaultApi(new Configuration({ basePath: 'https://your.api.url' }));
-api.addressIndex().then(response => console.log(response.data));
-```
+2. **Add the client-api package dependency**
 
-#### Package Information
+    ```powershell
+    npm install @metanull/inventory-app-api-client@latest
+    ```
+
+3. **Use the client-api in your code**
+
+    ```typescript
+    import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client';
+
+    const api = new DefaultApi(new Configuration({ basePath: 'https://your.api.url' }));
+    api.addressIndex().then(response => console.log(response.data));
+    ```
+
+**References**:
 
 - **Package**: [`@metanull/inventory-app-api-client`](https://github.com/metanull/inventory-app/packages)
 - **Registry**: [GitHub Packages](https://npm.pkg.github.com/)
@@ -366,6 +387,20 @@ The application is designed for deployment on **Windows Server** environments wi
 - **Database**: MariaDB 10.5+ for optimal performance and compatibility
 - **PHP**: 8.2+ with required extensions (fileinfo, zip, sqlite3, pdo_sqlite, gd, exif)
 - **Storage**: Local filesystem or AWS S3 for image storage
+
+### Web Server Configuration
+
+The `deployment/` directory contains ready-to-use web server configuration files:
+
+- **`apache.conf`** - Apache virtual host for Linux/Unix systems
+
+These configurations include:
+- **Security headers** and SSL/TLS optimization
+- **Laravel URL rewriting** and proper routing
+- **Static asset caching** and performance optimization
+- **Access restrictions** for sensitive directories
+- **Production-ready SSL** configuration templates
+
 
 ### Environment Configuration
 
@@ -399,40 +434,8 @@ SANCTUM_STATEFUL_DOMAINS=your-frontend-domain.com
 SESSION_SECURE_COOKIE=true
 ```
 
-### Web Server Configuration
-
-The `deployment/` directory contains ready-to-use web server configuration files:
-
-- **`apache.conf`** - Apache virtual host for Linux/Unix systems
-
-These configurations include:
-- **Security headers** and SSL/TLS optimization
-- **Laravel URL rewriting** and proper routing
-- **Static asset caching** and performance optimization
-- **Access restrictions** for sensitive directories
-- **Production-ready SSL** configuration templates
-
-### CI/CD Pipeline
-
-The project includes a comprehensive **GitHub Actions** workflow for:
-
-- **Automated Testing** - Commits not passing all tests will be rejected
-- **Code Quality Checks** - Commits not passing Laravel Pint and eslint checks will be rejected
-- **Security Scanning** - Composer audit and CodeQL analysis
-- **Documentation & GitHub Pages 📚** - The project automatically generates and maintains comprehensive documentation through **GitHub Pages**:
-  - 🌐 **Live Documentation**: [https://metanull.github.io/inventory-app](https://metanull.github.io/inventory-app)
-  - 🔄 **CI/CD Integration** - Jekyll builds and deploys automatically
-  - 📊 **Commit Tracking** - Complete development history with diff statistics
-
 ---
 
 ## References
 
-For detailed setup instructions, production deployment, and troubleshooting:
-
-- 🚀 **[Complete Deployment Guide](https://metanull.github.io/inventory-app/deployment/)** - Production and development setup
-- 💻 **[Development Environment](https://metanull.github.io/inventory-app/development-setup/)** - Local development guide  
-- 🔧 **[Configuration Guide](https://metanull.github.io/inventory-app/configuration/)** - Environment and application settings
-- 🌐 **[Server Configuration](https://metanull.github.io/inventory-app/server-configuration/)** - Apache/Nginx setup
-- 🛠️ **[Testing](https://metanull.github.io/inventory-app/testing)** - Testing
-
+For more, please consult our GitHub Page documentation site **[https://metanull.github.io/inventory-app](https://metanull.github.io/inventory-app)**
