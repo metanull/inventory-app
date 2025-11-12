@@ -1,234 +1,120 @@
 # Inventory Management API
 
+[![github](https://img.shields.io/badge/Source-github-151013.svg?logo=github&logoColor=white&labelColor=555555)](https://github.com/metanull/inventory-app)
+[![github](https://img.shields.io/badge/Documentation-github-878787.svg?logo=github&logoColor=white&labelColor=8a8a9a)](https://metanull.github.io/inventory-app/)
 [![PHP 8.2+](https://img.shields.io/badge/php-8.2+-777bb3.svg?logo=php&logoColor=white&labelColor=555555)](https://php.net)
 [![Laravel 12](https://img.shields.io/badge/laravel-12-f05340.svg?logo=laravel&logoColor=ffffff&labelColor=6c6c6c)](https://laravel.com)
-[![github](https://img.shields.io/badge/Source-github-151013.svg?logo=github&logoColor=white&labelColor=555555)](https://github.com/metanull/inventory-app)
 [![LICENSE](https://img.shields.io/badge/license-MIT-428f7e.svg?logo=open%20source%20initiative&logoColor=white&labelColor=555555)](https://github.com/metanull/inventory-app/blob/main/LICENSE)
+
+
+A **Laravel 12** application for managing Museum With No Frontiers' inventory database. Built as a modern N-tier architecture with REST API, server-rendered web interface, and TypeScript tooling.
+
+## Quick Links
+
+- 📚 **[Full Documentation](https://metanull.github.io/inventory-app/)** - Complete guides, architecture details, and API references
+- 🔌 **[API Documentation](http://localhost:8000/docs/api)** - Interactive Swagger UI (when running locally)
+- 📦 **[npm Package](https://github.com/metanull/inventory-app/packages)** - TypeScript API client
+- 🎯 **[SPA Demo](http://localhost:5174/cli)** - Vue 3 reference implementation (when running locally)
+
+## What's Inside
+
+This **monorepo** contains:
+
+### Backend Application (Laravel 12 + PHP 8.2)
+- **REST API** (`/api` routes) - Sanctum-authenticated endpoints with OpenAPI documentation
+- **Web Interface** (`/web` routes) - Server-rendered Blade templates with Livewire (main production UI)
+- **Database Models** - Comprehensive inventory management system
+- **Image Processing** - Event-driven upload and attachment system
+
+### SPA Demo (Vue 3 + TypeScript)
+- Reference implementation at `/cli` route
+- Demonstrates API client usage
+- Example for external API consumers
+
+### Documentation Site (Jekyll)
+- Auto-generated docs on GitHub Pages
+- API references and deployment guides
+
+### Pipelines status
+
 [![Continuous Integration](https://github.com/metanull/inventory-app/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/continuous-integration.yml)
+[![CodeQL](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql)
 [![Build](https://github.com/metanull/inventory-app/actions/workflows/build.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/build.yml)
 [![Deploy](https://github.com/metanull/inventory-app/actions/workflows/deploy.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/deploy.yml)
 [![GitHub Pages](https://github.com/metanull/inventory-app/actions/workflows/continuous-deployment_github-pages.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/continuous-deployment_github-pages.yml)
 [![Publish API Client](https://github.com/metanull/inventory-app/actions/workflows/publish-api-client.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/publish-api-client.yml)
-[![CodeQL](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/github-code-scanning/codeql)
 [![Dependabot](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/dependabot/dependabot-updates)
 
+## Core Data Model
 
----
+The system uses **UUID primary keys** for scalability, with three exceptions using standardized codes:
+- **Country** 🌍 - ISO 3166-1 alpha-3 codes
+- **Language** 🗣️ - ISO 639-1 codes  
+- **User** 👤 - Laravel integer keys (auth compatibility)
 
-**🌍 Check out our documentation on github page** [https://metanull.github.io/inventory-app/](https://metanull.github.io/inventory-app/)
+### Core Business Entities
 
----
+**Item** 📦 - Central inventory entity (museum artifacts/content)
+- Belongs to Partner, associated with Country
+- Types: Object, Monument, Detail, Picture
+- Used in Collections
 
-The **Inventory Management API** (inventory-app) is a RESTful API designed to manage the content of the Museum With No Frontiers' inventory database. This application serves as the management layer in a modern N-tier architecture, replacing legacy systems with a scalable, maintainable, and secure solution.
+**Partner** 🏛️ - Museums, institutions managing inventory
+- Has primary Country
+- Owns multiple Items
 
-**Table of Contents**
+**Project** 🎯 - Initiatives creating collections/items
+- Categorized by Context
+- Multi-language support
+- Launch date management
 
-- [Inventory Management API](#inventory-management-api)
-  - [Project Overview](#project-overview)
-    - [N-Tier Architecture](#n-tier-architecture)
-    - [Data Model and Features](#data-model-and-features)
-      - [Core Data Model](#core-data-model)
-        - [Primary Models](#primary-models)
-        - [Core Business Models](#core-business-models)
-        - [Supporting Models](#supporting-models)
-      - [Key Features](#key-features)
-        - [Authentication \& Security](#authentication--security)
-        - [RESTful API Architecture](#restful-api-architecture)
-    - [Image Processing Pipeline](#image-processing-pipeline)
-      - [Image Upload and Processing Workflow](#image-upload-and-processing-workflow)
-      - [Image Storage Configuration](#image-storage-configuration)
-      - [Image Features](#image-features)
-      - [Image Features (COMING SOON)](#image-features-coming-soon)
-    - [API Documentation](#api-documentation)
-  - [Backend development](#backend-development)
-    - [Developer's Quick Start](#developers-quick-start)
-      - [Project Structure](#project-structure)
-      - [Prerequisites](#prerequisites)
-      - [Installation (Windows)](#installation-windows)
-    - [Testing](#testing)
-    - [Frontend developer's Quick Start](#frontend-developers-quick-start)
-      - [Installation](#installation)
-      - [Usage](#usage)
-      - [Package Information](#package-information)
-  - [Deployment](#deployment)
-    - [Production Environment](#production-environment)
-    - [Environment Configuration](#environment-configuration)
-    - [Web Server Configuration](#web-server-configuration)
-    - [CI/CD Pipeline](#cicd-pipeline)
-  - [References](#references)
+**Collection** 📚 - Item groupings with translations
+- Multi-language support via CollectionTranslation
+- Partner relationships with contribution levels
+- Default Language and Context
 
-## Project Overview
+**Context** 📂 - Content contextualization
+- Items can have different descriptions per Context
 
-This API is part of a broader modernization effort for Museum With No Frontiers. The new architecture consists of:
+### Supporting Models
 
-- **Management REST API** (this application): Provides secure endpoints for managing and updating the inventory database.
-- **Public Consultation REST API**: Grants controlled, read-only access to inventory data for public-facing applications.
-- **Client-side Web Applications**: Deployed separately, these applications interact with the consultation API to present data to end users.
+**Tag** 🏷️ - Flexible tagging system with many-to-many Item relationships
 
-### N-Tier Architecture
+**Image System** �️ - Event-driven image processing pipeline:
+- **ImageUpload** - Tracks upload processing status
+- **AvailableImage** - Temporary pool for processed images
+- **ItemImage** - Permanent attachment to Items with transactional operations
 
-Adopting an N-tier architecture brings several advantages:
+## Key Features
 
-- **Separation of Concerns**: Each layer (management API, consultation API, frontend clients) has a distinct responsibility, making the system easier to maintain and evolve.
-- **Scalability**: Components can be scaled independently based on demand, improving performance and resource utilization.
-- **Security**: Sensitive management operations are isolated from public access, reducing the attack surface.
-- **Flexibility**: Decoupling backend and frontend allows for independent development, testing, and deployment of each component, enabling faster iteration and easier integration of new technologies.
+**Authentication & Security**
+- Laravel Sanctum (API tokens) + Fortify (web auth)
+- Spatie permissions for role-based access control
+- Comprehensive input validation via Request classes
 
-### Data Model and Features
+**RESTful API**
+- Full CRUD operations with consistent Resource formatting
+- Pagination, model scopes, custom endpoints
+- OpenAPI/Swagger documentation
+- Auto-generated TypeScript client
 
-#### Core Data Model
+**Image Processing**
+- Event-driven upload/processing workflow
+- Flexible storage (local/S3)
+- Multiple formats and sizes support
 
-The Inventory Management API is built around a sophisticated data model designed to handle complex museum inventory relationships. The system uses **UUID primary keys** for scalability and distributed system compatibility, with three notable exceptions that use standardized codes:
+> **For complete data model documentation**, see [Full Documentation](https://metanull.github.io/inventory-app/).
 
-##### Primary Models
+## Getting Started - Backend Development
 
-- **Country** 🌍 - Uses ISO 3166-1 alpha-3 codes (3-letter country codes)
-- **Language** 🗣️ - Uses ISO 639-1 codes (3-letter language codes)
-- **User** 👤 - Uses Laravel's default integer primary keys for authentication compatibility
+### Prerequisites
 
-All other models use UUID primary keys for optimal scalability and system integration.
+- **PHP 8.2+** with extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
+- **Composer** - PHP dependency management
+- **Node.js 20+** - Frontend asset compilation
+- **SQLite** (development) or **MariaDB** (production)
 
-##### Core Business Models
-
-**Item** 📦 - The central inventory entity representing museum artifacts or content
-
-- Belongs to a Partner (institution or organization)
-- Associated with a Country (origin or location)
-- Tracks type, internal naming, and legacy system compatibility
-- Used in Collections.
-- Have different types (Object, Monument, Detail, Picture)
-
-**Partner** 🏛️ - Museums, institutions, or individuals managing inventory items
-
-- Has a primary Country for institutional location
-- Can own multiple Items
-- Supports organizational hierarchy and partnerships
-
-**Project** 🎯 - Projects resulting in the creation of collection(s) or the addition of items
-
-- Has a primary Context for categorization
-- Supports multiple Languages for internationalization
-- Includes launch dates and enable/disable functionality
-
-**Collection** 📚 - Organizational groupings for items with translation support
-
-- Contains multiple Items through collection_id foreign key
-- Supports multi-language translations via CollectionTranslation model
-- Partner relationships with contribution levels (Partner, Associated Partner, Minor Contributor)
-- Has default Language and Context for display purposes
-
-**Context** 📂 - Allows for contextualization of the data
-
-- Provides contextual content organization (same Item hhas different descriptions depending on Context)
-- Supports default context selection
-
-##### Supporting Models
-
-**Tag** 🏷️ - Content tagging and categorization system
-
-- Flexible tagging system for items
-- Supports hierarchical and multi-dimensional categorization
-- Many-to-many relationships with Items via standard Laravel pivot table
-
-**ImageUpload** 📤 - Upload tracking and processing status
-
-- Monitors image processing workflows
-- Tracks upload success/failure states
-- Creates AvailableImage records upon successful processing
-- Support for multiple image formats and sizes and centralizes post-processing
-
-**AvailableImage** 🎨 - Processed image pool for attachment
-
-- Temporary storage for processed images awaiting attachment
-- Automatic cleanup when attached to models as Pictures
-- Download and preview capabilities before attachment
-- Support for multiple image formats and sizes
-
-**ItemImage** 🖼️ - Image attachment system
-
-- Images are moved out of the temporary storage and attached to Items
-- Download and preview capabilities before attachment
-- Transactional attachment from AvailableImage pool
-- Direct download and inline viewing capabilities
-
-
-#### Key Features
-
-##### Authentication & Security
-
-- **Laravel Sanctum** - Token-based API authentication
-- **Laravel Fortify** - Web authentication
-- **Laravel Spatie** - Granualt permission management by Role-base access control.
-- **Input Validation** - Comprehensive validation for all endpoints using Request classes
-
-##### RESTful API Architecture
-
-- **Complete CRUD Operations** - Full Create, Read, Update, Delete functionality
-- **Resource Controllers** - Consistent API response formatting
-- **HTTP Status Codes** - Proper REST status code implementation
-- **Pagination Support** - Efficient handling of large datasets
-- **Model Scopes** - Predefined query filters for common operations
-    - `Project::visible()` - Get all visible projects (enabled, launched, and launch_date passed)
-    - `Language::default()` - Get default language
-    - `Context::default()` - Get default context
-- **Custom Endpoints** - Beyond standard REST operations, the API provides specialized endpoints. E.g. To set the default language/context or to convert markdown to html and vice-cersa.
-
-### Image Processing Pipeline
-
-The application features a image processing and attachment system:
-
-#### Image Upload and Processing Workflow
-
-1. **Upload**: Images are uploaded via `POST /api/image-upload` and processed asynchronously
-2. **Processing**: Background events resize, validate, and optimize images
-3. **Available Pool**: Successfully processed images become `AvailableImage` records
-4. **Attachment**: Images are attached to models via transactional operations
-
-#### Image Storage Configuration
-
-The application uses a flexible storage configuration system with clear separation:
-
-```powershell
-# Upload temporary storage
-UPLOAD_IMAGES_DISK=local_upload_images
-UPLOAD_IMAGES_PATH=uploads/images
-
-# Processed images awaiting attachment
-AVAILABLE_IMAGES_DISK=local_available_images
-AVAILABLE_IMAGES_PATH=available/images
-
-# Permanently attached pictures
-PICTURES_DISK=local_pictures
-PICTURES_PATH=pictures
-```
-
-#### Image Features
-
-- **Event-Driven Processing** - Laravel events for decoupled image handling
-- **Storage Flexibility** - Support for local and cloud storage (S3)
-- **Transactional Attachment** - Atomic file operations with database consistency
-- **Direct Access** - Download and inline viewing endpoints for all image types
-
-#### Image Features (COMING SOON)
-
-- **Automatic Resizing** - Multiple image sizes generated on upload
-- **Format Optimization** - WebP conversion for web optimization
-
-
-
-### API Documentation
-
-- **OpenAPI** - OpenAPI `api.json` automatically generated via `scramble:export`
-- **Swagger** - Interactive API documentation using `api.json`.
-- **api-client npm package** - Typescript client package generated via `@openapitools/openapi-generator-cli` to facilitate integration in front-end only applications.
-
----
-
-## Backend development
-
-### Developer's Quick Start
-
-#### Project Structure
+### Installation (Windows)
 
 This project is organized as a **monorepo** with the following structure:
 
@@ -269,170 +155,143 @@ inventory-app/
 
 #### Installation (Windows)
 
-1. **Clone the repository**
+```powershell
+# Clone and navigate
+git clone https://github.com/metanull/inventory-app.git
+Set-Location inventory-app
 
-    ```powershell
-    git clone https://github.com/metanull/inventory-app.git
-    Set-Location inventory-app
-    ```
+# Install dependencies
+composer install
+npm install --no-audit --no-fund
 
-2. **Install dependencies**
+# Environment setup
+Copy-Item .env.example .env -Force
+php artisan key:generate
 
-    ```powershell
-    # PHP dependencies
-    composer install
-    
-    # Node.js dependencies
-    npm install --no-audit --no-fund
+# (Optional) Download sample images for seeding
+.\scripts\download-seed-images.ps1
 
-    # Node.js dependencies (SPA demo)
-    Push-Location spa
-    npm install --no-audit --no-fund
-    Pop-Location
-    ```
+# Initialize database
+php artisan migrate --seed
 
-3. **Environment setup**
+# (Optional) Only if you intend to use the SPA demo
+Push-Location spa
+npm install --no-audit --no-fund
+Pop-Location
 
-    ```powershell
-    # Create the environment file from template (suitable for development only)
-    Copy-Item .env.example .env -Force
-    php artisan key:generate
+# Start development servers
+composer dev
+```
 
-    # (optional/one-time) Download some sample images for database seeding
-    .\scripts\download-seed-images.ps1
+**Access the application:**
+- **Web Interface**: http://localhost:8000/web
+- **SPA Demo**: http://localhost:5174/cli
+- **API Docs**: http://localhost:8000/docs/api
 
-    # Initialize the database
-    php artisan migrate --seed
+### Project Structure
 
-    ```
-
-7. **Start the server's dev environment**
-
-    ```powershell
-    # Start the Laravel server
-    composer dev
-    ```
-
-8. **Access your application:**
-
-    - **Frontend**: http://localhost:8000/web
-    - **SPA Demo**: http://localhost:5174/cli
-    - **API Documentation**: http://localhost:8000/docs/api
-
-
+```
+inventory-app/
+├── app/                    # Laravel backend (Models, Controllers)
+├── routes/                 # API (/api) and web (/web) routes
+├── resources/
+│   ├── css/               # Blade/Tailwind styles
+│   └── views/             # Blade templates
+├── database/              # Migrations, factories, seeders
+├── tests/                 # Backend tests (PHPUnit)
+├── spa/                   # Vue 3 SPA Demo
+│   ├── src/              # Vue source
+│   └── package.json      # SPA dependencies
+├── docs/                  # Jekyll documentation
+└── public/
+    ├── build/            # Backend build output
+    └── spa-build/        # SPA build output
+```
 
 ### Testing
 
-- **Unit Tests** - Model validation, factory testing, and business logic validation
-- **Feature Tests** - API endpoint testing with authentication and authorization
-- **Integration Tests** - Cross-model relationship and workflow validation
-- **Test Isolation** - Tests use faking prevents external dependencies
-- **DRY principle** - Tests use Traits to avoid code repetition
-
-### Frontend developer's Quick Start
-
-As the developer of Front-end application consuming the API you will want to interact with the API.
-The most straightforward approach is to use the TypeScript-Axios client library that is automatically generated and published og Github Package.
-
-#### Installation
+Run the test suites:
 
 ```powershell
-npm install @metanull/inventory-app-api-client@latest
+php artisan test --parallel    # Backend tests
+
+Push-Location spa
+npm test                       # SPA Demo tests
+Pop-Location    
 ```
 
-#### Usage
+## Getting Started - SPA Development
 
-```typescript
-import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client';
+The SPA Demo (`/spa` directory) is a Vue 3 reference implementation for consuming the API.
 
-const api = new DefaultApi(new Configuration({ basePath: 'https://your.api.url' }));
-api.addressIndex().then(response => console.log(response.data));
+```powershell
+Push-Location spa
+npm run dev        # Starts Vite dev server on http://localhost:5174
+Pop-Location
 ```
 
-#### Package Information
+## Using the API Client (External Developers)
 
-- **Package**: [`@metanull/inventory-app-api-client`](https://github.com/metanull/inventory-app/packages)
-- **Registry**: [GitHub Packages](https://npm.pkg.github.com/)
+To consume this API from your own application, use the auto-generated TypeScript client.
 
----
+### Setup
+
+1. **Configure npm** - Create `.npmrc` in your project:
+
+    ```ini
+    @metanull:registry=https://npm.pkg.github.com
+    //npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
+    ```
+
+    Get a [GitHub PAT](https://github.com/settings/tokens) with `read:packages` permission.
+
+2. **Install**
+
+    ```bash
+    npm install @metanull/inventory-app-api-client@latest
+    ```
+
+3. **Use**
+
+    ```typescript
+    import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client';
+
+    const api = new DefaultApi(new Configuration({ 
+      basePath: 'https://your-api-url.com' 
+    }));
+    
+    api.addressIndex().then(response => console.log(response.data));
+    ```
+
+**Resources:**
+- [Package Registry](https://github.com/metanull/inventory-app/packages)
+- [API Documentation](http://localhost:8000/docs/api) (Swagger UI)
+- SPA Demo source (`/spa` directory) - working example
 
 ## Deployment
 
-### Production Environment
+For production deployment on **Windows Server** with Apache/MariaDB:
 
-The application is designed for deployment on **Windows Server** environments with the following stack:
+**Stack Requirements:**
+- PHP 8.2+ (with extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif)
+- Apache 2.4+ with mod_rewrite
+- MariaDB 10.5+
+- Local filesystem or AWS S3 for storage
 
-- **Web Server**: Apache HTTP 2.4+ with PHP module or PHP-CGI
-- **Database**: MariaDB 10.5+ for optimal performance and compatibility
-- **PHP**: 8.2+ with required extensions (fileinfo, zip, sqlite3, pdo_sqlite, gd, exif)
-- **Storage**: Local filesystem or AWS S3 for image storage
+**Quick Deploy:**
+1. Review configurations in `/deployment/` directory
+2. Configure environment variables (production database, storage, security)
+3. Build assets: `npm run build` (root)
+4. Build SPA assets: `Push-Location; npm run build; Pop-Location`
+5. Deploy following Apache config templates
 
-### Environment Configuration
+> **For detailed deployment guide**, see [Full Documentation](https://metanull.github.io/inventory-app/).
 
-Key environment variables for production:
+## Contributing & Development
 
-```env
-# Application
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://your-domain.com
-
-# Database
-DB_CONNECTION=mysql
-DB_HOST=your-mariadb-host
-DB_DATABASE=inventory_production
-DB_USERNAME=your-db-user
-DB_PASSWORD=your-secure-password
-
-# Image Storage (updated configuration)
-UPLOAD_IMAGES_DISK=local_upload_images
-UPLOAD_IMAGES_PATH=uploads/images
-
-AVAILABLE_IMAGES_DISK=local_available_images
-AVAILABLE_IMAGES_PATH=available/images
-
-PICTURES_DISK=local_pictures
-PICTURES_PATH=pictures
-
-# Security
-SANCTUM_STATEFUL_DOMAINS=your-frontend-domain.com
-SESSION_SECURE_COOKIE=true
-```
-
-### Web Server Configuration
-
-The `deployment/` directory contains ready-to-use web server configuration files:
-
-- **`apache.conf`** - Apache virtual host for Linux/Unix systems
-
-These configurations include:
-- **Security headers** and SSL/TLS optimization
-- **Laravel URL rewriting** and proper routing
-- **Static asset caching** and performance optimization
-- **Access restrictions** for sensitive directories
-- **Production-ready SSL** configuration templates
-
-### CI/CD Pipeline
-
-The project includes a comprehensive **GitHub Actions** workflow for:
-
-- **Automated Testing** - Commits not passing all tests will be rejected
-- **Code Quality Checks** - Commits not passing Laravel Pint and eslint checks will be rejected
-- **Security Scanning** - Composer audit and CodeQL analysis
-- **Documentation & GitHub Pages 📚** - The project automatically generates and maintains comprehensive documentation through **GitHub Pages**:
-  - 🌐 **Live Documentation**: [https://metanull.github.io/inventory-app](https://metanull.github.io/inventory-app)
-  - 🔄 **CI/CD Integration** - Jekyll builds and deploys automatically
-  - 📊 **Commit Tracking** - Complete development history with diff statistics
-
----
-
-## References
-
-For detailed setup instructions, production deployment, and troubleshooting:
-
-- 🚀 **[Complete Deployment Guide](https://metanull.github.io/inventory-app/deployment/)** - Production and development setup
-- 💻 **[Development Environment](https://metanull.github.io/inventory-app/development-setup/)** - Local development guide  
-- 🔧 **[Configuration Guide](https://metanull.github.io/inventory-app/configuration/)** - Environment and application settings
-- 🌐 **[Server Configuration](https://metanull.github.io/inventory-app/server-configuration/)** - Apache/Nginx setup
-- 🛠️ **[Testing](https://metanull.github.io/inventory-app/testing)** - Testing
+**Quality Standards:**
+- ✅ All tests must pass (560+ tests)
+- ✅ All linters must pass (Laravel Pint, ESLint)
+- ✅ No TypeScript errors (strict typing)
+- ✅ Branch-based workflow (no direct `main` commits)
 

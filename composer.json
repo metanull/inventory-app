@@ -13,7 +13,7 @@
         "blade-ui-kit/blade-heroicons": "^2.6",
         "dedoc/scramble": "^0.13.2",
         "intervention/image": "^3.11",
-        "laravel/framework": "^12.35.1",
+        "laravel/framework": "^12.37.0",
         "laravel/jetstream": "^5.3",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
