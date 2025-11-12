@@ -163,7 +163,6 @@ Set-Location inventory-app
 # Install dependencies
 composer install
 npm install --no-audit --no-fund
-Push-Location spa; npm install --no-audit --no-fund; Pop-Location
 
 # Environment setup
 Copy-Item .env.example .env -Force
@@ -174,6 +173,11 @@ php artisan key:generate
 
 # Initialize database
 php artisan migrate --seed
+
+# (Optional) Only if you intend to use the SPA demo
+Push-Location spa
+npm install --no-audit --no-fund
+Pop-Location
 
 # Start development servers
 composer dev
@@ -206,12 +210,14 @@ inventory-app/
 
 ### Testing
 
-Run the comprehensive test suite (560+ tests):
+Run the test suites:
 
 ```powershell
 php artisan test --parallel    # Backend tests
-npm test                       # Frontend tests (backend)
-Push-Location spa; npm test; Pop-Location    # SPA Demo tests
+
+Push-Location spa
+npm test                       # SPA Demo tests
+Pop-Location    
 ```
 
 ## Getting Started - SPA Development
@@ -221,6 +227,7 @@ The SPA Demo (`/spa` directory) is a Vue 3 reference implementation for consumin
 ```powershell
 Push-Location spa
 npm run dev        # Starts Vite dev server on http://localhost:5174
+Pop-Location
 ```
 
 ## Using the API Client (External Developers)
