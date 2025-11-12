@@ -23,12 +23,39 @@ The **Inventory Management API** (inventory-app) is a RESTful API designed to ma
 
 ## Table of Contents
 
-- [Project Overview](#project-overview)
-- [Why N-Tier Architecture?](#why-n-tier-architecture)
-- [Data Model and Features](#data-model-and-features)
-- [Quick Start](#quick-start)
-- [Deployment](#deployment)
-- [Automated Versioning](#automated-versioning)
+- [Inventory Management API](#inventory-management-api)
+  - [Table of Contents](#table-of-contents)
+  - [Project Overview](#project-overview)
+  - [N-Tier Architecture](#n-tier-architecture)
+  - [Data Model and Features](#data-model-and-features)
+    - [Core Data Model](#core-data-model)
+      - [Primary Models](#primary-models)
+      - [Core Business Models](#core-business-models)
+      - [Supporting Models](#supporting-models)
+    - [Key Features](#key-features)
+      - [🔐 Authentication \& Security](#-authentication--security)
+      - [🌐 RESTful API Architecture](#-restful-api-architecture)
+  - [Image Processing Pipeline](#image-processing-pipeline)
+    - [Image Upload and Processing Workflow](#image-upload-and-processing-workflow)
+    - [Image Storage Configuration](#image-storage-configuration)
+    - [Image Features](#image-features)
+    - [Image Features (COMING SOON)](#image-features-coming-soon)
+  - [🧪 Testing](#-testing)
+  - [🔍 API Documentation](#-api-documentation)
+  - [Developer's Quick Start](#developers-quick-start)
+    - [Project Structure](#project-structure)
+    - [Prerequisites](#prerequisites)
+    - [Installation (Windows)](#installation-windows)
+    - [📚 Comprehensive Documentation](#-comprehensive-documentation)
+  - [Frontend developer's Quick Start](#frontend-developers-quick-start)
+    - [Installation](#installation)
+    - [Usage](#usage)
+    - [Package Information](#package-information)
+  - [Deployment](#deployment)
+    - [Production Environment](#production-environment)
+    - [Environment Configuration](#environment-configuration)
+    - [Web Server Configuration](#web-server-configuration)
+    - [CI/CD Pipeline](#cicd-pipeline)
 
 ## Project Overview
 
@@ -38,7 +65,7 @@ This API is part of a broader modernization effort for Museum With No Frontiers.
 - **Public Consultation REST API**: Grants controlled, read-only access to inventory data for public-facing applications.
 - **Client-side Web Applications**: Deployed separately, these applications interact with the consultation API to present data to end users.
 
-## Why N-Tier Architecture?
+## N-Tier Architecture
 
 Adopting an N-tier architecture brings several advantages:
 
