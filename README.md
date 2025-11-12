@@ -21,41 +21,41 @@
 
 The **Inventory Management API** (inventory-app) is a RESTful API designed to manage the content of the Museum With No Frontiers' inventory database. This application serves as the management layer in a modern N-tier architecture, replacing legacy systems with a scalable, maintainable, and secure solution.
 
-## Table of Contents
+**Table of Contents**
 
 - [Inventory Management API](#inventory-management-api)
-  - [Table of Contents](#table-of-contents)
   - [Project Overview](#project-overview)
-  - [N-Tier Architecture](#n-tier-architecture)
-  - [Data Model and Features](#data-model-and-features)
-    - [Core Data Model](#core-data-model)
-      - [Primary Models](#primary-models)
-      - [Core Business Models](#core-business-models)
-      - [Supporting Models](#supporting-models)
-    - [Key Features](#key-features)
-      - [🔐 Authentication \& Security](#-authentication--security)
-      - [🌐 RESTful API Architecture](#-restful-api-architecture)
-  - [Image Processing Pipeline](#image-processing-pipeline)
-    - [Image Upload and Processing Workflow](#image-upload-and-processing-workflow)
-    - [Image Storage Configuration](#image-storage-configuration)
-    - [Image Features](#image-features)
-    - [Image Features (COMING SOON)](#image-features-coming-soon)
-  - [🧪 Testing](#-testing)
-  - [🔍 API Documentation](#-api-documentation)
-  - [Developer's Quick Start](#developers-quick-start)
-    - [Project Structure](#project-structure)
-    - [Prerequisites](#prerequisites)
-    - [Installation (Windows)](#installation-windows)
-    - [📚 Comprehensive Documentation](#-comprehensive-documentation)
-  - [Frontend developer's Quick Start](#frontend-developers-quick-start)
-    - [Installation](#installation)
-    - [Usage](#usage)
-    - [Package Information](#package-information)
+    - [N-Tier Architecture](#n-tier-architecture)
+    - [Data Model and Features](#data-model-and-features)
+      - [Core Data Model](#core-data-model)
+        - [Primary Models](#primary-models)
+        - [Core Business Models](#core-business-models)
+        - [Supporting Models](#supporting-models)
+      - [Key Features](#key-features)
+        - [Authentication \& Security](#authentication--security)
+        - [RESTful API Architecture](#restful-api-architecture)
+    - [Image Processing Pipeline](#image-processing-pipeline)
+      - [Image Upload and Processing Workflow](#image-upload-and-processing-workflow)
+      - [Image Storage Configuration](#image-storage-configuration)
+      - [Image Features](#image-features)
+      - [Image Features (COMING SOON)](#image-features-coming-soon)
+    - [API Documentation](#api-documentation)
+  - [Backend development](#backend-development)
+    - [Developer's Quick Start](#developers-quick-start)
+      - [Project Structure](#project-structure)
+      - [Prerequisites](#prerequisites)
+      - [Installation (Windows)](#installation-windows)
+    - [Testing](#testing)
+    - [Frontend developer's Quick Start](#frontend-developers-quick-start)
+      - [Installation](#installation)
+      - [Usage](#usage)
+      - [Package Information](#package-information)
   - [Deployment](#deployment)
     - [Production Environment](#production-environment)
     - [Environment Configuration](#environment-configuration)
     - [Web Server Configuration](#web-server-configuration)
     - [CI/CD Pipeline](#cicd-pipeline)
+  - [References](#references)
 
 ## Project Overview
 
@@ -65,7 +65,7 @@ This API is part of a broader modernization effort for Museum With No Frontiers.
 - **Public Consultation REST API**: Grants controlled, read-only access to inventory data for public-facing applications.
 - **Client-side Web Applications**: Deployed separately, these applications interact with the consultation API to present data to end users.
 
-## N-Tier Architecture
+### N-Tier Architecture
 
 Adopting an N-tier architecture brings several advantages:
 
@@ -74,13 +74,13 @@ Adopting an N-tier architecture brings several advantages:
 - **Security**: Sensitive management operations are isolated from public access, reducing the attack surface.
 - **Flexibility**: Decoupling backend and frontend allows for independent development, testing, and deployment of each component, enabling faster iteration and easier integration of new technologies.
 
-## Data Model and Features
+### Data Model and Features
 
-### Core Data Model
+#### Core Data Model
 
 The Inventory Management API is built around a sophisticated data model designed to handle complex museum inventory relationships. The system uses **UUID primary keys** for scalability and distributed system compatibility, with three notable exceptions that use standardized codes:
 
-#### Primary Models
+##### Primary Models
 
 - **Country** 🌍 - Uses ISO 3166-1 alpha-3 codes (3-letter country codes)
 - **Language** 🗣️ - Uses ISO 639-1 codes (3-letter language codes)
@@ -88,7 +88,7 @@ The Inventory Management API is built around a sophisticated data model designed
 
 All other models use UUID primary keys for optimal scalability and system integration.
 
-#### Core Business Models
+##### Core Business Models
 
 **Item** 📦 - The central inventory entity representing museum artifacts or content
 
@@ -122,7 +122,7 @@ All other models use UUID primary keys for optimal scalability and system integr
 - Provides contextual content organization (same Item hhas different descriptions depending on Context)
 - Supports default context selection
 
-#### Supporting Models
+##### Supporting Models
 
 **Tag** 🏷️ - Content tagging and categorization system
 
@@ -152,16 +152,16 @@ All other models use UUID primary keys for optimal scalability and system integr
 - Direct download and inline viewing capabilities
 
 
-### Key Features
+#### Key Features
 
-#### 🔐 Authentication & Security
+##### Authentication & Security
 
 - **Laravel Sanctum** - Token-based API authentication
 - **Laravel Fortify** - Web authentication
 - **Laravel Spatie** - Granualt permission management by Role-base access control.
 - **Input Validation** - Comprehensive validation for all endpoints using Request classes
 
-#### 🌐 RESTful API Architecture
+##### RESTful API Architecture
 
 - **Complete CRUD Operations** - Full Create, Read, Update, Delete functionality
 - **Resource Controllers** - Consistent API response formatting
@@ -173,18 +173,18 @@ All other models use UUID primary keys for optimal scalability and system integr
     - `Context::default()` - Get default context
 - **Custom Endpoints** - Beyond standard REST operations, the API provides specialized endpoints. E.g. To set the default language/context or to convert markdown to html and vice-cersa.
 
-## Image Processing Pipeline
+### Image Processing Pipeline
 
 The application features a image processing and attachment system:
 
-### Image Upload and Processing Workflow
+#### Image Upload and Processing Workflow
 
 1. **Upload**: Images are uploaded via `POST /api/image-upload` and processed asynchronously
 2. **Processing**: Background events resize, validate, and optimize images
 3. **Available Pool**: Successfully processed images become `AvailableImage` records
 4. **Attachment**: Images are attached to models via transactional operations
 
-### Image Storage Configuration
+#### Image Storage Configuration
 
 The application uses a flexible storage configuration system with clear separation:
 
@@ -202,35 +202,33 @@ PICTURES_DISK=local_pictures
 PICTURES_PATH=pictures
 ```
 
-### Image Features
+#### Image Features
 
 - **Event-Driven Processing** - Laravel events for decoupled image handling
 - **Storage Flexibility** - Support for local and cloud storage (S3)
 - **Transactional Attachment** - Atomic file operations with database consistency
 - **Direct Access** - Download and inline viewing endpoints for all image types
 
-### Image Features (COMING SOON)
+#### Image Features (COMING SOON)
 
 - **Automatic Resizing** - Multiple image sizes generated on upload
 - **Format Optimization** - WebP conversion for web optimization
 
-## 🧪 Testing
 
-- **Unit Tests** - Model validation, factory testing, and business logic validation
-- **Feature Tests** - API endpoint testing with authentication and authorization
-- **Integration Tests** - Cross-model relationship and workflow validation
-- **Test Isolation** - Tests use faking prevents external dependencies
-- **DRY principle** - Tests use Traits to avoid code repetition
 
-## 🔍 API Documentation
+### API Documentation
 
 - **OpenAPI** - OpenAPI `api.json` automatically generated via `scramble:export`
 - **Swagger** - Interactive API documentation using `api.json`.
 - **api-client npm package** - Typescript client package generated via `@openapitools/openapi-generator-cli` to facilitate integration in front-end only applications.
 
-## Developer's Quick Start
+---
 
-### Project Structure
+## Backend development
+
+### Developer's Quick Start
+
+#### Project Structure
 
 This project is organized as a **monorepo** with the following structure:
 
@@ -262,14 +260,14 @@ inventory-app/
 - **Separate Builds**: Backend and SPA build independently into `/public/build/` and `/public/spa-build/`
 - **Independent Development**: Each application has its own `package.json`, configs, and dependency trees
 
-### Prerequisites
+#### Prerequisites
 
 - **PHP 8.2+** - Modern PHP version with latest features
 - **Composer** - PHP dependency management
 - **Node.js 20+** - Frontend asset compilation
 - **SQLite** (development) or **MariaDB** (production)
 
-### Installation (Windows)
+#### Installation (Windows)
 
 1. **Clone the repository**
 
@@ -321,29 +319,28 @@ inventory-app/
     - **SPA Demo**: http://localhost:5174/cli
     - **API Documentation**: http://localhost:8000/docs/api
 
-### 📚 Comprehensive Documentation
-
-For detailed setup instructions, production deployment, and troubleshooting:
-
-- 🚀 **[Complete Deployment Guide](https://metanull.github.io/inventory-app/deployment/)** - Production and development setup
-- 💻 **[Development Environment](https://metanull.github.io/inventory-app/development-setup/)** - Local development guide  
-- 🔧 **[Configuration Guide](https://metanull.github.io/inventory-app/configuration/)** - Environment and application settings
-- 🌐 **[Server Configuration](https://metanull.github.io/inventory-app/server-configuration/)** - Apache/Nginx setup
-- 🛠️ **[Testing](https://metanull.github.io/inventory-app/testing)** - Testing
 
 
-## Frontend developer's Quick Start
+### Testing
+
+- **Unit Tests** - Model validation, factory testing, and business logic validation
+- **Feature Tests** - API endpoint testing with authentication and authorization
+- **Integration Tests** - Cross-model relationship and workflow validation
+- **Test Isolation** - Tests use faking prevents external dependencies
+- **DRY principle** - Tests use Traits to avoid code repetition
+
+### Frontend developer's Quick Start
 
 As the developer of Front-end application consuming the API you will want to interact with the API.
 The most straightforward approach is to use the TypeScript-Axios client library that is automatically generated and published og Github Package.
 
-### Installation
+#### Installation
 
 ```powershell
 npm install @metanull/inventory-app-api-client@latest
 ```
 
-### Usage
+#### Usage
 
 ```typescript
 import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client';
@@ -352,10 +349,12 @@ const api = new DefaultApi(new Configuration({ basePath: 'https://your.api.url' 
 api.addressIndex().then(response => console.log(response.data));
 ```
 
-### Package Information
+#### Package Information
 
 - **Package**: [`@metanull/inventory-app-api-client`](https://github.com/metanull/inventory-app/packages)
 - **Registry**: [GitHub Packages](https://npm.pkg.github.com/)
+
+---
 
 ## Deployment
 
@@ -424,4 +423,16 @@ The project includes a comprehensive **GitHub Actions** workflow for:
   - 🌐 **Live Documentation**: [https://metanull.github.io/inventory-app](https://metanull.github.io/inventory-app)
   - 🔄 **CI/CD Integration** - Jekyll builds and deploys automatically
   - 📊 **Commit Tracking** - Complete development history with diff statistics
+
+---
+
+## References
+
+For detailed setup instructions, production deployment, and troubleshooting:
+
+- 🚀 **[Complete Deployment Guide](https://metanull.github.io/inventory-app/deployment/)** - Production and development setup
+- 💻 **[Development Environment](https://metanull.github.io/inventory-app/development-setup/)** - Local development guide  
+- 🔧 **[Configuration Guide](https://metanull.github.io/inventory-app/configuration/)** - Environment and application settings
+- 🌐 **[Server Configuration](https://metanull.github.io/inventory-app/server-configuration/)** - Apache/Nginx setup
+- 🛠️ **[Testing](https://metanull.github.io/inventory-app/testing)** - Testing
 
