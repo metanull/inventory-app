@@ -31,6 +31,8 @@ class CollectionResource extends JsonResource
             'language_id' => $this->language_id,
             // The context this collection belongs to (ContextResource id)
             'context_id' => $this->context_id,
+            // The parent collection ID (for hierarchical organization)
+            'parent_id' => $this->parent_id,
             // The Id(s) of matching resource in the legacy system (if any).
             'backward_compatibility' => $this->backward_compatibility,
             // The date of creation of the resource (managed by the system)
@@ -42,6 +44,10 @@ class CollectionResource extends JsonResource
             'language' => new LanguageResource($this->whenLoaded('language')),
             // The context relationship (ContextResource)
             'context' => new ContextResource($this->whenLoaded('context')),
+            // The parent collection (CollectionResource)
+            'parent' => new CollectionResource($this->whenLoaded('parent')),
+            // Child collections (CollectionResource[])
+            'children' => CollectionResource::collection($this->whenLoaded('children')),
             // Translations for this collection (CollectionTranslationResource[])
             'translations' => CollectionTranslationResource::collection($this->whenLoaded('translations')),
             // Partners associated with this collection (PartnerResource[])
@@ -56,6 +62,7 @@ class CollectionResource extends JsonResource
             'attached_items_count' => $this->when($this->relationLoaded('attachedItems'), fn () => $this->attachedItems->count()),
             'partners_count' => $this->when($this->relationLoaded('partners'), fn () => $this->partners->count()),
             'translations_count' => $this->when($this->relationLoaded('translations'), fn () => $this->translations->count()),
+            'children_count' => $this->when($this->relationLoaded('children'), fn () => $this->children->count()),
         ];
     }
 }

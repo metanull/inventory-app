@@ -16,7 +16,11 @@
         :options="collect([
             (object)['id' => 'collection', 'name' => 'Collection'],
             (object)['id' => 'exhibition', 'name' => 'Exhibition'],
-            (object)['id' => 'gallery', 'name' => 'Gallery']
+            (object)['id' => 'gallery', 'name' => 'Gallery'],
+            (object)['id' => 'theme', 'name' => 'Theme'],
+            (object)['id' => 'exhibition trail', 'name' => 'Exhibition Trail'],
+            (object)['id' => 'itinerary', 'name' => 'Itinerary'],
+            (object)['id' => 'location', 'name' => 'Location']
         ])"
         displayField="name"
         valueField="id"
@@ -51,6 +55,18 @@
         searchPlaceholder="Type to search contexts..."
         entity="collections"
         required
+    />
+</x-form.field>
+
+<x-form.field label="Parent Collection" name="parent_id" variant="gray">
+    <x-form.entity-select 
+        name="parent_id" 
+        :value="old('parent_id', $collection->parent_id ?? null)"
+        :options="\App\Models\Collection::orderBy('internal_name')->get()"
+        displayField="internal_name"
+        placeholder="Select a parent collection (optional)..."
+        searchPlaceholder="Type to search collections..."
+        entity="collections"
     />
 </x-form.field>
 

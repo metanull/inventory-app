@@ -15,9 +15,10 @@ class UpdateCollectionRequest extends FormRequest
     {
         return [
             'internal_name' => ['sometimes', 'required', 'string', 'max:255'],
-            'type' => ['sometimes', 'required', 'in:collection,exhibition,gallery'],
+            'type' => ['sometimes', 'required', 'in:collection,exhibition,gallery,theme,exhibition trail,itinerary,location'],
             'language_id' => ['sometimes', 'required', 'string', 'size:3', 'exists:languages,id'],
             'context_id' => ['sometimes', 'required', 'uuid', 'exists:contexts,id'],
+            'parent_id' => ['nullable', 'uuid', 'exists:collections,id'],
             'backward_compatibility' => ['sometimes', 'nullable', 'string', 'max:255'],
         ];
     }

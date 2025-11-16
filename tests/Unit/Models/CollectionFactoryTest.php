@@ -20,7 +20,7 @@ class CollectionFactoryTest extends TestCase
         $this->assertInstanceOf(Collection::class, $collection);
         $this->assertNotEmpty($collection->id);
         $this->assertNotEmpty($collection->internal_name);
-        $this->assertContains($collection->type, ['collection', 'exhibition', 'gallery']);
+        $this->assertContains($collection->type, ['collection', 'exhibition', 'gallery', 'theme', 'exhibition trail', 'itinerary', 'location']);
     }
 
     public function test_factory_states_produce_correct_types(): void

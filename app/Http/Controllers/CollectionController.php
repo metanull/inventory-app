@@ -34,7 +34,7 @@ class CollectionController extends Controller
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
 
-        $defaults = ['language', 'context', 'translations', 'partners', 'items', 'attachedItems'];
+        $defaults = ['language', 'context', 'parent', 'children', 'translations', 'partners', 'items', 'attachedItems'];
         $with = array_values(array_unique(array_merge($defaults, $includes)));
 
         $query = Collection::query()->with($with);
@@ -59,7 +59,7 @@ class CollectionController extends Controller
         $collection = Collection::create($validated);
 
         $requested = IncludeParser::fromRequest($request, AllowList::for('collection'));
-        $defaults = ['language', 'context', 'translations', 'partners', 'items', 'attachedItems'];
+        $defaults = ['language', 'context', 'parent', 'children', 'translations', 'partners', 'items', 'attachedItems'];
         $collection->load(array_values(array_unique(array_merge($defaults, $requested))));
 
         return new CollectionResource($collection);
@@ -88,7 +88,7 @@ class CollectionController extends Controller
         $collection->update($validated);
 
         $requested = IncludeParser::fromRequest($request, AllowList::for('collection'));
-        $defaults = ['language', 'context', 'translations', 'partners', 'items', 'attachedItems'];
+        $defaults = ['language', 'context', 'parent', 'children', 'translations', 'partners', 'items', 'attachedItems'];
         $collection->load(array_values(array_unique(array_merge($defaults, $requested))));
 
         return new CollectionResource($collection);
@@ -100,11 +100,11 @@ class CollectionController extends Controller
     public function byType(Request $request, string $type)
     {
         $request->validate([
-            'type' => 'required|in:collection,exhibition,gallery',
+            'type' => 'required|in:collection,exhibition,gallery,theme,exhibition trail,itinerary,location',
         ]);
 
         $includes = IncludeParser::fromRequest($request, AllowList::for('collection'));
-        $defaults = ['language', 'context', 'translations', 'partners', 'items', 'attachedItems'];
+        $defaults = ['language', 'context', 'parent', 'children', 'translations', 'partners', 'items', 'attachedItems'];
         $with = array_values(array_unique(array_merge($defaults, $includes)));
 
         $query = Collection::query()->with($with);
@@ -118,6 +118,18 @@ class CollectionController extends Controller
                 break;
             case 'gallery':
                 $query->galleries();
+                break;
+            case 'theme':
+                $query->themes();
+                break;
+            case 'exhibition trail':
+                $query->exhibitionTrails();
+                break;
+            case 'itinerary':
+                $query->itineraries();
+                break;
+            case 'location':
+                $query->locations();
                 break;
         }
 
