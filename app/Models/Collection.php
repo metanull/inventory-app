@@ -28,6 +28,14 @@ class Collection extends Model
 
     public const TYPE_GALLERY = 'gallery';
 
+    public const TYPE_THEME = 'theme';
+
+    public const TYPE_EXHIBITION_TRAIL = 'exhibition trail';
+
+    public const TYPE_ITINERARY = 'itinerary';
+
+    public const TYPE_LOCATION = 'location';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -38,6 +46,7 @@ class Collection extends Model
         'type',
         'language_id',
         'context_id',
+        'parent_id',
         'backward_compatibility',
     ];
 
@@ -80,6 +89,22 @@ class Collection extends Model
     public function context(): BelongsTo
     {
         return $this->belongsTo(Context::class);
+    }
+
+    /**
+     * Get the parent collection (for hierarchical organization).
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Collection::class, 'parent_id');
+    }
+
+    /**
+     * Get all child collections.
+     */
+    public function children(): HasMany
+    {
+        return $this->hasMany(Collection::class, 'parent_id');
     }
 
     /**
@@ -129,6 +154,54 @@ class Collection extends Model
     public function scopeGalleries(Builder $query): Builder
     {
         return $query->where('type', self::TYPE_GALLERY);
+    }
+
+    /**
+     * Scope to get only theme type collections.
+     */
+    public function scopeThemes(Builder $query): Builder
+    {
+        return $query->where('type', self::TYPE_THEME);
+    }
+
+    /**
+     * Scope to get only exhibition trail type collections.
+     */
+    public function scopeExhibitionTrails(Builder $query): Builder
+    {
+        return $query->where('type', self::TYPE_EXHIBITION_TRAIL);
+    }
+
+    /**
+     * Scope to get only itinerary type collections.
+     */
+    public function scopeItineraries(Builder $query): Builder
+    {
+        return $query->where('type', self::TYPE_ITINERARY);
+    }
+
+    /**
+     * Scope to get only location type collections.
+     */
+    public function scopeLocations(Builder $query): Builder
+    {
+        return $query->where('type', self::TYPE_LOCATION);
+    }
+
+    /**
+     * Scope to get only root collections (no parent).
+     */
+    public function scopeRoots(Builder $query): Builder
+    {
+        return $query->whereNull('parent_id');
+    }
+
+    /**
+     * Scope to get child collections of a specific parent.
+     */
+    public function scopeChildrenOf(Builder $query, string $parentId): Builder
+    {
+        return $query->where('parent_id', $parentId);
     }
 
     /**

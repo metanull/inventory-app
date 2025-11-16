@@ -23,9 +23,10 @@ class StoreCollectionRequest extends FormRequest
     {
         return [
             'internal_name' => ['required', 'string', 'max:255', 'unique:collections,internal_name'],
-            'type' => ['required', 'in:collection,exhibition,gallery'],
+            'type' => ['required', 'in:collection,exhibition,gallery,theme,exhibition trail,itinerary,location'],
             'language_id' => ['required', 'string', 'size:3', 'exists:languages,id'],
             'context_id' => ['required', 'string', 'exists:contexts,id'],
+            'parent_id' => ['nullable', 'string', 'exists:collections,id'],
             'backward_compatibility' => ['nullable', 'string', 'max:255'],
         ];
     }

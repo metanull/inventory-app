@@ -28,9 +28,10 @@ class CollectionFactory extends Factory
     {
         return [
             'internal_name' => $this->faker->unique()->slug(2),
-            'type' => $this->faker->randomElement(['collection', 'exhibition', 'gallery']),
+            'type' => $this->faker->randomElement(['collection', 'exhibition', 'gallery', 'theme', 'exhibition trail', 'itinerary', 'location']),
             'language_id' => Language::factory(),
             'context_id' => Context::factory(),
+            'parent_id' => null,
             'backward_compatibility' => $this->faker->optional()->uuid(),
         ];
     }
@@ -119,5 +120,68 @@ class CollectionFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'type' => 'gallery',
         ]);
+    }
+
+    /**
+     * Create a collection of type 'theme'.
+     */
+    public function theme(): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'theme',
+        ]);
+    }
+
+    /**
+     * Create a collection of type 'exhibition trail'.
+     */
+    public function exhibitionTrail(): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'exhibition trail',
+        ]);
+    }
+
+    /**
+     * Create a collection of type 'itinerary'.
+     */
+    public function itinerary(): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'itinerary',
+        ]);
+    }
+
+    /**
+     * Create a collection of type 'location'.
+     */
+    public function location(): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'location',
+        ]);
+    }
+
+    /**
+     * Configure the factory to use an existing parent collection.
+     */
+    public function withParent(string $parentId): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'parent_id' => $parentId,
+        ]);
+    }
+
+    /**
+     * Configure the factory to create a child collection.
+     */
+    public function asChild(): Factory
+    {
+        return $this->afterMaking(function (Collection $collection) {
+            if (! $collection->parent_id) {
+                $parent = Collection::factory()->create();
+                $collection->parent_id = $parent->id;
+            }
+        });
     }
 }
