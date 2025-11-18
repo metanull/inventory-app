@@ -38,11 +38,11 @@
         "@pinia/testing": "^1.0.2",
         "@tailwindcss/postcss": "^4.1.16",
         "@types/node": "^24.9.1",
-        "@typescript-eslint/eslint-plugin": "^8.46.1",
-        "@typescript-eslint/parser": "^8.46.1",
+        "@typescript-eslint/eslint-plugin": "^8.47.0",
+        "@typescript-eslint/parser": "^8.47.0",
         "@vitejs/plugin-vue": "^6.0.1",
-        "@vitest/coverage-v8": "^4.0.4",
-        "@vitest/ui": "^4.0.4",
+        "@vitest/coverage-v8": "^4.0.10",
+        "@vitest/ui": "^4.0.10",
         "@vue/test-utils": "^2.4.6",
         "@vue/tsconfig": "^0.8.1",
         "autoprefixer": "^10.4.19",
@@ -56,12 +56,15 @@
         "tailwindcss": "^4.1.16",
         "typescript": "^5.9.3",
         "vite": "^7.1.12",
-        "vitest": "^4.0.4",
+        "vitest": "^4.0.10",
         "vue-tsc": "^3.1.2"
     },
     "packageManager": "npm@11.6.2",
     "engines": {
         "node": ">=24.11.0",
         "npm": ">=11.6.2"
+    },
+    "overrides": {
+        "glob": "^11.1.0"
     }
 }
