@@ -146,7 +146,7 @@ Context (Project)
 **Mapping**:
 - `mwnf3.projects` → Context + Collection (type: `collection`)
 - No hierarchy beyond project level
-- backward_compatibility: `mwnf3:projects:{project_id}:collection`
+- backward_compatibility: `mwnf3:projects:{project_id}`
 
 ---
 
@@ -326,11 +326,15 @@ The legacy system had **two incompatible image models**:
 #### Rule 1: Top-Level Item with Primary Image
 
 For each top-level item (object/monument):
-1. Import **image #1** as the primary image of the parent item
-2. Attach via `item_images` pivot
-3. Store in ImageUpload with backward_compatibility
+1. Copy **image #1** file from legacy network share to storage
+2. Create **ItemImage** record directly with:
+   - `item_id` = parent item UUID
+   - `file_path` = storage path
+   - `order` = 1 (primary image)
+   - `backward_compatibility` = legacy reference
+   - Other metadata: photographer, copyright
 
-**Example**: `mwnf3:objects:{proj}:{country}:{museum}:{number}` gets image #1
+**Example**: `mwnf3:objects:{proj}:{country}:{museum}:{number}` gets ItemImage with order=1
 
 ---
 
@@ -340,15 +344,20 @@ For **every image** (including #1):
 1. Create a **child Item** with:
    - `type = 'picture'`
    - `parent_id = {parent_item_uuid}`
-   - Link to ImageUpload (same image)
-2. Create ItemTranslation for each language with:
+   - `backward_compatibility` = `{item-legacy_ref}:{legacy_image-index}`
+2. Create **ItemImage** for the picture item:
+   - `item_id` = picture item UUID
+   - `file_path` = same file as parent's primary image (no duplicate file)
+   - `order` = 1
+   - `backward_compatibility` = legacy reference
+3. Create ItemTranslation for each language with:
    - Caption from `*_pictures.caption` or `*_image_texts.caption`
    - Photographer, copyright metadata
    - **context_id**: Default context (mwnf3 project)
 
 **Result**: Each image exists as both:
-- Primary image of parent (via pivot)
-- Child item of type "picture" (in item tree)
+- ItemImage attached to parent (order=1 for primary)
+- Child item of type "picture" with its own ItemImage (same file, no duplication)
 
 ---
 
@@ -409,34 +418,25 @@ ItemTranslation (fr):
   context_id: {mwnf3_project_context_uuid}
   name: "Object Name FR"
 
-# 3. Upload images (deduplicate by path)
-ImageUpload (image1):
-  uuid: {uuid_img1}
-  path: "storage/.../image1.jpg"
-  backward_compatibility: "mwnf3:objects_pictures:vm:ma:louvre:001:1"
+# 3. Copy image files from legacy network share (deduplicate by hash)
+# Files copied to: storage/items/{uuid_object}/image1.jpg, image2.jpg, image3.jpg
 
-ImageUpload (image2):
-  uuid: {uuid_img2}
-  path: "storage/.../image2.jpg"
-  backward_compatibility: "mwnf3:objects_pictures:vm:ma:louvre:001:2"
-
-ImageUpload (image3):
-  uuid: {uuid_img3}
-  path: "storage/.../image3.jpg"
-  backward_compatibility: "mwnf3:objects_pictures:vm:ma:louvre:001:3"
-
-# 4. Attach image #1 as primary image of parent
-item_images:
+# 4. Create ItemImage for primary image (image #1)
+ItemImage (image1):
+  uuid: {uuid_itemimg1}
   item_id: {uuid_object}
-  image_upload_id: {uuid_img1}
-  order: 1
+  file_path: "items/{uuid_object}/image1.jpg"
+  order: 1  # Primary image
+  photographer: "..."
+  copyright: "..."
+  backward_compatibility: "mwnf3:objects_pictures:vm:ma:louvre:001:1"
 
 # 5. Create child "picture" items for ALL images (including #1)
 Item (picture 1):
   uuid: {uuid_pic1}
   type: picture
   parent_id: {uuid_object}
-  backward_compatibility: "mwnf3:objects_pictures:vm:ma:louvre:001:1:item"
+  backward_compatibility: "mwnf3:objects_pictures:vm:ma:louvre:001:1"
 
 ItemTranslation (picture 1, EN):
   item_id: {uuid_pic1}
@@ -451,38 +451,45 @@ ItemTranslation (picture 1, FR):
   context_id: {mwnf3_project_context_uuid}
   name: "caption_fr for image 1"
 
-item_images (link picture item to image):
+ItemImage (link picture item to same file):
+  uuid: {uuid_itemimg_pic1}
   item_id: {uuid_pic1}
-  image_upload_id: {uuid_img1}
+  file_path: "items/{uuid_object}/image1.jpg"  # Same file, no duplication
+  order: 1
+  photographer: "..."
+  copyright: "..."
+  backward_compatibility: "mwnf3:objects_pictures:vm:ma:louvre:001:1"
 
 # Repeat for pictures 2 and 3...
 Item (picture 2):
   uuid: {uuid_pic2}
   type: picture
   parent_id: {uuid_object}
-  backward_compatibility: "mwnf3:objects_pictures:vm:ma:louvre:001:2:item"
+  backward_compatibility: "mwnf3:objects_pictures:vm:ma:louvre:001:2"
   # + translations for EN, FR
 
 Item (picture 3):
   uuid: {uuid_pic3}
   type: picture
   parent_id: {uuid_object}
-  backward_compatibility: "mwnf3:objects_pictures:vm:ma:louvre:001:3:item"
+  backward_compatibility: "mwnf3:objects_pictures:vm:ma:louvre:001:3"
   # + translations for EN, FR
 ```
 
 **Result Tree Structure**:
 ```
 Object (vm:ma:louvre:001)
-  ├─ [Primary Image]: image1.jpg (via item_images pivot)
+  ├─ ItemImage #1: image1.jpg (order=1, primary)
+  ├─ ItemImage #2: image2.jpg (order=2)
+  ├─ ItemImage #3: image3.jpg (order=3)
   ├─ Picture Item 1 (child, type: picture)
-  │    ├─ Links to: image1.jpg
+  │    ├─ ItemImage: image1.jpg (same file as parent's image #1)
   │    └─ Captions: EN, FR (context: mwnf3 project)
   ├─ Picture Item 2 (child, type: picture)
-  │    ├─ Links to: image2.jpg
+  │    ├─ ItemImage: image2.jpg (same file as parent's image #2)
   │    └─ Captions: EN, FR
   └─ Picture Item 3 (child, type: picture)
-       ├─ Links to: image3.jpg
+       ├─ ItemImage: image3.jpg (same file as parent's image #3)
        └─ Captions: EN, FR
 ```
 
@@ -556,15 +563,21 @@ ItemTranslation (picture 2, FR, GALLERY CONTEXT):
 
 **Phase A: Import Parent Items**
 1. Import top-level items (objects, monuments, details)
-2. Import image #1 as primary image (via item_images pivot)
+2. Copy image #1 file from legacy network share
+3. Create ItemImage record (order=1, primary image)
 
-**Phase B: Create Picture Items**
+**Phase B: Create Additional ItemImages**
+1. For each additional image (2..N):
+   - Copy image file from legacy network share (deduplicate by hash)
+   - Create ItemImage record (order=N)
+
+**Phase C: Create Picture Items**
 1. For each image (1..N):
    - Create child Item (type: picture, parent_id = parent item)
-   - Link to ImageUpload
-   - Create ItemTranslations (default context)
+   - Create ItemImage for picture item (references same file, no duplication)
+   - Create ItemTranslations (default context with captions)
 
-**Phase C: Add Gallery Contexts** (after THG import)
+**Phase D: Add Gallery Contexts** (after THG import)
 1. For each thg gallery image reference:
    - Find picture item via backward_compatibility
    - Add ItemTranslation with gallery context_id
@@ -573,7 +586,7 @@ ItemTranslation (picture 2, FR, GALLERY CONTEXT):
 
 ### backward_compatibility for Images
 
-**ImageUpload** (one per unique file):
+**ItemImage** (attached to parent item):
 ```
 mwnf3:objects_pictures:{proj}:{country}:{museum}:{num}:{image_num}
 sh:object_images:{proj}:{country}:{num}:{image_num}
@@ -584,12 +597,18 @@ explore:exploremonument_pictures:{monument_id}:{picture_id}
 
 **Picture Items** (child items of type picture):
 ```
-mwnf3:objects_pictures:{proj}:{country}:{museum}:{num}:{image_num}:item
-sh:object_images:{proj}:{country}:{num}:{image_num}:item
+mwnf3:objects_pictures:{proj}:{country}:{museum}:{num}:{image_num}
+sh:object_images:{proj}:{country}:{num}:{image_num}
 # etc...
 ```
 
-**Suffix `:item`** distinguishes picture item from ImageUpload record.
+**ItemImage for Picture Items** (same backward_compatibility):
+```
+mwnf3:objects_pictures:{proj}:{country}:{museum}:{num}:{image_num}
+sh:object_images:{proj}:{country}:{num}:{image_num}
+# etc...
+```
+
 
 ---
 
@@ -617,6 +636,8 @@ sh:object_images:{proj}:{country}:{num}:{image_num}:item
 | thg | `thg_partners` | From partner_category | Check mwnf3, sh | `thg:partners:{id}` |
 
 **Deduplication**: Match on name + country + address before creating new Partner.
+
+**Partner Images**: Create **PartnerImage** records directly (not ImageUpload).
 
 ---
 
@@ -688,7 +709,6 @@ See [Collection Type Mapping](#collection-type-mapping--hierarchy) section for c
 1. **NO language code** in format (for denormalized tables)
 2. **Colon-separated** PK columns
 3. **Schema prefix** for disambiguation
-4. **Suffix `:item`** for picture items (vs ImageUpload)
 
 ### Complete Reference Table
 
@@ -708,9 +728,12 @@ See [Collection Type Mapping](#collection-type-mapping--hierarchy) section for c
 | **Item (object)** | sh | `sh:objects:{proj}:{country}:{num}` |
 | **Item (monument)** | travels | `travels:tr_monuments:{proj}:{country}:{trail}:{itin}:{loc}:{num}` |
 | **Item (monument)** | explore | `explore:exploremonument:{monument_id}` |
-| **ImageUpload** | mwnf3 | `mwnf3:objects_pictures:{proj}:{country}:{museum}:{num}:{img_num}` |
-| **Picture Item** | mwnf3 | `mwnf3:objects_pictures:{proj}:{country}:{museum}:{num}:{img_num}:item` |
-| **ImageUpload** | explore | `explore:exploremonument_pictures:{mon_id}:{pic_id}` |
+| **ItemImage** | mwnf3 | `mwnf3:objects_pictures:{proj}:{country}:{museum}:{num}:{img_num}` |
+| **Picture Item** | mwnf3 | `mwnf3:objects_pictures:{proj}:{country}:{museum}:{num}:{img_num}` |
+| **ItemImage (picture)** | mwnf3 | `mwnf3:objects_pictures:{proj}:{country}:{museum}:{num}:{img_num}` |
+| **ItemImage** | explore | `explore:exploremonument_pictures:{mon_id}:{pic_id}` |
+| **PartnerImage** | mwnf3 | `mwnf3:museums_pictures:{museum_id}:{country}:{img_num}` |
+| **CollectionImage** | sh | `sh:nc_exhibitions:{country}:{exhibition_id}:{img_num}` |
 | **Author** | mwnf3 | `mwnf3:authors:{author_id}` |
 | **Tag** | mwnf3 | `mwnf3:dynasties:{dynasty_id}` |
 | **Tag** | thg | `thg:tags:{tag_id}` |
@@ -778,126 +801,130 @@ graph TD
 12. Import `monument_details` → Item (type: detail, parent_id from monument)
 
 **2.5: Images Phase A (Primary Images)**
-13. Import `objects_pictures` image #1 → ImageUpload + item_images pivot
+13. Import `objects_pictures` image #1 → Copy file + Create ItemImage (order=1)
+14. Import `objects_pictures` images #2..N → Copy files + Create ItemImage (order=N)
 
 **2.6: Images Phase B (Picture Items)**
-14. Import ALL `objects_pictures` → Child Item (type: picture) + ItemTranslation
-15. Import `monuments_pictures` → Same pattern
-16. Import `monument_detail_pictures` → Same pattern
+15. Import ALL `objects_pictures` → Child Item (type: picture) + ItemImage + ItemTranslation
+16. Import `monuments_pictures` → Same pattern
+17. Import `monument_detail_pictures` → Same pattern
+18. Import `museums_pictures`, `institutions_pictures` → PartnerImage
 
 **2.7: Relationships**
-17. Import `authors_objects`, `authors_monuments` → author_item pivot
-18. Import `objects_dynasties`, `monuments_dynasties` → item_tag pivot
-19. Parse dynasty, keywords fields → Additional item_tag
-20. Import `objects_objects`, `objects_monuments`, `monuments_monuments` → ItemItemLink
-21. Parse linkobjects, linkmonuments fields → Additional ItemItemLink
+19. Import `authors_objects`, `authors_monuments` → author_item pivot
+20. Import `objects_dynasties`, `monuments_dynasties` → item_tag pivot
+21. Parse dynasty, keywords fields → Additional item_tag
+22. Import `objects_objects`, `objects_monuments`, `monuments_monuments` → ItemItemLink
+23. Parse linkobjects, linkmonuments fields → Additional ItemItemLink
 
 ---
 
 #### **PHASE 3: Sharing History (Exhibitions)**
 
 **3.1: Contexts & Collections**
-22. Import `sh_projects` → Context + Collection
-23. Import `sh_national_context_countries` → Collection (type: `collection`)
-24. Import `sh_national_context_exhibitions` → Collection (type: `exhibition`)
-25. Import `sh_national_context_themes` → Collection (type: `theme`)
-26. Import `sh_national_context_subthemes` → Collection (type: `theme`)
-27. Import `myexh_exhibitions`, `myexh_exhibition_themes`, `myexh_exhibition_subthemes`
+24. Import `sh_projects` → Context + Collection
+25. Import `sh_national_context_countries` → Collection (type: `collection`)
+26. Import `sh_national_context_exhibitions` → Collection (type: `exhibition`) + CollectionImage
+27. Import `sh_national_context_themes` → Collection (type: `theme`) + CollectionImage
+28. Import `sh_national_context_subthemes` → Collection (type: `theme`) + CollectionImage
+29. Import `myexh_exhibitions`, `myexh_exhibition_themes`, `myexh_exhibition_subthemes`
 
 **3.2: Partners (Deduplicated)**
-28. Import `sh_partners` → Check mwnf3 duplicates, create Partner or link
+30. Import `sh_partners` → Check mwnf3 duplicates, create Partner or link
+31. Import `sh_partner_pictures` → PartnerImage
 
 **3.3: Items (Normalized - Separate base/texts)**
-29. Import `sh_objects` + `sh_objects_texts` → Item + ItemTranslation (per lang, per context)
-30. Import `sh_monuments` + `sh_monuments_texts` → Item + ItemTranslation
-31. Import `sh_monument_details` + `sh_monument_detail_texts` → Item (type: detail)
+32. Import `sh_objects` + `sh_objects_texts` → Item + ItemTranslation (per lang, per context)
+33. Import `sh_monuments` + `sh_monuments_texts` → Item + ItemTranslation
+34. Import `sh_monument_details` + `sh_monument_detail_texts` → Item (type: detail)
 
 **3.4: Collection-Item Associations**
-32. Import `rel_objects_*`, `rel_monuments_*` → collection_item pivots
+35. Import `rel_objects_*`, `rel_monuments_*` → collection_item pivots
 
-**3.5: Images (Same 2-phase approach)**
-33. Import `sh_object_images` image #1 → Primary image
-34. Import ALL `sh_object_images` → Picture items
-35. Import `sh_monument_images` → Same pattern
+**3.5: Images**
+36. Import `sh_object_images` → ItemImage (all orders)
+37. Import ALL `sh_object_images` → Picture items + ItemImage + ItemTranslation
+38. Import `sh_monument_images` → Same pattern
 
 **3.6: Relationships**
-36. Import sh author, tag relationships
+39. Import sh author, tag relationships
 
 ---
 
 #### **PHASE 4: Travel (Travel Guides)**
 
 **4.1: Collections (Denormalized - Group by non-lang PK)**
-37. Import `trails` → Collection (type: `exhibition_trail`)
-38. Import `tr_itineraries` → Collection (type: `itinerary`)
-39. Import `tr_locations` → Collection (type: `location`)
+40. Import `trails` → Collection (type: `exhibition_trail`) + CollectionImage
+41. Import `tr_itineraries` → Collection (type: `itinerary`) + CollectionImage
+42. Import `tr_locations` → Collection (type: `location`) + CollectionImage
 
 **4.2: Items (Denormalized)**
-40. Import `tr_monuments` → Check mwnf3 duplicates, Item + ItemTranslation
+43. Import `tr_monuments` → Check mwnf3 duplicates, Item + ItemTranslation
 
 **4.3: Images**
-41. Import `tr_monuments_pictures` → Primary + Picture items
+44. Import `tr_monuments_pictures` → ItemImage (all orders) + Picture items
 
 ---
 
 #### **PHASE 5: Thematic Gallery (Cross-Schema)**
 
 **5.1: Contexts & Collections**
-42. Import `thg_projects` → Context + Collection
-43. Import `thg_gallery` (self-referencing) → Collection (type: `gallery`)
-44. Import `theme` (self-referencing) → Collection (type: `theme`)
+45. Import `thg_projects` → Context + Collection
+46. Import `thg_gallery` (self-referencing) → Collection (type: `gallery`) + CollectionImage
+47. Import `theme` (self-referencing) → Collection (type: `theme`) + CollectionImage
 
 **5.2: Partners & Tags (Deduplicated)**
-45. Import `thg_partners` → Check mwnf3, sh
-46. Import `thg_authors` → Check mwnf3, sh
-47. Import `thg_tags` → Tag
+48. Import `thg_partners` → Check mwnf3, sh
+49. Import `thg_partner_pictures` → PartnerImage
+50. Import `thg_authors` → Check mwnf3, sh
+51. Import `thg_tags` → Tag
 
 **5.3: Items (Normalized)**
-48. Import `thg_objects` + `thg_objects_texts` → Check mwnf3, sh duplicates
-49. Import `thg_monuments` + `thg_monuments_texts` → Check duplicates
-50. Import `thg_monument_details` → Item (type: detail)
+52. Import `thg_objects` + `thg_objects_texts` → Check mwnf3, sh duplicates
+53. Import `thg_monuments` + `thg_monuments_texts` → Check duplicates
+54. Import `thg_monument_details` → Item (type: detail)
 
 **5.4: Cross-Schema Gallery Associations**
-51. Import `thg_gallery_mwnf3_objects` → Link to existing mwnf3 items
-52. Import `thg_gallery_sh_objects` → Link to existing sh items
-53. Import `thg_gallery_thg_objects` → Link to thg items
-54. Similar for monuments, explore, travel
+55. Import `thg_gallery_mwnf3_objects` → Link to existing mwnf3 items
+56. Import `thg_gallery_sh_objects` → Link to existing sh items
+57. Import `thg_gallery_thg_objects` → Link to thg items
+58. Similar for monuments, explore, travel
 
 **5.5: Images**
-55. Import `thg_object_images` → Primary + Picture items
+59. Import `thg_object_images` → ItemImage (all orders) + Picture items
 
 **5.6: Cross-Schema Tag Relationships**
-56. Import `thg_objects_thg_tags`, `thg_objects_sh_tags`, `thg_objects_mwnf3_tags`
+60. Import `thg_objects_thg_tags`, `thg_objects_sh_tags`, `thg_objects_mwnf3_tags`
 
 ---
 
 #### **PHASE 6: Explore (Geographic Browser - CRITICAL 1808 Monuments)**
 
 **6.1: Collections**
-57. Import `explorecountry` → Collection (type: `collection`)
-58. Import `locations` → Collection (type: `location`)
+61. Import `explorecountry` → Collection (type: `collection`)
+62. Import `locations` → Collection (type: `location`)
 
 **6.2: Items (HIGHEST PRIORITY - Check REF_* fields)**
-59. Import `exploremonument` → Check REF_monuments_*, REF_tr_monuments_* FIRST
-60. Import `exploremonumenttranslated` → ItemTranslation (5 description fields!)
-61. Import `exploremonumentacademic` → Additional ItemTranslation
-62. Import `exploremonumentext`, `exploremonumentotherdescriptions` → Metadata or translations
+63. Import `exploremonument` → Check REF_monuments_*, REF_tr_monuments_* FIRST
+64. Import `exploremonumenttranslated` → ItemTranslation (5 description fields!)
+65. Import `exploremonumentacademic` → Additional ItemTranslation
+66. Import `exploremonumentext`, `exploremonumentotherdescriptions` → Metadata or translations
 
 **6.3: Themes & Itineraries**
-63. Import `explorethemes` → Tag
-64. Import `exploremonumentsthemes` → item_tag
-65. Import `explore_itineraries` → Collection (type: `itinerary`)
-66. Import `explore_itineraries_rel_*` → collection relationships
+67. Import `explorethemes` → Tag
+68. Import `exploremonumentsthemes` → item_tag
+69. Import `explore_itineraries` → Collection (type: `itinerary`) + CollectionImage
+70. Import `explore_itineraries_rel_*` → collection relationships
 
 **6.4: Images**
-67. Import `exploremonument_pictures` → Primary + Picture items
+71. Import `exploremonument_pictures` → ItemImage (all orders) + Picture items
 
 ---
 
 #### **PHASE 7: Contextualized Gallery Images (thg)**
 
 **7.1: Add Gallery-Specific Picture Translations**
-68. For each `thg_gallery_*_image_text`:
+72. For each `thg_gallery_*_image_text`:
    - Find picture item via backward_compatibility
    - Add ItemTranslation with gallery context_id
 
@@ -906,8 +933,8 @@ graph TD
 #### **PHASE 8: Final Relationships**
 
 **8.1: Item-Item Links**
-69. Parse related_monument fields (explore)
-70. Create all ItemItemLink records
+73. Parse related_monument fields (explore)
+74. Create all ItemItemLink records
 
 ---
 
@@ -1012,22 +1039,33 @@ $author = Author::where('lastname', $lastname)
 
 ---
 
-#### 4. Images (ImageUpload)
+#### 4. Images (ItemImage, CollectionImage, PartnerImage)
 
-**Deduplication Method**: File path hash
+**Deduplication Method**: File content hash
 
 **Process**:
 ```php
 $originalPath = resolveOriginalPath($row->path); // Strip cache/format
 $hash = hash_file('sha256', $originalPath);
 
-$imageUpload = ImageUpload::where('hash', $hash)->first();
-if ($imageUpload) {
-    // Use existing UUID
-    // Store new backward_compatibility as alternate
+// Check if file already exists in storage
+$existingFile = Storage::exists("items/{$itemId}/" . basename($originalPath));
+if ($existingFile) {
+    // File already copied, reuse path
+    $filePath = "items/{$itemId}/" . basename($originalPath);
 } else {
-    // Upload and create new ImageUpload
+    // Copy file from legacy network share
+    $filePath = copyFromLegacyShare($originalPath, "items/{$itemId}");
 }
+
+// Create ItemImage record
+ItemImage::create([
+    'item_id' => $itemId,
+    'file_path' => $filePath,
+    'order' => $order,
+    'backward_compatibility' => $legacyRef,
+    // ... metadata
+]);
 ```
 
 ---
@@ -1057,9 +1095,7 @@ if ($item) {
 }
 ```
 
-**Alternative References**: Same entity can have multiple backward_compatibility values
-
-**Solution**: Use separate `backward_compatibility_aliases` table (one-to-many) or JSON field
+**Alternative References**: Same entity can have multiple backward_compatibility values due to the presence of the Language Id in the compound PK in legacy tables. To avoid deduplication, do not include the language Id column in the backward_compatibility field
 
 ---
 
@@ -1157,15 +1193,22 @@ WHERE id NOT IN (SELECT DISTINCT collection_id FROM collection_translations);
 
 #### Image Relationships
 ```sql
--- Picture items without image link
+-- Picture items without ItemImage
 SELECT COUNT(*) FROM items 
 WHERE type = 'picture' 
   AND id NOT IN (SELECT item_id FROM item_images);
 
--- Images not referenced by any picture item
-SELECT COUNT(*) FROM image_uploads 
-WHERE id NOT IN (SELECT image_upload_id FROM item_images 
-                 WHERE item_id IN (SELECT id FROM items WHERE type = 'picture'));
+-- ItemImage records with missing files
+SELECT COUNT(*) FROM item_images 
+WHERE NOT EXISTS (SELECT 1 FROM information_schema.tables 
+                  WHERE file_path IS NOT NULL);
+-- Note: Actual file existence check requires application code
+
+-- Items with multiple primary images (should be 0)
+SELECT item_id, COUNT(*) FROM item_images 
+WHERE `order` = 1 
+GROUP BY item_id 
+HAVING COUNT(*) > 1;
 ```
 
 #### Collection Hierarchy
@@ -1265,8 +1308,6 @@ SELECT * FROM hierarchy WHERE id = ANY(path[2:]);
 Review findings from this analysis and assess if current models need:
 - Additional fields discovered in legacy schema
 - Indexes on backward_compatibility
-- backward_compatibility_aliases table (one-to-many)
-- Adjustments to Collection.type enum (already complete)
 
 ### Phase 6-7: Foundation Import Scripts
 
