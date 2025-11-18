@@ -61,6 +61,13 @@ export class BackwardCompatibilityTracker {
   }
 
   /**
+   * Get all tracked entities
+   */
+  getAll(): ImportedEntity[] {
+    return Array.from(this.entities.values());
+  }
+
+  /**
    * Clear all tracked entities (use with caution)
    */
   clear(): void {

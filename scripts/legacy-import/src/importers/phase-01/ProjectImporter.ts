@@ -54,11 +54,13 @@ export class ProjectImporter extends BaseImporter {
         try {
           await this.importProject(project, translationsByProject.get(project.project_id) || []);
           result.imported++;
+          this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           result.errors.push(`${project.project_id}: ${message}`);
         }
       }
+      console.log(''); // New line after progress dots
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query projects: ${message}`);

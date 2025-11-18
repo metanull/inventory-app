@@ -48,6 +48,13 @@ export abstract class BaseImporter {
   }
 
   /**
+   * Helper: Show progress dot (for long-running operations)
+   */
+  protected showProgress(): void {
+    process.stdout.write('.');
+  }
+
+  /**
    * Helper: Log error
    */
   protected logError(message: string, error?: unknown): void {

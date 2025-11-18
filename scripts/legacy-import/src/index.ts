@@ -85,8 +85,79 @@ program
   .option('--dry-run', 'Simulate import without writing data', false)
   .option('--limit <number>', 'Limit number of records per entity', '0')
   .action(async (options) => {
-    console.log('Import starting with options:', options);
-    // TODO: Implement import orchestration
+    try {
+      const phase = options.phase === 'all' ? 'all' : parseInt(options.phase, 10);
+      const dryRun = options.dryRun === true;
+      const limit = parseInt(options.limit, 10);
+
+      console.log('🚀 Starting import...');
+      console.log(`   Phase: ${phase}`);
+      console.log(`   Dry-run: ${dryRun ? 'YES' : 'NO'}`);
+      console.log(`   Limit: ${limit > 0 ? limit : 'unlimited'}`);
+      console.log('');
+
+      // Validate connections first
+      console.log('Validating connections...');
+      const apiClient = createApiClient();
+      const isApiConnected = await apiClient.testConnection();
+      if (!isApiConnected) {
+        throw new Error('API connection failed. Run "npm start -- login" first.');
+      }
+
+      const legacyDb = createLegacyDatabase();
+      await legacyDb.connect();
+      console.log('✓ Connections validated\n');
+
+      // Import based on phase
+      if (phase === 1 || phase === 'all') {
+        console.log('📦 Phase 1: Core data (Projects, Partners)');
+        const { PartnerImporter } = await import('./importers/phase-01/PartnerImporter.js');
+        const { ProjectImporter } = await import('./importers/phase-01/ProjectImporter.js');
+        const { BackwardCompatibilityTracker } = await import(
+          './utils/BackwardCompatibilityTracker.js'
+        );
+
+        const tracker = new BackwardCompatibilityTracker();
+        const context = {
+          legacyDb,
+          apiClient,
+          tracker,
+          dryRun,
+          limit,
+        };
+
+        // Import projects first
+        const projectImporter = new ProjectImporter(context);
+        const projectResult = await projectImporter.import();
+        console.log(
+          `✓ Projects: ${projectResult.imported} imported, ${projectResult.skipped} skipped, ${projectResult.errors.length} errors`
+        );
+        if (projectResult.errors.length > 0) {
+          console.error('Errors:', projectResult.errors.slice(0, 5));
+        }
+
+        // Import partners (museums + institutions)
+        const partnerImporter = new PartnerImporter(context);
+        const partnerResult = await partnerImporter.import();
+        console.log(
+          `✓ Partners: ${partnerResult.imported} imported, ${partnerResult.skipped} skipped, ${partnerResult.errors.length} errors`
+        );
+        if (partnerResult.errors.length > 0) {
+          console.error('Errors:', partnerResult.errors.slice(0, 5));
+        }
+      }
+
+      if (phase !== 1 && phase !== 'all') {
+        console.log(`\n⚠️  Phase ${phase} not yet implemented`);
+      }
+
+      await legacyDb.disconnect();
+      console.log('\n✅ Import completed');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('\n✗ Import failed:', message);
+      process.exit(1);
+    }
   });
 
 program
