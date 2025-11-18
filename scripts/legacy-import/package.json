@@ -7,6 +7,12 @@
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
+    "import": "tsx src/index.ts import",
+    "import:phase1": "tsx src/index.ts import --phase 1",
+    "import:phase1:dry": "tsx src/index.ts import --phase 1 --dry-run",
+    "login": "tsx src/index.ts login",
+    "validate": "tsx src/index.ts validate",
+    "status": "tsx src/index.ts status",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -15,7 +21,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@metanull/inventory-app-api-client": "1.0.6-dev.1118.1226",
+    "@metanull/inventory-app-api-client": "1.0.7-dev.1118.1623",
     "axios": "^1.13.2",
     "commander": "^14.0.2",
     "dotenv": "^17.2.3",

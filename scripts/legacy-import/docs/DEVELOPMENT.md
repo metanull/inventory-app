@@ -562,15 +562,19 @@ npm run dev               # Development mode (watch)
 npm start                 # Production mode
 
 # Authentication
-npm start -- login                    # Login and get API token
+npm run login                         # Login and get API token
 npm start -- login --url http://api   # Login to custom API URL
 
 # Import commands
-npm start -- validate                 # Test connections
-npm start -- import --phase 1         # Run import
-npm start -- import --phase 1 --dry-run
-npm start -- import --limit 100
-npm start -- status
+npm run validate                      # Test connections
+npm run import:phase1                 # Run phase 1 import
+npm run import:phase1:dry             # Phase 1 dry-run
+npm run import                        # All phases
+npm run status                        # Show progress
+
+# Custom import options (use start -- for complex args)
+npm start -- import --phase 2 --dry-run
+npm start -- import --phase 1 --limit 100
 ```
 
 ## Configuration
@@ -628,7 +632,9 @@ LOG_LEVEL=debug npm start -- import --phase 1
 
 ### Dry Run Mode
 ```bash
-npm start -- import --phase 1 --dry-run
+npm run import:phase1:dry
+# Or for other phases:
+npm start -- import --phase 2 --dry-run
 ```
 
 ### Limit Records

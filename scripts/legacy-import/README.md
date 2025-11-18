@@ -1,231 +1,139 @@
-# Legacy Data Import Utility
+# Legacy Data Import
 
-CLI application for importing legacy museum database data into the new Inventory Management System.
+Node.js CLI utility for one-time migration of legacy museum database data into the new Inventory Management System via REST API.
 
-## Purpose
-
-This is a **standalone technical utility** for one-time data migration. It is **NOT** a feature of the main application.
-
-## Features
-
-- ✅ Reads from legacy MySQL databases (mwnf3, sh, thg, travels, explore)
-- ✅ Writes via published API client (@metanull/inventory-app-api-client)
-- ✅ Deduplication via backward_compatibility tracking
-- ✅ Handles denormalized legacy data (language in PK)
-- ✅ Imports hierarchical collections
-- ✅ Imports images with tree-structured picture items
-- ✅ TDD workflow with Vitest
-- ✅ Dry-run mode for validation
-- ✅ Phase-based execution (17 phases)
-
-## Quick Start
-
-### 1. Install Dependencies
+## Setup
 
 ```bash
 cd scripts/legacy-import
 npm install
-```
-
-### 2. Configure Environment
-
-```bash
 cp .env.example .env
-# Edit .env with your database credentials
+# Edit .env with database credentials
 ```
 
-Required settings:
-- `LEGACY_DB_HOST`, `LEGACY_DB_PORT`, `LEGACY_DB_USER`, `LEGACY_DB_PASSWORD`
-- `API_BASE_URL`
-
-### 3. Login to API
+## Configuration (.env)
 
 ```bash
-npm start -- login
-```
-
-This will:
-- Prompt for username/password
-- Authenticate with the Inventory API
-- Save the access token to `.env`
-- Test the token validity
-
-### 4. Validate Connections
-
-```bash
-npm start -- validate
-```
-
-### 4. Run Import
-
-```bash
-# Dry run (recommended first)
-npm start -- import --phase 1 --dry-run
-
-# Actual import
-npm start -- import --phase 1
-
-# All phases
-npm start -- import
-```
-
-## Commands
-
-```bash
-# Login to API (get access token)
-npm start -- login
-npm start -- login --url http://custom-api.local/api
-
-# Validate connections (API + legacy database)
-npm start -- validate
-
-# Import specific phase
-npm start -- import --phase <1-17>
-
-# Dry run (no data written)
-npm start -- import --dry-run
-
-# Limit records (for testing)
-npm start -- import --limit 100
-
-# Check import status
-npm start -- status
-```
-
-## Development
-
-See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for comprehensive guide covering:
-- Architecture and data flow
-- backward_compatibility format rules
-- Denormalization handling
-- Deduplication strategy
-- Image import strategy
-- Collection hierarchies
-- TDD workflow
-- Adding new importers
-
-### Run Tests
-
-```bash
-# All tests
-npm test
-
-# Watch mode (TDD)
-npm run test:watch
-
-# With coverage
-npm run test:coverage
-
-# Specific test file
-npm test tests/unit/BackwardCompatibilityFormatter.test.ts
-```
-
-### Type Checking
-
-```bash
-npm run type-check
-```
-
-### Linting
-
-```bash
-npm run lint
-```
-
-## Import Phases
-
-Based on [LEGACY_DATA_IMPORT_TASK_PLAN.md](../../docs/legacy-import/LEGACY_DATA_IMPORT_TASK_PLAN.md):
-
-### Phase 1: mwnf3 Core Schema
-- Projects → Contexts + Collections
-- Partners (museums, institutions)
-- Items (objects, monuments, details)
-- Images, Authors, Tags
-
-### Phase 2: Sharing History & Thematic Gallery
-- Exhibitions/Themes/Subthemes
-- Galleries
-- Contextual translations
-
-### Phase 3: Travel & Explore
-- Travel trails/itineraries/locations
-- Explore monuments (CRITICAL - ~1,808 monuments)
-- Explore itineraries
-
-### Phases 4-17: Additional schemas and final validation
-
-## Architecture
-
-```
-Legacy MySQL → LegacyDatabase → Importer → API Client → New Model
-                                     ↓
-                          BackwardCompatibilityTracker
-                            (deduplication)
-```
-
-### Key Components
-
-- **LegacyDatabase**: MySQL connector for legacy schemas
-- **InventoryApiClient**: Wrapper for published npm API client
-- **BackwardCompatibilityFormatter**: Format legacy references
-- **BackwardCompatibilityTracker**: Track imported entities, avoid duplicates
-- **BaseImporter**: Abstract class for all importers
-- **Phase importers**: Entity-specific import logic
-
-## Testing
-
-Tests organized by import phases:
-
-```
-tests/
-├── unit/                      # Utility functions
-├── integration/               # Importer classes
-│   ├── phase-01-mwnf3-core/
-│   ├── phase-02-sh-thg/
-│   └── phase-03-travel-explore/
-└── e2e/                       # Full import runs
-```
-
-### TDD Workflow
-
-1. Write test FIRST (RED)
-2. Implement importer (GREEN)
-3. Refactor (REFACTOR)
-
-All importers must have comprehensive test coverage before implementation.
-
-## Configuration
-
-### Environment Variables
-
-```bash
-# Legacy MySQL Database
+# Legacy database (MySQL)
 LEGACY_DB_HOST=localhost
 LEGACY_DB_PORT=3306
 LEGACY_DB_USER=root
 LEGACY_DB_PASSWORD=
 
-# New Inventory API
+# API
 API_BASE_URL=http://localhost:8000/api
-API_TOKEN=
+API_TOKEN=                # Set via login command
 
-# Import Configuration
-DRY_RUN=true
+# Import options
+DRY_RUN=false
 BATCH_SIZE=50
 LOG_LEVEL=info
 
-# Legacy Images (Windows UNC path)
+# Legacy images (UNC path)
 LEGACY_IMAGE_PATH=\\\\virtual-office.museumwnf.org\\C$\\mwnf-server\\pictures\\images
+```
+
+## Usage
+
+```bash
+# 1. Authenticate
+npx tsx src/index.ts login
+
+# 2. Validate connections
+npx tsx src/index.ts validate
+
+# 3. Run import (dry-run first recommended)
+npx tsx src/index.ts import --phase 1 --dry-run
+npx tsx src/index.ts import --phase 1
+
+# All options
+npx tsx src/index.ts import [--phase <1-17>] [--dry-run] [--limit <number>]
+npx tsx src/index.ts login [--url <api-url>]
+npx tsx src/index.ts status
+
+# Examples
+npx tsx src/index.ts import --phase 2 --dry-run
+npx tsx src/index.ts import --phase 1 --limit 100
+npx tsx src/index.ts import --phase 3 --dry-run --limit 50
+npx tsx src/index.ts login --url http://other-api.local/api
+```
+
+## Import Phases
+
+**Phase 1** (mwnf3 core): Projects, Partners, Items, Images, Authors, Tags  
+**Phase 2** (sh/thg): Exhibitions, Galleries, Contextual translations  
+**Phase 3** (travels/explore): Trails, Itineraries, Explore monuments (~1,808 records)  
+**Phases 4-17**: Additional schemas, validation
+
+See [/docs/legacy-import/LEGACY_DATA_IMPORT_TASK_PLAN.md](../../docs/legacy-import/LEGACY_DATA_IMPORT_TASK_PLAN.md)
+
+## Architecture
+
+```
+Legacy MySQL → Importer → REST API (@metanull/inventory-app-api-client) → New Database
+                  ↓
+         BackwardCompatibilityTracker (deduplication)
+```
+
+**Key concepts**:
+- **backward_compatibility**: `{schema}:{table}:{pk1}:{pk2}:...` (excludes language for denormalized tables)
+- **Denormalization**: Legacy mwnf3/travels have language in PK → group rows, create one entity + multiple translations
+- **Deduplication**: Check tracker before creating entities to avoid duplicates across schemas
+- **Images**: Upload original only, create child items type='picture' for gallery contexts
+- **Collections**: Import parents before children (hierarchical)
+
+## Development
+
+```bash
+# Tests (TDD: write tests first, then implement)
+npm test
+npm run test:watch
+npm run test:coverage
+
+# Code quality
+npm run lint
+npm run type-check
+
+# Debug
+LOG_LEVEL=debug npx tsx src/index.ts import --phase 1
+npx tsx src/index.ts import --phase 1 --dry-run --limit 10
+```
+
+### Adding Importers
+
+1. Write test in `tests/integration/phase-XX/` (RED)
+2. Implement in `src/importers/phase-XX/` (GREEN)
+3. Refactor
+
+See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for patterns, examples, pitfalls.
+
+## Directory Structure
+
+```
+src/
+├── index.ts                    # CLI commands
+├── database/LegacyDatabase.ts  # MySQL connector
+├── api/InventoryApiClient.ts   # API wrapper
+├── utils/
+│   ├── BackwardCompatibilityFormatter.ts
+│   └── BackwardCompatibilityTracker.ts
+└── importers/
+    ├── BaseImporter.ts
+    ├── phase-01/               # mwnf3 core
+    ├── phase-02/               # sh, thg
+    └── phase-03/               # travels, explore
+
+tests/
+├── unit/
+├── integration/
+│   ├── phase-01-mwnf3-core/
+│   ├── phase-02-sh-thg/
+│   └── phase-03-travel-explore/
+└── e2e/
 ```
 
 ## References
 
-- **Analysis Documents**: [/docs/legacy-import/](../../docs/legacy-import/)
-  - `MASTER-Import-Strategy-And-Mapping.md` - Entity mappings, hierarchies, image strategy
-  - `LEGACY_DATA_IMPORT_TASK_PLAN.md` - 17 phases, 170 tasks
-- **Development Guide**: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
-- **Test Structure**: [tests/README.md](tests/README.md)
-
-## License
-
-Same as parent project.
+- [MASTER-Import-Strategy-And-Mapping.md](../../docs/legacy-import/MASTER-Import-Strategy-And-Mapping.md) - Entity mappings, hierarchies
+- [LEGACY_DATA_IMPORT_TASK_PLAN.md](../../docs/legacy-import/LEGACY_DATA_IMPORT_TASK_PLAN.md) - 17 phases, 170 tasks
+- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) - TDD workflow, patterns, examples
