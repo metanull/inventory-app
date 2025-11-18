@@ -3,8 +3,8 @@
     PackageConfig = @{
         Name = '@metanull/inventory-app-api-client'
         Version = '1.0.1'  # Base version - will be auto-incremented
-        Main = 'index.js'
-        Types = 'index.d.ts'
+        Main = 'index.ts'
+        Types = 'index.ts'
         Description = 'TypeScript-Axios client for inventory-app API'
         Repository = 'https://github.com/metanull/inventory-app'
         Author = 'Pascal Havelange'
