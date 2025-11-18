@@ -10,11 +10,14 @@ Name | Type | Description | Notes
 **type** | **string** | The type of collection: \&#39;collection\&#39;, \&#39;exhibition\&#39;, or \&#39;gallery\&#39; | [default to undefined]
 **language_id** | **string** | The language this collection belongs to (LanguageResource id) | [default to undefined]
 **context_id** | **string** | The context this collection belongs to (ContextResource id) | [default to undefined]
+**parent_id** | **string** | The parent collection ID (for hierarchical organization) | [default to undefined]
 **backward_compatibility** | **string** | The Id(s) of matching resource in the legacy system (if any). | [default to undefined]
 **created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
 **updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
 **language** | [**LanguageResource**](LanguageResource.md) | The language relationship (LanguageResource) | [optional] [default to undefined]
 **context** | [**ContextResource**](ContextResource.md) | The context relationship (ContextResource) | [optional] [default to undefined]
+**parent** | [**CollectionResource**](CollectionResource.md) | The parent collection (CollectionResource) | [optional] [default to undefined]
+**children** | [**Array&lt;CollectionResource&gt;**](CollectionResource.md) | Child collections (CollectionResource[]) | [optional] [default to undefined]
 **translations** | [**Array&lt;CollectionTranslationResource&gt;**](CollectionTranslationResource.md) | Translations for this collection (CollectionTranslationResource[]) | [optional] [default to undefined]
 **partners** | [**Array&lt;PartnerResource&gt;**](PartnerResource.md) | Partners associated with this collection (PartnerResource[]) | [optional] [default to undefined]
 **items** | [**Array&lt;ItemResource&gt;**](ItemResource.md) | Items associated with this collection - primary relationship (ItemResource[]) | [optional] [default to undefined]
@@ -23,6 +26,7 @@ Name | Type | Description | Notes
 **attached_items_count** | **number** |  | [optional] [default to undefined]
 **partners_count** | **number** |  | [optional] [default to undefined]
 **translations_count** | **number** |  | [optional] [default to undefined]
+**children_count** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -35,11 +39,14 @@ const instance: CollectionResource = {
     type,
     language_id,
     context_id,
+    parent_id,
     backward_compatibility,
     created_at,
     updated_at,
     language,
     context,
+    parent,
+    children,
     translations,
     partners,
     items,
@@ -48,6 +55,7 @@ const instance: CollectionResource = {
     attached_items_count,
     partners_count,
     translations_count,
+    children_count,
 };
 ```
 

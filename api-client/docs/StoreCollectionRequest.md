@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **type** | **string** |  | [default to undefined]
 **language_id** | **string** |  | [default to undefined]
 **context_id** | **string** |  | [default to undefined]
+**parent_id** | **string** |  | [optional] [default to undefined]
 **backward_compatibility** | **string** |  | [optional] [default to undefined]
 
 ## Example
@@ -21,6 +22,7 @@ const instance: StoreCollectionRequest = {
     type,
     language_id,
     context_id,
+    parent_id,
     backward_compatibility,
 };
 ```

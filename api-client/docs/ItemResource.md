@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **id** | **string** | The unique identifier (GUID) | [default to undefined]
 **internal_name** | **string** | A name for this resource, for internal use only. | [default to undefined]
 **backward_compatibility** | **string** | The Id(s) of matching resource in the legacy system (if any). | [default to undefined]
-**type** | **string** | The type of the item: \&#39;object\&#39;, \&#39;monument\&#39;, \&#39;detail\&#39;, or \&#39;picture\&#39;. | [default to undefined]
+**type** | [**ItemType**](ItemType.md) | The type of the item: \&#39;object\&#39;, \&#39;monument\&#39;, \&#39;detail\&#39;, or \&#39;picture\&#39;. | [default to undefined]
 **parent_id** | **string** | The parent item ID (for hierarchical relationships), nullable | [default to undefined]
 **owner_reference** | **string** | Owner\&#39;s reference number for the item (external reference from owner) | [default to undefined]
 **mwnf_reference** | **string** | MWNF reference number for the item (reference from MWNF system) | [default to undefined]
