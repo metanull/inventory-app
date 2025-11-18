@@ -148,7 +148,7 @@ const configuration = new Configuration();
 const apiInstance = new CollectionApi(configuration);
 
 let type: string; // (default to undefined)
-let type2: 'collection' | 'exhibition' | 'gallery'; // (default to undefined)
+let type2: 'collection' | 'exhibition' | 'gallery' | 'theme' | 'exhibition trail' | 'itinerary' | 'location'; // (default to undefined)
 
 const { status, data } = await apiInstance.collectionByType(
     type,
@@ -161,7 +161,7 @@ const { status, data } = await apiInstance.collectionByType(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **type** | [**string**] |  | defaults to undefined|
-| **type2** | [**&#39;collection&#39; | &#39;exhibition&#39; | &#39;gallery&#39;**]**Array<&#39;collection&#39; &#124; &#39;exhibition&#39; &#124; &#39;gallery&#39;>** |  | defaults to undefined|
+| **type2** | [**&#39;collection&#39; | &#39;exhibition&#39; | &#39;gallery&#39; | &#39;theme&#39; | &#39;exhibition trail&#39; | &#39;itinerary&#39; | &#39;location&#39;**]**Array<&#39;collection&#39; &#124; &#39;exhibition&#39; &#124; &#39;gallery&#39; &#124; &#39;theme&#39; &#124; &#39;exhibition trail&#39; &#124; &#39;itinerary&#39; &#124; &#39;location&#39;>** |  | defaults to undefined|
 
 
 ### Return type

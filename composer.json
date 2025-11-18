@@ -136,6 +136,7 @@
         ],
         "ci-openapi-doc": [
             "@php -r \"if (!is_dir('docs/_openapi')) { mkdir('docs/_openapi', 0755, true); }\"",
+            "@php artisan optimize:clear --ansi",
             "@php artisan scramble:export --path=docs/_openapi/api.json --ansi",
             "pwsh -Command \"if (Test-Path 'api-client') { Remove-Item -Path 'api-client' -Recurse -Force }\"",
             "pwsh -Command \"if (Test-Path 'temp_openapi_generation.log') { Clear-Content -Path 'temp_openapi_generation.log' -Force }\"",

@@ -422,16 +422,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -468,18 +471,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -540,7 +546,11 @@
                             "enum": [
                                 "collection",
                                 "exhibition",
-                                "gallery"
+                                "gallery",
+                                "theme",
+                                "exhibition trail",
+                                "itinerary",
+                                "location"
                             ]
                         }
                     }
@@ -872,16 +882,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -918,18 +931,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -1604,16 +1620,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -1650,18 +1669,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -2795,16 +2817,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -2841,18 +2866,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -3291,16 +3319,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -3337,18 +3368,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -3728,16 +3762,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -3774,18 +3811,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -4288,16 +4328,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -4334,18 +4377,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -4723,16 +4769,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -4769,18 +4818,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -5789,16 +5841,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -5835,18 +5890,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -6582,16 +6640,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -6628,18 +6689,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -7675,16 +7739,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -7721,18 +7788,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -8244,16 +8314,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -8290,18 +8363,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -8743,16 +8819,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -8789,18 +8868,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -9981,16 +10063,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -10027,18 +10112,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -10496,16 +10584,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -10542,18 +10633,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -11184,16 +11278,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -11230,18 +11327,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -11699,16 +11799,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -11745,18 +11848,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -12425,16 +12531,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -12471,18 +12580,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -12988,16 +13100,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -13034,18 +13149,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -13494,16 +13612,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -13540,18 +13661,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -13874,16 +13998,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -13920,18 +14047,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -14309,16 +14439,19 @@
                                             "type": "object",
                                             "properties": {
                                                 "current_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "from": {
                                                     "type": [
                                                         "integer",
                                                         "null"
-                                                    ]
+                                                    ],
+                                                    "minimum": 1
                                                 },
                                                 "last_page": {
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "minimum": 1
                                                 },
                                                 "links": {
                                                     "type": "array",
@@ -14355,18 +14488,21 @@
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
-                                                    "description": "Number of items shown per page."
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
                                                 },
                                                 "to": {
                                                     "type": [
                                                         "integer",
                                                         "null"
                                                     ],
-                                                    "description": "Number of the last item in the slice."
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
                                                 },
                                                 "total": {
                                                     "type": "integer",
-                                                    "description": "Total number of items being paginated."
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
                                                 }
                                             },
                                             "required": [
@@ -15323,6 +15459,13 @@
                         "type": "string",
                         "description": "The context this collection belongs to (ContextResource id)"
                     },
+                    "parent_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The parent collection ID (for hierarchical organization)"
+                    },
                     "backward_compatibility": {
                         "type": [
                             "string",
@@ -15353,6 +15496,17 @@
                     "context": {
                         "description": "The context relationship (ContextResource)",
                         "$ref": "#/components/schemas/ContextResource"
+                    },
+                    "parent": {
+                        "description": "The parent collection (CollectionResource)",
+                        "$ref": "#/components/schemas/CollectionResource"
+                    },
+                    "children": {
+                        "type": "array",
+                        "description": "Child collections (CollectionResource[])",
+                        "items": {
+                            "$ref": "#/components/schemas/CollectionResource"
+                        }
                     },
                     "translations": {
                         "type": "array",
@@ -15398,6 +15552,10 @@
                     "translations_count": {
                         "type": "integer",
                         "minimum": 0
+                    },
+                    "children_count": {
+                        "type": "integer",
+                        "minimum": 0
                     }
                 },
                 "required": [
@@ -15406,6 +15564,7 @@
                     "type",
                     "language_id",
                     "context_id",
+                    "parent_id",
                     "backward_compatibility",
                     "created_at",
                     "updated_at"
@@ -16044,8 +16203,8 @@
                         "description": "The Id(s) of matching resource in the legacy system (if any)."
                     },
                     "type": {
-                        "type": "string",
-                        "description": "The type of the item: 'object', 'monument', 'detail', or 'picture'."
+                        "description": "The type of the item: 'object', 'monument', 'detail', or 'picture'.",
+                        "$ref": "#/components/schemas/ItemType"
                     },
                     "parent_id": {
                         "type": [
@@ -16398,6 +16557,16 @@
                     "updated_at"
                 ],
                 "title": "ItemTranslationResource"
+            },
+            "ItemType": {
+                "type": "string",
+                "enum": [
+                    "object",
+                    "monument",
+                    "detail",
+                    "picture"
+                ],
+                "title": "ItemType"
             },
             "LanguageResource": {
                 "type": "object",
@@ -17294,7 +17463,11 @@
                         "enum": [
                             "collection",
                             "exhibition",
-                            "gallery"
+                            "gallery",
+                            "theme",
+                            "exhibition trail",
+                            "itinerary",
+                            "location"
                         ]
                     },
                     "language_id": {
@@ -17304,6 +17477,12 @@
                     },
                     "context_id": {
                         "type": "string"
+                    },
+                    "parent_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "backward_compatibility": {
                         "type": [
@@ -18811,7 +18990,11 @@
                         "enum": [
                             "collection",
                             "exhibition",
-                            "gallery"
+                            "gallery",
+                            "theme",
+                            "exhibition trail",
+                            "itinerary",
+                            "location"
                         ]
                     },
                     "language_id": {
@@ -18821,6 +19004,12 @@
                     },
                     "context_id": {
                         "type": "string"
+                    },
+                    "parent_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "backward_compatibility": {
                         "type": [

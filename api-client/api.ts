@@ -297,6 +297,10 @@ export interface CollectionResource {
      */
     'context_id': string;
     /**
+     * The parent collection ID (for hierarchical organization)
+     */
+    'parent_id': string | null;
+    /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
     'backward_compatibility': string | null;
@@ -316,6 +320,14 @@ export interface CollectionResource {
      * The context relationship (ContextResource)
      */
     'context'?: ContextResource;
+    /**
+     * The parent collection (CollectionResource)
+     */
+    'parent'?: CollectionResource;
+    /**
+     * Child collections (CollectionResource[])
+     */
+    'children'?: Array<CollectionResource>;
     /**
      * Translations for this collection (CollectionTranslationResource[])
      */
@@ -339,6 +351,7 @@ export interface CollectionResource {
     'attached_items_count'?: number;
     'partners_count'?: number;
     'translations_count'?: number;
+    'children_count'?: number;
 }
 export interface CollectionShow200Response {
     'data': CollectionResource;
@@ -795,7 +808,7 @@ export interface ItemResource {
     /**
      * The type of the item: \'object\', \'monument\', \'detail\', or \'picture\'.
      */
-    'type': string;
+    'type': ItemType;
     /**
      * The parent item ID (for hierarchical relationships), nullable
      */
@@ -861,6 +874,8 @@ export interface ItemResource {
      */
     'updated_at': string | null;
 }
+
+
 export interface ItemShow200Response {
     'data': ItemResource;
 }
@@ -1010,6 +1025,17 @@ export interface ItemTranslationResource {
 export interface ItemTranslationShow200Response {
     'data': ItemTranslationResource;
 }
+
+export const ItemType = {
+    Object: 'object',
+    Monument: 'monument',
+    Detail: 'detail',
+    Picture: 'picture'
+} as const;
+
+export type ItemType = typeof ItemType[keyof typeof ItemType];
+
+
 export interface LanguageGetDefault200Response {
     'data': LanguageResource;
 }
@@ -1478,13 +1504,18 @@ export interface StoreCollectionRequest {
     'type': StoreCollectionRequestTypeEnum;
     'language_id': string;
     'context_id': string;
+    'parent_id'?: string | null;
     'backward_compatibility'?: string | null;
 }
 
 export const StoreCollectionRequestTypeEnum = {
     Collection: 'collection',
     Exhibition: 'exhibition',
-    Gallery: 'gallery'
+    Gallery: 'gallery',
+    Theme: 'theme',
+    ExhibitionTrail: 'exhibition trail',
+    Itinerary: 'itinerary',
+    Location: 'location'
 } as const;
 
 export type StoreCollectionRequestTypeEnum = typeof StoreCollectionRequestTypeEnum[keyof typeof StoreCollectionRequestTypeEnum];
@@ -1926,13 +1957,18 @@ export interface UpdateCollectionRequest {
     'type'?: UpdateCollectionRequestTypeEnum;
     'language_id'?: string;
     'context_id'?: string;
+    'parent_id'?: string | null;
     'backward_compatibility'?: string | null;
 }
 
 export const UpdateCollectionRequestTypeEnum = {
     Collection: 'collection',
     Exhibition: 'exhibition',
-    Gallery: 'gallery'
+    Gallery: 'gallery',
+    Theme: 'theme',
+    ExhibitionTrail: 'exhibition trail',
+    Itinerary: 'itinerary',
+    Location: 'location'
 } as const;
 
 export type UpdateCollectionRequestTypeEnum = typeof UpdateCollectionRequestTypeEnum[keyof typeof UpdateCollectionRequestTypeEnum];
@@ -3778,7 +3814,11 @@ export class CollectionApi extends BaseAPI {
 export const CollectionByTypeTypeEnum = {
     Collection: 'collection',
     Exhibition: 'exhibition',
-    Gallery: 'gallery'
+    Gallery: 'gallery',
+    Theme: 'theme',
+    ExhibitionTrail: 'exhibition trail',
+    Itinerary: 'itinerary',
+    Location: 'location'
 } as const;
 export type CollectionByTypeTypeEnum = typeof CollectionByTypeTypeEnum[keyof typeof CollectionByTypeTypeEnum];
 
