@@ -108,6 +108,10 @@ program
       await legacyDb.connect();
       console.log('✓ Connections validated\n');
 
+      // Initialize result variables
+      let projectResult = { imported: 0, skipped: 0, errors: [] as string[] };
+      let partnerResult = { imported: 0, skipped: 0, errors: [] as string[] };
+
       // Import based on phase
       if (phase === 1 || phase === 'all') {
         console.log('📦 Phase 1: Core data (Projects, Partners)');
@@ -128,7 +132,7 @@ program
 
         // Import projects first
         const projectImporter = new ProjectImporter(context);
-        const projectResult = await projectImporter.import();
+        projectResult = await projectImporter.import();
         console.log(
           `✓ Projects: ${projectResult.imported} imported, ${projectResult.skipped} skipped, ${projectResult.errors.length} errors`
         );
@@ -138,7 +142,7 @@ program
 
         // Import partners (museums + institutions)
         const partnerImporter = new PartnerImporter(context);
-        const partnerResult = await partnerImporter.import();
+        partnerResult = await partnerImporter.import();
         console.log(
           `✓ Partners: ${partnerResult.imported} imported, ${partnerResult.skipped} skipped, ${partnerResult.errors.length} errors`
         );
@@ -152,7 +156,46 @@ program
       }
 
       await legacyDb.disconnect();
-      console.log('\n✅ Import completed');
+
+      // Generate import log
+      console.log('\n' + '='.repeat(60));
+      console.log('IMPORT SUMMARY');
+      console.log('='.repeat(60));
+
+      if (phase === 1 || phase === 'all') {
+        console.log('\nPhase 1 Results:');
+        console.log(
+          `  Projects: ${projectResult.imported} imported, ${projectResult.skipped} skipped, ${projectResult.errors.length} errors`
+        );
+        if (projectResult.errors.length > 0) {
+          console.log('  Project Errors:');
+          projectResult.errors.forEach((err) => console.log(`    - ${err}`));
+        }
+        console.log(
+          `  Partners: ${partnerResult.imported} imported, ${partnerResult.skipped} skipped, ${partnerResult.errors.length} errors`
+        );
+        if (partnerResult.errors.length > 0) {
+          console.log('  Partner Errors:');
+          partnerResult.errors.forEach((err) => console.log(`    - ${err}`));
+        }
+      }
+
+      const totalImported = (projectResult?.imported || 0) + (partnerResult?.imported || 0);
+      const totalSkipped = (projectResult?.skipped || 0) + (partnerResult?.skipped || 0);
+      const totalErrors = (projectResult?.errors.length || 0) + (partnerResult?.errors.length || 0);
+
+      console.log('\nOverall:');
+      console.log(`  Total Imported: ${totalImported}`);
+      console.log(`  Total Skipped: ${totalSkipped}`);
+      console.log(`  Total Errors: ${totalErrors}`);
+      console.log(
+        `  Status: ${totalErrors === 0 ? '\x1b[32m✓ SUCCESS\x1b[0m' : '\x1b[31m✗ FAILED\x1b[0m'}`
+      );
+      console.log('='.repeat(60) + '\n');
+
+      if (totalErrors > 0) {
+        process.exit(1);
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error('\n✗ Import failed:', message);

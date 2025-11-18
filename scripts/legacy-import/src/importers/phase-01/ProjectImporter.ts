@@ -58,6 +58,7 @@ export class ProjectImporter extends BaseImporter {
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           result.errors.push(`${project.project_id}: ${message}`);
+          this.showError();
         }
       }
       console.log(''); // New line after progress dots
@@ -93,7 +94,7 @@ export class ProjectImporter extends BaseImporter {
 
     // Create Context (following SPA pattern: apiClient.contextStore(data))
     const contextResponse = await this.context.apiClient.context.contextStore({
-      internal_name: this.sanitize(project.project_id),
+      internal_name: project.name,
       backward_compatibility: contextBackwardCompat,
     });
     const contextId = contextResponse.data.data.id;
@@ -108,7 +109,7 @@ export class ProjectImporter extends BaseImporter {
 
     // Create Collection (following SPA pattern)
     const collectionResponse = await this.context.apiClient.collection.collectionStore({
-      internal_name: this.sanitize(project.project_id),
+      internal_name: `${project.name} Collection`,
       type: 'collection',
       language_id: 'eng', // Default language for collection creation
       context_id: contextId,
@@ -138,14 +139,6 @@ export class ProjectImporter extends BaseImporter {
         description: translation.name, // Use same value for description
       });
     }
-  }
-
-  private sanitize(name: string): string {
-    // Create safe internal_name from project_id
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '_')
-      .replace(/^_+|_+$/g, '');
   }
 
   private mapLanguageCode(lang2char: string): string {

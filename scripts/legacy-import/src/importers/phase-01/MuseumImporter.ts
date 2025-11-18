@@ -54,10 +54,12 @@ export class MuseumImporter extends BaseImporter {
             this.showProgress();
           } else {
             result.skipped++;
+            this.showSkipped();
           }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           result.errors.push(`${museum.museum_id}: ${message}`);
+          this.showError();
         }
       }
       console.log(''); // New line after progress dots
@@ -84,7 +86,6 @@ export class MuseumImporter extends BaseImporter {
 
     // Check if already imported
     if (this.context.tracker.exists(backwardCompat)) {
-      this.log(`Skipping museum ${museum.museum_id} - already imported`);
       return false;
     }
 
@@ -115,7 +116,9 @@ export class MuseumImporter extends BaseImporter {
       await this.importTranslation(partnerId, translation);
     }
 
-    this.log(`Imported museum: ${museum.museum_id} → ${partnerId}`);
+    this.log(
+      `Imported museum: ${museum.name} (${museum.museum_id}:${museum.country}) → ${partnerId}`
+    );
     return true;
   }
 
@@ -160,6 +163,8 @@ export class MuseumImporter extends BaseImporter {
 interface LegacyMuseum {
   museum_id: string;
   country: string;
+  name: string;
+  project_id?: string;
   city?: string;
   address?: string;
 }
