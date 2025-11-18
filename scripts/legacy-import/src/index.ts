@@ -24,8 +24,9 @@ program
       const baseUrl = options.url || process.env['API_BASE_URL'];
       await quickLogin(baseUrl);
       console.log('\n✓ Login complete. You can now run import commands.');
-    } catch (error: any) {
-      console.error('\n✗ Login failed:', error.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('\n✗ Login failed:', message);
       process.exit(1);
     }
   });
@@ -48,9 +49,10 @@ program
         console.log('✗ API connection failed\n');
         console.log('Run "npm start -- login" to authenticate\n');
       }
-    } catch (error: any) {
+    } catch (error) {
       hasErrors = true;
-      console.error('✗ API connection error:', error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('✗ API connection error:', message);
       console.log('Run "npm start -- login" to authenticate\n');
     }
 
@@ -61,9 +63,10 @@ program
       await legacyDb.connect();
       console.log('✓ Legacy database connection successful');
       await legacyDb.disconnect();
-    } catch (error: any) {
+    } catch (error) {
       hasErrors = true;
-      console.error('✗ Legacy database connection failed:', error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('✗ Legacy database connection failed:', message);
       console.log('Check LEGACY_DB_* settings in .env\n');
     }
 

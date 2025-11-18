@@ -71,9 +71,10 @@ export class LoginHelper {
 
       console.log('✓ Authentication successful');
       return response.data.token;
-    } catch (error: any) {
-      console.error('✗ Authentication failed:', error.message);
-      throw new Error(`Login failed: ${error.message}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('✗ Authentication failed:', message);
+      throw new Error(`Login failed: ${message}`);
     }
   }
 
@@ -128,8 +129,9 @@ export class LoginHelper {
       await languageApi.languageIndex();
       console.log('✓ Token is valid');
       return true;
-    } catch (error: any) {
-      console.error('✗ Token test failed:', error.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('✗ Token test failed:', message);
       return false;
     }
   }

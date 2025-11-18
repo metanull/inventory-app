@@ -21,7 +21,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@metanull/inventory-app-api-client": "1.0.7-dev.1118.1623",
+    "@metanull/inventory-app-api-client": "1.1.0-dev.1118.2131",
     "axios": "^1.13.2",
     "commander": "^14.0.2",
     "dotenv": "^17.2.3",

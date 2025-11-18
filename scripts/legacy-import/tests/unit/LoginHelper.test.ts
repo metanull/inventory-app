@@ -29,16 +29,26 @@ vi.mock('@metanull/inventory-app-api-client', () => {
 
 describe('LoginHelper', () => {
   let helper: LoginHelper;
-  let mockTokenAcquire: any;
-  let mockLanguageIndex: any;
+  let mockTokenAcquire: ReturnType<typeof vi.fn>;
+  let mockLanguageIndex: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
 
     // Get mocked functions
-    const apiModule = (await import('@metanull/inventory-app-api-client')) as any;
-    mockTokenAcquire = apiModule.__mockTokenAcquire;
-    mockLanguageIndex = apiModule.__mockLanguageIndex;
+    const apiModule = await import('@metanull/inventory-app-api-client');
+    mockTokenAcquire = (
+      apiModule as typeof apiModule & {
+        __mockTokenAcquire: ReturnType<typeof vi.fn>;
+        __mockLanguageIndex: ReturnType<typeof vi.fn>;
+      }
+    ).__mockTokenAcquire;
+    mockLanguageIndex = (
+      apiModule as typeof apiModule & {
+        __mockTokenAcquire: ReturnType<typeof vi.fn>;
+        __mockLanguageIndex: ReturnType<typeof vi.fn>;
+      }
+    ).__mockLanguageIndex;
 
     helper = new LoginHelper('http://test-api.local/api');
   });
@@ -127,8 +137,8 @@ DRY_RUN=true`;
       const exampleEnv = `API_BASE_URL=http://localhost:8000/api
 API_TOKEN=`;
 
-      vi.mocked(existsSync).mockImplementation((path: any) => {
-        return path.toString().includes('.env.example');
+      vi.mocked(existsSync).mockImplementation((path: unknown) => {
+        return String(path).includes('.env.example');
       });
       vi.mocked(readFileSync).mockReturnValue(exampleEnv);
 

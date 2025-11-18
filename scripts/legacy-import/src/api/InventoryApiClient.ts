@@ -1,11 +1,31 @@
 import {
   Configuration,
-  LanguageApi,
-  MobileAppAuthenticationApi,
+  AvailableImageApi,
   CollectionApi,
-  PartnerApi,
-  ItemApi,
+  CollectionImageApi,
+  CollectionTranslationApi,
+  ContextApi,
+  CountryApi,
   ImageUploadApi,
+  InfoApi,
+  ItemApi,
+  ItemImageApi,
+  ItemTranslationApi,
+  LanguageApi,
+  LocationApi,
+  LocationTranslationApi,
+  MarkdownApi,
+  MobileAppAuthenticationApi,
+  PartnerApi,
+  PartnerImageApi,
+  PartnerTranslationApi,
+  PartnerTranslationImageApi,
+  ProjectApi,
+  ProvinceApi,
+  ProvinceTranslationApi,
+  TagApi,
+  ThemeApi,
+  ThemeTranslationApi,
 } from '@metanull/inventory-app-api-client';
 
 /**
@@ -20,12 +40,32 @@ export interface ApiConfig {
 
 export class InventoryApiClient {
   private configuration: Configuration;
-  public language: LanguageApi;
-  public auth: MobileAppAuthenticationApi;
+  public availableImage: AvailableImageApi;
   public collection: CollectionApi;
-  public partner: PartnerApi;
+  public collectionImage: CollectionImageApi;
+  public collectionTranslation: CollectionTranslationApi;
+  public context: ContextApi;
+  public country: CountryApi;
+  public imageUpload: ImageUploadApi;
+  public info: InfoApi;
   public item: ItemApi;
-  public image: ImageUploadApi;
+  public itemImage: ItemImageApi;
+  public itemTranslation: ItemTranslationApi;
+  public language: LanguageApi;
+  public location: LocationApi;
+  public locationTranslation: LocationTranslationApi;
+  public markdown: MarkdownApi;
+  public auth: MobileAppAuthenticationApi;
+  public partner: PartnerApi;
+  public partnerImage: PartnerImageApi;
+  public partnerTranslation: PartnerTranslationApi;
+  public partnerTranslationImage: PartnerTranslationImageApi;
+  public project: ProjectApi;
+  public province: ProvinceApi;
+  public provinceTranslation: ProvinceTranslationApi;
+  public tag: TagApi;
+  public theme: ThemeApi;
+  public themeTranslation: ThemeTranslationApi;
 
   constructor(private config: ApiConfig) {
     this.configuration = new Configuration({
@@ -33,13 +73,33 @@ export class InventoryApiClient {
       accessToken: config.token,
     });
 
-    // Initialize API instances
-    this.language = new LanguageApi(this.configuration);
-    this.auth = new MobileAppAuthenticationApi(this.configuration);
+    // Initialize all API instances
+    this.availableImage = new AvailableImageApi(this.configuration);
     this.collection = new CollectionApi(this.configuration);
-    this.partner = new PartnerApi(this.configuration);
+    this.collectionImage = new CollectionImageApi(this.configuration);
+    this.collectionTranslation = new CollectionTranslationApi(this.configuration);
+    this.context = new ContextApi(this.configuration);
+    this.country = new CountryApi(this.configuration);
+    this.imageUpload = new ImageUploadApi(this.configuration);
+    this.info = new InfoApi(this.configuration);
     this.item = new ItemApi(this.configuration);
-    this.image = new ImageUploadApi(this.configuration);
+    this.itemImage = new ItemImageApi(this.configuration);
+    this.itemTranslation = new ItemTranslationApi(this.configuration);
+    this.language = new LanguageApi(this.configuration);
+    this.location = new LocationApi(this.configuration);
+    this.locationTranslation = new LocationTranslationApi(this.configuration);
+    this.markdown = new MarkdownApi(this.configuration);
+    this.auth = new MobileAppAuthenticationApi(this.configuration);
+    this.partner = new PartnerApi(this.configuration);
+    this.partnerImage = new PartnerImageApi(this.configuration);
+    this.partnerTranslation = new PartnerTranslationApi(this.configuration);
+    this.partnerTranslationImage = new PartnerTranslationImageApi(this.configuration);
+    this.project = new ProjectApi(this.configuration);
+    this.province = new ProvinceApi(this.configuration);
+    this.provinceTranslation = new ProvinceTranslationApi(this.configuration);
+    this.tag = new TagApi(this.configuration);
+    this.theme = new ThemeApi(this.configuration);
+    this.themeTranslation = new ThemeTranslationApi(this.configuration);
   }
 
   async testConnection(): Promise<boolean> {
