@@ -250,7 +250,9 @@ program
 
         // CRITICAL: Stop if Project import had errors (partners depend on projects)
         if (projectResult.errors.length > 0) {
-          console.error('\n❌ CRITICAL ERROR: Project import failed. Cannot proceed with Partners.\n');
+          console.error(
+            '\n❌ CRITICAL ERROR: Project import failed. Cannot proceed with Partners.\n'
+          );
           writeLog('\n❌ CRITICAL ERROR: Project import failed. Cannot proceed.');
           process.exit(1);
         }

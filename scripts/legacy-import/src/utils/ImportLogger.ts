@@ -63,7 +63,9 @@ export class ImportLogger {
         response?: { status?: number; statusText?: string; data?: unknown };
       };
       if (axiosError.response) {
-        this.writeToFile(`  HTTP Status: ${axiosError.response.status} ${axiosError.response.statusText}`);
+        this.writeToFile(
+          `  HTTP Status: ${axiosError.response.status} ${axiosError.response.statusText}`
+        );
         if (axiosError.response.data) {
           this.writeToFile(`  Response: ${JSON.stringify(axiosError.response.data, null, 2)}`);
         }

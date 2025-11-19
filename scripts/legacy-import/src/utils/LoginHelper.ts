@@ -40,7 +40,7 @@ export class LoginHelper {
     try {
       const email = await rl.question('Email: ');
       rl.close();
-      
+
       // Use masked password input (dynamic import for ESM package compatibility)
       const { default: passwordPrompt } = await import('@inquirer/password');
       const password = await passwordPrompt({ message: 'Password' });
@@ -49,7 +49,7 @@ export class LoginHelper {
     } finally {
       rl.close();
     }
-  }  /**
+  } /**
    * Authenticate with API and get access token
    */
   async login(credentials: LoginCredentials): Promise<string> {

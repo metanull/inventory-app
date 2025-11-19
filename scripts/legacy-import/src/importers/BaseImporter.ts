@@ -94,7 +94,11 @@ export abstract class BaseImporter {
   /**
    * Helper: Log error with full context (to file only)
    */
-  protected logError(context: string, error: unknown, additionalContext?: Record<string, unknown>): void {
+  protected logError(
+    context: string,
+    error: unknown,
+    additionalContext?: Record<string, unknown>
+  ): void {
     this.logger.error(context, error, additionalContext);
   }
 

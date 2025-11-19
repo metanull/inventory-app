@@ -102,11 +102,9 @@ export class CountryImporter extends BaseImporter {
     result.success = result.errors.length === 0;
 
     if (!result.success) {
-      this.logError(
-        'CountryImporter:summary',
-        new Error('Country import failed'),
-        { errorCount: result.errors.length }
-      );
+      this.logError('CountryImporter:summary', new Error('Country import failed'), {
+        errorCount: result.errors.length,
+      });
     }
 
     return result;
