@@ -156,3 +156,6 @@ VERSION
 
 # Custom Up/Down Commands' generated files
 public/down.lock
+
+# local git modules
+.legacy-database
