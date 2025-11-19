@@ -60,11 +60,15 @@ describe('MuseumImporter', () => {
         .mockResolvedValueOnce(mockMuseums) // museums
         .mockResolvedValueOnce(mockMuseumNames); // museumnames
 
-      // Mock API responses
-      vi.mocked(mockContext.apiClient.context.contextGetDefault).mockResolvedValue({
-        data: { data: { id: 'uuid-context-default' } },
-      } as never);
+      // Register project in tracker so it can be resolved
+      tracker.register({
+        uuid: 'uuid-context-testproject',
+        backwardCompatibility: 'mwnf3:projects:testproject',
+        entityType: 'context',
+        createdAt: new Date(),
+      });
 
+      // Mock API responses
       vi.mocked(mockContext.apiClient.partner.partnerStore).mockResolvedValue({
         data: { data: { id: 'uuid-louvre-123' } },
       } as never);
@@ -85,9 +89,11 @@ describe('MuseumImporter', () => {
 
       // Verify Partner API call
       expect(mockContext.apiClient.partner.partnerStore).toHaveBeenCalledWith({
-        internal_name: 'louvre',
+        internal_name: 'The Louvre Museum',
         type: 'museum',
-        backward_compatibility: 'mwnf3:museums:louvre',
+        country_id: 'fr',
+        project_id: 'testproject',
+        backward_compatibility: 'mwnf3:museums:louvre:fr',
       });
 
       // Verify Translation API calls (2 languages)
@@ -100,7 +106,7 @@ describe('MuseumImporter', () => {
         {
           partner_id: 'uuid-louvre-123',
           language_id: 'eng', // ISO 639-3 code
-          context_id: 'uuid-context-default',
+          context_id: 'uuid-context-testproject',
           name: 'The Louvre Museum',
           description: 'World famous art museum',
         }
@@ -111,28 +117,35 @@ describe('MuseumImporter', () => {
         {
           partner_id: 'uuid-louvre-123',
           language_id: 'fra', // ISO 639-3 code
-          context_id: 'uuid-context-default',
+          context_id: 'uuid-context-testproject',
           name: 'Le Musée du Louvre',
           description: "Musée d'art mondialement connu",
         }
       );
 
       // Verify tracker registration
-      expect(tracker.exists('mwnf3:museums:louvre')).toBe(true);
-      expect(tracker.getUuid('mwnf3:museums:louvre')).toBe('uuid-louvre-123');
+      expect(tracker.exists('mwnf3:museums:louvre:fr')).toBe(true);
+      expect(tracker.getUuid('mwnf3:museums:louvre:fr')).toBe('uuid-louvre-123');
     });
 
     it('should skip museums already in tracker', async () => {
       // Pre-register museum in tracker
       tracker.register({
         uuid: 'existing-uuid-123',
-        backwardCompatibility: 'mwnf3:museums:louvre',
+        backwardCompatibility: 'mwnf3:museums:louvre:fr',
         entityType: 'partner',
         createdAt: new Date(),
       });
 
       const mockMuseums = [
-        { museum_id: 'louvre', country: 'fr', city: 'Paris', address: '1 Rue de Rivoli' },
+        {
+          museum_id: 'louvre',
+          country: 'fr',
+          name: 'The Louvre',
+          project_id: 'testproject',
+          city: 'Paris',
+          address: '1 Rue de Rivoli',
+        },
       ];
 
       vi.mocked(mockContext.legacyDb.query)

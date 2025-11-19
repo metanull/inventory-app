@@ -109,45 +109,204 @@ program
       console.log('✓ Connections validated\n');
 
       // Initialize result variables
+      let languageResult = { success: true, imported: 0, skipped: 0, errors: [] as string[] };
+      let countryResult = { success: true, imported: 0, skipped: 0, errors: [] as string[] };
+      let defaultContextResult = { success: true, imported: 0, skipped: 0, errors: [] as string[] };
       let projectResult = { imported: 0, skipped: 0, errors: [] as string[] };
       let partnerResult = { imported: 0, skipped: 0, errors: [] as string[] };
+      let objectResult = { imported: 0, skipped: 0, errors: [] as string[] };
+      let monumentResult = { imported: 0, skipped: 0, errors: [] as string[] };
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+
+      // Setup log file
+      const { writeFileSync, mkdirSync, appendFileSync } = await import('fs');
+      const logPath = `./logs/import-phase${phase}-${timestamp}.log`;
+
+      // Helper to write to log directly
+      const writeLog = (line: string) => {
+        console.log(line);
+        try {
+          appendFileSync(logPath, line + '\n', 'utf-8');
+        } catch {
+          // Ignore append errors
+        }
+      };
+
+      // Create log file and write header
+      try {
+        mkdirSync('./logs', { recursive: true });
+        const header = [
+          '='.repeat(60),
+          'IMPORT DETAILED LOG',
+          '='.repeat(60),
+          `Timestamp: ${new Date().toISOString()}`,
+          `Phase: ${phase}`,
+          `Dry-run: ${dryRun}`,
+          `Limit: ${limit > 0 ? limit : 'unlimited'}`,
+          '',
+        ].join('\n');
+        writeFileSync(logPath, header + '\n', 'utf-8');
+        console.log(`📄 Writing log to: ${logPath}\n`);
+      } catch (err) {
+        console.error('Failed to create log file:', err);
+      }
+
+      // Setup import execution context (tracker, API client, database connection, etc.)
+      const { BackwardCompatibilityTracker } = await import(
+        './utils/BackwardCompatibilityTracker.js'
+      );
+      const tracker = new BackwardCompatibilityTracker();
+      const importContext = {
+        legacyDb,
+        apiClient,
+        tracker,
+        dryRun,
+        limit,
+        logPath,
+      };
 
       // Import based on phase
+      
+      // Phase 0: Reference Data (always runs)
+      console.log('📚 Phase 0: Reference data (Languages, Countries, Default Context)\n');
+      writeLog('Phase 0: Reference data (Languages, Countries, Default Context)');
+      writeLog('-'.repeat(60));
+
+      const { LanguageImporter } = await import('./importers/phase-00/LanguageImporter.js');
+      const { CountryImporter } = await import('./importers/phase-00/CountryImporter.js');
+      const { DefaultContextImporter } = await import('./importers/phase-00/DefaultContextImporter.js');
+
+      // Languages
+      console.log('Languages: ');
+      writeLog('\nLanguages:');
+      const languageImporter = new LanguageImporter(importContext);
+      languageResult = await languageImporter.import();
+      console.log(` ${languageResult.imported} imported, ${languageResult.skipped} skipped\n`);
+      writeLog(`  Imported: ${languageResult.imported}`);
+      writeLog(`  Skipped: ${languageResult.skipped}`);
+      
+      // CRITICAL: Stop if Language import failed
+      if (!languageResult.success) {
+        console.error('\n❌ CRITICAL ERROR: Language import failed. Cannot proceed.\n');
+        writeLog('\n❌ CRITICAL ERROR: Language import failed. Cannot proceed.');
+        if (languageResult.errors.length > 0) {
+          languageResult.errors.forEach((err) => writeLog(`    - ${err}`));
+        }
+        process.exit(1);
+      }
+
+      // Countries
+      console.log('Countries: ');
+      writeLog('\nCountries:');
+      const countryImporter = new CountryImporter(importContext);
+      countryResult = await countryImporter.import();
+      console.log(` ${countryResult.imported} imported, ${countryResult.skipped} skipped\n`);
+      writeLog(`  Imported: ${countryResult.imported}`);
+      writeLog(`  Skipped: ${countryResult.skipped}`);
+      
+      // CRITICAL: Stop if Country import failed
+      if (!countryResult.success) {
+        console.error('\n❌ CRITICAL ERROR: Country import failed. Cannot proceed.\n');
+        writeLog('\n❌ CRITICAL ERROR: Country import failed. Cannot proceed.');
+        if (countryResult.errors.length > 0) {
+          countryResult.errors.forEach((err) => writeLog(`    - ${err}`));
+        }
+        process.exit(1);
+      }
+
+      // Default Context
+      console.log('Default Context: ');
+      writeLog('\nDefault Context:');
+      const defaultContextImporter = new DefaultContextImporter(importContext);
+      defaultContextResult = await defaultContextImporter.import();
+      console.log(` ${defaultContextResult.imported} imported, ${defaultContextResult.skipped} skipped\n`);
+      writeLog(`  Imported: ${defaultContextResult.imported}`);
+      writeLog(`  Skipped: ${defaultContextResult.skipped}`);
+      
+      // CRITICAL: Stop if Default Context import failed
+      if (!defaultContextResult.success) {
+        console.error('\n❌ CRITICAL ERROR: Default Context import failed. Cannot proceed.\n');
+        writeLog('\n❌ CRITICAL ERROR: Default Context import failed. Cannot proceed.');
+        if (defaultContextResult.errors.length > 0) {
+          defaultContextResult.errors.forEach((err) => writeLog(`    - ${err}`));
+        }
+        process.exit(1);
+      }
+
       if (phase === 1 || phase === 'all') {
-        console.log('📦 Phase 1: Core data (Projects, Partners)');
+        console.log('📦 Phase 1: Core data (Projects, Partners)\n');
+        writeLog('\nPhase 1: Core data (Projects, Partners)');
+        writeLog('-'.repeat(60));
+
         const { PartnerImporter } = await import('./importers/phase-01/PartnerImporter.js');
         const { ProjectImporter } = await import('./importers/phase-01/ProjectImporter.js');
-        const { BackwardCompatibilityTracker } = await import(
-          './utils/BackwardCompatibilityTracker.js'
-        );
-
-        const tracker = new BackwardCompatibilityTracker();
-        const context = {
-          legacyDb,
-          apiClient,
-          tracker,
-          dryRun,
-          limit,
-        };
 
         // Import projects first
-        const projectImporter = new ProjectImporter(context);
+        console.log('Projects: ');
+        writeLog('\nProjects Import:');
+        const projectImporter = new ProjectImporter(importContext);
         projectResult = await projectImporter.import();
         console.log(
-          `✓ Projects: ${projectResult.imported} imported, ${projectResult.skipped} skipped, ${projectResult.errors.length} errors`
+          ` ${projectResult.imported} imported, ${projectResult.skipped} skipped, ${projectResult.errors.length} errors\n`
         );
+        writeLog(`  Imported: ${projectResult.imported}`);
+        writeLog(`  Skipped: ${projectResult.skipped}`);
+        writeLog(`  Errors: ${projectResult.errors.length}`);
         if (projectResult.errors.length > 0) {
-          console.error('Errors:', projectResult.errors.slice(0, 5));
+          writeLog('  Error details:');
+          projectResult.errors.forEach((err) => writeLog(`    - ${err}`));
         }
 
         // Import partners (museums + institutions)
-        const partnerImporter = new PartnerImporter(context);
+        console.log('Partners: ');
+        writeLog('\nPartners Import (Museums + Institutions):');
+        const partnerImporter = new PartnerImporter(importContext);
         partnerResult = await partnerImporter.import();
         console.log(
-          `✓ Partners: ${partnerResult.imported} imported, ${partnerResult.skipped} skipped, ${partnerResult.errors.length} errors`
+          ` ${partnerResult.imported} imported, ${partnerResult.skipped} skipped, ${partnerResult.errors.length} errors\n`
         );
+        writeLog(`  Imported: ${partnerResult.imported}`);
+        writeLog(`  Skipped: ${partnerResult.skipped}`);
+        writeLog(`  Errors: ${partnerResult.errors.length}`);
         if (partnerResult.errors.length > 0) {
-          console.error('Errors:', partnerResult.errors.slice(0, 5));
+          writeLog('  Error details:');
+          partnerResult.errors.forEach((err) => writeLog(`    - ${err}`));
+        }
+
+        // Import items (objects, monuments)
+        const { ObjectImporter } = await import('./importers/phase-01/ObjectImporter.js');
+        const { MonumentImporter } = await import('./importers/phase-01/MonumentImporter.js');
+
+        // Import objects
+        console.log('Objects: ');
+        writeLog('\nObjects Import:');
+        const objectImporter = new ObjectImporter(importContext);
+        objectResult = await objectImporter.import();
+        console.log(
+          ` ${objectResult.imported} imported, ${objectResult.skipped} skipped, ${objectResult.errors.length} errors\n`
+        );
+        writeLog(`  Imported: ${objectResult.imported}`);
+        writeLog(`  Skipped: ${objectResult.skipped}`);
+        writeLog(`  Errors: ${objectResult.errors.length}`);
+        if (objectResult.errors.length > 0) {
+          writeLog('  Error details (first 10):');
+          objectResult.errors.slice(0, 10).forEach((err) => writeLog(`    - ${err}`));
+        }
+
+        // Import monuments
+        console.log('Monuments: ');
+        writeLog('\nMonuments Import:');
+        const monumentImporter = new MonumentImporter(importContext);
+        monumentResult = await monumentImporter.import();
+        console.log(
+          ` ${monumentResult.imported} imported, ${monumentResult.skipped} skipped, ${monumentResult.errors.length} errors\n`
+        );
+        writeLog(`  Imported: ${monumentResult.imported}`);
+        writeLog(`  Skipped: ${monumentResult.skipped}`);
+        writeLog(`  Errors: ${monumentResult.errors.length}`);
+        if (monumentResult.errors.length > 0) {
+          writeLog('  Error details (first 10):');
+          monumentResult.errors.slice(0, 10).forEach((err) => writeLog(`    - ${err}`));
         }
       }
 
@@ -157,34 +316,35 @@ program
 
       await legacyDb.disconnect();
 
-      // Generate import log
-      console.log('\n' + '='.repeat(60));
+      // Generate console summary
+      const totalImported =
+        (languageResult?.imported || 0) +
+        (countryResult?.imported || 0) +
+        (defaultContextResult?.imported || 0) +
+        (projectResult?.imported || 0) +
+        (partnerResult?.imported || 0) +
+        (objectResult?.imported || 0) +
+        (monumentResult?.imported || 0);
+      const totalSkipped =
+        (languageResult?.skipped || 0) +
+        (countryResult?.skipped || 0) +
+        (defaultContextResult?.skipped || 0) +
+        (projectResult?.skipped || 0) +
+        (partnerResult?.skipped || 0) +
+        (objectResult?.skipped || 0) +
+        (monumentResult?.skipped || 0);
+      const totalErrors =
+        (languageResult?.errors.length || 0) +
+        (countryResult?.errors.length || 0) +
+        (defaultContextResult?.errors.length || 0) +
+        (projectResult?.errors.length || 0) +
+        (partnerResult?.errors.length || 0) +
+        (objectResult?.errors.length || 0) +
+        (monumentResult?.errors.length || 0);
+
+      console.log('='.repeat(60));
       console.log('IMPORT SUMMARY');
       console.log('='.repeat(60));
-
-      if (phase === 1 || phase === 'all') {
-        console.log('\nPhase 1 Results:');
-        console.log(
-          `  Projects: ${projectResult.imported} imported, ${projectResult.skipped} skipped, ${projectResult.errors.length} errors`
-        );
-        if (projectResult.errors.length > 0) {
-          console.log('  Project Errors:');
-          projectResult.errors.forEach((err) => console.log(`    - ${err}`));
-        }
-        console.log(
-          `  Partners: ${partnerResult.imported} imported, ${partnerResult.skipped} skipped, ${partnerResult.errors.length} errors`
-        );
-        if (partnerResult.errors.length > 0) {
-          console.log('  Partner Errors:');
-          partnerResult.errors.forEach((err) => console.log(`    - ${err}`));
-        }
-      }
-
-      const totalImported = (projectResult?.imported || 0) + (partnerResult?.imported || 0);
-      const totalSkipped = (projectResult?.skipped || 0) + (partnerResult?.skipped || 0);
-      const totalErrors = (projectResult?.errors.length || 0) + (partnerResult?.errors.length || 0);
-
-      console.log('\nOverall:');
       console.log(`  Total Imported: ${totalImported}`);
       console.log(`  Total Skipped: ${totalSkipped}`);
       console.log(`  Total Errors: ${totalErrors}`);
@@ -193,12 +353,43 @@ program
       );
       console.log('='.repeat(60) + '\n');
 
+      // Complete detailed log
+      writeLog('');
+      writeLog('='.repeat(60));
+      writeLog('FINAL SUMMARY');
+      writeLog('='.repeat(60));
+      writeLog(`Total Imported: ${totalImported}`);
+      writeLog(`Total Skipped: ${totalSkipped}`);
+      writeLog(`Total Errors: ${totalErrors}`);
+      writeLog(`Status: ${totalErrors === 0 ? 'SUCCESS' : 'FAILED'}`);
+      writeLog('='.repeat(60));
+
+      console.log(`📄 Log saved to: ${logPath}`);
+
       if (totalErrors > 0) {
         process.exit(1);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error ? error.stack : '';
       console.error('\n✗ Import failed:', message);
+      if (stack) {
+        console.error('\nStack trace:');
+        console.error(stack);
+      }
+
+      // Write error log
+      try {
+        const { writeFileSync, mkdirSync } = await import('fs');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const logPath = `./logs/import-error-${timestamp}.log`;
+        mkdirSync('./logs', { recursive: true });
+        writeFileSync(logPath, `Error: ${message}\n\nStack:\n${stack}`, 'utf-8');
+        console.error(`\n📄 Error log written to: ${logPath}`);
+      } catch (err) {
+        console.error('Failed to write error log:', err);
+      }
+
       process.exit(1);
     }
   });

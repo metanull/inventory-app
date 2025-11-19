@@ -57,6 +57,16 @@ export class ProjectImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
+          // Check if it's a 422 duplicate error
+          if (error && typeof error === 'object' && 'response' in error) {
+            const axiosError = error as { response?: { status?: number; data?: unknown } };
+            if (axiosError.response?.status === 422) {
+              // Likely duplicate internal_name - treat as skipped
+              result.skipped++;
+              this.showSkipped();
+              continue;
+            }
+          }
           result.errors.push(`${project.project_id}: ${message}`);
           this.showError();
         }

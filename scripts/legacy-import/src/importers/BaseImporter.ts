@@ -8,6 +8,7 @@ export interface ImportContext {
   tracker: BackwardCompatibilityTracker;
   dryRun: boolean;
   limit: number;
+  logPath?: string; // Path to log file for direct writes
 }
 
 export interface ImportResult {
@@ -41,10 +42,22 @@ export abstract class BaseImporter {
   abstract getName(): string;
 
   /**
-   * Helper: Log import progress
+   * Helper: Log import progress - writes directly to console and file
    */
   protected log(message: string): void {
-    console.log(`[${this.getName()}] ${message}`);
+    const logLine = `[${this.getName()}] ${message}`;
+    console.log(logLine);
+
+    // Write directly to log file if available
+    if (this.context.logPath) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports, no-undef
+        const fs = require('fs') as typeof import('fs');
+        fs.appendFileSync(this.context.logPath, logLine + '\n', 'utf-8');
+      } catch {
+        // Ignore write errors
+      }
+    }
   }
 
   /**

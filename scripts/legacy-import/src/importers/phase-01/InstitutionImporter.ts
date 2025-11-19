@@ -20,8 +20,9 @@ export class InstitutionImporter extends BaseImporter {
 
     try {
       // Query institutions
+      const limitClause = this.context.limit > 0 ? ` LIMIT ${this.context.limit}` : '';
       const institutions = await this.context.legacyDb.query<LegacyInstitution>(
-        'SELECT * FROM mwnf3.institutions'
+        `SELECT * FROM mwnf3.institutions${limitClause}`
       );
 
       // Query institution translations
@@ -58,6 +59,12 @@ export class InstitutionImporter extends BaseImporter {
           }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
+          // Log detailed error info
+          if (error && typeof error === 'object' && 'response' in error) {
+            const axiosError = error as { response?: { status?: number; data?: unknown } };
+            this.log(`Error importing ${institution.institution_id}: ${message}`);
+            this.log(`Response: ${JSON.stringify(axiosError.response?.data)}`);
+          }
           result.errors.push(`${institution.institution_id}: ${message}`);
           this.showError();
         }
@@ -77,11 +84,11 @@ export class InstitutionImporter extends BaseImporter {
     institution: LegacyInstitution,
     translations: LegacyInstitutionName[]
   ): Promise<boolean> {
-    // Format backward_compatibility
+    // Format backward_compatibility with ALL PK fields (institution_id + country)
     const backwardCompat = BackwardCompatibilityFormatter.format({
       schema: 'mwnf3',
       table: 'institutions',
-      pkValues: [institution.institution_id],
+      pkValues: [institution.institution_id, institution.country],
     });
 
     // Check if already imported
@@ -94,10 +101,15 @@ export class InstitutionImporter extends BaseImporter {
       return true;
     }
 
-    // Create Partner
+    // Map 2-character country code to 3-character code
+    const countryId = institution.country ? this.mapCountryCode(institution.country) : undefined;
+
+    // Create Partner (institutions don't have project_id or GPS coordinates)
     const partnerResponse = await this.context.apiClient.partner.partnerStore({
-      internal_name: institution.institution_id,
+      internal_name: institution.name,
       type: 'institution',
+      country_id: countryId,
+      visible: true,
       backward_compatibility: backwardCompat,
     });
 
@@ -113,22 +125,55 @@ export class InstitutionImporter extends BaseImporter {
 
     // Create translations
     for (const translation of translations) {
-      await this.importTranslation(partnerId, translation);
+      await this.importTranslation(partnerId, institution, translation);
     }
 
-    this.log(
-      `Imported institution: ${institution.name} (${institution.institution_id}:${institution.country}) → ${partnerId}`
-    );
     return true;
   }
 
-  private async importTranslation(partnerId: string, translation: LegacyInstitutionName) {
+  private async importTranslation(
+    partnerId: string,
+    institution: LegacyInstitution,
+    translation: LegacyInstitutionName
+  ) {
     // Map legacy ISO 639-1 to ISO 639-3
-    const languageId = this.mapLanguageCode(translation.language);
+    const languageId = this.mapLanguageCode(translation.lang);
 
-    // Get default context - partners need context_id for translations
-    const contextResponse = await this.context.apiClient.context.contextGetDefault();
-    const contextId = contextResponse.data.data.id;
+    // Institutions don't have project_id - always use default context
+    const contextId = this.context.tracker.getUuid('__default_context__');
+    
+    if (!contextId) {
+      throw new Error('Default context not found in tracker');
+    }
+
+    // Build contact notes with contact persons info
+    const contactParts: string[] = [];
+    if (institution.cp1_name) {
+      contactParts.push(
+        `Contact 1: ${institution.cp1_name}${institution.cp1_title ? ` (${institution.cp1_title})` : ''}${
+          institution.cp1_phone ? ` - Phone: ${institution.cp1_phone}` : ''
+        }${institution.cp1_fax ? ` - Fax: ${institution.cp1_fax}` : ''}${
+          institution.cp1_email ? ` - Email: ${institution.cp1_email}` : ''
+        }`
+      );
+    }
+    if (institution.cp2_name) {
+      contactParts.push(
+        `Contact 2: ${institution.cp2_name}${institution.cp2_title ? ` (${institution.cp2_title})` : ''}${
+          institution.cp2_phone ? ` - Phone: ${institution.cp2_phone}` : ''
+        }${institution.cp2_fax ? ` - Fax: ${institution.cp2_fax}` : ''}${
+          institution.cp2_email ? ` - Email: ${institution.cp2_email}` : ''
+        }`
+      );
+    }
+    if (institution.fax) {
+      contactParts.push(`Fax: ${institution.fax}`);
+    }
+    if (institution.url2) {
+      contactParts.push(`Additional URL: ${institution.url2}`);
+    }
+
+    const contactNotes = contactParts.length > 0 ? contactParts.join('\n') : null;
 
     await this.context.apiClient.partnerTranslation.partnerTranslationStore({
       partner_id: partnerId,
@@ -136,6 +181,14 @@ export class InstitutionImporter extends BaseImporter {
       context_id: contextId,
       name: translation.name,
       description: translation.description || null,
+      // Address fields
+      city_display: institution.city || null,
+      address_line_1: institution.address || null,
+      // Contact fields  
+      contact_phone: institution.phone || null,
+      contact_email_general: institution.email || null,
+      contact_website: institution.url || null,
+      contact_notes: contactNotes,
     });
   }
 
@@ -158,19 +211,107 @@ export class InstitutionImporter extends BaseImporter {
 
     return mapping[legacyCode] || legacyCode;
   }
+
+  /**
+   * Map legacy 2-character ISO 3166-1 alpha-2 codes to 3-character ISO 3166-1 alpha-3 codes
+   */
+  private mapCountryCode(legacyCode: string): string {
+    const mapping: Record<string, string> = {
+      ae: 'are', // United Arab Emirates
+      al: 'alb', // Albania
+      ar: 'arg', // Argentina
+      at: 'aut', // Austria
+      au: 'aus', // Australia
+      ba: 'bih', // Bosnia and Herzegovina
+      be: 'bel', // Belgium
+      bg: 'bgr', // Bulgaria
+      br: 'bra', // Brazil
+      ca: 'can', // Canada
+      ch: 'che', // Switzerland
+      cn: 'chn', // China
+      cy: 'cyp', // Cyprus
+      cz: 'cze', // Czech Republic
+      de: 'deu', // Germany
+      dk: 'dnk', // Denmark
+      dz: 'dza', // Algeria
+      eg: 'egy', // Egypt
+      es: 'esp', // Spain
+      fi: 'fin', // Finland
+      fr: 'fra', // France
+      gb: 'gbr', // United Kingdom
+      gr: 'grc', // Greece
+      hr: 'hrv', // Croatia
+      hu: 'hun', // Hungary
+      ie: 'irl', // Ireland
+      il: 'isr', // Israel
+      in: 'ind', // India
+      iq: 'irq', // Iraq
+      ir: 'irn', // Iran
+      it: 'ita', // Italy
+      jo: 'jor', // Jordan
+      jp: 'jpn', // Japan
+      kw: 'kwt', // Kuwait
+      lb: 'lbn', // Lebanon
+      ly: 'lby', // Libya
+      ma: 'mar', // Morocco
+      mk: 'mkd', // North Macedonia
+      mx: 'mex', // Mexico
+      nl: 'nld', // Netherlands
+      no: 'nor', // Norway
+      om: 'omn', // Oman
+      pl: 'pol', // Poland
+      ps: 'pse', // Palestine
+      pt: 'prt', // Portugal
+      qa: 'qat', // Qatar
+      ro: 'rou', // Romania
+      rs: 'srb', // Serbia
+      ru: 'rus', // Russia
+      sa: 'sau', // Saudi Arabia
+      sd: 'sdn', // Sudan
+      se: 'swe', // Sweden
+      si: 'svn', // Slovenia
+      sk: 'svk', // Slovakia
+      sy: 'syr', // Syria
+      tn: 'tun', // Tunisia
+      tr: 'tur', // Turkey
+      ua: 'ukr', // Ukraine
+      us: 'usa', // United States
+      ye: 'yem', // Yemen
+    };
+
+    return mapping[legacyCode] || legacyCode;
+  }
 }
 
 interface LegacyInstitution {
   institution_id: string;
   country: string;
   name: string;
-  city?: string;
-  address?: string;
+  city: string | null;
+  address: string | null;
+  description: string | null;
+  phone: string | null;
+  fax: string | null;
+  email: string | null;
+  url: string | null;
+  url2: string | null;
+  cp1_name: string | null;
+  cp1_title: string | null;
+  cp1_phone: string | null;
+  cp1_fax: string | null;
+  cp1_email: string | null;
+  cp2_name: string | null;
+  cp2_title: string | null;
+  cp2_phone: string | null;
+  cp2_fax: string | null;
+  cp2_email: string | null;
+  logo: string | null;
 }
 
 interface LegacyInstitutionName {
   institution_id: string;
-  language: string;
+  country: string;
+  lang: string;
   name: string;
-  description?: string;
+  description: string | null;
 }
