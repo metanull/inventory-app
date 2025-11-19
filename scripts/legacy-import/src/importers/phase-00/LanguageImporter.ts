@@ -35,7 +35,7 @@ export class LanguageImporter extends BaseImporter {
     try {
       const fileContent = readFileSync(languagesPath, 'utf-8');
       languages = JSON.parse(fileContent) as LanguageData[];
-      this.log(`Loaded ${languages.length} languages from production data file`);
+      this.logInfo(`Loaded ${languages.length} languages from production data file`);
     } catch (error) {
       result.errors.push(
         `Failed to read languages.json: ${error instanceof Error ? error.message : String(error)}`
@@ -47,19 +47,22 @@ export class LanguageImporter extends BaseImporter {
     for (const language of languages) {
       try {
         if (this.context.dryRun) {
-          this.log(`[DRY-RUN] Would create language: ${language.id}`);
+          this.logInfo(`[DRY-RUN] Would create language: ${language.id}`);
           result.imported++;
           continue;
         }
 
         // Try to create
         try {
-          await this.context.apiClient.language.languageStore(language);
+          // Exclude is_default - it's prohibited in StoreLanguageRequest
+          // Must be set via separate languageSetDefault endpoint
+          const { is_default, ...languageData } = language;
+          await this.context.apiClient.language.languageStore(languageData);
 
           // If this is English (default), set it as default
-          if (language.is_default && language.id === 'eng') {
+          if (is_default && language.id === 'eng') {
             await this.context.apiClient.language.languageSetDefault('eng', { is_default: true });
-            this.log('Set English (eng) as default language');
+            this.logInfo('Set English (eng) as default language');
           }
 
           result.imported++;
@@ -105,12 +108,12 @@ export class LanguageImporter extends BaseImporter {
         this.showError();
       }
     }
-    console.log(''); // New line after progress dots
+    this.showSummary(result.imported, result.skipped, result.errors.length);
 
     result.success = result.errors.length === 0;
 
     if (!result.success) {
-      this.log(
+      this.logInfo(
         `CRITICAL: Language import failed with ${result.errors.length} errors. Cannot proceed.`
       );
     }

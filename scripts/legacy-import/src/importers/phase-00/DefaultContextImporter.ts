@@ -25,7 +25,7 @@ export class DefaultContextImporter extends BaseImporter {
 
     try {
       if (this.context.dryRun) {
-        this.log('[DRY-RUN] Would create default context');
+        this.logInfo('[DRY-RUN] Would create default context');
         result.imported++;
         return result;
       }
@@ -42,7 +42,7 @@ export class DefaultContextImporter extends BaseImporter {
         createdAt: new Date(),
       });
 
-      this.log(`Created default context: ${contextId}`);
+      this.logInfo(`Created default context: ${contextId}`);
       result.imported++;
       this.showProgress();
     } catch (error) {
@@ -50,7 +50,7 @@ export class DefaultContextImporter extends BaseImporter {
         const axiosError = error as { response?: { status?: number; data?: unknown } };
         if (axiosError.response?.status === 422) {
           // Already exists - try to find it and register in tracker
-          this.log('Default context already exists');
+          this.logInfo('Default context already exists');
           result.skipped++;
           this.showSkipped();
 
@@ -70,10 +70,10 @@ export class DefaultContextImporter extends BaseImporter {
                 entityType: 'context',
                 createdAt: new Date(),
               });
-              this.log(`Registered existing default context: ${defaultCtx.id}`);
+              this.logInfo(`Registered existing default context: ${defaultCtx.id}`);
             }
           } catch {
-            this.log('Warning: Could not register existing default context in tracker');
+            this.logInfo('Warning: Could not register existing default context in tracker');
           }
         } else {
           const message = error instanceof Error ? error.message : String(error);
@@ -82,7 +82,7 @@ export class DefaultContextImporter extends BaseImporter {
         }
       }
     }
-    console.log(''); // New line after progress dots
+    this.showSummary(result.imported, result.skipped, result.errors.length);
 
     result.success = result.errors.length === 0;
     return result;

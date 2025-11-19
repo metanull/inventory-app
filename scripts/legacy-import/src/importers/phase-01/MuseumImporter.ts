@@ -20,9 +20,8 @@ export class MuseumImporter extends BaseImporter {
 
     try {
       // Query museums
-      const limitClause = this.context.limit > 0 ? ` LIMIT ${this.context.limit}` : '';
       const museums = await this.context.legacyDb.query<LegacyMuseum>(
-        `SELECT * FROM mwnf3.museums${limitClause}`
+        `SELECT * FROM mwnf3.museums`
       );
 
       // Query museum translations
@@ -31,7 +30,7 @@ export class MuseumImporter extends BaseImporter {
       );
 
       if (museums.length === 0) {
-        this.log('No museums found');
+        this.logInfo('No museums found');
         return result;
       }
 
@@ -59,17 +58,19 @@ export class MuseumImporter extends BaseImporter {
           }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          // Log detailed error info
-          if (error && typeof error === 'object' && 'response' in error) {
-            const axiosError = error as { response?: { status?: number; data?: unknown } };
-            this.log(`Error importing ${museum.museum_id}: ${message}`);
-            this.log(`Response: ${JSON.stringify(axiosError.response?.data)}`);
-          }
-          result.errors.push(`${museum.museum_id}: ${message}`);
+          // FULL compound PK for debugging
+          const fullId = `${museum.museum_id}:${museum.country}`;
+          this.logError(`Failed to import museum`, error, {
+            museum_id: museum.museum_id,
+            country: museum.country,
+            full_pk: fullId,
+            project_id: museum.project_id,
+          });
+          result.errors.push(`${fullId}: ${message}`);
           this.showError();
         }
       }
-      console.log(''); // New line after progress dots
+      this.showSummary(result.imported, result.skipped, result.errors.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query museums: ${message}`);
@@ -97,7 +98,7 @@ export class MuseumImporter extends BaseImporter {
     }
 
     if (this.context.dryRun) {
-      this.log(`[DRY-RUN] Would import museum: ${museum.museum_id}`);
+      this.logInfo(`[DRY-RUN] Would import museum: ${museum.museum_id}`);
       return true;
     }
 
@@ -108,6 +109,15 @@ export class MuseumImporter extends BaseImporter {
       pkValues: [museum.project_id],
     });
     const projectContextId = this.context.tracker.getUuid(contextBackwardCompat);
+
+    // If project not found, skip this museum (may happen with --limit on partial imports)
+    if (!projectContextId) {
+      this.logWarning(
+        `Skipping museum ${museum.museum_id}:${museum.country} - project '${museum.project_id}' not found in tracker`,
+        { museum_id: museum.museum_id, country: museum.country, project_id: museum.project_id }
+      );
+      return false; // Skipped
+    }
 
     // Parse GPS coordinates (format: \"lat,lng\")
     let latitude: number | undefined = undefined;
@@ -214,9 +224,16 @@ export class MuseumImporter extends BaseImporter {
       ru: 'rus',
       zh: 'zho',
       ja: 'jpn',
+      tr: 'tur',
     };
 
-    return mapping[legacyCode] || legacyCode;
+    const mapped = mapping[legacyCode];
+    if (!mapped) {
+      throw new Error(
+        `Unknown language code '${legacyCode}'. Add mapping to MuseumImporter.mapLanguageCode()`
+      );
+    }
+    return mapped;
   }
 
   /**

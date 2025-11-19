@@ -21,7 +21,7 @@ export class PartnerImporter extends BaseImporter {
   }
 
   async import(): Promise<ImportResult> {
-    this.log('Starting Partner import (Museums + Institutions)');
+    this.logInfo('Starting Partner import (Museums + Institutions)');
 
     const result: ImportResult = {
       success: true,
@@ -31,14 +31,14 @@ export class PartnerImporter extends BaseImporter {
     };
 
     // Import museums
-    this.log('Importing museums...');
+    this.logInfo('Importing museums...');
     const museumResult = await this.museumImporter.import();
     result.imported += museumResult.imported;
     result.skipped += museumResult.skipped;
     result.errors.push(...museumResult.errors);
 
     // Import institutions
-    this.log('Importing institutions...');
+    this.logInfo('Importing institutions...');
     const institutionResult = await this.institutionImporter.import();
     result.imported += institutionResult.imported;
     result.skipped += institutionResult.skipped;
@@ -46,7 +46,7 @@ export class PartnerImporter extends BaseImporter {
 
     result.success = result.errors.length === 0;
 
-    this.log(
+    this.logInfo(
       `Partner import complete: ${result.imported} imported, ${result.skipped} skipped, ${result.errors.length} errors`
     );
 

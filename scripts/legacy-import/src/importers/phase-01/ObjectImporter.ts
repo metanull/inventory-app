@@ -76,26 +76,23 @@ export class ObjectImporter extends BaseImporter {
     };
 
     try {
-      this.log('Importing objects...');
+      this.logInfo('Importing objects...');
 
       // Query all objects (denormalized - multiple rows per object)
-      const limitClause = this.context.limit > 0 ? ` LIMIT ${this.context.limit * 10}` : '';
       const objects = await this.context.legacyDb.query<LegacyObject>(
-        `SELECT * FROM mwnf3.objects ORDER BY project_id, country, museum_id, number${limitClause}`
+        `SELECT * FROM mwnf3.objects ORDER BY project_id, country, museum_id, number`
       );
 
       if (objects.length === 0) {
-        this.log('No objects found');
+        this.logInfo('No objects found');
         return result;
       }
 
       // Group objects by non-lang PK columns
       const objectGroups = this.groupObjectsByPK(objects);
-      this.log(`Found ${objectGroups.length} unique objects (${objects.length} language rows)`);
+      this.logInfo(`Found ${objectGroups.length} unique objects (${objects.length} language rows)`);
 
-      // Limit number of unique objects if limit specified
-      const limitedGroups =
-        this.context.limit > 0 ? objectGroups.slice(0, this.context.limit) : objectGroups;
+      const limitedGroups = objectGroups;
 
       // Import each object group
       for (const group of limitedGroups) {
@@ -113,16 +110,17 @@ export class ObjectImporter extends BaseImporter {
           // Log detailed error info
           if (error && typeof error === 'object' && 'response' in error) {
             const axiosError = error as { response?: { status?: number; data?: unknown } };
-            this.log(
-              `Error importing ${group.project_id}:${group.museum_id}:${group.number}: ${message}`
+            this.logError(
+              `ObjectImporter:${group.project_id}:${group.museum_id}:${group.number}`,
+              error instanceof Error ? error : new Error(message),
+              { responseData: axiosError.response?.data }
             );
-            this.log(`Response: ${JSON.stringify(axiosError.response?.data)}`);
           }
           result.errors.push(`${group.project_id}:${group.museum_id}:${group.number}: ${message}`);
           this.showError();
         }
       }
-      console.log(''); // New line after progress dots
+      this.showSummary(result.imported, result.skipped, result.errors.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query objects: ${message}`);
@@ -172,7 +170,7 @@ export class ObjectImporter extends BaseImporter {
     }
 
     if (this.context.dryRun) {
-      this.log(
+      this.logInfo(
         `[DRY-RUN] Would import object: ${group.project_id}:${group.museum_id}:${group.number}`
       );
       return true;
@@ -187,7 +185,11 @@ export class ObjectImporter extends BaseImporter {
     const contextId = this.context.tracker.getUuid(contextBackwardCompat);
 
     if (!contextId) {
-      throw new Error(`Context not found for project ${group.project_id}`);
+      this.logWarning(
+        `Skipping object ${group.project_id}:${group.museum_id}:${group.number} - project not found`,
+        { project_id: group.project_id, museum_id: group.museum_id, number: group.number }
+      );
+      return false;
     }
 
     // Resolve context → collection (root collection for this project)
@@ -195,7 +197,11 @@ export class ObjectImporter extends BaseImporter {
     const collectionId = this.context.tracker.getUuid(collectionBackwardCompat);
 
     if (!collectionId) {
-      throw new Error(`Collection not found for project ${group.project_id}`);
+      this.logWarning(
+        `Skipping object ${group.project_id}:${group.museum_id}:${group.number} - collection not found`,
+        { project_id: group.project_id }
+      );
+      return false;
     }
 
     // Resolve museum_id → partner_id
@@ -207,7 +213,11 @@ export class ObjectImporter extends BaseImporter {
     const partnerId = this.context.tracker.getUuid(partnerBackwardCompat);
 
     if (!partnerId) {
-      throw new Error(`Partner not found for museum ${group.museum_id}:${group.country}`);
+      this.logWarning(
+        `Skipping object ${group.project_id}:${group.museum_id}:${group.number} - museum not found`,
+        { museum_id: group.museum_id, country: group.country }
+      );
+      return false;
     }
 
     // Use first translation for base data

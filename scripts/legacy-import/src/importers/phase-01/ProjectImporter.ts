@@ -28,9 +28,8 @@ export class ProjectImporter extends BaseImporter {
 
     try {
       // Query projects
-      const limitClause = this.context.limit > 0 ? ` LIMIT ${this.context.limit}` : '';
       const projects = await this.context.legacyDb.query<LegacyProject>(
-        `SELECT project_id, name, launchdate FROM mwnf3.projects ORDER BY project_id${limitClause}`,
+        `SELECT project_id, name, launchdate FROM mwnf3.projects ORDER BY project_id`,
         []
       );
 
@@ -71,7 +70,7 @@ export class ProjectImporter extends BaseImporter {
           this.showError();
         }
       }
-      console.log(''); // New line after progress dots
+      this.showSummary(result.imported, result.skipped, result.errors.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query projects: ${message}`);

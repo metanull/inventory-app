@@ -34,7 +34,7 @@ export class CountryImporter extends BaseImporter {
     try {
       const fileContent = readFileSync(countriesPath, 'utf-8');
       countries = JSON.parse(fileContent) as CountryData[];
-      this.log(`Loaded ${countries.length} countries from production data file`);
+      this.logInfo(`Loaded ${countries.length} countries from production data file`);
     } catch (error) {
       result.errors.push(
         `Failed to read countries.json: ${error instanceof Error ? error.message : String(error)}`
@@ -46,7 +46,7 @@ export class CountryImporter extends BaseImporter {
     for (const country of countries) {
       try {
         if (this.context.dryRun) {
-          this.log(`[DRY-RUN] Would create country: ${country.id}`);
+          this.logInfo(`[DRY-RUN] Would create country: ${country.id}`);
           result.imported++;
           continue;
         }
@@ -97,13 +97,15 @@ export class CountryImporter extends BaseImporter {
         this.showError();
       }
     }
-    console.log(''); // New line after progress dots
+    this.showSummary(result.imported, result.skipped, result.errors.length);
 
     result.success = result.errors.length === 0;
 
     if (!result.success) {
-      this.log(
-        `CRITICAL: Country import failed with ${result.errors.length} errors. Cannot proceed.`
+      this.logError(
+        'CountryImporter:summary',
+        new Error('Country import failed'),
+        { errorCount: result.errors.length }
       );
     }
 

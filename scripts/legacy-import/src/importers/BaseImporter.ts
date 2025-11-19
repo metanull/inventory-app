@@ -1,13 +1,13 @@
 import { LegacyDatabase } from '../database/LegacyDatabase.js';
 import { InventoryApiClient } from '../api/InventoryApiClient.js';
 import { BackwardCompatibilityTracker } from '../utils/BackwardCompatibilityTracker.js';
+import { ImportLogger } from '../utils/ImportLogger.js';
 
 export interface ImportContext {
   legacyDb: LegacyDatabase;
   apiClient: InventoryApiClient;
   tracker: BackwardCompatibilityTracker;
   dryRun: boolean;
-  limit: number;
   logPath?: string; // Path to log file for direct writes
 }
 
@@ -27,9 +27,17 @@ export interface ImportResult {
  * 3. Checking for duplicates via BackwardCompatibilityTracker
  * 4. Calling API to create entities
  * 5. Registering imported entities in tracker
+ *
+ * LOGGING CONVENTION:
+ * - Console: Dot format only (., s, ×) + one-line summary at end
+ * - Log file: All details, errors, warnings with full context
  */
 export abstract class BaseImporter {
-  constructor(protected context: ImportContext) {}
+  protected logger: ImportLogger;
+
+  constructor(protected context: ImportContext) {
+    this.logger = new ImportLogger(this.getName(), context.logPath);
+  }
 
   /**
    * Execute the import process
@@ -42,50 +50,52 @@ export abstract class BaseImporter {
   abstract getName(): string;
 
   /**
-   * Helper: Log import progress - writes directly to console and file
-   */
-  protected log(message: string): void {
-    const logLine = `[${this.getName()}] ${message}`;
-    console.log(logLine);
-
-    // Write directly to log file if available
-    if (this.context.logPath) {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports, no-undef
-        const fs = require('fs') as typeof import('fs');
-        fs.appendFileSync(this.context.logPath, logLine + '\n', 'utf-8');
-      } catch {
-        // Ignore write errors
-      }
-    }
-  }
-
-  /**
    * Helper: Show progress dot (for long-running operations)
    */
   protected showProgress(): void {
-    process.stdout.write('\x1b[90m.\x1b[0m'); // Gray dot
+    this.logger.showProgress();
   }
 
   /**
    * Helper: Show skipped indicator
    */
   protected showSkipped(): void {
-    process.stdout.write('\x1b[33ms\x1b[0m'); // Yellow s
+    this.logger.showSkipped();
   }
 
   /**
    * Helper: Show error indicator
    */
   protected showError(): void {
-    process.stdout.write('\x1b[31m×\x1b[0m'); // Red cross
+    this.logger.showError();
   }
 
   /**
-   * Helper: Log error
+   * Helper: Show summary line (imported, skipped, errors)
    */
-  protected logError(message: string, error?: unknown): void {
-    console.error(`[${this.getName()}] ERROR: ${message}`, error);
+  protected showSummary(imported: number, skipped: number, errors: number): void {
+    this.logger.showSummary(imported, skipped, errors);
+  }
+
+  /**
+   * Helper: Log info message (to file only)
+   */
+  protected logInfo(message: string): void {
+    this.logger.info(message);
+  }
+
+  /**
+   * Helper: Log warning (to file with details)
+   */
+  protected logWarning(message: string, details?: unknown): void {
+    this.logger.warning(message, details);
+  }
+
+  /**
+   * Helper: Log error with full context (to file only)
+   */
+  protected logError(context: string, error: unknown, additionalContext?: Record<string, unknown>): void {
+    this.logger.error(context, error, additionalContext);
   }
 
   /**

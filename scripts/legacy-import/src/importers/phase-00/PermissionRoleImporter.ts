@@ -24,12 +24,12 @@ export class PermissionRoleImporter extends BaseImporter {
 
     try {
       if (this.context.dryRun) {
-        this.log('[DRY-RUN] Would run: php artisan permissions:sync');
+        this.logInfo('[DRY-RUN] Would run: php artisan permissions:sync');
         result.imported++;
         return result;
       }
 
-      this.log('Running: php artisan permissions:sync');
+      this.logInfo('Running: php artisan permissions:sync');
 
       // Call Laravel artisan command
       // Need to go up 3 levels from legacy-import to reach Laravel root
@@ -41,7 +41,7 @@ export class PermissionRoleImporter extends BaseImporter {
         throw new Error(stderr);
       }
 
-      this.log('Permissions and roles synced successfully');
+      this.logInfo('Permissions and roles synced successfully');
       result.imported++;
       this.showProgress();
     } catch (error) {
@@ -51,7 +51,7 @@ export class PermissionRoleImporter extends BaseImporter {
       this.showError();
     }
 
-    console.log(''); // New line after progress dots
+    this.showSummary(result.imported, result.skipped, result.errors.length);
     return result;
   }
 }

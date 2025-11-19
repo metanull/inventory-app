@@ -28,7 +28,6 @@ describe('PartnerImporter', () => {
       } as unknown as ImportContext['apiClient'],
       tracker,
       dryRun: false,
-      limit: 0,
     };
 
     importer = new PartnerImporter(mockContext);

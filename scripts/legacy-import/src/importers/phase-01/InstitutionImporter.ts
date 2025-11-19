@@ -20,9 +20,8 @@ export class InstitutionImporter extends BaseImporter {
 
     try {
       // Query institutions
-      const limitClause = this.context.limit > 0 ? ` LIMIT ${this.context.limit}` : '';
       const institutions = await this.context.legacyDb.query<LegacyInstitution>(
-        `SELECT * FROM mwnf3.institutions${limitClause}`
+        `SELECT * FROM mwnf3.institutions`
       );
 
       // Query institution translations
@@ -31,7 +30,7 @@ export class InstitutionImporter extends BaseImporter {
       );
 
       if (institutions.length === 0) {
-        this.log('No institutions found');
+        this.logInfo('No institutions found');
         return result;
       }
 
@@ -62,14 +61,17 @@ export class InstitutionImporter extends BaseImporter {
           // Log detailed error info
           if (error && typeof error === 'object' && 'response' in error) {
             const axiosError = error as { response?: { status?: number; data?: unknown } };
-            this.log(`Error importing ${institution.institution_id}: ${message}`);
-            this.log(`Response: ${JSON.stringify(axiosError.response?.data)}`);
+            this.logError(
+              `InstitutionImporter:${institution.institution_id}`,
+              error instanceof Error ? error : new Error(message),
+              { responseData: axiosError.response?.data }
+            );
           }
           result.errors.push(`${institution.institution_id}: ${message}`);
           this.showError();
         }
       }
-      console.log(''); // New line after progress dots
+      this.showSummary(result.imported, result.skipped, result.errors.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query institutions: ${message}`);
@@ -97,7 +99,7 @@ export class InstitutionImporter extends BaseImporter {
     }
 
     if (this.context.dryRun) {
-      this.log(`[DRY-RUN] Would import institution: ${institution.institution_id}`);
+      this.logInfo(`[DRY-RUN] Would import institution: ${institution.institution_id}`);
       return true;
     }
 
@@ -207,9 +209,16 @@ export class InstitutionImporter extends BaseImporter {
       ru: 'rus',
       zh: 'zho',
       ja: 'jpn',
+      tr: 'tur',
     };
 
-    return mapping[legacyCode] || legacyCode;
+    const mapped = mapping[legacyCode];
+    if (!mapped) {
+      throw new Error(
+        `Unknown language code '${legacyCode}'. Add mapping to InstitutionImporter.mapLanguageCode()`
+      );
+    }
+    return mapped;
   }
 
   /**

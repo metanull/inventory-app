@@ -84,17 +84,14 @@ program
   .description('Run import process')
   .option('-p, --phase <number>', 'Run specific phase (1-17)', 'all')
   .option('--dry-run', 'Simulate import without writing data', false)
-  .option('--limit <number>', 'Limit number of records per entity', '0')
   .action(async (options) => {
     try {
       const phase = options.phase === 'all' ? 'all' : parseInt(options.phase, 10);
       const dryRun = options.dryRun === true;
-      const limit = parseInt(options.limit, 10);
 
       console.log('🚀 Starting import...');
       console.log(`   Phase: ${phase}`);
       console.log(`   Dry-run: ${dryRun ? 'YES' : 'NO'}`);
-      console.log(`   Limit: ${limit > 0 ? limit : 'unlimited'}`);
       console.log('');
 
       // Validate connections first
@@ -123,9 +120,8 @@ program
       const { writeFileSync, mkdirSync, appendFileSync } = await import('fs');
       const logPath = `./logs/import-phase${phase}-${timestamp}.log`;
 
-      // Helper to write to log directly
+      // Helper to write to log directly (file only - console output is handled by importers)
       const writeLog = (line: string) => {
-        console.log(line);
         try {
           appendFileSync(logPath, line + '\n', 'utf-8');
         } catch {
@@ -143,7 +139,6 @@ program
           `Timestamp: ${new Date().toISOString()}`,
           `Phase: ${phase}`,
           `Dry-run: ${dryRun}`,
-          `Limit: ${limit > 0 ? limit : 'unlimited'}`,
           '',
         ].join('\n');
         writeFileSync(logPath, header + '\n', 'utf-8');
@@ -162,7 +157,6 @@ program
         apiClient,
         tracker,
         dryRun,
-        limit,
         logPath,
       };
 
@@ -184,7 +178,6 @@ program
       writeLog('\nLanguages:');
       const languageImporter = new LanguageImporter(importContext);
       languageResult = await languageImporter.import();
-      console.log(` ${languageResult.imported} imported, ${languageResult.skipped} skipped\n`);
       writeLog(`  Imported: ${languageResult.imported}`);
       writeLog(`  Skipped: ${languageResult.skipped}`);
 
@@ -203,7 +196,6 @@ program
       writeLog('\nCountries:');
       const countryImporter = new CountryImporter(importContext);
       countryResult = await countryImporter.import();
-      console.log(` ${countryResult.imported} imported, ${countryResult.skipped} skipped\n`);
       writeLog(`  Imported: ${countryResult.imported}`);
       writeLog(`  Skipped: ${countryResult.skipped}`);
 
@@ -222,9 +214,6 @@ program
       writeLog('\nDefault Context:');
       const defaultContextImporter = new DefaultContextImporter(importContext);
       defaultContextResult = await defaultContextImporter.import();
-      console.log(
-        ` ${defaultContextResult.imported} imported, ${defaultContextResult.skipped} skipped\n`
-      );
       writeLog(`  Imported: ${defaultContextResult.imported}`);
       writeLog(`  Skipped: ${defaultContextResult.skipped}`);
 
@@ -251,9 +240,6 @@ program
         writeLog('\nProjects Import:');
         const projectImporter = new ProjectImporter(importContext);
         projectResult = await projectImporter.import();
-        console.log(
-          ` ${projectResult.imported} imported, ${projectResult.skipped} skipped, ${projectResult.errors.length} errors\n`
-        );
         writeLog(`  Imported: ${projectResult.imported}`);
         writeLog(`  Skipped: ${projectResult.skipped}`);
         writeLog(`  Errors: ${projectResult.errors.length}`);
@@ -262,20 +248,31 @@ program
           projectResult.errors.forEach((err) => writeLog(`    - ${err}`));
         }
 
+        // CRITICAL: Stop if Project import had errors (partners depend on projects)
+        if (projectResult.errors.length > 0) {
+          console.error('\n❌ CRITICAL ERROR: Project import failed. Cannot proceed with Partners.\n');
+          writeLog('\n❌ CRITICAL ERROR: Project import failed. Cannot proceed.');
+          process.exit(1);
+        }
+
         // Import partners (museums + institutions)
         console.log('Partners: ');
         writeLog('\nPartners Import (Museums + Institutions):');
         const partnerImporter = new PartnerImporter(importContext);
         partnerResult = await partnerImporter.import();
-        console.log(
-          ` ${partnerResult.imported} imported, ${partnerResult.skipped} skipped, ${partnerResult.errors.length} errors\n`
-        );
         writeLog(`  Imported: ${partnerResult.imported}`);
         writeLog(`  Skipped: ${partnerResult.skipped}`);
         writeLog(`  Errors: ${partnerResult.errors.length}`);
         if (partnerResult.errors.length > 0) {
           writeLog('  Error details:');
           partnerResult.errors.forEach((err) => writeLog(`    - ${err}`));
+        }
+
+        // CRITICAL: Stop if Partner import had errors (items depend on partners)
+        if (partnerResult.errors.length > 0) {
+          console.error('\n❌ CRITICAL ERROR: Partner import failed. Cannot proceed with Items.\n');
+          writeLog('\n❌ CRITICAL ERROR: Partner import failed. Cannot proceed.');
+          process.exit(1);
         }
 
         // Import items (objects, monuments)
@@ -287,9 +284,6 @@ program
         writeLog('\nObjects Import:');
         const objectImporter = new ObjectImporter(importContext);
         objectResult = await objectImporter.import();
-        console.log(
-          ` ${objectResult.imported} imported, ${objectResult.skipped} skipped, ${objectResult.errors.length} errors\n`
-        );
         writeLog(`  Imported: ${objectResult.imported}`);
         writeLog(`  Skipped: ${objectResult.skipped}`);
         writeLog(`  Errors: ${objectResult.errors.length}`);
@@ -303,9 +297,6 @@ program
         writeLog('\nMonuments Import:');
         const monumentImporter = new MonumentImporter(importContext);
         monumentResult = await monumentImporter.import();
-        console.log(
-          ` ${monumentResult.imported} imported, ${monumentResult.skipped} skipped, ${monumentResult.errors.length} errors\n`
-        );
         writeLog(`  Imported: ${monumentResult.imported}`);
         writeLog(`  Skipped: ${monumentResult.skipped}`);
         writeLog(`  Errors: ${monumentResult.errors.length}`);

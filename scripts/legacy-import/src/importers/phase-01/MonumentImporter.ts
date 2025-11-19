@@ -68,28 +68,25 @@ export class MonumentImporter extends BaseImporter {
     };
 
     try {
-      this.log('Importing monuments...');
+      this.logInfo('Importing monuments...');
 
       // Query all monuments (denormalized - multiple rows per monument)
-      const limitClause = this.context.limit > 0 ? ` LIMIT ${this.context.limit * 10}` : '';
       const monuments = await this.context.legacyDb.query<LegacyMonument>(
-        `SELECT * FROM mwnf3.monuments ORDER BY project_id, country, institution_id, number${limitClause}`
+        `SELECT * FROM mwnf3.monuments ORDER BY project_id, country, institution_id, number`
       );
 
       if (monuments.length === 0) {
-        this.log('No monuments found');
+        this.logInfo('No monuments found');
         return result;
       }
 
       // Group monuments by non-lang PK columns
       const monumentGroups = this.groupMonumentsByPK(monuments);
-      this.log(
+      this.logInfo(
         `Found ${monumentGroups.length} unique monuments (${monuments.length} language rows)`
       );
 
-      // Limit number of unique monuments if limit specified
-      const limitedGroups =
-        this.context.limit > 0 ? monumentGroups.slice(0, this.context.limit) : monumentGroups;
+      const limitedGroups = monumentGroups;
 
       // Import each monument group
       for (const group of limitedGroups) {
@@ -107,10 +104,11 @@ export class MonumentImporter extends BaseImporter {
           // Log detailed error info
           if (error && typeof error === 'object' && 'response' in error) {
             const axiosError = error as { response?: { status?: number; data?: unknown } };
-            this.log(
-              `Error importing ${group.project_id}:${group.institution_id}:${group.number}: ${message}`
+            this.logError(
+              `MonumentImporter:${group.project_id}:${group.institution_id}:${group.number}`,
+              error instanceof Error ? error : new Error(message),
+              { responseData: axiosError.response?.data }
             );
-            this.log(`Response: ${JSON.stringify(axiosError.response?.data)}`);
           }
           result.errors.push(
             `${group.project_id}:${group.institution_id}:${group.number}: ${message}`
@@ -118,7 +116,7 @@ export class MonumentImporter extends BaseImporter {
           this.showError();
         }
       }
-      console.log(''); // New line after progress dots
+      this.showSummary(result.imported, result.skipped, result.errors.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query monuments: ${message}`);
@@ -168,7 +166,7 @@ export class MonumentImporter extends BaseImporter {
     }
 
     if (this.context.dryRun) {
-      this.log(
+      this.logInfo(
         `[DRY-RUN] Would import monument: ${group.project_id}:${group.institution_id}:${group.number}`
       );
       return true;
@@ -183,7 +181,11 @@ export class MonumentImporter extends BaseImporter {
     const contextId = this.context.tracker.getUuid(contextBackwardCompat);
 
     if (!contextId) {
-      throw new Error(`Context not found for project ${group.project_id}`);
+      this.logWarning(
+        `Skipping monument ${group.project_id}:${group.institution_id}:${group.number} - project not found`,
+        { project_id: group.project_id, institution_id: group.institution_id, number: group.number }
+      );
+      return false;
     }
 
     // Resolve context → collection (root collection for this project)
@@ -191,7 +193,11 @@ export class MonumentImporter extends BaseImporter {
     const collectionId = this.context.tracker.getUuid(collectionBackwardCompat);
 
     if (!collectionId) {
-      throw new Error(`Collection not found for project ${group.project_id}`);
+      this.logWarning(
+        `Skipping monument ${group.project_id}:${group.institution_id}:${group.number} - collection not found`,
+        { project_id: group.project_id }
+      );
+      return false;
     }
 
     // Resolve institution_id → partner_id
@@ -203,7 +209,11 @@ export class MonumentImporter extends BaseImporter {
     const partnerId = this.context.tracker.getUuid(partnerBackwardCompat);
 
     if (!partnerId) {
-      throw new Error(`Partner not found for institution ${group.institution_id}:${group.country}`);
+      this.logWarning(
+        `Skipping monument ${group.project_id}:${group.institution_id}:${group.number} - institution not found`,
+        { institution_id: group.institution_id, country: group.country }
+      );
+      return false;
     }
 
     // Use first translation for base data

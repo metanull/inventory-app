@@ -28,7 +28,6 @@ describe('InstitutionImporter', () => {
       } as unknown as ImportContext['apiClient'],
       tracker,
       dryRun: false,
-      limit: 0,
     };
 
     importer = new InstitutionImporter(mockContext);
