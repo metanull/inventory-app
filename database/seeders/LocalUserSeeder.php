@@ -20,6 +20,7 @@ class LocalUserSeeder extends Seeder
             return;
         }
 
+        // Create default user with "Regular User"
         $defaultUserPassword = config('app.default_user.password', 'password');
         $defaultUser = User::factory()->create([
             'name' => config('app.default_user.name', 'user'),
@@ -29,12 +30,30 @@ class LocalUserSeeder extends Seeder
         $token = $defaultUser->createToken('api-token');
         $defaultUser->save();
 
+        $defaultUser->assignRole('Manager of Users');
+
         $consoleOutput = new \Symfony\Component\Console\Output\ConsoleOutput;
         $consoleOutput->getFormatter()->setStyle('yellow', new \Symfony\Component\Console\Formatter\OutputFormatterStyle('yellow', null, ['bold']));
         $consoleOutput->getFormatter()->setStyle('green', new \Symfony\Component\Console\Formatter\OutputFormatterStyle('green', null, ['bold']));
         $consoleOutput->writeln("\tThe application is running in LOCAL mode (<yellow>this is not suitable for production use</yellow>)!");
         $consoleOutput->writeln("\tTest user created: <yellow>'{$defaultUser->name}' (e-mail: '{$defaultUser->email}')</yellow>; password: <green>{$defaultUserPassword}</green>");
-        $consoleOutput->writeln("\tAPI Token created for user <yellow>'{$defaultUser->name}'</yellow>; token: <green>{$token->plainTextToken}</green>");
+        $consoleOutput->writeln("\t                 > API Token: <green>{$token->plainTextToken}</green>");
+
+        // Create default admin user with "Administrator" role
+        $defaultAdminPassword = config('app.default_admin.password', 'password');
+        $defaultAdmin = User::factory()->create([
+            'name' => config('app.default_admin.name', 'admin'),
+            'email' => config('app.default_admin.email', 'admin@example.com'),
+            'password' => bcrypt($defaultAdminPassword),
+        ]);
+        $defaultAdmin->save();
+
+        $defaultAdmin->assignRole('Manager of Users');
+
+        $consoleOutput = new \Symfony\Component\Console\Output\ConsoleOutput;
+        $consoleOutput->getFormatter()->setStyle('yellow', new \Symfony\Component\Console\Formatter\OutputFormatterStyle('yellow', null, ['bold']));
+        $consoleOutput->getFormatter()->setStyle('green', new \Symfony\Component\Console\Formatter\OutputFormatterStyle('green', null, ['bold']));
+        $consoleOutput->writeln("\tAdmin user created: <yellow>'{$defaultAdmin->name}' (e-mail: '{$defaultAdmin->email}')</yellow>; password: <green>{$defaultAdminPassword}</green>");
 
     }
 }

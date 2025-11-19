@@ -130,6 +130,11 @@ return [
         'password' => env('APP_DEFAULT_USER_PASSWORD', 'password'),
         'email' => env('APP_DEFAULT_USER_EMAIL', 'user@example.com'),
     ],
+    'default_admin' => [
+        'name' => env('APP_DEFAULT_ADMIN_USERNAME', 'admin'),
+        'password' => env('APP_DEFAULT_ADMIN_PASSWORD', 'password'),
+        'email' => env('APP_DEFAULT_ADMIN_EMAIL', 'admin@example.com'),
+    ],
 
     /*
     |--------------------------------------------------------------------------

@@ -31,9 +31,7 @@ class DatabaseSeeder extends Seeder
             ItemTranslationSeeder::class,
             ImageUploadSeeder::class,
             AvailableImageSeeder::class,
-            ArtistSeeder::class,
             AuthorSeeder::class,
-            WorkshopSeeder::class,
             ThemeSeeder::class,
         ]);
     }

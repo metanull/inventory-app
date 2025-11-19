@@ -64,34 +64,6 @@ php artisan key:generate
 php artisan migrate --seed
 ```
 
-#### Seeding Optimization
-
-The application supports multiple seeding strategies to optimize development and testing:
-
-- **Default Seeding** (`php artisan db:seed` or `composer ci-seed`):  
-  Seeds the database with essential data for development and basic testing. Uses local images by default for reliability and performance.
-
-- **Optimized Seeding** (`$env:FAKER_USE_LOCAL_IMAGES='true'; php artisan db:seed --class=FastDatabaseSeeder`):  
-  Seeds the database with a larger, more complex dataset for performance, integration, or edge-case testing.  
-  Use this when you need to simulate production-like data volumes or test specific scenarios.
-
-- **Remote Images** (`$env:FAKER_USE_LOCAL_IMAGES='false'; php artisan db:seed`):  
-  Forces the use of remote image downloads (with automatic fallback to local images on network failure).  
-  Useful for testing network dependency scenarios.
-
-- **Custom Seeder**:  
-  You can run any specific seeder by specifying its class:
-  ```bash
-  php artisan db:seed --class=YourCustomSeeder
-  ```
-
-**When to use which seeding version:**
-
-- Use **default seeding** for everyday development and feature work.
-- Use **optimized seeding** when working on performance, scalability, or integration tests.
-- Use **remote images** for testing network scenarios or when you need fresh remote content.
-- Use **custom seeders** for targeted testing or when developing new features that require specific data.
-
 #### Build Frontend Assets
 
 ```bash
