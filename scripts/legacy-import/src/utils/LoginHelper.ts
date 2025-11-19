@@ -39,15 +39,17 @@ export class LoginHelper {
 
     try {
       const email = await rl.question('Email: ');
-      const password = await rl.question('Password: ', { signal: AbortSignal.timeout(60000) });
+      rl.close();
+      
+      // Use masked password input (dynamic import for ESM package compatibility)
+      const { default: passwordPrompt } = await import('@inquirer/password');
+      const password = await passwordPrompt({ message: 'Password' });
 
       return { email, password, deviceName: 'legacy-import-cli' };
     } finally {
       rl.close();
     }
-  }
-
-  /**
+  }  /**
    * Authenticate with API and get access token
    */
   async login(credentials: LoginCredentials): Promise<string> {
@@ -117,7 +119,7 @@ export class LoginHelper {
   /**
    * Test the token by making an API call
    */
-  async testToken(token: string): Promise<boolean> {
+  async testToken(token: string): Promise<void> {
     const config = new Configuration({
       basePath: this.baseUrl,
       accessToken: token,
@@ -128,11 +130,22 @@ export class LoginHelper {
       console.log('Testing token...');
       await languageApi.languageIndex();
       console.log('✓ Token is valid');
-      return true;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.error('✗ Token test failed:', message);
-      return false;
+    } catch (error: unknown) {
+      console.error('✗ Token test failed');
+
+      // Provide specific error messages for common cases
+      const axiosError = error as { response?: { status?: number } };
+      if (axiosError.response?.status === 403) {
+        throw new Error(
+          'Access denied (403). The user account lacks the required "view data" permission.\n' +
+            'Please use an account with appropriate permissions or ask an administrator to grant you the necessary role.'
+        );
+      } else if (axiosError.response?.status === 401) {
+        throw new Error('Authentication failed (401). The token is invalid or expired.');
+      } else {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(`Token validation failed: ${message}`);
+      }
     }
   }
 
@@ -146,6 +159,8 @@ export class LoginHelper {
     const credentials = await this.promptCredentials();
     const token = await this.login(credentials);
     this.saveToken(token);
+
+    // This will throw if token is invalid or user lacks permissions
     await this.testToken(token);
 
     return token;

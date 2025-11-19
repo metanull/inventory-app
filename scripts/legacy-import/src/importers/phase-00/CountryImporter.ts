@@ -30,13 +30,15 @@ export class CountryImporter extends BaseImporter {
     // process.cwd() is scripts/legacy-import, go up 2 levels to reach project root
     const countriesPath = resolve(process.cwd(), '../../database/seeders/data/countries.json');
     let countries: CountryData[];
-    
+
     try {
       const fileContent = readFileSync(countriesPath, 'utf-8');
       countries = JSON.parse(fileContent) as CountryData[];
       this.log(`Loaded ${countries.length} countries from production data file`);
     } catch (error) {
-      result.errors.push(`Failed to read countries.json: ${error instanceof Error ? error.message : String(error)}`);
+      result.errors.push(
+        `Failed to read countries.json: ${error instanceof Error ? error.message : String(error)}`
+      );
       result.success = false;
       return result;
     }
@@ -63,23 +65,25 @@ export class CountryImporter extends BaseImporter {
               try {
                 const existing = await this.context.apiClient.country.countryShow(country.id);
                 const existingData = existing.data.data;
-                
+
                 // Compare critical fields
-                if (existingData.internal_name !== country.internal_name ||
-                    existingData.backward_compatibility !== country.backward_compatibility) {
+                if (
+                  existingData.internal_name !== country.internal_name ||
+                  existingData.backward_compatibility !== country.backward_compatibility
+                ) {
                   result.errors.push(
                     `${country.id}: EXISTS but MISMATCH! Expected: {name: "${country.internal_name}", bc: "${country.backward_compatibility}"}, ` +
-                    `Got: {name: "${existingData.internal_name}", bc: "${existingData.backward_compatibility}"}`
+                      `Got: {name: "${existingData.internal_name}", bc: "${existingData.backward_compatibility}"}`
                   );
                   this.showError();
                   continue;
                 }
-                
+
                 // Matches - safe to skip
                 result.skipped++;
                 this.showSkipped();
                 continue;
-              } catch (showError) {
+              } catch {
                 // If show fails, treat as create error
                 throw createError;
               }
@@ -96,11 +100,13 @@ export class CountryImporter extends BaseImporter {
     console.log(''); // New line after progress dots
 
     result.success = result.errors.length === 0;
-    
+
     if (!result.success) {
-      this.log(`CRITICAL: Country import failed with ${result.errors.length} errors. Cannot proceed.`);
+      this.log(
+        `CRITICAL: Country import failed with ${result.errors.length} errors. Cannot proceed.`
+      );
     }
-    
+
     return result;
   }
 }

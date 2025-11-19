@@ -27,17 +27,19 @@ export class LanguageImporter extends BaseImporter {
       errors: [],
     };
 
-    // Read production languages.json file  
+    // Read production languages.json file
     // process.cwd() is scripts/legacy-import, go up 2 levels to reach project root
     const languagesPath = resolve(process.cwd(), '../../database/seeders/data/languages.json');
     let languages: LanguageData[];
-    
+
     try {
       const fileContent = readFileSync(languagesPath, 'utf-8');
       languages = JSON.parse(fileContent) as LanguageData[];
       this.log(`Loaded ${languages.length} languages from production data file`);
     } catch (error) {
-      result.errors.push(`Failed to read languages.json: ${error instanceof Error ? error.message : String(error)}`);
+      result.errors.push(
+        `Failed to read languages.json: ${error instanceof Error ? error.message : String(error)}`
+      );
       result.success = false;
       return result;
     }
@@ -53,13 +55,13 @@ export class LanguageImporter extends BaseImporter {
         // Try to create
         try {
           await this.context.apiClient.language.languageStore(language);
-          
+
           // If this is English (default), set it as default
           if (language.is_default && language.id === 'eng') {
             await this.context.apiClient.language.languageSetDefault('eng', { is_default: true });
             this.log('Set English (eng) as default language');
           }
-          
+
           result.imported++;
           this.showProgress();
         } catch (createError) {
@@ -71,23 +73,25 @@ export class LanguageImporter extends BaseImporter {
               try {
                 const existing = await this.context.apiClient.language.languageShow(language.id);
                 const existingData = existing.data.data;
-                
+
                 // Compare critical fields
-                if (existingData.internal_name !== language.internal_name ||
-                    existingData.backward_compatibility !== language.backward_compatibility) {
+                if (
+                  existingData.internal_name !== language.internal_name ||
+                  existingData.backward_compatibility !== language.backward_compatibility
+                ) {
                   result.errors.push(
                     `${language.id}: EXISTS but MISMATCH! Expected: {name: "${language.internal_name}", bc: "${language.backward_compatibility}"}, ` +
-                    `Got: {name: "${existingData.internal_name}", bc: "${existingData.backward_compatibility}"}`
+                      `Got: {name: "${existingData.internal_name}", bc: "${existingData.backward_compatibility}"}`
                   );
                   this.showError();
                   continue;
                 }
-                
+
                 // Matches - safe to skip
                 result.skipped++;
                 this.showSkipped();
                 continue;
-              } catch (showError) {
+              } catch {
                 // If show fails, treat as create error
                 throw createError;
               }
@@ -104,11 +108,13 @@ export class LanguageImporter extends BaseImporter {
     console.log(''); // New line after progress dots
 
     result.success = result.errors.length === 0;
-    
+
     if (!result.success) {
-      this.log(`CRITICAL: Language import failed with ${result.errors.length} errors. Cannot proceed.`);
+      this.log(
+        `CRITICAL: Language import failed with ${result.errors.length} errors. Cannot proceed.`
+      );
     }
-    
+
     return result;
   }
 }

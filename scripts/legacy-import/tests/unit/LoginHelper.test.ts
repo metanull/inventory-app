@@ -36,19 +36,12 @@ describe('LoginHelper', () => {
     vi.clearAllMocks();
 
     // Get mocked functions
-    const apiModule = await import('@metanull/inventory-app-api-client');
-    mockTokenAcquire = (
-      apiModule as typeof apiModule & {
-        __mockTokenAcquire: ReturnType<typeof vi.fn>;
-        __mockLanguageIndex: ReturnType<typeof vi.fn>;
-      }
-    ).__mockTokenAcquire;
-    mockLanguageIndex = (
-      apiModule as typeof apiModule & {
-        __mockTokenAcquire: ReturnType<typeof vi.fn>;
-        __mockLanguageIndex: ReturnType<typeof vi.fn>;
-      }
-    ).__mockLanguageIndex;
+    const apiModule = (await import('@metanull/inventory-app-api-client')) as unknown as {
+      __mockTokenAcquire: ReturnType<typeof vi.fn>;
+      __mockLanguageIndex: ReturnType<typeof vi.fn>;
+    };
+    mockTokenAcquire = apiModule.__mockTokenAcquire;
+    mockLanguageIndex = apiModule.__mockLanguageIndex;
 
     helper = new LoginHelper('http://test-api.local/api');
   });

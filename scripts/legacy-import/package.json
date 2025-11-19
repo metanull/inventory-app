@@ -21,6 +21,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@inquirer/password": "^5.0.1",
     "@metanull/inventory-app-api-client": "1.1.0-dev.1118.2131",
     "axios": "^1.13.2",
     "commander": "^14.0.2",

@@ -33,7 +33,7 @@ export class DefaultContextImporter extends BaseImporter {
       // Try to create - if 422, it already exists
       const response = await this.context.apiClient.context.contextStore(defaultContext);
       const contextId = response.data.data.id;
-      
+
       // Register in tracker for use by other importers
       this.context.tracker.register({
         uuid: contextId,
@@ -47,20 +47,22 @@ export class DefaultContextImporter extends BaseImporter {
       this.showProgress();
     } catch (error) {
       if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number; data?: any } };
+        const axiosError = error as { response?: { status?: number; data?: unknown } };
         if (axiosError.response?.status === 422) {
           // Already exists - try to find it and register in tracker
           this.log('Default context already exists');
           result.skipped++;
           this.showSkipped();
-          
+
           // Try to get existing default context
           try {
             // Query contexts to find "Default Context"
             const contextsResponse = await this.context.apiClient.context.contextIndex();
             const contexts = contextsResponse.data.data;
-            const defaultCtx = contexts.find((c: any) => c.internal_name === 'Default Context');
-            
+            const defaultCtx = contexts.find(
+              (c: { internal_name?: string }) => c.internal_name === 'Default Context'
+            );
+
             if (defaultCtx) {
               this.context.tracker.register({
                 uuid: defaultCtx.id,
@@ -70,7 +72,7 @@ export class DefaultContextImporter extends BaseImporter {
               });
               this.log(`Registered existing default context: ${defaultCtx.id}`);
             }
-          } catch (e) {
+          } catch {
             this.log('Warning: Could not register existing default context in tracker');
           }
         } else {

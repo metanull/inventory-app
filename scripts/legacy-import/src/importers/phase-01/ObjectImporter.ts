@@ -55,7 +55,7 @@ interface ObjectGroup {
 
 /**
  * Imports objects from mwnf3.objects
- * 
+ *
  * CRITICAL: objects table is denormalized with language in PK
  * - PK: project_id, country, museum_id, number, LANG (5 columns)
  * - Multiple rows per object (one per language)
@@ -113,7 +113,9 @@ export class ObjectImporter extends BaseImporter {
           // Log detailed error info
           if (error && typeof error === 'object' && 'response' in error) {
             const axiosError = error as { response?: { status?: number; data?: unknown } };
-            this.log(`Error importing ${group.project_id}:${group.museum_id}:${group.number}: ${message}`);
+            this.log(
+              `Error importing ${group.project_id}:${group.museum_id}:${group.number}: ${message}`
+            );
             this.log(`Response: ${JSON.stringify(axiosError.response?.data)}`);
           }
           result.errors.push(`${group.project_id}:${group.museum_id}:${group.number}: ${message}`);
@@ -170,7 +172,9 @@ export class ObjectImporter extends BaseImporter {
     }
 
     if (this.context.dryRun) {
-      this.log(`[DRY-RUN] Would import object: ${group.project_id}:${group.museum_id}:${group.number}`);
+      this.log(
+        `[DRY-RUN] Would import object: ${group.project_id}:${group.museum_id}:${group.number}`
+      );
       return true;
     }
 
@@ -214,7 +218,8 @@ export class ObjectImporter extends BaseImporter {
 
     // Create Item
     const itemResponse = await this.context.apiClient.item.itemStore({
-      internal_name: firstTranslation.inventory_id || firstTranslation.working_number || group.number,
+      internal_name:
+        firstTranslation.inventory_id || firstTranslation.working_number || group.number,
       type: 'object',
       collection_id: collectionId,
       partner_id: partnerId,

@@ -24,6 +24,7 @@ program
       const baseUrl = options.url || process.env['API_BASE_URL'];
       await quickLogin(baseUrl);
       console.log('\n✓ Login complete. You can now run import commands.');
+      process.exit(0);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error('\n✗ Login failed:', message);
@@ -166,7 +167,7 @@ program
       };
 
       // Import based on phase
-      
+
       // Phase 0: Reference Data (always runs)
       console.log('📚 Phase 0: Reference data (Languages, Countries, Default Context)\n');
       writeLog('Phase 0: Reference data (Languages, Countries, Default Context)');
@@ -174,7 +175,9 @@ program
 
       const { LanguageImporter } = await import('./importers/phase-00/LanguageImporter.js');
       const { CountryImporter } = await import('./importers/phase-00/CountryImporter.js');
-      const { DefaultContextImporter } = await import('./importers/phase-00/DefaultContextImporter.js');
+      const { DefaultContextImporter } = await import(
+        './importers/phase-00/DefaultContextImporter.js'
+      );
 
       // Languages
       console.log('Languages: ');
@@ -184,7 +187,7 @@ program
       console.log(` ${languageResult.imported} imported, ${languageResult.skipped} skipped\n`);
       writeLog(`  Imported: ${languageResult.imported}`);
       writeLog(`  Skipped: ${languageResult.skipped}`);
-      
+
       // CRITICAL: Stop if Language import failed
       if (!languageResult.success) {
         console.error('\n❌ CRITICAL ERROR: Language import failed. Cannot proceed.\n');
@@ -203,7 +206,7 @@ program
       console.log(` ${countryResult.imported} imported, ${countryResult.skipped} skipped\n`);
       writeLog(`  Imported: ${countryResult.imported}`);
       writeLog(`  Skipped: ${countryResult.skipped}`);
-      
+
       // CRITICAL: Stop if Country import failed
       if (!countryResult.success) {
         console.error('\n❌ CRITICAL ERROR: Country import failed. Cannot proceed.\n');
@@ -219,10 +222,12 @@ program
       writeLog('\nDefault Context:');
       const defaultContextImporter = new DefaultContextImporter(importContext);
       defaultContextResult = await defaultContextImporter.import();
-      console.log(` ${defaultContextResult.imported} imported, ${defaultContextResult.skipped} skipped\n`);
+      console.log(
+        ` ${defaultContextResult.imported} imported, ${defaultContextResult.skipped} skipped\n`
+      );
       writeLog(`  Imported: ${defaultContextResult.imported}`);
       writeLog(`  Skipped: ${defaultContextResult.skipped}`);
-      
+
       // CRITICAL: Stop if Default Context import failed
       if (!defaultContextResult.success) {
         console.error('\n❌ CRITICAL ERROR: Default Context import failed. Cannot proceed.\n');

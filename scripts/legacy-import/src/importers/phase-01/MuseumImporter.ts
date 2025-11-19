@@ -113,8 +113,14 @@ export class MuseumImporter extends BaseImporter {
     let latitude: number | undefined = undefined;
     let longitude: number | undefined = undefined;
     if (museum.geoCoordinates) {
-      const coords = museum.geoCoordinates.split(',').map(s => parseFloat(s.trim()));
-      if (coords.length >= 2 && coords[0] !== undefined && coords[1] !== undefined && !isNaN(coords[0]) && !isNaN(coords[1])) {
+      const coords = museum.geoCoordinates.split(',').map((s) => parseFloat(s.trim()));
+      if (
+        coords.length >= 2 &&
+        coords[0] !== undefined &&
+        coords[1] !== undefined &&
+        !isNaN(coords[0]) &&
+        !isNaN(coords[1])
+      ) {
         latitude = coords[0];
         longitude = coords[1];
       }

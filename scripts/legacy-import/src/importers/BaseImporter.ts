@@ -64,14 +64,14 @@ export abstract class BaseImporter {
    * Helper: Show progress dot (for long-running operations)
    */
   protected showProgress(): void {
-    process.stdout.write('\x1b[32m.\x1b[0m'); // Green dot
+    process.stdout.write('\x1b[90m.\x1b[0m'); // Gray dot
   }
 
   /**
    * Helper: Show skipped indicator
    */
   protected showSkipped(): void {
-    process.stdout.write('\x1b[33m?\x1b[0m'); // Yellow question mark
+    process.stdout.write('\x1b[33ms\x1b[0m'); // Yellow s
   }
 
   /**

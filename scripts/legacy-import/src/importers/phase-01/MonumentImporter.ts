@@ -47,7 +47,7 @@ interface MonumentGroup {
 
 /**
  * Imports monuments from mwnf3.monuments
- * 
+ *
  * CRITICAL: monuments table is denormalized with language in PK
  * - PK: project_id, country, institution_id, number, LANG (5 columns)
  * - Multiple rows per monument (one per language)
@@ -83,7 +83,9 @@ export class MonumentImporter extends BaseImporter {
 
       // Group monuments by non-lang PK columns
       const monumentGroups = this.groupMonumentsByPK(monuments);
-      this.log(`Found ${monumentGroups.length} unique monuments (${monuments.length} language rows)`);
+      this.log(
+        `Found ${monumentGroups.length} unique monuments (${monuments.length} language rows)`
+      );
 
       // Limit number of unique monuments if limit specified
       const limitedGroups =
@@ -105,7 +107,9 @@ export class MonumentImporter extends BaseImporter {
           // Log detailed error info
           if (error && typeof error === 'object' && 'response' in error) {
             const axiosError = error as { response?: { status?: number; data?: unknown } };
-            this.log(`Error importing ${group.project_id}:${group.institution_id}:${group.number}: ${message}`);
+            this.log(
+              `Error importing ${group.project_id}:${group.institution_id}:${group.number}: ${message}`
+            );
             this.log(`Response: ${JSON.stringify(axiosError.response?.data)}`);
           }
           result.errors.push(
@@ -199,9 +203,7 @@ export class MonumentImporter extends BaseImporter {
     const partnerId = this.context.tracker.getUuid(partnerBackwardCompat);
 
     if (!partnerId) {
-      throw new Error(
-        `Partner not found for institution ${group.institution_id}:${group.country}`
-      );
+      throw new Error(`Partner not found for institution ${group.institution_id}:${group.country}`);
     }
 
     // Use first translation for base data
@@ -212,8 +214,7 @@ export class MonumentImporter extends BaseImporter {
 
     // Create Item
     const itemResponse = await this.context.apiClient.item.itemStore({
-      internal_name:
-        firstTranslation.working_number || firstTranslation.name || group.number,
+      internal_name: firstTranslation.working_number || firstTranslation.name || group.number,
       type: 'monument',
       collection_id: collectionId,
       partner_id: partnerId,
@@ -256,11 +257,7 @@ export class MonumentImporter extends BaseImporter {
     return true;
   }
 
-  private async importTranslation(
-    itemId: string,
-    contextId: string,
-    monument: LegacyMonument
-  ) {
+  private async importTranslation(itemId: string, contextId: string, monument: LegacyMonument) {
     // Map legacy ISO 639-1 to ISO 639-3
     const languageId = this.mapLanguageCode(monument.lang);
 

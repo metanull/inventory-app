@@ -141,7 +141,7 @@ export class InstitutionImporter extends BaseImporter {
 
     // Institutions don't have project_id - always use default context
     const contextId = this.context.tracker.getUuid('__default_context__');
-    
+
     if (!contextId) {
       throw new Error('Default context not found in tracker');
     }
@@ -184,7 +184,7 @@ export class InstitutionImporter extends BaseImporter {
       // Address fields
       city_display: institution.city || null,
       address_line_1: institution.address || null,
-      // Contact fields  
+      // Contact fields
       contact_phone: institution.phone || null,
       contact_email_general: institution.email || null,
       contact_website: institution.url || null,
