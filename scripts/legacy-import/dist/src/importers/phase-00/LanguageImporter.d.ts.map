@@ -1,0 +1,1 @@
+{"version":3,"file":"LanguageImporter.d.ts","sourceRoot":"","sources":["../../../../src/importers/phase-00/LanguageImporter.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,YAAY,EAAE,MAAM,oBAAoB,CAAC;AAEhE;;;;GAIG;AACH,qBAAa,gBAAiB,SAAQ,YAAY;IAChD,OAAO,IAAI,MAAM;IAIX,MAAM,IAAI,OAAO,CAAC,YAAY,CAAC;CA8DtC"}

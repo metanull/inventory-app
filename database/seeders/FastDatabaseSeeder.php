@@ -21,10 +21,8 @@ class FastDatabaseSeeder extends Seeder
             UserSeeder::class,
             LanguageSeeder::class,
             CountrySeeder::class,
-            ContactSeeder::class,
             ProvinceSeeder::class,
             LocationSeeder::class,
-            AddressSeeder::class,
             ContextSeeder::class,
             ProjectSeeder::class,
             TagSeeder::class,
@@ -33,7 +31,6 @@ class FastDatabaseSeeder extends Seeder
             ItemTagSeeder::class,
             ItemImageSeeder::class,
             CollectionSeeder::class,
-            GallerySeeder::class,
 
             // Use optimized translation seeders
             OptimizedItemTranslationSeeder::class,
@@ -44,7 +41,6 @@ class FastDatabaseSeeder extends Seeder
             ArtistSeeder::class,
             AuthorSeeder::class,
             WorkshopSeeder::class,
-            ExhibitionSeeder::class,
             ThemeSeeder::class,
         ]);
 
