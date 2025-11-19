@@ -18,10 +18,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             LanguageSeeder::class,
             CountrySeeder::class,
-            ContactSeeder::class,
             ProvinceSeeder::class,
             LocationSeeder::class,
-            AddressSeeder::class,
             ContextSeeder::class,
             ProjectSeeder::class,
             TagSeeder::class,
@@ -33,9 +31,7 @@ class DatabaseSeeder extends Seeder
             ItemTranslationSeeder::class,
             ImageUploadSeeder::class,
             AvailableImageSeeder::class,
-            ArtistSeeder::class,
             AuthorSeeder::class,
-            WorkshopSeeder::class,
             ThemeSeeder::class,
         ]);
     }
