@@ -41,7 +41,6 @@ class SetupLocalImages extends Command
         // Default: check and setup if needed
         if ($provider->validateSeedImages()) {
             $this->info('✅ All local seed images are available.');
-            $this->info('💡 Run "php artisan db:seed --class=FastDatabaseSeeder" for fast seeding.');
 
             return 0;
         }
