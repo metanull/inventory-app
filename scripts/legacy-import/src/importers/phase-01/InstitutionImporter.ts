@@ -295,11 +295,13 @@ export class InstitutionImporter extends BaseImporter {
    */
   private mapCountryCode(legacyCode: string): string {
     const mapping: Record<string, string> = {
+      // Standard ISO 3166-1 alpha-2 to alpha-3
       ae: 'are', // United Arab Emirates
       al: 'alb', // Albania
       ar: 'arg', // Argentina
       at: 'aut', // Austria
       au: 'aus', // Australia
+      az: 'aze', // Azerbaijan
       ba: 'bih', // Bosnia and Herzegovina
       be: 'bel', // Belgium
       bg: 'bgr', // Bulgaria
@@ -334,8 +336,10 @@ export class InstitutionImporter extends BaseImporter {
       ma: 'mar', // Morocco
       mk: 'mkd', // North Macedonia
       mx: 'mex', // Mexico
+      my: 'mys', // Malaysia
       nl: 'nld', // Netherlands
       no: 'nor', // Norway
+      nw: 'nor', // Norway (alternative code)
       om: 'omn', // Oman
       pl: 'pol', // Poland
       ps: 'pse', // Palestine
@@ -345,6 +349,7 @@ export class InstitutionImporter extends BaseImporter {
       rs: 'srb', // Serbia
       ru: 'rus', // Russia
       sa: 'sau', // Saudi Arabia
+      sb: 'srb', // Serbia (alternative code)
       sd: 'sdn', // Sudan
       se: 'swe', // Sweden
       si: 'svn', // Slovenia
@@ -355,9 +360,26 @@ export class InstitutionImporter extends BaseImporter {
       ua: 'ukr', // Ukraine
       us: 'usa', // United States
       ye: 'yem', // Yemen
+      
+      // Legacy/non-standard codes used in old database
+      ab: 'are', // Abu Dhabi (UAE)
+      dn: 'dnk', // Denmark (alternative)
+      on: 'omn', // Oman (alternative)
+      pa: 'pse', // Palestine (alternative)
+      qt: 'qat', // Qatar (alternative)
+      rm: 'rou', // Romania (alternative)
+      sw: 'che', // Switzerland (alternative)
+      uc: 'ukr', // Ukraine (alternative)
+      uk: 'gbr', // United Kingdom (alternative)
     };
 
-    return mapping[legacyCode] || legacyCode;
+    const mapped = mapping[legacyCode];
+    if (!mapped) {
+      throw new Error(
+        `Unknown country code '${legacyCode}'. Add mapping to InstitutionImporter.mapCountryCode()`
+      );
+    }
+    return mapped;
   }
 }
 
