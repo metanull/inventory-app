@@ -166,7 +166,7 @@ export class MuseumImporter extends BaseImporter {
           // so we need to search through results
           const partnersPage = await this.context.apiClient.partner.partnerIndex(
             1,
-            1000,
+            100,
             undefined
           );
           const existing = partnersPage.data.data.find(
@@ -269,6 +269,7 @@ export class MuseumImporter extends BaseImporter {
       zh: 'zho',
       ja: 'jpn',
       tr: 'tur',
+      el: 'ell', // Greek
     };
 
     const mapped = mapping[legacyCode];

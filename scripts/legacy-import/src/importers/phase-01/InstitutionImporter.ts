@@ -124,7 +124,7 @@ export class InstitutionImporter extends BaseImporter {
         if (axiosError.response?.status === 422) {
           const partnersPage = await this.context.apiClient.partner.partnerIndex(
             1,
-            1000,
+            100,
             undefined
           );
           const existing = partnersPage.data.data.find(
@@ -248,6 +248,7 @@ export class InstitutionImporter extends BaseImporter {
       zh: 'zho',
       ja: 'jpn',
       tr: 'tur',
+      el: 'ell', // Greek
     };
 
     const mapped = mapping[legacyCode];
