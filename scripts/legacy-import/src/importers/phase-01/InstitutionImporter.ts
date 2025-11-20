@@ -107,7 +107,7 @@ export class InstitutionImporter extends BaseImporter {
     const countryId = institution.country ? this.mapCountryCode(institution.country) : undefined;
 
     // Try to create Partner (may already exist from previous import run)
-    let partnerId: string;
+    let partnerId: string | undefined = undefined;
     try {
       const partnerResponse = await this.context.apiClient.partner.partnerStore({
         internal_name: institution.name,
@@ -118,30 +118,60 @@ export class InstitutionImporter extends BaseImporter {
       });
       partnerId = partnerResponse.data.data.id;
     } catch (error) {
-      // If 422 conflict, Partner already exists - fetch its ID
+      // If 422 conflict, check if it's a backward_compatibility duplicate or other validation error
       if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number } };
+        const axiosError = error as { response?: { status?: number; data?: any } };
         if (axiosError.response?.status === 422) {
-          const partnersPage = await this.context.apiClient.partner.partnerIndex(
-            1,
-            100,
-            undefined
-          );
-          const existing = partnersPage.data.data.find(
-            (p) => p.backward_compatibility === backwardCompat
-          );
-          if (!existing) {
-            throw new Error(
-              `Partner conflict but not found in API: ${institution.institution_id}:${institution.country}`
-            );
+          const responseData = axiosError.response?.data;
+          const errorMessage = responseData?.message || '';
+          
+          // Only try to find existing partner if error is about backward_compatibility duplicate
+          if (errorMessage.includes('backward_compatibility') || errorMessage.includes('already been taken')) {
+            // Paginate through all results to find the existing partner
+            let found = false;
+            let page = 1;
+            const perPage = 100;
+            
+            while (!found) {
+              const partnersPage = await this.context.apiClient.partner.partnerIndex(
+                page,
+                perPage,
+                undefined
+              );
+              
+              const existing = partnersPage.data.data.find(
+                (p) => p.backward_compatibility === backwardCompat
+              );
+              
+              if (existing) {
+                partnerId = existing.id;
+                found = true;
+              } else if (partnersPage.data.data.length < perPage) {
+                // Reached last page without finding partner
+                throw new Error(
+                  `Partner conflict but not found in API: ${institution.institution_id}:${institution.country}`
+                );
+              } else {
+                page++;
+              }
+            }
+          } else {
+            // Other validation error - re-throw with details
+            throw error;
           }
-          partnerId = existing.id;
         } else {
           throw error;
         }
       } else {
         throw error;
       }
+    }
+
+    // Ensure partnerId was successfully obtained
+    if (!partnerId) {
+      throw new Error(
+        `Failed to get Partner ID for institution ${institution.institution_id}:${institution.country}`
+      );
     }
 
     // Register in tracker
