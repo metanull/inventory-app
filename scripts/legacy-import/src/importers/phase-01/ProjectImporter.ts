@@ -118,13 +118,25 @@ export class ProjectImporter extends BaseImporter {
     });
 
     // Create Project (website project linked to this context)
+    // Validate launch_date: MySQL can return invalid dates like '0000-00-00 00:00:00'
+    let launchDate: string | undefined = undefined;
+    let isLaunched = false;
+    if (project.launchdate) {
+      const date = new Date(project.launchdate);
+      // Check if date is valid (not NaN and not invalid date like 0000-00-00)
+      if (!isNaN(date.getTime()) && date.getFullYear() > 1970) {
+        launchDate = date.toISOString().split('T')[0];
+        isLaunched = true;
+      }
+    }
+
     const projectResponse = await this.context.apiClient.project.projectStore({
       internal_name: project.name,
       backward_compatibility: projectBackwardCompat,
       context_id: contextId,
       language_id: 'eng', // Default language
-      launch_date: project.launchdate ? project.launchdate.toISOString().split('T')[0] : undefined,
-      is_launched: project.launchdate ? true : false,
+      launch_date: launchDate,
+      is_launched: isLaunched,
       is_enabled: true,
     });
     const projectId = projectResponse.data.data.id;

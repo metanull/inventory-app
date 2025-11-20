@@ -106,16 +106,43 @@ export class InstitutionImporter extends BaseImporter {
     // Map 2-character country code to 3-character code
     const countryId = institution.country ? this.mapCountryCode(institution.country) : undefined;
 
-    // Create Partner (institutions don't have project_id or GPS coordinates)
-    const partnerResponse = await this.context.apiClient.partner.partnerStore({
-      internal_name: institution.name,
-      type: 'institution',
-      country_id: countryId,
-      visible: true,
-      backward_compatibility: backwardCompat,
-    });
-
-    const partnerId = partnerResponse.data.data.id;
+    // Try to create Partner (may already exist from previous import run)
+    let partnerId: string;
+    try {
+      const partnerResponse = await this.context.apiClient.partner.partnerStore({
+        internal_name: institution.name,
+        type: 'institution',
+        country_id: countryId,
+        visible: true,
+        backward_compatibility: backwardCompat,
+      });
+      partnerId = partnerResponse.data.data.id;
+    } catch (error) {
+      // If 422 conflict, Partner already exists - fetch its ID
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 422) {
+          const partnersPage = await this.context.apiClient.partner.partnerIndex(
+            1,
+            1000,
+            undefined
+          );
+          const existing = partnersPage.data.data.find(
+            (p) => p.backward_compatibility === backwardCompat
+          );
+          if (!existing) {
+            throw new Error(
+              `Partner conflict but not found in API: ${institution.institution_id}:${institution.country}`
+            );
+          }
+          partnerId = existing.id;
+        } else {
+          throw error;
+        }
+      } else {
+        throw error;
+      }
+    }
 
     // Register in tracker
     this.context.tracker.register({
@@ -177,21 +204,32 @@ export class InstitutionImporter extends BaseImporter {
 
     const contactNotes = contactParts.length > 0 ? contactParts.join('\n') : null;
 
-    await this.context.apiClient.partnerTranslation.partnerTranslationStore({
-      partner_id: partnerId,
-      language_id: languageId,
-      context_id: contextId,
-      name: translation.name,
-      description: translation.description || null,
-      // Address fields
-      city_display: institution.city || null,
-      address_line_1: institution.address || null,
-      // Contact fields
-      contact_phone: institution.phone || null,
-      contact_email_general: institution.email || null,
-      contact_website: institution.url || null,
-      contact_notes: contactNotes,
-    });
+    try {
+      await this.context.apiClient.partnerTranslation.partnerTranslationStore({
+        partner_id: partnerId,
+        language_id: languageId,
+        context_id: contextId,
+        name: translation.name,
+        description: translation.description || null,
+        // Address fields
+        city_display: institution.city || null,
+        address_line_1: institution.address || null,
+        // Contact fields
+        contact_phone: institution.phone || null,
+        contact_email_general: institution.email || null,
+        contact_website: institution.url || null,
+        contact_notes: contactNotes,
+      });
+    } catch (error) {
+      // If 422 conflict, translation already exists - skip silently
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 422) {
+          return; // Translation already exists, skip
+        }
+      }
+      throw error;
+    }
   }
 
   /**

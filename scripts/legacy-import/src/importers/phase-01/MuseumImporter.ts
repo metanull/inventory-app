@@ -92,7 +92,7 @@ export class MuseumImporter extends BaseImporter {
       pkValues: [museum.museum_id, museum.country],
     });
 
-    // Check if already imported
+    // Check if already imported (in current session)
     if (this.context.tracker.exists(backwardCompat)) {
       return false;
     }
@@ -141,20 +141,50 @@ export class MuseumImporter extends BaseImporter {
     // Map 2-character country code to 3-character code
     const countryId = museum.country ? this.mapCountryCode(museum.country) : undefined;
 
-    // Create Partner
-    const partnerResponse = await this.context.apiClient.partner.partnerStore({
-      internal_name: museum.name,
-      type: 'museum',
-      country_id: countryId,
-      project_id: projectId, // Use Project UUID, not Context UUID
-      latitude: latitude,
-      longitude: longitude,
-      map_zoom: museum.zoom ? parseInt(museum.zoom) : undefined,
-      visible: true,
-      backward_compatibility: backwardCompat,
-    });
-
-    const partnerId = partnerResponse.data.data.id;
+    // Try to create Partner (may already exist from previous import run)
+    let partnerId: string;
+    try {
+      const partnerResponse = await this.context.apiClient.partner.partnerStore({
+        internal_name: museum.name,
+        type: 'museum',
+        country_id: countryId,
+        project_id: projectId, // Use Project UUID, not Context UUID
+        latitude: latitude,
+        longitude: longitude,
+        map_zoom: museum.zoom ? parseInt(museum.zoom) : undefined,
+        visible: true,
+        backward_compatibility: backwardCompat,
+      });
+      partnerId = partnerResponse.data.data.id;
+    } catch (error) {
+      // If 422 conflict, Partner already exists - fetch its ID
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 422) {
+          // Query API to find existing Partner by backward_compatibility
+          // Note: API doesn't have a direct query by backward_compatibility,
+          // so we need to search through results
+          const partnersPage = await this.context.apiClient.partner.partnerIndex(
+            1,
+            1000,
+            undefined
+          );
+          const existing = partnersPage.data.data.find(
+            (p) => p.backward_compatibility === backwardCompat
+          );
+          if (!existing) {
+            throw new Error(
+              `Partner conflict but not found in API: ${museum.museum_id}:${museum.country}`
+            );
+          }
+          partnerId = existing.id;
+        } else {
+          throw error; // Re-throw non-422 errors
+        }
+      } else {
+        throw error;
+      }
+    }
 
     // Register in tracker
     this.context.tracker.register({
@@ -192,23 +222,35 @@ export class MuseumImporter extends BaseImporter {
       throw new Error(`Context not found for project ${museum.project_id}`);
     }
 
-    await this.context.apiClient.partnerTranslation.partnerTranslationStore({
-      partner_id: partnerId,
-      language_id: languageId,
-      context_id: contextId,
-      name: translation.name,
-      description: translation.description || null,
-      // Address fields
-      city_display: translation.city || null,
-      address_line_1: museum.address || null,
-      postal_code: museum.postal_address || null,
-      address_notes: translation.how_to_reach || null,
-      // Contact fields
-      contact_phone: museum.phone || null,
-      contact_email_general: museum.email || null,
-      contact_website: museum.url || null,
-      contact_notes: translation.opening_hours || null,
-    });
+    try {
+      await this.context.apiClient.partnerTranslation.partnerTranslationStore({
+        partner_id: partnerId,
+        language_id: languageId,
+        context_id: contextId,
+        name: translation.name,
+        description: translation.description || null,
+        // Address fields
+        city_display: translation.city || null,
+        address_line_1: museum.address || null,
+        postal_code: museum.postal_address || null,
+        address_notes: translation.how_to_reach || null,
+        // Contact fields
+        contact_phone: museum.phone || null,
+        contact_email_general: museum.email || null,
+        contact_website: museum.url || null,
+        contact_notes: translation.opening_hours || null,
+      });
+    } catch (error) {
+      // If 422 conflict, translation already exists - skip silently
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 422) {
+          // Translation already exists, skip
+          return;
+        }
+      }
+      throw error; // Re-throw non-422 errors
+    }
   }
 
   /**
