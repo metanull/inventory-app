@@ -1,5 +1,6 @@
 import { BaseImporter, ImportResult } from '../BaseImporter.js';
 import { BackwardCompatibilityFormatter } from '../../utils/BackwardCompatibilityFormatter.js';
+import { mapLanguageCode, mapCountryCode } from '../../utils/CodeMappings.js';
 
 /**
  * Imports museums from mwnf3.museums and mwnf3.museumnames
@@ -139,7 +140,7 @@ export class MuseumImporter extends BaseImporter {
     }
 
     // Map 2-character country code to 3-character code
-    const countryId = museum.country ? this.mapCountryCode(museum.country) : undefined;
+    const countryId = museum.country ? mapCountryCode(museum.country) : undefined;
 
     // Try to create Partner (may already exist from previous import run)
     let partnerId: string | undefined = undefined;
@@ -236,7 +237,7 @@ export class MuseumImporter extends BaseImporter {
     translation: LegacyMuseumName
   ) {
     // Map legacy ISO 639-1 to ISO 639-3
-    const languageId = this.mapLanguageCode(translation.lang);
+    const languageId = mapLanguageCode(translation.lang);
 
     // Resolve project_id to context_id via tracker
     const contextBackwardCompat = BackwardCompatibilityFormatter.format({
@@ -279,126 +280,6 @@ export class MuseumImporter extends BaseImporter {
       }
       throw error; // Re-throw non-422 errors
     }
-  }
-
-  /**
-   * Map legacy 2-character ISO 639-1 codes to 3-character ISO 639-3 codes
-   */
-  private mapLanguageCode(legacyCode: string): string {
-    const mapping: Record<string, string> = {
-      en: 'eng',
-      fr: 'fra',
-      es: 'spa',
-      de: 'deu',
-      it: 'ita',
-      pt: 'por',
-      ar: 'ara',
-      ru: 'rus',
-      zh: 'zho',
-      ja: 'jpn',
-      tr: 'tur',
-      el: 'ell', // Greek
-    };
-
-    const mapped = mapping[legacyCode];
-    if (!mapped) {
-      throw new Error(
-        `Unknown language code '${legacyCode}'. Add mapping to MuseumImporter.mapLanguageCode()`
-      );
-    }
-    return mapped;
-  }
-
-  /**
-   * Map legacy 2-character ISO 3166-1 alpha-2 codes to 3-character ISO 3166-1 alpha-3 codes
-   */
-  private mapCountryCode(legacyCode: string): string {
-    const mapping: Record<string, string> = {
-      // Standard ISO 3166-1 alpha-2 to alpha-3
-      ae: 'are', // United Arab Emirates
-      al: 'alb', // Albania
-      ar: 'arg', // Argentina
-      at: 'aut', // Austria
-      au: 'aus', // Australia
-      az: 'aze', // Azerbaijan
-      ba: 'bih', // Bosnia and Herzegovina
-      be: 'bel', // Belgium
-      bg: 'bgr', // Bulgaria
-      br: 'bra', // Brazil
-      ca: 'can', // Canada
-      ch: 'che', // Switzerland
-      cn: 'chn', // China
-      cy: 'cyp', // Cyprus
-      cz: 'cze', // Czech Republic
-      de: 'deu', // Germany
-      dk: 'dnk', // Denmark
-      dz: 'dza', // Algeria
-      eg: 'egy', // Egypt
-      es: 'esp', // Spain
-      fi: 'fin', // Finland
-      fr: 'fra', // France
-      gb: 'gbr', // United Kingdom
-      gr: 'grc', // Greece
-      hr: 'hrv', // Croatia
-      hu: 'hun', // Hungary
-      ie: 'irl', // Ireland
-      il: 'isr', // Israel
-      in: 'ind', // India
-      iq: 'irq', // Iraq
-      ir: 'irn', // Iran
-      it: 'ita', // Italy
-      jo: 'jor', // Jordan
-      jp: 'jpn', // Japan
-      kw: 'kwt', // Kuwait
-      lb: 'lbn', // Lebanon
-      ly: 'lby', // Libya
-      ma: 'mar', // Morocco
-      mk: 'mkd', // North Macedonia
-      mx: 'mex', // Mexico
-      my: 'mys', // Malaysia
-      nl: 'nld', // Netherlands
-      no: 'nor', // Norway
-      nw: 'nor', // Norway (alternative code)
-      om: 'omn', // Oman
-      pl: 'pol', // Poland
-      ps: 'pse', // Palestine
-      pt: 'prt', // Portugal
-      qa: 'qat', // Qatar
-      ro: 'rou', // Romania
-      rs: 'srb', // Serbia
-      ru: 'rus', // Russia
-      sa: 'sau', // Saudi Arabia
-      sb: 'srb', // Serbia (alternative code)
-      sd: 'sdn', // Sudan
-      se: 'swe', // Sweden
-      si: 'svn', // Slovenia
-      sk: 'svk', // Slovakia
-      sy: 'syr', // Syria
-      tn: 'tun', // Tunisia
-      tr: 'tur', // Turkey
-      ua: 'ukr', // Ukraine
-      us: 'usa', // United States
-      ye: 'yem', // Yemen
-      
-      // Legacy/non-standard codes used in old database
-      ab: 'are', // Abu Dhabi (UAE)
-      dn: 'dnk', // Denmark (alternative)
-      on: 'omn', // Oman (alternative)
-      pa: 'pse', // Palestine (alternative)
-      qt: 'qat', // Qatar (alternative)
-      rm: 'rou', // Romania (alternative)
-      sw: 'che', // Switzerland (alternative)
-      uc: 'ukr', // Ukraine (alternative)
-      uk: 'gbr', // United Kingdom (alternative)
-    };
-
-    const mapped = mapping[legacyCode];
-    if (!mapped) {
-      throw new Error(
-        `Unknown country code '${legacyCode}'. Add mapping to MuseumImporter.mapCountryCode()`
-      );
-    }
-    return mapped;
   }
 }
 
