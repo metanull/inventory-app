@@ -111,7 +111,7 @@ export class InstitutionImporter extends BaseImporter {
     let partnerId: string | undefined = undefined;
     try {
       const partnerResponse = await this.context.apiClient.partner.partnerStore({
-        internal_name: institution.name,
+        internal_name: institution.name || institution.institution_id, // Fallback to ID if name is empty
         type: 'institution',
         country_id: countryId,
         visible: true,

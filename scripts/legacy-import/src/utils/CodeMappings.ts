@@ -72,6 +72,7 @@ export const COUNTRY_CODE_MAP: Record<string, string> = {
   my: 'mys', // Malaysia
   nl: 'nld', // Netherlands
   no: 'nor', // Norway
+  nw: 'nor', // Norway (alternative code)
   om: 'omn', // Oman
   pl: 'pol', // Poland
   pt: 'prt', // Portugal
