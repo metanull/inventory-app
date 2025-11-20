@@ -90,6 +90,7 @@ export class ProjectImporter extends BaseImporter {
     });
 
     const collectionBackwardCompat = `${contextBackwardCompat}:collection`;
+    const projectBackwardCompat = `${contextBackwardCompat}:project`;
 
     // Check if already imported
     if (this.context.tracker.exists(contextBackwardCompat)) {
@@ -108,11 +109,31 @@ export class ProjectImporter extends BaseImporter {
     });
     const contextId = contextResponse.data.data.id;
 
-    // Register in tracker
+    // Register Context in tracker
     this.context.tracker.register({
       uuid: contextId,
       backwardCompatibility: contextBackwardCompat,
       entityType: 'context',
+      createdAt: new Date(),
+    });
+
+    // Create Project (website project linked to this context)
+    const projectResponse = await this.context.apiClient.project.projectStore({
+      internal_name: project.name,
+      backward_compatibility: projectBackwardCompat,
+      context_id: contextId,
+      language_id: 'eng', // Default language
+      launch_date: project.launchdate ? project.launchdate.toISOString().split('T')[0] : undefined,
+      is_launched: project.launchdate ? true : false,
+      is_enabled: true,
+    });
+    const projectId = projectResponse.data.data.id;
+
+    // Register Project in tracker (Partners will reference this)
+    this.context.tracker.register({
+      uuid: projectId,
+      backwardCompatibility: projectBackwardCompat,
+      entityType: 'project',
       createdAt: new Date(),
     });
 

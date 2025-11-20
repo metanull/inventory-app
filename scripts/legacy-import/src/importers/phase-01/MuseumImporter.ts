@@ -102,16 +102,18 @@ export class MuseumImporter extends BaseImporter {
       return true;
     }
 
-    // Resolve project_id to context_id via tracker
-    const contextBackwardCompat = BackwardCompatibilityFormatter.format({
+    // Resolve project_id to Project UUID via tracker
+    // Note: Legacy projects map to BOTH Context and Project in new system
+    const projectBackwardCompat = BackwardCompatibilityFormatter.format({
       schema: 'mwnf3',
       table: 'projects',
       pkValues: [museum.project_id],
-    });
-    const projectContextId = this.context.tracker.getUuid(contextBackwardCompat);
+    }) + ':project'; // Use :project suffix to get the Project UUID, not Context UUID
+    
+    const projectId = this.context.tracker.getUuid(projectBackwardCompat);
 
-    // If project not found, skip this museum (may happen with --limit on partial imports)
-    if (!projectContextId) {
+    // If project not found, skip this museum
+    if (!projectId) {
       this.logWarning(
         `Skipping museum ${museum.museum_id}:${museum.country} - project '${museum.project_id}' not found in tracker`,
         { museum_id: museum.museum_id, country: museum.country, project_id: museum.project_id }
@@ -144,7 +146,7 @@ export class MuseumImporter extends BaseImporter {
       internal_name: museum.name,
       type: 'museum',
       country_id: countryId,
-      project_id: projectContextId || undefined,
+      project_id: projectId, // Use Project UUID, not Context UUID
       latitude: latitude,
       longitude: longitude,
       map_zoom: museum.zoom ? parseInt(museum.zoom) : undefined,

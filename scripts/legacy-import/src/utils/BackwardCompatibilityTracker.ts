@@ -6,7 +6,7 @@
 export interface ImportedEntity {
   uuid: string;
   backwardCompatibility: string;
-  entityType: 'context' | 'collection' | 'partner' | 'item' | 'image';
+  entityType: 'context' | 'collection' | 'project' | 'partner' | 'item' | 'image';
   createdAt: Date;
 }
 
@@ -48,6 +48,7 @@ export class BackwardCompatibilityTracker {
     const stats = {
       context: 0,
       collection: 0,
+      project: 0,
       partner: 0,
       item: 0,
       image: 0,
