@@ -50,6 +50,7 @@ The CORS configuration in `config/cors.php`:
 4. Enables credential support for cookie-based authentication
 
 CORS headers applied:
+
 - `Access-Control-Allow-Origin` - Allowed origin domains
 - `Access-Control-Allow-Methods` - All HTTP methods
 - `Access-Control-Allow-Headers` - All request headers
@@ -96,6 +97,7 @@ After deployment, verify CORS is working:
 2. Navigate to your client application
 3. Make an API request
 4. Check Network tab for response headers:
+
    ```
    Access-Control-Allow-Origin: https://metanull.github.io
    Access-Control-Allow-Credentials: true
@@ -165,7 +167,7 @@ CORS_ALLOWED_ORIGINS=https://username.github.io,https://staging.example.com,http
 1. Verify `supports_credentials => true` in `config/cors.php`
 2. Ensure frontend sends credentials:
    ```typescript
-   axios.get('/api/endpoint', { withCredentials: true })
+   axios.get("/api/endpoint", { withCredentials: true });
    ```
 3. Check Sanctum configuration for stateful domains
 
@@ -247,11 +249,11 @@ When using the API from a frontend application:
 
 ```typescript
 // Configure API client
-import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client';
+import { Configuration, DefaultApi } from "@metanull/inventory-app-api-client";
 
 const config = new Configuration({
-  basePath: 'https://api.example.com',
-  credentials: 'include', // Include cookies/auth tokens
+  basePath: "https://api.example.com",
+  credentials: "include", // Include cookies/auth tokens
 });
 
 const api = new DefaultApi(config);
@@ -264,7 +266,7 @@ Ensure your HTTP client sends credentials:
 axios.defaults.withCredentials = true;
 
 // Fetch
-fetch(url, { credentials: 'include' });
+fetch(url, { credentials: "include" });
 ```
 
 ## Related Documentation
@@ -279,6 +281,7 @@ fetch(url, { credentials: 'include' });
 Complete workflow for deploying client app to GitHub Pages:
 
 1. **Configure API CORS** (this guide):
+
    ```bash
    CORS_ALLOWED_ORIGINS=https://metanull.github.io
    ```
@@ -286,6 +289,7 @@ Complete workflow for deploying client app to GitHub Pages:
 2. **Deploy API backend** with updated `.env`
 
 3. **Configure client app** with API URL:
+
    ```env
    VITE_API_BASE_URL=https://api.example.com
    ```
