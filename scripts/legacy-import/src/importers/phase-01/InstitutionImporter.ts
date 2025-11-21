@@ -108,10 +108,15 @@ export class InstitutionImporter extends BaseImporter {
     const countryId = institution.country ? mapCountryCode(institution.country) : undefined;
 
     // Try to create Partner (may already exist from previous import run)
+    // Ensure internal_name is never empty - use fallbacks
+    const internalName = institution.name?.trim() || 
+                        institution.institution_id?.trim() || 
+                        `Institution_${institution.institution_id}_${institution.country}`;
+    
     let partnerId: string | undefined = undefined;
     try {
       const partnerResponse = await this.context.apiClient.partner.partnerStore({
-        internal_name: institution.name || institution.institution_id, // Fallback to ID if name is empty
+        internal_name: internalName,
         type: 'institution',
         country_id: countryId,
         visible: true,
