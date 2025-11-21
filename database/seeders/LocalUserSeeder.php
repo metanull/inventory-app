@@ -29,8 +29,8 @@ class LocalUserSeeder extends Seeder
         ]);
         $token = $defaultUser->createToken('api-token');
         $defaultUser->save();
-
-        $defaultUser->assignRole('Manager of Users');
+        $defaultUser->markEmailAsVerified();
+        $defaultUser->assignRole('Regular User');
 
         $consoleOutput = new \Symfony\Component\Console\Output\ConsoleOutput;
         $consoleOutput->getFormatter()->setStyle('yellow', new \Symfony\Component\Console\Formatter\OutputFormatterStyle('yellow', null, ['bold']));
@@ -47,7 +47,7 @@ class LocalUserSeeder extends Seeder
             'password' => bcrypt($defaultAdminPassword),
         ]);
         $defaultAdmin->save();
-
+        $defaultAdmin->markEmailAsVerified();
         $defaultAdmin->assignRole('Manager of Users');
 
         $consoleOutput = new \Symfony\Component\Console\Output\ConsoleOutput;
