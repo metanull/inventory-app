@@ -105,12 +105,13 @@ export class MuseumImporter extends BaseImporter {
 
     // Resolve project_id to Project UUID via tracker
     // Note: Legacy projects map to BOTH Context and Project in new system
-    const projectBackwardCompat = BackwardCompatibilityFormatter.format({
-      schema: 'mwnf3',
-      table: 'projects',
-      pkValues: [museum.project_id],
-    }) + ':project'; // Use :project suffix to get the Project UUID, not Context UUID
-    
+    const projectBackwardCompat =
+      BackwardCompatibilityFormatter.format({
+        schema: 'mwnf3',
+        table: 'projects',
+        pkValues: [museum.project_id],
+      }) + ':project'; // Use :project suffix to get the Project UUID, not Context UUID
+
     const projectId = this.context.tracker.getUuid(projectBackwardCompat);
 
     // If project not found, skip this museum
@@ -160,30 +161,33 @@ export class MuseumImporter extends BaseImporter {
     } catch (error) {
       // If 422 conflict, check if it's a backward_compatibility duplicate or other validation error
       if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number; data?: any } };
+        const axiosError = error as { response?: { status?: number; data?: unknown } };
         if (axiosError.response?.status === 422) {
-          const responseData = axiosError.response?.data;
+          const responseData = axiosError.response?.data as { message?: string } | undefined;
           const errorMessage = responseData?.message || '';
-          
+
           // Only try to find existing partner if error is about backward_compatibility duplicate
-          if (errorMessage.includes('backward_compatibility') || errorMessage.includes('already been taken')) {
+          if (
+            errorMessage.includes('backward_compatibility') ||
+            errorMessage.includes('already been taken')
+          ) {
             // Query API to find existing Partner by backward_compatibility
             // Paginate through all results since there may be more than 100 partners
             let found = false;
             let page = 1;
             const perPage = 100;
-            
+
             while (!found) {
               const partnersPage = await this.context.apiClient.partner.partnerIndex(
                 page,
                 perPage,
                 undefined
               );
-              
+
               const existing = partnersPage.data.data.find(
                 (p) => p.backward_compatibility === backwardCompat
               );
-              
+
               if (existing) {
                 partnerId = existing.id;
                 found = true;
@@ -210,9 +214,7 @@ export class MuseumImporter extends BaseImporter {
 
     // Ensure partnerId was successfully obtained
     if (!partnerId) {
-      throw new Error(
-        `Failed to get Partner ID for museum ${museum.museum_id}:${museum.country}`
-      );
+      throw new Error(`Failed to get Partner ID for museum ${museum.museum_id}:${museum.country}`);
     }
 
     // Register in tracker

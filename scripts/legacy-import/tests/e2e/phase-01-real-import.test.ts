@@ -36,7 +36,9 @@ describe.skip('E2E: Phase 1 Real Import', () => {
     // Verify API is accessible
     const isConnected = await apiClient.testConnection();
     if (!isConnected) {
-      throw new Error('API connection failed. Run "npx tsx src/index.ts login" and ensure API is running.');
+      throw new Error(
+        'API connection failed. Run "npx tsx src/index.ts login" and ensure API is running.'
+      );
     }
 
     tracker = new BackwardCompatibilityTracker();

@@ -67,7 +67,7 @@ export class InventoryApiClient {
   public theme: ThemeApi;
   public themeTranslation: ThemeTranslationApi;
 
-  constructor(private config: ApiConfig) {
+  constructor(config: ApiConfig) {
     this.configuration = new Configuration({
       basePath: config.baseUrl,
       accessToken: config.token,
@@ -106,10 +106,8 @@ export class InventoryApiClient {
     try {
       // Test connection by fetching languages (reference data)
       await this.language.languageIndex();
-      console.log('✓ API connection successful:', this.config.baseUrl);
       return true;
-    } catch (error) {
-      console.error('✗ API connection failed:', error);
+    } catch {
       return false;
     }
   }
@@ -120,10 +118,6 @@ export function createApiClient(): InventoryApiClient {
     baseUrl: process.env['API_BASE_URL'] || 'http://localhost:8000/api',
     token: process.env['API_TOKEN'] || '',
   };
-
-  if (!config.token) {
-    console.warn('WARNING: API_TOKEN not set. API calls will fail.');
-  }
 
   return new InventoryApiClient(config);
 }

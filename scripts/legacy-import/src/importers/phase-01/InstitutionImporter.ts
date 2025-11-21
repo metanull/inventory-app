@@ -109,10 +109,11 @@ export class InstitutionImporter extends BaseImporter {
 
     // Try to create Partner (may already exist from previous import run)
     // Ensure internal_name is never empty - use fallbacks
-    const internalName = institution.name?.trim() || 
-                        institution.institution_id?.trim() || 
-                        `Institution_${institution.institution_id}_${institution.country}`;
-    
+    const internalName =
+      institution.name?.trim() ||
+      institution.institution_id?.trim() ||
+      `Institution_${institution.institution_id}_${institution.country}`;
+
     let partnerId: string | undefined = undefined;
     try {
       const partnerResponse = await this.context.apiClient.partner.partnerStore({
@@ -126,29 +127,32 @@ export class InstitutionImporter extends BaseImporter {
     } catch (error) {
       // If 422 conflict, check if it's a backward_compatibility duplicate or other validation error
       if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number; data?: any } };
+        const axiosError = error as { response?: { status?: number; data?: unknown } };
         if (axiosError.response?.status === 422) {
-          const responseData = axiosError.response?.data;
+          const responseData = axiosError.response?.data as { message?: string } | undefined;
           const errorMessage = responseData?.message || '';
-          
+
           // Only try to find existing partner if error is about backward_compatibility duplicate
-          if (errorMessage.includes('backward_compatibility') || errorMessage.includes('already been taken')) {
+          if (
+            errorMessage.includes('backward_compatibility') ||
+            errorMessage.includes('already been taken')
+          ) {
             // Paginate through all results to find the existing partner
             let found = false;
             let page = 1;
             const perPage = 100;
-            
+
             while (!found) {
               const partnersPage = await this.context.apiClient.partner.partnerIndex(
                 page,
                 perPage,
                 undefined
               );
-              
+
               const existing = partnersPage.data.data.find(
                 (p) => p.backward_compatibility === backwardCompat
               );
-              
+
               if (existing) {
                 partnerId = existing.id;
                 found = true;

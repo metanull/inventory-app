@@ -122,14 +122,17 @@ program
   .description('Authenticate with API and save access token')
   .option('--url <url>', 'API base URL (overrides .env)')
   .action(async (options) => {
+    const logger = new Logger();
     try {
       const baseUrl = options.url || process.env['API_BASE_URL'];
       await quickLogin(baseUrl);
-      console.log('\n✓ Login complete. You can now run import commands.');
+      logger.console('');
+      logger.info('Login complete. You can now run import commands.', '✓');
       process.exit(0);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error('\n✗ Login failed:', message);
+      logger.console('');
+      logger.error(`Login failed: ${message}`, true);
       process.exit(1);
     }
   });
@@ -138,46 +141,47 @@ program
   .command('validate')
   .description('Validate legacy database connection and API availability')
   .action(async () => {
-    console.log('Validating connections...\n');
+    const logger = new Logger();
+    logger.console('Validating connections...\n');
 
     let hasErrors = false;
 
     // Validate API connection
     try {
-      console.log('Testing API connection...');
+      logger.console('Testing API connection...');
       const apiClient = createApiClient();
       const isConnected = await apiClient.testConnection();
       if (!isConnected) {
         hasErrors = true;
-        console.log('✗ API connection failed\n');
-        console.log('Run "npx tsx src/index.ts login" to authenticate\n');
+        logger.error('API connection failed', true);
+        logger.console('Run "npx tsx src/index.ts login" to authenticate\n');
       }
     } catch (error) {
       hasErrors = true;
       const message = error instanceof Error ? error.message : String(error);
-      console.error('✗ API connection error:', message);
-      console.log('Run "npx tsx src/index.ts login" to authenticate\n');
+      logger.error(`API connection error: ${message}`, true);
+      logger.console('Run "npx tsx src/index.ts login" to authenticate\n');
     }
 
     // Validate legacy database connection
     try {
-      console.log('Testing legacy database connection...');
+      logger.console('Testing legacy database connection...');
       const legacyDb = createLegacyDatabase();
       await legacyDb.connect();
-      console.log('✓ Legacy database connection successful');
+      logger.info('Legacy database connection successful', '✓');
       await legacyDb.disconnect();
     } catch (error) {
       hasErrors = true;
       const message = error instanceof Error ? error.message : String(error);
-      console.error('✗ Legacy database connection failed:', message);
-      console.log('Check LEGACY_DB_* settings in .env\n');
+      logger.error(`Legacy database connection failed: ${message}`, true);
+      logger.console('Check LEGACY_DB_* settings in .env\n');
     }
 
     if (hasErrors) {
-      console.log('\n❌ Validation failed. Fix errors above before importing.');
+      logger.console('\n❌ Validation failed. Fix errors above before importing.');
       process.exit(1);
     } else {
-      console.log('\n✅ All connections validated successfully.');
+      logger.console('\n✅ All connections validated successfully.');
     }
   });
 
@@ -199,17 +203,29 @@ program
 
       // Handle --list-importers
       if (listImporters) {
-        console.log('\n📋 Available Importers\n');
+        const logger = new Logger();
+        logger.console('');
+        logger.info('Available Importers', '📋');
+        logger.console('');
         ALL_IMPORTERS.forEach((imp, idx) => {
-          console.log(`  ${(idx + 1).toString().padStart(2)}. ${imp.key.padEnd(20)} - ${imp.description}`);
+          logger.console(
+            `  ${(idx + 1).toString().padStart(2)}. ${imp.key.padEnd(20)} - ${imp.description}`
+          );
         });
-        console.log('\nUsage examples:');
-        console.log('  npx tsx src/index.ts import                          # Run all importers');
-        console.log('  npx tsx src/index.ts import --start-at project       # Start from project onwards');
-        console.log('  npx tsx src/index.ts import --stop-at partner        # Run up to and including partner');
-        console.log('  npx tsx src/index.ts import --start-at project --stop-at object');
-        console.log('  npx tsx src/index.ts import --only partner           # Run only partner');
-        console.log('');
+        logger.console('');
+        logger.console('Usage examples:');
+        logger.console(
+          '  npx tsx src/index.ts import                          # Run all importers'
+        );
+        logger.console(
+          '  npx tsx src/index.ts import --start-at project       # Start from project onwards'
+        );
+        logger.console(
+          '  npx tsx src/index.ts import --stop-at partner        # Run up to and including partner'
+        );
+        logger.console('  npx tsx src/index.ts import --start-at project --stop-at object');
+        logger.console('  npx tsx src/index.ts import --only partner           # Run only partner');
+        logger.console('');
         process.exit(0);
       }
 
@@ -227,7 +243,7 @@ program
       // Validate connections
       logger.console('Validating connections...');
       const apiClient = createApiClient();
-      if (!await apiClient.testConnection()) {
+      if (!(await apiClient.testConnection())) {
         throw new Error('API connection failed. Run "npx tsx src/index.ts login" first.');
       }
 
@@ -238,8 +254,13 @@ program
       logger.console('');
 
       // Initialize results
-      const results = new Map<string, { success?: boolean; imported: number; skipped: number; errors: string[] }>();
-      ALL_IMPORTERS.forEach((imp) => results.set(imp.key, { success: true, imported: 0, skipped: 0, errors: [] }));
+      const results = new Map<
+        string,
+        { success?: boolean; imported: number; skipped: number; errors: string[] }
+      >();
+      ALL_IMPORTERS.forEach((imp) =>
+        results.set(imp.key, { success: true, imported: 0, skipped: 0, errors: [] })
+      );
 
       // Setup import execution context (tracker, API client, database connection, etc.)
       const { BackwardCompatibilityTracker } = await import(
@@ -296,7 +317,11 @@ program
 
       // Calculate totals and display summary
       const totals = Array.from(results.values()).reduce(
-        (acc, r) => ({ imported: acc.imported + r.imported, skipped: acc.skipped + r.skipped, errors: acc.errors + r.errors.length }),
+        (acc, r) => ({
+          imported: acc.imported + r.imported,
+          skipped: acc.skipped + r.skipped,
+          errors: acc.errors + r.errors.length,
+        }),
         { imported: 0, skipped: 0, errors: 0 }
       );
 
@@ -304,21 +329,14 @@ program
       logger.info(`Log saved: ${logPath}`, '📄');
 
       if (totals.errors > 0) process.exit(1);
-
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       const stack = error instanceof Error ? error.stack : '';
-      
-      console.error('\n✗ Import failed:', message);
-      if (stack) console.error(stack);
 
-      try {
-        const { writeFileSync, mkdirSync } = await import('fs');
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        mkdirSync('./logs', { recursive: true });
-        writeFileSync(`./logs/import-error-${timestamp}.log`, `Error: ${message}\n\nStack:\n${stack}`, 'utf-8');
-      } catch {
-        // Ignore
+      const logger = new Logger();
+      logger.error(`Import failed: ${message}`, true);
+      if (stack) {
+        logger.console(stack);
       }
 
       process.exit(1);
@@ -329,7 +347,8 @@ program
   .command('status')
   .description('Show import progress and statistics')
   .action(async () => {
-    console.log('Import status...');
+    const logger = new Logger();
+    logger.console('Import status...');
     // TODO: Implement status reporting
   });
 

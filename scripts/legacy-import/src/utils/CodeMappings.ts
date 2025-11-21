@@ -23,7 +23,7 @@ export const LANGUAGE_CODE_MAP: Record<string, string> = {
 
 /**
  * Map legacy 2-character country codes to 3-character ISO 3166-1 alpha-3 codes
- * 
+ *
  * NOTE: Some legacy codes are non-standard (e.g., 'ab' for Albania instead of standard 'al')
  * These mappings are based on actual data in mwnf3.countrynames table
  */

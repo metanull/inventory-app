@@ -53,11 +53,14 @@ export class Logger {
    * Strip emojis and ANSI colors from text
    */
   private stripFormatting(text: string): string {
-    return text
-      .replace(/[\u{1F300}-\u{1F9FF}]/gu, '') // Remove emojis
-      .replace(/[\u2600-\u27BF]/gu, '') // Remove misc symbols (✓, ✗, etc.)
-      .replace(/\x1b\[[0-9;]*m/g, '') // Remove ANSI codes
-      .trim();
+    return (
+      text
+        .replace(/[\u{1F300}-\u{1F9FF}]/gu, '') // Remove emojis
+        .replace(/[\u2600-\u27BF]/gu, '') // Remove misc symbols (✓, ✗, etc.)
+        // eslint-disable-next-line no-control-regex
+        .replace(/\x1b\[[0-9;]*m/g, '') // Remove ANSI codes
+        .trim()
+    );
   }
 
   /**
