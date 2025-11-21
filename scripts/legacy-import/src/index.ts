@@ -134,8 +134,8 @@ program
         }
         
         console.log('Usage examples:');
-        console.log('  npm run import -- --phase 1 --start-at partner');
-        console.log('  npm run import -- --phase 1 --only object');
+        console.log('  npx tsx src/index.ts import --phase 1 --start-at partner');
+        console.log('  npx tsx src/index.ts import --phase 1 --only object');
         console.log('');
         process.exit(0);
       }

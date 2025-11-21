@@ -560,21 +560,30 @@ npm run build             # Compile TypeScript to dist/
 # Run application
 npm run dev               # Development mode (watch)
 npm start                 # Production mode
+```
 
+## Importing Legacy Data
+
+```bash
 # Authentication
-npm run login                         # Login and get API token
-npm start -- login --url http://api   # Login to custom API URL
+npx tsx src/index.ts login                    # Login and get API token
+npx tsx src/index.ts validate                 # Test connections
+
+npx tsx src/index.ts login --url http://api   # Login to custom API URL
 
 # Import commands
-npm run validate                      # Test connections
-npm run import:phase1                 # Run phase 1 import
-npm run import:phase1:dry             # Phase 1 dry-run
-npm run import                        # All phases
-npm run status                        # Show progress
+npx tsx src/index.ts import                   # Run all importes
 
-# Custom import options (use start -- for complex args)
-npm start -- import --phase 2 --dry-run
-npm start -- import --phase 1 --limit 100
+# Custom import options
+npx tsx src/index.ts import --list-importers  # List importers
+npm run import:list                           # List importers (shorthand)
+npx tsx src/index.ts import --phase 0 --start-at country        # Resume at phase 0:country
+npx tsx src/index.ts import --phase 1 --start-at partner        # Resume at phase 1:partner
+npx tsx src/index.ts import --phase 1 --only monument           # Import only monuments
+npx tsx src/index.ts import --phase 1 --only monument --dry-run # Pretend/ don't actually import
+
+### Enable Verbose Logging
+LOG_LEVEL=debug npm start -- import --phase 1
 ```
 
 ## Configuration
@@ -621,25 +630,6 @@ LOG_LEVEL=info            # Logging level
 
 # Legacy images (Windows UNC path)
 LEGACY_IMAGE_PATH=\\\\virtual-office.museumwnf.org\\C$\\mwnf-server\\pictures\\images
-```
-
-## Debugging
-
-### Enable Verbose Logging
-```bash
-LOG_LEVEL=debug npm start -- import --phase 1
-```
-
-### Dry Run Mode
-```bash
-npm run import:phase1:dry
-# Or for other phases:
-npm start -- import --phase 2 --dry-run
-```
-
-### Limit Records
-```bash
-npm start -- import --phase 1 --limit 10
 ```
 
 ### TypeScript Source Maps
