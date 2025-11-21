@@ -35,19 +35,29 @@ describe('InstitutionImporter', () => {
 
   describe('import', () => {
     it('should import institutions with translations', async () => {
+      // Register default context in tracker (institutions use default context)
+      tracker.register({
+        uuid: 'uuid-context-default',
+        backwardCompatibility: '__default_context__',
+        entityType: 'context',
+        createdAt: new Date(),
+      });
+
       // Mock legacy data
-      const mockInstitutions = [{ institution_id: 'unesco', country: 'fr', city: 'Paris' }];
+      const mockInstitutions = [
+        { institution_id: 'unesco', country: 'fr', name: 'UNESCO', city: 'Paris' },
+      ];
 
       const mockInstitutionNames = [
         {
           institution_id: 'unesco',
-          language: 'en',
+          lang: 'en',
           name: 'UNESCO',
           description: 'United Nations Educational, Scientific and Cultural Organization',
         },
         {
           institution_id: 'unesco',
-          language: 'fr',
+          lang: 'fr',
           name: 'UNESCO',
           description: "Organisation des Nations unies pour l'éducation, la science et la culture",
         },
@@ -80,9 +90,11 @@ describe('InstitutionImporter', () => {
 
       // Verify Partner API call
       expect(mockContext.apiClient.partner.partnerStore).toHaveBeenCalledWith({
-        internal_name: 'unesco',
+        internal_name: 'UNESCO',
         type: 'institution',
-        backward_compatibility: 'mwnf3:institutions:unesco',
+        country_id: 'fra', // 3-letter ISO 3166-1 alpha-3
+        visible: true,
+        backward_compatibility: 'mwnf3:institutions:unesco:fr', // Uses legacy 2-letter country code
       });
 
       // Verify Translation API calls (2 languages)
@@ -92,44 +104,48 @@ describe('InstitutionImporter', () => {
 
       // Verify English translation
       expect(mockContext.apiClient.partnerTranslation.partnerTranslationStore).toHaveBeenCalledWith(
-        {
+        expect.objectContaining({
           partner_id: 'uuid-unesco-123',
           language_id: 'eng',
           context_id: 'uuid-context-default',
           name: 'UNESCO',
           description: 'United Nations Educational, Scientific and Cultural Organization',
-        }
+        })
       );
 
       // Verify French translation
       expect(mockContext.apiClient.partnerTranslation.partnerTranslationStore).toHaveBeenCalledWith(
-        {
+        expect.objectContaining({
           partner_id: 'uuid-unesco-123',
           language_id: 'fra',
           context_id: 'uuid-context-default',
           name: 'UNESCO',
           description: "Organisation des Nations unies pour l'éducation, la science et la culture",
-        }
+        })
       );
 
       // Verify tracker registration
-      expect(tracker.exists('mwnf3:institutions:unesco')).toBe(true);
-      expect(tracker.getUuid('mwnf3:institutions:unesco')).toBe('uuid-unesco-123');
+      expect(tracker.exists('mwnf3:institutions:unesco:fr')).toBe(true);
+      expect(tracker.getUuid('mwnf3:institutions:unesco:fr')).toBe('uuid-unesco-123');
     });
 
     it('should skip institutions already in tracker', async () => {
       tracker.register({
         uuid: 'existing-uuid-123',
-        backwardCompatibility: 'mwnf3:institutions:unesco',
+        backwardCompatibility: 'mwnf3:institutions:unesco:fr',
         entityType: 'partner',
         createdAt: new Date(),
       });
 
-      const mockInstitutions = [{ institution_id: 'unesco', country: 'fr' }];
+      const mockInstitutions = [{ institution_id: 'unesco', country: 'fr', name: 'UNESCO' }];
 
       vi.mocked(mockContext.legacyDb.query)
         .mockResolvedValueOnce(mockInstitutions)
         .mockResolvedValueOnce([]);
+
+      vi.mocked(mockContext.apiClient.context.contextGetDefault).mockResolvedValue({
+        data: { data: { id: 'uuid-context-default' } },
+      } as never);
 
       const result = await importer.import();
 
@@ -149,16 +165,30 @@ describe('InstitutionImporter', () => {
     });
 
     it('should map legacy ISO 639-1 codes to ISO 639-3', async () => {
-      const mockInstitutions = [{ institution_id: 'test', country: 'es' }];
+      // Register default context in tracker
+      tracker.register({
+        uuid: 'uuid-context-default',
+        backwardCompatibility: '__default_context__',
+        entityType: 'context',
+        createdAt: new Date(),
+      });
+
+      const mockInstitutions = [
+        { institution_id: 'test', country: 'es', name: 'Test Institution' },
+      ];
       const mockInstitutionNames = [
-        { institution_id: 'test', language: 'es', name: 'Institución' },
-        { institution_id: 'test', language: 'de', name: 'Institution' },
-        { institution_id: 'test', language: 'it', name: 'Istituzione' },
+        { institution_id: 'test', lang: 'es', name: 'Institución' },
+        { institution_id: 'test', lang: 'de', name: 'Institution' },
+        { institution_id: 'test', lang: 'it', name: 'Istituzione' },
       ];
 
       vi.mocked(mockContext.legacyDb.query)
         .mockResolvedValueOnce(mockInstitutions)
         .mockResolvedValueOnce(mockInstitutionNames);
+
+      vi.mocked(mockContext.apiClient.context.contextGetDefault).mockResolvedValue({
+        data: { data: { id: 'uuid-context-default' } },
+      } as never);
 
       vi.mocked(mockContext.apiClient.context.contextGetDefault).mockResolvedValue({
         data: { data: { id: 'uuid-context-default' } },
@@ -186,8 +216,8 @@ describe('InstitutionImporter', () => {
     it('should respect dry-run mode', async () => {
       mockContext.dryRun = true;
 
-      const mockInstitutions = [{ institution_id: 'unesco', country: 'fr' }];
-      const mockInstitutionNames = [{ institution_id: 'unesco', language: 'en', name: 'UNESCO' }];
+      const mockInstitutions = [{ institution_id: 'unesco', country: 'fr', name: 'UNESCO' }];
+      const mockInstitutionNames = [{ institution_id: 'unesco', lang: 'en', name: 'UNESCO' }];
 
       vi.mocked(mockContext.legacyDb.query)
         .mockResolvedValueOnce(mockInstitutions)

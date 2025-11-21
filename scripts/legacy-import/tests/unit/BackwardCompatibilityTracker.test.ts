@@ -145,6 +145,7 @@ describe('BackwardCompatibilityTracker', () => {
         partner: 0,
         item: 2,
         image: 0,
+        project: 0,
       });
     });
   });

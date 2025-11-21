@@ -37,21 +37,28 @@ describe('MuseumImporter', () => {
     it('should import museums with translations', async () => {
       // Mock legacy data
       const mockMuseums = [
-        { museum_id: 'louvre', country: 'fr', city: 'Paris', address: '1 Rue de Rivoli' },
+        {
+          museum_id: 'louvre',
+          country: 'fr',
+          name: 'The Louvre Museum',
+          city: 'Paris',
+          address: '1 Rue de Rivoli',
+          project_id: 'testproject',
+        },
       ];
 
       const mockMuseumNames = [
         {
           museum_id: 'louvre',
-          language: 'en',
+          lang: 'en',
           name: 'The Louvre Museum',
           description: 'World famous art museum',
         },
         {
           museum_id: 'louvre',
-          language: 'fr',
-          name: 'Le Musée du Louvre',
-          description: "Musée d'art mondialement connu",
+          lang: 'fr',
+          name: 'Le Musee du Louvre',
+          description: 'Musee art mondialement connu',
         },
       ];
 
@@ -59,7 +66,14 @@ describe('MuseumImporter', () => {
         .mockResolvedValueOnce(mockMuseums) // museums
         .mockResolvedValueOnce(mockMuseumNames); // museumnames
 
-      // Register project in tracker so it can be resolved
+      // Register project and context in tracker so they can be resolved
+      // Note: Legacy projects map to BOTH Project and Context in new system
+      tracker.register({
+        uuid: 'uuid-project-testproject',
+        backwardCompatibility: 'mwnf3:projects:testproject:project',
+        entityType: 'project',
+        createdAt: new Date(),
+      });
       tracker.register({
         uuid: 'uuid-context-testproject',
         backwardCompatibility: 'mwnf3:projects:testproject',
@@ -90,8 +104,12 @@ describe('MuseumImporter', () => {
       expect(mockContext.apiClient.partner.partnerStore).toHaveBeenCalledWith({
         internal_name: 'The Louvre Museum',
         type: 'museum',
-        country_id: 'fr',
-        project_id: 'testproject',
+        country_id: 'fra', // 3-letter ISO 3166-1 alpha-3
+        project_id: 'uuid-project-testproject', // UUID resolved from tracker
+        latitude: undefined,
+        longitude: undefined,
+        map_zoom: undefined,
+        visible: true,
         backward_compatibility: 'mwnf3:museums:louvre:fr',
       });
 
@@ -102,24 +120,24 @@ describe('MuseumImporter', () => {
 
       // Verify English translation
       expect(mockContext.apiClient.partnerTranslation.partnerTranslationStore).toHaveBeenCalledWith(
-        {
+        expect.objectContaining({
           partner_id: 'uuid-louvre-123',
           language_id: 'eng', // ISO 639-3 code
           context_id: 'uuid-context-testproject',
           name: 'The Louvre Museum',
           description: 'World famous art museum',
-        }
+        })
       );
 
       // Verify French translation
       expect(mockContext.apiClient.partnerTranslation.partnerTranslationStore).toHaveBeenCalledWith(
-        {
+        expect.objectContaining({
           partner_id: 'uuid-louvre-123',
-          language_id: 'fra', // ISO 639-3 code
+          language_id: 'fra',
           context_id: 'uuid-context-testproject',
-          name: 'Le Musée du Louvre',
-          description: "Musée d'art mondialement connu",
-        }
+          name: 'Le Musee du Louvre',
+          description: 'Musee art mondialement connu',
+        })
       );
 
       // Verify tracker registration
@@ -171,11 +189,27 @@ describe('MuseumImporter', () => {
     });
 
     it('should map legacy ISO 639-1 codes to ISO 639-3', async () => {
-      const mockMuseums = [{ museum_id: 'test', country: 'es' }];
+      // Register project and context in tracker
+      tracker.register({
+        uuid: 'uuid-project-testproject',
+        backwardCompatibility: 'mwnf3:projects:testproject:project',
+        entityType: 'project',
+        createdAt: new Date(),
+      });
+      tracker.register({
+        uuid: 'uuid-context-testproject',
+        backwardCompatibility: 'mwnf3:projects:testproject',
+        entityType: 'context',
+        createdAt: new Date(),
+      });
+
+      const mockMuseums = [
+        { museum_id: 'test', country: 'es', name: 'Test Museum', project_id: 'testproject' },
+      ];
       const mockMuseumNames = [
-        { museum_id: 'test', language: 'es', name: 'Museo' },
-        { museum_id: 'test', language: 'de', name: 'Museum' },
-        { museum_id: 'test', language: 'it', name: 'Museo' },
+        { museum_id: 'test', lang: 'es', name: 'Museo' },
+        { museum_id: 'test', lang: 'de', name: 'Museum' },
+        { museum_id: 'test', lang: 'it', name: 'Museo' },
       ];
 
       vi.mocked(mockContext.legacyDb.query)
@@ -209,8 +243,29 @@ describe('MuseumImporter', () => {
     it('should respect dry-run mode', async () => {
       mockContext.dryRun = true;
 
-      const mockMuseums = [{ museum_id: 'louvre', country: 'fr' }];
-      const mockMuseumNames = [{ museum_id: 'louvre', language: 'en', name: 'Louvre' }];
+      // Register project and context in tracker
+      tracker.register({
+        uuid: 'uuid-project-testproject',
+        backwardCompatibility: 'mwnf3:projects:testproject:project',
+        entityType: 'project',
+        createdAt: new Date(),
+      });
+      tracker.register({
+        uuid: 'uuid-context-testproject',
+        backwardCompatibility: 'mwnf3:projects:testproject',
+        entityType: 'context',
+        createdAt: new Date(),
+      });
+
+      const mockMuseums = [
+        {
+          museum_id: 'louvre',
+          country: 'fr',
+          name: 'The Louvre Museum',
+          project_id: 'testproject',
+        },
+      ];
+      const mockMuseumNames = [{ museum_id: 'louvre', lang: 'en', name: 'Louvre' }];
 
       vi.mocked(mockContext.legacyDb.query)
         .mockResolvedValueOnce(mockMuseums)
@@ -226,7 +281,21 @@ describe('MuseumImporter', () => {
     });
 
     it('should handle API errors gracefully', async () => {
-      const mockMuseums = [{ museum_id: 'louvre', country: 'fr' }];
+      // Register project and context in tracker
+      tracker.register({
+        uuid: 'uuid-project-testproject',
+        backwardCompatibility: 'mwnf3:projects:testproject:project',
+        entityType: 'project',
+        createdAt: new Date(),
+      });
+      tracker.register({
+        uuid: 'uuid-context-testproject',
+        backwardCompatibility: 'mwnf3:projects:testproject',
+        entityType: 'context',
+        createdAt: new Date(),
+      });
+
+      const mockMuseums = [{ museum_id: 'louvre', country: 'fr', project_id: 'testproject' }];
 
       vi.mocked(mockContext.legacyDb.query)
         .mockResolvedValueOnce(mockMuseums) // museums

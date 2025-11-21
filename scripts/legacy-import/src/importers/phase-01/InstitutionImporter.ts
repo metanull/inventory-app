@@ -108,16 +108,11 @@ export class InstitutionImporter extends BaseImporter {
     const countryId = institution.country ? mapCountryCode(institution.country) : undefined;
 
     // Try to create Partner (may already exist from previous import run)
-    // Ensure internal_name is never empty - use fallbacks
-    const internalName =
-      institution.name?.trim() ||
-      institution.institution_id?.trim() ||
-      `Institution_${institution.institution_id}_${institution.country}`;
-
+    // Use institution.name from legacy database
     let partnerId: string | undefined = undefined;
     try {
       const partnerResponse = await this.context.apiClient.partner.partnerStore({
-        internal_name: internalName,
+        internal_name: institution.name,
         type: 'institution',
         country_id: countryId,
         visible: true,

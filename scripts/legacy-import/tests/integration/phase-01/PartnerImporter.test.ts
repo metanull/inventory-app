@@ -35,13 +35,36 @@ describe('PartnerImporter', () => {
 
   describe('import', () => {
     it('should import both museums and institutions', async () => {
+      // Register project and context in tracker for museums
+      tracker.register({
+        uuid: 'uuid-project-testproject',
+        backwardCompatibility: 'mwnf3:projects:testproject:project',
+        entityType: 'project',
+        createdAt: new Date(),
+      });
+      tracker.register({
+        uuid: 'uuid-context-testproject',
+        backwardCompatibility: 'mwnf3:projects:testproject',
+        entityType: 'context',
+        createdAt: new Date(),
+      });
+      // Register default context for institutions
+      tracker.register({
+        uuid: 'uuid-context-default',
+        backwardCompatibility: '__default_context__',
+        entityType: 'context',
+        createdAt: new Date(),
+      });
+
       // Mock museums
-      const mockMuseums = [{ museum_id: 'louvre', country: 'fr' }];
-      const mockMuseumNames = [{ museum_id: 'louvre', language: 'en', name: 'Louvre' }];
+      const mockMuseums = [
+        { museum_id: 'louvre', country: 'fr', name: 'Louvre', project_id: 'testproject' },
+      ];
+      const mockMuseumNames = [{ museum_id: 'louvre', lang: 'en', name: 'Louvre' }];
 
       // Mock institutions
-      const mockInstitutions = [{ institution_id: 'unesco', country: 'fr' }];
-      const mockInstitutionNames = [{ institution_id: 'unesco', language: 'en', name: 'UNESCO' }];
+      const mockInstitutions = [{ institution_id: 'unesco', country: 'fr', name: 'UNESCO' }];
+      const mockInstitutionNames = [{ institution_id: 'unesco', lang: 'en', name: 'UNESCO' }];
 
       // Setup query mocks in order: museums, museumnames, institutions, institutionnames
       vi.mocked(mockContext.legacyDb.query)
@@ -77,20 +100,28 @@ describe('PartnerImporter', () => {
 
       // Verify both types were created
       expect(mockContext.apiClient.partner.partnerStore).toHaveBeenCalledWith({
-        internal_name: 'louvre',
+        internal_name: 'Louvre',
         type: 'museum',
-        backward_compatibility: 'mwnf3:museums:louvre',
+        country_id: 'fra', // 3-letter ISO 3166-1 alpha-3
+        project_id: 'uuid-project-testproject',
+        latitude: undefined,
+        longitude: undefined,
+        map_zoom: undefined,
+        visible: true,
+        backward_compatibility: 'mwnf3:museums:louvre:fr',
       });
 
       expect(mockContext.apiClient.partner.partnerStore).toHaveBeenCalledWith({
-        internal_name: 'unesco',
+        internal_name: 'UNESCO',
         type: 'institution',
-        backward_compatibility: 'mwnf3:institutions:unesco',
+        country_id: 'fra',
+        visible: true,
+        backward_compatibility: 'mwnf3:institutions:unesco:fr',
       });
 
       // Verify tracker has both
-      expect(tracker.exists('mwnf3:museums:louvre')).toBe(true);
-      expect(tracker.exists('mwnf3:institutions:unesco')).toBe(true);
+      expect(tracker.exists('mwnf3:museums:louvre:fr')).toBe(true);
+      expect(tracker.exists('mwnf3:institutions:unesco:fr')).toBe(true);
     });
 
     it('should handle errors from sub-importers', async () => {
@@ -109,15 +140,29 @@ describe('PartnerImporter', () => {
     });
 
     it('should aggregate counts from both importers', async () => {
+      // Register project and context in tracker for museums
+      tracker.register({
+        uuid: 'uuid-project-testproject',
+        backwardCompatibility: 'mwnf3:projects:testproject:project',
+        entityType: 'project',
+        createdAt: new Date(),
+      });
+      tracker.register({
+        uuid: 'uuid-context-testproject',
+        backwardCompatibility: 'mwnf3:projects:testproject',
+        entityType: 'context',
+        createdAt: new Date(),
+      });
+
       // Mock 2 museums, 3 institutions
       const mockMuseums = [
-        { museum_id: 'louvre', country: 'fr' },
-        { museum_id: 'british', country: 'gb' },
+        { museum_id: 'louvre', country: 'fr', name: 'Louvre', project_id: 'testproject' },
+        { museum_id: 'british', country: 'gb', name: 'British Museum', project_id: 'testproject' },
       ];
       const mockInstitutions = [
-        { institution_id: 'unesco', country: 'fr' },
-        { institution_id: 'icom', country: 'fr' },
-        { institution_id: 'icomos', country: 'fr' },
+        { institution_id: 'unesco', country: 'fr', name: 'UNESCO' },
+        { institution_id: 'icom', country: 'fr', name: 'ICOM' },
+        { institution_id: 'icomos', country: 'fr', name: 'ICOMOS' },
       ];
 
       vi.mocked(mockContext.legacyDb.query)
@@ -128,6 +173,10 @@ describe('PartnerImporter', () => {
 
       vi.mocked(mockContext.apiClient.partner.partnerStore).mockResolvedValue({
         data: { data: { id: 'uuid-partner' } },
+      } as never);
+
+      vi.mocked(mockContext.apiClient.context.contextGetDefault).mockResolvedValue({
+        data: { data: { id: 'uuid-context-default' } },
       } as never);
 
       const result = await importer.import();
