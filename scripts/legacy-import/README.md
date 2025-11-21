@@ -35,28 +35,78 @@ LEGACY_IMAGE_PATH=\\\\virtual-office.museumwnf.org\\C$\\mwnf-server\\pictures\\i
 
 ## Usage
 
+### Basic Commands
+
 ```bash
 # 1. Authenticate (saves token to .env)
-npx tsx src/index.ts login
+npm run login
 
 # 2. Validate connections
-npx tsx src/index.ts validate
+npm run validate
+```
 
-# 3. Run import (dry-run first recommended)
+### Granular Import Control
+
+**List available importers:**
+```bash
+npm run list
+
+# Or directly:
+npx tsx src/index.ts import --phase 1 --list-importers
+```
+
+**Resume from specific importer (skip earlier ones):**
+```bash
+# Phase 1 failed at Partner, fix it, then resume from Partner onwards:
+npx tsx src/index.ts import --phase 1 --start-at partner
+
+# Skips: Projects
+# Runs: Partners → Objects → Monuments
+```
+
+**Run only one importer:**
+```bash
+# Run only Objects (useful for testing/fixing specific importer):
+npx tsx src/index.ts import --phase 1 --only object
+
+# Skips: Projects, Partners, Monuments
+# Runs: Objects only
+```
+
+**Combine with dry-run:**
+```bash
+npx tsx src/index.ts import --phase 1 --start-at object --dry-run
+npx tsx src/index.ts import --phase 1 --only monument --dry-run
+```
+
+### Available Importers
+
+**Phase 0** (Reference Data - always runs):
+- `language` - Import language reference data
+- `country` - Import country reference data
+- `default-context` - Create default context
+
+**Phase 1** (Core Data):
+- `project` - Import projects and collections
+- `partner` - Import museums and institutions
+- `object` - Import object items
+- `monument` - Import monument items
+
+### All CLI Options
+
+```bash
+npx tsx src/index.ts import \
+  [--phase <0-17>] \
+  [--dry-run] \
+  [--start-at <importer>] \
+  [--only <importer>] \
+  [--list-importers]
+
+# Examples:
 npx tsx src/index.ts import --phase 1 --dry-run
-npx tsx src/index.ts import --phase 1
-
-# With limits (recommended for testing)
-npx tsx src/index.ts import --phase 1 --limit 5
-
-# All options
-npx tsx src/index.ts import [--phase <1-17>] [--dry-run] [--limit <number>]
-npx tsx src/index.ts login [--url <api-url>]
-npx tsx src/index.ts status
-
-# Examples
-npx tsx src/index.ts import --phase 1 --dry-run --limit 10
-npx tsx src/index.ts import --phase 1 --limit 100
+npx tsx src/index.ts import --phase 1 --start-at partner
+npx tsx src/index.ts import --phase 1 --only object
+npx tsx src/index.ts import --phase 0 --list-importers
 npx tsx src/index.ts login --url http://other-api.local/api
 ```
 

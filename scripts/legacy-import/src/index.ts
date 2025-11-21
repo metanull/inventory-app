@@ -8,6 +8,20 @@ import { createLegacyDatabase } from './database/LegacyDatabase.js';
 // Load environment variables
 dotenv.config({ path: resolve(process.cwd(), '.env') });
 
+// Importer registry for phase control
+const PHASE_0_IMPORTERS = [
+  { key: 'language', name: 'Languages', description: 'Import language reference data' },
+  { key: 'country', name: 'Countries', description: 'Import country reference data' },
+  { key: 'default-context', name: 'Default Context', description: 'Create default context' },
+] as const;
+
+const PHASE_1_IMPORTERS = [
+  { key: 'project', name: 'Projects', description: 'Import projects and collections' },
+  { key: 'partner', name: 'Partners', description: 'Import museums and institutions' },
+  { key: 'object', name: 'Objects', description: 'Import object items' },
+  { key: 'monument', name: 'Monuments', description: 'Import monument items' },
+] as const;
+
 const program = new Command();
 
 program
@@ -84,14 +98,53 @@ program
   .description('Run import process')
   .option('-p, --phase <number>', 'Run specific phase (1-17)', 'all')
   .option('--dry-run', 'Simulate import without writing data', false)
+  .option('--start-at <importer>', 'Start from specific importer within phase (skip earlier ones)')
+  .option('--only <importer>', 'Run only the specified importer (skip all others)')
+  .option('--list-importers', 'List available importers for the specified phase and exit')
   .action(async (options) => {
     try {
       const phase = options.phase === 'all' ? 'all' : parseInt(options.phase, 10);
       const dryRun = options.dryRun === true;
+      const startAt = options.startAt;
+      const only = options.only;
+      const listImporters = options.listImporters === true;
+
+      // Handle --list-importers
+      if (listImporters) {
+        console.log('\n📋 Available Importers\n');
+        
+        if (phase === 0 || phase === 'all') {
+          console.log('Phase 0: Reference Data');
+          PHASE_0_IMPORTERS.forEach((imp, idx) => {
+            console.log(`  ${idx + 1}. ${imp.key.padEnd(20)} - ${imp.description}`);
+          });
+          console.log('');
+        }
+        
+        if (phase === 1 || phase === 'all') {
+          console.log('Phase 1: Core Data');
+          PHASE_1_IMPORTERS.forEach((imp, idx) => {
+            console.log(`  ${idx + 1}. ${imp.key.padEnd(20)} - ${imp.description}`);
+          });
+          console.log('');
+        }
+        
+        if (phase !== 0 && phase !== 1 && phase !== 'all') {
+          console.log(`⚠️  Phase ${phase} not yet implemented\n`);
+        }
+        
+        console.log('Usage examples:');
+        console.log('  npm run import -- --phase 1 --start-at partner');
+        console.log('  npm run import -- --phase 1 --only object');
+        console.log('');
+        process.exit(0);
+      }
 
       console.log('🚀 Starting import...');
       console.log(`   Phase: ${phase}`);
       console.log(`   Dry-run: ${dryRun ? 'YES' : 'NO'}`);
+      if (startAt) console.log(`   Start at: ${startAt}`);
+      if (only) console.log(`   Only: ${only}`);
       console.log('');
 
       // Validate connections first
@@ -174,15 +227,24 @@ program
       );
 
       // Languages
-      console.log('Languages: ');
-      writeLog('\nLanguages:');
-      const languageImporter = new LanguageImporter(importContext);
-      languageResult = await languageImporter.import();
-      writeLog(`  Imported: ${languageResult.imported}`);
-      writeLog(`  Skipped: ${languageResult.skipped}`);
+      const shouldRunLanguage = !only || only === 'language';
+      const skipLanguage = startAt && startAt !== 'language' && 
+        PHASE_0_IMPORTERS.findIndex(i => i.key === startAt) < PHASE_0_IMPORTERS.findIndex(i => i.key === 'language');
+      
+      if (shouldRunLanguage && !skipLanguage) {
+        console.log('Languages: ');
+        writeLog('\nLanguages:');
+        const languageImporter = new LanguageImporter(importContext);
+        languageResult = await languageImporter.import();
+        writeLog(`  Imported: ${languageResult.imported}`);
+        writeLog(`  Skipped: ${languageResult.skipped}`);
+      } else {
+        console.log('Languages: ⏭️  Skipped');
+        writeLog('\nLanguages: SKIPPED (--start-at or --only)');
+      }
 
       // CRITICAL: Stop if Language import failed
-      if (!languageResult.success) {
+      if (!languageResult.success && shouldRunLanguage && !skipLanguage) {
         console.error('\n❌ CRITICAL ERROR: Language import failed. Cannot proceed.\n');
         writeLog('\n❌ CRITICAL ERROR: Language import failed. Cannot proceed.');
         if (languageResult.errors.length > 0) {
@@ -192,15 +254,24 @@ program
       }
 
       // Countries
-      console.log('Countries: ');
-      writeLog('\nCountries:');
-      const countryImporter = new CountryImporter(importContext);
-      countryResult = await countryImporter.import();
-      writeLog(`  Imported: ${countryResult.imported}`);
-      writeLog(`  Skipped: ${countryResult.skipped}`);
+      const shouldRunCountry = !only || only === 'country';
+      const skipCountry = startAt && 
+        PHASE_0_IMPORTERS.findIndex(i => i.key === startAt) > PHASE_0_IMPORTERS.findIndex(i => i.key === 'country');
+      
+      if (shouldRunCountry && !skipCountry) {
+        console.log('Countries: ');
+        writeLog('\nCountries:');
+        const countryImporter = new CountryImporter(importContext);
+        countryResult = await countryImporter.import();
+        writeLog(`  Imported: ${countryResult.imported}`);
+        writeLog(`  Skipped: ${countryResult.skipped}`);
+      } else {
+        console.log('Countries: ⏭️  Skipped');
+        writeLog('\nCountries: SKIPPED (--start-at or --only)');
+      }
 
       // CRITICAL: Stop if Country import failed
-      if (!countryResult.success) {
+      if (!countryResult.success && shouldRunCountry && !skipCountry) {
         console.error('\n❌ CRITICAL ERROR: Country import failed. Cannot proceed.\n');
         writeLog('\n❌ CRITICAL ERROR: Country import failed. Cannot proceed.');
         if (countryResult.errors.length > 0) {
@@ -210,15 +281,24 @@ program
       }
 
       // Default Context
-      console.log('Default Context: ');
-      writeLog('\nDefault Context:');
-      const defaultContextImporter = new DefaultContextImporter(importContext);
-      defaultContextResult = await defaultContextImporter.import();
-      writeLog(`  Imported: ${defaultContextResult.imported}`);
-      writeLog(`  Skipped: ${defaultContextResult.skipped}`);
+      const shouldRunDefaultContext = !only || only === 'default-context';
+      const skipDefaultContext = startAt && 
+        PHASE_0_IMPORTERS.findIndex(i => i.key === startAt) > PHASE_0_IMPORTERS.findIndex(i => i.key === 'default-context');
+      
+      if (shouldRunDefaultContext && !skipDefaultContext) {
+        console.log('Default Context: ');
+        writeLog('\nDefault Context:');
+        const defaultContextImporter = new DefaultContextImporter(importContext);
+        defaultContextResult = await defaultContextImporter.import();
+        writeLog(`  Imported: ${defaultContextResult.imported}`);
+        writeLog(`  Skipped: ${defaultContextResult.skipped}`);
+      } else {
+        console.log('Default Context: ⏭️  Skipped');
+        writeLog('\nDefault Context: SKIPPED (--start-at or --only)');
+      }
 
       // CRITICAL: Stop if Default Context import failed
-      if (!defaultContextResult.success) {
+      if (!defaultContextResult.success && shouldRunDefaultContext && !skipDefaultContext) {
         console.error('\n❌ CRITICAL ERROR: Default Context import failed. Cannot proceed.\n');
         writeLog('\n❌ CRITICAL ERROR: Default Context import failed. Cannot proceed.');
         if (defaultContextResult.errors.length > 0) {
@@ -236,20 +316,29 @@ program
         const { ProjectImporter } = await import('./importers/phase-01/ProjectImporter.js');
 
         // Import projects first
-        console.log('Projects: ');
-        writeLog('\nProjects Import:');
-        const projectImporter = new ProjectImporter(importContext);
-        projectResult = await projectImporter.import();
-        writeLog(`  Imported: ${projectResult.imported}`);
-        writeLog(`  Skipped: ${projectResult.skipped}`);
-        writeLog(`  Errors: ${projectResult.errors.length}`);
-        if (projectResult.errors.length > 0) {
-          writeLog('  Error details:');
-          projectResult.errors.forEach((err) => writeLog(`    - ${err}`));
+        const shouldRunProject = !only || only === 'project';
+        const skipProject = startAt && 
+          PHASE_1_IMPORTERS.findIndex(i => i.key === startAt) > PHASE_1_IMPORTERS.findIndex(i => i.key === 'project');
+        
+        if (shouldRunProject && !skipProject) {
+          console.log('Projects: ');
+          writeLog('\nProjects Import:');
+          const projectImporter = new ProjectImporter(importContext);
+          projectResult = await projectImporter.import();
+          writeLog(`  Imported: ${projectResult.imported}`);
+          writeLog(`  Skipped: ${projectResult.skipped}`);
+          writeLog(`  Errors: ${projectResult.errors.length}`);
+          if (projectResult.errors.length > 0) {
+            writeLog('  Error details:');
+            projectResult.errors.forEach((err) => writeLog(`    - ${err}`));
+          }
+        } else {
+          console.log('Projects: ⏭️  Skipped');
+          writeLog('\nProjects Import: SKIPPED (--start-at or --only)');
         }
 
         // CRITICAL: Stop if Project import had errors (partners depend on projects)
-        if (projectResult.errors.length > 0) {
+        if (projectResult.errors.length > 0 && shouldRunProject && !skipProject) {
           console.error(
             '\n❌ CRITICAL ERROR: Project import failed. Cannot proceed with Partners.\n'
           );
@@ -258,20 +347,29 @@ program
         }
 
         // Import partners (museums + institutions)
-        console.log('Partners: ');
-        writeLog('\nPartners Import (Museums + Institutions):');
-        const partnerImporter = new PartnerImporter(importContext);
-        partnerResult = await partnerImporter.import();
-        writeLog(`  Imported: ${partnerResult.imported}`);
-        writeLog(`  Skipped: ${partnerResult.skipped}`);
-        writeLog(`  Errors: ${partnerResult.errors.length}`);
-        if (partnerResult.errors.length > 0) {
-          writeLog('  Error details:');
-          partnerResult.errors.forEach((err) => writeLog(`    - ${err}`));
+        const shouldRunPartner = !only || only === 'partner';
+        const skipPartner = startAt && 
+          PHASE_1_IMPORTERS.findIndex(i => i.key === startAt) > PHASE_1_IMPORTERS.findIndex(i => i.key === 'partner');
+        
+        if (shouldRunPartner && !skipPartner) {
+          console.log('Partners: ');
+          writeLog('\nPartners Import (Museums + Institutions):');
+          const partnerImporter = new PartnerImporter(importContext);
+          partnerResult = await partnerImporter.import();
+          writeLog(`  Imported: ${partnerResult.imported}`);
+          writeLog(`  Skipped: ${partnerResult.skipped}`);
+          writeLog(`  Errors: ${partnerResult.errors.length}`);
+          if (partnerResult.errors.length > 0) {
+            writeLog('  Error details:');
+            partnerResult.errors.forEach((err) => writeLog(`    - ${err}`));
+          }
+        } else {
+          console.log('Partners: ⏭️  Skipped');
+          writeLog('\nPartners Import (Museums + Institutions): SKIPPED (--start-at or --only)');
         }
 
         // CRITICAL: Stop if Partner import had errors (items depend on partners)
-        if (partnerResult.errors.length > 0) {
+        if (partnerResult.errors.length > 0 && shouldRunPartner && !skipPartner) {
           console.error('\n❌ CRITICAL ERROR: Partner import failed. Cannot proceed with Items.\n');
           writeLog('\n❌ CRITICAL ERROR: Partner import failed. Cannot proceed.');
           process.exit(1);
@@ -282,29 +380,47 @@ program
         const { MonumentImporter } = await import('./importers/phase-01/MonumentImporter.js');
 
         // Import objects
-        console.log('Objects: ');
-        writeLog('\nObjects Import:');
-        const objectImporter = new ObjectImporter(importContext);
-        objectResult = await objectImporter.import();
-        writeLog(`  Imported: ${objectResult.imported}`);
-        writeLog(`  Skipped: ${objectResult.skipped}`);
-        writeLog(`  Errors: ${objectResult.errors.length}`);
-        if (objectResult.errors.length > 0) {
-          writeLog('  Error details (first 10):');
-          objectResult.errors.slice(0, 10).forEach((err) => writeLog(`    - ${err}`));
+        const shouldRunObject = !only || only === 'object';
+        const skipObject = startAt && 
+          PHASE_1_IMPORTERS.findIndex(i => i.key === startAt) > PHASE_1_IMPORTERS.findIndex(i => i.key === 'object');
+        
+        if (shouldRunObject && !skipObject) {
+          console.log('Objects: ');
+          writeLog('\nObjects Import:');
+          const objectImporter = new ObjectImporter(importContext);
+          objectResult = await objectImporter.import();
+          writeLog(`  Imported: ${objectResult.imported}`);
+          writeLog(`  Skipped: ${objectResult.skipped}`);
+          writeLog(`  Errors: ${objectResult.errors.length}`);
+          if (objectResult.errors.length > 0) {
+            writeLog('  Error details (first 10):');
+            objectResult.errors.slice(0, 10).forEach((err) => writeLog(`    - ${err}`));
+          }
+        } else {
+          console.log('Objects: ⏭️  Skipped');
+          writeLog('\nObjects Import: SKIPPED (--start-at or --only)');
         }
 
         // Import monuments
-        console.log('Monuments: ');
-        writeLog('\nMonuments Import:');
-        const monumentImporter = new MonumentImporter(importContext);
-        monumentResult = await monumentImporter.import();
-        writeLog(`  Imported: ${monumentResult.imported}`);
-        writeLog(`  Skipped: ${monumentResult.skipped}`);
-        writeLog(`  Errors: ${monumentResult.errors.length}`);
-        if (monumentResult.errors.length > 0) {
-          writeLog('  Error details (first 10):');
-          monumentResult.errors.slice(0, 10).forEach((err) => writeLog(`    - ${err}`));
+        const shouldRunMonument = !only || only === 'monument';
+        const skipMonument = startAt && 
+          PHASE_1_IMPORTERS.findIndex(i => i.key === startAt) > PHASE_1_IMPORTERS.findIndex(i => i.key === 'monument');
+        
+        if (shouldRunMonument && !skipMonument) {
+          console.log('Monuments: ');
+          writeLog('\nMonuments Import:');
+          const monumentImporter = new MonumentImporter(importContext);
+          monumentResult = await monumentImporter.import();
+          writeLog(`  Imported: ${monumentResult.imported}`);
+          writeLog(`  Skipped: ${monumentResult.skipped}`);
+          writeLog(`  Errors: ${monumentResult.errors.length}`);
+          if (monumentResult.errors.length > 0) {
+            writeLog('  Error details (first 10):');
+            monumentResult.errors.slice(0, 10).forEach((err) => writeLog(`    - ${err}`));
+          }
+        } else {
+          console.log('Monuments: ⏭️  Skipped');
+          writeLog('\nMonuments Import: SKIPPED (--start-at or --only)');
         }
       }
 
