@@ -33,7 +33,7 @@ jobs:
       - name: "Setup > Image > Install php"
         uses: shivammathur/setup-php@v2
         with:
-          # php-version: '8.2'  # If not specified, setup-php will use the version defined in composer.lock
+          php-version: '8.4'  # If not specified, setup-php will use the version defined in composer.lock
           extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
           tools: pint
 
@@ -117,7 +117,7 @@ jobs:
       - name: "Setup > Image > Install php"
         uses: shivammathur/setup-php@v2
         with:
-          # php-version: '8.2'  # If not specified, setup-php will use the version defined in composer.lock
+          php-version: '8.4'  # If not specified, setup-php will use the version defined in composer.lock
           extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
           coverage: xdebug
           tools: phpunit, pest
