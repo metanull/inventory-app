@@ -223,13 +223,9 @@ LOG_DAILY_DAYS=14                   # Days to keep daily logs
 SESSION_SECURE_COOKIE=true
 SESSION_SAME_SITE=strict
 
-# CORS Configuration
-CORS_ALLOWED_ORIGINS=https://your-frontend-domain.com
-CORS_ALLOWED_METHODS=GET,POST,PUT,PATCH,DELETE,OPTIONS
-CORS_ALLOWED_HEADERS=Content-Type,Authorization,X-Requested-With
-CORS_EXPOSED_HEADERS=
-CORS_MAX_AGE=0
-CORS_SUPPORTS_CREDENTIALS=true
+# CORS Configuration - comma-separated list of allowed origins
+# Example for GitHub Pages: CORS_ALLOWED_ORIGINS=https://username.github.io
+CORS_ALLOWED_ORIGINS=https://metanull.github.io/inventory-management-ui
 ```
 
 ## Application Configuration Files
@@ -564,6 +560,20 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
 
 ### Laravel Security Configuration
 
+#### CORS (Cross-Origin Resource Sharing)
+
+The API supports CORS for external frontend applications. Configure allowed origins in `.env`:
+
+```env
+# Single origin
+CORS_ALLOWED_ORIGINS=https://example.github.io
+
+# Multiple origins (comma-separated)
+CORS_ALLOWED_ORIGINS=https://example.github.io,https://app.example.com
+```
+
+Configuration file:
+
 ```php
 // config/cors.php
 <?php
@@ -571,7 +581,13 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
 return [
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
+    'allowed_origins' => array_filter(
+        array_map(
+            'trim',
+            explode(',', env('CORS_ALLOWED_ORIGINS', ''))
+        ),
+        fn ($origin) => ! empty($origin)
+    ),
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
