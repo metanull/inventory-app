@@ -583,7 +583,7 @@ npx tsx src/index.ts import --phase 1 --only monument           # Import only mo
 npx tsx src/index.ts import --phase 1 --only monument --dry-run # Pretend/ don't actually import
 
 ### Enable Verbose Logging
-LOG_LEVEL=debug npm start -- import --phase 1
+LOG_LEVEL=debug npx tsx src/index.ts import --phase 1
 ```
 
 ## Configuration
@@ -605,11 +605,6 @@ LOG_LEVEL=debug npm start -- import --phase 1
    API_BASE_URL=http://localhost:8000/api
    ```
 
-3. Login to get API token (saves to .env automatically):
-   ```bash
-   npm start -- login
-   ```
-
 ### Full Configuration
 
 ```bash
@@ -621,7 +616,6 @@ LEGACY_DB_PASSWORD=your_password
 
 # New API
 API_BASE_URL=http://localhost:8000/api
-API_TOKEN=                # Set via "npm start -- login"
 
 # Import options
 DRY_RUN=true              # Simulate without writing

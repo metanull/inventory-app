@@ -18,21 +18,59 @@ export class DefaultContextImporter extends BaseImporter {
       errors: [],
     };
 
-    const defaultContext = {
-      internal_name: 'Default Context',
-      backward_compatibility: null,
-    };
-
     try {
       if (this.context.dryRun) {
-        this.logInfo('[DRY-RUN] Would create default context');
+        this.logInfo('[DRY-RUN] Would check and create default context if needed');
         result.imported++;
         return result;
       }
 
-      // Try to create - if 422, it already exists
+      // Step 1: Check if default context already exists
+      try {
+        const existingResponse = await this.context.apiClient.context.contextGetDefault();
+        const existingContext = existingResponse.data.data;
+
+        if (existingContext) {
+          // Default context exists - register in tracker and skip
+          this.context.tracker.register({
+            uuid: existingContext.id,
+            backwardCompatibility: '__default_context__',
+            entityType: 'context',
+            createdAt: new Date(),
+          });
+
+          this.logInfo(`Default context already exists: ${existingContext.id}`);
+          result.skipped++;
+          this.showSkipped();
+          this.showSummary(result.imported, result.skipped, result.errors.length);
+          result.success = true;
+          return result;
+        }
+      } catch (error) {
+        // 404 means no default exists - continue to create
+        if (error && typeof error === 'object' && 'response' in error) {
+          const axiosError = error as { response?: { status?: number } };
+          if (axiosError.response?.status !== 404) {
+            // Unexpected error - propagate
+            throw error;
+          }
+          // 404 is expected - no default exists yet
+        } else {
+          throw error;
+        }
+      }
+
+      // Step 2: No default context exists - create one
+      const defaultContext = {
+        internal_name: 'Default Context',
+        backward_compatibility: null,
+      };
+
       const response = await this.context.apiClient.context.contextStore(defaultContext);
       const contextId = response.data.data.id;
+
+      // Step 3: Set the newly created context as default
+      await this.context.apiClient.context.contextSetDefault(contextId, { is_default: true });
 
       // Register in tracker for use by other importers
       this.context.tracker.register({
@@ -46,44 +84,13 @@ export class DefaultContextImporter extends BaseImporter {
       result.imported++;
       this.showProgress();
     } catch (error) {
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number; data?: unknown } };
-        if (axiosError.response?.status === 422) {
-          // Already exists - try to find it and register in tracker
-          this.logInfo('Default context already exists');
-          result.skipped++;
-          this.showSkipped();
-
-          // Try to get existing default context
-          try {
-            // Query contexts to find "Default Context"
-            const contextsResponse = await this.context.apiClient.context.contextIndex();
-            const contexts = contextsResponse.data.data;
-            const defaultCtx = contexts.find(
-              (c: { internal_name?: string }) => c.internal_name === 'Default Context'
-            );
-
-            if (defaultCtx) {
-              this.context.tracker.register({
-                uuid: defaultCtx.id,
-                backwardCompatibility: '__default_context__',
-                entityType: 'context',
-                createdAt: new Date(),
-              });
-              this.logInfo(`Registered existing default context: ${defaultCtx.id}`);
-            }
-          } catch {
-            this.logInfo('Warning: Could not register existing default context in tracker');
-          }
-        } else {
-          const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(`Default Context: ${message}`);
-          this.showError();
-        }
-      }
+      const message = error instanceof Error ? error.message : String(error);
+      result.errors.push(`Default Context: ${message}`);
+      result.success = false;
+      this.showError();
     }
-    this.showSummary(result.imported, result.skipped, result.errors.length);
 
+    this.showSummary(result.imported, result.skipped, result.errors.length);
     result.success = result.errors.length === 0;
     return result;
   }

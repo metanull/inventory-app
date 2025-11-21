@@ -15,7 +15,7 @@ import { BackwardCompatibilityTracker } from '../../src/utils/BackwardCompatibil
  *
  * Prerequisites:
  * 1. Legacy database accessible with credentials in .env
- * 2. API running and accessible (use `npm start -- login` first)
+ * 2. API running and accessible (use `npx tsx src/index.ts login` first)
  * 3. Database should be in clean state or able to handle duplicates
  *
  * This test:
@@ -36,7 +36,7 @@ describe.skip('E2E: Phase 1 Real Import', () => {
     // Verify API is accessible
     const isConnected = await apiClient.testConnection();
     if (!isConnected) {
-      throw new Error('API connection failed. Run "npm start -- login" and ensure API is running.');
+      throw new Error('API connection failed. Run "npx tsx src/index.ts login" and ensure API is running.');
     }
 
     tracker = new BackwardCompatibilityTracker();

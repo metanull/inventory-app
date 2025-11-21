@@ -45,69 +45,90 @@ npm run login
 npm run validate
 ```
 
-### Granular Import Control
+### Granular Import Control ⭐
 
 **List available importers:**
 ```bash
-npm run list
+npm run import:list
 
 # Or directly:
-npx tsx src/index.ts import --phase 1 --list-importers
+npx tsx src/index.ts import --list-importers
 ```
 
 **Resume from specific importer (skip earlier ones):**
 ```bash
-# Phase 1 failed at Partner, fix it, then resume from Partner onwards:
-npx tsx src/index.ts import --phase 1 --start-at partner
+# Partner failed, fix it, then resume from Partner onwards:
+npx tsx src/index.ts import --start-at partner
 
-# Skips: Projects
-# Runs: Partners → Objects → Monuments
+# Skips: language, country, default-context, project
+# Runs: partner → object → monument
+```
+
+**Stop at specific importer:**
+```bash
+# Run up to and including partner:
+npx tsx src/index.ts import --stop-at partner
+
+# Runs: language → country → default-context → project → partner
+# Skips: object, monument
+```
+
+**Run specific range:**
+```bash
+# Run from project to object (inclusive):
+npx tsx src/index.ts import --start-at project --stop-at object
+
+# Skips: language, country, default-context
+# Runs: project → partner → object
+# Skips: monument
 ```
 
 **Run only one importer:**
 ```bash
-# Run only Objects (useful for testing/fixing specific importer):
-npx tsx src/index.ts import --phase 1 --only object
+# Run only object (useful for testing/fixing specific importer):
+npx tsx src/index.ts import --only object
 
-# Skips: Projects, Partners, Monuments
-# Runs: Objects only
+# Skips everything except: object
 ```
 
 **Combine with dry-run:**
 ```bash
-npx tsx src/index.ts import --phase 1 --start-at object --dry-run
-npx tsx src/index.ts import --phase 1 --only monument --dry-run
+npx tsx src/index.ts import --start-at object --dry-run
+npx tsx src/index.ts import --stop-at partner --dry-run
+npx tsx src/index.ts import --only monument --dry-run
 ```
 
 ### Available Importers
 
-**Phase 0** (Reference Data - always runs):
-- `language` - Import language reference data
-- `country` - Import country reference data
-- `default-context` - Create default context
+All importers are **critical** - execution stops immediately on first error.
 
-**Phase 1** (Core Data):
-- `project` - Import projects and collections
-- `partner` - Import museums and institutions
-- `object` - Import object items
-- `monument` - Import monument items
+1. `language` - Import language reference data
+2. `country` - Import country reference data
+3. `default-context` - Create default context
+4. `project` - Import projects and collections
+5. `partner` - Import museums and institutions
+6. `object` - Import object items
+7. `monument` - Import monument items
 
 ### All CLI Options
 
 ```bash
 npx tsx src/index.ts import \
-  [--phase <0-17>] \
   [--dry-run] \
   [--start-at <importer>] \
+  [--stop-at <importer>] \
   [--only <importer>] \
   [--list-importers]
 
 # Examples:
-npx tsx src/index.ts import --phase 1 --dry-run
-npx tsx src/index.ts import --phase 1 --start-at partner
-npx tsx src/index.ts import --phase 1 --only object
-npx tsx src/index.ts import --phase 0 --list-importers
-npx tsx src/index.ts login --url http://other-api.local/api
+npx tsx src/index.ts import                          # Run all importers
+npx tsx src/index.ts import --dry-run                # Dry-run all
+npx tsx src/index.ts import --start-at partner       # Resume from partner
+npx tsx src/index.ts import --stop-at object         # Stop at object
+npx tsx src/index.ts import --start-at project --stop-at object  # Range
+npx tsx src/index.ts import --only object            # Run only object
+npx tsx src/index.ts import --list-importers         # List all
+npx tsx src/index.ts login --url http://other-api.local/api  # Login
 ```
 
 ## Testing
