@@ -361,7 +361,9 @@ program
           // Report warnings if any
           if (result.warnings.length > 0) {
             logger.console('');
-            logger.warning(`⚠️  ${config.name} had ${result.warnings.length} data quality warnings:`);
+            logger.warning(
+              `⚠️  ${config.name} had ${result.warnings.length} data quality warnings:`
+            );
             result.warnings.slice(0, 10).forEach((w) => logger.console(`  - ${w}`));
             if (result.warnings.length > 10) {
               logger.console(`  ... and ${result.warnings.length - 10} more (see log file)`);
@@ -396,13 +398,13 @@ program
       );
 
       logger.summary(totals.imported, totals.skipped, totals.errors);
-      
+
       if (totals.warnings > 0) {
         logger.console('');
         logger.warning(`⚠️  Total data quality warnings: ${totals.warnings}`);
         logger.console('Review log file for details on how to address these issues.');
       }
-      
+
       logger.info(`Log saved: ${logPath}`, '📄');
 
       if (totals.errors > 0) process.exit(1);
