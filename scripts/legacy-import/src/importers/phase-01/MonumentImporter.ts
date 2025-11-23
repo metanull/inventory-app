@@ -357,6 +357,8 @@ export class MonumentImporter extends BaseImporter {
 
   /**
    * Parse and create tags from comma-separated string
+   * Primary separator: semicolon (;) - used in 1329/1989 monument keywords  
+   * Fallback separator: comma (,) - used when no semicolons found
    * Returns array of tag UUIDs
    */
   private async findOrCreateTags(tagString: string, category: string, result: ImportResult): Promise<string[]> {
@@ -364,9 +366,12 @@ export class MonumentImporter extends BaseImporter {
       return [];
     }
 
-    // Split by comma and clean
+    // Use semicolon as primary separator, comma as fallback if no semicolons present
+    const separator = tagString.includes(';') ? ';' : ',';
+    
+    // Split by separator and clean
     const tagNames = tagString
-      .split(',')
+      .split(separator)
       .map((t) => t.trim())
       .filter((t) => t !== '');
 

@@ -453,7 +453,9 @@ export class ObjectImporter extends BaseImporter {
   }
 
   /**
-   * Parse and create tags from comma-separated string
+   * Parse and create tags from separated string
+   * Primary separator: semicolon (;) - used in 4800/6714 object keywords, 1329/1989 monument keywords
+   * Fallback separator: comma (,) - used when no semicolons found (materials field often uses commas)
    * Returns array of tag UUIDs
    */
   private async findOrCreateTags(tagString: string, category: string, result: ImportResult): Promise<string[]> {
@@ -461,9 +463,12 @@ export class ObjectImporter extends BaseImporter {
       return [];
     }
 
-    // Split by comma and clean
+    // Use semicolon as primary separator, comma as fallback if no semicolons present
+    const separator = tagString.includes(';') ? ';' : ',';
+    
+    // Split by separator and clean
     const tagNames = tagString
-      .split(',')
+      .split(separator)
       .map((t) => t.trim())
       .filter((t) => t !== '');
 
