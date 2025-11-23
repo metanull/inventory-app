@@ -15,6 +15,7 @@ interface ImporterConfig {
   name: string;
   description: string;
   importerModule: string;
+  dependencies?: string[]; // Keys of importers that must be loaded first
 }
 
 const ALL_IMPORTERS: ImporterConfig[] = [
@@ -24,18 +25,35 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     name: 'Languages',
     description: 'Import language reference data',
     importerModule: './importers/phase-00/LanguageImporter.js',
+    dependencies: [], // No dependencies - foundation data
+  },
+  {
+    key: 'language-translation',
+    name: 'Language Translations',
+    description: 'Import language name translations',
+    importerModule: './importers/phase-00/LanguageTranslationImporter.js',
+    dependencies: ['language'], // Needs languages
   },
   {
     key: 'country',
     name: 'Countries',
     description: 'Import country reference data',
     importerModule: './importers/phase-00/CountryImporter.js',
+    dependencies: [], // No dependencies - foundation data
+  },
+  {
+    key: 'country-translation',
+    name: 'Country Translations',
+    description: 'Import country name translations',
+    importerModule: './importers/phase-00/CountryTranslationImporter.js',
+    dependencies: ['language', 'country'], // Needs languages and countries
   },
   {
     key: 'default-context',
     name: 'Default Context',
     description: 'Create default context',
     importerModule: './importers/phase-00/DefaultContextImporter.js',
+    dependencies: [], // No dependencies
   },
   // === Phase 1: Core Data ===
   {
@@ -43,24 +61,28 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     name: 'Projects',
     description: 'Import projects and collections',
     importerModule: './importers/phase-01/ProjectImporter.js',
+    dependencies: ['language'], // Uses language_id for projects and collections
   },
   {
     key: 'partner',
     name: 'Partners',
     description: 'Import museums and institutions',
     importerModule: './importers/phase-01/PartnerImporter.js',
+    dependencies: ['project', 'language', 'country'], // Uses project_id, language_id for translations, country_id for location
   },
   {
     key: 'object',
     name: 'Objects',
     description: 'Import object items',
     importerModule: './importers/phase-01/ObjectImporter.js',
+    dependencies: ['project', 'partner', 'language'], // Uses context/collection from projects, partner_id, language_id for translations
   },
   {
     key: 'monument',
     name: 'Monuments',
     description: 'Import monument items',
     importerModule: './importers/phase-01/MonumentImporter.js',
+    dependencies: ['project', 'partner', 'language'], // Uses context/collection from projects, partner_id, language_id for translations
   },
 ];
 
@@ -275,6 +297,13 @@ program
         logPath,
       };
 
+      // Import DependencyLoader
+      const { DependencyLoader } = await import('./utils/DependencyLoader.js');
+      const dependencyLoader = new DependencyLoader(apiClient, tracker);
+
+      // Track which dependencies have been loaded to avoid reloading
+      const loadedDependencies = new Set<string>();
+
       // Execute importers in sequence
       for (const config of ALL_IMPORTERS) {
         const shouldRun = shouldRunImporter(config, only, startAt, stopAt);
@@ -283,6 +312,23 @@ program
         if (!shouldRun) {
           logger.skipped(config.name);
           continue;
+        }
+
+        // Load dependencies before running this importer
+        if (config.dependencies && config.dependencies.length > 0) {
+          logger.console('');
+          logger.info('Loading dependencies...', '🔗');
+          for (const depKey of config.dependencies) {
+            // Skip if already loaded in this session
+            if (loadedDependencies.has(depKey)) {
+              continue;
+            }
+
+            // Load dependency data into tracker
+            await dependencyLoader.loadDependency(depKey);
+            loadedDependencies.add(depKey);
+          }
+          logger.console('');
         }
 
         logger.started(config.name);

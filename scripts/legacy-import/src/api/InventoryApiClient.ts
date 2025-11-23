@@ -6,12 +6,14 @@ import {
   CollectionTranslationApi,
   ContextApi,
   CountryApi,
+  CountryTranslationApi,
   ImageUploadApi,
   InfoApi,
   ItemApi,
   ItemImageApi,
   ItemTranslationApi,
   LanguageApi,
+  LanguageTranslationApi,
   LocationApi,
   LocationTranslationApi,
   MarkdownApi,
@@ -46,12 +48,14 @@ export class InventoryApiClient {
   public collectionTranslation: CollectionTranslationApi;
   public context: ContextApi;
   public country: CountryApi;
+  public countryTranslation: CountryTranslationApi;
   public imageUpload: ImageUploadApi;
   public info: InfoApi;
   public item: ItemApi;
   public itemImage: ItemImageApi;
   public itemTranslation: ItemTranslationApi;
   public language: LanguageApi;
+  public languageTranslation: LanguageTranslationApi;
   public location: LocationApi;
   public locationTranslation: LocationTranslationApi;
   public markdown: MarkdownApi;
@@ -80,12 +84,14 @@ export class InventoryApiClient {
     this.collectionTranslation = new CollectionTranslationApi(this.configuration);
     this.context = new ContextApi(this.configuration);
     this.country = new CountryApi(this.configuration);
+    this.countryTranslation = new CountryTranslationApi(this.configuration);
     this.imageUpload = new ImageUploadApi(this.configuration);
     this.info = new InfoApi(this.configuration);
     this.item = new ItemApi(this.configuration);
     this.itemImage = new ItemImageApi(this.configuration);
     this.itemTranslation = new ItemTranslationApi(this.configuration);
     this.language = new LanguageApi(this.configuration);
+    this.languageTranslation = new LanguageTranslationApi(this.configuration);
     this.location = new LocationApi(this.configuration);
     this.locationTranslation = new LocationTranslationApi(this.configuration);
     this.markdown = new MarkdownApi(this.configuration);

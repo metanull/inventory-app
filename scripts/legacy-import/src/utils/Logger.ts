@@ -108,6 +108,15 @@ export class Logger {
   }
 
   /**
+   * Warning (console + file)
+   */
+  warning(message: string): void {
+    const msg = `⚠️  ${message}`;
+    console.log(msg);
+    this.toFile(this.stripFormatting(msg));
+  }
+
+  /**
    * Error (stderr + file)
    */
   error(message: string, includeEmoji = true): void {
