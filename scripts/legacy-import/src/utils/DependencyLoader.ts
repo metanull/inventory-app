@@ -27,8 +27,17 @@ export class DependencyLoader {
       case 'language':
         await this.loadLanguages();
         break;
+      case 'language-translation':
+        await this.loadLanguageTranslations();
+        break;
       case 'country':
         await this.loadCountries();
+        break;
+      case 'country-translation':
+        await this.loadCountryTranslations();
+        break;
+      case 'default-context':
+        await this.loadDefaultContext();
         break;
       case 'project':
         await this.loadProjects();
@@ -70,6 +79,27 @@ export class DependencyLoader {
   }
 
   /**
+   * Load language translations into tracker
+   */
+  private async loadLanguageTranslations(): Promise<void> {
+    const response = await this.apiClient.languageTranslation.languageTranslationIndex();
+    const translations = response.data.data;
+
+    for (const translation of translations) {
+      if (translation.backward_compatibility) {
+        this.tracker.register({
+          uuid: translation.backward_compatibility, // Use backward_compat as UUID
+          backwardCompatibility: translation.backward_compatibility,
+          entityType: 'context', // Use 'context' as valid entityType
+          createdAt: new Date(),
+        });
+      }
+    }
+
+    this.logger.info(`    Loaded ${translations.length} language translations`, '✓');
+  }
+
+  /**
    * Load countries into tracker
    * Note: Countries are seeded data, not imported, so we just load from API
    */
@@ -92,6 +122,57 @@ export class DependencyLoader {
   }
 
   /**
+   * Load country translations into tracker
+   */
+  private async loadCountryTranslations(): Promise<void> {
+    const response = await this.apiClient.countryTranslation.countryTranslationIndex();
+    const translations = response.data.data;
+
+    for (const translation of translations) {
+      if (translation.backward_compatibility) {
+        this.tracker.register({
+          uuid: translation.backward_compatibility, // Use backward_compat as UUID
+          backwardCompatibility: translation.backward_compatibility,
+          entityType: 'context', // Use 'context' as valid entityType
+          createdAt: new Date(),
+        });
+      }
+    }
+
+    this.logger.info(`    Loaded ${translations.length} country translations`, '✓');
+  }
+
+  /**
+   * Load default context into tracker
+   */
+  private async loadDefaultContext(): Promise<void> {
+    try {
+      const response = await this.apiClient.context.contextGetDefault();
+      const defaultContext = response.data.data;
+
+      if (defaultContext && defaultContext.backward_compatibility) {
+        this.tracker.register({
+          uuid: defaultContext.id,
+          backwardCompatibility: defaultContext.backward_compatibility,
+          entityType: 'context',
+          createdAt: new Date(),
+        });
+        this.logger.info(`    Loaded default context: ${defaultContext.internal_name}`, '✓');
+      }
+    } catch (error) {
+      // If 404, default context doesn't exist yet - that's okay
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 404) {
+          this.logger.info(`    No default context found (not yet created)`, '⚠️');
+          return;
+        }
+      }
+      throw error; // Re-throw other errors
+    }
+  }
+
+  /**
    * Load projects (contexts, projects, collections) into tracker
    */
   private async loadProjects(): Promise<void> {
@@ -101,7 +182,11 @@ export class DependencyLoader {
     let hasMoreContexts = true;
 
     while (hasMoreContexts) {
-      const response = await this.apiClient.context.contextIndex(contextPage, contextsPerPage);
+      const response = await this.apiClient.context.contextIndex(
+        contextPage,
+        contextsPerPage,
+        undefined // include parameter
+      );
       const contexts = response.data.data;
 
       for (const context of contexts) {
@@ -112,33 +197,39 @@ export class DependencyLoader {
             entityType: 'context',
             createdAt: new Date(),
           });
-
-          // Also register collection (convention: context backward_compat + :collection)
-          const collectionBackwardCompat = `${context.backward_compatibility}:collection`;
-
-          // Find the collection by querying collections with this context
-          const collectionsResponse = await this.apiClient.collection.collectionIndex(
-            1,
-            100,
-            context.id
-          );
-
-          // Find the root collection (parent_id is null) for this context
-          const rootCollection = collectionsResponse.data.data.find((c) => c.parent_id === null);
-
-          if (rootCollection) {
-            this.tracker.register({
-              uuid: rootCollection.id,
-              backwardCompatibility: collectionBackwardCompat,
-              entityType: 'collection',
-              createdAt: new Date(),
-            });
-          }
         }
       }
 
       hasMoreContexts = contexts.length === contextsPerPage;
       contextPage++;
+    }
+
+    // Load Collections (load all, then filter by context)
+    let collectionPage = 1;
+    const collectionsPerPage = 100;
+    let hasMoreCollections = true;
+
+    while (hasMoreCollections) {
+      const response = await this.apiClient.collection.collectionIndex(
+        collectionPage,
+        collectionsPerPage,
+        undefined // include
+      );
+      const collections = response.data.data;
+
+      for (const collection of collections) {
+        if (collection.backward_compatibility) {
+          this.tracker.register({
+            uuid: collection.id,
+            backwardCompatibility: collection.backward_compatibility,
+            entityType: 'collection',
+            createdAt: new Date(),
+          });
+        }
+      }
+
+      hasMoreCollections = collections.length === collectionsPerPage;
+      collectionPage++;
     }
 
     // Load Projects
@@ -147,7 +238,11 @@ export class DependencyLoader {
     let hasMoreProjects = true;
 
     while (hasMoreProjects) {
-      const response = await this.apiClient.project.projectIndex(projectPage, projectsPerPage);
+      const response = await this.apiClient.project.projectIndex(
+        projectPage,
+        projectsPerPage,
+        undefined // include
+      );
       const projects = response.data.data;
 
       for (const project of projects) {
@@ -180,7 +275,12 @@ export class DependencyLoader {
     let hasMore = true;
 
     while (hasMore) {
-      const response = await this.apiClient.partner.partnerIndex(page, perPage, undefined);
+      const response = await this.apiClient.partner.partnerIndex(
+        page,
+        perPage,
+        undefined, // include
+        undefined // contextId
+      );
       const partners = response.data.data;
 
       for (const partner of partners) {

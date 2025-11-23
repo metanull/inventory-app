@@ -19,6 +19,14 @@ export const LANGUAGE_CODE_MAP: Record<string, string> = {
   ja: 'jpn',
   tr: 'tur',
   el: 'ell', // Greek
+  ch: 'zho', // Chinese (non-standard code, should be 'zh')
+  cs: 'ces', // Czech
+  fa: 'fas', // Farsi/Persian
+  he: 'heb', // Hebrew
+  hr: 'hrv', // Croatian
+  hu: 'hun', // Hungarian
+  se: 'swe', // Swedish
+  si: 'slv', // Slovenian
 };
 
 /**

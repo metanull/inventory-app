@@ -68,7 +68,7 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     name: 'Partners',
     description: 'Import museums and institutions',
     importerModule: './importers/phase-01/PartnerImporter.js',
-    dependencies: ['project', 'language', 'country'], // Uses project_id, language_id for translations, country_id for location
+    dependencies: ['project', 'language', 'country', 'default-context'], // Uses project_id, language_id for translations, country_id for location, default context for institutions
   },
   {
     key: 'object',
