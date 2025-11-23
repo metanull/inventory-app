@@ -538,14 +538,38 @@ export class ObjectImporter extends BaseImporter {
     let page = 1;
     const perPage = 100;
     let hasMore = true;
+    
+    // Extract category and tagName from backward_compat for case-insensitive search
+    // Format: mwnf3:tags:{category}:{tagName}
+    const parts = backwardCompat.split(':');
+    const category = parts.length >= 3 ? parts[2] : null;
+    const tagName = parts.length >= 4 ? parts.slice(3).join(':') : null;
 
     while (hasMore) {
       const response = await this.context.apiClient.tag.tagIndex(page, perPage, undefined);
       const tags = response.data.data;
 
-      const existing = tags.find((t) => t.backward_compatibility === backwardCompat);
+      // First try exact match
+      let existing = tags.find((t) => t.backward_compatibility === backwardCompat);
+      
+      // If not found and we have category/tagName, try case-insensitive match
+      if (!existing && category && tagName) {
+        existing = tags.find((t) => {
+          if (!t.backward_compatibility) return false;
+          const tParts = t.backward_compatibility.split(':');
+          const tCategory = tParts.length >= 3 ? tParts[2] : null;
+          const tTagName = tParts.length >= 4 ? tParts.slice(3).join(':') : null;
+          
+          return (
+            tCategory?.toLowerCase() === category.toLowerCase() &&
+            tTagName?.toLowerCase() === tagName.toLowerCase()
+          );
+        });
+      }
+      
       if (existing) {
-        // Register in tracker for future lookups
+        // Register in tracker with the ORIGINAL backward_compat (not the found one)
+        // This ensures future lookups with same case work
         this.context.tracker.register({
           uuid: existing.id,
           backwardCompatibility: backwardCompat,
