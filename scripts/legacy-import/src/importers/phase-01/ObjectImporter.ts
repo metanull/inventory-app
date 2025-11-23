@@ -1,5 +1,6 @@
 import { BaseImporter, ImportResult } from '../BaseImporter.js';
 import { BackwardCompatibilityFormatter } from '../../utils/BackwardCompatibilityFormatter.js';
+import { mapLanguageCode } from '../../utils/CodeMappings.js';
 
 interface LegacyObject {
   project_id: string;
@@ -73,6 +74,7 @@ export class ObjectImporter extends BaseImporter {
       imported: 0,
       skipped: 0,
       errors: [],
+      warnings: [],
     };
 
     try {
@@ -97,7 +99,7 @@ export class ObjectImporter extends BaseImporter {
       // Import each object group
       for (const group of limitedGroups) {
         try {
-          const imported = await this.importObject(group);
+          const imported = await this.importObject(group, result);
           if (imported) {
             result.imported++;
             this.showProgress();
@@ -156,7 +158,7 @@ export class ObjectImporter extends BaseImporter {
     return Array.from(groups.values());
   }
 
-  private async importObject(group: ObjectGroup): Promise<boolean> {
+  private async importObject(group: ObjectGroup, result: ImportResult): Promise<boolean> {
     // Format backward_compatibility (NO LANG)
     const backwardCompat = BackwardCompatibilityFormatter.format({
       schema: 'mwnf3',
@@ -248,24 +250,24 @@ export class ObjectImporter extends BaseImporter {
 
     // Create translations for each language
     for (const translation of group.translations) {
-      await this.importTranslation(itemId, contextId, translation);
+      await this.importTranslation(itemId, contextId, translation, result);
     }
 
     // Parse and create tags from materials, dynasty, and keywords (only from first translation to avoid duplicates)
     const tagIds: string[] = [];
 
     if (firstTranslation.materials) {
-      const materialTags = await this.findOrCreateTags(firstTranslation.materials, 'material');
+      const materialTags = await this.findOrCreateTags(firstTranslation.materials, 'material', result);
       tagIds.push(...materialTags);
     }
 
     if (firstTranslation.dynasty) {
-      const dynastyTags = await this.findOrCreateTags(firstTranslation.dynasty, 'dynasty');
+      const dynastyTags = await this.findOrCreateTags(firstTranslation.dynasty, 'dynasty', result);
       tagIds.push(...dynastyTags);
     }
 
     if (firstTranslation.keywords) {
-      const keywordTags = await this.findOrCreateTags(firstTranslation.keywords, 'keyword');
+      const keywordTags = await this.findOrCreateTags(firstTranslation.keywords, 'keyword', result);
       tagIds.push(...keywordTags);
     }
 
@@ -276,7 +278,7 @@ export class ObjectImporter extends BaseImporter {
 
     // Create and attach artist if present (using first translation)
     if (firstTranslation.artist) {
-      const artistId = await this.findOrCreateArtist(firstTranslation);
+      const artistId = await this.findOrCreateArtist(firstTranslation, result);
       if (artistId) {
         // Add artist as a special tag for now (until API endpoint exists)
         await this.attachTags(itemId, [artistId]);
@@ -286,9 +288,14 @@ export class ObjectImporter extends BaseImporter {
     return true;
   }
 
-  private async importTranslation(itemId: string, contextId: string, obj: LegacyObject) {
+  private async importTranslation(
+    itemId: string,
+    contextId: string,
+    obj: LegacyObject,
+    result: ImportResult
+  ): Promise<void> {
     // Map legacy ISO 639-1 to ISO 639-3
-    const languageId = this.mapLanguageCode(obj.lang);
+    const languageId = mapLanguageCode(obj.lang);
 
     // TODO: Resolve author IDs when API endpoints are available
     // For now, author names are stored as text in extra field
@@ -310,12 +317,40 @@ export class ObjectImporter extends BaseImporter {
       provenance: obj.provenance || null,
     };
 
+    // DATA QUALITY: Check for missing required fields
+    let name = obj.name?.trim() || '';
+    let description = obj.description?.trim() || '';
+    
+    if (!name) {
+      const warning = `${obj.project_id}:${obj.museum_id}:${obj.number}:${obj.lang} - Missing 'name', using fallback`;
+      this.logWarning(`DATA QUALITY: Object translation ${warning}`, {
+        object_key: `${obj.project_id}:${obj.museum_id}:${obj.number}`,
+        language: obj.lang,
+        issue: 'Missing name',
+        fallback_used: obj.working_number || obj.inventory_id || `Object ${obj.number}`,
+      });
+      result.warnings?.push(warning);
+      name = obj.working_number || obj.inventory_id || `Object ${obj.number}`;
+    }
+    
+    if (!description) {
+      const warning = `${obj.project_id}:${obj.museum_id}:${obj.number}:${obj.lang} - Missing 'description', using fallback`;
+      this.logWarning(`DATA QUALITY: Object translation ${warning}`, {
+        object_key: `${obj.project_id}:${obj.museum_id}:${obj.number}`,
+        language: obj.lang,
+        issue: 'Missing description',
+        fallback_used: '(No description available)',
+      });
+      result.warnings?.push(warning);
+      description = '(No description available)';
+    }
+
     await this.context.apiClient.itemTranslation.itemTranslationStore({
       item_id: itemId,
       language_id: languageId,
       context_id: contextId,
-      name: obj.name || '',
-      description: obj.description || '',
+      name: name,
+      description: description,
       alternate_name: obj.name2 || null,
       type: obj.typeof || null,
       holder: obj.holding_museum || null,
@@ -337,26 +372,13 @@ export class ObjectImporter extends BaseImporter {
     });
   }
 
-  private mapLanguageCode(legacyCode: string): string {
-    const mapping: Record<string, string> = {
-      en: 'eng',
-      fr: 'fra',
-      es: 'spa',
-      de: 'deu',
-      it: 'ita',
-      pt: 'por',
-      ar: 'ara',
-      tr: 'tur',
-    };
 
-    return mapping[legacyCode] || legacyCode;
-  }
 
   /**
    * TODO: Implement proper Artist API endpoints
    * For now, we'll create artists as Tags with special prefix
    */
-  private async findOrCreateArtist(obj: LegacyObject): Promise<string | null> {
+  private async findOrCreateArtist(obj: LegacyObject, result: ImportResult): Promise<string | null> {
     if (!obj.artist || obj.artist.trim() === '') {
       return null;
     }
@@ -368,7 +390,7 @@ export class ObjectImporter extends BaseImporter {
       pkValues: [cleanName],
     });
 
-    // Check if already exists
+    // Check if already exists in tracker
     const existingId = this.context.tracker.getUuid(backwardCompat);
     if (existingId) {
       return existingId;
@@ -387,30 +409,54 @@ export class ObjectImporter extends BaseImporter {
       period_of_activity: obj.period_activity || null,
     };
 
-    const response = await this.context.apiClient.tag.tagStore({
-      internal_name: `artist:${cleanName}`,
-      description: JSON.stringify(artistData),
-      backward_compatibility: backwardCompat,
-    });
+    try {
+      const response = await this.context.apiClient.tag.tagStore({
+        internal_name: `artist:${cleanName}`,
+        description: JSON.stringify(artistData),
+        backward_compatibility: backwardCompat,
+      });
 
-    const artistId = response.data.data.id;
-
-    // Register in tracker
-    this.context.tracker.register({
-      uuid: artistId,
-      backwardCompatibility: backwardCompat,
-      entityType: 'item', // Use 'item' as entityType (valid option)
-      createdAt: new Date(),
-    });
-
-    return artistId;
+      const artistId = response.data.data.id;
+      
+      // Register in tracker
+      this.context.tracker.register({
+        uuid: artistId,
+        backwardCompatibility: backwardCompat,
+        entityType: 'item',
+        createdAt: new Date(),
+      });
+      
+      return artistId;
+    } catch (error) {
+      // Handle 422 conflict - tag with this internal_name already exists
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 422) {
+          // Try to find existing tag with same backward_compatibility
+          const existingArtistId = await this.findExistingTagByBackwardCompat(backwardCompat);
+          if (existingArtistId) {
+            const warning = `Artist '${cleanName}' - Duplicate internal_name resolved`;
+            this.logWarning(`DATA QUALITY: ${warning}`, {
+              artist: cleanName,
+              issue: 'Duplicate internal_name',
+              resolution: 'Found existing tag by backward_compatibility',
+            });
+            result.warnings?.push(warning);
+            return existingArtistId;
+          }
+        }
+      }
+      // Log but don't fail the whole import
+      this.logError(`Failed to create artist tag: ${cleanName}`, error);
+      return null;
+    }
   }
 
   /**
    * Parse and create tags from semicolon-separated string
    * Returns array of tag UUIDs
    */
-  private async findOrCreateTags(tagString: string, category: string): Promise<string[]> {
+  private async findOrCreateTags(tagString: string, category: string, result: ImportResult): Promise<string[]> {
     if (!tagString || tagString.trim() === '') {
       return [];
     }
@@ -435,21 +481,46 @@ export class ObjectImporter extends BaseImporter {
 
       if (!tagId && !this.context.dryRun) {
         // Create new tag via API
-        const response = await this.context.apiClient.tag.tagStore({
-          internal_name: `${category}:${tagName}`,
-          description: `${category} tag`,
-          backward_compatibility: backwardCompat,
-        });
+        try {
+          const response = await this.context.apiClient.tag.tagStore({
+            internal_name: `${category}:${tagName}`,
+            description: `${category} tag`,
+            backward_compatibility: backwardCompat,
+          });
 
-        tagId = response.data.data.id;
+          tagId = response.data.data.id;
 
-        // Register in tracker (use 'item' as valid entityType)
-        this.context.tracker.register({
-          uuid: tagId,
-          backwardCompatibility: backwardCompat,
-          entityType: 'item',
-          createdAt: new Date(),
-        });
+          // Register in tracker (use 'item' as valid entityType)
+          this.context.tracker.register({
+            uuid: tagId,
+            backwardCompatibility: backwardCompat,
+            entityType: 'item',
+            createdAt: new Date(),
+          });
+        } catch (error) {
+          // Handle 422 conflict - tag already exists with this internal_name
+          if (error && typeof error === 'object' && 'response' in error) {
+            const axiosError = error as { response?: { status?: number } };
+            if (axiosError.response?.status === 422) {
+              // Try to find existing tag with same backward_compatibility
+              tagId = await this.findExistingTagByBackwardCompat(backwardCompat);
+              if (tagId) {
+                const warning = `Tag '${category}:${tagName}' - Duplicate internal_name resolved`;
+                this.logWarning(`DATA QUALITY: ${warning}`, {
+                  category,
+                  tagName,
+                  issue: 'Duplicate internal_name',
+                  resolution: 'Found existing tag by backward_compatibility',
+                });
+                result.warnings?.push(warning);
+              }
+            }
+          }
+          if (!tagId) {
+            // Log error but continue - tags are not critical
+            this.logError(`Failed to create/find tag: ${category}:${tagName}`, error);
+          }
+        }
       }
 
       if (tagId) {
@@ -458,6 +529,43 @@ export class ObjectImporter extends BaseImporter {
     }
 
     return tagIds;
+  }
+
+  /**
+   * Search for existing tag by backward_compatibility across all pages
+   */
+  private async findExistingTagByBackwardCompat(backwardCompat: string): Promise<string | null> {
+    let page = 1;
+    const perPage = 100;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await this.context.apiClient.tag.tagIndex(page, perPage, undefined);
+      const tags = response.data.data;
+
+      const existing = tags.find((t) => t.backward_compatibility === backwardCompat);
+      if (existing) {
+        // Register in tracker for future lookups
+        this.context.tracker.register({
+          uuid: existing.id,
+          backwardCompatibility: backwardCompat,
+          entityType: 'item',
+          createdAt: new Date(),
+        });
+        return existing.id;
+      }
+
+      hasMore = tags.length === perPage;
+      page++;
+
+      // Safety limit
+      if (page > 100) {
+        this.logWarning(`Stopped searching for tag after 100 pages (10,000 records)`);
+        break;
+      }
+    }
+
+    return null;
   }
 
   /**
