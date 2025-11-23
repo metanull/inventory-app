@@ -28,6 +28,7 @@ export class PartnerImporter extends BaseImporter {
       imported: 0,
       skipped: 0,
       errors: [],
+      warnings: [],
     };
 
     // Import museums
@@ -36,6 +37,7 @@ export class PartnerImporter extends BaseImporter {
     result.imported += museumResult.imported;
     result.skipped += museumResult.skipped;
     result.errors.push(...museumResult.errors);
+    result.warnings.push(...(museumResult.warnings || []));
 
     // Import institutions
     this.logInfo('Importing institutions...');
@@ -43,6 +45,7 @@ export class PartnerImporter extends BaseImporter {
     result.imported += institutionResult.imported;
     result.skipped += institutionResult.skipped;
     result.errors.push(...institutionResult.errors);
+    result.warnings.push(...(institutionResult.warnings || []));
 
     result.success = result.errors.length === 0;
 

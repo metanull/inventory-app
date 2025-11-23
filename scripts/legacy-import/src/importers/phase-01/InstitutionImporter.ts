@@ -17,6 +17,7 @@ export class InstitutionImporter extends BaseImporter {
       imported: 0,
       skipped: 0,
       errors: [],
+      warnings: [],
     };
 
     try {
@@ -49,7 +50,7 @@ export class InstitutionImporter extends BaseImporter {
       for (const institution of institutions) {
         try {
           const translations = translationsByInstitution.get(institution.institution_id) || [];
-          const imported = await this.importInstitution(institution, translations);
+          const imported = await this.importInstitution(institution, translations, result);
           if (imported) {
             result.imported++;
             this.showProgress();
@@ -85,7 +86,8 @@ export class InstitutionImporter extends BaseImporter {
 
   private async importInstitution(
     institution: LegacyInstitution,
-    translations: LegacyInstitutionName[]
+    translations: LegacyInstitutionName[],
+    result: ImportResult
   ): Promise<boolean> {
     // Format backward_compatibility with ALL PK fields (institution_id + country)
     const backwardCompat = BackwardCompatibilityFormatter.format({
@@ -106,6 +108,21 @@ export class InstitutionImporter extends BaseImporter {
 
     // Map 2-character country code to 3-character code
     const countryId = institution.country ? mapCountryCode(institution.country) : undefined;
+
+    // DATA QUALITY: Check for missing internal_name
+    if (!institution.name || institution.name.trim() === '') {
+      const warning = `${institution.institution_id}:${institution.country} - Missing 'name' field, using fallback`;
+      this.logWarning(`DATA QUALITY ISSUE: Institution ${warning}`, {
+        institution_id: institution.institution_id,
+        country: institution.country,
+        issue: 'Missing internal_name',
+        recommendation: 'Either: 1) Keep fallback logic, or 2) Fix legacy data',
+        fallback_used: `Institution ${institution.institution_id} (${institution.country})`,
+      });
+      result.warnings?.push(warning);
+      // Use fallback: Generate name from ID
+      institution.name = `Institution ${institution.institution_id} (${institution.country})`;
+    }
 
     // Try to create Partner (may already exist from previous import run)
     // Use institution.name from legacy database

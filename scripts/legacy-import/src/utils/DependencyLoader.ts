@@ -144,16 +144,18 @@ export class DependencyLoader {
 
   /**
    * Load default context into tracker
+   * Uses special backward_compatibility key '__default_context__' for lookups
    */
   private async loadDefaultContext(): Promise<void> {
     try {
       const response = await this.apiClient.context.contextGetDefault();
       const defaultContext = response.data.data;
 
-      if (defaultContext && defaultContext.backward_compatibility) {
+      if (defaultContext) {
+        // Register with special key '__default_context__' for consistent lookups
         this.tracker.register({
           uuid: defaultContext.id,
-          backwardCompatibility: defaultContext.backward_compatibility,
+          backwardCompatibility: '__default_context__',
           entityType: 'context',
           createdAt: new Date(),
         });

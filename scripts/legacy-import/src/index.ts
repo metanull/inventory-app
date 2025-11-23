@@ -278,10 +278,22 @@ program
       // Initialize results
       const results = new Map<
         string,
-        { success?: boolean; imported: number; skipped: number; errors: string[] }
+        {
+          success?: boolean;
+          imported: number;
+          skipped: number;
+          errors: string[];
+          warnings: string[];
+        }
       >();
       ALL_IMPORTERS.forEach((imp) =>
-        results.set(imp.key, { success: true, imported: 0, skipped: 0, errors: [] })
+        results.set(imp.key, {
+          success: true,
+          imported: 0,
+          skipped: 0,
+          errors: [],
+          warnings: [],
+        })
       );
 
       // Setup import execution context (tracker, API client, database connection, etc.)
@@ -342,8 +354,19 @@ program
           result.imported = importResult.imported;
           result.skipped = importResult.skipped;
           result.errors = importResult.errors || [];
+          result.warnings = importResult.warnings || [];
 
           logger.completed(result.imported, result.skipped, result.errors.length, result.errors);
+
+          // Report warnings if any
+          if (result.warnings.length > 0) {
+            logger.console('');
+            logger.warning(`⚠️  ${config.name} had ${result.warnings.length} data quality warnings:`);
+            result.warnings.slice(0, 10).forEach((w) => logger.console(`  - ${w}`));
+            if (result.warnings.length > 10) {
+              logger.console(`  ... and ${result.warnings.length - 10} more (see log file)`);
+            }
+          }
 
           if (result.errors.length > 0) {
             logger.error(`${config.name} import failed. Cannot proceed.`);
@@ -367,11 +390,19 @@ program
           imported: acc.imported + r.imported,
           skipped: acc.skipped + r.skipped,
           errors: acc.errors + r.errors.length,
+          warnings: acc.warnings + r.warnings.length,
         }),
-        { imported: 0, skipped: 0, errors: 0 }
+        { imported: 0, skipped: 0, errors: 0, warnings: 0 }
       );
 
       logger.summary(totals.imported, totals.skipped, totals.errors);
+      
+      if (totals.warnings > 0) {
+        logger.console('');
+        logger.warning(`⚠️  Total data quality warnings: ${totals.warnings}`);
+        logger.console('Review log file for details on how to address these issues.');
+      }
+      
       logger.info(`Log saved: ${logPath}`, '📄');
 
       if (totals.errors > 0) process.exit(1);
