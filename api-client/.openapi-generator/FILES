@@ -1,5 +1,6 @@
 .gitignore
 .npmignore
+.openapi-generator-ignore
 api.ts
 base.ts
 common.ts
@@ -50,6 +51,10 @@ docs/CountryApi.md
 docs/CountryIndex200Response.md
 docs/CountryResource.md
 docs/CountryShow200Response.md
+docs/CountryTranslationApi.md
+docs/CountryTranslationIndex200Response.md
+docs/CountryTranslationResource.md
+docs/CountryTranslationShow200Response.md
 docs/DefaultApi.md
 docs/GlossaryApi.md
 docs/GlossaryIndex200Response.md
@@ -71,7 +76,6 @@ docs/ImageUploadStatus200Response.md
 docs/ImageUploadStatus404Response.md
 docs/ImageUploadStatusResource.md
 docs/InfoApi.md
-docs/InfoVersion200Response.md
 docs/InlineObject.md
 docs/InlineObject1.md
 docs/ItemApi.md
@@ -97,6 +101,10 @@ docs/LanguageApi.md
 docs/LanguageGetDefault200Response.md
 docs/LanguageIndex200Response.md
 docs/LanguageResource.md
+docs/LanguageTranslationApi.md
+docs/LanguageTranslationIndex200Response.md
+docs/LanguageTranslationResource.md
+docs/LanguageTranslationShow200Response.md
 docs/LocationApi.md
 docs/LocationIndex200Response.md
 docs/LocationResource.md
@@ -154,6 +162,7 @@ docs/StoreCollectionRequest.md
 docs/StoreCollectionTranslationRequest.md
 docs/StoreContextRequest.md
 docs/StoreCountryRequest.md
+docs/StoreCountryTranslationRequest.md
 docs/StoreGlossaryRequest.md
 docs/StoreGlossarySpellingRequest.md
 docs/StoreGlossaryTranslationRequest.md
@@ -162,6 +171,7 @@ docs/StoreItemItemLinkRequest.md
 docs/StoreItemRequest.md
 docs/StoreItemTranslationRequest.md
 docs/StoreLanguageRequest.md
+docs/StoreLanguageTranslationRequest.md
 docs/StoreLocationRequest.md
 docs/StoreLocationRequestTranslationsInner.md
 docs/StoreLocationTranslationRequest.md
@@ -202,6 +212,7 @@ docs/UpdateCollectionRequest.md
 docs/UpdateCollectionTranslationRequest.md
 docs/UpdateContextRequest.md
 docs/UpdateCountryRequest.md
+docs/UpdateCountryTranslationRequest.md
 docs/UpdateGlossaryRequest.md
 docs/UpdateGlossarySpellingRequest.md
 docs/UpdateGlossaryTranslationRequest.md
@@ -210,6 +221,7 @@ docs/UpdateItemItemLinkRequest.md
 docs/UpdateItemRequest.md
 docs/UpdateItemTranslationRequest.md
 docs/UpdateLanguageRequest.md
+docs/UpdateLanguageTranslationRequest.md
 docs/UpdateLocationRequest.md
 docs/UpdateLocationRequestTranslationsInner.md
 docs/UpdateLocationTranslationRequest.md
@@ -229,8 +241,6 @@ docs/UserPermissions200Response.md
 docs/UserPermissionsApi.md
 docs/UserPermissionsResource.md
 docs/VerifyTwoFactorMobileAppAuthenticationRequest.md
-docs/VersionResource.md
-docs/VersionResourceAppVersion.md
 docs/WithAllTagsItemRequest.md
 docs/WithAnyTagsItemRequest.md
 docs/WorkshopResource.md

@@ -97,7 +97,7 @@ This endpoint does not have any parameters.
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **infoVersion**
-> InfoVersion200Response infoVersion()
+> object infoVersion()
 
 Simple endpoint that returns just the version information for deployment tracking and API compatibility checks.
 
@@ -121,7 +121,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**InfoVersion200Response**
+**object**
 
 ### Authorization
 
@@ -136,7 +136,7 @@ This endpoint does not have any parameters.
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Fallback to CI/CD structure with default/null values    &#x60;VersionResource&#x60;  &#x60;VersionResource&#x60; |  -  |
+|**200** |  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

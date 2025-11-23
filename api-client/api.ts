@@ -501,6 +501,35 @@ export interface CountryResource {
 export interface CountryShow200Response {
     'data': CountryResource;
 }
+export interface CountryTranslationIndex200Response {
+    'data': Array<CountryTranslationResource>;
+    'links': AvailableImageIndex200ResponseLinks;
+    'meta': AvailableImageIndex200ResponseMeta;
+}
+export interface CountryTranslationResource {
+    'id': string;
+    'country_id': string;
+    'language_id': string;
+    'name': string;
+    /**
+     * Relationships
+     */
+    'country'?: CountryResource;
+    'language'?: LanguageResource;
+    /**
+     * Metadata
+     */
+    'backward_compatibility': string | null;
+    'extra': object | null;
+    /**
+     * Timestamps
+     */
+    'created_at': string | null;
+    'updated_at': string | null;
+}
+export interface CountryTranslationShow200Response {
+    'data': CountryTranslationResource;
+}
 export interface GlossaryIndex200Response {
     'data': Array<GlossaryResource>;
     'links': AvailableImageIndex200ResponseLinks;
@@ -666,9 +695,6 @@ export interface ImageUploadStatus404Response {
 export interface ImageUploadStatusResource {
     'status': string;
     'available_image': string;
-}
-export interface InfoVersion200Response {
-    'data': VersionResource;
 }
 export interface InlineObject {
     /**
@@ -1069,6 +1095,35 @@ export interface LanguageResource {
      * The date of last modification of the resource (managed by the system)
      */
     'updated_at': string | null;
+}
+export interface LanguageTranslationIndex200Response {
+    'data': Array<LanguageTranslationResource>;
+    'links': AvailableImageIndex200ResponseLinks;
+    'meta': AvailableImageIndex200ResponseMeta;
+}
+export interface LanguageTranslationResource {
+    'id': string;
+    'language_id': string;
+    'display_language_id': string;
+    'name': string;
+    /**
+     * Relationships
+     */
+    'language'?: LanguageResource;
+    'display_language'?: LanguageResource;
+    /**
+     * Metadata
+     */
+    'backward_compatibility': string | null;
+    'extra': object | null;
+    /**
+     * Timestamps
+     */
+    'created_at': string | null;
+    'updated_at': string | null;
+}
+export interface LanguageTranslationShow200Response {
+    'data': LanguageTranslationResource;
 }
 export interface LocationIndex200Response {
     'data': Array<LocationResource>;
@@ -1542,6 +1597,14 @@ export interface StoreCountryRequest {
     'internal_name': string;
     'backward_compatibility'?: string | null;
 }
+export interface StoreCountryTranslationRequest {
+    'id'?: string;
+    'country_id': string;
+    'language_id': string;
+    'name': string;
+    'backward_compatibility'?: string | null;
+    'extra'?: Array<string> | null;
+}
 export interface StoreGlossaryRequest {
     'id'?: string;
     'internal_name': string;
@@ -1630,6 +1693,14 @@ export interface StoreLanguageRequest {
     'internal_name': string;
     'backward_compatibility'?: string | null;
     'is_default'?: boolean;
+}
+export interface StoreLanguageTranslationRequest {
+    'id'?: string;
+    'language_id': string;
+    'display_language_id': string;
+    'name': string;
+    'backward_compatibility'?: string | null;
+    'extra'?: Array<string> | null;
 }
 export interface StoreLocationRequest {
     'internal_name': string;
@@ -1995,6 +2066,14 @@ export interface UpdateCountryRequest {
     'internal_name': string;
     'backward_compatibility'?: string | null;
 }
+export interface UpdateCountryTranslationRequest {
+    'id'?: string;
+    'country_id'?: string;
+    'language_id'?: string;
+    'name'?: string;
+    'backward_compatibility'?: string | null;
+    'extra'?: Array<string> | null;
+}
 export interface UpdateGlossaryRequest {
     'id'?: string;
     'internal_name': string;
@@ -2086,6 +2165,14 @@ export interface UpdateLanguageRequest {
     'internal_name': string;
     'backward_compatibility'?: string | null;
     'is_default'?: boolean;
+}
+export interface UpdateLanguageTranslationRequest {
+    'id'?: string;
+    'language_id'?: string;
+    'display_language_id'?: string;
+    'name'?: string;
+    'backward_compatibility'?: string | null;
+    'extra'?: Array<string> | null;
 }
 export interface UpdateLocationRequest {
     'internal_name': string;
@@ -2266,16 +2353,6 @@ export const VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum = {
 
 export type VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum = typeof VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum[keyof typeof VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum];
 
-export interface VersionResource {
-    'repository': string | null;
-    'build_timestamp': string | null;
-    'repository_url': string | null;
-    'api_client_version': string | null;
-    'app_version': VersionResourceAppVersion;
-    'commit_sha': string | null;
-}
-export interface VersionResourceAppVersion {
-}
 export interface WithAllTagsItemRequest {
     'include'?: string;
     'tags': Array<string>;
@@ -7132,6 +7209,512 @@ export class CountryApi extends BaseAPI {
 
 
 /**
+ * CountryTranslationApi - axios parameter creator
+ */
+export const CountryTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} countryTranslation The country translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        countryTranslationDestroy: async (countryTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'countryTranslation' is not null or undefined
+            assertParamExists('countryTranslationDestroy', 'countryTranslation', countryTranslation)
+            const localVarPath = `/country-translation/{countryTranslation}`
+                .replace(`{${"countryTranslation"}}`, encodeURIComponent(String(countryTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        countryTranslationIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/country-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} countryTranslation The country translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        countryTranslationShow: async (countryTranslation: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'countryTranslation' is not null or undefined
+            assertParamExists('countryTranslationShow', 'countryTranslation', countryTranslation)
+            const localVarPath = `/country-translation/{countryTranslation}`
+                .replace(`{${"countryTranslation"}}`, encodeURIComponent(String(countryTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreCountryTranslationRequest} storeCountryTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        countryTranslationStore: async (storeCountryTranslationRequest: StoreCountryTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storeCountryTranslationRequest' is not null or undefined
+            assertParamExists('countryTranslationStore', 'storeCountryTranslationRequest', storeCountryTranslationRequest)
+            const localVarPath = `/country-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storeCountryTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} countryTranslation The country translation ID
+         * @param {UpdateCountryTranslationRequest} [updateCountryTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        countryTranslationUpdate: async (countryTranslation: string, updateCountryTranslationRequest?: UpdateCountryTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'countryTranslation' is not null or undefined
+            assertParamExists('countryTranslationUpdate', 'countryTranslation', countryTranslation)
+            const localVarPath = `/country-translation/{countryTranslation}`
+                .replace(`{${"countryTranslation"}}`, encodeURIComponent(String(countryTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateCountryTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} countryTranslation The country translation ID
+         * @param {UpdateCountryTranslationRequest} [updateCountryTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        countryTranslationUpdate2: async (countryTranslation: string, updateCountryTranslationRequest?: UpdateCountryTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'countryTranslation' is not null or undefined
+            assertParamExists('countryTranslationUpdate2', 'countryTranslation', countryTranslation)
+            const localVarPath = `/country-translation/{countryTranslation}`
+                .replace(`{${"countryTranslation"}}`, encodeURIComponent(String(countryTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateCountryTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * CountryTranslationApi - functional programming interface
+ */
+export const CountryTranslationApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = CountryTranslationApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} countryTranslation The country translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async countryTranslationDestroy(countryTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.countryTranslationDestroy(countryTranslation, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CountryTranslationApi.countryTranslationDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async countryTranslationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryTranslationIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.countryTranslationIndex(page, perPage, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CountryTranslationApi.countryTranslationIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} countryTranslation The country translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async countryTranslationShow(countryTranslation: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.countryTranslationShow(countryTranslation, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CountryTranslationApi.countryTranslationShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreCountryTranslationRequest} storeCountryTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async countryTranslationStore(storeCountryTranslationRequest: StoreCountryTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.countryTranslationStore(storeCountryTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CountryTranslationApi.countryTranslationStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} countryTranslation The country translation ID
+         * @param {UpdateCountryTranslationRequest} [updateCountryTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async countryTranslationUpdate(countryTranslation: string, updateCountryTranslationRequest?: UpdateCountryTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.countryTranslationUpdate(countryTranslation, updateCountryTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CountryTranslationApi.countryTranslationUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} countryTranslation The country translation ID
+         * @param {UpdateCountryTranslationRequest} [updateCountryTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async countryTranslationUpdate2(countryTranslation: string, updateCountryTranslationRequest?: UpdateCountryTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.countryTranslationUpdate2(countryTranslation, updateCountryTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CountryTranslationApi.countryTranslationUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * CountryTranslationApi - factory interface
+ */
+export const CountryTranslationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = CountryTranslationApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} countryTranslation The country translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        countryTranslationDestroy(countryTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.countryTranslationDestroy(countryTranslation, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        countryTranslationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CountryTranslationIndex200Response> {
+            return localVarFp.countryTranslationIndex(page, perPage, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} countryTranslation The country translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        countryTranslationShow(countryTranslation: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CountryTranslationShow200Response> {
+            return localVarFp.countryTranslationShow(countryTranslation, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreCountryTranslationRequest} storeCountryTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        countryTranslationStore(storeCountryTranslationRequest: StoreCountryTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<CountryTranslationShow200Response> {
+            return localVarFp.countryTranslationStore(storeCountryTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} countryTranslation The country translation ID
+         * @param {UpdateCountryTranslationRequest} [updateCountryTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        countryTranslationUpdate(countryTranslation: string, updateCountryTranslationRequest?: UpdateCountryTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<CountryTranslationShow200Response> {
+            return localVarFp.countryTranslationUpdate(countryTranslation, updateCountryTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} countryTranslation The country translation ID
+         * @param {UpdateCountryTranslationRequest} [updateCountryTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        countryTranslationUpdate2(countryTranslation: string, updateCountryTranslationRequest?: UpdateCountryTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<CountryTranslationShow200Response> {
+            return localVarFp.countryTranslationUpdate2(countryTranslation, updateCountryTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * CountryTranslationApi - object-oriented interface
+ */
+export class CountryTranslationApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified resource from storage
+     * @param {string} countryTranslation The country translation ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public countryTranslationDestroy(countryTranslation: string, options?: RawAxiosRequestConfig) {
+        return CountryTranslationApiFp(this.configuration).countryTranslationDestroy(countryTranslation, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of the resource
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public countryTranslationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return CountryTranslationApiFp(this.configuration).countryTranslationIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified resource
+     * @param {string} countryTranslation The country translation ID
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public countryTranslationShow(countryTranslation: string, include?: string, options?: RawAxiosRequestConfig) {
+        return CountryTranslationApiFp(this.configuration).countryTranslationShow(countryTranslation, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created resource in storage
+     * @param {StoreCountryTranslationRequest} storeCountryTranslationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public countryTranslationStore(storeCountryTranslationRequest: StoreCountryTranslationRequest, options?: RawAxiosRequestConfig) {
+        return CountryTranslationApiFp(this.configuration).countryTranslationStore(storeCountryTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} countryTranslation The country translation ID
+     * @param {UpdateCountryTranslationRequest} [updateCountryTranslationRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public countryTranslationUpdate(countryTranslation: string, updateCountryTranslationRequest?: UpdateCountryTranslationRequest, options?: RawAxiosRequestConfig) {
+        return CountryTranslationApiFp(this.configuration).countryTranslationUpdate(countryTranslation, updateCountryTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} countryTranslation The country translation ID
+     * @param {UpdateCountryTranslationRequest} [updateCountryTranslationRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public countryTranslationUpdate2(countryTranslation: string, updateCountryTranslationRequest?: UpdateCountryTranslationRequest, options?: RawAxiosRequestConfig) {
+        return CountryTranslationApiFp(this.configuration).countryTranslationUpdate2(countryTranslation, updateCountryTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
  * DefaultApi - axios parameter creator
  */
 export const DefaultApiAxiosParamCreator = function (configuration?: Configuration) {
@@ -9510,7 +10093,7 @@ export const InfoApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async infoVersion(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<InfoVersion200Response>> {
+        async infoVersion(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.infoVersion(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['InfoApi.infoVersion']?.[localVarOperationServerIndex]?.url;
@@ -9549,7 +10132,7 @@ export const InfoApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        infoVersion(options?: RawAxiosRequestConfig): AxiosPromise<InfoVersion200Response> {
+        infoVersion(options?: RawAxiosRequestConfig): AxiosPromise<object> {
             return localVarFp.infoVersion(options).then((request) => request(axios, basePath));
         },
     };
@@ -14356,6 +14939,512 @@ export class LanguageApi extends BaseAPI {
      */
     public languageUpdate2(language: string, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig) {
         return LanguageApiFp(this.configuration).languageUpdate2(language, updateLanguageRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * LanguageTranslationApi - axios parameter creator
+ */
+export const LanguageTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} languageTranslation The language translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        languageTranslationDestroy: async (languageTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'languageTranslation' is not null or undefined
+            assertParamExists('languageTranslationDestroy', 'languageTranslation', languageTranslation)
+            const localVarPath = `/language-translation/{languageTranslation}`
+                .replace(`{${"languageTranslation"}}`, encodeURIComponent(String(languageTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        languageTranslationIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/language-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} languageTranslation The language translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        languageTranslationShow: async (languageTranslation: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'languageTranslation' is not null or undefined
+            assertParamExists('languageTranslationShow', 'languageTranslation', languageTranslation)
+            const localVarPath = `/language-translation/{languageTranslation}`
+                .replace(`{${"languageTranslation"}}`, encodeURIComponent(String(languageTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreLanguageTranslationRequest} storeLanguageTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        languageTranslationStore: async (storeLanguageTranslationRequest: StoreLanguageTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storeLanguageTranslationRequest' is not null or undefined
+            assertParamExists('languageTranslationStore', 'storeLanguageTranslationRequest', storeLanguageTranslationRequest)
+            const localVarPath = `/language-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storeLanguageTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} languageTranslation The language translation ID
+         * @param {UpdateLanguageTranslationRequest} [updateLanguageTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        languageTranslationUpdate: async (languageTranslation: string, updateLanguageTranslationRequest?: UpdateLanguageTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'languageTranslation' is not null or undefined
+            assertParamExists('languageTranslationUpdate', 'languageTranslation', languageTranslation)
+            const localVarPath = `/language-translation/{languageTranslation}`
+                .replace(`{${"languageTranslation"}}`, encodeURIComponent(String(languageTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateLanguageTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} languageTranslation The language translation ID
+         * @param {UpdateLanguageTranslationRequest} [updateLanguageTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        languageTranslationUpdate2: async (languageTranslation: string, updateLanguageTranslationRequest?: UpdateLanguageTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'languageTranslation' is not null or undefined
+            assertParamExists('languageTranslationUpdate2', 'languageTranslation', languageTranslation)
+            const localVarPath = `/language-translation/{languageTranslation}`
+                .replace(`{${"languageTranslation"}}`, encodeURIComponent(String(languageTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateLanguageTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * LanguageTranslationApi - functional programming interface
+ */
+export const LanguageTranslationApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = LanguageTranslationApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} languageTranslation The language translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async languageTranslationDestroy(languageTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.languageTranslationDestroy(languageTranslation, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['LanguageTranslationApi.languageTranslationDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async languageTranslationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageTranslationIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.languageTranslationIndex(page, perPage, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['LanguageTranslationApi.languageTranslationIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} languageTranslation The language translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async languageTranslationShow(languageTranslation: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.languageTranslationShow(languageTranslation, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['LanguageTranslationApi.languageTranslationShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreLanguageTranslationRequest} storeLanguageTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async languageTranslationStore(storeLanguageTranslationRequest: StoreLanguageTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.languageTranslationStore(storeLanguageTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['LanguageTranslationApi.languageTranslationStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} languageTranslation The language translation ID
+         * @param {UpdateLanguageTranslationRequest} [updateLanguageTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async languageTranslationUpdate(languageTranslation: string, updateLanguageTranslationRequest?: UpdateLanguageTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.languageTranslationUpdate(languageTranslation, updateLanguageTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['LanguageTranslationApi.languageTranslationUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} languageTranslation The language translation ID
+         * @param {UpdateLanguageTranslationRequest} [updateLanguageTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async languageTranslationUpdate2(languageTranslation: string, updateLanguageTranslationRequest?: UpdateLanguageTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.languageTranslationUpdate2(languageTranslation, updateLanguageTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['LanguageTranslationApi.languageTranslationUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * LanguageTranslationApi - factory interface
+ */
+export const LanguageTranslationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = LanguageTranslationApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} languageTranslation The language translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        languageTranslationDestroy(languageTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.languageTranslationDestroy(languageTranslation, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        languageTranslationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<LanguageTranslationIndex200Response> {
+            return localVarFp.languageTranslationIndex(page, perPage, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} languageTranslation The language translation ID
+         * @param {string} [include] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        languageTranslationShow(languageTranslation: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<LanguageTranslationShow200Response> {
+            return localVarFp.languageTranslationShow(languageTranslation, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StoreLanguageTranslationRequest} storeLanguageTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        languageTranslationStore(storeLanguageTranslationRequest: StoreLanguageTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageTranslationShow200Response> {
+            return localVarFp.languageTranslationStore(storeLanguageTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} languageTranslation The language translation ID
+         * @param {UpdateLanguageTranslationRequest} [updateLanguageTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        languageTranslationUpdate(languageTranslation: string, updateLanguageTranslationRequest?: UpdateLanguageTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageTranslationShow200Response> {
+            return localVarFp.languageTranslationUpdate(languageTranslation, updateLanguageTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} languageTranslation The language translation ID
+         * @param {UpdateLanguageTranslationRequest} [updateLanguageTranslationRequest] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        languageTranslationUpdate2(languageTranslation: string, updateLanguageTranslationRequest?: UpdateLanguageTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageTranslationShow200Response> {
+            return localVarFp.languageTranslationUpdate2(languageTranslation, updateLanguageTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * LanguageTranslationApi - object-oriented interface
+ */
+export class LanguageTranslationApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified resource from storage
+     * @param {string} languageTranslation The language translation ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public languageTranslationDestroy(languageTranslation: string, options?: RawAxiosRequestConfig) {
+        return LanguageTranslationApiFp(this.configuration).languageTranslationDestroy(languageTranslation, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of the resource
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public languageTranslationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return LanguageTranslationApiFp(this.configuration).languageTranslationIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified resource
+     * @param {string} languageTranslation The language translation ID
+     * @param {string} [include] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public languageTranslationShow(languageTranslation: string, include?: string, options?: RawAxiosRequestConfig) {
+        return LanguageTranslationApiFp(this.configuration).languageTranslationShow(languageTranslation, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created resource in storage
+     * @param {StoreLanguageTranslationRequest} storeLanguageTranslationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public languageTranslationStore(storeLanguageTranslationRequest: StoreLanguageTranslationRequest, options?: RawAxiosRequestConfig) {
+        return LanguageTranslationApiFp(this.configuration).languageTranslationStore(storeLanguageTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} languageTranslation The language translation ID
+     * @param {UpdateLanguageTranslationRequest} [updateLanguageTranslationRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public languageTranslationUpdate(languageTranslation: string, updateLanguageTranslationRequest?: UpdateLanguageTranslationRequest, options?: RawAxiosRequestConfig) {
+        return LanguageTranslationApiFp(this.configuration).languageTranslationUpdate(languageTranslation, updateLanguageTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} languageTranslation The language translation ID
+     * @param {UpdateLanguageTranslationRequest} [updateLanguageTranslationRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public languageTranslationUpdate2(languageTranslation: string, updateLanguageTranslationRequest?: UpdateLanguageTranslationRequest, options?: RawAxiosRequestConfig) {
+        return LanguageTranslationApiFp(this.configuration).languageTranslationUpdate2(languageTranslation, updateLanguageTranslationRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

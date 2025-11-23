@@ -1,17 +1,19 @@
-# VersionResourceAppVersion
+# CountryTranslationShow200Response
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**data** | [**CountryTranslationResource**](CountryTranslationResource.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { VersionResourceAppVersion } from './api';
+import { CountryTranslationShow200Response } from './api';
 
-const instance: VersionResourceAppVersion = {
+const instance: CountryTranslationShow200Response = {
+    data,
 };
 ```
 

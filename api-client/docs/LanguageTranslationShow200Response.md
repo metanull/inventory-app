@@ -1,18 +1,18 @@
-# InfoVersion200Response
+# LanguageTranslationShow200Response
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**data** | [**VersionResource**](VersionResource.md) |  | [default to undefined]
+**data** | [**LanguageTranslationResource**](LanguageTranslationResource.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { InfoVersion200Response } from './api';
+import { LanguageTranslationShow200Response } from './api';
 
-const instance: InfoVersion200Response = {
+const instance: LanguageTranslationShow200Response = {
     data,
 };
 ```
