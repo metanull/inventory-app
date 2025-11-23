@@ -453,7 +453,7 @@ export class ObjectImporter extends BaseImporter {
   }
 
   /**
-   * Parse and create tags from semicolon-separated string
+   * Parse and create tags from comma-separated string
    * Returns array of tag UUIDs
    */
   private async findOrCreateTags(tagString: string, category: string, result: ImportResult): Promise<string[]> {
@@ -461,9 +461,9 @@ export class ObjectImporter extends BaseImporter {
       return [];
     }
 
-    // Split by semicolon and clean
+    // Split by comma and clean
     const tagNames = tagString
-      .split(';')
+      .split(',')
       .map((t) => t.trim())
       .filter((t) => t !== '');
 

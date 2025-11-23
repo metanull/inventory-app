@@ -84,7 +84,16 @@ The import system is designed to **continue importing despite data quality issue
 - Search across all pages (up to 100 pages/10,000 records)
 - Tracker registers both case variants to same UUID for fast lookups
 
-### Issue 4: Tag Creation Failures
+### Issue 4: Tag Parsing (Comma-Separated)
+
+**Issue**: Tags in legacy database are **comma-separated**, not semicolon-separated  
+**Example**: `"Atribut, cisterciáci, kryptoportrét"` should be 3 tags: `Atribut`, `cisterciáci`, `kryptoportrét`
+
+**Fix**: Changed split delimiter from `;` to `,` in both Object and Monument importers
+
+**Impact**: Now creates proper individual tags instead of treating entire string as one tag
+
+### Issue 5: Tag Creation Failures
 
 **Error**: Tag creation fails but existing tag not found
 
@@ -104,7 +113,8 @@ The import system is designed to **continue importing despite data quality issue
 2. ✅ Missing name field - Fallback: `working_number` → `"Monument {number}"`
 3. ✅ Missing description field - Fallback: `"(No description available)"`
 4. ✅ Duplicate tag names - Case-insensitive search with proper tracking
-5. ✅ Warning system - All quality issues logged and tracked
+5. ✅ Tag parsing - Comma-separated (same fix as ObjectImporter)
+6. ✅ Warning system - All quality issues logged and tracked
 
 **Implementation**: Same robust error handling as ObjectImporter
 
