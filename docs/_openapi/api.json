@@ -19653,6 +19653,26 @@
                     "internal_name": {
                         "type": "string"
                     },
+                    "category": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "keyword",
+                            "material",
+                            "artist",
+                            "dynasty"
+                        ]
+                    },
+                    "language_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 3,
+                        "maxLength": 3
+                    },
                     "backward_compatibility": {
                         "type": [
                             "string",
@@ -19758,6 +19778,20 @@
                         "type": "string",
                         "description": "The name of the tag, it shall only be used internally"
                     },
+                    "category": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The category of the tag (keyword, material, artist, dynasty), nullable"
+                    },
+                    "language_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The language of the tag (ISO 639-3 code), nullable"
+                    },
                     "backward_compatibility": {
                         "type": [
                             "string",
@@ -19789,6 +19823,8 @@
                 "required": [
                     "id",
                     "internal_name",
+                    "category",
+                    "language_id",
                     "backward_compatibility",
                     "description",
                     "created_at",
@@ -21176,6 +21212,26 @@
                     },
                     "internal_name": {
                         "type": "string"
+                    },
+                    "category": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "keyword",
+                            "material",
+                            "artist",
+                            "dynasty"
+                        ]
+                    },
+                    "language_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 3,
+                        "maxLength": 3
                     },
                     "backward_compatibility": {
                         "type": [

@@ -254,20 +254,22 @@ export class ObjectImporter extends BaseImporter {
     }
 
     // Parse and create tags from materials, dynasty, and keywords (only from first translation to avoid duplicates)
+    // Tags are language-specific, so we use the language from first translation
     const tagIds: string[] = [];
+    const languageId = mapLanguageCode(firstTranslation.lang);
 
     if (firstTranslation.materials) {
-      const materialTags = await this.findOrCreateTags(firstTranslation.materials, 'material');
+      const materialTags = await this.findOrCreateTags(firstTranslation.materials, 'material', languageId);
       tagIds.push(...materialTags);
     }
 
     if (firstTranslation.dynasty) {
-      const dynastyTags = await this.findOrCreateTags(firstTranslation.dynasty, 'dynasty');
+      const dynastyTags = await this.findOrCreateTags(firstTranslation.dynasty, 'dynasty', languageId);
       tagIds.push(...dynastyTags);
     }
 
     if (firstTranslation.keywords) {
-      const keywordTags = await this.findOrCreateTags(firstTranslation.keywords, 'keyword');
+      const keywordTags = await this.findOrCreateTags(firstTranslation.keywords, 'keyword', languageId);
       tagIds.push(...keywordTags);
     }
 
@@ -278,7 +280,7 @@ export class ObjectImporter extends BaseImporter {
 
     // Create and attach artist(s) if present (using first translation)
     if (firstTranslation.artist) {
-      const artistIds = await this.findOrCreateArtist(firstTranslation);
+      const artistIds = await this.findOrCreateArtist(firstTranslation, languageId);
       if (artistIds.length > 0) {
         // Add artist as a special tag for now (until API endpoint exists)
         await this.attachTags(itemId, artistIds);
@@ -378,8 +380,9 @@ export class ObjectImporter extends BaseImporter {
    * TODO: Implement proper Artist API endpoints
    * For now, we'll create artists as Tags with special prefix
    * Artists field can contain multiple artists separated by semicolons
+   * Artists are language-specific like other tags
    */
-  private async findOrCreateArtist(obj: LegacyObject): Promise<string[]> {
+  private async findOrCreateArtist(obj: LegacyObject, languageId: string): Promise<string[]> {
     if (!obj.artist || obj.artist.trim() === '') {
       return [];
     }
@@ -393,7 +396,7 @@ export class ObjectImporter extends BaseImporter {
     const artistIds: string[] = [];
 
     for (const artistName of artistNames) {
-      const artistId = await this.findOrCreateSingleArtist(artistName, obj);
+      const artistId = await this.findOrCreateSingleArtist(artistName, obj, languageId);
       if (artistId) {
         artistIds.push(artistId);
       }
@@ -405,11 +408,11 @@ export class ObjectImporter extends BaseImporter {
   /**
    * Find or create a single artist as a Tag
    */
-  private async findOrCreateSingleArtist(artistName: string, obj: LegacyObject): Promise<string | null> {
-    // Include table name to distinguish artists from other tags with same name
+  private async findOrCreateSingleArtist(artistName: string, obj: LegacyObject, languageId: string): Promise<string | null> {
+    // Include language to distinguish same artist name in different languages
     const backwardCompat = BackwardCompatibilityFormatter.format({
       schema: 'mwnf3',
-      table: 'artists',
+      table: `artists:${languageId}`,
       pkValues: [artistName],
     });
 
@@ -445,14 +448,20 @@ export class ObjectImporter extends BaseImporter {
     };
 
     // Limit internal_name to 240 chars (DB limit is 255, leave margin)
-    const internalName = `artist:${artistName}`.substring(0, 240);
+    const internalName = artistName.substring(0, 240);
 
     try {
-      const response = await this.context.apiClient.tag.tagStore({
+      // Internal_name should be clean artist name only
+      // Category and language_id are separate fields
+      const createPayload: any = {
         internal_name: internalName,
+        category: 'artist',
+        language_id: languageId,
         description: JSON.stringify(artistData),
         backward_compatibility: backwardCompat,
-      });
+      };
+
+      const response = await this.context.apiClient.tag.tagStore(createPayload);
 
       const artistId = response.data.data.id;
       
@@ -474,31 +483,43 @@ export class ObjectImporter extends BaseImporter {
 
   /**
    * Parse and create tags from separated string
-   * Primary separator: semicolon (;) - used in 4800/6714 object keywords, 1329/1989 monument keywords
-   * Fallback separator: comma (,) - used when no semicolons found (materials field often uses commas)
+   * IMPORTANT: Fields with colons (e.g., "Warp: wool; Weft: cotton") are STRUCTURED DATA
+   * - If colon found: treat as single structured tag (don't split)
+   * - Otherwise: split by semicolon (;) primary, comma (,) fallback
+   * Tags are language-specific: same content in different languages = different tags
    * Returns array of tag UUIDs
    */
-  private async findOrCreateTags(tagString: string, category: string): Promise<string[]> {
+  private async findOrCreateTags(tagString: string, category: string, languageId: string): Promise<string[]> {
     if (!tagString || tagString.trim() === '') {
       return [];
     }
 
-    // Use semicolon as primary separator, comma as fallback if no semicolons present
-    const separator = tagString.includes(';') ? ';' : ',';
+    // Check if this is structured data (contains colon)
+    // Example: "Warp: Light brown wool; Weft: Red wool" should be ONE tag, not split
+    const isStructured = tagString.includes(':');
     
-    // Split by separator and clean
-    const tagNames = tagString
-      .split(separator)
-      .map((t) => t.trim())
-      .filter((t) => t !== '');
+    let tagNames: string[];
+    
+    if (isStructured) {
+      // Structured data - keep as single tag
+      tagNames = [tagString.trim()];
+    } else {
+      // Simple list - use semicolon as primary separator, comma as fallback
+      const separator = tagString.includes(';') ? ';' : ',';
+      tagNames = tagString
+        .split(separator)
+        .map((t) => t.trim())
+        .filter((t) => t !== '');
+    }
 
     const tagIds: string[] = [];
 
     for (const tagName of tagNames) {
-      // Include table name and category to distinguish material:Wood from artist:Wood
+      // Include table name, category, and language to create unique backward_compatibility
+      // Format: mwnf3:tags:{category}:{lang}:{tagName}
       const backwardCompat = BackwardCompatibilityFormatter.format({
         schema: 'mwnf3',
-        table: `tags:${category}`,
+        table: `tags:${category}:${languageId}`,
         pkValues: [tagName],
       });
 
@@ -520,24 +541,53 @@ export class ObjectImporter extends BaseImporter {
         } else {
           // Tag doesn't exist, create it
           try {
-            const response = await this.context.apiClient.tag.tagStore({
-            internal_name: `${category}:${tagName}`,
-            description: `${category} tag`,
-            backward_compatibility: backwardCompat,
-          });
+            // Internal_name should be clean tag value only (e.g., "portrait", "leather")
+            // Category and language_id are separate fields
+            const createPayload: any = {
+              internal_name: tagName,
+              category: category,
+              language_id: languageId,
+              description: tagName,
+              backward_compatibility: backwardCompat,
+            };
 
-          tagId = response.data.data.id;
+            const response = await this.context.apiClient.tag.tagStore(createPayload);
+            tagId = response.data.data.id;
 
-          // Register in tracker (use 'item' as valid entityType)
-          this.context.tracker.register({
-            uuid: tagId,
-            backwardCompatibility: backwardCompat,
+            // Register in tracker (use 'item' as valid entityType)
+            this.context.tracker.register({
+              uuid: tagId,
+              backwardCompatibility: backwardCompat,
               entityType: 'item',
               createdAt: new Date(),
             });
           } catch (error) {
-            // Should rarely happen now that we lookup first
-            this.logError(`Failed to create tag: ${category}:${tagName}`, error);
+            // 422 means tag already exists - our lookup missed it (pagination issue)
+            // Try one more exhaustive search
+            if (error && typeof error === 'object' && 'response' in error) {
+              const axiosError = error as { response?: { status?: number } };
+              if (axiosError.response?.status === 422) {
+                // Do exhaustive search with higher page limit
+                tagId = await this.findExistingTagByBackwardCompat(backwardCompat, 200);
+                if (tagId) {
+                  // Found it! Register for future
+                  this.context.tracker.register({
+                    uuid: tagId,
+                    backwardCompatibility: backwardCompat,
+                    entityType: 'item',
+                    createdAt: new Date(),
+                  });
+                } else {
+                  // Still can't find it - log warning but continue
+                  this.logWarning(`Tag exists but cannot be found: ${category}:${tagName}`);
+                }
+              } else {
+                // Other error - log it
+                this.logError(`Failed to create tag: ${category}:${tagName}`, error);
+              }
+            } else {
+              this.logError(`Failed to create tag: ${category}:${tagName}`, error);
+            }
           }
         }
       }
@@ -553,8 +603,10 @@ export class ObjectImporter extends BaseImporter {
   /**
    * Search for existing tag by backward_compatibility
    * Searches with pagination for exact match
+   * @param backwardCompat The backward_compatibility value to search for
+   * @param maxPages Maximum pages to search (default 100, use 200 for exhaustive retry)
    */
-  private async findExistingTagByBackwardCompat(backwardCompat: string): Promise<string | null> {
+  private async findExistingTagByBackwardCompat(backwardCompat: string, maxPages: number = 100): Promise<string | null> {
     let page = 1;
     const perPage = 100;
     let hasMore = true;
@@ -578,8 +630,10 @@ export class ObjectImporter extends BaseImporter {
       hasMore = tags.length === perPage;
       page++;
 
-      if (page > 100) {
-        this.logWarning(`Stopped searching for tag after 100 pages (10,000 records)`);
+      if (page > maxPages) {
+        if (maxPages >= 200) {
+          this.logWarning(`Exhaustive search failed after ${maxPages} pages for: ${backwardCompat}`);
+        }
         break;
       }
     }

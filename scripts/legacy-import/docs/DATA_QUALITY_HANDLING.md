@@ -130,14 +130,59 @@ The import system is designed to **continue importing despite data quality issue
 
 **Impact**: Correctly parses 95%+ of tag fields without false splits
 
-### Issue 5: Tag Creation Failures
+### Issue 5: Tag Lookup Pagination Limits (422 Errors)
 
-**Error**: Tag creation fails but existing tag not found
+**Issue**: 422 "internal_name already taken" errors even though lookup runs first  
+**Root cause**: Paginated tag search (100 pages = 10,000 tags max) doesn't find existing tags beyond that limit
 
-**Handling**:
-- **Log error**: "Failed to create/find tag: {category}:{tagName}"
-- **Continue**: Tags are optional metadata, don't block object import
-- **Result**: Object imported without that specific tag
+**Solution**: **Retry with exhaustive search on 422**
+1. Initial lookup: Search up to 100 pages (10,000 tags)
+2. On 422 conflict: Retry with 200 pages (20,000 tags)
+3. If still not found: Log warning and continue
+4. All found tags registered in tracker cache to avoid future API calls
+
+**Result**:
+- Handles large tag databases (10,000+ tags)
+- Minimal performance impact (cache hits for repeated tags)
+- Graceful degradation if tag truly can't be found
+
+### Issue 6: Structured Tag Fields & Language-Specific Tags
+
+**Issue**: Tag fields contain **structured data** that must not be split  
+**Examples**:
+- `"Warp: Light brown wool; Weft: Red wool"` (materials)
+- `"Silversmiths: Giuseppe Gagliardi; sculptor: Giovanni Battista"` (artists)
+- `"madrasa; cerámica: decoración floral"` (keywords with structured content)
+
+**Analysis**:
+- **Materials**: 76 records have structured format (e.g., `"Warp: ...; Weft: ..."`)
+- **Artists**: 25 records have role-based structure (e.g., `"Calligrapher: ...; illuminators: ..."`)
+- **Dynasty**: 5 records with temporal phases
+- **Detection**: Presence of colon `:` indicates structured data
+
+**Solution**: **Enhanced Tag Model with Language Support**
+
+1. **Added fields to tags table**:
+   - `category` (string): 'keyword', 'material', 'artist', 'dynasty'
+   - `language_id` (foreign key to languages): Tags are language-specific
+   - Unique constraint: `(internal_name, category, language_id)`
+
+2. **Smart field parsing**:
+   - If field contains `:` → treat as single structured tag (don't split)
+   - Otherwise: split by `;` (primary) or `,` (fallback)
+   - Create separate tags for each language (e.g., English "leather" ≠ French "cuir")
+
+3. **Backward compatibility format**:
+   - Old: `mwnf3:tags:{category}:{tagName}`
+   - New: `mwnf3:tags:{category}:{lang}:{tagName}`
+   - Ensures unique identification across categories and languages
+
+**Result**:
+- ✅ Structured data preserved (e.g., "Warp: wool; Weft: cotton" = single tag)
+- ✅ Language-specific tags (same item can have English + French tags)
+- ✅ Category-based organization (material ≠ artist ≠ keyword)
+- ✅ Enables filtering by category, language, or both
+- ✅ Supports future reconciliation of cross-language tags
 
 ---
 

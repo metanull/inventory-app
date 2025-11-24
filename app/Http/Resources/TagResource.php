@@ -19,6 +19,10 @@ class TagResource extends JsonResource
             'id' => $this->id,
             // The name of the tag, it shall only be used internally
             'internal_name' => $this->internal_name,
+            // The category of the tag (keyword, material, artist, dynasty), nullable
+            'category' => $this->category,
+            // The language of the tag (ISO 639-3 code), nullable
+            'language_id' => $this->language_id,
             // The legacy Id when this tag corresponds to a legacy tag from the previous database, nullable
             'backward_compatibility' => $this->backward_compatibility,
             // The description of the tag

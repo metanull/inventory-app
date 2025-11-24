@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@inquirer/password": "^5.0.1",
-    "@metanull/inventory-app-api-client": "1.0.1-dev.1123.907",
+    "@metanull/inventory-app-api-client": "1.0.1-dev.1124.1053",
     "axios": "^1.13.2",
     "commander": "^14.0.2",
     "dotenv": "^17.2.3",

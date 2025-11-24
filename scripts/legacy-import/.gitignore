@@ -5,3 +5,5 @@ dist/
 logs/
 coverage/
 .vitest/
+analyze-*.js
+analyze-*.ts

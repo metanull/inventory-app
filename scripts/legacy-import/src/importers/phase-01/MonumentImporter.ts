@@ -249,15 +249,17 @@ export class MonumentImporter extends BaseImporter {
     }
 
     // Parse and create tags from dynasty and keywords (only from first translation to avoid duplicates)
+    // Tags are language-specific, so we use the language from first translation
     const tagIds: string[] = [];
+    const languageId = mapLanguageCode(firstTranslation.lang);
 
     if (firstTranslation.dynasty) {
-      const dynastyTags = await this.findOrCreateTags(firstTranslation.dynasty, 'dynasty');
+      const dynastyTags = await this.findOrCreateTags(firstTranslation.dynasty, 'dynasty', languageId);
       tagIds.push(...dynastyTags);
     }
 
     if (firstTranslation.keywords) {
-      const keywordTags = await this.findOrCreateTags(firstTranslation.keywords, 'keyword');
+      const keywordTags = await this.findOrCreateTags(firstTranslation.keywords, 'keyword', languageId);
       tagIds.push(...keywordTags);
     }
 
@@ -356,32 +358,44 @@ export class MonumentImporter extends BaseImporter {
 
 
   /**
-   * Parse and create tags from comma-separated string
-   * Primary separator: semicolon (;) - used in 1329/1989 monument keywords  
-   * Fallback separator: comma (,) - used when no semicolons found
+   * Parse and create tags from separated string
+   * IMPORTANT: Fields with colons (e.g., "madrasa; cerámica: decoración floral") are STRUCTURED DATA
+   * - If colon found: treat as single structured tag (don't split)
+   * - Otherwise: split by semicolon (;) primary, comma (,) fallback
+   * Tags are language-specific: same content in different languages = different tags
    * Returns array of tag UUIDs
    */
-  private async findOrCreateTags(tagString: string, category: string): Promise<string[]> {
+  private async findOrCreateTags(tagString: string, category: string, languageId: string): Promise<string[]> {
     if (!tagString || tagString.trim() === '') {
       return [];
     }
 
-    // Use semicolon as primary separator, comma as fallback if no semicolons present
-    const separator = tagString.includes(';') ? ';' : ',';
+    // Check if this is structured data (contains colon)
+    // Example: "cerámica: decoración floral; decoración geométrica" should be ONE tag, not split
+    const isStructured = tagString.includes(':');
     
-    // Split by separator and clean
-    const tagNames = tagString
-      .split(separator)
-      .map((t) => t.trim())
-      .filter((t) => t !== '');
+    let tagNames: string[];
+    
+    if (isStructured) {
+      // Structured data - keep as single tag
+      tagNames = [tagString.trim()];
+    } else {
+      // Simple list - use semicolon as primary separator, comma as fallback
+      const separator = tagString.includes(';') ? ';' : ',';
+      tagNames = tagString
+        .split(separator)
+        .map((t) => t.trim())
+        .filter((t) => t !== '');
+    }
 
     const tagIds: string[] = [];
 
     for (const tagName of tagNames) {
-      // Include table name and category to distinguish material:Wood from artist:Wood
+      // Include table name, category, and language to create unique backward_compatibility
+      // Format: mwnf3:tags:{category}:{lang}:{tagName}
       const backwardCompat = BackwardCompatibilityFormatter.format({
         schema: 'mwnf3',
-        table: `tags:${category}`,
+        table: `tags:${category}:${languageId}`,
         pkValues: [tagName],
       });
 
@@ -403,13 +417,18 @@ export class MonumentImporter extends BaseImporter {
         } else {
           // Tag doesn't exist, create it
           try {
-            const response = await this.context.apiClient.tag.tagStore({
-            internal_name: `${category}:${tagName}`,
-            description: `${category} tag`,
-            backward_compatibility: backwardCompat,
-          });
+            // Internal_name should be clean tag value only (e.g., "portrait", "limestone")
+            // Category and language_id are separate fields
+            const createPayload: any = {
+              internal_name: tagName,
+              category: category,
+              language_id: languageId,
+              description: tagName,
+              backward_compatibility: backwardCompat,
+            };
 
-          tagId = response.data.data.id;
+            const response = await this.context.apiClient.tag.tagStore(createPayload);
+            tagId = response.data.data.id;
 
             // Register in tracker (use 'item' as valid entityType)
             this.context.tracker.register({
@@ -419,8 +438,32 @@ export class MonumentImporter extends BaseImporter {
               createdAt: new Date(),
             });
           } catch (error) {
-            // Should rarely happen now that we lookup first
-            this.logError(`Failed to create tag: ${category}:${tagName}`, error);
+            // 422 means tag already exists - our lookup missed it (pagination issue)
+            // Try one more exhaustive search
+            if (error && typeof error === 'object' && 'response' in error) {
+              const axiosError = error as { response?: { status?: number } };
+              if (axiosError.response?.status === 422) {
+                // Do exhaustive search with higher page limit
+                tagId = await this.findExistingTagByBackwardCompat(backwardCompat, 200);
+                if (tagId) {
+                  // Found it! Register for future
+                  this.context.tracker.register({
+                    uuid: tagId,
+                    backwardCompatibility: backwardCompat,
+                    entityType: 'item',
+                    createdAt: new Date(),
+                  });
+                } else {
+                  // Still can't find it - log warning but continue
+                  this.logWarning(`Tag exists but cannot be found: ${category}:${tagName}`);
+                }
+              } else {
+                // Other error - log it
+                this.logError(`Failed to create tag: ${category}:${tagName}`, error);
+              }
+            } else {
+              this.logError(`Failed to create tag: ${category}:${tagName}`, error);
+            }
           }
         }
       }
@@ -436,8 +479,10 @@ export class MonumentImporter extends BaseImporter {
   /**
    * Search for existing tag by backward_compatibility across all pages
    * Only searches exact match since backward_compatibility now includes category
+   * @param backwardCompat The backward_compatibility value to search for
+   * @param maxPages Maximum pages to search (default 100, use 200 for exhaustive retry)
    */
-  private async findExistingTagByBackwardCompat(backwardCompat: string): Promise<string | null> {
+  private async findExistingTagByBackwardCompat(backwardCompat: string, maxPages: number = 100): Promise<string | null> {
     let page = 1;
     const perPage = 100;
     let hasMore = true;
@@ -464,8 +509,10 @@ export class MonumentImporter extends BaseImporter {
       page++;
 
       // Safety limit
-      if (page > 100) {
-        this.logWarning(`Stopped searching for tag after 100 pages (10,000 records)`);
+      if (page > maxPages) {
+        if (maxPages >= 200) {
+          this.logWarning(`Exhaustive search failed after ${maxPages} pages for: ${backwardCompat}`);
+        }
         break;
       }
     }

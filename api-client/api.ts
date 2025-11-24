@@ -1826,9 +1826,21 @@ export interface StoreProvinceTranslationRequest {
 export interface StoreTagRequest {
     'id'?: string;
     'internal_name': string;
+    'category'?: StoreTagRequestCategoryEnum | null;
+    'language_id'?: string | null;
     'backward_compatibility'?: string | null;
     'description': string;
 }
+
+export const StoreTagRequestCategoryEnum = {
+    Keyword: 'keyword',
+    Material: 'material',
+    Artist: 'artist',
+    Dynasty: 'dynasty'
+} as const;
+
+export type StoreTagRequestCategoryEnum = typeof StoreTagRequestCategoryEnum[keyof typeof StoreTagRequestCategoryEnum];
+
 export interface StoreThemeRequest {
     'exhibition_id': string;
     'parent_id'?: string | null;
@@ -1859,6 +1871,14 @@ export interface TagResource {
      * The name of the tag, it shall only be used internally
      */
     'internal_name': string;
+    /**
+     * The category of the tag (keyword, material, artist, dynasty), nullable
+     */
+    'category': string | null;
+    /**
+     * The language of the tag (ISO 639-3 code), nullable
+     */
+    'language_id': string | null;
     /**
      * The legacy Id when this tag corresponds to a legacy tag from the previous database, nullable
      */
@@ -2298,9 +2318,21 @@ export interface UpdateProvinceTranslationRequest {
 export interface UpdateTagRequest {
     'id'?: string;
     'internal_name': string;
+    'category'?: UpdateTagRequestCategoryEnum | null;
+    'language_id'?: string | null;
     'backward_compatibility'?: string | null;
     'description': string;
 }
+
+export const UpdateTagRequestCategoryEnum = {
+    Keyword: 'keyword',
+    Material: 'material',
+    Artist: 'artist',
+    Dynasty: 'dynasty'
+} as const;
+
+export type UpdateTagRequestCategoryEnum = typeof UpdateTagRequestCategoryEnum[keyof typeof UpdateTagRequestCategoryEnum];
+
 export interface UpdateTagsItemRequest {
     'attach'?: Array<string>;
     'detach'?: Array<string>;
