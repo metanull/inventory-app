@@ -252,12 +252,12 @@ export class MonumentImporter extends BaseImporter {
     const tagIds: string[] = [];
 
     if (firstTranslation.dynasty) {
-      const dynastyTags = await this.findOrCreateTags(firstTranslation.dynasty, 'dynasty', result);
+      const dynastyTags = await this.findOrCreateTags(firstTranslation.dynasty, 'dynasty');
       tagIds.push(...dynastyTags);
     }
 
     if (firstTranslation.keywords) {
-      const keywordTags = await this.findOrCreateTags(firstTranslation.keywords, 'keyword', result);
+      const keywordTags = await this.findOrCreateTags(firstTranslation.keywords, 'keyword');
       tagIds.push(...keywordTags);
     }
 
@@ -361,7 +361,7 @@ export class MonumentImporter extends BaseImporter {
    * Fallback separator: comma (,) - used when no semicolons found
    * Returns array of tag UUIDs
    */
-  private async findOrCreateTags(tagString: string, category: string, result: ImportResult): Promise<string[]> {
+  private async findOrCreateTags(tagString: string, category: string): Promise<string[]> {
     if (!tagString || tagString.trim() === '') {
       return [];
     }
@@ -378,19 +378,32 @@ export class MonumentImporter extends BaseImporter {
     const tagIds: string[] = [];
 
     for (const tagName of tagNames) {
+      // Include table name and category to distinguish material:Wood from artist:Wood
       const backwardCompat = BackwardCompatibilityFormatter.format({
         schema: 'mwnf3',
-        table: 'tags',
-        pkValues: [category, tagName],
+        table: `tags:${category}`,
+        pkValues: [tagName],
       });
 
-      // Check if already exists
+      // Check if already exists in tracker
       let tagId = this.context.tracker.getUuid(backwardCompat);
 
       if (!tagId && !this.context.dryRun) {
-        // Create new tag via API
-        try {
-          const response = await this.context.apiClient.tag.tagStore({
+        // Lookup existing tag first to avoid unnecessary create attempts and warnings
+        tagId = await this.findExistingTagByBackwardCompat(backwardCompat);
+        
+        if (tagId) {
+          // Register in tracker for fast future lookups
+          this.context.tracker.register({
+            uuid: tagId,
+            backwardCompatibility: backwardCompat,
+            entityType: 'item',
+            createdAt: new Date(),
+          });
+        } else {
+          // Tag doesn't exist, create it
+          try {
+            const response = await this.context.apiClient.tag.tagStore({
             internal_name: `${category}:${tagName}`,
             description: `${category} tag`,
             backward_compatibility: backwardCompat,
@@ -398,35 +411,16 @@ export class MonumentImporter extends BaseImporter {
 
           tagId = response.data.data.id;
 
-          // Register in tracker (use 'item' as valid entityType)
-          this.context.tracker.register({
-            uuid: tagId,
-            backwardCompatibility: backwardCompat,
-            entityType: 'item',
-            createdAt: new Date(),
-          });
-        } catch (error) {
-          // Handle 422 conflict - tag already exists with this internal_name
-          if (error && typeof error === 'object' && 'response' in error) {
-            const axiosError = error as { response?: { status?: number } };
-            if (axiosError.response?.status === 422) {
-              // Try to find existing tag with same backward_compatibility (case-insensitive)
-              tagId = await this.findExistingTagByBackwardCompat(backwardCompat);
-              if (tagId) {
-                const warning = `Tag '${category}:${tagName}' - Duplicate internal_name resolved`;
-                this.logWarning(`DATA QUALITY: ${warning}`, {
-                  category,
-                  tagName,
-                  issue: 'Duplicate internal_name',
-                  resolution: 'Found existing tag by backward_compatibility',
-                });
-                result.warnings?.push(warning);
-              }
-            }
-          }
-          if (!tagId) {
-            // Log error but continue - tags are not critical
-            this.logError(`Failed to create/find tag: ${category}:${tagName}`, error);
+            // Register in tracker (use 'item' as valid entityType)
+            this.context.tracker.register({
+              uuid: tagId,
+              backwardCompatibility: backwardCompat,
+              entityType: 'item',
+              createdAt: new Date(),
+            });
+          } catch (error) {
+            // Should rarely happen now that we lookup first
+            this.logError(`Failed to create tag: ${category}:${tagName}`, error);
           }
         }
       }
@@ -441,44 +435,22 @@ export class MonumentImporter extends BaseImporter {
 
   /**
    * Search for existing tag by backward_compatibility across all pages
-   * Also checks for case-insensitive matches since internal_name validation may be case-insensitive
+   * Only searches exact match since backward_compatibility now includes category
    */
   private async findExistingTagByBackwardCompat(backwardCompat: string): Promise<string | null> {
     let page = 1;
     const perPage = 100;
     let hasMore = true;
-    
-    // Extract category and tagName from backward_compat for case-insensitive search
-    // Format: mwnf3:tags:{category}:{tagName}
-    const parts = backwardCompat.split(':');
-    const category = parts.length >= 3 ? parts[2] : null;
-    const tagName = parts.length >= 4 ? parts.slice(3).join(':') : null;
 
     while (hasMore) {
       const response = await this.context.apiClient.tag.tagIndex(page, perPage, undefined);
       const tags = response.data.data;
 
-      // First try exact match
-      let existing = tags.find((t) => t.backward_compatibility === backwardCompat);
-      
-      // If not found and we have category/tagName, try case-insensitive match
-      if (!existing && category && tagName) {
-        existing = tags.find((t) => {
-          if (!t.backward_compatibility) return false;
-          const tParts = t.backward_compatibility.split(':');
-          const tCategory = tParts.length >= 3 ? tParts[2] : null;
-          const tTagName = tParts.length >= 4 ? tParts.slice(3).join(':') : null;
-          
-          return (
-            tCategory?.toLowerCase() === category.toLowerCase() &&
-            tTagName?.toLowerCase() === tagName.toLowerCase()
-          );
-        });
-      }
-      
+      // Look for exact backward_compatibility match
+      const existing = tags.find((t) => t.backward_compatibility === backwardCompat);
+
       if (existing) {
-        // Register in tracker with the ORIGINAL backward_compat (not the found one)
-        // This ensures future lookups with same case work
+        // Register in tracker with the backward_compat
         this.context.tracker.register({
           uuid: existing.id,
           backwardCompatibility: backwardCompat,

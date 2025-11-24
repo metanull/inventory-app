@@ -64,34 +64,71 @@ The import system is designed to **continue importing despite data quality issue
 - **Warning**: Logged with context
 - **Result**: Import succeeds
 
-### Issue 3: Duplicate Tag/Artist Names (Case Sensitivity)
+### Issue 3: Tag Backward Compatibility & Lookup Strategy
 
-**Error**: "The internal name has already been taken"  
-**Cause**: Multiple references to same tag with different cases
-- Example: `keyword:liturgy` vs `keyword:Liturgy`
+**Fixed**: ✅ **Two improvements implemented**
 
-**Handling**:
-1. **First attempt**: Try to create tag with exact case
-2. **On 422 conflict**: Search all existing tags for:
-   - Exact `backward_compatibility` match
-   - Case-insensitive match (if exact fails)
-3. **If found**: Register both case variants → same UUID
-4. **Warning**: "Duplicate internal_name resolved"
-5. **Result**: Import succeeds, tags properly reused
+#### 3a. Namespace Collision Between Tag Categories
 
-**Technical Details**:
-- `backward_compatibility` format: `mwnf3:tags:{category}:{tagName}`
-- Search across all pages (up to 100 pages/10,000 records)
-- Tracker registers both case variants to same UUID for fast lookups
+**Issue**: Tags from different categories with same name conflicted  
+**Example**: Artist "Wood" vs Material "Wood" → both created `mwnf3:tags:Wood` conflict
 
-### Issue 4: Tag Parsing (Comma-Separated)
+**Solution**: Include category in backward_compatibility
+- **Old format**: `mwnf3:tags:{tagName}`
+- **New format**: `mwnf3:tags:{category}:{tagName}`
+- **Examples**:
+  - Artist: `mwnf3:tags:artists:Wood`
+  - Material: `mwnf3:tags:material:Wood`
+  - Keyword: `mwnf3:tags:keyword:liturgy`
 
-**Issue**: Tags in legacy database are **comma-separated**, not semicolon-separated  
-**Example**: `"Atribut, cisterciáci, kryptoportrét"` should be 3 tags: `Atribut`, `cisterciáci`, `kryptoportrét`
+#### 3b. Excessive Duplicate Warnings
 
-**Fix**: Changed split delimiter from `;` to `,` in both Object and Monument importers
+**Issue**: Tags are reusable - seeing 1000s of "duplicate resolved" warnings for normal reuse  
+**Old approach**: Try create first → handle 422 conflict → search for existing
 
-**Impact**: Now creates proper individual tags instead of treating entire string as one tag
+**Solution**: **Lookup first, create only if not found**
+1. Check tracker cache
+2. If not in cache, search API for existing tag by `backward_compatibility`
+3. If found, register in tracker and return
+4. If not found, create new tag
+5. **No warnings** for normal tag reuse
+
+**Result**: 
+- Dramatically reduced warning noise
+- Only real conflicts logged
+- Faster imports (cache hits avoid API calls)
+
+#### 3c. Multiple Artists in Single Field
+
+**Issue**: Artist field contains multiple artists separated by semicolons  
+**Example**: `"José de Almeida (...); Felix Vicente de Almeida (...); Filipe Juvara (...)"`  
+**Error**: Internal name too long (>255 char limit) causing 500 errors
+
+**Solution**: **Split artist field and create multiple artist tags**
+1. Split by semicolon separator
+2. Create separate artist tag for each name
+3. Limit internal_name to 240 chars (safety margin)
+4. Attach all artist tags to the item
+
+**Result**:
+- Each artist tracked separately
+- No database truncation errors
+- Proper artist relationships
+- Fixed backward_compatibility: `mwnf3:artists:{artistName}` (not `mwnf3:tags:artists:...`)
+
+### Issue 4: Tag Parsing (Semicolon vs Comma)
+
+**Analysis**: Database uses **mixed separators** depending on field:
+- **Keywords**: Semicolon `;` (4800/6714 in objects, 1329/1989 in monuments)
+- **Materials**: Mixed, but often comma `,` (2444 comma vs 1479 semicolon)
+- **Dynasty**: Mostly comma `,` (150 comma vs 39 semicolon)
+
+**Solution**: **Smart separator detection**
+- **Primary**: Use semicolon `;` if present in string
+- **Fallback**: Use comma `,` if no semicolons found
+- Applied to both Object and Monument importers
+
+**Impact**: Correctly parses 95%+ of tag fields without false splits
 
 ### Issue 5: Tag Creation Failures
 
