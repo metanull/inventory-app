@@ -76,7 +76,7 @@ export const COUNTRY_CODE_MAP: Record<string, string> = {
   tn: 'tun', // Tunisia
   tr: 'tur', // Turkey
 
-  // Legacy-specific non-standard codes  
+  // Legacy-specific non-standard codes
   ab: 'alb', // Albania (legacy: 'ab', standard ISO: 'al')
   ag: 'arg', // Argentina (legacy: 'ag', standard ISO: 'ar')
   al: 'aus', // Australia (legacy: 'al', standard ISO: 'au')
