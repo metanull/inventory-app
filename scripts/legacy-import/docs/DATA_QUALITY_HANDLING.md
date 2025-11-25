@@ -130,34 +130,90 @@ The import system is designed to **continue importing despite data quality issue
 
 **Impact**: Correctly parses 95%+ of tag fields without false splits
 
-### Issue 5: Tag Lookup Pagination Limits (422 & 500 Duplicate Errors)
+### Issue 5: Tag Lookup Pagination Limits & Case Sensitivity (422 & 500 Duplicate Errors)
 
 **Issue**: Duplicate tag errors (422 or 500 with unique constraint violation)  
-**Root cause**: 
+**Root causes**: 
 - Paginated tag search (100 pages = 10,000 tags max) doesn't find existing tags beyond that limit
 - Search by `backward_compatibility` can fail if that field doesn't match
+- **Case sensitivity**: MariaDB unique constraint is case-insensitive but JavaScript `===` is case-sensitive
+  - Example: Database has `"Portrait"` but search looks for `"portrait"` → not found → tries to create → 500 error
 - 500 errors occur when database unique constraint `(internal_name, category, language_id)` is violated
 
-**Solution**: **Multi-level fallback search strategy**
-1. **Initial lookup**: Search by `backward_compatibility` up to 100 pages (10,000 tags)
-2. **On 422 or 500 duplicate error**:
-   - Retry `backward_compatibility` search with 200 pages (20,000 tags)
-   - If still not found: Search by actual unique constraint fields `(internal_name, category, language_id)`
-   - If found: Register in tracker cache
-   - If still not found: Log warning and continue
-3. **All found tags**: Registered in tracker cache to avoid future API calls
+**Solution**: **Normalize + Case-Insensitive Search**
+
+1. **Tag Normalization** (applies to tags only, not other internal_name fields):
+   - Convert all tag `internal_name` to **lowercase** before storage
+   - Preserve original capitalization in `description` field for display
+   - Example: `"Portrait"` → `internal_name: "portrait"`, `description: "Portrait"`
+   - Applied to: keywords, materials, artists, dynasties
+
+2. **Multi-level fallback search strategy**:
+   - **Initial lookup**: Search by `backward_compatibility` up to 100 pages (10,000 tags)
+   - **On 422 or 500 duplicate error**:
+     - Retry `backward_compatibility` search with 200 pages (20,000 tags)
+     - If still not found: Search by actual unique constraint fields with **case-insensitive comparison**
+     - If found: Register in tracker cache
+     - If still not found: Log warning and continue
+   - **All found tags**: Registered in tracker cache to avoid future API calls
+
+3. **Case-insensitive search**:
+   ```typescript
+   t.internal_name.toLowerCase() === searchName.toLowerCase()
+   ```
 
 **Error Detection**:
 - `422`: Direct conflict response from API validation
 - `500 with "Duplicate entry ... tags_name_category_lang_unique"`: Database-level constraint violation
 
 **Result**:
+- ✅ Eliminates case-sensitivity issues permanently
 - ✅ Handles large tag databases (20,000+ tags)
 - ✅ Robust fallback when `backward_compatibility` doesn't match
+- ✅ Original capitalization preserved for display via translations
 - ✅ Minimal performance impact (cache hits for repeated tags)
 - ✅ Graceful degradation with warnings if tag truly can't be found
 
-### Issue 6: Structured Tag Fields & Language-Specific Tags
+**Note**: This normalization is **ONLY applied to tag internal_name**. Other model internal_name fields (Item, Collection, Partner, etc.) maintain their original casing as database indexes for those models are case-sensitive and may require specific capitalization.
+
+### Issue 6: Field Length Validation (422 Errors)
+
+**Issue**: Database field length limits exceeded causing 422 validation errors  
+**Examples**:
+- `alternate_name`: "La présence de cette œuvre dans un ensemble important ... (320 characters)" → 422 error
+- `type`: "Clock (regulator); Gilt bronze case representing Astronomy ... (280 characters)" → 422 error
+
+**Root cause**: Database schema limits fields to 255 characters, but legacy data contains longer values
+
+**Solution**: **Truncate with ellipsis and log warnings**
+
+1. **Pre-validation truncation**:
+   - Check field length before API call
+   - If exceeds 255 chars: truncate to 252 chars + '...'
+   - Log warning with original length and truncated value
+   
+2. **Fields affected**:
+   - `alternate_name` (ItemTranslation)
+   - `type` (ItemTranslation)
+   
+3. **Implementation**:
+   ```typescript
+   if (alternateName && alternateName.length > 255) {
+     this.logWarning(`alternate_name truncated (${alternateName.length} → 255 chars)`);
+     alternateName = alternateName.substring(0, 252) + '...';
+   }
+   ```
+
+**Result**:
+- ✅ Import continues without 422 errors
+- ✅ Data preserved (truncated but readable)
+- ✅ Full original values logged for review
+- ✅ Clear indication that truncation occurred ('...' suffix)
+- ✅ Warnings tracked for post-import analysis
+
+**Note**: Original full text can be retrieved from legacy database if needed for specific records.
+
+### Issue 7: Structured Tag Fields & Language-Specific Tags
 
 **Issue**: Tag fields contain **structured data** that must not be split  
 **Examples**:

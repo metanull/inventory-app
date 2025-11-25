@@ -335,14 +335,44 @@ export class MonumentImporter extends BaseImporter {
       description = '(No description available)';
     }
 
+    // DATA QUALITY: Truncate fields that exceed database limits (255 chars)
+    let alternateName = monument.name2 || null;
+    let type = monument.typeof || null;
+    
+    if (alternateName && alternateName.length > 255) {
+      const warning = `${monument.project_id}:${monument.institution_id}:${monument.number}:${monument.lang} - alternate_name truncated (${alternateName.length} → 255 chars)`;
+      this.logWarning(`DATA QUALITY: Monument translation ${warning}`, {
+        monument_key: `${monument.project_id}:${monument.institution_id}:${monument.number}`,
+        language: monument.lang,
+        field: 'alternate_name',
+        original_length: alternateName.length,
+        truncated_value: alternateName.substring(0, 252) + '...',
+      });
+      result.warnings?.push(warning);
+      alternateName = alternateName.substring(0, 252) + '...';
+    }
+    
+    if (type && type.length > 255) {
+      const warning = `${monument.project_id}:${monument.institution_id}:${monument.number}:${monument.lang} - type truncated (${type.length} → 255 chars)`;
+      this.logWarning(`DATA QUALITY: Monument translation ${warning}`, {
+        monument_key: `${monument.project_id}:${monument.institution_id}:${monument.number}`,
+        language: monument.lang,
+        field: 'type',
+        original_length: type.length,
+        truncated_value: type.substring(0, 252) + '...',
+      });
+      result.warnings?.push(warning);
+      type = type.substring(0, 252) + '...';
+    }
+
     await this.context.apiClient.itemTranslation.itemTranslationStore({
       item_id: itemId,
       language_id: languageId,
       context_id: contextId,
       name: name,
       description: description,
-      alternate_name: monument.name2 || null,
-      type: monument.typeof || null,
+      alternate_name: alternateName,
+      type: type,
       dates: monument.date_description || null,
       location: locationFull,
       method_for_datation: monument.datationmethod || null,
@@ -391,12 +421,16 @@ export class MonumentImporter extends BaseImporter {
     const tagIds: string[] = [];
 
     for (const tagName of tagNames) {
+      // Normalize to lowercase to avoid case-sensitivity issues
+      // Original capitalization preserved in description for display
+      const normalizedTagName = tagName.toLowerCase();
+      
       // Include table name, category, and language to create unique backward_compatibility
       // Format: mwnf3:tags:{category}:{lang}:{tagName}
       const backwardCompat = BackwardCompatibilityFormatter.format({
         schema: 'mwnf3',
         table: `tags:${category}:${languageId}`,
-        pkValues: [tagName],
+        pkValues: [normalizedTagName],
       });
 
       // Check if already exists in tracker
@@ -418,12 +452,13 @@ export class MonumentImporter extends BaseImporter {
           // Tag doesn't exist, create it
           try {
             // Internal_name should be clean tag value only (e.g., "portrait", "limestone")
-            // Category and language_id are separate fields
+            // ALWAYS lowercase to avoid case-sensitivity issues
+            // Original capitalization preserved in description for display
             const createPayload: any = {
-              internal_name: tagName,
+              internal_name: normalizedTagName,
               category: category,
               language_id: languageId,
-              description: tagName,
+              description: tagName, // Keep original capitalization for display
               backward_compatibility: backwardCompat,
             };
 
@@ -454,7 +489,7 @@ export class MonumentImporter extends BaseImporter {
                 
                 if (!tagId) {
                   // Still not found by backward_compatibility - try searching by actual fields
-                  tagId = await this.findExistingTagByFields(tagName, category, languageId);
+                  tagId = await this.findExistingTagByFields(normalizedTagName, category, languageId);
                 }
                 
                 if (tagId) {
@@ -508,10 +543,10 @@ export class MonumentImporter extends BaseImporter {
       const response = await this.context.apiClient.tag.tagIndex(page, perPage, undefined);
       const tags = response.data.data;
 
-      // Search by the actual unique constraint fields
+      // Search by the actual unique constraint fields (case-insensitive)
       const existing = tags.find(
         (t) =>
-          t.internal_name === internalName &&
+          t.internal_name.toLowerCase() === internalName.toLowerCase() &&
           t.category === category &&
           t.language_id === languageId
       );

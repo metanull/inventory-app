@@ -347,14 +347,44 @@ export class ObjectImporter extends BaseImporter {
       description = '(No description available)';
     }
 
+    // DATA QUALITY: Truncate fields that exceed database limits (255 chars)
+    let alternateName = obj.name2 || null;
+    let type = obj.typeof || null;
+    
+    if (alternateName && alternateName.length > 255) {
+      const warning = `${obj.project_id}:${obj.museum_id}:${obj.number}:${obj.lang} - alternate_name truncated (${alternateName.length} → 255 chars)`;
+      this.logWarning(`DATA QUALITY: Object translation ${warning}`, {
+        object_key: `${obj.project_id}:${obj.museum_id}:${obj.number}`,
+        language: obj.lang,
+        field: 'alternate_name',
+        original_length: alternateName.length,
+        truncated_value: alternateName.substring(0, 252) + '...',
+      });
+      result.warnings?.push(warning);
+      alternateName = alternateName.substring(0, 252) + '...';
+    }
+    
+    if (type && type.length > 255) {
+      const warning = `${obj.project_id}:${obj.museum_id}:${obj.number}:${obj.lang} - type truncated (${type.length} → 255 chars)`;
+      this.logWarning(`DATA QUALITY: Object translation ${warning}`, {
+        object_key: `${obj.project_id}:${obj.museum_id}:${obj.number}`,
+        language: obj.lang,
+        field: 'type',
+        original_length: type.length,
+        truncated_value: type.substring(0, 252) + '...',
+      });
+      result.warnings?.push(warning);
+      type = type.substring(0, 252) + '...';
+    }
+
     await this.context.apiClient.itemTranslation.itemTranslationStore({
       item_id: itemId,
       language_id: languageId,
       context_id: contextId,
       name: name,
       description: description,
-      alternate_name: obj.name2 || null,
-      type: obj.typeof || null,
+      alternate_name: alternateName,
+      type: type,
       holder: obj.holding_museum || null,
       owner: obj.current_owner || null,
       initial_owner: obj.original_owner || null,
@@ -447,17 +477,19 @@ export class ObjectImporter extends BaseImporter {
       period_of_activity: obj.period_activity || null,
     };
 
-    // Limit internal_name to 240 chars (DB limit is 255, leave margin)
-    const internalName = artistName.substring(0, 240);
+    // Normalize to lowercase and limit to 240 chars (DB limit is 255, leave margin)
+    const normalizedArtistName = artistName.toLowerCase();
+    const internalName = normalizedArtistName.substring(0, 240);
 
     try {
-      // Internal_name should be clean artist name only
+      // Internal_name should be clean artist name only (lowercase)
       // Category and language_id are separate fields
+      // Original capitalization preserved in description
       const createPayload: any = {
         internal_name: internalName,
         category: 'artist',
         language_id: languageId,
-        description: JSON.stringify(artistData),
+        description: JSON.stringify({ ...artistData, original_name: artistName }),
         backward_compatibility: backwardCompat,
       };
 
@@ -515,12 +547,16 @@ export class ObjectImporter extends BaseImporter {
     const tagIds: string[] = [];
 
     for (const tagName of tagNames) {
+      // Normalize to lowercase to avoid case-sensitivity issues
+      // Original capitalization preserved in description for display
+      const normalizedTagName = tagName.toLowerCase();
+      
       // Include table name, category, and language to create unique backward_compatibility
       // Format: mwnf3:tags:{category}:{lang}:{tagName}
       const backwardCompat = BackwardCompatibilityFormatter.format({
         schema: 'mwnf3',
         table: `tags:${category}:${languageId}`,
-        pkValues: [tagName],
+        pkValues: [normalizedTagName],
       });
 
       // Check if already exists in tracker
@@ -542,12 +578,13 @@ export class ObjectImporter extends BaseImporter {
           // Tag doesn't exist, create it
           try {
             // Internal_name should be clean tag value only (e.g., "portrait", "leather")
-            // Category and language_id are separate fields
+            // ALWAYS lowercase to avoid case-sensitivity issues
+            // Original capitalization preserved in description for display
             const createPayload: any = {
-              internal_name: tagName,
+              internal_name: normalizedTagName,
               category: category,
               language_id: languageId,
-              description: tagName,
+              description: tagName, // Keep original capitalization for display
               backward_compatibility: backwardCompat,
             };
 
@@ -578,7 +615,7 @@ export class ObjectImporter extends BaseImporter {
                 
                 if (!tagId) {
                   // Still not found by backward_compatibility - try searching by actual fields
-                  tagId = await this.findExistingTagByFields(tagName, category, languageId);
+                  tagId = await this.findExistingTagByFields(normalizedTagName, category, languageId);
                 }
                 
                 if (tagId) {
@@ -628,16 +665,21 @@ export class ObjectImporter extends BaseImporter {
     const perPage = 100;
     let hasMore = true;
 
+    // Normalize for case-insensitive comparison (MariaDB unique constraint is case-insensitive)
+    const normalizedName = internalName.toLowerCase();
+    const normalizedCategory = category?.toLowerCase();
+    const normalizedLanguage = languageId?.toLowerCase();
+
     while (hasMore) {
       const response = await this.context.apiClient.tag.tagIndex(page, perPage, undefined);
       const tags = response.data.data;
 
-      // Search by the actual unique constraint fields
+      // Search by the actual unique constraint fields (case-insensitive)
       const existing = tags.find(
         (t) =>
-          t.internal_name === internalName &&
-          t.category === category &&
-          t.language_id === languageId
+          t.internal_name?.toLowerCase() === normalizedName &&
+          t.category?.toLowerCase() === normalizedCategory &&
+          t.language_id?.toLowerCase() === normalizedLanguage
       );
 
       if (existing) {
