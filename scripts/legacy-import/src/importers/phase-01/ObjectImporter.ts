@@ -1,6 +1,7 @@
 import { BaseImporter, ImportResult } from '../BaseImporter.js';
 import { BackwardCompatibilityFormatter } from '../../utils/BackwardCompatibilityFormatter.js';
 import { mapLanguageCode } from '../../utils/CodeMappings.js';
+import { convertHtmlToMarkdown } from '../../utils/HtmlToMarkdownConverter.js';
 
 interface LegacyObject {
   project_id: string;
@@ -424,12 +425,16 @@ export class ObjectImporter extends BaseImporter {
       this.collectSample('object', obj, 'edge', 'long_type', languageId);
     }
 
+    // Convert HTML fields to Markdown (API expects Markdown, not HTML)
+    const descriptionMarkdown = convertHtmlToMarkdown(description);
+    const bibliographyMarkdown = convertHtmlToMarkdown(obj.bibliography);
+
     await this.context.apiClient.itemTranslation.itemTranslationStore({
       item_id: itemId,
       language_id: languageId,
       context_id: contextId,
       name: name,
-      description: description,
+      description: descriptionMarkdown,
       alternate_name: alternateName,
       type: type,
       holder: obj.holding_museum || null,
@@ -442,7 +447,7 @@ export class ObjectImporter extends BaseImporter {
       method_for_datation: obj.datationmethod || null,
       method_for_provenance: obj.provenancemethod || null,
       obtention: obj.obtentionmethod || null,
-      bibliography: obj.bibliography || null,
+      bibliography: bibliographyMarkdown,
       author_id: authorId,
       text_copy_editor_id: textCopyEditorId,
       translator_id: translatorId,

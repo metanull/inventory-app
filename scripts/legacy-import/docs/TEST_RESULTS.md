@@ -6,11 +6,25 @@
 **Method**: Each test validates exact field transformation from sample data to API calls  
 **Objective**: Identify importer bugs before running full 4-6 hour import
 
+## HTML to Markdown Conversion ✅
+
+**IMPLEMENTED**: Robust HTML to Markdown conversion using Turndown library
+
+### Fields Converted
+- **Objects**: `description`, `description2`, `bibliography`
+- **Monuments**: `description`, `description2`, `bibliography`
+
+### Implementation
+- Uses Turndown library (proper HTML parser, not fragile regex)
+- Converts: `<br/>` → newline, `<i>` → `*italic*`, `<b>` → `**bold**`, etc.
+- Handles malformed HTML gracefully
+- Test shows conversion working: `<br/>` tags successfully removed
+
 ---
 
 ## Test Results
 
-### ✅ PASSING Tests (3/5)
+### ✅ PASSING Tests (4/5)
 
 #### 1. **ObjectImporter** - ALL TESTS PASSING ✓
 - ✓ Correctly groups denormalized data (lang in PK)

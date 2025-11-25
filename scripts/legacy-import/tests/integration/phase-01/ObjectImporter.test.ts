@@ -3,6 +3,7 @@ import { SampleBasedTestHelper } from '../../helpers/SampleBasedTestHelper.js';
 import { ObjectImporter } from '../../../src/importers/phase-01/ObjectImporter.js';
 import { mapLanguageCode } from '../../../src/utils/CodeMappings.js';
 import { BackwardCompatibilityTracker } from '../../../src/utils/BackwardCompatibilityTracker.js';
+import { convertHtmlToMarkdown } from '../../../src/utils/HtmlToMarkdownConverter.js';
 
 interface ObjectSample {
   project_id: string;
@@ -131,10 +132,13 @@ describe('ObjectImporter', () => {
         expect(apiData.name).toMatch(/Object \d+/);
       }
       
-      // Validate description (with fallback logic)
+      // Validate description (with HTML to Markdown conversion)
       if (sample.description && sample.description.trim() !== '') {
-        // Importer may normalize whitespace - compare trimmed versions
-        expect((apiData.description as string).trim()).toBe(sample.description.trim());
+        // Importer converts HTML to Markdown
+        const expectedDescription = convertHtmlToMarkdown(sample.description);
+        
+        // API data MUST equal the converted Markdown
+        expect(apiData.description).toBe(expectedDescription);
       } else {
         // Should use fallback
         expect(apiData.description).toBe('(No description available)');

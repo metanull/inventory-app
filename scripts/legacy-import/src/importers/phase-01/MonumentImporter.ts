@@ -1,6 +1,7 @@
 import { BaseImporter, ImportResult } from '../BaseImporter.js';
 import { BackwardCompatibilityFormatter } from '../../utils/BackwardCompatibilityFormatter.js';
 import { mapLanguageCode } from '../../utils/CodeMappings.js';
+import { convertHtmlToMarkdown } from '../../utils/HtmlToMarkdownConverter.js';
 
 interface LegacyMonument {
   project_id: string;
@@ -408,18 +409,22 @@ export class MonumentImporter extends BaseImporter {
       this.collectSample('monument', monument, 'edge', 'long_type', languageId);
     }
 
+    // Convert HTML fields to Markdown (API expects Markdown, not HTML)
+    const descriptionMarkdown = convertHtmlToMarkdown(description);
+    const bibliographyMarkdown = convertHtmlToMarkdown(monument.bibliography);
+
     await this.context.apiClient.itemTranslation.itemTranslationStore({
       item_id: itemId,
       language_id: languageId,
       context_id: contextId,
       name: name,
-      description: description,
+      description: descriptionMarkdown,
       alternate_name: alternateName,
       type: type,
       dates: monument.date_description || null,
       location: locationFull,
       method_for_datation: monument.datationmethod || null,
-      bibliography: monument.bibliography || null,
+      bibliography: bibliographyMarkdown,
       author_id: authorId,
       text_copy_editor_id: textCopyEditorId,
       translator_id: translatorId,

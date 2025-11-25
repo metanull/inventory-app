@@ -3,6 +3,7 @@ import { SampleBasedTestHelper } from '../../helpers/SampleBasedTestHelper.js';
 import { MonumentImporter } from '../../../src/importers/phase-01/MonumentImporter.js';
 import { BackwardCompatibilityTracker } from '../../../src/utils/BackwardCompatibilityTracker.js';
 import { mapLanguageCode } from '../../../src/utils/CodeMappings.js';
+import { convertHtmlToMarkdown } from '../../../src/utils/HtmlToMarkdownConverter.js';
 
 interface MonumentSample {
   project_id: string;
@@ -15,6 +16,7 @@ interface MonumentSample {
   description?: string;
   location?: string;
   address?: string;
+  bibliography?: string;
 }
 
 /**
@@ -178,6 +180,7 @@ describe('MonumentImporter - Data Transformation', () => {
       expect(apiData).toHaveProperty('item_id');
       expect(apiData).toHaveProperty('language_id');
       expect(apiData).toHaveProperty('name');
+      expect(apiData).toHaveProperty('description');
       
       // Language mapping
       const expectedLangId = mapLanguageCode(sample.lang);
@@ -187,6 +190,82 @@ describe('MonumentImporter - Data Transformation', () => {
       // Name must exist
       expect(typeof apiData.name).toBe('string');
       expect(apiData.name).toBeTruthy();
+      
+      // CRITICAL: HTML to Markdown conversion validation
+      if (sample.description && sample.description.trim() !== '') {
+        const expectedDescription = convertHtmlToMarkdown(sample.description);
+        // API data MUST equal the converted Markdown
+        expect(apiData.description).toBe(expectedDescription);
+      }
+      
+      // Verify bibliography field HTML is converted
+      if (sample.bibliography && sample.bibliography.trim() !== '') {
+        const expectedBibliography = convertHtmlToMarkdown(sample.bibliography);
+        expect(apiData.bibliography).toBe(expectedBibliography);
+      }
+    });
+  });
+
+  it('should convert HTML to Markdown in description and bibliography fields', async () => {
+    const samples = helper.loadSamples<MonumentSample>('monument', { limit: 50 });
+    
+    // Filter samples that have HTML content
+    const samplesWithHtml = samples.filter((s) => 
+      (s.description && (s.description.includes('<') || s.description.includes('>')))
+    );
+    
+    if (samplesWithHtml.length === 0) {
+      console.log('⚠️  No monument samples with HTML found');
+      return;
+    }
+
+    console.log(`Found ${samplesWithHtml.length} monuments with HTML content`);
+
+    const tracker = new BackwardCompatibilityTracker();
+    samplesWithHtml.forEach((s) => {
+      tracker.register({
+        uuid: `uuid-context-${s.project_id}`,
+        backwardCompatibility: `mwnf3:projects:${s.project_id}`,
+        entityType: 'context',
+        createdAt: new Date(),
+      });
+      tracker.register({
+        uuid: `uuid-collection-${s.project_id}`,
+        backwardCompatibility: `mwnf3:projects:${s.project_id}:collection`,
+        entityType: 'collection',
+        createdAt: new Date(),
+      });
+      tracker.register({
+        uuid: `uuid-institution-${s.institution_id}-${s.country}`,
+        backwardCompatibility: `mwnf3:institutions:${s.institution_id}:${s.country}`,
+        entityType: 'partner',
+        createdAt: new Date(),
+      });
+    });
+
+    const mockContext = helper.createMockContextWithQueries([samplesWithHtml]);
+    mockContext.tracker = tracker;
+    const importer = new MonumentImporter(mockContext);
+    await importer.import();
+
+    const translationCalls = helper.getApiCalls(mockContext.apiClient, 'itemTranslation.itemTranslationStore');
+
+    // Every translation MUST have HTML converted to Markdown
+    translationCalls.forEach((call, i) => {
+      const apiData = call[0] as Record<string, unknown>;
+      const sample = samplesWithHtml[i];
+      
+      if (sample?.description && apiData.description) {
+        const expectedMarkdown = convertHtmlToMarkdown(sample.description);
+        expect(apiData.description).toBe(expectedMarkdown);
+        
+        console.log(`✓ Monument ${i + 1}: HTML converted correctly`);
+      }
+      
+      if (sample?.bibliography && apiData.bibliography) {
+        const expectedMarkdown = convertHtmlToMarkdown(sample.bibliography);
+        expect(apiData.bibliography).toBe(expectedMarkdown);
+      }
     });
   });
 
