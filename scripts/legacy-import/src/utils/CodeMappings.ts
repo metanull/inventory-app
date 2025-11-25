@@ -1,127 +1,123 @@
 /**
  * Centralized code mappings for legacy data import
  * These mappings convert legacy 2-character codes to ISO standard 3-character codes
+ *
+ * SOURCE: Generated from mwnf3.langs and mwnf3.countries tables
  */
 
 /**
- * Map LEGACY 2-character language codes (from mwnf3 `lang` fields) to ISO 639-3 codes
- * This maps the ACTUAL codes used in the legacy database
- * Many match ISO 639-1 standards, but some are custom (e.g., 'se' for Swedish instead of 'sv')
+ * Map LEGACY 2-character language codes (from mwnf3.langs) to ISO 639-3 codes
+ * These are ALL the language codes present in the legacy database
  */
 export const LANGUAGE_CODE_MAP: Record<string, string> = {
-  // Legacy codes that match ISO 639-1 standards
-  ar: 'ara', // Arabic
+  ar: 'ara', // Arabic - العربية
+  ch: 'zho', // Chinese (legacy uses 'ch' instead of ISO 'zh')
   cs: 'ces', // Czech
-  de: 'deu', // German
+  de: 'deu', // German - Deutsch
+  el: 'ell', // Greek - ελληνικά
   en: 'eng', // English
-  es: 'spa', // Spanish
-  fa: 'fas', // Farsi/Persian
-  fr: 'fra', // French
+  es: 'spa', // Spanish - Español
+  fa: 'fas', // Farsi/Persian - فارسی
+  fr: 'fra', // French - Français
   he: 'heb', // Hebrew
   hr: 'hrv', // Croatian
   hu: 'hun', // Hungarian
-  it: 'ita', // Italian
-  ja: 'jpn', // Japanese
-  pt: 'por', // Portuguese
+  it: 'ita', // Italian - Italiano
+  pt: 'por', // Portuguese - Português
   ru: 'rus', // Russian
-  tr: 'tur', // Turkish
-  zh: 'zho', // Chinese
-  el: 'ell', // Greek
-
-  // Legacy-specific non-standard codes
-  ch: 'zho', // Chinese (legacy: 'ch', standard ISO: 'zh')
-  se: 'swe', // Swedish (legacy: 'se', standard ISO: 'sv')
-  si: 'slv', // Slovenian (legacy: 'si', standard ISO: 'sl')
+  se: 'swe', // Swedish (legacy uses 'se' instead of ISO 'sv')
+  si: 'slv', // Slovenian (legacy uses 'si' instead of ISO 'sl')
+  tr: 'tur', // Turkish - Türkçe
 };
 
 /**
- * Map legacy 2-character country codes to 3-character ISO 3166-1 alpha-3 codes
- *
- * NOTE: Some legacy codes are non-standard (e.g., 'ab' for Albania instead of standard 'al')
- * These mappings are based on actual data in mwnf3.countrynames table
- */
-/**
- * Map LEGACY 2-character country codes (from mwnf3.countrynames) to ISO 3166-1 alpha-3 codes
- * This maps the ACTUAL codes used in the legacy database, NOT standard ISO codes
- * Many legacy codes are non-standard custom codes that differ from ISO 3166-1 alpha-2
+ * Map LEGACY 2-character country codes (from mwnf3.countries) to ISO 3166-1 alpha-3 codes
+ * These are ALL the country codes present in the legacy database
+ * SOURCE: Complete mapping from mwnf3.countries table
  */
 export const COUNTRY_CODE_MAP: Record<string, string> = {
-  // Legacy codes that happen to match ISO 3166-1 alpha-2 standards
+  ab: 'alb', // Albania
+  ag: 'arg', // Argentina
+  al: 'aus', // Australia
   at: 'aut', // Austria
   az: 'aze', // Azerbaijan
   be: 'bel', // Belgium
+  bg: 'bgd', // Bangladesh
+  bh: 'bhr', // Bahrain
+  bl: 'blr', // Belarus
   br: 'bra', // Brazil
+  bs: 'bih', // Bosnia-Herzegovina
+  bu: 'bgr', // Bulgaria
   ca: 'can', // Canada
+  ch: 'chn', // China
+  co: 'com', // Comoros
+  cy: 'cyp', // Cyprus
   cz: 'cze', // Czech Republic
   de: 'deu', // Germany
+  dj: 'dji', // Djibouti
+  dn: 'dnk', // Denmark
   dz: 'dza', // Algeria
   eg: 'egy', // Egypt
   es: 'esp', // Spain
+  et: 'est', // Estonia
+  fn: 'fin', // Finland
   fr: 'fra', // France
+  ge: 'geo', // Georgia
   gr: 'grc', // Greece
   hr: 'hrv', // Croatia
   hu: 'hun', // Hungary
+  ia: 'irn', // Iran
+  in: 'ind', // India
   iq: 'irq', // Iraq
+  ir: 'irl', // Ireland
+  is: 'isr', // Israel
+  it: 'ita', // Italy
+  ix: 'ita', // Italy (Sicily) - maps to same as 'it'
   jo: 'jor', // Jordan
   jp: 'jpn', // Japan
+  kw: 'kwt', // Kuwait
   lb: 'lbn', // Lebanon
+  ln: 'ltu', // Lithuania
+  lt: 'lva', // Latvia
+  lx: 'lux', // Luxembourg
   ly: 'lby', // Libya
   ma: 'mar', // Morocco
+  mc: 'mkd', // Macedonia (North Macedonia)
+  md: 'mda', // Moldova
+  ml: 'mlt', // Malta
+  mn: 'mne', // Montenegro
+  mt: 'mrt', // Mauritania
+  my: 'mys', // Malaysia
+  nt: 'nld', // Netherlands
+  nw: 'nor', // Norway
+  on: 'omn', // Oman
+  pa: 'pse', // Palestinian Authority
+  pd: 'zzzpd', // Public domain (no country) - special code
   pl: 'pol', // Poland
   pt: 'prt', // Portugal
-  ro: 'rou', // Romania
-  ru: 'rus', // Russia
+  px: 'pse', // Palestine
+  qt: 'qat', // Qatar
+  rm: 'rou', // Romania
+  rs: 'rus', // Russia
   sa: 'sau', // Saudi Arabia
+  sb: 'srb', // Serbia
+  sd: 'sdn', // Sudan
+  se: 'swe', // Sweden
+  sf: 'zaf', // South Africa
+  si: 'svn', // Slovenia
+  sl: 'svk', // Slovak Republic
+  so: 'som', // Somalia
+  sw: 'che', // Switzerland
   sy: 'syr', // Syria
   tn: 'tun', // Tunisia
   tr: 'tur', // Turkey
-
-  // Legacy-specific non-standard codes
-  ab: 'alb', // Albania (legacy: 'ab', standard ISO: 'al')
-  ag: 'arg', // Argentina (legacy: 'ag', standard ISO: 'ar')
-  al: 'aus', // Australia (legacy: 'al', standard ISO: 'au')
-  bg: 'bgd', // Bangladesh (legacy: 'bg', standard ISO: 'bd')
-  bh: 'bhr', // Bahrain (legacy: 'bh', standard ISO: 'bh' - same)
-  bl: 'blr', // Belarus (legacy: 'bl', standard ISO: 'by')
-  bs: 'bih', // Bosnia-Herzegovina (legacy: 'bs', standard ISO: 'ba')
-  bu: 'bgr', // Bulgaria (legacy: 'bu', standard ISO: 'bg')
-  ch: 'chn', // China (legacy: 'ch', standard ISO: 'cn')
-  co: 'com', // Comoros (legacy: 'co', standard ISO: 'km')
-  cy: 'cyp', // Cyprus (legacy: 'cy', standard ISO: 'cy' - same)
-  dj: 'dji', // Djibouti (legacy: 'dj', standard ISO: 'dj' - same)
-  dn: 'dnk', // Denmark (legacy: 'dn', standard ISO: 'dk')
-  et: 'est', // Estonia (legacy: 'et', standard ISO: 'ee')
-  fn: 'fin', // Finland (legacy: 'fn', standard ISO: 'fi')
-  ge: 'geo', // Georgia (legacy: 'ge', standard ISO: 'ge' - same)
-  ia: 'irn', // Iran (legacy: 'ia', standard ISO: 'ir')
-  is: 'isr', // Israel (legacy: 'is', standard ISO: 'il')
-  ix: 'ita', // Italy/Sicily (legacy: 'ix' for regional variant)
-  ln: 'ltu', // Lithuania (legacy: 'ln', standard ISO: 'lt')
-  lt: 'lva', // Latvia (legacy: 'lt', standard ISO: 'lv')
-  lx: 'lux', // Luxembourg (legacy: 'lx', standard ISO: 'lu')
-  mc: 'mkd', // North Macedonia (legacy: 'mc', standard ISO: 'mk')
-  md: 'mda', // Moldova (legacy: 'md', standard ISO: 'md' - same)
-  ml: 'mlt', // Malta (legacy: 'ml', standard ISO: 'mt')
-  mn: 'mne', // Montenegro (legacy: 'mn', standard ISO: 'me')
-  mt: 'mrt', // Mauritania (legacy: 'mt', standard ISO: 'mr')
-  nt: 'nld', // Netherlands (legacy: 'nt', standard ISO: 'nl')
-  on: 'omn', // Oman (legacy: 'on', standard ISO: 'om')
-  pa: 'pse', // Palestine (legacy: 'pa', standard ISO: 'ps')
-  pd: 'zzzpd', // Public domain (special: no specific country)
-  px: 'pse', // Palestinian Territories (alternative)
-  qt: 'qat', // Qatar (legacy: 'qt', standard ISO: 'qa')
-  rm: 'rou', // Romania (legacy: 'rm', standard ISO: 'ro')
-  sb: 'srb', // Serbia (legacy: 'sb', standard ISO: 'rs')
-  sd: 'sdn', // Sudan (legacy: 'sd', standard ISO: 'sd' - same)
-  sf: 'zaf', // South Africa (legacy: 'sf', standard ISO: 'za')
-  sl: 'svk', // Slovakia (legacy: 'sl', standard ISO: 'sk')
-  so: 'som', // Somalia (legacy: 'so', standard ISO: 'so' - same)
-  sw: 'che', // Switzerland (legacy: 'sw', standard ISO: 'ch')
-  uc: 'ukr', // Ukraine (legacy: 'uc', standard ISO: 'ua')
-  uk: 'gbr', // United Kingdom (legacy: 'uk', standard ISO: 'gb')
-  va: 'vat', // Vatican City (legacy: 'va', standard ISO: 'va' - same)
-  ww: 'zzzww', // Other/Worldwide (special: no specific country)
-  ym: 'yem', // Yemen (legacy: 'ym', standard ISO: 'ye')
+  ua: 'are', // United Arab Emirates
+  uc: 'ukr', // Ukraine
+  uk: 'gbr', // United Kingdom
+  us: 'usa', // United States of America
+  va: 'vat', // Vatican city
+  ww: 'zzzww', // Other - special code for no specific country
+  ym: 'yem', // Yemen
 };
 
 /**

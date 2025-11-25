@@ -8,3 +8,6 @@ coverage/
 analyze-*.js
 analyze-*.ts
 analyze*.ts
+temp*.ts
+temp*.md
+test-fixtures/*.sqlite
