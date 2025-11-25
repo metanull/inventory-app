@@ -27,8 +27,8 @@ export class CountryImporter extends BaseImporter {
     };
 
     // Read production countries.json file
-    // process.cwd() is scripts/legacy-import, go up 2 levels to reach project root
-    const countriesPath = resolve(process.cwd(), '../../database/seeders/data/countries.json');
+    // __dirname is dist/importers/phase-00 or src/importers/phase-00, go up to scripts/legacy-import, then to project root
+    const countriesPath = resolve(__dirname, '../../../../../database/seeders/data/countries.json');
     let countries: CountryData[];
 
     try {

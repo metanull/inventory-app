@@ -28,8 +28,8 @@ export class LanguageImporter extends BaseImporter {
     };
 
     // Read production languages.json file
-    // process.cwd() is scripts/legacy-import, go up 2 levels to reach project root
-    const languagesPath = resolve(process.cwd(), '../../database/seeders/data/languages.json');
+    // __dirname is dist/importers/phase-00 or src/importers/phase-00, go up to scripts/legacy-import, then to project root
+    const languagesPath = resolve(__dirname, '../../../../../database/seeders/data/languages.json');
     let languages: LanguageData[];
 
     try {

@@ -217,7 +217,11 @@ program
   .option('--list-importers', 'List all available importers and exit')
   .option('--collect-samples', 'Collect sample data for test fixtures', false)
   .option('--sample-size <number>', 'Number of success samples per category', '20')
-  .option('--sample-db <path>', 'Path to sample database file', './test-fixtures/samples.sqlite')
+  .option(
+    '--sample-db <path>',
+    'Path to sample database file (relative to script directory)',
+    './test-fixtures/samples.sqlite'
+  )
   .action(async (options) => {
     try {
       const dryRun = options.dryRun === true;
@@ -227,7 +231,9 @@ program
       const listImporters = options.listImporters === true;
       const collectSamples = options.collectSamples === true;
       const sampleSize = parseInt(options.sampleSize, 10);
-      const sampleDb = options.sampleDb;
+      // Resolve sample DB path relative to script directory
+      // options.sampleDb is relative to script dir (e.g., './test-fixtures/samples.sqlite')
+      const sampleDb = resolve(__dirname, '..', options.sampleDb);
 
       // Handle --list-importers
       if (listImporters) {
@@ -324,6 +330,13 @@ program
       const sampleOnlyMode = collectSamples; // When collecting samples, skip API calls
 
       if (collectSamples) {
+        // Auto-delete existing samples database to start fresh
+        const fs = await import('fs');
+        if (fs.existsSync(sampleDb)) {
+          fs.unlinkSync(sampleDb);
+          logger.console(`🗑️  Deleted existing sample database`);
+        }
+
         const { SampleCollector } = await import('./utils/SampleCollector.js');
         sampleCollector = new SampleCollector({
           enabled: true,
