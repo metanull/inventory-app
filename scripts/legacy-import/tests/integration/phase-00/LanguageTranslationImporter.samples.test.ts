@@ -2,6 +2,12 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { SampleBasedTestHelper } from '../../helpers/SampleBasedTestHelper.js';
 import { LanguageTranslationImporter } from '../../../src/importers/phase-00/LanguageTranslationImporter.js';
 
+interface LanguageTranslationSample {
+  language_id: string;
+  lang: string;
+  name: string;
+}
+
 /**
  * Sample-based integration tests for LanguageTranslationImporter
  * Tests against real legacy data collected in SQLite samples

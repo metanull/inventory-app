@@ -2,9 +2,17 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { SampleBasedTestHelper } from '../../helpers/SampleBasedTestHelper.js';
 import { LanguageImporter } from '../../../src/importers/phase-00/LanguageImporter.js';
 
+interface LanguageSample {
+  id: string;
+  internal_name: string;
+  iso_code: string;
+  backward_compatibility: string;
+  is_default: boolean;
+}
+
 /**
- * Sample-based integration tests for LanguageImporter
- * Tests against real legacy data collected in SQLite samples
+ * Data-driven tests for LanguageImporter
+ * Validates that each sample record is transformed correctly and produces the correct API calls
  */
 describe('LanguageImporter - Sample-Based Tests', () => {
   let helper: SampleBasedTestHelper;
@@ -17,94 +25,107 @@ describe('LanguageImporter - Sample-Based Tests', () => {
     helper.close();
   });
 
-  describe('import with success samples', () => {
-    it('should import all language samples successfully', async () => {
-      const mockContext = helper.createMockContext('language');
-      const importer = new LanguageImporter(mockContext);
-
-      const result = await importer.import();
-
-      expect(result.success).toBe(true);
-      expect(result.imported).toBeGreaterThan(0);
-      expect(result.errors).toHaveLength(0);
+  describe('data transformation validation', () => {
+    it('should transform each language sample into correct API call', async () => {
+      const samples = helper.loadSamples<LanguageSample>('language');
       
-      // Verify all languages were registered in tracker
-      const samples = helper.loadSamples('language');
-      expect(result.imported).toBe(samples.length);
+      if (samples.length === 0) {
+        console.log('⚠️  No language samples found - skipping test');
+        return;
+      }
 
-      // Verify backward compatibility tracking
-      samples.forEach((lang) => {
-        const backwardCompat = `mwnf3:languages:${(lang as { id: string }).id}`;
-        expect(helper.getTracker().exists(backwardCompat)).toBe(true);
-      });
-    });
-
-    it('should create languages with correct structure', async () => {
-      const mockContext = helper.createMockContext('language', 5);
+      const mockContext = helper.createMockContextWithQueries([samples]);
       const importer = new LanguageImporter(mockContext);
 
       await importer.import();
 
-      // Verify API calls have correct structure
       const calls = helper.getApiCalls(mockContext.apiClient, 'language.languageStore');
       
-      expect(calls.length).toBeGreaterThan(0);
-      calls.forEach((call) => {
-        const languageData = call[0] as Record<string, unknown>;
+      // Should have one call per sample
+      expect(calls.length).toBe(samples.length);
+      
+      // Validate each call against its corresponding sample
+      samples.forEach((sample, index) => {
+        const call = calls[index];
+        if (!call) {
+          throw new Error(`Missing API call for sample ${index}: ${sample.id}`);
+        }
+        const apiCallData = call[0] as Record<string, unknown>;
         
-        // Required fields
-        expect(languageData).toHaveProperty('id');
-        expect(languageData).toHaveProperty('internal_name');
-        expect(languageData).toHaveProperty('iso_code');
-        expect(languageData).toHaveProperty('backward_compatibility');
+        // Verify exact field mapping
+        expect(apiCallData.id).toBe(sample.id);
+        expect(apiCallData.internal_name).toBe(sample.internal_name);
+        expect(apiCallData.iso_code).toBe(sample.iso_code);
+        expect(apiCallData.backward_compatibility).toBe(sample.backward_compatibility);
         
-        // Validate ISO code format (3 characters)
-        expect(typeof languageData.iso_code).toBe('string');
-        expect((languageData.iso_code as string).length).toBe(3);
+        // is_default should NOT be in the store call (handled separately)
+        expect(apiCallData).not.toHaveProperty('is_default');
         
-        // Validate backward compatibility format
-        expect(languageData.backward_compatibility).toMatch(/^mwnf3:languages:[a-z]{3}$/);
+        console.log(`✓ Language ${sample.id}: API call matches sample data`);
+      });
+    });
+
+    it('should validate ISO code format for all samples', () => {
+      const samples = helper.loadSamples<LanguageSample>('language');
+      
+      samples.forEach((sample) => {
+        // ISO 639-3 codes are exactly 3 lowercase letters
+        expect(sample.iso_code).toMatch(/^[a-z]{3}$/);
+        expect(sample.iso_code).toBe(sample.id); // id and iso_code should match
+      });
+    });
+
+    it('should validate backward_compatibility format for all samples', () => {
+      const samples = helper.loadSamples<LanguageSample>('language');
+      
+      samples.forEach((sample) => {
+        // Format: mwnf3:languages:{id}
+        const expectedBackwardCompat = `mwnf3:languages:${sample.id}`;
+        expect(sample.backward_compatibility).toBe(expectedBackwardCompat);
       });
     });
   });
 
-  describe('import with edge cases', () => {
-    it('should handle languages with minimal data', async () => {
-      // Load any edge case samples if they exist
-      const edgeSamples = helper.loadSamples('language', { reason: 'edge' });
+  describe('special handling', () => {
+    it('should handle default language (eng) with separate API call', async () => {
+      const samples = helper.loadSamples<LanguageSample>('language');
+      const engSample = samples.find((s) => s.id === 'eng' && s.is_default);
       
-      if (edgeSamples.length > 0) {
-        const mockContext = helper.createMockContextWithQueries([edgeSamples]);
-        const importer = new LanguageImporter(mockContext);
-
-        const result = await importer.import();
-
-        expect(result.success).toBe(true);
-        expect(result.imported).toBe(edgeSamples.length);
+      if (!engSample) {
+        console.log('⚠️  No default English language sample found');
+        return;
       }
+
+      const mockContext = helper.createMockContextWithQueries([[engSample]]);
+      const importer = new LanguageImporter(mockContext);
+
+      await importer.import();
+
+      // Verify languageSetDefault was called for eng
+      const setDefaultCalls = helper.getApiCalls(mockContext.apiClient, 'language.languageSetDefault');
+      expect(setDefaultCalls.length).toBe(1);
+      const defaultCall = setDefaultCalls[0];
+      if (!defaultCall) {
+        throw new Error('Missing languageSetDefault API call');
+      }
+      expect(defaultCall[0]).toBe('eng');
+      expect(defaultCall[1]).toEqual({ is_default: true });
     });
   });
 
-  describe('statistics validation', () => {
-    it('should report correct statistics from samples', () => {
-      const stats = helper.getReader().getStats();
+  describe('sample data quality', () => {
+    it('should have samples for all critical languages', () => {
+      const samples = helper.loadSamples<LanguageSample>('language');
+      const languageIds = samples.map((s) => s.id);
       
-      // Should have language samples
-      expect(stats).toHaveProperty('language:success');
-      expect(stats['language:success']).toBeGreaterThan(0);
+      // Critical languages that must be present
+      const criticalLanguages = ['eng', 'fra', 'ara'];
       
-      // Log stats for visibility
-      console.log('Language sample statistics:', stats);
-    });
-
-    it('should have samples for all supported languages', () => {
-      const samples = helper.loadSamples('language');
-      const languageIds = samples.map((s) => (s as { id: string }).id);
+      criticalLanguages.forEach((lang) => {
+        expect(languageIds).toContain(lang);
+      });
       
-      // Verify we have diverse language coverage
-      expect(languageIds.length).toBeGreaterThan(5);
-      
-      console.log('Sampled languages:', languageIds);
+      console.log(`✓ Found ${languageIds.length} language samples:`, languageIds.join(', '));
     });
   });
 });

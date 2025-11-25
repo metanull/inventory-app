@@ -1,6 +1,25 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { SampleBasedTestHelper, expectInRange } from '../../helpers/SampleBasedTestHelper.js';
+import { SampleBasedTestHelper } from '../../helpers/SampleBasedTestHelper.js';
 import { MonumentImporter } from '../../../src/importers/phase-01/MonumentImporter.js';
+import { mapLanguageCode } from '../../../src/utils/CodeMappings.js';
+
+interface MonumentSample {
+  project_id: string;
+  country: string;
+  institution_id: string;
+  number: string;
+  lang: string;
+  working_number?: string;
+  name?: string;
+  description?: string;
+  location?: string;
+  address?: string;
+  start_date?: string | null;
+  end_date?: string | null;
+  keywords?: string;
+  patrons?: string;
+  architects?: string;
+}
 
 /**
  * Sample-based integration tests for MonumentImporter
@@ -68,7 +87,7 @@ describe('MonumentImporter - Sample-Based Tests', () => {
     });
 
     it('should correctly group denormalized monuments by language', async () => {
-      const samples = helper.loadSamples<{ project_id: string; country: string; institution_id: string; number: string; lang: string }>('monument', 20);
+      const samples = helper.loadSamples<{ project_id: string; country: string; institution_id: string; number: string; lang: string }>('monument', { limit: 20 });
       
       // Group samples by non-lang PK
       const groups = new Map<string, unknown[]>();
@@ -88,7 +107,7 @@ describe('MonumentImporter - Sample-Based Tests', () => {
         const mockContext = helper.createMockContextWithQueries([samples]);
         const importer = new MonumentImporter(mockContext);
 
-        const result = await importer.import();
+        await importer.import();
 
         // Should create one Item per monument group
         const itemCalls = helper.getApiCalls(mockContext.apiClient, 'item.itemStore');
@@ -229,7 +248,7 @@ describe('MonumentImporter - Sample-Based Tests', () => {
 
   describe('language code mapping', () => {
     it('should correctly map language codes', async () => {
-      const samples = helper.loadSamples<{ lang: string }>('monument', 20);
+      const samples = helper.loadSamples<{ lang: string }>('monument', { limit: 20 });
       
       const twoLetterCodes = samples.filter((s) => s.lang && s.lang.length === 2);
       
@@ -249,7 +268,7 @@ describe('MonumentImporter - Sample-Based Tests', () => {
 
   describe('tag handling', () => {
     it('should process monument tag fields', async () => {
-      const samples = helper.loadSamples<{ keywords?: string; patrons?: string; architects?: string }>('monument', 10);
+      const samples = helper.loadSamples<{ keywords?: string; patrons?: string; architects?: string }>('monument', { limit: 10 });
       
       const samplesWithTags = samples.filter((s) => s.keywords || s.patrons || s.architects);
       
@@ -273,7 +292,7 @@ describe('MonumentImporter - Sample-Based Tests', () => {
 
   describe('location data handling', () => {
     it('should preserve location coordinates when present', async () => {
-      const samples = helper.loadSamples<{ location?: string }>('monument', 20);
+      const samples = helper.loadSamples<{ location?: string }>('monument', { limit: 20 });
       
       const mockContext = helper.createMockContextWithQueries([samples]);
       const importer = new MonumentImporter(mockContext);
@@ -315,7 +334,7 @@ describe('MonumentImporter - Sample-Based Tests', () => {
     });
 
     it('should validate sample diversity', () => {
-      const samples = helper.loadSamples<{ project_id: string; lang: string }>('monument', 50);
+      const samples = helper.loadSamples<{ project_id: string; lang: string }>('monument', { limit: 50 });
       
       const projects = new Set(samples.map((s) => s.project_id));
       const languages = new Set(samples.map((s) => s.lang));

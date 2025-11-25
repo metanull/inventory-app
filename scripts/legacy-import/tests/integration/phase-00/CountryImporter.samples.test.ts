@@ -2,11 +2,18 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { SampleBasedTestHelper } from '../../helpers/SampleBasedTestHelper.js';
 import { CountryImporter } from '../../../src/importers/phase-00/CountryImporter.js';
 
+interface CountrySample {
+  id: string;
+  internal_name: string;
+  iso_code: string;
+  backward_compatibility: string;
+}
+
 /**
- * Sample-based integration tests for CountryImporter
- * Tests against real legacy data collected in SQLite samples
+ * Data-driven tests for CountryImporter
+ * Validates that each sample is transformed correctly into API calls
  */
-describe('CountryImporter - Sample-Based Tests', () => {
+describe('CountryImporter - Data Transformation Tests', () => {
   let helper: SampleBasedTestHelper;
 
   beforeAll(() => {

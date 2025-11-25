@@ -2,6 +2,12 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { SampleBasedTestHelper } from '../../helpers/SampleBasedTestHelper.js';
 import { ProjectImporter } from '../../../src/importers/phase-01/ProjectImporter.js';
 
+interface ProjectSample {
+  project_id: string;
+  name: string;
+  launchdate: Date | null;
+}
+
 /**
  * Sample-based integration tests for ProjectImporter
  * Tests against real legacy data collected in SQLite samples

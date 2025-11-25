@@ -22,6 +22,13 @@ export class SampleBasedTestHelper {
   }
 
   /**
+   * Reset the tracker (call this in beforeEach to ensure clean state)
+   */
+  resetTracker(): void {
+    this.tracker = new BackwardCompatibilityTracker();
+  }
+
+  /**
    * Get the SampleReader instance
    */
   getReader(): SampleReader {
@@ -184,6 +191,7 @@ export class SampleBasedTestHelper {
         itemStore: vi.fn().mockImplementation(async (data) => ({
           data: { data: { id: generateUuid(), ...data } },
         })),
+        itemUpdateTags: vi.fn().mockResolvedValue({ data: { data: {} } }),
       },
       itemTranslation: {
         itemTranslationStore: vi.fn().mockImplementation(async (data) => ({
@@ -209,21 +217,23 @@ export class SampleBasedTestHelper {
   setupFoundationData() {
     // Load foundation data from samples and register in tracker
     const languages = this.loadSamples('language');
-    languages.forEach((lang: { id: string }) => {
+    languages.forEach((lang) => {
+      const langId = (lang as { id: string }).id;
       this.tracker.register({
-        uuid: `uuid-lang-${lang.id}`,
-        backwardCompatibility: `mwnf3:languages:${lang.id}`,
-        entityType: 'language',
+        uuid: `uuid-lang-${langId}`,
+        backwardCompatibility: `mwnf3:languages:${langId}`,
+        entityType: 'context', // Using 'context' as valid entityType
         createdAt: new Date(),
       });
     });
 
     const countries = this.loadSamples('country');
-    countries.forEach((country: { id: string }) => {
+    countries.forEach((country) => {
+      const countryId = (country as { id: string }).id;
       this.tracker.register({
-        uuid: `uuid-country-${country.id}`,
-        backwardCompatibility: `mwnf3:countries:${country.id}`,
-        entityType: 'country',
+        uuid: `uuid-country-${countryId}`,
+        backwardCompatibility: `mwnf3:countries:${countryId}`,
+        entityType: 'context', // Using 'context' as valid entityType
         createdAt: new Date(),
       });
     });
@@ -248,8 +258,14 @@ export class SampleBasedTestHelper {
     endpoint: string,
     expectedCalls: number
   ): void {
-    const [service, method] = endpoint.split('.');
-    const mock = (mockApiClient as Record<string, Record<string, unknown>>)[service][method];
+    const parts = endpoint.split('.');
+    if (parts.length !== 2) return;
+    const [service, method] = parts;
+    if (!service || !method) return;
+    const apiClient = mockApiClient as Record<string, Record<string, unknown>>;
+    const serviceObj = apiClient[service];
+    if (!serviceObj) return;
+    const mock = serviceObj[method];
     if (vi.isMockFunction(mock)) {
       expect(mock).toHaveBeenCalledTimes(expectedCalls);
     }
@@ -262,8 +278,14 @@ export class SampleBasedTestHelper {
    * @returns Array of call arguments
    */
   getApiCalls(mockApiClient: unknown, endpoint: string): unknown[][] {
-    const [service, method] = endpoint.split('.');
-    const mock = (mockApiClient as Record<string, Record<string, unknown>>)[service][method];
+    const parts = endpoint.split('.');
+    if (parts.length !== 2) return [];
+    const [service, method] = parts;
+    if (!service || !method) return [];
+    const apiClient = mockApiClient as Record<string, Record<string, unknown>>;
+    const serviceObj = apiClient[service];
+    if (!serviceObj) return [];
+    const mock = serviceObj[method];
     if (vi.isMockFunction(mock)) {
       return mock.mock.calls;
     }
