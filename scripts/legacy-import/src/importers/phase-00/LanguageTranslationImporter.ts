@@ -86,16 +86,24 @@ export class LanguageTranslationImporter extends BaseImporter {
       return false;
     }
 
-    if (this.context.dryRun) {
-      this.logInfo(
-        `[DRY-RUN] Would import language translation: ${languageName.lang_id}:${languageName.lang}`
-      );
-      return true;
-    }
-
-    // Map 2-character codes to 3-character codes
+    // Collect sample for testing (BEFORE API calls)
     const languageId = mapLanguageCode(languageName.lang_id);
     const displayLanguageId = mapLanguageCode(languageName.lang);
+    this.collectSample('language_translation', languageName, 'success', undefined, languageId);
+
+    if (this.context.dryRun || this.isSampleOnlyMode) {
+      this.logInfo(
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import language translation: ${languageName.lang_id}:${languageName.lang}`
+      );
+
+      if (this.isSampleOnlyMode) {
+        this.context.tracker.register({
+          uuid: `${languageId}:${displayLanguageId}`,
+          backwardCompatibility: backwardCompat,
+        });
+      }
+      return true;
+    }
 
     try {
       await this.context.apiClient.languageTranslation.languageTranslationStore({

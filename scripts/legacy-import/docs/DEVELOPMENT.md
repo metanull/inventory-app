@@ -42,24 +42,26 @@ Legacy MySQL DB → LegacyDatabase → Importer → Transform → API Client →
 **Format**: `{schema}:{table}:{pk_value1}:{pk_value2}:...`
 
 **Rules**:
+
 - Use semicolon (`:`) as separator
 - For denormalized tables (language in PK), **EXCLUDE** language column
 - For images, **INCLUDE** image index/order number
 - Values must be primitive types (string/number)
 
 **Examples**:
+
 ```typescript
 // Project
-"mwnf3:projects:vm"
+'mwnf3:projects:vm';
 
 // Object (denormalized - language excluded)
-"mwnf3:objects:vm:ma:louvre:001"
+'mwnf3:objects:vm:ma:louvre:001';
 
 // Image with index
-"mwnf3:objects_pictures:vm:ma:louvre:001:1"
+'mwnf3:objects_pictures:vm:ma:louvre:001:1';
 
 // Explore monument (normalized, numeric PK)
-"explore:exploremonument:1234"
+'explore:exploremonument:1234';
 ```
 
 ### Denormalization Handling
@@ -67,6 +69,7 @@ Legacy MySQL DB → LegacyDatabase → Importer → Transform → API Client →
 Legacy mwnf3 and travels schemas store **one entity as multiple rows** with language in PK.
 
 **Example**:
+
 ```sql
 -- Legacy: TWO rows for ONE object
 objects: (vm, ma, louvre, 001, en) - English row
@@ -74,18 +77,20 @@ objects: (vm, ma, louvre, 001, fr) - French row
 ```
 
 **Import Strategy**:
+
 1. **GROUP BY** non-language PK columns
 2. Create **ONE Item** per grouped record
 3. Create **ONE ItemTranslation** per language row
 4. backward_compatibility **EXCLUDES** language: `mwnf3:objects:vm:ma:louvre:001`
 
 **Code Pattern**:
+
 ```typescript
 // 1. Query with language column
 const rows = await db.query('SELECT * FROM mwnf3.objects');
 
 // 2. Group by non-language PK
-const grouped = groupBy(rows, (row) => 
+const grouped = groupBy(rows, (row) =>
   `${row.project_id}:${row.country}:${row.museum_id}:${row.number}`
 );
 
@@ -94,15 +99,15 @@ for (const [key, languageRows] of grouped) {
   const backwardCompat = BackwardCompatibilityFormatter.formatDenormalized(
     'mwnf3', 'objects', languageRows[0], ['lang']
   );
-  
+
   // Check if already imported
   if (tracker.exists(backwardCompat)) {
     continue; // Skip duplicate
   }
-  
+
   // Create item via API
   const item = await api.createItem({ type: 'object', ... });
-  
+
   // Register in tracker
   tracker.register({
     uuid: item.uuid,
@@ -110,7 +115,7 @@ for (const [key, languageRows] of grouped) {
     entityType: 'item',
     createdAt: new Date(),
   });
-  
+
   // Create translations
   for (const row of languageRows) {
     await api.createItemTranslation({
@@ -129,12 +134,14 @@ for (const [key, languageRows] of grouped) {
 Legacy schemas reference each other. Must avoid creating duplicates.
 
 **Pattern**:
+
 1. **Before creating entity**, format backward_compatibility reference
 2. **Check tracker**: `tracker.exists(backwardCompat)`
 3. If exists: **Reuse UUID** - `tracker.getUuid(backwardCompat)`
 4. If not exists: **Create via API**, then **register** in tracker
 
 **Example - Sharing History referencing mwnf3 object**:
+
 ```typescript
 // SH schema has reference to mwnf3 object
 const mwnf3Ref = BackwardCompatibilityFormatter.format({
@@ -155,6 +162,7 @@ if (tracker.exists(mwnf3Ref)) {
 ### Image Import Strategy
 
 **Problem**: Legacy has two image models:
+
 1. **Ordered lists** (mwnf3, sh, travels, explore): Multiple images per item
 2. **Single selections** (thg galleries): One image from an item with contextualized caption
 
@@ -163,10 +171,11 @@ if (tracker.exists(mwnf3Ref)) {
 **Rules**:
 
 1. **Primary Image**: Image #1 → ItemImage directly on parent item
+
    ```typescript
    // Copy file from legacy network share
    const filePath = await copyImageFile(legacyPath);
-   
+
    // Create ItemImage on parent
    await api.createItemImage({
      item_id: parentItemUuid,
@@ -177,6 +186,7 @@ if (tracker.exists(mwnf3Ref)) {
    ```
 
 2. **All Images**: Create child Item type='picture' for EACH image (including #1)
+
    ```typescript
    for (const [index, imageRow] of images.entries()) {
      // Create picture item
@@ -185,14 +195,14 @@ if (tracker.exists(mwnf3Ref)) {
        parent_id: parentItemUuid,
        backward_compatibility: formatImage(schema, table, pkValues, index + 1),
      });
-     
+
      // Create ItemImage for picture (same file, no duplication)
      await api.createItemImage({
        item_id: pictureItem.uuid,
        file_path: filePath, // Same file as parent's ItemImage
        order: index + 1,
      });
-     
+
      // Create translations with captions
      for (const lang of languages) {
        await api.createItemTranslation({
@@ -206,10 +216,11 @@ if (tracker.exists(mwnf3Ref)) {
    ```
 
 3. **Contextual Captions** (thg galleries): Add ItemTranslation with gallery context_id
+
    ```typescript
    // Picture item already exists from Rule 2
    const pictureUuid = tracker.getUuid(pictureBackwardCompat);
-   
+
    // Add translation in gallery context
    await api.createItemTranslation({
      item_id: pictureUuid,
@@ -220,6 +231,7 @@ if (tracker.exists(mwnf3Ref)) {
    ```
 
 **Result**: Each image exists as:
+
 - ItemImage on parent (primary image only)
 - Child Item type='picture' with ItemImage (all images)
 - Translations in multiple contexts (default + gallery-specific)
@@ -229,6 +241,7 @@ if (tracker.exists(mwnf3Ref)) {
 Legacy schemas have multi-level collection structures.
 
 **Mapping**:
+
 ```typescript
 // Legacy: Exhibition → Theme → Subtheme
 // New Model: Collection → Collection → Collection (with parent_id)
@@ -253,6 +266,7 @@ const subtheme = await api.createCollection({
 ```
 
 **Collection Types**:
+
 - `collection` - Generic collection (default)
 - `exhibition` - Curated exhibition
 - `exhibition_trail` - Travel trail
@@ -302,14 +316,14 @@ describe('MyEntityImporter', () => {
       query: vi.fn(),
       queryOne: vi.fn(),
     };
-    
+
     // Mock API client
     mockApi = {
       createMyEntity: vi.fn(),
     };
-    
+
     tracker = new BackwardCompatibilityTracker();
-    
+
     importer = new MyEntityImporter({
       legacyDb: mockDb,
       apiClient: mockApi,
@@ -321,9 +335,7 @@ describe('MyEntityImporter', () => {
 
   it('should import entity from legacy database', async () => {
     // Arrange: Mock legacy data
-    mockDb.query.mockResolvedValue([
-      { id: 1, name_en: 'Entity EN', name_fr: 'Entity FR' },
-    ]);
+    mockDb.query.mockResolvedValue([{ id: 1, name_en: 'Entity EN', name_fr: 'Entity FR' }]);
     mockApi.createMyEntity.mockResolvedValue({ uuid: 'test-uuid' });
 
     // Act: Run import
@@ -346,9 +358,7 @@ describe('MyEntityImporter', () => {
       entityType: 'item',
       createdAt: new Date(),
     });
-    mockDb.query.mockResolvedValue([
-      { id: 1, name_en: 'Entity' },
-    ]);
+    mockDb.query.mockResolvedValue([{ id: 1, name_en: 'Entity' }]);
 
     // Act
     const result = await importer.import();
@@ -375,6 +385,7 @@ describe('MyEntityImporter', () => {
 ```
 
 **Run test (should FAIL)**:
+
 ```bash
 npm test tests/integration/phase-01-mwnf3-core/MyEntityImporter.test.ts
 ```
@@ -400,9 +411,7 @@ export class MyEntityImporter extends BaseImporter {
 
     try {
       // 1. Query legacy database
-      const rows = await this.context.legacyDb.query<LegacyRow>(
-        'SELECT * FROM mwnf3.my_table'
-      );
+      const rows = await this.context.legacyDb.query<LegacyRow>('SELECT * FROM mwnf3.my_table');
 
       let imported = 0;
       let skipped = 0;
@@ -503,6 +512,7 @@ interface LegacyRow {
 ```
 
 **Run test (should PASS)**:
+
 ```bash
 npm test tests/integration/phase-01-mwnf3-core/MyEntityImporter.test.ts
 ```
@@ -517,21 +527,25 @@ npm test tests/integration/phase-01-mwnf3-core/MyEntityImporter.test.ts
 ## Testing Requirements
 
 ### Unit Tests
+
 - Test utility functions in isolation
 - Mock all external dependencies
 - Fast execution (no database/API calls)
 
 ### Integration Tests
+
 - Test importer classes with mocked database/API
 - Verify backward_compatibility tracking
 - Test error handling
 
 ### E2E Tests
+
 - Require actual test database
 - Run full import phases
 - Validate data integrity
 
 ### Coverage Requirements
+
 - **Minimum**: 80% line coverage for utilities
 - **Required**: 100% coverage for BackwardCompatibilityFormatter and Tracker
 
@@ -591,17 +605,19 @@ LOG_LEVEL=debug npx tsx src/index.ts import --phase 1
 ### Initial Setup
 
 1. Copy `.env.example` to `.env`:
+
    ```bash
    cp .env.example .env
    ```
 
 2. Edit `.env` with your legacy database credentials:
+
    ```bash
    LEGACY_DB_HOST=localhost
    LEGACY_DB_PORT=3306
    LEGACY_DB_USER=root
    LEGACY_DB_PASSWORD=your_password
-   
+
    API_BASE_URL=http://localhost:8000/api
    ```
 
@@ -627,41 +643,46 @@ LEGACY_IMAGE_PATH=\\\\virtual-office.museumwnf.org\\C$\\mwnf-server\\pictures\\i
 ```
 
 ### TypeScript Source Maps
+
 Source maps are enabled. Stack traces show original TypeScript line numbers.
 
 ## Common Pitfalls
 
 ### ❌ Don't: Hardcode UUIDs
+
 ```typescript
 const contextUuid = 'abc-123'; // Wrong - UUID changes per environment
 ```
 
 ✅ **Do**: Use tracker to get UUIDs
+
 ```typescript
 const contextUuid = tracker.getUuid('mwnf3:projects:vm');
 ```
 
 ### ❌ Don't: Include language in backward_compatibility
+
 ```typescript
 // Wrong for denormalized tables
 const ref = `mwnf3:objects:vm:ma:louvre:001:en`;
 ```
 
 ✅ **Do**: Exclude language column
+
 ```typescript
-const ref = BackwardCompatibilityFormatter.formatDenormalized(
-  'mwnf3', 'objects', row, ['lang']
-);
+const ref = BackwardCompatibilityFormatter.formatDenormalized('mwnf3', 'objects', row, ['lang']);
 // Result: mwnf3:objects:vm:ma:louvre:001
 ```
 
 ### ❌ Don't: Create duplicate entities
+
 ```typescript
 // Wrong - always creates new entity
 await api.createItem({ ... });
 ```
 
 ✅ **Do**: Check tracker first
+
 ```typescript
 if (tracker.exists(backwardCompat)) {
   const uuid = tracker.getUuid(backwardCompat);
@@ -673,6 +694,7 @@ if (tracker.exists(backwardCompat)) {
 ```
 
 ### ❌ Don't: Import images without deduplication
+
 ```typescript
 // Wrong - uploads same file multiple times
 for (const format of ['small', 'thumb', 'large']) {
@@ -681,6 +703,7 @@ for (const format of ['small', 'thumb', 'large']) {
 ```
 
 ✅ **Do**: Upload original only, track by hash
+
 ```typescript
 const originalPath = stripFormatFromPath(legacyPath);
 if (!alreadyUploaded(originalPath)) {

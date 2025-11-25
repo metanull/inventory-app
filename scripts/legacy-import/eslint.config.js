@@ -77,6 +77,7 @@ export default [
       '*.config.js',
       '*.config.ts',
       '**/*.d.ts',
+      'analyze-*.ts',
     ],
   },
 ];

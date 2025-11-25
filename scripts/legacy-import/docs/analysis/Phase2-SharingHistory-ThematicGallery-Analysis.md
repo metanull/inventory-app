@@ -24,6 +24,7 @@ Sharing History (SH) and Thematic Gallery (THG) are extension schemas built on t
 ### Core Entities (Sharing History)
 
 #### Projects (2 tables)
+
 - `sh_projects` - SH-specific projects
   - PK: `project_id` (varchar(11))
   - Fields: name, addeddate, new_status, show, category ('SP'|'PP'), exhibition_landing_url, portal_image
@@ -32,6 +33,7 @@ Sharing History (SH) and Thematic Gallery (THG) are extension schemas built on t
   - PK: `project_id`, `lang`
 
 #### Exhibitions (National Context) - Hierarchical Collections
+
 - `sh_national_context_countries` - Top-level: Countries in exhibition
   - PK: `country`
   - FK: → mwnf3.countries
@@ -47,6 +49,7 @@ Sharing History (SH) and Thematic Gallery (THG) are extension schemas built on t
 **Hierarchy**: Country → Exhibition → Theme → Subtheme (4 levels)
 
 #### Exhibitions (My Exhibitions) - User-Created
+
 - `myexh_users` - User accounts for custom exhibitions
 - `myexh_exhibitions`, `myexh_exhibitionnames` - User exhibitions
 - `myexh_exhibition_themes`, `myexh_exhibition_themenames` - Themes
@@ -57,6 +60,7 @@ Sharing History (SH) and Thematic Gallery (THG) are extension schemas built on t
 **Same 4-level hierarchy** as national context
 
 #### Partners (3 tables)
+
 - `sh_partners` - **NORMALIZED** partner master
   - PK: `partners_id` (varchar(11))
   - FK: → mwnf3.countries
@@ -71,6 +75,7 @@ Sharing History (SH) and Thematic Gallery (THG) are extension schemas built on t
 ### Items (SH) - Normalized Structure
 
 #### Objects (3 tables)
+
 - `sh_objects` - **NORMALIZED** object master
   - PK: `project_id`, `country`, `number` (**NO LANG**)
   - FK: → sh_projects, → sh_partners, → mwnf3.countries
@@ -87,6 +92,7 @@ Sharing History (SH) and Thematic Gallery (THG) are extension schemas built on t
 - `sh_object_image_texts` - Image captions per language
 
 #### Monuments (3 tables)
+
 - `sh_monuments` - **NORMALIZED** monument master
   - PK: `project_id`, `country`, `number`
   - FK: → sh_projects, → sh_partners, → mwnf3.countries
@@ -98,6 +104,7 @@ Sharing History (SH) and Thematic Gallery (THG) are extension schemas built on t
 - `sh_monument_images`, `sh_monument_image_texts` - Monument images
 
 #### Monument Details (2 tables)
+
 - `sh_monument_details` - Normalized detail master
   - PK: `project_id`, `country`, `number`, `detail_id`
   - FK: → sh_monuments
@@ -105,6 +112,7 @@ Sharing History (SH) and Thematic Gallery (THG) are extension schemas built on t
   - PK: `project_id`, `country`, `number`, `detail_id`, `lang`
 
 #### Item Document Links
+
 - `sh_objects_document` - Links objects to external documents/PDFs
 - `sh_objects_ngm_projects` - Links to NGM (Next Generation Museum) projects
 - `sh_objects_video_audio` - Video/audio media attachments
@@ -112,7 +120,9 @@ Sharing History (SH) and Thematic Gallery (THG) are extension schemas built on t
 ### Relationships (SH)
 
 #### Item-to-Collection Relationships
+
 Pattern: `rel_[object|monument]_[exhibitions|themes|subthemes]`
+
 - `rel_objects_exhibitions` - Object → Exhibition
 - `rel_objects_themes` - Object → Theme
 - `rel_objects_subthemes` - Object → Subtheme
@@ -124,6 +134,7 @@ Pattern: `rel_[object|monument]_[exhibitions|themes|subthemes]`
 Each has corresponding `*_justification` table with descriptive text
 
 #### Item-to-Item Relationships
+
 - `rel_object_objects` - Object to object links
 - `rel_object_monuments` - Object to monument links
 - `rel_monuments_object` - Monument to object links
@@ -131,15 +142,18 @@ Each has corresponding `*_justification` table with descriptive text
 - Each with `*_justifications` table
 
 #### MyExh Relationships
+
 Similar relationship tables prefixed with `myexh_rel_*` for user exhibitions
 
 ### Authors & Team
+
 - `sh_authors` - **CRITICAL: References mwnf3.authors**
   - Contains author IDs that match mwnf3.authors (deduplication via backward_compatibility)
 - `rel_curatorteam_exhibition` - Curator assignments to exhibitions
 - `myexh_curator_team` - Teams for user exhibitions
 
 ### Supporting Content
+
 - `sh_project_about_*` - About pages: team, topics, historical background
 - `sh_sponsor*` - Sponsors and sponsorship categories
 - `sh_user_login` - User authentication (probably skip)
@@ -152,6 +166,7 @@ Similar relationship tables prefixed with `myexh_rel_*` for user exhibitions
 ### Core Entities (Thematic Gallery)
 
 #### Projects (3 tables)
+
 - `thg_projects` - THG-specific projects
   - PK: `project_id` (varchar(10))
   - Fields: name, addeddate, status
@@ -160,6 +175,7 @@ Similar relationship tables prefixed with `myexh_rel_*` for user exhibitions
 - `thg_project_type` - Project type classifications
 
 #### Galleries - Hierarchical (with parent_id)
+
 - `thg_gallery` - **HIERARCHICAL** gallery structure
   - PK: `gallery_id` (auto-increment)
   - FK: → thg_projects, → thg_gallery (self-reference), → mwnf3.projects (optional), → mwnf3.trsl_groups
@@ -178,6 +194,7 @@ Similar relationship tables prefixed with `myexh_rel_*` for user exhibitions
 **Hierarchy**: Gallery can have parent_gallery_id → creates tree structure
 
 #### Themes - Within Galleries
+
 - `theme` - Themes and sub-themes
   - PK: `gallery_id`, `theme_id`
   - FK: → thg_gallery, → theme (self-reference for parent_theme_id)
@@ -195,6 +212,7 @@ Similar relationship tables prefixed with `myexh_rel_*` for user exhibitions
 **Hierarchy**: Gallery → Theme → Sub-theme (via parent_theme_id) → Items
 
 #### Partners (4 tables)
+
 - `thg_partners` - THG partner master
   - PK: `partners_id` (varchar(10))
   - FK: → mwnf3.countries
@@ -206,6 +224,7 @@ Similar relationship tables prefixed with `myexh_rel_*` for user exhibitions
 ### Items (THG) - Normalized Structure
 
 #### Objects (5 tables)
+
 - `thg_objects` - **NORMALIZED** object master
   - PK: `partners_id`, `number` (**NO project_id, NO lang**)
   - FK: → thg_partners, → mwnf3.countries
@@ -219,6 +238,7 @@ Similar relationship tables prefixed with `myexh_rel_*` for user exhibitions
 - `thg_objects_document` - Document attachments (similar to SH)
 
 #### Monuments (5 tables)
+
 - `thg_monuments` - Normalized monument master
   - PK: `partners_id`, `number`
   - **Same normalization as thg_objects**
@@ -246,6 +266,7 @@ Similar relationship tables prefixed with `myexh_rel_*` for user exhibitions
 ### Relationships (THG)
 
 #### Item-to-Item Links
+
 - `thg_objects_objects`, `thg_objects_objects_justification` - Object-object links
 - `thg_objects_monuments`, `thg_objects_monuments_justification` - Object-monument links
 - `thg_monuments_objects`, `thg_monuments_objects_justification` - Monument-object links
@@ -290,25 +311,28 @@ Similar relationship tables prefixed with `myexh_rel_*` for user exhibitions
 ### High Priority Tables (Likely Populated)
 
 **Sharing History**:
+
 - sh_projects, sh_project_names
 - sh_partners, sh_partner_names
 - sh_objects, sh_objects_texts, sh_object_images
 - sh_monuments, sh_monuments_texts, sh_monument_images
-- sh_national_context_* hierarchy tables
-- rel_* relationship tables
+- sh*national_context*\* hierarchy tables
+- rel\_\* relationship tables
 
 **Thematic Gallery**:
+
 - thg_projects, thg_project_names
 - thg_partners, thg_partner_names
 - thg_gallery, thg_gallery_lang
 - theme, theme_i18n, theme_item
 - thg_objects, thg_objects_texts, thg_object_images
 - thg_monuments, thg_monuments_texts, thg_monument_images
-- thg_gallery_*_objects, thg_gallery_*_monuments (cross-schema associations)
-- thg_tags, thg_*_tags relationship tables
+- thg*gallery*_*objects, thg_gallery*_\_monuments (cross-schema associations)
+- thg*tags, thg*\*\_tags relationship tables
 
 ### Lower Priority (May Be Empty)
-- myexh_* tables (user-generated content - may be minimal)
+
+- myexh\_\* tables (user-generated content - may be minimal)
 - Visitor feedback tables
 - Some sponsor/team tables
 
@@ -319,6 +343,7 @@ Similar relationship tables prefixed with `myexh_rel_*` for user exhibitions
 ### Sharing History Projects
 
 **Table**: `sh_projects`
+
 - PK: `project_id` (varchar(11))
 - **Independent from mwnf3.projects** - separate project definitions
 
@@ -339,6 +364,7 @@ Similar relationship tables prefixed with `myexh_rel_*` for user exhibitions
 ### Sharing History Exhibitions - Hierarchical Collections
 
 **National Context Hierarchy**:
+
 ```
 sh_national_context_countries (Level 1)
   └─ sh_national_context_exhibitions (Level 2)
@@ -373,6 +399,7 @@ sh_national_context_countries (Level 1)
 ### Thematic Gallery Projects
 
 **Table**: `thg_projects`
+
 - Similar mapping to sh_projects
 - backward_compatibility: `thg:projects:{project_id}`
 
@@ -411,6 +438,7 @@ sh_national_context_countries (Level 1)
    - Creates sub-theme hierarchy
 
 ### Import Dependencies
+
 - AFTER: mwnf3 Contexts/Collections (for cross-references)
 - BEFORE: Items (items link to collections)
 
@@ -421,6 +449,7 @@ sh_national_context_countries (Level 1)
 ### Sharing History Partners
 
 **Table**: `sh_partners`
+
 - PK: `partners_id` (varchar(11))
 - **Independent records** (not references to mwnf3)
 
@@ -443,22 +472,26 @@ sh_national_context_countries (Level 1)
    - backward_compatibility: `sh:partners:{partners_id}`
 
 **Mapping**:
+
 - Similar fields to mwnf3.museums: name, city, address, phone, email, urls, logos, contact persons
 - PartnerTranslation: From sh_partner_names
 
 ### Thematic Gallery Partners
 
 **Table**: `thg_partners`
+
 - Similar structure to sh_partners
 - **Same deduplication strategy**
 - backward_compatibility: `thg:partners:{partners_id}`
 
 **Cross-Schema Checks**:
+
 1. Check against mwnf3.museums/institutions
 2. Check against sh_partners (avoid duplicating SH partners)
 3. Only create new Partner if genuinely new
 
 ### Import Dependencies
+
 - AFTER: mwnf3 Partners (for deduplication checks)
 - BEFORE: Items (items reference partners)
 
@@ -473,10 +506,12 @@ sh_national_context_countries (Level 1)
 #### Objects
 
 **Master**: `sh_objects`
+
 - PK: `project_id`, `country`, `number` (NO language)
 - Already normalized!
 
 **Translations**: `sh_objects_texts`
+
 - PK: `project_id`, `country`, `number`, `lang`
 - One row per language per object
 
@@ -491,7 +526,7 @@ sh_national_context_countries (Level 1)
    - Create ONE Item record:
      - type: 'object'
      - context_id: Resolved from sh project_id
-     - collection_id: Resolved from exhibitions/themes (via rel_* tables)
+     - collection*id: Resolved from exhibitions/themes (via rel*\* tables)
      - partner_id: Resolved from sh_partners.partners_id
      - backward_compatibility: `sh:objects:{project_id}:{country}:{number}`
 
@@ -502,12 +537,14 @@ sh_national_context_countries (Level 1)
    - Fields: name, name2, typeof, description, etc. (from sh_objects_texts)
 
 **Special Fields**:
+
 - second_name, third_name, archival - SH-specific fields
 - Store in ItemTranslation or in custom metadata
 
 #### Monuments & Details
 
 Same normalized pattern:
+
 - sh_monuments (master) + sh_monuments_texts (translations)
 - sh_monument_details (master) + sh_monument_detail_texts (translations)
 - Same deduplication check against mwnf3.monuments
@@ -516,9 +553,11 @@ Same normalized pattern:
 ### Thematic Gallery Items - Normalized Structure
 
 **Master**: `thg_objects`
+
 - PK: `partners_id`, `number` (simpler than SH - no project_id)
 
 **Translations**: `thg_objects_texts`
+
 - PK: `partners_id`, `number`, `lang`
 
 **Mapping Strategy**:
@@ -543,11 +582,13 @@ Same normalized pattern:
 ### Collection-Item Relationships
 
 **Sharing History**: Via `rel_*` tables
+
 - rel_objects_exhibitions, rel_objects_themes, rel_objects_subthemes
 - Create collection_item pivot records
 - Store justification text from `*_justification` tables
 
 **Thematic Gallery**: Via `thg_gallery_*` tables
+
 - thg_gallery_mwnf3_objects → Link gallery to existing mwnf3 items
 - thg_gallery_sh_objects → Link gallery to existing sh items
 - thg_gallery_thg_objects → Link gallery to thg items
@@ -556,6 +597,7 @@ Same normalized pattern:
 **Pattern**: One item can belong to multiple collections with different contextual descriptions
 
 ### Import Dependencies
+
 - AFTER: mwnf3 Items (for deduplication)
 - AFTER: SH/THG Contexts, Collections, Partners
 - BEFORE: Images, Tags, Authors, Relationships
@@ -567,6 +609,7 @@ Same normalized pattern:
 ### Sharing History Images
 
 **Objects**:
+
 - `sh_object_images` - Image records
   - PK: `project_id`, `country`, `number`, `type`, `image_number`
   - FK: → sh_objects
@@ -578,13 +621,15 @@ Same normalized pattern:
 **Monuments**: Similar structure (sh_monument_images, sh_monument_image_texts)
 
 **Partners**:
+
 - `sh_partner_pictures` - Partner logos/images
 
 **Collections**:
+
 - `sh_national_context_exhibition_images` - Exhibition images
 - `sh_national_context_theme_images` - Theme images
 - `sh_national_context_subtheme_images` - Subtheme images
-- Similar for myexh_* tables
+- Similar for myexh\_\* tables
 
 **Mapping Strategy**:
 
@@ -609,15 +654,18 @@ Same normalized pattern:
 ### Thematic Gallery Images
 
 **Objects**:
+
 - `thg_object_images` + `thg_object_image_texts`
   - Simpler PK: `partners_id`, `number`, `type`, `image_number`
 
 **Monuments**: Similar structure
 
 **Partners**:
+
 - `thg_partner_pictures`
 
 **Galleries**:
+
 - `thg_gallery` table has multiple image fields:
   - image (thumbnail)
   - banner_image
@@ -626,12 +674,14 @@ Same normalized pattern:
 - `thg_gallery_logos` - Gallery logos/branding
 
 **Themes**:
+
 - `theme_cover_image` - Theme cover images
 - `theme_audio`, `theme_video` - Theme media
 
 **Mapping**: Same deduplication and import strategy as SH
 
 ### Import Dependencies
+
 - AFTER: Items, Partners, Collections (images link to them)
 - File system access required
 
@@ -642,43 +692,51 @@ Same normalized pattern:
 ### Sharing History Authors
 
 **Table**: `sh_authors`
+
 - **CRITICAL**: Check structure - likely references mwnf3.authors
 
 **Deduplication Strategy**:
+
 1. Check sh_authors for author_id values
 2. Match against mwnf3.authors via backward_compatibility
 3. If match: Use existing Author UUID
 4. If new: Create Author with backward_compatibility: `sh:authors:{author_id}`
 
 **Relationships**: Same author tables as mwnf3
+
 - sh_authors_objects, sh_authors_monuments (if they exist)
 - Type: writer, copyEditor, translator, translationCopyEditor
 
 ### Sharing History Tags
 
 **Structure**: May use dynasties or have SH-specific tags
+
 - Check for sh_dynasties or similar tag tables
 - Create Tag records with category
 - backward_compatibility: `sh:tags:{tag_id}` or `sh:dynasties:{dynasty_id}`
 
 **Relationships**:
+
 - Parse dynasty, keywords fields from sh_objects_texts, sh_monuments_texts
 - Create item_tag relationships
 
 ### Thematic Gallery Authors
 
 **Table**: `thg_authors`
+
 - Similar to mwnf3.authors structure
 - **Deduplication critical**: Check against mwnf3.authors AND sh_authors
 - backward_compatibility: `thg:authors:{author_id}`
 
 **Relationships**:
+
 - thg_authors_objects, thg_authors_monuments
 - thg_authors_projects - Author contributions to projects
 
 ### Thematic Gallery Tags
 
 **Tables**:
+
 - `thg_tags` - THG-specific tag definitions
   - PK: `tag_id` (auto-increment)
   - FK: → thg_tag_types
@@ -686,12 +744,14 @@ Same normalized pattern:
 - `thg_tag_types` - Tag type classifications
 
 **Relationships** - **CRITICAL CROSS-SCHEMA TAGGING**:
+
 - `thg_objects_thg_tags` - THG items → THG tags
 - `thg_objects_sh_tags` - THG items → SH tags (cross-schema!)
 - `thg_objects_mwnf3_tags` - THG items → MWNF3 dynasties (cross-schema!)
 - Similar for monuments
 
 **Mapping Strategy**:
+
 1. Create Tag records for thg_tags
    - category: From thg_tag_types
    - backward_compatibility: `thg:tags:{tag_id}`
@@ -702,6 +762,7 @@ Same normalized pattern:
    - Create item_tag pivot records
 
 ### Import Dependencies
+
 - **Authors**: AFTER Items (relationships need Item UUIDs), check mwnf3/sh authors for deduplication
 - **Tags**: AFTER Items, check all schemas for existing tags
 
@@ -712,6 +773,7 @@ Same normalized pattern:
 ### Sharing History Collections
 
 **National Context** - 4-level hierarchy:
+
 ```
 Country (sh_national_context_countries)
   └─ Exhibition (sh_national_context_exhibitions)
@@ -732,7 +794,7 @@ Country (sh_national_context_countries)
    - parent_id: Country Collection UUID
    - type: 'exhibition'
    - backward_compatibility: `sh:nc_exhibitions:{country}:{exhibition_id}`
-   - CollectionTranslation: Multiple languages from *_texts table
+   - CollectionTranslation: Multiple languages from \*\_texts table
 
 3. **Theme Collection**:
    - parent_id: Exhibition Collection UUID
@@ -745,12 +807,14 @@ Country (sh_national_context_countries)
    - backward_compatibility: `sh:nc_subthemes:{country}:{exhibition_id}:{theme_id}:{subtheme_id}`
 
 **My Exhibitions**: Same 4-level pattern
+
 - myexh_exhibitions → myexh_exhibition_themes → myexh_exhibition_subthemes
 - backward_compatibility: `sh:myexh:exhibitions:{exhibition_id}`
 
 ### Thematic Gallery Collections
 
 **Galleries** - Self-referencing hierarchy via `parent_gallery_id`:
+
 ```
 Gallery (parent_gallery_id = NULL)
   └─ Sub-Gallery (parent_gallery_id = {parent_id})
@@ -758,6 +822,7 @@ Gallery (parent_gallery_id = NULL)
 ```
 
 **Collection Records**:
+
 1. **Root Gallery**:
    - parent_id: THG Project Collection UUID (if project_id set)
    - backward_compatibility: `thg:gallery:{gallery_id}`
@@ -769,6 +834,7 @@ Gallery (parent_gallery_id = NULL)
    - Creates tree structure
 
 **Themes within Galleries** - Self-referencing via `parent_theme_id`:
+
 ```
 Gallery
   └─ Theme (parent_theme_id = NULL)
@@ -776,6 +842,7 @@ Gallery
 ```
 
 **Collection Records**:
+
 1. **Theme**:
    - parent_id: Gallery Collection UUID
    - backward_compatibility: `thg:theme:{gallery_id}:{theme_id}`
@@ -787,11 +854,13 @@ Gallery
 ### Collection-Item Associations
 
 **Sharing History**: Via `rel_*` tables
-- Parse all rel_objects_*, rel_monuments_* tables
+
+- Parse all rel*objects*_, rel*monuments*_ tables
 - Create collection_item pivot records
 - Store justification text
 
 **Thematic Gallery**: Via `thg_gallery_*` association tables
+
 - thg_gallery_mwnf3_objects, thg_gallery_mwnf3_monuments
 - thg_gallery_sh_objects, thg_gallery_sh_monuments
 - thg_gallery_thg_objects, thg_gallery_thg_monuments
@@ -800,6 +869,7 @@ Gallery
 **Pattern**: Resolve item_id via backward_compatibility from ANY schema
 
 ### Import Dependencies
+
 - AFTER: Projects, Parents (for root collections)
 - Import in tree order: Level 1 → Level 2 → Level 3 → Level 4
 - BEFORE: Collection-item associations (need collection UUIDs)
@@ -871,55 +941,30 @@ Gallery
 ### Execution Order
 
 **Phase 2A: Foundation**
+
 1. Import SH projects → Contexts + Collections
 2. Import THG projects → Contexts + Collections
 
-**Phase 2B: Partners (Deduplicated)**
-3. Import sh_partners → Check mwnf3, create Partners
-4. Import thg_partners → Check mwnf3 + sh, create Partners
+**Phase 2B: Partners (Deduplicated)** 3. Import sh_partners → Check mwnf3, create Partners 4. Import thg_partners → Check mwnf3 + sh, create Partners
 
-**Phase 2C: Authors & Tags (Deduplicated)**
-5. Import sh_authors → Check mwnf3, create Authors
-6. Import thg_authors → Check mwnf3 + sh, create Authors
-7. Import thg_tags → Create Tags
+**Phase 2C: Authors & Tags (Deduplicated)** 5. Import sh_authors → Check mwnf3, create Authors 6. Import thg_authors → Check mwnf3 + sh, create Authors 7. Import thg_tags → Create Tags
 
-**Phase 2D: Hierarchical Collections**
-8. Import SH National Context hierarchy (4 levels)
-9. Import SH My Exhibitions hierarchy (3-4 levels)
-10. Import THG Galleries hierarchy (recursive)
-11. Import THG Themes hierarchy (within galleries)
+**Phase 2D: Hierarchical Collections** 8. Import SH National Context hierarchy (4 levels) 9. Import SH My Exhibitions hierarchy (3-4 levels) 10. Import THG Galleries hierarchy (recursive) 11. Import THG Themes hierarchy (within galleries)
 
-**Phase 2E: Items (Deduplicated with Contextual Translations)**
-12. Import sh_objects → Check mwnf3, create Items + ItemTranslations
-13. Import sh_monuments → Check mwnf3, create Items + ItemTranslations
-14. Import sh_monument_details → Parent from sh_monuments
-15. Import thg_objects → Check mwnf3 + sh, create Items + ItemTranslations
-16. Import thg_monuments → Check mwnf3 + sh, create Items + ItemTranslations
-17. Import thg_monument_details → Parent from thg_monuments
+**Phase 2E: Items (Deduplicated with Contextual Translations)** 12. Import sh_objects → Check mwnf3, create Items + ItemTranslations 13. Import sh_monuments → Check mwnf3, create Items + ItemTranslations 14. Import sh_monument_details → Parent from sh_monuments 15. Import thg_objects → Check mwnf3 + sh, create Items + ItemTranslations 16. Import thg_monuments → Check mwnf3 + sh, create Items + ItemTranslations 17. Import thg_monument_details → Parent from thg_monuments
 
-**Phase 2F: Collection-Item Associations**
-18. Parse SH rel_* tables → collection_item pivots
-19. Parse THG thg_gallery_* tables → collection_item pivots
+**Phase 2F: Collection-Item Associations** 18. Parse SH rel*\* tables → collection_item pivots 19. Parse THG thg_gallery*\* tables → collection_item pivots
 
-**Phase 2G: Images (Deduplicated)**
-20. Import SH item images → Deduplicate with mwnf3 images
-21. Import SH collection images
-22. Import THG item images → Deduplicate with mwnf3 + SH images
-23. Import THG collection images
+**Phase 2G: Images (Deduplicated)** 20. Import SH item images → Deduplicate with mwnf3 images 21. Import SH collection images 22. Import THG item images → Deduplicate with mwnf3 + SH images 23. Import THG collection images
 
-**Phase 2H: Relationships**
-24. Import SH author-item relationships
-25. Import THG author-item relationships (including cross-schema tags)
-26. Import SH tag-item relationships
-27. Import THG tag-item relationships (cross-schema)
+**Phase 2H: Relationships** 24. Import SH author-item relationships 25. Import THG author-item relationships (including cross-schema tags) 26. Import SH tag-item relationships 27. Import THG tag-item relationships (cross-schema)
 
-**Phase 2I: Item Links**
-28. Import SH item-item relationships
-29. Import THG item-item relationships
+**Phase 2I: Item Links** 28. Import SH item-item relationships 29. Import THG item-item relationships
 
 ### backward_compatibility Format Standards
 
 **Sharing History**:
+
 - Project: `sh:projects:{project_id}`
 - Collection: `sh:projects:{project_id}:collection`
 - NC Country: `sh:nc_countries:{country}`
@@ -935,6 +980,7 @@ Gallery
 - Author: Check if references mwnf3.authors, else `sh:authors:{author_id}`
 
 **Thematic Gallery**:
+
 - Project: `thg:projects:{project_id}`
 - Collection: `thg:projects:{project_id}:collection`
 - Gallery: `thg:gallery:{gallery_id}`
@@ -965,6 +1011,7 @@ Gallery
 ### Phase 2 Complete
 
 This analysis provides:
+
 - Complete understanding of SH (148 tables) and THG (90 tables) schemas
 - Identification of normalized vs denormalized structures
 - Detailed deduplication strategies for Partners, Authors, Items, Images
@@ -979,7 +1026,7 @@ This analysis provides:
 2. **Cross-Schema References**: Both schemas extensively reference mwnf3 entities
 3. **Deduplication Essential**: Must check existing mwnf3 records before creating new Partners/Items
 4. **Contextual Translations**: Same item with different descriptions per exhibition/gallery (multiple ItemTranslations with different context_ids)
-5. **Hierarchical Collections**: 
+5. **Hierarchical Collections**:
    - SH: Country → Exhibition → Theme → Subtheme (4 levels)
    - THG: Gallery → Sub-Gallery (recursive), Theme → Sub-Theme
 6. **Cross-Schema Tagging**: THG items can be tagged with tags from any schema
@@ -988,6 +1035,7 @@ This analysis provides:
 ### Ready for Next Phase
 
 Can now proceed to:
+
 - **Phase 3**: Analyze travel and explore schemas (critical monument data)
 - **Phase 4**: Analyze remaining schemas
 - **Phase 5**: Create master mapping document

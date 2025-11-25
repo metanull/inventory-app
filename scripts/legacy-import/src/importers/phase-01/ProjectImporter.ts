@@ -149,6 +149,37 @@ export class ProjectImporter extends BaseImporter {
       createdAt: new Date(),
     });
 
+    // Collect sample for testing
+    this.collectSample('project', project, 'success');
+
+    // Skip API calls in sample-only mode
+    if (this.isSampleOnlyMode) {
+      // Populate tracker with fake UUIDs for dependencies
+      const fakeContextId = `sample-context-${project.project_id}`;
+      const fakeProjectId = `sample-project-${project.project_id}`;
+      const fakeCollectionId = `sample-collection-${project.project_id}`;
+
+      this.context.tracker.register({
+        uuid: fakeContextId,
+        backwardCompatibility: contextBackwardCompat,
+        entityType: 'context',
+        createdAt: new Date(),
+      });
+      this.context.tracker.register({
+        uuid: fakeProjectId,
+        backwardCompatibility: projectBackwardCompat,
+        entityType: 'project',
+        createdAt: new Date(),
+      });
+      this.context.tracker.register({
+        uuid: fakeCollectionId,
+        backwardCompatibility: collectionBackwardCompat,
+        entityType: 'collection',
+        createdAt: new Date(),
+      });
+      return;
+    }
+
     // Create Collection (following SPA pattern)
     const collectionResponse = await this.context.apiClient.collection.collectionStore({
       internal_name: `${project.name} Collection`,

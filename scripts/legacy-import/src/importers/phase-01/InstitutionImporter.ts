@@ -101,11 +101,6 @@ export class InstitutionImporter extends BaseImporter {
       return false;
     }
 
-    if (this.context.dryRun) {
-      this.logInfo(`[DRY-RUN] Would import institution: ${institution.institution_id}`);
-      return true;
-    }
-
     // Map 2-character country code to 3-character code
     const countryId = institution.country ? mapCountryCode(institution.country) : undefined;
 
@@ -122,6 +117,30 @@ export class InstitutionImporter extends BaseImporter {
       result.warnings?.push(warning);
       // Use fallback: Generate name from ID
       institution.name = `Institution ${institution.institution_id} (${institution.country})`;
+
+      // Collect sample for testing - warning case
+      this.collectSample('partner_institution', institution, 'warning', 'missing_name');
+    } else {
+      // Collect sample for testing - success case
+      this.collectSample('partner_institution', institution, 'success');
+    }
+
+    if (this.context.dryRun || this.isSampleOnlyMode) {
+      this.logInfo(
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import institution: ${institution.institution_id}`
+      );
+
+      if (this.isSampleOnlyMode) {
+        // Register fake partner ID
+        const fakePartnerId = `sample-partner-${institution.institution_id}`;
+        this.context.tracker.register({
+          uuid: fakePartnerId,
+          backwardCompatibility: backwardCompat,
+          entityType: 'partner',
+          createdAt: new Date(),
+        });
+      }
+      return true;
     }
 
     // Try to create Partner (may already exist from previous import run)

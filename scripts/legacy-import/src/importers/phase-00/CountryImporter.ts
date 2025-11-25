@@ -45,13 +45,25 @@ export class CountryImporter extends BaseImporter {
 
     for (const country of countries) {
       try {
-        if (this.context.dryRun) {
-          this.logInfo(`[DRY-RUN] Would create country: ${country.id}`);
+        // Collect sample for testing (BEFORE API calls)
+        this.collectSample('country', country, 'success');
+
+        if (this.context.dryRun || this.isSampleOnlyMode) {
+          this.logInfo(
+            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create country: ${country.id}`
+          );
           result.imported++;
+
+          if (this.isSampleOnlyMode) {
+            this.context.tracker.register({
+              uuid: country.id,
+              backwardCompatibility: country.backward_compatibility,
+            });
+          }
           continue;
         }
 
-        // Try to create
+        // Try to create (only if not in sample-only mode)
         try {
           await this.context.apiClient.country.countryStore(country);
           result.imported++;

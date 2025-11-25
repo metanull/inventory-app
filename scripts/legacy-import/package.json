@@ -17,12 +17,15 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
+    "format": "prettier --write .",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@inquirer/password": "^5.0.1",
     "@metanull/inventory-app-api-client": "1.0.1-dev.1124.1053",
+    "@types/better-sqlite3": "^7.6.13",
     "axios": "^1.13.2",
+    "better-sqlite3": "^12.4.6",
     "commander": "^14.0.2",
     "dotenv": "^17.2.3",
     "mysql2": "^3.11.6"

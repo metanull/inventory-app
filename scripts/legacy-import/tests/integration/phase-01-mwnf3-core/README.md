@@ -27,19 +27,25 @@ Tests must run in dependency order:
 ## Key Concepts Tested
 
 ### Denormalization Handling
+
 mwnf3 tables include language in PK. Tests verify:
+
 - Grouping rows by non-language PK columns
 - Creating ONE entity per grouped record
 - Creating multiple translations per language
 
 ### Backward Compatibility
+
 Tests verify correct format:
+
 - `mwnf3:projects:{project_id}`
 - `mwnf3:objects:{project}:{country}:{museum}:{number}`
 - `mwnf3:objects_pictures:{project}:{country}:{museum}:{number}:{index}`
 
 ### Image Import
+
 Tests verify:
+
 - Image #1 → ItemImage directly on parent item
 - ALL images → Child items with type='picture'
 - Deduplication by file hash

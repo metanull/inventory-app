@@ -2,6 +2,7 @@ import { LegacyDatabase } from '../database/LegacyDatabase.js';
 import { InventoryApiClient } from '../api/InventoryApiClient.js';
 import { BackwardCompatibilityTracker } from '../utils/BackwardCompatibilityTracker.js';
 import { ImportLogger } from '../utils/ImportLogger.js';
+import { SampleCollector, SampleReason } from '../utils/SampleCollector.js';
 
 export interface ImportContext {
   legacyDb: LegacyDatabase;
@@ -9,6 +10,8 @@ export interface ImportContext {
   tracker: BackwardCompatibilityTracker;
   dryRun: boolean;
   logPath?: string; // Path to log file for direct writes
+  sampleCollector?: SampleCollector; // Optional sample collection for testing
+  sampleOnlyMode?: boolean; // Skip API calls, only collect samples + populate tracker
 }
 
 export interface ImportResult {
@@ -101,6 +104,42 @@ export abstract class BaseImporter {
     additionalContext?: Record<string, unknown>
   ): void {
     this.logger.error(context, error, additionalContext);
+  }
+
+  /**
+   * Helper: Collect a sample for test fixtures
+   * @param entityType - Type of entity (e.g., 'language', 'country', 'partner', 'object', 'monument')
+   * @param data - The raw legacy data record (complete, all fields)
+   * @param reason - Why this sample is interesting ('success', 'warning', 'edge')
+   * @param details - Additional details (e.g., 'missing_name', 'long_field')
+   * @param language - Language code if applicable
+   * @param sourceDb - Source database name (optional, for multi-DB support)
+   */
+  protected collectSample(
+    entityType: string,
+    data: Record<string, unknown>,
+    reason: SampleReason,
+    details?: string,
+    language?: string,
+    sourceDb?: string
+  ): void {
+    if (this.context.sampleCollector) {
+      this.context.sampleCollector.collectSample(
+        entityType,
+        data,
+        reason,
+        details,
+        language,
+        sourceDb
+      );
+    }
+  }
+
+  /**
+   * Helper: Check if we're in sample-only mode (skip API calls, only collect samples)
+   */
+  protected get isSampleOnlyMode(): boolean {
+    return this.context.sampleOnlyMode === true;
   }
 
   /**

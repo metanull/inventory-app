@@ -23,6 +23,7 @@ The import system is designed to **continue importing despite data quality issue
 **Example**: `Mon14:it`
 
 **Handling**:
+
 - **Fallback**: Generate name from ID: `"Institution {id} ({country})"`
 - **Warning**: Logged with recommendation
 - **Result**: Import succeeds
@@ -40,6 +41,7 @@ The import system is designed to **continue importing despite data quality issue
 **Solution**: Uses centralized `LANGUAGE_CODE_MAP` from `CodeMappings.ts`
 
 **Mapping Examples**:
+
 - `en` → `eng`
 - `fr` → `fra`
 - `ch` → `zho` (Chinese)
@@ -52,6 +54,7 @@ The import system is designed to **continue importing despite data quality issue
 **Error**: Missing `name` or `description` in object translations
 
 **Handling - Missing Name**:
+
 - **Fallback Order**:
   1. Use `working_number` if available
   2. Use `inventory_id` if available
@@ -60,6 +63,7 @@ The import system is designed to **continue importing despite data quality issue
 - **Result**: Import succeeds
 
 **Handling - Missing Description**:
+
 - **Fallback**: `"(No description available)"`
 - **Warning**: Logged with context
 - **Result**: Import succeeds
@@ -74,6 +78,7 @@ The import system is designed to **continue importing despite data quality issue
 **Example**: Artist "Wood" vs Material "Wood" → both created `mwnf3:tags:Wood` conflict
 
 **Solution**: Include category in backward_compatibility
+
 - **Old format**: `mwnf3:tags:{tagName}`
 - **New format**: `mwnf3:tags:{category}:{tagName}`
 - **Examples**:
@@ -87,13 +92,15 @@ The import system is designed to **continue importing despite data quality issue
 **Old approach**: Try create first → handle 422 conflict → search for existing
 
 **Solution**: **Lookup first, create only if not found**
+
 1. Check tracker cache
 2. If not in cache, search API for existing tag by `backward_compatibility`
 3. If found, register in tracker and return
 4. If not found, create new tag
 5. **No warnings** for normal tag reuse
 
-**Result**: 
+**Result**:
+
 - Dramatically reduced warning noise
 - Only real conflicts logged
 - Faster imports (cache hits avoid API calls)
@@ -105,12 +112,14 @@ The import system is designed to **continue importing despite data quality issue
 **Error**: Internal name too long (>255 char limit) causing 500 errors
 
 **Solution**: **Split artist field and create multiple artist tags**
+
 1. Split by semicolon separator
 2. Create separate artist tag for each name
 3. Limit internal_name to 240 chars (safety margin)
 4. Attach all artist tags to the item
 
 **Result**:
+
 - Each artist tracked separately
 - No database truncation errors
 - Proper artist relationships
@@ -119,11 +128,13 @@ The import system is designed to **continue importing despite data quality issue
 ### Issue 4: Tag Parsing (Semicolon vs Comma)
 
 **Analysis**: Database uses **mixed separators** depending on field:
+
 - **Keywords**: Semicolon `;` (4800/6714 in objects, 1329/1989 in monuments)
 - **Materials**: Mixed, but often comma `,` (2444 comma vs 1479 semicolon)
 - **Dynasty**: Mostly comma `,` (150 comma vs 39 semicolon)
 
 **Solution**: **Smart separator detection**
+
 - **Primary**: Use semicolon `;` if present in string
 - **Fallback**: Use comma `,` if no semicolons found
 - Applied to both Object and Monument importers
@@ -133,7 +144,8 @@ The import system is designed to **continue importing despite data quality issue
 ### Issue 5: Tag Lookup Pagination Limits & Case Sensitivity (422 & 500 Duplicate Errors)
 
 **Issue**: Duplicate tag errors (422 or 500 with unique constraint violation)  
-**Root causes**: 
+**Root causes**:
+
 - Paginated tag search (100 pages = 10,000 tags max) doesn't find existing tags beyond that limit
 - Search by `backward_compatibility` can fail if that field doesn't match
 - **Case sensitivity**: MariaDB unique constraint is case-insensitive but JavaScript `===` is case-sensitive
@@ -159,14 +171,16 @@ The import system is designed to **continue importing despite data quality issue
 
 3. **Case-insensitive search**:
    ```typescript
-   t.internal_name.toLowerCase() === searchName.toLowerCase()
+   t.internal_name.toLowerCase() === searchName.toLowerCase();
    ```
 
 **Error Detection**:
+
 - `422`: Direct conflict response from API validation
 - `500 with "Duplicate entry ... tags_name_category_lang_unique"`: Database-level constraint violation
 
 **Result**:
+
 - ✅ Eliminates case-sensitivity issues permanently
 - ✅ Handles large tag databases (20,000+ tags)
 - ✅ Robust fallback when `backward_compatibility` doesn't match
@@ -180,6 +194,7 @@ The import system is designed to **continue importing despite data quality issue
 
 **Issue**: Database field length limits exceeded causing 422 validation errors  
 **Examples**:
+
 - `alternate_name`: "La présence de cette œuvre dans un ensemble important ... (320 characters)" → 422 error
 - `type`: "Clock (regulator); Gilt bronze case representing Astronomy ... (280 characters)" → 422 error
 
@@ -191,11 +206,9 @@ The import system is designed to **continue importing despite data quality issue
    - Check field length before API call
    - If exceeds 255 chars: truncate to 252 chars + '...'
    - Log warning with original length and truncated value
-   
 2. **Fields affected**:
    - `alternate_name` (ItemTranslation)
    - `type` (ItemTranslation)
-   
 3. **Implementation**:
    ```typescript
    if (alternateName && alternateName.length > 255) {
@@ -205,6 +218,7 @@ The import system is designed to **continue importing despite data quality issue
    ```
 
 **Result**:
+
 - ✅ Import continues without 422 errors
 - ✅ Data preserved (truncated but readable)
 - ✅ Full original values logged for review
@@ -217,11 +231,13 @@ The import system is designed to **continue importing despite data quality issue
 
 **Issue**: Tag fields contain **structured data** that must not be split  
 **Examples**:
+
 - `"Warp: Light brown wool; Weft: Red wool"` (materials)
 - `"Silversmiths: Giuseppe Gagliardi; sculptor: Giovanni Battista"` (artists)
 - `"madrasa; cerámica: decoración floral"` (keywords with structured content)
 
 **Analysis**:
+
 - **Materials**: 76 records have structured format (e.g., `"Warp: ...; Weft: ..."`)
 - **Artists**: 25 records have role-based structure (e.g., `"Calligrapher: ...; illuminators: ..."`)
 - **Dynasty**: 5 records with temporal phases
@@ -245,6 +261,7 @@ The import system is designed to **continue importing despite data quality issue
    - Ensures unique identification across categories and languages
 
 **Result**:
+
 - ✅ Structured data preserved (e.g., "Warp: wool; Weft: cotton" = single tag)
 - ✅ Language-specific tags (same item can have English + French tags)
 - ✅ Category-based organization (material ≠ artist ≠ keyword)
@@ -258,6 +275,7 @@ The import system is designed to **continue importing despite data quality issue
 **Status**: ✅ **Fixed** - All Object Importer fixes applied
 
 **Issues Fixed**:
+
 1. ✅ Language code mapping - Uses centralized `LANGUAGE_CODE_MAP`
 2. ✅ Missing name field - Fallback: `working_number` → `"Monument {number}"`
 3. ✅ Missing description field - Fallback: `"(No description available)"`
@@ -278,8 +296,8 @@ interface ImportResult {
   success: boolean;
   imported: number;
   skipped: number;
-  errors: string[];      // Blocking errors
-  warnings?: string[];   // Data quality issues (non-blocking)
+  errors: string[]; // Blocking errors
+  warnings?: string[]; // Data quality issues (non-blocking)
 }
 ```
 
@@ -315,16 +333,19 @@ Review log file for details on how to address these issues.
 ### For Duplicate Tags (Issue 3)
 
 **Option A**: Keep current fallback logic
+
 - ✅ Pro: Zero impact on legacy data
 - ✅ Pro: Handles inconsistent capitalization automatically
 - ❌ Con: May create semantic duplicates if case matters
 
 **Option B**: Normalize all tag names to lowercase
+
 - ✅ Pro: Eliminates case sensitivity issues permanently
 - ❌ Con: Loses original capitalization (may matter for proper nouns)
 - ❌ Con: Requires updating all existing tags
 
 **Option C**: Fix legacy database
+
 - ✅ Pro: Cleans source data
 - ❌ Con: Time-consuming manual work
 - ❌ Con: May have downstream impact on legacy system
@@ -334,11 +355,13 @@ Review log file for details on how to address these issues.
 ### For Missing Fields (Issues 1, 2)
 
 **Option A**: Keep current fallback logic
+
 - ✅ Pro: All data imports successfully
 - ✅ Pro: Clear indication of generated values
 - ❌ Con: Generated names may not be ideal
 
 **Option B**: Fix legacy database
+
 - ✅ Pro: Better data quality
 - ❌ Con: Manual work to add proper names/descriptions
 - ❌ Con: Some objects may legitimately have minimal info
@@ -351,18 +374,18 @@ Review log file for details on how to address these issues.
 
 ### Phase 1 Import Summary
 
-| Importer | Imported | Skipped | Errors | Warnings | Status |
-|----------|----------|---------|--------|----------|--------|
-| Languages | 179 | 0 | 0 | 0 | ✅ Complete |
-| Language Translations | 130 | 0 | 0 | 0 | ✅ Complete |
-| Countries | 248 | 0 | 0 | 0 | ✅ Complete |
-| Country Translations | 335 | 0 | 0 | 0 | ✅ Complete |
-| Default Context | 0 | 1 | 0 | 0 | ✅ Complete |
-| Projects | 56 | 1 | 0 | 0 | ✅ Complete |
-| Partners | 267 | 0 | 0 | **1** | ✅ Complete |
-| Objects | ~1,691+ | ? | 0 | **~127+** | ⏳ In Progress |
-| Monuments | TBD | TBD | 0 | TBD | ✅ Ready to Test |
-| **TOTAL** | **~2,906+** | **2** | **0** | **~128+** | **⏳ In Progress** |
+| Importer              | Imported    | Skipped | Errors | Warnings  | Status             |
+| --------------------- | ----------- | ------- | ------ | --------- | ------------------ |
+| Languages             | 179         | 0       | 0      | 0         | ✅ Complete        |
+| Language Translations | 130         | 0       | 0      | 0         | ✅ Complete        |
+| Countries             | 248         | 0       | 0      | 0         | ✅ Complete        |
+| Country Translations  | 335         | 0       | 0      | 0         | ✅ Complete        |
+| Default Context       | 0           | 1       | 0      | 0         | ✅ Complete        |
+| Projects              | 56          | 1       | 0      | 0         | ✅ Complete        |
+| Partners              | 267         | 0       | 0      | **1**     | ✅ Complete        |
+| Objects               | ~1,691+     | ?       | 0      | **~127+** | ⏳ In Progress     |
+| Monuments             | TBD         | TBD     | 0      | TBD       | ✅ Ready to Test   |
+| **TOTAL**             | **~2,906+** | **2**   | **0**  | **~128+** | **⏳ In Progress** |
 
 **Status**: ✅ All importers have robust data quality handling. Ready for full import testing.
 
@@ -410,7 +433,7 @@ Get-Content import-*.log | Select-String "WARNING:" | Group-Object
 # View all duplicate tag warnings
 Get-Content import-*.log | Select-String "Duplicate internal_name"
 
-# View all missing field warnings  
+# View all missing field warnings
 Get-Content import-*.log | Select-String "Missing 'name'|Missing 'description'"
 ```
 
@@ -426,4 +449,4 @@ Get-Content import-*.log | Select-String "ERROR:" | Group-Object
 
 ---
 
-*Last Updated: November 23, 2025*
+_Last Updated: November 23, 2025_

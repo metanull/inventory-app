@@ -46,13 +46,26 @@ export class LanguageImporter extends BaseImporter {
 
     for (const language of languages) {
       try {
-        if (this.context.dryRun) {
-          this.logInfo(`[DRY-RUN] Would create language: ${language.id}`);
+        // Collect sample for testing (do this BEFORE API calls)
+        this.collectSample('language', language, 'success');
+
+        if (this.context.dryRun || this.isSampleOnlyMode) {
+          this.logInfo(
+            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create language: ${language.id}`
+          );
           result.imported++;
+
+          // In sample-only mode, populate tracker as if it was imported
+          if (this.isSampleOnlyMode) {
+            this.context.tracker.register({
+              uuid: language.id, // Use ID as UUID for foundation data
+              backwardCompatibility: language.backward_compatibility,
+            });
+          }
           continue;
         }
 
-        // Try to create
+        // Try to create (only if not in sample-only mode)
         try {
           // Exclude is_default - it's prohibited in StoreLanguageRequest
           // Must be set via separate languageSetDefault endpoint

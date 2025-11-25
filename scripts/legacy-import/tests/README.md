@@ -39,6 +39,7 @@ tests/
 ## Testing Approach
 
 ### TDD Workflow
+
 1. Write test first (RED)
 2. Implement importer (GREEN)
 3. Refactor (REFACTOR)
@@ -46,17 +47,20 @@ tests/
 ### Test Categories
 
 **Unit Tests**: Test individual functions in isolation
+
 - Backward compatibility formatting
 - Data transformation functions
 - PK mapping utilities
 
 **Integration Tests**: Test importers with mocked database/API
+
 - One test file per importer class
 - Mock legacy database responses
 - Mock API client calls
 - Verify backward_compatibility tracking
 
 **E2E Tests**: Test full import process
+
 - Require actual test database
 - Run complete import phases
 - Validate data integrity
@@ -81,6 +85,7 @@ npm run test:coverage
 ## Test Data
 
 Test fixtures are stored in `tests/fixtures/`:
+
 - `legacy-data/`: Sample legacy database records
 - `api-responses/`: Sample API responses
 - `expected-results/`: Expected import outcomes

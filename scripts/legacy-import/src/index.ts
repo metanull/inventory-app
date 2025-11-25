@@ -215,6 +215,9 @@ program
   .option('--stop-at <importer>', 'Stop at specific importer (skip later ones)')
   .option('--only <importer>', 'Run only the specified importer (skip all others)')
   .option('--list-importers', 'List all available importers and exit')
+  .option('--collect-samples', 'Collect sample data for test fixtures', false)
+  .option('--sample-size <number>', 'Number of success samples per category', '20')
+  .option('--sample-db <path>', 'Path to sample database file', './test-fixtures/samples.sqlite')
   .action(async (options) => {
     try {
       const dryRun = options.dryRun === true;
@@ -222,6 +225,9 @@ program
       const stopAt = options.stopAt;
       const only = options.only;
       const listImporters = options.listImporters === true;
+      const collectSamples = options.collectSamples === true;
+      const sampleSize = parseInt(options.sampleSize, 10);
+      const sampleDb = options.sampleDb;
 
       // Handle --list-importers
       if (listImporters) {
@@ -264,14 +270,25 @@ program
 
       // Validate connections
       logger.console('Validating connections...');
-      const apiClient = createApiClient();
-      if (!(await apiClient.testConnection())) {
-        throw new Error('API connection failed. Run "npx tsx src/index.ts login" first.');
-      }
 
+      const apiClient = createApiClient();
       const legacyDb = createLegacyDatabase();
+
+      // Always connect to legacy DB (needed even in sample collection mode)
       await legacyDb.connect();
-      logger.info('Connections validated', '✓');
+      logger.info('Legacy database connected', '✓');
+
+      // Only validate API connection in normal mode
+      if (!collectSamples && !dryRun) {
+        // Normal mode: validate API connection
+        if (!(await apiClient.testConnection())) {
+          throw new Error('API connection failed. Run "npx tsx src/index.ts login" first.');
+        }
+        logger.info('API connection validated', '✓');
+      } else {
+        // Sample-only mode: skip API validation
+        logger.console('⏭️  Dry-run or Sample collection mode - skipping API validation');
+      }
       logger.info(`Log: ${logPath}`, '📄');
       logger.console('');
 
@@ -301,12 +318,34 @@ program
         './utils/BackwardCompatibilityTracker.js'
       );
       const tracker = new BackwardCompatibilityTracker();
+
+      // Initialize sample collector if requested
+      let sampleCollector;
+      const sampleOnlyMode = collectSamples; // When collecting samples, skip API calls
+
+      if (collectSamples) {
+        const { SampleCollector } = await import('./utils/SampleCollector.js');
+        sampleCollector = new SampleCollector({
+          enabled: true,
+          dbPath: sampleDb,
+          sampleSize: sampleSize,
+          collectAllWarnings: true,
+          collectAllEdgeCases: true,
+          collectAllFoundation: true, // Collect ALL languages and countries
+        });
+        logger.info(`Sample collection mode: ${sampleDb}`, '🧪');
+        logger.console(`   Sample size per category: ${sampleSize}`);
+        logger.console(`   Mode: Sample-only (skipping API calls for speed)`);
+      }
+
       const importContext = {
         legacyDb,
         apiClient,
         tracker,
         dryRun,
         logPath,
+        sampleCollector,
+        sampleOnlyMode,
       };
 
       // Import DependencyLoader
@@ -403,6 +442,27 @@ program
         logger.console('');
         logger.warning(`⚠️  Total data quality warnings: ${totals.warnings}`);
         logger.console('Review log file for details on how to address these issues.');
+      }
+
+      // Show sample collection statistics
+      if (sampleCollector) {
+        const stats = sampleCollector.getStats();
+        const totalSamples = Object.values(stats).reduce((sum, count) => sum + count, 0);
+
+        logger.console('');
+        logger.info(`🧪 Collected ${totalSamples} samples for test fixtures`, '');
+        logger.console(`   Database: ${sampleDb}`);
+
+        // Show breakdown by category
+        const categories = Object.entries(stats).sort(([, a], [, b]) => b - a);
+        if (categories.length > 0 && categories.length <= 20) {
+          logger.console('   Breakdown:');
+          categories.forEach(([category, count]) => {
+            logger.console(`     - ${category}: ${count}`);
+          });
+        }
+
+        sampleCollector.close();
       }
 
       logger.info(`Log saved: ${logPath}`, '📄');

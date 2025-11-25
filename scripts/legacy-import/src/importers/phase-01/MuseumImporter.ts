@@ -98,8 +98,24 @@ export class MuseumImporter extends BaseImporter {
       return false;
     }
 
-    if (this.context.dryRun) {
-      this.logInfo(`[DRY-RUN] Would import museum: ${museum.museum_id}`);
+    // Collect sample for testing (BEFORE dependency resolution)
+    this.collectSample('partner_museum', museum, 'success');
+
+    if (this.context.dryRun || this.isSampleOnlyMode) {
+      this.logInfo(
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import museum: ${museum.museum_id}`
+      );
+
+      if (this.isSampleOnlyMode) {
+        // Register fake partner ID
+        const fakePartnerId = `sample-partner-${museum.museum_id}-${museum.country}`;
+        this.context.tracker.register({
+          uuid: fakePartnerId,
+          backwardCompatibility: backwardCompat,
+          entityType: 'partner',
+          createdAt: new Date(),
+        });
+      }
       return true;
     }
 

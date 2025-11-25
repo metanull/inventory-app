@@ -167,10 +167,33 @@ export class MonumentImporter extends BaseImporter {
       return false;
     }
 
-    if (this.context.dryRun) {
-      this.logInfo(
-        `[DRY-RUN] Would import monument: ${group.project_id}:${group.institution_id}:${group.number}`
+    // Collect sample for testing - success case (one record per monument group)
+    const sampleTranslation = group.translations[0];
+    if (sampleTranslation) {
+      this.collectSample(
+        'monument',
+        sampleTranslation,
+        'success',
+        undefined,
+        mapLanguageCode(sampleTranslation.lang)
       );
+    }
+
+    if (this.context.dryRun || this.isSampleOnlyMode) {
+      this.logInfo(
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import monument: ${group.project_id}:${group.institution_id}:${group.number}`
+      );
+
+      if (this.isSampleOnlyMode) {
+        // Register fake item ID for dependencies
+        const fakeItemId = `sample-item-${group.project_id}-${group.institution_id}-${group.number}`;
+        this.context.tracker.register({
+          uuid: fakeItemId,
+          backwardCompatibility: backwardCompat,
+          entityType: 'item',
+          createdAt: new Date(),
+        });
+      }
       return true;
     }
 
@@ -254,12 +277,20 @@ export class MonumentImporter extends BaseImporter {
     const languageId = mapLanguageCode(firstTranslation.lang);
 
     if (firstTranslation.dynasty) {
-      const dynastyTags = await this.findOrCreateTags(firstTranslation.dynasty, 'dynasty', languageId);
+      const dynastyTags = await this.findOrCreateTags(
+        firstTranslation.dynasty,
+        'dynasty',
+        languageId
+      );
       tagIds.push(...dynastyTags);
     }
 
     if (firstTranslation.keywords) {
-      const keywordTags = await this.findOrCreateTags(firstTranslation.keywords, 'keyword', languageId);
+      const keywordTags = await this.findOrCreateTags(
+        firstTranslation.keywords,
+        'keyword',
+        languageId
+      );
       tagIds.push(...keywordTags);
     }
 
@@ -321,6 +352,9 @@ export class MonumentImporter extends BaseImporter {
       });
       result.warnings?.push(warning);
       name = monument.working_number || `Monument ${monument.number}`;
+
+      // Collect sample for testing - missing name warning
+      this.collectSample('monument', monument, 'warning', 'missing_name', languageId);
     }
 
     if (!description || description.trim() === '') {
@@ -333,12 +367,15 @@ export class MonumentImporter extends BaseImporter {
       });
       result.warnings?.push(warning);
       description = '(No description available)';
+
+      // Collect sample for testing - missing description warning
+      this.collectSample('monument', monument, 'warning', 'missing_description', languageId);
     }
 
     // DATA QUALITY: Truncate fields that exceed database limits (255 chars)
     let alternateName = monument.name2 || null;
     let type = monument.typeof || null;
-    
+
     if (alternateName && alternateName.length > 255) {
       const warning = `${monument.project_id}:${monument.institution_id}:${monument.number}:${monument.lang} - alternate_name truncated (${alternateName.length} → 255 chars)`;
       this.logWarning(`DATA QUALITY: Monument translation ${warning}`, {
@@ -350,8 +387,11 @@ export class MonumentImporter extends BaseImporter {
       });
       result.warnings?.push(warning);
       alternateName = alternateName.substring(0, 252) + '...';
+
+      // Collect sample for testing - long alternate_name
+      this.collectSample('monument', monument, 'edge', 'long_alternate_name', languageId);
     }
-    
+
     if (type && type.length > 255) {
       const warning = `${monument.project_id}:${monument.institution_id}:${monument.number}:${monument.lang} - type truncated (${type.length} → 255 chars)`;
       this.logWarning(`DATA QUALITY: Monument translation ${warning}`, {
@@ -363,6 +403,9 @@ export class MonumentImporter extends BaseImporter {
       });
       result.warnings?.push(warning);
       type = type.substring(0, 252) + '...';
+
+      // Collect sample for testing - long type field
+      this.collectSample('monument', monument, 'edge', 'long_type', languageId);
     }
 
     await this.context.apiClient.itemTranslation.itemTranslationStore({
@@ -385,8 +428,6 @@ export class MonumentImporter extends BaseImporter {
     });
   }
 
-
-
   /**
    * Parse and create tags from separated string
    * IMPORTANT: Fields with colons (e.g., "madrasa; cerámica: decoración floral") are STRUCTURED DATA
@@ -395,7 +436,11 @@ export class MonumentImporter extends BaseImporter {
    * Tags are language-specific: same content in different languages = different tags
    * Returns array of tag UUIDs
    */
-  private async findOrCreateTags(tagString: string, category: string, languageId: string): Promise<string[]> {
+  private async findOrCreateTags(
+    tagString: string,
+    category: string,
+    languageId: string
+  ): Promise<string[]> {
     if (!tagString || tagString.trim() === '') {
       return [];
     }
@@ -403,9 +448,9 @@ export class MonumentImporter extends BaseImporter {
     // Check if this is structured data (contains colon)
     // Example: "cerámica: decoración floral; decoración geométrica" should be ONE tag, not split
     const isStructured = tagString.includes(':');
-    
+
     let tagNames: string[];
-    
+
     if (isStructured) {
       // Structured data - keep as single tag
       tagNames = [tagString.trim()];
@@ -424,7 +469,7 @@ export class MonumentImporter extends BaseImporter {
       // Normalize to lowercase to avoid case-sensitivity issues
       // Original capitalization preserved in description for display
       const normalizedTagName = tagName.toLowerCase();
-      
+
       // Include table name, category, and language to create unique backward_compatibility
       // Format: mwnf3:tags:{category}:{lang}:{tagName}
       const backwardCompat = BackwardCompatibilityFormatter.format({
@@ -439,7 +484,7 @@ export class MonumentImporter extends BaseImporter {
       if (!tagId && !this.context.dryRun) {
         // Lookup existing tag first to avoid unnecessary create attempts and warnings
         tagId = await this.findExistingTagByBackwardCompat(backwardCompat);
-        
+
         if (tagId) {
           // Register in tracker for fast future lookups
           this.context.tracker.register({
@@ -454,7 +499,7 @@ export class MonumentImporter extends BaseImporter {
             // Internal_name should be clean tag value only (e.g., "portrait", "limestone")
             // ALWAYS lowercase to avoid case-sensitivity issues
             // Original capitalization preserved in description for display
-            const createPayload: any = {
+            const createPayload: Record<string, unknown> = {
               internal_name: normalizedTagName,
               category: category,
               language_id: languageId,
@@ -476,22 +521,26 @@ export class MonumentImporter extends BaseImporter {
             // Both 422 and 500 with unique constraint error mean tag already exists
             // Our lookup missed it (pagination issue or backward_compatibility mismatch)
             if (error && typeof error === 'object' && 'response' in error) {
-              const axiosError = error as { response?: { status?: number; data?: any } };
+              const axiosError = error as { response?: { status?: number; data?: unknown } };
               const is422 = axiosError.response?.status === 422;
-              const is500Duplicate = 
-                axiosError.response?.status === 500 && 
+              const is500Duplicate =
+                axiosError.response?.status === 500 &&
                 axiosError.response?.data?.message?.includes('Duplicate entry') &&
                 axiosError.response?.data?.message?.includes('tags_name_category_lang_unique');
-              
+
               if (is422 || is500Duplicate) {
                 // Tag exists - do exhaustive search by backward_compatibility
                 tagId = await this.findExistingTagByBackwardCompat(backwardCompat, 200);
-                
+
                 if (!tagId) {
                   // Still not found by backward_compatibility - try searching by actual fields
-                  tagId = await this.findExistingTagByFields(normalizedTagName, category, languageId);
+                  tagId = await this.findExistingTagByFields(
+                    normalizedTagName,
+                    category,
+                    languageId
+                  );
                 }
-                
+
                 if (tagId) {
                   // Found it! Register for future
                   this.context.tracker.register({
@@ -502,7 +551,9 @@ export class MonumentImporter extends BaseImporter {
                   });
                 } else {
                   // Still can't find it - log warning but continue
-                  this.logWarning(`Tag exists (${is500Duplicate ? '500 duplicate' : '422 conflict'}) but cannot be found: ${category}:${languageId}:${tagName}`);
+                  this.logWarning(
+                    `Tag exists (${is500Duplicate ? '500 duplicate' : '422 conflict'}) but cannot be found: ${category}:${languageId}:${tagName}`
+                  );
                 }
               } else {
                 // Other error - log it
@@ -573,7 +624,10 @@ export class MonumentImporter extends BaseImporter {
    * @param backwardCompat The backward_compatibility value to search for
    * @param maxPages Maximum pages to search (default 100, use 200 for exhaustive retry)
    */
-  private async findExistingTagByBackwardCompat(backwardCompat: string, maxPages: number = 100): Promise<string | null> {
+  private async findExistingTagByBackwardCompat(
+    backwardCompat: string,
+    maxPages: number = 100
+  ): Promise<string | null> {
     let page = 1;
     const perPage = 100;
     let hasMore = true;
@@ -602,7 +656,9 @@ export class MonumentImporter extends BaseImporter {
       // Safety limit
       if (page > maxPages) {
         if (maxPages >= 200) {
-          this.logWarning(`Exhaustive search failed after ${maxPages} pages for: ${backwardCompat}`);
+          this.logWarning(
+            `Exhaustive search failed after ${maxPages} pages for: ${backwardCompat}`
+          );
         }
         break;
       }

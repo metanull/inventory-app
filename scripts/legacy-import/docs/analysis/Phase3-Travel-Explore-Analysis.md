@@ -13,7 +13,7 @@ Travel and Explore are separate application schemas with very different structur
 - **mwnf3_explore**: Geographic browsing by country/region/location - **NORMALIZED** (separate translations)
 - **Critical**: explore contains **1808 monuments** (many unique, not in other schemas) - **HIGHEST PRIORITY**
 - **Cross-schema references**: Both reference mwnf3.projects, mwnf3.monuments, and each other
-- **Hierarchical structure**: 
+- **Hierarchical structure**:
   - Travel: Trail → Itinerary → Location → Monument (4 levels, denormalized)
   - Explore: Country → Region → Location → Monument (4 levels, normalized)
 - **Travel-specific content**: Accommodation, agencies, guides, food, cultural events (probably skip)
@@ -26,6 +26,7 @@ Travel and Explore are separate application schemas with very different structur
 ### Core Entities (mwnf3_travels)
 
 #### Trails - Top-Level Collections **[DENORMALIZED]**
+
 - `trails` - **EXHIBITION TRAIL master**
   - PK: `project_id`, `country`, `lang`, `number` (**LANGUAGE IN PK**)
   - FK: → mwnf3.projects, → mwnf3.countries, → mwnf3.museums, → mwnf3.langs
@@ -37,6 +38,7 @@ Travel and Explore are separate application schemas with very different structur
 **Mapping**: Trail → Collection (with language handling like mwnf3.objects)
 
 #### Itineraries - Child Collections **[DENORMALIZED]**
+
 - `tr_itineraries` - Itineraries within trails
   - PK: `project_id`, `country`, `number`, `lang`, `trail_id` (**LANGUAGE IN PK**)
   - FK: → trails (all fields including lang)
@@ -47,6 +49,7 @@ Travel and Explore are separate application schemas with very different structur
 **Mapping**: Itinerary → Collection (parent: Trail Collection)
 
 #### Locations - Sub-Collections **[DENORMALIZED]**
+
 - `tr_locations` - Locations within itineraries
   - PK: `lang`, `project_id`, `country`, `trail_id`, `itinerary_id`, `number` (**LANGUAGE IN PK**)
   - FK: → trails, → tr_itineraries (with language)
@@ -58,6 +61,7 @@ Travel and Explore are separate application schemas with very different structur
 **Hierarchy**: Trail → Itinerary → Location (3 collection levels, all denormalized with lang in PK)
 
 #### Monuments - Items within Locations **[DENORMALIZED]**
+
 - `tr_monuments` - Monuments at locations
   - PK: `project_id`, `country`, `trail_id`, `itinerary_id`, `location_id`, `number`, `lang` (**LANGUAGE IN PK**)
   - FK: → tr_locations (with language)
@@ -70,29 +74,36 @@ Travel and Explore are separate application schemas with very different structur
 ### Travel-Specific Content (Lower Priority)
 
 #### Accommodation
+
 - `tr_accommodation` - Hotels/lodging
 - `tr_accommodation_pictures` - Accommodation images
 
 #### Travel Agencies
+
 - `tr_agencies` - Travel agency listings
 - `tr_agency_texts` - Agency translations
 
 #### Guides
+
 - `tr_guides` - Tour guide listings
 - `tr_guide_texts`, `tr_guide_langs` - Guide details
 
 #### Food & Culture
+
 - `tr_traditional_food` - Traditional food descriptions
 - `tr_food_pictures` - Food images
 - `tr_cultural_events` - Cultural event calendar
 
 #### InfoDesk
+
 - `tr_infodesk`, `tr_infodesk_texts` - Information desk content
 
 #### Images
+
 - `tr_images`, `tr_images_texts` - Generic image gallery
 
 #### Supporting Content
+
 - `tr_local_contact` - Local contact information
 - `tr_related_walks` - Related walking tours
 - `tr_spot_light` - Featured content
@@ -114,6 +125,7 @@ Travel and Explore are separate application schemas with very different structur
 **Decision**: Lower priority - focus on trails/itineraries/locations/monuments first
 
 ### Tours & Surveys
+
 - `tour_tom`, `tour_tom_names` - Tours of the month (promotional)
 - `survey`, `survey_data`, `questionnaire*` - User surveys (SKIP)
 
@@ -126,6 +138,7 @@ Travel and Explore are separate application schemas with very different structur
 **Structure**: Completely different from mwnf3/sh/thg/travel
 
 #### Countries - Top Level **[NORMALIZED]**
+
 - `explorecountry` - Countries in explore
   - PK: `countryId` (varchar(2), 2-char ISO code)
   - FK: → countries (mwnf3_explore.countries, not mwnf3.countries!)
@@ -139,9 +152,11 @@ Travel and Explore are separate application schemas with very different structur
 **Mapping**: ExploreCountry → Collection (top level)
 
 #### Regions - Level 2 (Conceptual)
+
 **Note**: No explicit region table, but `locations` table has path/hierarchy information
 
 #### Locations - Geographic Units **[NORMALIZED]**
+
 - `locations` - Cities/sites within countries
   - PK: `locationId` (auto-increment)
   - FK: → countries (explore schema)
@@ -152,6 +167,7 @@ Travel and Explore are separate application schemas with very different structur
 **Mapping**: Location → Collection (parent: Country Collection or Region Collection if hierarchy detected)
 
 #### Monuments - Items **[NORMALIZED, CRITICAL DATA]**
+
 - `exploremonument` - **MOST IMPORTANT TABLE**
   - PK: `monumentId` (auto-increment)
   - FK: → locations
@@ -168,22 +184,26 @@ Travel and Explore are separate application schemas with very different structur
   - **Separate translation table** - much cleaner than mwnf3 denormalization
 
 **Mapping**:
-1. **Check REF_monuments_* fields**: If populated → use existing mwnf3.monuments Item UUID
-2. **Check REF_tr_monuments_* fields**: If populated → use existing travel.tr_monuments Item UUID
+
+1. **Check REF*monuments*\* fields**: If populated → use existing mwnf3.monuments Item UUID
+2. **Check REF*tr_monuments*\* fields**: If populated → use existing travel.tr_monuments Item UUID
 3. **If both empty**: Create new Item with backward_compatibility: `explore:exploremonument:{monumentId}`
 
 **Monument Pictures**:
+
 - `exploremonument_pictures` - Monument images
   - PK: `monumentId`, `pictureId`
   - FK: → exploremonument
 
 #### Themes & Categorization
+
 - `explorethemes` - Theme definitions (NOT same as thematic gallery themes)
   - Categorization for monuments
 - `explorethemestranslated` - Theme translations
 - `exploremonumentsthemes` - Monument-to-theme relationships
 
 #### Monument Extensions
+
 - `exploremonumentacademic` - Academic/scholarly content for monuments
 - `exploremonumentext` - Extended information
 - `exploremonumentotherdescriptions` - Additional descriptions
@@ -209,29 +229,35 @@ Travel and Explore are separate application schemas with very different structur
 **Mapping**: Itinerary → Collection, with relationships to existing collections/items
 
 ### Partner Museums
+
 - `explore_partner_museums` - Museums partnering with explore
   - References mwnf3.museums or independent records
 
 ### Filters & Search
+
 - `filters`, `filter_types` - Search/browse filters
 - `filters_explore_monuments` - Monument-to-filter relationships
 
 ### Featured Content
+
 - `featured_tours`, `featured_tours_explore` - Featured itineraries
 - `featured_books`, `featured_books_explore` - Featured publications
 - `featured_partnerships`, `featured_partnerships_langs` - Partnerships
 
 ### Guided Visits & Hotels
+
 - `guided_visits`, `guided_visits_contacts`, `guided_visits_contacts_langs` - Guided tour information
 - `hotels` - Hotel listings (probably lower priority)
 - `excursions_langs` - Excursion descriptions
 
 ### Supporting Content
+
 - `explore_pages`, `explore_pages_langs` - Static pages
 - `explore_home_banners` - Homepage banners
 - `exploreusers`, `exploreusersthematiccycle`, `exploreuserslocations` - User accounts (SKIP)
 
 ### Legacy/Alternative
+
 - `langs` - Language table in explore schema (separate from mwnf3.langs!)
 - `countries` - Country table in explore schema (separate from mwnf3.countries!)
 - `monuments_bkp`, `tr_monuments1` - Backup tables referenced by FK (IGNORE)
@@ -243,19 +269,22 @@ Travel and Explore are separate application schemas with very different structur
 ### High Priority (Likely Populated)
 
 **Travel**:
+
 - trails, tr_itineraries, tr_locations, tr_monuments (core hierarchy)
-- tr_*_pictures (images for core entities)
+- tr\_\*\_pictures (images for core entities)
 - tr_accommodation, tr_agencies, tr_guides (travel services)
 
 **Explore**:
+
 - explorecountry, locations (683 records)
 - **exploremonument (1808 records), exploremonumenttranslated** - **CRITICAL**
 - exploremonument_pictures
 - explorethemes, exploremonumentsthemes
-- explore_itineraries, explore_itineraries_rel_*
+- explore*itineraries, explore_itineraries_rel*\*
 
 ### Lower Priority (May Be Sparse)
-- Travel packages (travels, travel_*)
+
+- Travel packages (travels, travel\_\*)
 - Food/culture tables (tr_traditional_food, tr_cultural_events)
 - User/survey tables (SKIP)
 - Featured content (may be promotional/temporary)
@@ -275,6 +304,7 @@ All tables **DENORMALIZED** with language in PK (same pattern as mwnf3.objects)
 #### Trails
 
 **Table**: `trails`
+
 - PK: `project_id`, `country`, `lang`, `number`
 
 **Approach**: Group by non-lang columns
@@ -297,6 +327,7 @@ All tables **DENORMALIZED** with language in PK (same pattern as mwnf3.objects)
 #### Itineraries
 
 **Table**: `tr_itineraries`
+
 - PK: `project_id`, `country`, `number`, `lang`, `trail_id`
 - FK: → trails (**includes lang** - problematic!)
 
@@ -319,6 +350,7 @@ All tables **DENORMALIZED** with language in PK (same pattern as mwnf3.objects)
 #### Locations
 
 **Table**: `tr_locations`
+
 - PK: `lang`, `project_id`, `country`, `trail_id`, `itinerary_id`, `number`
 
 **Approach**: Same pattern
@@ -337,6 +369,7 @@ All tables **DENORMALIZED** with language in PK (same pattern as mwnf3.objects)
    - Fields: title, introduction, description, how_to_reach, info, contact, prepared_by
 
 ### Import Dependencies
+
 - AFTER: mwnf3 Projects/Contexts (trails reference projects)
 - BEFORE: tr_monuments (monuments link to locations)
 
@@ -355,6 +388,7 @@ Tables **NORMALIZED** (no language in PK)
 #### Countries
 
 **Table**: `explorecountry`
+
 - PK: `countryId` (2-char ISO code)
 - FK: → countries (explore schema, not mwnf3!)
 
@@ -372,6 +406,7 @@ Tables **NORMALIZED** (no language in PK)
 #### Locations
 
 **Table**: `locations`
+
 - PK: `locationId` (auto-increment)
 - UNIQUE: `label` (location name)
 - FK: → countries (explore schema)
@@ -394,6 +429,7 @@ Tables **NORMALIZED** (no language in PK)
 4. **CollectionTranslation**: From description, info fields (likely not multi-language in this table)
 
 ### Import Dependencies
+
 - AFTER: Explore Context created
 - BEFORE: exploremonument (monuments link to locations)
 
@@ -408,6 +444,7 @@ Tables **NORMALIZED** (no language in PK)
 ### Structure
 
 **Master**: `exploremonument` **[NORMALIZED]**
+
 - PK: `monumentId` (auto-increment)
 - FK: → locations
 - **Reference fields** (check for cross-schema deduplication):
@@ -415,6 +452,7 @@ Tables **NORMALIZED** (no language in PK)
   - `REF_tr_monuments_*` → mwnf3_travels.tr_monuments
 
 **Translations**: `exploremonumenttranslated` **[NORMALIZED]**
+
 - PK: `monumentId`, `langId`
 - Separate translation table (cleaner than denormalized approach)
 
@@ -422,21 +460,25 @@ Tables **NORMALIZED** (no language in PK)
 
 **For Each Monument**:
 
-1. **Check REF_monuments_* fields** (mwnf3 references):
+1. **Check REF*monuments*\* fields** (mwnf3 references):
+
    ```sql
-   REF_monuments_project_id, REF_monuments_country, 
+   REF_monuments_project_id, REF_monuments_country,
    REF_monuments_institution_id, REF_monuments_number, REF_monuments_lang
    ```
+
    - If populated: Look up mwnf3 Item via backward_compatibility
    - Use existing Item UUID
    - Add backward_compatibility: `explore:exploremonument:{monumentId}` as alternate reference
 
-2. **Check REF_tr_monuments_* fields** (travel references):
+2. **Check REF*tr_monuments*\* fields** (travel references):
+
    ```sql
-   REF_tr_monuments_project_id, REF_tr_monuments_country, 
-   REF_tr_monuments_itinerary_id, REF_tr_monuments_location_id, 
+   REF_tr_monuments_project_id, REF_tr_monuments_country,
+   REF_tr_monuments_itinerary_id, REF_tr_monuments_location_id,
    REF_tr_monuments_number, REF_tr_monuments_lang, REF_tr_monuments_trail_id
    ```
+
    - If populated: Look up travel Item (if already imported)
    - Use existing Item UUID or note for later linking
 
@@ -479,6 +521,7 @@ Tables **NORMALIZED** (no language in PK)
 ### Monument Schema References
 
 **Cross-schema monument tables** (check for references):
+
 - `exploremonument_vm` - References to mwnf3 (virtual museum) monuments
 - `exploremonument_sh` - References to sharing history monuments
 - `exploremonument_tr` - References to travel monuments
@@ -488,24 +531,28 @@ Tables **NORMALIZED** (no language in PK)
 ### Themes
 
 **Table**: `explorethemes`, `explorethemestranslated`
+
 - Create Tag records (category: 'explore_theme')
 
 **Relationships**: `exploremonumentsthemes`
+
 - Monument-to-theme relationships
 - Create item_tag pivot records
 
 ### Images
 
 **Table**: `exploremonument_pictures`
+
 - PK: `monumentId`, `pictureId`
 - Create ImageUpload records
 - Deduplicate with mwnf3/sh/thg/travel images
 - backward_compatibility: `explore:exploremonument_pictures:{monumentId}:{pictureId}`
 
 ### Import Dependencies
+
 - AFTER: Locations (monuments link to locations)
 - AFTER: mwnf3 Items, Travel Items (for cross-schema deduplication)
-- Check REF_* fields to determine if monument already imported
+- Check REF\_\* fields to determine if monument already imported
 - BEFORE: Explore itineraries (itineraries link to monuments)
 
 ---
@@ -515,6 +562,7 @@ Tables **NORMALIZED** (no language in PK)
 ### Structure
 
 **Table**: `tr_monuments` **[DENORMALIZED]**
+
 - PK: `project_id`, `country`, `trail_id`, `itinerary_id`, `location_id`, `number`, `lang`
 - FK: → tr_locations (with language)
 
@@ -545,6 +593,7 @@ Tables **NORMALIZED** (no language in PK)
    - Similar handling as other image tables
 
 ### Import Dependencies
+
 - AFTER: tr_locations Collections (monuments link to locations)
 - BEFORE: Explore monuments (explore may reference travel monuments)
 
@@ -555,18 +604,22 @@ Tables **NORMALIZED** (no language in PK)
 ### Travel Images
 
 **Collections**:
+
 - `tr_trails_pictures` - Trail images
 - `tr_itineraries_pictures` - Itinerary images
 - `tr_locations_pictures` - Location images
 
 **Items**:
+
 - `tr_monuments_pictures` - Monument images
 
 **Travel Services**:
+
 - `tr_accommodation_pictures` - Hotel images
 - `tr_food_pictures` - Food images
 
 **Generic**:
+
 - `tr_images`, `tr_images_texts` - Generic image gallery
 
 **Mapping**: Standard image import with deduplication
@@ -574,16 +627,19 @@ Tables **NORMALIZED** (no language in PK)
 ### Explore Images
 
 **Monuments**:
+
 - `exploremonument_pictures` - Monument images
   - PK: `monumentId`, `pictureId`
   - FK: → exploremonument
 
 **Itineraries**:
+
 - `explore_itineraries_country_picture` - Itinerary images
 
 **Mapping**: Same deduplication strategy as all schemas
 
 ### Import Dependencies
+
 - AFTER: Collections, Items created
 - File system access required
 
@@ -594,23 +650,29 @@ Tables **NORMALIZED** (no language in PK)
 ### Travel Relationships
 
 **Monument-Location**: Via FK in tr_monuments
+
 - Already handled during monument import (collection_id points to location)
 
 **Related Walks**: `tr_related_walks`
+
 - Create collection-collection relationships
 
 ### Explore Relationships
 
 **Monument-Location**: Via FK in exploremonument
+
 - Already handled (collection_id points to location)
 
 **Monument-Monument**: Via `related_monument` text field
+
 - Parse and create ItemItemLink relationships
 
 **Monument-Theme**: `exploremonumentsthemes`
+
 - Create item_tag relationships
 
 **Explore Itineraries Relationships**: Multiple `explore_itineraries_rel_*` tables
+
 - `explore_itineraries_rel_country` - Itinerary → Countries
 - `explore_itineraries_rel_territory` - Itinerary → Territories
 - `explore_itineraries_rel_locations` - Itinerary → Locations
@@ -621,12 +683,15 @@ Tables **NORMALIZED** (no language in PK)
 ### Cross-Schema References
 
 **Explore → mwnf3**: `REF_monuments_*` fields in exploremonument
+
 - Check and link to existing mwnf3 Items
 
 **Explore → Travel**: `REF_tr_monuments_*` fields in exploremonument
+
 - Check and link to existing travel Items
 
 **Explore Monument Schema Tables**:
+
 - `exploremonument_vm` - References to mwnf3 items
 - `exploremonument_sh` - References to SH items
 - `exploremonument_tr` - References to travel items
@@ -634,6 +699,7 @@ Tables **NORMALIZED** (no language in PK)
 **Purpose**: Deduplication and relationship tracking
 
 ### Import Dependencies
+
 - AFTER: All Items created (for ItemItemLink)
 - AFTER: All Collections created (for collection relationships)
 
@@ -692,47 +758,30 @@ Tables **NORMALIZED** (no language in PK)
 ### Execution Order
 
 **Phase 3A: Contexts**
+
 1. Create Travel Context
 2. Create Explore Context
 
-**Phase 3B: Travel Collections** (Denormalized - Handle Language Grouping)
-3. Import trails → Collections (group by non-lang PK)
-4. Import tr_itineraries → Collections (parent: Trails)
-5. Import tr_locations → Collections (parent: Itineraries)
+**Phase 3B: Travel Collections** (Denormalized - Handle Language Grouping) 3. Import trails → Collections (group by non-lang PK) 4. Import tr_itineraries → Collections (parent: Trails) 5. Import tr_locations → Collections (parent: Itineraries)
 
-**Phase 3C: Explore Collections** (Normalized)
-6. Import explorecountry → Collections
-7. Import locations → Collections (parent: Countries)
+**Phase 3C: Explore Collections** (Normalized) 6. Import explorecountry → Collections 7. Import locations → Collections (parent: Countries)
 
-**Phase 3D: Travel Items** (Denormalized)
-8. Import tr_monuments → Items (group by non-lang PK, check mwnf3 duplicates) + ItemTranslations
+**Phase 3D: Travel Items** (Denormalized) 8. Import tr_monuments → Items (group by non-lang PK, check mwnf3 duplicates) + ItemTranslations
 
-**Phase 3E: Explore Items** (Normalized, CRITICAL - 1808 records)
-9. Import exploremonument → Items (check REF_monuments_*, REF_tr_monuments_*) + ItemTranslations from exploremonumenttranslated
-10. Import exploremonumentacademic → Additional ItemTranslations
-11. Import exploremonumentext → Metadata
-12. Import exploremonumentotherdescriptions → Additional ItemTranslations
+**Phase 3E: Explore Items** (Normalized, CRITICAL - 1808 records) 9. Import exploremonument → Items (check REF*monuments*_, REF*tr_monuments*_) + ItemTranslations from exploremonumenttranslated 10. Import exploremonumentacademic → Additional ItemTranslations 11. Import exploremonumentext → Metadata 12. Import exploremonumentotherdescriptions → Additional ItemTranslations
 
-**Phase 3F: Explore Themes**
-13. Import explorethemes → Tags
-14. Import exploremonumentsthemes → item_tag relationships
+**Phase 3F: Explore Themes** 13. Import explorethemes → Tags 14. Import exploremonumentsthemes → item_tag relationships
 
-**Phase 3G: Explore Itineraries**
-15. Import explore_itineraries → Collections
-16. Import explore_itineraries_rel_* → collection and collection_item relationships
+**Phase 3G: Explore Itineraries** 15. Import explore*itineraries → Collections 16. Import explore_itineraries_rel*\* → collection and collection_item relationships
 
-**Phase 3H: Images** (Deduplicate)
-17. Import travel images (trails, itineraries, locations, monuments)
-18. Import explore images (monuments, itineraries)
+**Phase 3H: Images** (Deduplicate) 17. Import travel images (trails, itineraries, locations, monuments) 18. Import explore images (monuments, itineraries)
 
-**Phase 3I: Relationships**
-19. Import tr_related_walks → collection relationships
-20. Parse related_monument field → ItemItemLink
-21. Link exploremonument via REF_* fields → update existing Items
+**Phase 3I: Relationships** 19. Import tr*related_walks → collection relationships 20. Parse related_monument field → ItemItemLink 21. Link exploremonument via REF*\* fields → update existing Items
 
 ### backward_compatibility Format Standards
 
 **Travel**:
+
 - Context: `travels:context`
 - Trail: `travels:trails:{project_id}:{country}:{number}` (NO lang!)
 - Itinerary: `travels:itineraries:{project_id}:{country}:{trail_id}:{number}` (NO lang!)
@@ -741,6 +790,7 @@ Tables **NORMALIZED** (no language in PK)
 - Image: `travels:tr_monuments_pictures:{project_id}:{country}:{trail_id}:{itinerary_id}:{location_id}:{number}:{image_number}` (NO lang!)
 
 **Explore**:
+
 - Context: `explore:context`
 - Country: `explore:countries:{countryId}`
 - Location: `explore:locations:{locationId}`
@@ -753,7 +803,7 @@ Tables **NORMALIZED** (no language in PK)
 
 1. **Travel Denormalization**: Same pattern as mwnf3.objects - group by non-lang PK columns
 2. **Explore Normalized**: Cleaner structure with separate translation tables
-3. **Cross-Schema Deduplication**: Check REF_* fields in exploremonument before creating Items
+3. **Cross-Schema Deduplication**: Check REF\_\* fields in exploremonument before creating Items
 4. **1808 Monuments Priority**: exploremonument is largest dataset and many unique monuments
 5. **Hierarchical Collections**: Import parents before children
 6. **Multiple Descriptions**: exploremonumenttranslated has description1-5 → merge or separate translations
@@ -767,6 +817,7 @@ Tables **NORMALIZED** (no language in PK)
 ### Phase 3 Complete
 
 This analysis provides:
+
 - Complete understanding of Travel (52 tables) and Explore (101 tables) schemas
 - Different structures: Travel denormalized (lang in PK), Explore normalized (separate translations)
 - Hierarchical collection mappings (3-4 levels each)
@@ -782,7 +833,7 @@ This analysis provides:
 
 2. **Explore Monument Priority**: **1808 monuments** - MUST import, many not in other schemas
 
-3. **Cross-Schema References**: exploremonument has REF_monuments_* and REF_tr_monuments_* fields
+3. **Cross-Schema References**: exploremonument has REF*monuments*_ and REF*tr_monuments*_ fields
    - Check these BEFORE creating new Items
    - Link to existing mwnf3/travel Items if references exist
 
@@ -801,6 +852,7 @@ This analysis provides:
 ### Ready for Next Phase
 
 Can now proceed to:
+
 - **Phase 4**: Analyze remaining schemas (quick scan for FK references)
 - **Phase 5**: Create master mapping document
 - **Phase 7+**: Implement Laravel Artisan import commands

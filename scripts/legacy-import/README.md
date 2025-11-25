@@ -48,6 +48,7 @@ npm run validate
 ### Granular Import Control ⭐
 
 **List available importers:**
+
 ```bash
 npm run import:list
 
@@ -56,6 +57,7 @@ npx tsx src/index.ts import --list-importers
 ```
 
 **Resume from specific importer (skip earlier ones):**
+
 ```bash
 # Partner failed, fix it, then resume from Partner onwards:
 npx tsx src/index.ts import --start-at partner
@@ -65,6 +67,7 @@ npx tsx src/index.ts import --start-at partner
 ```
 
 **Stop at specific importer:**
+
 ```bash
 # Run up to and including partner:
 npx tsx src/index.ts import --stop-at partner
@@ -74,6 +77,7 @@ npx tsx src/index.ts import --stop-at partner
 ```
 
 **Run specific range:**
+
 ```bash
 # Run from project to object (inclusive):
 npx tsx src/index.ts import --start-at project --stop-at object
@@ -84,6 +88,7 @@ npx tsx src/index.ts import --start-at project --stop-at object
 ```
 
 **Run only one importer:**
+
 ```bash
 # Run only object (useful for testing/fixing specific importer):
 npx tsx src/index.ts import --only object
@@ -92,6 +97,7 @@ npx tsx src/index.ts import --only object
 ```
 
 **Combine with dry-run:**
+
 ```bash
 npx tsx src/index.ts import --start-at object --dry-run
 npx tsx src/index.ts import --stop-at partner --dry-run
@@ -152,11 +158,13 @@ npm run test:coverage
 **⚠️ DESTRUCTIVE - Creates real data in database!**
 
 Prerequisites:
+
 1. Legacy database accessible (check .env credentials)
 2. API running locally: `php artisan serve` in main project
 3. Authenticated: `npx tsx src/index.ts login`
 
 To verify import actually works:
+
 ```bash
 # 1. Edit tests/e2e/phase-01-real-import.test.ts - remove .skip from describe()
 # 2. Run the E2E test
@@ -197,6 +205,7 @@ Legacy MySQL → Importer → REST API (@metanull/inventory-app-api-client) → 
 ```
 
 **Key concepts**:
+
 - **backward_compatibility**: `{schema}:{table}:{pk1}:{pk2}:...` (excludes language for denormalized tables)
 - **Denormalization**: Legacy mwnf3/travels have language in PK → group rows, create one entity + multiple translations
 - **Deduplication**: Check tracker before creating entities to avoid duplicates across schemas

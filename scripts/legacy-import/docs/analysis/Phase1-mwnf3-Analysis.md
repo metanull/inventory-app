@@ -23,6 +23,7 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
 ## Task 1.1: Table Categorization
 
 ### Reference Data Tables (4)
+
 - `countries` - Country definitions (FK to new model's seeded data)
 - `langs` - Language definitions (2-char codes, map to new 3-char ISO codes)
 - `countrynames` - Country name translations
@@ -31,6 +32,7 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
 ### Core Entity Tables
 
 #### Projects (2 tables)
+
 - `projects` - Project master records
   - PK: `project_id` (varchar(10))
   - Fields: name, launchdate
@@ -39,6 +41,7 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
   - FK: → projects, → langs
 
 #### Partners - Museums (3 tables)
+
 - `museums` - Museum master records
   - PK: `museum_id`, `country`
   - FK: → countries, → projects, → monuments (optional monument reference)
@@ -50,6 +53,7 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
 - `museums_pictures` - Museum images/logos
 
 #### Partners - Institutions (3 tables)
+
 - `institutions` - Institution master records
   - PK: `institution_id`, `country`
   - FK: → countries
@@ -60,10 +64,12 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
 - `institutions_pictures` - Institution images/logos
 
 #### Partners - Associated (2 tables)
+
 - `associated_museums` - Additional museums (same structure as museums)
 - `associated_institutions` - Additional institutions (same structure as institutions)
 
 #### Items - Objects (2 tables)
+
 - `objects` - Object master records **[DENORMALIZED - LANGUAGE IN PK]**
   - PK: `project_id`, `country`, `museum_id`, `number`, `lang` (5 columns!)
   - FK: → projects, → museums, → langs
@@ -85,6 +91,7 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
   - **CRITICAL**: Language in PK but references denormalized objects table
 
 #### Items - Monuments (2 tables)
+
 - `monuments` - Monument master records **[DENORMALIZED - LANGUAGE IN PK]**
   - PK: `project_id`, `country`, `institution_id`, `number`, `lang` (5 columns!)
   - FK: → projects, → institutions, → langs
@@ -100,6 +107,7 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
   - FK: → monuments, → picture_type
 
 #### Items - Monument Details (2 tables)
+
 - `monument_details` - Detail records for monuments **[DENORMALIZED - LANGUAGE IN PK]**
   - PK: `project_id`, `country_id`, `institution_id`, `monument_id`, `lang_id`, `detail_id` (6 columns!)
   - FK: → monuments (CASCADE DELETE!)
@@ -113,6 +121,7 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
 ### Authors and Tags
 
 #### Authors (4 tables)
+
 - `authors` - Author master records
   - PK: `author_id` (auto-increment)
   - UNIQUE: lastname, givenname, firstname
@@ -126,6 +135,7 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
 - `authors_cv` - Author CVs/biographies
 
 #### Dynasties/Tags (3 tables)
+
 - `dynasties` - Dynasty tag definitions
   - PK: `dynasty_id` (auto-increment)
   - UNIQUE: project_id, name
@@ -138,9 +148,10 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
 - `monuments_dynasties` - Monument-dynasty relationships (same structure)
 
 ### Item Relationships (6 tables)
+
 - `objects_objects` - Object-to-object links
   - PK: `id` (auto-increment)
-  - UNIQUE: o1_[project/country/museum/number], o2_[project/country/museum/number]
+  - UNIQUE: o1*[project/country/museum/number], o2*[project/country/museum/number]
   - FK: → objects (o1), → objects (o2)
   - **CRITICAL**: References non-lang columns of objects
 - `objects_objects_justification` - Link justification/description text
@@ -150,19 +161,24 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
 - `monuments_monuments_justification` - Link justification text
 
 ### Images/Media Support
+
 - `picture_type` - Image type lookup (e.g., small, thumb, large, detail, etc.)
 
 ### Utility/Generated Tables (DO NOT IMPORT)
+
 - `global_entities` - Unified search table populated by triggers from objects/monuments/monument_details
 - `global_*` - Other global tables
 - **REASON**: Redundant data, fed by triggers, no additional information
 
 ### Legacy/Backup Tables (IGNORE)
+
 - `old_*` - Old versions of tables
 - `*_bkp`, `*_backup` - Backup tables
 
 ### Domain-Specific Tables (200+ tables)
+
 Numerous tables for specific features:
+
 - `act_*` - Activities module
 - `arch_*` - Architecture/Press archives
 - `artintro_*` - Art introduction module
@@ -182,6 +198,7 @@ Numerous tables for specific features:
 ### Critical Tables with Data (Confirmed)
 
 Based on schema structure and FK requirements, these tables MUST have data:
+
 - `projects`, `projectnames`
 - `museums`, `museumnames`, `museums_pictures`
 - `institutions`, `institutionnames`, `institutions_pictures`
@@ -194,6 +211,7 @@ Based on schema structure and FK requirements, these tables MUST have data:
 - `countries`, `langs`
 
 ### Analysis Required
+
 - Count INSERT statements in data files for each table
 - Identify empty or minimal tables to skip
 - **ACTION**: Create script to parse data files and generate statistics
@@ -205,27 +223,33 @@ Based on schema structure and FK requirements, these tables MUST have data:
 ### PK Patterns Identified
 
 #### Simple PKs
+
 - `projects`: `project_id` (varchar(10))
 - `authors`: `author_id` (int auto-increment)
 - `dynasties`: `dynasty_id` (int auto-increment)
 
 #### Composite PKs (2 columns)
+
 - `museums`: `museum_id`, `country`
 - `institutions`: `institution_id`, `country`
 - `projectnames`: `project_id`, `lang`
 
-#### Composite PKs (3 columns)  
+#### Composite PKs (3 columns)
+
 - `museumnames`: `museum_id`, `country`, `lang`
 - `institutionnames`: `institution_id`, `country`, `lang`
 
 #### Denormalized PKs (5 columns - LANGUAGE IN PK)
+
 - `objects`: `project_id`, `country`, `museum_id`, `number`, **`lang`**
 - `monuments`: `project_id`, `country`, `institution_id`, `number`, **`lang`**
 
 #### Denormalized PKs (6 columns - LANGUAGE + DETAIL)
+
 - `monument_details`: `project_id`, `country_id`, `institution_id`, `monument_id`, **`lang_id`**, `detail_id`
 
 #### Image PKs (7 columns)
+
 - `objects_pictures`: `project_id`, `country`, `museum_id`, `number`, `lang`, `type`, `image_number`
 - `monuments_pictures`: `project_id`, `country`, `institution_id`, `number`, `lang`, `type`, `image_number`
 - `monument_detail_pictures`: Similar 7-column structure
@@ -233,29 +257,34 @@ Based on schema structure and FK requirements, these tables MUST have data:
 ### FK Columns in PK
 
 **Objects Table**:
+
 - `project_id` → FK to projects (also in PK)
 - `country` → FK to countries (also in PK)
 - `museum_id`, `country` → FK to museums (also in PK)
 - `lang` → FK to langs (also in PK)
 
 **Monuments Table**:
+
 - `project_id` → FK to projects (also in PK)
 - `country` → FK to institutions (also in PK)
 - `institution_id`, `country` → FK to institutions (also in PK)
 - `lang` → FK to langs (also in PK)
 
 **Monument Details Table**:
+
 - ALL FK columns are in PK → FK to monuments (`project_id`, `country_id`, `institution_id`, `monument_id`, `lang_id`)
 
 ### Denormalization Impact
 
 **Objects/Monuments**: One logical item = Multiple rows (one per language)
+
 - Must GROUP BY: `project_id`, `country`, `museum_id`/`institution_id`, `number`
 - Create ONE Item record in new model
 - Create MULTIPLE ItemTranslation records (one per language row)
 - backward_compatibility: `mwnf3:objects:{project_id}:{country}:{museum_id}:{number}` (NO lang!)
 
 **Monument Details**: Same pattern but with parent relationship
+
 - Group by non-lang columns
 - parent_id points to monument Item UUID (resolved via backward_compatibility)
 
@@ -266,10 +295,12 @@ Based on schema structure and FK requirements, these tables MUST have data:
 ### Legacy Structure
 
 **Table**: `projects`
+
 - PK: `project_id` (varchar(10))
 - Fields: name, launchdate
 
 **Table**: `projectnames`
+
 - PK: `project_id`, `lang`
 - FK: → projects, → langs
 - Fields: name
@@ -299,6 +330,7 @@ Based on schema structure and FK requirements, these tables MUST have data:
    - name: From projectnames.name (same as Context)
 
 ### Import Dependencies
+
 - AFTER: Country, Language (already seeded)
 - BEFORE: Items (items reference projects via context/collection)
 
@@ -309,12 +341,14 @@ Based on schema structure and FK requirements, these tables MUST have data:
 ### Legacy Structure
 
 **Museums**:
+
 - Master: `museums` (PK: museum_id, country)
 - Translations: `museumnames` (PK: museum_id, country, lang)
 - Images: `museums_pictures`
 - Also: `associated_museums`
 
 **Institutions**:
+
 - Master: `institutions` (PK: institution_id, country)
 - Translations: `institutionnames` (PK: institution_id, country, lang)
 - Images: `institutions_pictures`
@@ -353,11 +387,13 @@ Based on schema structure and FK requirements, these tables MUST have data:
    - backward_compatibility: `mwnf3:museums_pictures:{museum_id}:{country}:{image_number}`
 
 ### Special Considerations
+
 - `museums.mon_*` fields: Reference to a monument (optional) - may indicate museum building itself
 - `museums.con_museum_id`: Reference to another museum (parent/related museum)
 - Handle contact person data (2 sets of cp1/cp2 fields)
 
 ### Import Dependencies
+
 - AFTER: Country, Language, Projects (museums FK to projects)
 - BEFORE: Items (items reference partners)
 
@@ -368,16 +404,19 @@ Based on schema structure and FK requirements, these tables MUST have data:
 ### Legacy Structure
 
 **Objects**: Denormalized with language in PK
+
 - Table: `objects`
 - PK: `project_id`, `country`, `museum_id`, `number`, `lang`
 - One logical object = Multiple rows (one per language)
 
 **Monuments**: Denormalized with language in PK
+
 - Table: `monuments`
 - PK: `project_id`, `country`, `institution_id`, `number`, `lang`
 - One logical monument = Multiple rows (one per language)
 
 **Monument Details**: Denormalized, child of monuments
+
 - Table: `monument_details`
 - PK: `project_id`, `country_id`, `institution_id`, `monument_id`, `lang_id`, `detail_id`
 - One logical detail = Multiple rows (one per language)
@@ -418,6 +457,7 @@ Based on schema structure and FK requirements, these tables MUST have data:
    - `linkmonuments` → Parse semicolon-separated references → ItemItemLink
 
 **Monuments → Item**:
+
 - Same pattern as objects
 - type: 'monument'
 - Partner from institution_id instead of museum_id
@@ -425,6 +465,7 @@ Based on schema structure and FK requirements, these tables MUST have data:
 - Additional fields: address, phone, fax, email, institution, patrons, architects, history, external_sources
 
 **Monument Details → Item**:
+
 - Same grouping pattern
 - type: 'detail'
 - **parent_id**: Resolved from monument (project_id, country_id, institution_id, monument_id) → Item UUID
@@ -432,10 +473,12 @@ Based on schema structure and FK requirements, these tables MUST have data:
 - Simpler fields: name, description, location, date, artist
 
 ### Import Dependencies
+
 - AFTER: Country, Language, Contexts, Collections, Partners
 - BEFORE: Images, Tags, Authors, ItemItemLinks (tags/authors/links reference items)
 
 ### Critical Notes
+
 - **inventory_id**: Important field to preserve (objects.inventory_id)
 - **working_number**: Often used as display identifier
 - **CASCADE DELETE**: monument_details has CASCADE DELETE on FK to monuments - be careful with data integrity
@@ -447,25 +490,30 @@ Based on schema structure and FK requirements, these tables MUST have data:
 ### Legacy Structure
 
 **Objects Images**:
+
 - Table: `objects_pictures`
 - PK: `project_id`, `country`, `museum_id`, `number`, `lang`, `type`, `image_number`
 - FK: → objects (all lang-dependent!)
 - Fields: path, thumb (blob), caption, photographer, copyright, lastupdate
 
 **Monument Images**:
+
 - Table: `monuments_pictures`
 - Similar structure
 
 **Monument Detail Images**:
+
 - Table: `monument_detail_pictures`
 - Similar structure
 
 **Partner Images**:
+
 - Tables: `museums_pictures`, `institutions_pictures`
 
 ### Image Path Pattern
 
 Legacy paths are **relative**, examples:
+
 - `pictures/objects/vm/ma/louvre/obj_001/small/image_01.jpg`
 - `pictures/monuments/vm/tn/tunis_inst/mon_042/detail/image_03.jpg`
 
@@ -473,6 +521,7 @@ Legacy paths are **relative**, examples:
 **Cached/resized location**: `\\virtual-office.museumwnf.org\C$\mwnf-server\pictures\cache\{FORMAT}\`
 
 **Formats in `type` field**:
+
 - small, thumb, large, detail, hero, gallery, etc.
 
 ### Mapping Strategy
@@ -503,11 +552,13 @@ Legacy paths are **relative**, examples:
 ### Image Import Scope
 
 **RECOMMENDATION**: Limit initial import for validation
+
 - Import only first 100-500 images from each table
 - Validate process works correctly
 - Expand to full import once validated
 
 ### Import Dependencies
+
 - AFTER: Items, Partners (images link to them)
 - File system access required to network share
 
@@ -518,6 +569,7 @@ Legacy paths are **relative**, examples:
 ### Authors
 
 **Legacy Structure**:
+
 - Table: `authors` (PK: author_id auto-increment)
   - Fields: lastname, givenname, firstname, originalname
   - UNIQUE: (lastname, givenname, firstname)
@@ -549,6 +601,7 @@ Legacy paths are **relative**, examples:
 ### Tags (Dynasties)
 
 **Legacy Structure**:
+
 - Table: `dynasties` (PK: dynasty_id auto-increment)
   - FK: → projects
   - UNIQUE: (project_id, name)
@@ -579,12 +632,14 @@ Legacy paths are **relative**, examples:
 **Pattern in legacy**: `"Dynasty 1;Dynasty 2;Dynasty 3"` or `"1;5;12"` (IDs)
 
 **Strategy**:
+
 - Split on semicolon
 - Trim whitespace
 - Match to dynasty records (by ID or name)
 - Create individual Tag relationships
 
 ### Import Dependencies
+
 - **Authors**: AFTER Items created (relationships need Item UUIDs)
 - **Tags**: AFTER Items created, can be parallel with Authors
 
@@ -595,20 +650,24 @@ Legacy paths are **relative**, examples:
 ### Legacy Structure
 
 **Object-to-Object Links**:
+
 - Table: `objects_objects`
 - PK: id (auto-increment)
 - UNIQUE: (o1_project_id, o1_country_id, o1_museum_id, o1_number, o2_project_id, o2_country_id, o2_museum_id, o2_number)
 - FK: → objects (o1 columns), → objects (o2 columns) - **REFERENCES NON-LANG COLUMNS**
 
 **Object-to-Monument Links**:
+
 - Table: `objects_monuments`
 - Similar structure linking objects to monuments
 
 **Monument-to-Monument Links**:
+
 - Table: `monuments_monuments`
 - Similar structure
 
 **Link Justifications**:
+
 - Tables: `objects_objects_justification`, `objects_monuments_justification`, `monuments_monuments_justification`
 - Contain text explaining why items are linked
 
@@ -637,16 +696,19 @@ Legacy paths are **relative**, examples:
 ### Text Field Links
 
 Objects and monuments also have:
+
 - `linkobjects` text field - semicolon-separated object references
 - `linkmonuments` text field - semicolon-separated monument references
 
 **Strategy**:
+
 - Parse semicolon-separated values
 - Attempt to resolve to Item UUIDs
 - Create ItemItemLink records
 - May have less structured data than relationship tables
 
 ### Import Dependencies
+
 - AFTER: ALL Items imported (needs both source and target UUIDs)
 - LAST import step for items (references complete item set)
 
@@ -702,63 +764,54 @@ Objects and monuments also have:
 ### Execution Order
 
 **Phase 1: Foundation** (no inter-dependencies)
+
 1. Import Authors (definitions)
 2. Import Projects → Contexts + Collections
 3. Import Tags/Dynasties (definitions)
 
-**Phase 2: Partners**
-4. Import Museums → Partners
-5. Import Institutions → Partners
-6. Import Associated Museums/Institutions → Partners
+**Phase 2: Partners** 4. Import Museums → Partners 5. Import Institutions → Partners 6. Import Associated Museums/Institutions → Partners
 
-**Phase 3: Items** (largest phase)
-7. Import Objects → Items + ItemTranslations
-8. Import Monuments → Items + ItemTranslations
-9. Import Monument Details → Items + ItemTranslations (with parent_id)
+**Phase 3: Items** (largest phase) 7. Import Objects → Items + ItemTranslations 8. Import Monuments → Items + ItemTranslations 9. Import Monument Details → Items + ItemTranslations (with parent_id)
 
-**Phase 4: Media**
-10. Import Object Images
-11. Import Monument Images
-12. Import Monument Detail Images
-13. Import Partner Images
+**Phase 4: Media** 10. Import Object Images 11. Import Monument Images 12. Import Monument Detail Images 13. Import Partner Images
 
-**Phase 5: Relationships**
-14. Import Author-Item relationships (from authors_objects, authors_monuments)
-15. Import Tag-Item relationships (from objects_dynasties, monuments_dynasties)
-16. Parse text fields (dynasty, preparedby, etc.) → Additional relationships
+**Phase 5: Relationships** 14. Import Author-Item relationships (from authors_objects, authors_monuments) 15. Import Tag-Item relationships (from objects_dynasties, monuments_dynasties) 16. Parse text fields (dynasty, preparedby, etc.) → Additional relationships
 
-**Phase 6: Item Links**
-17. Import Object-Object links
-18. Import Object-Monument links
-19. Import Monument-Monument links
-20. Parse text fields (linkobjects, linkmonuments) → Additional links
+**Phase 6: Item Links** 17. Import Object-Object links 18. Import Object-Monument links 19. Import Monument-Monument links 20. Parse text fields (linkobjects, linkmonuments) → Additional links
 
 ### backward_compatibility Format Standards
 
 **Projects**:
+
 - Context: `mwnf3:projects:{project_id}`
 - Collection: `mwnf3:projects:{project_id}:collection`
 
 **Partners**:
+
 - Museum: `mwnf3:museums:{museum_id}:{country}`
 - Institution: `mwnf3:institutions:{institution_id}:{country}`
 
 **Items** (CRITICAL - NO LANGUAGE):
+
 - Object: `mwnf3:objects:{project_id}:{country}:{museum_id}:{number}`
 - Monument: `mwnf3:monuments:{project_id}:{country}:{institution_id}:{number}`
 - Detail: `mwnf3:monument_details:{project_id}:{country}:{institution_id}:{monument_id}:{detail_id}`
 
 **Images** (CRITICAL - NO LANGUAGE, NO TYPE):
+
 - Object Image: `mwnf3:objects_pictures:{project_id}:{country}:{museum_id}:{number}:{image_number}`
 - Monument Image: `mwnf3:monuments_pictures:{project_id}:{country}:{institution_id}:{number}:{image_number}`
 
 **Authors**:
+
 - Author: `mwnf3:authors:{author_id}`
 
 **Tags**:
+
 - Dynasty: `mwnf3:dynasties:{dynasty_id}`
 
 **Item Links**:
+
 - Link: `mwnf3:objects_objects:{id}` (or `objects_monuments`, `monuments_monuments`)
 
 ### Language Code Mapping
@@ -767,6 +820,7 @@ Objects and monuments also have:
 **New Model**: 3-character ISO codes (e.g., `eng`, `fra`, `ara`)
 
 **Mapping Required**:
+
 - Create lookup table for common codes
 - Handle special cases
 - Reference: ISO 639-2/T standard
@@ -789,6 +843,7 @@ Objects and monuments also have:
 ### Phase 1 Complete
 
 This analysis provides:
+
 - Complete understanding of mwnf3 schema structure (759 tables)
 - Detailed mapping for all core entities
 - Identification of denormalization patterns
@@ -798,6 +853,7 @@ This analysis provides:
 ### Ready for Implementation
 
 Can now proceed to:
+
 - **Phase 2**: Analyze sharing_history and thematic_gallery schemas
 - **Phase 3**: Analyze travel and explore schemas
 - **Phase 5**: Create master mapping document
@@ -810,7 +866,7 @@ Can now proceed to:
 3. **Text-based relationships**: Semicolon-separated values in dynasty, link fields
 4. **Author types**: Four distinct author roles in typed relationships
 5. **Image deduplication**: Same image with multiple formats - import original only
-6. **Utility tables**: Skip global_entities and global_* (redundant data from triggers)
+6. **Utility tables**: Skip global*entities and global*\* (redundant data from triggers)
 7. **Complex FK web**: Extensive relationships between all core entities
 8. **Parent-child items**: Monument details have parent_id to monuments
 

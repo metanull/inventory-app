@@ -1,6 +1,6 @@
 import { BaseImporter, ImportResult } from '../BaseImporter.js';
 import { BackwardCompatibilityFormatter } from '../../utils/BackwardCompatibilityFormatter.js';
-import { mapLanguageCode } from '../../utils/CodeMappings.js';
+import { mapLanguageCode, mapCountryCode } from '../../utils/CodeMappings.js';
 
 interface LegacyCountryName {
   country: string;
@@ -86,16 +86,24 @@ export class CountryTranslationImporter extends BaseImporter {
       return false;
     }
 
-    if (this.context.dryRun) {
+    // Collect sample for testing (BEFORE API calls)
+    const countryId = mapCountryCode(countryName.country);
+    const languageId = mapLanguageCode(countryName.lang);
+    this.collectSample('country_translation', countryName, 'success', undefined, languageId);
+
+    if (this.context.dryRun || this.isSampleOnlyMode) {
       this.logInfo(
-        `[DRY-RUN] Would import country translation: ${countryName.country}:${countryName.lang}`
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import country translation: ${countryName.country}:${countryName.lang}`
       );
+
+      if (this.isSampleOnlyMode) {
+        this.context.tracker.register({
+          uuid: `${countryId}:${languageId}`,
+          backwardCompatibility: backwardCompat,
+        });
+      }
       return true;
     }
-
-    // Map 2-character country code to 3-character code
-    const countryId = this.mapCountryCode(countryName.country);
-    const languageId = mapLanguageCode(countryName.lang);
 
     try {
       await this.context.apiClient.countryTranslation.countryTranslationStore({
