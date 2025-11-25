@@ -76,10 +76,10 @@ describe('ProjectImporter - Data Transformation', () => {
       expect(apiData).toHaveProperty('internal_name');
       expect(apiData).toHaveProperty('backward_compatibility');
       
-      // internal_name should be project_id
-      expect(apiData.internal_name).toBe(sample.project_id);
+      // internal_name should be project.name (human-readable)
+      expect(apiData.internal_name).toBe(sample.name);
       
-      // backward_compatibility format
+      // backward_compatibility format (uses project_id)
       expect(apiData.backward_compatibility).toBe(`mwnf3:projects:${sample.project_id}`);
     });
   });
