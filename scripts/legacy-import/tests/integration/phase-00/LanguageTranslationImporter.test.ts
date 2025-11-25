@@ -5,8 +5,8 @@ import { BackwardCompatibilityTracker } from '../../../src/utils/BackwardCompati
 import { mapLanguageCode } from '../../../src/utils/CodeMappings.js';
 
 interface LanguageTranslationSample {
-  lang_id: string;  // Language being translated
-  lang: string;     // Display language (language of the translation)
+  lang_id: string; // Language being translated
+  lang: string; // Display language (language of the translation)
   name: string;
 }
 
@@ -26,8 +26,10 @@ describe('LanguageTranslationImporter - Data Transformation', () => {
   });
 
   it('should transform each sample correctly', async () => {
-    const samples = helper.loadSamples<LanguageTranslationSample>('language_translation', { limit: 20 });
-    
+    const samples = helper.loadSamples<LanguageTranslationSample>('language_translation', {
+      limit: 20,
+    });
+
     if (samples.length === 0) {
       console.log('⚠️  No language translation samples');
       return;
@@ -36,29 +38,32 @@ describe('LanguageTranslationImporter - Data Transformation', () => {
     const tracker = new BackwardCompatibilityTracker();
     const mockContext = helper.createMockContextWithQueries([samples]);
     mockContext.tracker = tracker;
-    
+
     const importer = new LanguageTranslationImporter(mockContext);
     await importer.import();
 
-    const calls = helper.getApiCalls(mockContext.apiClient, 'languageTranslation.languageTranslationStore');
+    const calls = helper.getApiCalls(
+      mockContext.apiClient,
+      'languageTranslation.languageTranslationStore'
+    );
     expect(calls.length).toBe(samples.length);
 
     samples.forEach((sample, i) => {
       const call = calls[i];
       if (!call) throw new Error(`Missing call for sample ${i}`);
-      
+
       const apiData = call[0] as Record<string, unknown>;
-      
+
       // Required fields
       expect(apiData).toHaveProperty('language_id');
       expect(apiData).toHaveProperty('display_language_id');
       expect(apiData).toHaveProperty('name');
       expect(apiData).toHaveProperty('backward_compatibility');
-      
+
       // Code mappings
       const expectedLangId = mapLanguageCode(sample.lang_id);
       const expectedDisplayLangId = mapLanguageCode(sample.lang);
-      
+
       expect(apiData.language_id).toBe(expectedLangId);
       expect(apiData.display_language_id).toBe(expectedDisplayLangId);
       expect(apiData.name).toBe(sample.name);
@@ -66,12 +71,14 @@ describe('LanguageTranslationImporter - Data Transformation', () => {
   });
 
   it('should map all language codes to ISO 639-3', () => {
-    const samples = helper.loadSamples<LanguageTranslationSample>('language_translation', { limit: 20 });
-    
+    const samples = helper.loadSamples<LanguageTranslationSample>('language_translation', {
+      limit: 20,
+    });
+
     samples.forEach((sample) => {
       const langId = mapLanguageCode(sample.lang_id);
       const displayLangId = mapLanguageCode(sample.lang);
-      
+
       expect(langId.length).toBe(3);
       expect(displayLangId.length).toBe(3);
       expect(langId).toMatch(/^[a-z]{3}$/);

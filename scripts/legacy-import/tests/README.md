@@ -19,12 +19,12 @@ Samples are collected during actual import runs using the `SampleCollector` util
 ```typescript
 // Collect diverse samples during import
 collectSample(
-  'object',                    // Entity type
-  legacyRecord,                // Raw legacy data (all fields preserved)
-  'success',                   // Reason: 'success', 'warning', 'edge'
-  'missing_name',              // Optional detail
-  'eng',                       // Language if applicable
-  'mwnf3'                      // Source database
+  'object', // Entity type
+  legacyRecord, // Raw legacy data (all fields preserved)
+  'success', // Reason: 'success', 'warning', 'edge'
+  'missing_name', // Optional detail
+  'eng', // Language if applicable
+  'mwnf3' // Source database
 );
 ```
 
@@ -76,7 +76,10 @@ const helper = new SampleBasedTestHelper();
 
 // Load samples with filtering
 const successSamples = helper.loadSamples('object', { reason: 'success', limit: 20 });
-const warningSamples = helper.loadSamples('object', { reason: 'warning', warningType: 'missing_name' });
+const warningSamples = helper.loadSamples('object', {
+  reason: 'warning',
+  warningType: 'missing_name',
+});
 const frenchSamples = helper.loadSamples('object', { language: 'fra', limit: 10 });
 
 // Create mock context with sample data

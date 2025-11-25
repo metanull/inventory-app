@@ -7,6 +7,7 @@ We have successfully implemented a comprehensive **sample-based testing framewor
 ## Created Files
 
 ### 1. Test Framework (`tests/helpers/`)
+
 - **`SampleBasedTestHelper.ts`** - Core utility class for sample-based testing
   - Load samples with filtering (success, warnings, edge cases)
   - Create mock contexts with sample data
@@ -15,6 +16,7 @@ We have successfully implemented a comprehensive **sample-based testing framewor
   - Track backward compatibility registrations
 
 ### 2. Phase 0 Tests (`tests/integration/phase-00/`)
+
 Foundation data importers (dependencies for everything else):
 
 - **`LanguageImporter.samples.test.ts`** - Tests for importing languages
@@ -23,6 +25,7 @@ Foundation data importers (dependencies for everything else):
 - **`CountryTranslationImporter.samples.test.ts`** - Tests for country translations
 
 ### 3. Phase 1 Tests (`tests/integration/phase-01/`)
+
 Core entity importers:
 
 - **`ProjectImporter.samples.test.ts`** - Tests for projects and contexts
@@ -30,16 +33,19 @@ Core entity importers:
 - **`MonumentImporter.samples.test.ts`** - **Critical**: Tests for denormalized monuments with multi-language support
 
 ### 4. Documentation
+
 - **`tests/README.md`** - Comprehensive testing guide with examples and patterns
 
 ## Key Features
 
 ### Fast Feedback Loop
+
 - **Before**: Full import = 4-6 hours
 - **After**: Sample-based tests = 5-10 seconds
 - **Result**: Can now iterate and test changes rapidly
 
 ### Real Data Testing
+
 - Tests use **actual legacy data** collected during imports
 - Includes **real edge cases** and **data quality issues**
 - Covers **all languages** and diverse scenarios
@@ -47,24 +53,28 @@ Core entity importers:
 ### Comprehensive Coverage
 
 #### Success Cases
+
 ✅ Normal, valid records
 ✅ Proper structure validation
 ✅ Backward compatibility tracking
 ✅ API call verification
 
 #### Data Quality Issues
+
 ✅ Missing names → fallback logic
 ✅ Missing descriptions → default values
 ✅ Non-standard ISO codes → code mapping
 ✅ Edge cases (long fields, special characters)
 
 #### Denormalized Data Handling
+
 ✅ Objects: Multiple language rows → grouped correctly
 ✅ Monuments: Multiple language rows → grouped correctly
 ✅ One Item per group, one ItemTranslation per language
 ✅ Proper PK grouping validation
 
 #### Language Code Mapping
+
 ✅ 2-letter to 3-letter ISO 639 codes
 ✅ Non-standard legacy codes
 ✅ Special cases (Chinese, Czech, etc.)
@@ -72,30 +82,32 @@ Core entity importers:
 ### Testing Patterns
 
 #### Basic Import Test
+
 ```typescript
 it('should import samples successfully', async () => {
   const mockContext = helper.createMockContext('object', 10);
   const importer = new ObjectImporter(mockContext);
   const result = await importer.import();
-  
+
   expect(result.success).toBe(true);
   expect(result.imported).toBeGreaterThan(0);
 });
 ```
 
 #### Data Quality Test
+
 ```typescript
 it('should handle missing names with fallbacks', async () => {
-  const missingSamples = helper.loadSamples('object', { 
-    reason: 'warning', 
-    warningType: 'missing_name' 
+  const missingSamples = helper.loadSamples('object', {
+    reason: 'warning',
+    warningType: 'missing_name',
   });
-  
+
   if (missingSamples.length > 0) {
     const mockContext = helper.createMockContextWithQueries([missingSamples]);
     const importer = new ObjectImporter(mockContext);
     const result = await importer.import();
-    
+
     expect(result.success).toBe(true);
     expect(result.warnings?.length).toBeGreaterThan(0);
   }
@@ -103,10 +115,11 @@ it('should handle missing names with fallbacks', async () => {
 ```
 
 #### Denormalized Data Test
+
 ```typescript
 it('should correctly group denormalized objects by language', async () => {
   const samples = helper.loadSamples('object', 20);
-  
+
   // Group by non-lang PK columns
   const groups = new Map();
   samples.forEach((obj) => {
@@ -114,15 +127,18 @@ it('should correctly group denormalized objects by language', async () => {
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(obj);
   });
-  
+
   const mockContext = helper.createMockContextWithQueries([samples]);
   const importer = new ObjectImporter(mockContext);
   await importer.import();
 
   // One Item per group, one Translation per sample
   const itemCalls = helper.getApiCalls(mockContext.apiClient, 'item.itemStore');
-  const translationCalls = helper.getApiCalls(mockContext.apiClient, 'itemTranslation.itemTranslationStore');
-  
+  const translationCalls = helper.getApiCalls(
+    mockContext.apiClient,
+    'itemTranslation.itemTranslationStore'
+  );
+
   expect(itemCalls.length).toBe(groups.size);
   expect(translationCalls.length).toBe(samples.length);
 });
@@ -131,19 +147,21 @@ it('should correctly group denormalized objects by language', async () => {
 ## How It Works
 
 ### 1. Sample Collection (During Import)
+
 ```typescript
 // In importer code
 this.sampleCollector.collectSample(
-  'object',                    // Entity type
-  legacyRecord,                // Raw data (all fields)
-  'success',                   // Reason
-  undefined,                   // Optional detail
-  languageCode,                // Language if applicable
-  'mwnf3'                      // Source database
+  'object', // Entity type
+  legacyRecord, // Raw data (all fields)
+  'success', // Reason
+  undefined, // Optional detail
+  languageCode, // Language if applicable
+  'mwnf3' // Source database
 );
 ```
 
 ### 2. Sample Storage
+
 - Stored in `test-fixtures/samples.sqlite`
 - Single universal table for all entity types
 - Complete raw JSON data preserved
@@ -151,6 +169,7 @@ this.sampleCollector.collectSample(
 - Version controlled in repository
 
 ### 3. Test Execution
+
 ```typescript
 // In test
 const helper = new SampleBasedTestHelper();
@@ -184,12 +203,14 @@ npm test -- --watch
 ## Next Steps
 
 ### Immediate Actions
+
 1. **Run the tests** to verify they work with your collected samples
 2. **Review test output** to identify any failing tests or data issues
 3. **Fix any issues** discovered by the tests in the importer code
 4. **Add more tests** as new edge cases are discovered
 
 ### Testing Workflow
+
 1. **Collect samples** during import: `npm run import -- --collect-samples`
 2. **Write/update tests** using the samples
 3. **Fix importer issues** based on test failures
@@ -197,6 +218,7 @@ npm test -- --watch
 5. **Full import** when ready for final validation
 
 ### Future Enhancements
+
 - Add tests for Phase 2 (SH/THG schemas)
 - Add tests for Phase 3 (Travel/Explore)
 - Add tests for Phase 4 (remaining schemas)
@@ -206,17 +228,20 @@ npm test -- --watch
 ## Benefits Achieved
 
 ### Development Speed
+
 - ✅ **Rapid iteration**: Fix and test in seconds
 - ✅ **TDD workflow**: Write tests first, then implement
 - ✅ **Continuous validation**: Run on every commit
 
 ### Quality Assurance
+
 - ✅ **Real data**: Tests against actual production patterns
 - ✅ **Comprehensive**: Success, warnings, edge cases
 - ✅ **Regression prevention**: Catch breaks immediately
 - ✅ **Deterministic**: Same results every time
 
 ### Maintainability
+
 - ✅ **Self-documenting**: Tests show expected behavior
 - ✅ **Refactoring safety**: Tests catch breaking changes
 - ✅ **Knowledge capture**: Edge cases documented in tests
@@ -226,6 +251,7 @@ npm test -- --watch
 Both importers have **denormalized tables** with language in the primary key:
 
 ### Validation Points
+
 ✅ **Grouping**: Multiple language rows correctly grouped
 ✅ **Creation**: One Item per group, one Translation per language row
 ✅ **Backward Compatibility**: Format doesn't include language
@@ -235,6 +261,7 @@ Both importers have **denormalized tables** with language in the primary key:
 ✅ **Dependencies**: Partners (museums/institutions) properly linked
 
 ### Test Coverage
+
 - Success cases with diverse samples
 - Data quality issues (missing fields)
 - Edge cases (long fields, special characters)

@@ -182,8 +182,11 @@ describe('PartnerImporter', () => {
       const result = await importer.import();
 
       console.log('Import result:', result);
-      console.log('Partner store calls:', vi.mocked(mockContext.apiClient.partner.partnerStore).mock.calls.length);
-      
+      console.log(
+        'Partner store calls:',
+        vi.mocked(mockContext.apiClient.partner.partnerStore).mock.calls.length
+      );
+
       // Must import exactly 5: 2 museums + 3 institutions
       expect(result.imported).toBe(5);
       expect(result.skipped).toBe(0);

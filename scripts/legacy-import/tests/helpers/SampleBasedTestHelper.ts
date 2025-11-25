@@ -15,8 +15,7 @@ export class SampleBasedTestHelper {
 
   constructor(sampleDbPath?: string) {
     this.sampleDbPath =
-      sampleDbPath ||
-      path.resolve(__dirname, '../../test-fixtures/samples.sqlite');
+      sampleDbPath || path.resolve(__dirname, '../../test-fixtures/samples.sqlite');
     this.reader = new SampleReader(this.sampleDbPath);
     this.tracker = new BackwardCompatibilityTracker();
   }
@@ -263,11 +262,7 @@ export class SampleBasedTestHelper {
    * @param endpoint Endpoint to check (e.g., 'item.itemStore')
    * @param expectedCalls Number of expected calls
    */
-  verifyApiCalls(
-    mockApiClient: unknown,
-    endpoint: string,
-    expectedCalls: number
-  ): void {
+  verifyApiCalls(mockApiClient: unknown, endpoint: string, expectedCalls: number): void {
     const parts = endpoint.split('.');
     if (parts.length !== 2) return;
     const [service, method] = parts;

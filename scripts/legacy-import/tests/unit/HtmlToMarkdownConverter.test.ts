@@ -13,10 +13,10 @@ describe('HtmlToMarkdownConverter', () => {
       expect(result1).toContain('Line 1');
       expect(result1).toContain('Line 2');
       expect(result1).not.toContain('<br');
-      
+
       const result2 = convertHtmlToMarkdown('Line 1<br>Line 2');
       expect(result2).not.toContain('<br');
-      
+
       const result3 = convertHtmlToMarkdown('Line 1<br />Line 2');
       expect(result3).not.toContain('<br');
     });
@@ -26,16 +26,22 @@ describe('HtmlToMarkdownConverter', () => {
     });
 
     it('should convert <em> tags to *italic*', () => {
-      expect(convertHtmlToMarkdown('This is <em>emphasized</em> text')).toBe('This is *emphasized* text');
+      expect(convertHtmlToMarkdown('This is <em>emphasized</em> text')).toBe(
+        'This is *emphasized* text'
+      );
     });
 
     it('should convert <b> and <strong> tags to **bold**', () => {
       expect(convertHtmlToMarkdown('This is <b>bold</b> text')).toBe('This is **bold** text');
-      expect(convertHtmlToMarkdown('This is <strong>strong</strong> text')).toBe('This is **strong** text');
+      expect(convertHtmlToMarkdown('This is <strong>strong</strong> text')).toBe(
+        'This is **strong** text'
+      );
     });
 
     it('should convert <p> tags to paragraphs', () => {
-      expect(convertHtmlToMarkdown('<p>Paragraph 1</p><p>Paragraph 2</p>')).toBe('Paragraph 1\n\nParagraph 2');
+      expect(convertHtmlToMarkdown('<p>Paragraph 1</p><p>Paragraph 2</p>')).toBe(
+        'Paragraph 1\n\nParagraph 2'
+      );
     });
 
     it('should convert <ul> and <li> to unordered lists', () => {
@@ -48,8 +54,9 @@ describe('HtmlToMarkdownConverter', () => {
     });
 
     it('should convert <a> tags to [text](url)', () => {
-      expect(convertHtmlToMarkdown('<a href="https://example.com">Link</a>'))
-        .toBe('[Link](https://example.com)');
+      expect(convertHtmlToMarkdown('<a href="https://example.com">Link</a>')).toBe(
+        '[Link](https://example.com)'
+      );
     });
 
     it('should handle mixed HTML tags', () => {
@@ -67,14 +74,14 @@ describe('HtmlToMarkdownConverter', () => {
       const html = `Polopostava ženy držící palmovou ratolest naznačuje, že jde o křesťanskou mučednici.<br/>
 Atributy kalich s hostií, meč a věž v pozadí ji určují jako sv. Barboru.<br/>
 Monochromní barevnost a osobitý rukopis upomínají na inspiraci holandskou a vlámskou malbou 17. století.<br/>`;
-      
+
       const result = convertHtmlToMarkdown(html);
-      
+
       // Turndown converts <br/> to "  \n" (hard line break in Markdown)
       const expected = `Polopostava ženy držící palmovou ratolest naznačuje, že jde o křesťanskou mučednici.  
 Atributy kalich s hostií, meč a věž v pozadí ji určují jako sv. Barboru.  
 Monochromní barevnost a osobitý rukopis upomínají na inspiraci holandskou a vlámskou malbou 17. století.`;
-      
+
       expect(result).toBe(expected);
     });
 
@@ -154,19 +161,20 @@ Monochromní barevnost a osobitý rukopis upomínají na inspiraci holandskou a 
     it('should convert description with mixed HTML tags', () => {
       const html = `یظهر اسم سلطان قایتبای، مالک اللوحة<br/>
 ، في المنبر الذي صنع للمسجد اثناء حکمه.<br/>`;
-      
+
       const result = convertHtmlToMarkdown(html);
       const expected = `یظهر اسم سلطان قایتبای، مالک اللوحة  
 ، في المنبر الذي صنع للمسجد اثناء حکمه.`;
-      
+
       expect(result).toBe(expected);
     });
 
     it('should convert bibliography with italic tags', () => {
-      const html = 'La iluminación de los tallos de hojas en espirales que decora este <i>tugra</i>';
+      const html =
+        'La iluminación de los tallos de hojas en espirales que decora este <i>tugra</i>';
       const result = convertHtmlToMarkdown(html);
       const expected = 'La iluminación de los tallos de hojas en espirales que decora este *tugra*';
-      
+
       expect(result).toBe(expected);
     });
   });

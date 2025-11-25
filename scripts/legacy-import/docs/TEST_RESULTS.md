@@ -11,10 +11,12 @@
 **IMPLEMENTED**: Robust HTML to Markdown conversion using Turndown library
 
 ### Fields Converted
+
 - **Objects**: `description`, `description2`, `bibliography`
 - **Monuments**: `description`, `description2`, `bibliography`
 
 ### Implementation
+
 - Uses Turndown library (proper HTML parser, not fragile regex)
 - Converts: `<br/>` → newline, `<i>` → `*italic*`, `<b>` → `**bold**`, etc.
 - Handles malformed HTML gracefully
@@ -27,6 +29,7 @@
 ### ✅ PASSING Tests (4/5)
 
 #### 1. **ObjectImporter** - ALL TESTS PASSING ✓
+
 - ✓ Correctly groups denormalized data (lang in PK)
 - ✓ Creates ONE Item per object (not per language row)
 - ✓ Creates ONE ItemTranslation per language row
@@ -37,8 +40,9 @@
 **Status**: Ready for full import
 
 #### 2. **MonumentImporter** - ALL TESTS PASSING ✓
+
 - ✓ Correctly groups denormalized data (lang in PK)
-- ✓ Creates ONE Item per monument (not per language row)  
+- ✓ Creates ONE Item per monument (not per language row)
 - ✓ Creates ONE ItemTranslation per language row
 - ✓ Transforms all fields correctly with type='monument'
 - ✓ backward_compatibility format correct
@@ -46,6 +50,7 @@
 **Status**: Ready for full import
 
 #### 3. **CountryTranslationImporter** - ALL TESTS PASSING ✓
+
 - ✓ Transforms all fields correctly
 - ✓ Maps non-standard country codes (ab, ag, bu, ch, etc.)
 - ✓ Maps 2-letter language codes to ISO 639-3
@@ -61,6 +66,7 @@
 
 **Test**: `should transform each sample correctly`  
 **Failure**:
+
 ```
 AssertionError: expected { language_id: 'ara', ... } to have property "translation_language_id"
 ```
@@ -68,6 +74,7 @@ AssertionError: expected { language_id: 'ara', ... } to have property "translati
 **Root Cause**: The importer is NOT including `translation_language_id` in the API call
 
 **Expected API call structure**:
+
 ```typescript
 {
   language_id: 'ara',              // ISO 639-3 code of language being translated
@@ -89,14 +96,17 @@ AssertionError: expected { language_id: 'ara', ... } to have property "translati
 
 **Test 1**: `should create Context, Collection, and Project for each project sample`  
 **Failure**:
+
 ```
 AssertionError: expected 0 to be 5
 ```
+
 - Expected: 5 collections created
 - Actual: 0 collections created
 
 **Test 2**: `should transform Context fields correctly`  
 **Failure**:
+
 ```
 AssertionError: expected 'Baroque Art' to be 'AMT'
 Expected: "AMT"    (project_id)
@@ -106,13 +116,16 @@ Received: "Baroque Art"  (project name)
 **Root Cause**: Importer is using `project.name` instead of `project.project_id` for Context `internal_name`
 
 **Expected behavior**:
+
 - Context.internal_name = project_id (e.g., "AMT")
 - Context name translations come separately
 
 **Actual behavior**:
+
 - Context.internal_name = project.name (e.g., "Baroque Art")
 
-**Impact**: 
+**Impact**:
+
 1. Context internal_name is not machine-readable identifier
 2. Collections not being created (likely related)
 3. Backward compatibility tracking may fail
@@ -123,17 +136,17 @@ Received: "Baroque Art"  (project name)
 
 ## Coverage Status
 
-| Importer | Test Status | Import Ready |
-|----------|-------------|--------------|
-| LanguageImporter | Not tested (reads from JSON, not DB) | ✓ |
-| LanguageTranslationImporter | ❌ FAILING | **NO - Bug found** |
-| CountryImporter | Not tested (reads from JSON, not DB) | ✓ |
-| CountryTranslationImporter | ✅ PASSING | ✓ Yes |
-| ProjectImporter | ❌ FAILING | **NO - Bug found** |
-| MuseumImporter | Not tested yet | Unknown |
-| InstitutionImporter | Not tested yet | Unknown |
-| ObjectImporter | ✅ PASSING | ✓ Yes |
-| MonumentImporter | ✅ PASSING | ✓ Yes |
+| Importer                    | Test Status                          | Import Ready       |
+| --------------------------- | ------------------------------------ | ------------------ |
+| LanguageImporter            | Not tested (reads from JSON, not DB) | ✓                  |
+| LanguageTranslationImporter | ❌ FAILING                           | **NO - Bug found** |
+| CountryImporter             | Not tested (reads from JSON, not DB) | ✓                  |
+| CountryTranslationImporter  | ✅ PASSING                           | ✓ Yes              |
+| ProjectImporter             | ❌ FAILING                           | **NO - Bug found** |
+| MuseumImporter              | Not tested yet                       | Unknown            |
+| InstitutionImporter         | Not tested yet                       | Unknown            |
+| ObjectImporter              | ✅ PASSING                           | ✓ Yes              |
+| MonumentImporter            | ✅ PASSING                           | ✓ Yes              |
 
 ---
 
