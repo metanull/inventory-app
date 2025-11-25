@@ -32,6 +32,23 @@ export class LoginHelper {
   }
 
   /**
+   * Get credentials from environment variables or prompt interactively
+   */
+  async getCredentials(): Promise<LoginCredentials> {
+    // Try to get from environment first
+    const email = process.env['API_EMAIL'];
+    const password = process.env['API_PASSWORD'];
+
+    if (email && password) {
+      console.log(`Using credentials from environment for: ${email}`);
+      return { email, password, deviceName: 'legacy-import-cli' };
+    }
+
+    // Fall back to interactive prompt
+    return await this.promptCredentials();
+  }
+
+  /**
    * Prompt user for credentials interactively
    */
   async promptCredentials(): Promise<LoginCredentials> {
@@ -156,7 +173,7 @@ export class LoginHelper {
     console.log(`\nLogin to Inventory Management API`);
     console.log(`API URL: ${this.baseUrl}\n`);
 
-    const credentials = await this.promptCredentials();
+    const credentials = await this.getCredentials();
     const token = await this.login(credentials);
     this.saveToken(token);
 
