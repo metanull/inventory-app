@@ -7,3 +7,4 @@ coverage/
 .vitest/
 analyze-*.js
 analyze-*.ts
+analyze*.ts

@@ -15,6 +15,37 @@ The import system is designed to **continue importing despite data quality issue
 
 ---
 
+## Country Translation Importer
+
+### Issue: Non-Standard Country Codes
+
+**Problem**: Legacy database uses custom 2-character country codes that don't match ISO 3166-1 alpha-2 standard  
+**Count**: 335 country translations with 79 unique country codes (35 non-standard)
+
+**Solution**: Complete mapping table in `CodeMappings.ts` covering ALL legacy codes
+
+**Examples of Non-Standard Codes**:
+
+- `ab` → Albania (standard: `al`)
+- `ag` → Argentina (standard: `ar`, but `ar` used for Armenia in legacy)
+- `bu` → Bulgaria (standard: `bg`, but `bg` used for Bangladesh in legacy)
+- `ch` → China (standard: `cn`)
+- `dn` → Denmark (standard: `dk`)
+- `ia` → Iran (standard: `ir`, but `ir` used for Ireland in legacy)
+- `ix` → Italy (Sicily) - special regional code
+- `pd` → Public domain (special: no specific country)
+- `ww` → Other/Worldwide (special: no specific country)
+
+**Special Cases**:
+
+- `pd` (Public domain): Mapped to `zzzpd` to indicate special non-country entity
+- `ww` (Worldwide/Other): Mapped to `zzzww` for filtering/reporting purposes
+- `ix` (Italy/Sicily): Mapped to `ita` (Italy) as it's a regional variant
+
+**Result**: All 335 country translations now import successfully with proper ISO 3166-1 alpha-3 codes
+
+---
+
 ## Institution Importer
 
 ### Issue: Missing `internal_name`
