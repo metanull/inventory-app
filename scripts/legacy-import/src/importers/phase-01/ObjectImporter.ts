@@ -562,13 +562,25 @@ export class ObjectImporter extends BaseImporter {
               createdAt: new Date(),
             });
           } catch (error) {
-            // 422 means tag already exists - our lookup missed it (pagination issue)
-            // Try one more exhaustive search
+            // Both 422 and 500 with unique constraint error mean tag already exists
+            // Our lookup missed it (pagination issue or backward_compatibility mismatch)
             if (error && typeof error === 'object' && 'response' in error) {
-              const axiosError = error as { response?: { status?: number } };
-              if (axiosError.response?.status === 422) {
-                // Do exhaustive search with higher page limit
+              const axiosError = error as { response?: { status?: number; data?: any } };
+              const is422 = axiosError.response?.status === 422;
+              const is500Duplicate = 
+                axiosError.response?.status === 500 && 
+                axiosError.response?.data?.message?.includes('Duplicate entry') &&
+                axiosError.response?.data?.message?.includes('tags_name_category_lang_unique');
+              
+              if (is422 || is500Duplicate) {
+                // Tag exists - do exhaustive search by backward_compatibility
                 tagId = await this.findExistingTagByBackwardCompat(backwardCompat, 200);
+                
+                if (!tagId) {
+                  // Still not found by backward_compatibility - try searching by actual fields
+                  tagId = await this.findExistingTagByFields(tagName, category, languageId);
+                }
+                
                 if (tagId) {
                   // Found it! Register for future
                   this.context.tracker.register({
@@ -579,7 +591,7 @@ export class ObjectImporter extends BaseImporter {
                   });
                 } else {
                   // Still can't find it - log warning but continue
-                  this.logWarning(`Tag exists but cannot be found: ${category}:${tagName}`);
+                  this.logWarning(`Tag exists (${is500Duplicate ? '500 duplicate' : '422 conflict'}) but cannot be found: ${category}:${languageId}:${tagName}`);
                 }
               } else {
                 // Other error - log it
@@ -598,6 +610,50 @@ export class ObjectImporter extends BaseImporter {
     }
 
     return tagIds;
+  }
+
+  /**
+   * Search for existing tag by the actual unique constraint fields
+   * Used as fallback when backward_compatibility search fails
+   * @param internalName The tag name (e.g., "portrait", "leather")
+   * @param category The tag category
+   * @param languageId The language ID
+   */
+  private async findExistingTagByFields(
+    internalName: string,
+    category: string,
+    languageId: string
+  ): Promise<string | null> {
+    let page = 1;
+    const perPage = 100;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await this.context.apiClient.tag.tagIndex(page, perPage, undefined);
+      const tags = response.data.data;
+
+      // Search by the actual unique constraint fields
+      const existing = tags.find(
+        (t) =>
+          t.internal_name === internalName &&
+          t.category === category &&
+          t.language_id === languageId
+      );
+
+      if (existing) {
+        return existing.id;
+      }
+
+      hasMore = tags.length === perPage;
+      page++;
+
+      // Limit search to prevent infinite loops
+      if (page > 200) {
+        break;
+      }
+    }
+
+    return null;
   }
 
   /**
