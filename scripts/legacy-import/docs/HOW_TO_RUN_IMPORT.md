@@ -11,5 +11,6 @@ $env:API_EMAIL="user@example.com"
 $env:API_PASSWORD="password"
 
 npx tsx src/index.ts login
-npx tsx src/index.ts import --collect-samples --sample-size=25
+# npx tsx src/index.ts import --collect-samples --sample-size=25        # Collect smaples for the tests
+npx tsx src/index.ts import
 ```
