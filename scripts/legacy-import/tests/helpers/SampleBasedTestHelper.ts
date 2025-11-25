@@ -177,6 +177,16 @@ export class SampleBasedTestHelper {
           data: { data: { id: generateUuid(), ...data } },
         })),
       },
+      collection: {
+        collectionStore: vi.fn().mockImplementation(async (data) => ({
+          data: { data: { id: generateUuid(), ...data } },
+        })),
+      },
+      collectionTranslation: {
+        collectionTranslationStore: vi.fn().mockImplementation(async (data) => ({
+          data: { data: { id: generateUuid(), ...data } },
+        })),
+      },
       partner: {
         partnerStore: vi.fn().mockImplementation(async (data) => ({
           data: { data: { id: generateUuid(), ...data } },
