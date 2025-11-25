@@ -157,7 +157,7 @@ describe('PartnerImporter', () => {
       // Mock 2 museums, 3 institutions
       const mockMuseums = [
         { museum_id: 'louvre', country: 'fr', name: 'Louvre', project_id: 'testproject' },
-        { museum_id: 'british', country: 'gb', name: 'British Museum', project_id: 'testproject' },
+        { museum_id: 'prado', country: 'es', name: 'Museo del Prado', project_id: 'testproject' },
       ];
       const mockInstitutions = [
         { institution_id: 'unesco', country: 'fr', name: 'UNESCO' },
@@ -181,7 +181,12 @@ describe('PartnerImporter', () => {
 
       const result = await importer.import();
 
-      expect(result.imported).toBe(5); // 2 + 3
+      console.log('Import result:', result);
+      console.log('Partner store calls:', vi.mocked(mockContext.apiClient.partner.partnerStore).mock.calls.length);
+      
+      // Must import exactly 5: 2 museums + 3 institutions
+      expect(result.imported).toBe(5);
+      expect(result.skipped).toBe(0);
       expect(result.success).toBe(true);
     });
   });

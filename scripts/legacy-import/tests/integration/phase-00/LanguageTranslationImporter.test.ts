@@ -5,8 +5,8 @@ import { BackwardCompatibilityTracker } from '../../../src/utils/BackwardCompati
 import { mapLanguageCode } from '../../../src/utils/CodeMappings.js';
 
 interface LanguageTranslationSample {
-  language_id: string;
-  lang: string;
+  lang_id: string;  // Language being translated
+  lang: string;     // Display language (language of the translation)
   name: string;
 }
 
@@ -51,16 +51,16 @@ describe('LanguageTranslationImporter - Data Transformation', () => {
       
       // Required fields
       expect(apiData).toHaveProperty('language_id');
-      expect(apiData).toHaveProperty('translation_language_id');
+      expect(apiData).toHaveProperty('display_language_id');
       expect(apiData).toHaveProperty('name');
       expect(apiData).toHaveProperty('backward_compatibility');
       
       // Code mappings
-      const expectedLangId = mapLanguageCode(sample.language_id);
-      const expectedTransLangId = mapLanguageCode(sample.lang);
+      const expectedLangId = mapLanguageCode(sample.lang_id);
+      const expectedDisplayLangId = mapLanguageCode(sample.lang);
       
       expect(apiData.language_id).toBe(expectedLangId);
-      expect(apiData.translation_language_id).toBe(expectedTransLangId);
+      expect(apiData.display_language_id).toBe(expectedDisplayLangId);
       expect(apiData.name).toBe(sample.name);
     });
   });
@@ -69,13 +69,13 @@ describe('LanguageTranslationImporter - Data Transformation', () => {
     const samples = helper.loadSamples<LanguageTranslationSample>('language_translation', { limit: 20 });
     
     samples.forEach((sample) => {
-      const langId = mapLanguageCode(sample.language_id);
-      const transLangId = mapLanguageCode(sample.lang);
+      const langId = mapLanguageCode(sample.lang_id);
+      const displayLangId = mapLanguageCode(sample.lang);
       
       expect(langId.length).toBe(3);
-      expect(transLangId.length).toBe(3);
+      expect(displayLangId.length).toBe(3);
       expect(langId).toMatch(/^[a-z]{3}$/);
-      expect(transLangId).toMatch(/^[a-z]{3}$/);
+      expect(displayLangId).toMatch(/^[a-z]{3}$/);
     });
   });
 
