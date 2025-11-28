@@ -1,8 +1,18 @@
 # Legacy Data Import - Development Guide
 
+Running the importer: 
+```
+Set-Location E:\inventory\inventory-app\scripts\legacy-import
+$env:API_EMAIL="user@example.com"
+$env:API_PASSWORD="password"
+npx tsx src/index.ts import --start-at monument
+```
+
 ## Overview
 
 This application imports legacy museum database data into the new Inventory Management System via its REST API. It is **NOT** a feature of the main application - it is a standalone, technical utility for one-time data migration.
+
+The application follows our thorough [preliminary analysis](./analysis/PRELIMINARY_ANALYSIS.md)
 
 ## Architecture
 
