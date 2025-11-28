@@ -89,7 +89,13 @@ export class CountryTranslationImporter extends BaseImporter {
     // Collect sample for testing (BEFORE API calls)
     const countryId = mapCountryCode(countryName.country);
     const languageId = mapLanguageCode(countryName.lang);
-    this.collectSample('country_translation', countryName, 'success', undefined, languageId);
+    this.collectSample(
+      'country_translation',
+      countryName as unknown as Record<string, unknown>,
+      'success',
+      undefined,
+      languageId
+    );
 
     if (this.context.dryRun || this.isSampleOnlyMode) {
       this.logInfo(
@@ -98,8 +104,10 @@ export class CountryTranslationImporter extends BaseImporter {
 
       if (this.isSampleOnlyMode) {
         this.context.tracker.register({
+          entityType: 'context',
           uuid: `${countryId}:${languageId}`,
           backwardCompatibility: backwardCompat,
+          createdAt: new Date(),
         });
       }
       return true;
@@ -132,23 +140,5 @@ export class CountryTranslationImporter extends BaseImporter {
       }
       throw error; // Re-throw non-422 errors
     }
-  }
-
-  private mapCountryCode(code2char: string): string {
-    // Map 2-character codes to 3-character ISO 3166-1 alpha-3 codes
-    const mapping: Record<string, string> = {
-      DZ: 'DZA', // Algeria
-      EG: 'EGY', // Egypt
-      JO: 'JOR', // Jordan
-      LB: 'LBN', // Lebanon
-      LY: 'LBY', // Libya
-      MA: 'MAR', // Morocco
-      PS: 'PSE', // Palestine
-      SY: 'SYR', // Syria
-      TN: 'TUN', // Tunisia
-      TR: 'TUR', // Turkey
-    };
-
-    return mapping[code2char] || code2char;
   }
 }

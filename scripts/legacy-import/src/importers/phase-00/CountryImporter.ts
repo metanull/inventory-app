@@ -46,7 +46,7 @@ export class CountryImporter extends BaseImporter {
     for (const country of countries) {
       try {
         // Collect sample for testing (BEFORE API calls)
-        this.collectSample('country', country, 'success');
+        this.collectSample('country', country as unknown as Record<string, unknown>, 'success');
 
         if (this.context.dryRun || this.isSampleOnlyMode) {
           this.logInfo(
@@ -56,8 +56,10 @@ export class CountryImporter extends BaseImporter {
 
           if (this.isSampleOnlyMode) {
             this.context.tracker.register({
+              entityType: 'context',
               uuid: country.id,
               backwardCompatibility: country.backward_compatibility,
+              createdAt: new Date(),
             });
           }
           continue;

@@ -47,7 +47,7 @@ export class LanguageImporter extends BaseImporter {
     for (const language of languages) {
       try {
         // Collect sample for testing (do this BEFORE API calls)
-        this.collectSample('language', language, 'success');
+        this.collectSample('language', language as unknown as Record<string, unknown>, 'success');
 
         if (this.context.dryRun || this.isSampleOnlyMode) {
           this.logInfo(
@@ -58,8 +58,10 @@ export class LanguageImporter extends BaseImporter {
           // In sample-only mode, populate tracker as if it was imported
           if (this.isSampleOnlyMode) {
             this.context.tracker.register({
+              entityType: 'context',
               uuid: language.id, // Use ID as UUID for foundation data
               backwardCompatibility: language.backward_compatibility,
+              createdAt: new Date(),
             });
           }
           continue;

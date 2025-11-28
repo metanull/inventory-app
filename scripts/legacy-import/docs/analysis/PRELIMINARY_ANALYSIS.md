@@ -14,17 +14,18 @@ We want to import Partners, Items, Pictures and their Contextual descriptions an
 Some mapping and transformation will be required.
 A comprehensive analysis of the legacy models is required; but in general the entities map as follows:
 
-| Legacy | New Model | Comments |
-| --- | --- | --- |
-| Object, Monument, Detail | Items | |
-| Museum, Institution, Partner | Partners | |
-| Projects | Contextsn Collections | Project are the old way of defining context; and they also are defacto "Collections" as all items belonging to a project form a Collection |
-| Exhibition, Gallery | Contexts and Collection | These are other collections where objects, monuments, details, or their images where manually selected; and where the managers also defined "contextualized text" by re-defining some of the item's textual properties adapting them to the specific needs of that Collection |
-| *i18n, *names | Their contextual description and Translation | |
-| *pictures, *images | Their images | |
-| Thematic Galleries' Theme/Subtheme and Travel's Trail-Itinerary-Location-City | Collections | These tables where used to organize the collection in "chapters" or "layers". In our new model, Collections can be hierarchical (a Collection may have a Parent Collection and may have Children collections - defacto allowing to organize the collections in a Directory-tree like structure) we will need to map the legacy "collection layers" accordingly by creating child collections. |
+| Legacy                                                                        | New Model                                    | Comments                                                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------------------------------------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Object, Monument, Detail                                                      | Items                                        |                                                                                                                                                                                                                                                                                                                                                                                               |
+| Museum, Institution, Partner                                                  | Partners                                     |                                                                                                                                                                                                                                                                                                                                                                                               |
+| Projects                                                                      | Contextsn Collections                        | Project are the old way of defining context; and they also are defacto "Collections" as all items belonging to a project form a Collection                                                                                                                                                                                                                                                    |
+| Exhibition, Gallery                                                           | Contexts and Collection                      | These are other collections where objects, monuments, details, or their images where manually selected; and where the managers also defined "contextualized text" by re-defining some of the item's textual properties adapting them to the specific needs of that Collection                                                                                                                 |
+| *i18n, *names                                                                 | Their contextual description and Translation |                                                                                                                                                                                                                                                                                                                                                                                               |
+| *pictures, *images                                                            | Their images                                 |                                                                                                                                                                                                                                                                                                                                                                                               |
+| Thematic Galleries' Theme/Subtheme and Travel's Trail-Itinerary-Location-City | Collections                                  | These tables where used to organize the collection in "chapters" or "layers". In our new model, Collections can be hierarchical (a Collection may have a Parent Collection and may have Children collections - defacto allowing to organize the collections in a Directory-tree like structure) we will need to map the legacy "collection layers" accordingly by creating child collections. |
 
 Legacy databases consists in multiple database schemas (each serving distinct applications):
+
 - **mwnf3** (sometimes aslo called "virtual-museum" or vm) is the mother of all, and the oldest.
 - **mwnf3_thematic_gallery** (thg) and **mwnf3_sharing_history** (sh) serve different applications but share many concepts of **mwnf3** (in fact they have been built to "customize" or "extend" **mwnf3**), and often include **references** to records in the **mwnf3** database.
 - **mwnf3_travel** (explore) is a very similar product, but based on a pretty different database model, and with specific hierarchy of the collection by Exhibition Trail, Country, Itinerary, Location.
@@ -32,7 +33,6 @@ Legacy databases consists in multiple database schemas (each serving distinct ap
 - ... There are other schemas, but they are less relevant. Analysis could be lighter, and focus in finding if they contain FK to any of the models above - and only analyze the tables with such FK's.
 - Databases thg_demo_47, mwnf3_las, mwnf3_portal shall be ignored.
 - Tables with "old" prefix or "bkp|backup" suffixes shall be ignored
-
 
 In legacy, **PK and FK are typically compound (multi-column) constraints**. e.g. for an object: ProjectId,CountryId,MuseumId,SequenceNumber,Language.
 In legacy, some **entities are not normalized** and are defined as multiple rows in a single table, e.g. mwnf3.objects include the languageId in their primary key; there are therefore several rows for one single item; each row in a different language. They are seen as multiple rows; but the legacy system sees them as one single record by "grouping" them on the PK columns minus the LanguageId. Some other are more normalized and decouples the information over two tables e.g. mwnf3_thematic_gallery.objects and mwnf3_thematic_gallery.objectnames, the first defines the ID and common data, the later defines their translations.
@@ -83,12 +83,13 @@ The Legacy Import will not be successfull at the first attempt; we will discover
 Therefore the operation must be chunked in clear steps; run a pre-analysis; in order to establish the best course of action to achieve the goals.
 
 Analyze the legacy models by stages:
+
 1. mwnf3 (historically speaking, the first model)
 2. sharing_history and thematic_gallery (the next generations after mwnf3)
 3. travels database
 4. explore model (which is in fact the same concepts, but in a very different form).
 
-More detailed analysis will be conducted separately. 
+More detailed analysis will be conducted separately.
 
 ### Result
 
@@ -1135,7 +1136,6 @@ Historical Cross-Referencing (HCR) timelines do not exist in the current new mod
 
 ## Sub-Project III: HCR - Preliminary analysis, and preliminary task plan (RESULT)
 
-
 **Context:** Historical Cross-Referencing (HCR) timelines do not exist in the current new model and must be designed. Three legacy HCR systems exist with different structures that must be unified.
 
 ### Task 2.1: Analysis of the legacy mwnf3 HCR Structure
@@ -1150,13 +1150,13 @@ Review `mwnf3.hcr` and `mwnf3.hcr_events`:
 
 ### Task 2.2: Analysis of the legacy Sharing History HCR Structure
 
-Review `mwnf3_sharing_history.sh_hcr`,  `mwnf3_sharing_history.sh_hcr_events`, `mwnf3_sharing_history.sh_hcr_images`, `mwnf3_sharing_history.sh_hcr_image_texts`:
+Review `mwnf3_sharing_history.sh_hcr`, `mwnf3_sharing_history.sh_hcr_events`, `mwnf3_sharing_history.sh_hcr_images`, `mwnf3_sharing_history.sh_hcr_image_texts`:
 
 - `sh_hcr` table: hcr_id, country, exhibition_id (multiple timelines each attached to one exhibition), name, date_from_year, date_to_year, date_from_month (0=null), date_to_month (0=null), date_from_date ('day', 0=null), date_to_date ('day', 0=null)
 - `sh_hcr_events` table: hcr_id, lang_id, name, description, date_from (the from date as a curated string (denormalized)), date_to (the to date as a curated string (denormalized))
 - `sh_hcr_images` table: hcr_img_id, hcr_id, ref_item and item_type (a denormalized foreign key), picture (relative path of the original image), sort_order (display order of the image when the event has several images)
-  - if item_type='obj' then ref_item contains a *"FK"* to sh_objects "{project_id};{country};{number}"
-  - if item_type='mon' then ref_item contains a *"FK"* to sh_monuments "{project_id};{country};{number}"
+  - if item*type='obj' then ref_item contains a *"FK"\_ to sh_objects "{project_id};{country};{number}"
+  - if item*type='mon' then ref_item contains a *"FK"\_ to sh_monuments "{project_id};{country};{number}"
 - `sh_hcr_image_texts` table: hcr_img_id, lang, name, date (date as a curated string (denormalized)), museum and location (denormalized reference (by their name) to the partner owning the image)
 - Links to Exhibition (sh_exhibitions): Timelines are attached to a Sharing History exhibition (Collection in the New model)
 - More granular date fields (year, month, date)
@@ -1164,7 +1164,7 @@ Review `mwnf3_sharing_history.sh_hcr`,  `mwnf3_sharing_history.sh_hcr_events`, `
 
 ### Task 2.3: Analysis of the legacy Thematic Gallery HCR Structure
 
-Must be excluded completelly. Tables  `mwnf3_thematic_gallery.hcr` and `hcr_events` were not used in production; the data is irrelevant.
+Must be excluded completelly. Tables `mwnf3_thematic_gallery.hcr` and `hcr_events` were not used in production; the data is irrelevant.
 
 ### Task 2.4: New Unified HCR Model for New System
 
@@ -1212,18 +1212,18 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
 - **Image management**: Separate picture tables for objects, monuments, and monument_details
 - **Utility tables**: `global_entities` and `global_*` tables fed by triggers (SKIP IMPORT)
 
-###  Task 1.1: Table Categorization
+### Task 1.1: Table Categorization
 
-####  Reference Data Tables (4)
+#### Reference Data Tables (4)
 
 - `countries` - Country definitions (non standard 2-char codes, map to new 3-char ISO codes)
 - `langs` - Language definitions (non standard 2-char codes, map to new 3-char ISO codes)
 - `countrynames` - Country name translations
 - `langnames` - Language name translations
 
-####  Core Entity Tables
+#### Core Entity Tables
 
-#####  Projects (2 tables)
+##### Projects (2 tables)
 
 - `projects` - Project master records
   - PK: `project_id` (varchar(10))
@@ -1232,7 +1232,7 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
   - PK: `project_id`, `lang` (2-char)
   - FK: → projects, → langs
 
-#####  Partners - Museums (3 tables)
+##### Partners - Museums (3 tables)
 
 - `museums` - Museum master records
   - PK: `museum_id`, `country`
@@ -1244,7 +1244,7 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
   - Fields: name, ex_name, city, description, ex_description, how_to_reach, opening_hours
 - `museums_pictures` - Museum images/logos
 
-#####  Partners - Institutions (3 tables)
+##### Partners - Institutions (3 tables)
 
 - `institutions` - Institution master records
   - PK: `institution_id`, `country`
@@ -1255,12 +1255,12 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
   - FK: → institutions, → langs
 - `institutions_pictures` - Institution images/logos
 
-#####  Partners - Associated (2 tables)
+##### Partners - Associated (2 tables)
 
 - `associated_museums` - Additional museums (same structure as museums)
 - `associated_institutions` - Additional institutions (same structure as institutions)
 
-#####  Items - Objects (2 tables)
+##### Items - Objects (2 tables)
 
 - `objects` - Object master records **[DENORMALIZED - LANGUAGE IN PK]**
   - PK: `project_id`, `country`, `museum_id`, `number`, `lang` (5 columns!)
@@ -1282,7 +1282,7 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
   - Fields: path, thumb (blob), caption, photographer, copyright, lastupdate
   - **CRITICAL**: Language in PK but references denormalized objects table
 
-#####  Items - Monuments (2 tables)
+##### Items - Monuments (2 tables)
 
 - `monuments` - Monument master records **[DENORMALIZED - LANGUAGE IN PK]**
   - PK: `project_id`, `country`, `institution_id`, `number`, `lang` (5 columns!)
@@ -1298,7 +1298,7 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
   - PK: `project_id`, `country`, `institution_id`, `number`, `lang`, `type`, `image_number` (7 columns!)
   - FK: → monuments, → picture_type
 
-#####  Items - Monument Details (2 tables)
+##### Items - Monument Details (2 tables)
 
 - `monument_details` - Detail records for monuments **[DENORMALIZED - LANGUAGE IN PK]**
   - PK: `project_id`, `country_id`, `institution_id`, `monument_id`, `lang_id`, `detail_id` (6 columns!)
@@ -1310,9 +1310,9 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
   - PK: Similar 7-column structure
   - FK: → monument_details
 
-####  Authors and Tags
+#### Authors and Tags
 
-#####  Authors (4 tables)
+##### Authors (4 tables)
 
 - `authors` - Author master records
   - PK: `author_id` (auto-increment)
@@ -1326,7 +1326,7 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
 - `authors_monuments` - Author-monument relationships (same structure)
 - `authors_cv` - Author CVs/biographies
 
-#####  Dynasties/Tags (3 tables)
+##### Dynasties/Tags (3 tables)
 
 - `dynasties` - Dynasty tag definitions
   - PK: `dynasty_id` (auto-increment)
@@ -1339,7 +1339,7 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
   - FK: → objects (non-lang columns!), → dynasties
 - `monuments_dynasties` - Monument-dynasty relationships (same structure)
 
-####  Item Relationships (6 tables)
+#### Item Relationships (6 tables)
 
 - `objects_objects` - Object-to-object links
   - PK: `id` (auto-increment)
@@ -1352,22 +1352,22 @@ mwnf3 is the foundational legacy schema containing 759 tables. This analysis rev
 - `monuments_monuments` - Monument-to-monument links
 - `monuments_monuments_justification` - Link justification text
 
-####  Images/Media Support
+#### Images/Media Support
 
 - `picture_type` - Image type lookup (e.g., small, thumb, large, detail, etc.)
 
-####  Utility/Generated Tables (DO NOT IMPORT)
+#### Utility/Generated Tables (DO NOT IMPORT)
 
 - `global_entities` - Unified search table populated by triggers from objects/monuments/monument_details
 - `global_*` - Other global tables
 - **REASON**: Redundant data, fed by triggers, no additional information
 
-####  Legacy/Backup Tables (IGNORE)
+#### Legacy/Backup Tables (IGNORE)
 
 - `old_*` - Old versions of tables
 - `*_bkp`, `*_backup` - Backup tables
 
-####  Domain-Specific Tables (200+ tables -> DO NOT IMPORT)
+#### Domain-Specific Tables (200+ tables -> DO NOT IMPORT)
 
 Other tables for specific features:
 
@@ -1379,11 +1379,11 @@ Other tables for specific features:
 - `co_*` - Collaborative/curator module
 - And many more...
 
-###  Task 1.2: Non-Empty Tables Identification
+### Task 1.2: Non-Empty Tables Identification
 
 **METHOD**: Check data files in `.legacy-database/data/` for INSERT statements
 
-####  Critical Tables with Data (Confirmed)
+#### Critical Tables with Data (Confirmed)
 
 Based on schema structure and FK requirements, these tables MUST have data:
 
@@ -1398,43 +1398,43 @@ Based on schema structure and FK requirements, these tables MUST have data:
 - `objects_objects`, `objects_monuments`, `monuments_monuments`
 - `countries`, `langs`
 
-###  Task 1.3: Primary Key Structure Analysis
+### Task 1.3: Primary Key Structure Analysis
 
-####  PK Patterns Identified
+#### PK Patterns Identified
 
-#####  Simple PKs
+##### Simple PKs
 
 - `projects`: `project_id` (varchar(10))
 - `authors`: `author_id` (int auto-increment)
 - `dynasties`: `dynasty_id` (int auto-increment)
 
-#####  Composite PKs (2 columns)
+##### Composite PKs (2 columns)
 
 - `museums`: `museum_id`, `country`
 - `institutions`: `institution_id`, `country`
 - `projectnames`: `project_id`, `lang`
 
-#####  Composite PKs (3 columns)
+##### Composite PKs (3 columns)
 
 - `museumnames`: `museum_id`, `country`, `lang`
 - `institutionnames`: `institution_id`, `country`, `lang`
 
-#####  Denormalized PKs (5 columns - LANGUAGE IN PK)
+##### Denormalized PKs (5 columns - LANGUAGE IN PK)
 
 - `objects`: `project_id`, `country`, `museum_id`, `number`, **`lang`**
 - `monuments`: `project_id`, `country`, `institution_id`, `number`, **`lang`**
 
-#####  Denormalized PKs (6 columns - LANGUAGE + DETAIL)
+##### Denormalized PKs (6 columns - LANGUAGE + DETAIL)
 
 - `monument_details`: `project_id`, `country_id`, `institution_id`, `monument_id`, **`lang_id`**, `detail_id`
 
-#####  Image PKs (7 columns)
+##### Image PKs (7 columns)
 
 - `objects_pictures`: `project_id`, `country`, `museum_id`, `number`, `lang`, `type`, `image_number`
 - `monuments_pictures`: `project_id`, `country`, `institution_id`, `number`, `lang`, `type`, `image_number`
 - `monument_detail_pictures`: Similar 7-column structure
 
-####  FK Columns in PK
+#### FK Columns in PK
 
 **Objects Table**:
 
@@ -1454,7 +1454,7 @@ Based on schema structure and FK requirements, these tables MUST have data:
 
 - ALL FK columns are in PK → FK to monuments (`project_id`, `country_id`, `institution_id`, `monument_id`, `lang_id`)
 
-####  Denormalization Impact
+#### Denormalization Impact
 
 **Objects/Monuments**: One logical item = Multiple rows (one per language)
 
@@ -1468,9 +1468,9 @@ Based on schema structure and FK requirements, these tables MUST have data:
 - Group by non-lang columns
 - parent_id points to monument Item UUID (resolved via backward_compatibility)
 
-###  Task 1.4: Projects → Contexts and Collections Mapping
+### Task 1.4: Projects → Contexts and Collections Mapping
 
-####  Legacy Structure
+#### Legacy Structure
 
 **Table**: `projects`
 
@@ -1483,7 +1483,7 @@ Based on schema structure and FK requirements, these tables MUST have data:
 - FK: → projects, → langs
 - Fields: name
 
-####  Mapping Strategy
+#### Mapping Strategy
 
 **One Project → Two Records**:
 
@@ -1507,14 +1507,14 @@ Based on schema structure and FK requirements, these tables MUST have data:
    - language_id: Mapped ISO code
    - name: From projectnames.name (same as Context)
 
-####  Import Dependencies
+#### Import Dependencies
 
 - AFTER: Country, Language (already seeded)
 - BEFORE: Items (items reference projects via context/collection)
 
-###  Task 1.5: Partners Mapping
+### Task 1.5: Partners Mapping
 
-####  Legacy Structure
+#### Legacy Structure
 
 **Museums**:
 
@@ -1530,7 +1530,7 @@ Based on schema structure and FK requirements, these tables MUST have data:
 - Images: `institutions_pictures`
 - Also: `associated_institutions`
 
-####  Mapping Strategy
+#### Mapping Strategy
 
 **Unified Partner Model**:
 
@@ -1562,20 +1562,20 @@ Based on schema structure and FK requirements, these tables MUST have data:
    - Use image import mechanism
    - backward_compatibility: `mwnf3:museums_pictures:{museum_id}:{country}:{image_number}`
 
-####  Special Considerations
+#### Special Considerations
 
 - `museums.mon_*` fields: Reference to a monument (optional) - may indicate museum building itself
 - `museums.con_museum_id`: Reference to another museum (parent/related museum)
 - Handle contact person data (2 sets of cp1/cp2 fields)
 
-####  Import Dependencies
+#### Import Dependencies
 
 - AFTER: Country, Language, Projects (museums FK to projects)
 - BEFORE: Items (items reference partners)
 
-###  Task 1.6: Items Mapping
+### Task 1.6: Items Mapping
 
-####  Legacy Structure
+#### Legacy Structure
 
 **Objects**: Denormalized with language in PK
 
@@ -1596,7 +1596,7 @@ Based on schema structure and FK requirements, these tables MUST have data:
 - One logical detail = Multiple rows (one per language)
 - Parent: monuments
 
-####  Mapping Strategy
+#### Mapping Strategy
 
 **Objects → Item**:
 
@@ -1646,20 +1646,20 @@ Based on schema structure and FK requirements, these tables MUST have data:
 - backward_compatibility: `mwnf3:monument_details:{project_id}:{country_id}:{institution_id}:{monument_id}:{detail_id}`
 - Simpler fields: name, description, location, date, artist
 
-####  Import Dependencies
+#### Import Dependencies
 
 - AFTER: Country, Language, Contexts, Collections, Partners
 - BEFORE: Images, Tags, Authors, ItemItemLinks (tags/authors/links reference items)
 
-####  Critical Notes
+#### Critical Notes
 
 - **inventory_id**: Important field to preserve (objects.inventory_id) → save in Item's `owner_reference` field
 - **working_number**: Often used as display identifier → save in Item's `mwnf_reference` field
 - **CASCADE DELETE**: monument_details has CASCADE DELETE on FK to monuments - be careful with data integrity
 
-###  Task 1.7: Images Mapping
+### Task 1.7: Images Mapping
 
-####  Legacy Structure
+#### Legacy Structure
 
 **Objects Images**:
 
@@ -1682,7 +1682,7 @@ Based on schema structure and FK requirements, these tables MUST have data:
 
 - Tables: `museums_pictures`, `institutions_pictures`
 
-####  Image Path Pattern
+#### Image Path Pattern
 
 Legacy paths are **relative**, examples:
 
@@ -1696,7 +1696,7 @@ Legacy paths are **relative**, examples:
 
 - small, thumb, large, detail, hero, gallery, etc.
 
-####  Mapping Strategy
+#### Mapping Strategy
 
 **For Each Image Record**:
 
@@ -1721,14 +1721,14 @@ Legacy paths are **relative**, examples:
 
 5. **For partner images**: Create partner_images pivot
 
-####  Import Dependencies
+#### Import Dependencies
 
 - AFTER: Items, Partners (images link to them)
 - File system access required to network share
 
-###  Task 1.8: Tags and Authors Mapping
+### Task 1.8: Tags and Authors Mapping
 
-####  Authors
+#### Authors
 
 **Legacy Structure**:
 
@@ -1760,7 +1760,7 @@ Legacy paths are **relative**, examples:
 4. **Handle CV data** (authors_cv):
    - Store as Author biography or in AuthorTranslation if language-specific
 
-####  Tags (Dynasties, MMaterial, ...)
+#### Tags (Dynasties, MMaterial, ...)
 
 **Legacy Structure**:
 
@@ -1789,7 +1789,7 @@ Legacy paths are **relative**, examples:
 
 3. **Create item_tag relationships** using objects_dynasties/monuments_dynasties tables
 
-####  Semicolon-Separated Field Parsing
+#### Semicolon-Separated Field Parsing
 
 **Pattern in legacy**: `"Dynasty 1;Dynasty 2;Dynasty 3"` or `"1;5;12"` (IDs)
 
@@ -1800,14 +1800,14 @@ Legacy paths are **relative**, examples:
 - Match to dynasty records (by ID or name)
 - Create individual Tag relationships
 
-####  Import Dependencies
+#### Import Dependencies
 
 - **Authors**: AFTER Items created (relationships need Item UUIDs)
 - **Tags**: AFTER Items created, can be parallel with Authors
 
-###  Task 1.9: Item Relationships Mapping
+### Task 1.9: Item Relationships Mapping
 
-####  Legacy Structure
+#### Legacy Structure
 
 **Object-to-Object Links**:
 
@@ -1831,7 +1831,7 @@ Legacy paths are **relative**, examples:
 - Tables: `objects_objects_justification`, `objects_monuments_justification`, `monuments_monuments_justification`
 - Contain text explaining why items are linked
 
-####  Mapping Strategy
+#### Mapping Strategy
 
 **For Each Link**:
 
@@ -1853,7 +1853,7 @@ Legacy paths are **relative**, examples:
    - Avoid creating duplicate links
    - Legacy system may store one or both directions
 
-####  Text Field Links
+#### Text Field Links
 
 Objects and monuments also have:
 
@@ -1867,14 +1867,14 @@ Objects and monuments also have:
 - Create ItemItemLink records
 - May have less structured data than relationship tables
 
-####  Import Dependencies
+#### Import Dependencies
 
 - AFTER: ALL Items imported (needs both source and target UUIDs)
 - LAST import step for items (references complete item set)
 
-###  Task 1.10: Import Dependencies and Execution Order
+### Task 1.10: Import Dependencies and Execution Order
 
-####  Dependency Graph
+#### Dependency Graph
 
 ```
 1. Reference Data (ALREADY SEEDED)
@@ -1919,7 +1919,7 @@ Objects and monuments also have:
     └─ Creates: ItemItemLink records
 ```
 
-####  Execution Order
+#### Execution Order
 
 **A: Foundation** (no inter-dependencies)
 
@@ -1959,7 +1959,7 @@ Objects and monuments also have:
 19. Import Monument-Monument links
 20. Parse text fields (linkobjects, linkmonuments) → Additional links
 
-####  backward_compatibility Format Standards
+#### backward_compatibility Format Standards
 
 **Projects**:
 
@@ -1994,7 +1994,7 @@ Objects and monuments also have:
 
 - Link: `mwnf3:objects_objects:{id}` (or `objects_monuments`, `monuments_monuments`)
 
-####  Language Code Mapping
+#### Language Code Mapping
 
 **Legacy**: non standard 2-character codes (e.g., `en`, `fr`, `ar`)
 **New Model**: 3-character ISO codes (e.g., `eng`, `fra`, `ara`)
@@ -2005,7 +2005,7 @@ Objects and monuments also have:
 - Handle special cases
 - Reference: Similar to ISO 639-2/T standard **with exceptions**!
 
-####  Key Import Principles
+#### Key Import Principles
 
 1. **Denormalization Handling**: Group by non-language PK columns before creating Item records
 2. **backward_compatibility**: Exclude language from format for denormalized tables
@@ -2016,7 +2016,7 @@ Objects and monuments also have:
 7. **Logging**: Comprehensive logging of all operations for debugging
 8. **Error Handling**: Continue on individual record errors, log for review
 
-###  Critical Findings to Remember
+### Critical Findings to Remember
 
 1. **Denormalization**: Language in PK for objects/monuments - must group rows
 2. **Multi-column PKs**: Up to 6-7 columns - backward_compatibility crucial
@@ -2951,22 +2951,22 @@ Gallery
 1. Import SH projects → Contexts + Collections
 2. Import THG projects → Contexts + Collections
 
-**B: Partners (Deduplicated)** 
+**B: Partners (Deduplicated)**
 
-3. Import sh_partners → Check mwnf3, create Partners 
+3. Import sh_partners → Check mwnf3, create Partners
 4. Import thg_partners → Check mwnf3 + sh, create Partners
 
-**C: Authors & Tags (Deduplicated)** 
+**C: Authors & Tags (Deduplicated)**
 
-5. Import sh_authors → Check mwnf3, create Authors 
-6. Import thg_authors → Check mwnf3 + sh, create Authors 
+5. Import sh_authors → Check mwnf3, create Authors
+6. Import thg_authors → Check mwnf3 + sh, create Authors
 7. Import thg_tags → Create Tags
 
-**D: Hierarchical Collections** 
+**D: Hierarchical Collections**
 
-8. Import SH National Context hierarchy (4 levels) 
+8. Import SH National Context hierarchy (4 levels)
 9. DO NOT Import SH My Exhibitions hierarchy (3-4 levels)
-10. Import THG Galleries hierarchy (recursive) 
+10. Import THG Galleries hierarchy (recursive)
 11. Import THG Themes hierarchy (within galleries)
 
 **E: Items (Deduplicated with Contextual Translations)**
@@ -2980,8 +2980,8 @@ Gallery
 
 **F: Collection-Item Associations**
 
-18. Parse SH rel*\* tables → collection_item pivots
-19. Parse THG thg_gallery*\* tables → collection_item pivots
+18. Parse SH rel\*\* tables → collection_item pivots
+19. Parse THG thg_gallery\*\* tables → collection_item pivots
 
 **G: Images (Deduplicated)**
 
@@ -3061,7 +3061,7 @@ Gallery
 
 ## Sub-Project VI: Legacy Schema Analysis - Travel & Explore
 
-###  Executive Summary
+### Executive Summary
 
 Travel and Explore are separate application schemas with very different structures but similar purposes (travel/tourism content):
 
@@ -3075,11 +3075,11 @@ Travel and Explore are separate application schemas with very different structur
 - **Travel-specific content**: Accommodation, agencies, guides, food, cultural events (probably skip)
 - **Explore-specific content**: Themes, filters, itineraries, partner museums (mixed priority)
 
-###  Task 3.1: Travel Schema Tables Catalog
+### Task 3.1: Travel Schema Tables Catalog
 
-####  Core Entities (mwnf3_travels)
+#### Core Entities (mwnf3_travels)
 
-#####  Trails - Top-Level Collections **[DENORMALIZED]**
+##### Trails - Top-Level Collections **[DENORMALIZED]**
 
 - `trails` - **EXHIBITION TRAIL master**
   - PK: `project_id`, `country`, `lang`, `number` (**LANGUAGE IN PK**)
@@ -3091,7 +3091,7 @@ Travel and Explore are separate application schemas with very different structur
 
 **Mapping**: Trail → Collection (with language handling like mwnf3.objects)
 
-#####  Itineraries - Child Collections **[DENORMALIZED]**
+##### Itineraries - Child Collections **[DENORMALIZED]**
 
 - `tr_itineraries` - Itineraries within trails
   - PK: `project_id`, `country`, `number`, `lang`, `trail_id` (**LANGUAGE IN PK**)
@@ -3102,7 +3102,7 @@ Travel and Explore are separate application schemas with very different structur
 
 **Mapping**: Itinerary → Collection (parent: Trail Collection)
 
-#####  Locations - Sub-Collections **[DENORMALIZED]**
+##### Locations - Sub-Collections **[DENORMALIZED]**
 
 - `tr_locations` - Locations within itineraries
   - PK: `lang`, `project_id`, `country`, `trail_id`, `itinerary_id`, `number` (**LANGUAGE IN PK**)
@@ -3114,7 +3114,7 @@ Travel and Explore are separate application schemas with very different structur
 
 **Hierarchy**: Trail → Itinerary → Location (3 collection levels, all denormalized with lang in PK)
 
-#####  Monuments - Items within Locations **[DENORMALIZED]**
+##### Monuments - Items within Locations **[DENORMALIZED]**
 
 - `tr_monuments` - Monuments at locations
   - PK: `project_id`, `country`, `trail_id`, `itinerary_id`, `location_id`, `number`, `lang` (**LANGUAGE IN PK**)
@@ -3125,45 +3125,45 @@ Travel and Explore are separate application schemas with very different structur
 
 **Mapping**: Monument → Item (check mwnf3.monuments for duplicates)
 
-####  Travel-Specific Content (Lower Priority)
+#### Travel-Specific Content (Lower Priority)
 
-#####  Accommodation
+##### Accommodation
 
 - `tr_accommodation` - Hotels/lodging
 - `tr_accommodation_pictures` - Accommodation images
 
-#####  Travel Agencies
+##### Travel Agencies
 
 - `tr_agencies` - Travel agency listings
 - `tr_agency_texts` - Agency translations
 
-#####  Guides
+##### Guides
 
 - `tr_guides` - Tour guide listings
 - `tr_guide_texts`, `tr_guide_langs` - Guide details
 
-#####  Food & Culture
+##### Food & Culture
 
 - `tr_traditional_food` - Traditional food descriptions
 - `tr_food_pictures` - Food images
 - `tr_cultural_events` - Cultural event calendar
 
-#####  InfoDesk
+##### InfoDesk
 
 - `tr_infodesk`, `tr_infodesk_texts` - Information desk content
 
-#####  Images
+##### Images
 
 - `tr_images`, `tr_images_texts` - Generic image gallery
 
-#####  Supporting Content
+##### Supporting Content
 
 - `tr_local_contact` - Local contact information
 - `tr_related_walks` - Related walking tours
 - `tr_spot_light` - Featured content
 - `tr_news`, `tr_newsletter` - News/newsletter (probably skip)
 
-####  Travel Packages (Alternative Structure)
+#### Travel Packages (Alternative Structure)
 
 **Note**: There's a parallel structure for pre-packaged travels:
 
@@ -3178,18 +3178,18 @@ Travel and Explore are separate application schemas with very different structur
 
 **Decision**: Lower priority - focus on trails/itineraries/locations/monuments first
 
-####  Tours & Surveys
+#### Tours & Surveys
 
 - `tour_tom`, `tour_tom_names` - Tours of the month (promotional)
 - `survey`, `survey_data`, `questionnaire*` - User surveys (SKIP)
 
-###  Task 3.2: Explore Schema Tables Catalog
+### Task 3.2: Explore Schema Tables Catalog
 
-####  Core Hierarchy (Explore)
+#### Core Hierarchy (Explore)
 
 **Structure**: Completely different from mwnf3/sh/thg/travel
 
-#####  Countries - Top Level **[NORMALIZED]**
+##### Countries - Top Level **[NORMALIZED]**
 
 - `explorecountry` - Countries in explore
   - PK: `countryId` (varchar(2), 2-char ISO code)
@@ -3203,11 +3203,11 @@ Travel and Explore are separate application schemas with very different structur
 
 **Mapping**: ExploreCountry → Collection (top level)
 
-#####  Regions - Level 2 (Conceptual)
+##### Regions - Level 2 (Conceptual)
 
 **Note**: No explicit region table, but `locations` table has path/hierarchy information
 
-#####  Locations - Geographic Units **[NORMALIZED]**
+##### Locations - Geographic Units **[NORMALIZED]**
 
 - `locations` - Cities/sites within countries
   - PK: `locationId` (auto-increment)
@@ -3218,7 +3218,7 @@ Travel and Explore are separate application schemas with very different structur
 
 **Mapping**: Location → Collection (parent: Country Collection or Region Collection if hierarchy detected)
 
-#####  Monuments - Items **[NORMALIZED, CRITICAL DATA]**
+##### Monuments - Items **[NORMALIZED, CRITICAL DATA]**
 
 - `exploremonument` - **MOST IMPORTANT TABLE**
   - PK: `monumentId` (auto-increment)
@@ -3247,14 +3247,14 @@ Travel and Explore are separate application schemas with very different structur
   - PK: `monumentId`, `pictureId`
   - FK: → exploremonument
 
-#####  Themes & Categorization
+##### Themes & Categorization
 
 - `explorethemes` - Theme definitions (NOT same as thematic gallery themes)
   - Categorization for monuments
 - `explorethemestranslated` - Theme translations
 - `exploremonumentsthemes` - Monument-to-theme relationships
 
-#####  Monument Extensions
+##### Monument Extensions
 
 - `exploremonumentacademic` - Academic/scholarly content for monuments
 - `exploremonumentext` - Extended information
@@ -3263,7 +3263,7 @@ Travel and Explore are separate application schemas with very different structur
 - `exploremonument_museums` - Associated museums for monuments
 - `exploremonument_vm`, `exploremonument_sh`, `exploremonument_tr` - References to items in other schemas
 
-####  Explore Itineraries (Different from Travel!)
+#### Explore Itineraries (Different from Travel!)
 
 **Note**: Explore has its own itinerary system, distinct from travel trails:
 
@@ -3280,43 +3280,43 @@ Travel and Explore are separate application schemas with very different structur
 
 **Mapping**: Itinerary → Collection, with relationships to existing collections/items
 
-####  Partner Museums
+#### Partner Museums
 
 - `explore_partner_museums` - Museums partnering with explore
   - References mwnf3.museums or independent records
 
-####  Filters & Search
+#### Filters & Search
 
 - `filters`, `filter_types` - Search/browse filters
 - `filters_explore_monuments` - Monument-to-filter relationships
 
-####  Featured Content
+#### Featured Content
 
 - `featured_tours`, `featured_tours_explore` - Featured itineraries
 - `featured_books`, `featured_books_explore` - Featured publications
 - `featured_partnerships`, `featured_partnerships_langs` - Partnerships
 
-####  Guided Visits & Hotels
+#### Guided Visits & Hotels
 
 - `guided_visits`, `guided_visits_contacts`, `guided_visits_contacts_langs` - Guided tour information
 - `hotels` - Hotel listings (probably lower priority)
 - `excursions_langs` - Excursion descriptions
 
-####  Supporting Content
+#### Supporting Content
 
 - `explore_pages`, `explore_pages_langs` - Static pages
 - `explore_home_banners` - Homepage banners
 - `exploreusers`, `exploreusersthematiccycle`, `exploreuserslocations` - User accounts (SKIP)
 
-####  Legacy/Alternative
+#### Legacy/Alternative
 
 - `langs` - Language table in explore schema (separate from mwnf3.langs!)
 - `countries` - Country table in explore schema (separate from mwnf3.countries!)
 - `monuments_bkp`, `tr_monuments1` - Backup tables referenced by FK (IGNORE)
 
-###  Task 3.3: Non-Empty Tables Analysis
+### Task 3.3: Non-Empty Tables Analysis
 
-####  Populated Tables
+#### Populated Tables
 
 **Travel**:
 
@@ -3332,24 +3332,24 @@ Travel and Explore are separate application schemas with very different structur
 - explorethemes, exploremonumentsthemes
 - explore*itineraries, explore_itineraries_rel*\*
 
-####  Out of scope, empty, or not used --> DO NOT IMPORT
+#### Out of scope, empty, or not used --> DO NOT IMPORT
 
 - Travel packages (travels, travel\_\*)
 - Food/culture tables (tr_traditional_food, tr_cultural_events)
 - User/survey tables (SKIP)
 - Featured content (may be promotional/temporary)
 
-###  Task 3.4: Travel Trails → Collections Mapping
+### Task 3.4: Travel Trails → Collections Mapping
 
-####  Structure
+#### Structure
 
 **Hierarchy**: Trail → Itinerary → Location (→ Monument = Item)
 
 All tables **DENORMALIZED** with language in PK (same pattern as mwnf3.objects)
 
-####  Mapping Strategy
+#### Mapping Strategy
 
-#####  Trails
+##### Trails
 
 **Table**: `trails`
 
@@ -3372,7 +3372,7 @@ All tables **DENORMALIZED** with language in PK (same pattern as mwnf3.objects)
    - description: From description, subtitle
    - Fields: curated_by, local_coordinator, photo_by, region_territory
 
-#####  Itineraries
+##### Itineraries
 
 **Table**: `tr_itineraries`
 
@@ -3395,7 +3395,7 @@ All tables **DENORMALIZED** with language in PK (same pattern as mwnf3.objects)
 4. **Create CollectionTranslation** per language row:
    - Fields: title, introduction, description, description2, author, prepared_by, days
 
-#####  Locations
+##### Locations
 
 **Table**: `tr_locations`
 
@@ -3416,22 +3416,22 @@ All tables **DENORMALIZED** with language in PK (same pattern as mwnf3.objects)
 4. **Create CollectionTranslation** per language row:
    - Fields: title, introduction, description, how_to_reach, info, contact, prepared_by
 
-####  Import Dependencies
+#### Import Dependencies
 
 - AFTER: mwnf3 Projects/Contexts (trails reference projects)
 - BEFORE: tr_monuments (monuments link to locations)
 
-###  Task 3.5: Explore Countries/Locations → Collections Mapping
+### Task 3.5: Explore Countries/Locations → Collections Mapping
 
-####  Structure
+#### Structure
 
 **Hierarchy**: Country → Location (→ Monument = Item)
 
 Tables **NORMALIZED** (no language in PK)
 
-####  Mapping Strategy
+#### Mapping Strategy
 
-#####  Countries
+##### Countries
 
 **Table**: `explorecountry`
 
@@ -3449,7 +3449,7 @@ Tables **NORMALIZED** (no language in PK)
 
 2. **CollectionTranslation**: From country names (multiple languages)
 
-#####  Locations
+##### Locations
 
 **Table**: `locations`
 
@@ -3474,18 +3474,18 @@ Tables **NORMALIZED** (no language in PK)
 
 4. **CollectionTranslation**: From description, info fields (likely not multi-language in this table)
 
-####  Import Dependencies
+#### Import Dependencies
 
 - AFTER: Explore Context created
 - BEFORE: exploremonument (monuments link to locations)
 
-###  Task 3.6: Explore Monuments → Items Mapping
+### Task 3.6: Explore Monuments → Items Mapping
 
-####  **CRITICAL**: Primary Reason for Explore Import
+#### **CRITICAL**: Primary Reason for Explore Import
 
 **Table**: `exploremonument` - **1808 monuments** (largest monument dataset!)
 
-####  Structure
+#### Structure
 
 **Master**: `exploremonument` **[NORMALIZED]**
 
@@ -3500,7 +3500,7 @@ Tables **NORMALIZED** (no language in PK)
 - PK: `monumentId`, `langId`
 - Separate translation table (cleaner than denormalized approach)
 
-####  Mapping Strategy
+#### Mapping Strategy
 
 **For Each Monument**:
 
@@ -3547,7 +3547,7 @@ Tables **NORMALIZED** (no language in PK)
    - Text field with related monument references
    - Parse and create ItemItemLink relationships
 
-####  Monument Extensions
+#### Monument Extensions
 
 **Additional tables with monument data**:
 
@@ -3562,7 +3562,7 @@ Tables **NORMALIZED** (no language in PK)
 - `exploremonument_museums` - Associated museums
   - Create relationships to Partner records
 
-####  Monument Schema References
+#### Monument Schema References
 
 **Cross-schema monument tables** (check for references):
 
@@ -3572,7 +3572,7 @@ Tables **NORMALIZED** (no language in PK)
 
 **Purpose**: Link explore monuments to items in other schemas (deduplication support)
 
-####  Themes
+#### Themes
 
 **Table**: `explorethemes`, `explorethemestranslated`
 
@@ -3583,7 +3583,7 @@ Tables **NORMALIZED** (no language in PK)
 - Monument-to-theme relationships
 - Create item_tag pivot records
 
-####  Images
+#### Images
 
 **Table**: `exploremonument_pictures`
 
@@ -3592,16 +3592,16 @@ Tables **NORMALIZED** (no language in PK)
 - Deduplicate with mwnf3/sh/thg/travel images
 - backward_compatibility: `explore:exploremonument_pictures:{monumentId}:{pictureId}`
 
-####  Import Dependencies
+#### Import Dependencies
 
 - AFTER: Locations (monuments link to locations)
 - AFTER: mwnf3 Items, Travel Items (for cross-schema deduplication)
 - Check REF\_\* fields to determine if monument already imported
 - BEFORE: Explore itineraries (itineraries link to monuments)
 
-###  Task 3.7: Travel Monuments → Items Mapping
+### Task 3.7: Travel Monuments → Items Mapping
 
-####  Structure
+#### Structure
 
 **Table**: `tr_monuments` **[DENORMALIZED]**
 
@@ -3610,7 +3610,7 @@ Tables **NORMALIZED** (no language in PK)
 
 **Pattern**: Same denormalization as mwnf3
 
-####  Mapping Strategy
+#### Mapping Strategy
 
 1. **Group monuments**: Exclude lang from PK grouping
    - Group by: `project_id`, `country`, `trail_id`, `itinerary_id`, `location_id`, `number`
@@ -3634,14 +3634,14 @@ Tables **NORMALIZED** (no language in PK)
    - `tr_monuments_pictures` - Monument images
    - Similar handling as other image tables
 
-####  Import Dependencies
+#### Import Dependencies
 
 - AFTER: tr_locations Collections (monuments link to locations)
 - BEFORE: Explore monuments (explore may reference travel monuments)
 
-###  Task 3.8: Images Mapping
+### Task 3.8: Images Mapping
 
-####  Travel Images
+#### Travel Images
 
 **Collections**:
 
@@ -3664,7 +3664,7 @@ Tables **NORMALIZED** (no language in PK)
 
 **Mapping**: Standard image import with deduplication
 
-####  Explore Images
+#### Explore Images
 
 **Monuments**:
 
@@ -3678,14 +3678,14 @@ Tables **NORMALIZED** (no language in PK)
 
 **Mapping**: Same deduplication strategy as all schemas
 
-####  Import Dependencies
+#### Import Dependencies
 
 - AFTER: Collections, Items created
 - File system access required
 
-###  Task 3.9: Travel/Explore Relationships
+### Task 3.9: Travel/Explore Relationships
 
-####  Travel Relationships
+#### Travel Relationships
 
 **Monument-Location**: Via FK in tr_monuments
 
@@ -3695,7 +3695,7 @@ Tables **NORMALIZED** (no language in PK)
 
 - Create collection-collection relationships
 
-####  Explore Relationships
+#### Explore Relationships
 
 **Monument-Location**: Via FK in exploremonument
 
@@ -3718,7 +3718,7 @@ Tables **NORMALIZED** (no language in PK)
 
 **Mapping**: Create collection_item and collection_collection relationships
 
-####  Cross-Schema References
+#### Cross-Schema References
 
 **Explore → mwnf3**: `REF_monuments_*` fields in exploremonument
 
@@ -3736,14 +3736,14 @@ Tables **NORMALIZED** (no language in PK)
 
 **Purpose**: Deduplication and relationship tracking
 
-####  Import Dependencies
+#### Import Dependencies
 
 - AFTER: All Items created (for ItemItemLink)
 - AFTER: All Collections created (for collection relationships)
 
-###  Task 3.10: Import Dependencies and Execution Order
+### Task 3.10: Import Dependencies and Execution Order
 
-####  Dependency Graph
+#### Dependency Graph
 
 ```
 1. Contexts
@@ -3791,7 +3791,7 @@ Tables **NORMALIZED** (no language in PK)
     └─ Cross-schema: exploremonument REF_* fields → link to existing Items
 ```
 
-####  Execution Order
+#### Execution Order
 
 **A: Contexts**
 
@@ -3827,8 +3827,8 @@ Tables **NORMALIZED** (no language in PK)
 
 **G: Explore Itineraries**
 
-15. Import explore*itineraries → Collections
-16. Import explore_itineraries_rel*\* → collection and collection_item relationships
+15. Import explore\*itineraries → Collections
+16. Import explore_itineraries_rel\*\* → collection and collection_item relationships
 
 **H: Images** (Deduplicate)
 
@@ -3837,11 +3837,11 @@ Tables **NORMALIZED** (no language in PK)
 
 **I: Relationships**
 
-19. Import tr*related_walks → collection relationships
+19. Import tr\*related_walks → collection relationships
 20. Parse related_monument field → ItemItemLink
-21. Link exploremonument via REF*\* fields → update existing Items
+21. Link exploremonument via REF\*\* fields → update existing Items
 
-####  backward_compatibility Format Standards
+#### backward_compatibility Format Standards
 
 **Travel**:
 
@@ -3862,7 +3862,7 @@ Tables **NORMALIZED** (no language in PK)
 - Theme: `explore:themes:{themeId}`
 - Itinerary: `explore:itineraries:{itineraryId}`
 
-####  Key Import Principles
+#### Key Import Principles
 
 1. **Travel Denormalization**: Same pattern as mwnf3.objects - group by non-lang PK columns
 2. **Explore Normalized**: Cleaner structure with separate translation tables
@@ -3873,7 +3873,7 @@ Tables **NORMALIZED** (no language in PK)
 7. **Travel Hierarchy**: Trail → Itinerary → Location (3 collection levels)
 8. **Explore Hierarchy**: Country → Location (2 collection levels, possibly 3 with regions)
 
-####  Critical Findings
+#### Critical Findings
 
 1. **Two Very Different Structures**:
    - Travel: Denormalized like mwnf3 (language in PK) → same grouping approach
@@ -3954,9 +3954,9 @@ mwnf3_travels
 
 ## Sub-Project IIX: Master Strategy & Mapping Document
 
-###  Executive Summary
+### Executive Summary
 
-####  Project Scope
+#### Project Scope
 
 Import legacy museum inventory data from 5 interconnected database schemas into the new unified Laravel-based inventory management system. The import covers approximately **1,150 tables** containing:
 
@@ -3966,7 +3966,7 @@ Import legacy museum inventory data from 5 interconnected database schemas into 
 - **Cross-schema references** requiring careful deduplication
 - **Complex image relationships** with contextual descriptions
 
-####  Key Challenges & Solutions
+#### Key Challenges & Solutions
 
 | Challenge                    | Solution                                                                                         |
 | ---------------------------- | ------------------------------------------------------------------------------------------------ |
@@ -3977,7 +3977,7 @@ Import legacy museum inventory data from 5 interconnected database schemas into 
 | **Contextual translations**  | Same item, different descriptions per context - Multiple ItemTranslation records with context_id |
 | **Image complexity**         | NEW: Single images in galleries + ordered lists - Tree structure with "picture" type items       |
 
-####  Data Flow Architecture
+#### Data Flow Architecture
 
 ```
 LEGACY SCHEMAS                    NEW MODEL
@@ -3996,9 +3996,9 @@ LEGACY SCHEMAS                    NEW MODEL
         └─> Deduplication via backward_compatibility
 ```
 
-###  Schema Architecture Overview
+### Schema Architecture Overview
 
-####  Schema Relationships
+#### Schema Relationships
 
 ```
 mwnf3 (FOUNDATION - Import First)
@@ -4035,7 +4035,7 @@ mwnf3_explore (Geographic Browser)
   └─ 5 description fields per language
 ```
 
-####  Normalization Patterns
+#### Normalization Patterns
 
 | Schema      | Pattern      | Language Handling         | Example PK                                                               |
 | ----------- | ------------ | ------------------------- | ------------------------------------------------------------------------ |
@@ -4048,9 +4048,9 @@ mwnf3_explore (Geographic Browser)
 | **explore** | Normalized   | Separate translated table | Base: `monumentId` (auto-increment)                                      |
 |             |              |                           | Translated: `monumentId, langId`                                         |
 
-###  Collection Type Mapping & Hierarchy
+### Collection Type Mapping & Hierarchy
 
-####  New Model Collection Types
+#### New Model Collection Types
 
 The new model supports **7 collection types** with hierarchical relationships:
 
@@ -4065,9 +4065,9 @@ type CollectionType =
   | 'location'; // Geographic locations
 ```
 
-####  Collection Hierarchy Mappings
+#### Collection Hierarchy Mappings
 
-#####  1. mwnf3 (Core Schema) - SIMPLE FLAT
+##### 1. mwnf3 (Core Schema) - SIMPLE FLAT
 
 ```
 Context (Project)
@@ -4081,7 +4081,7 @@ Context (Project)
 - No hierarchy beyond project level
 - backward_compatibility: `mwnf3:projects:{project_id}`
 
-#####  2. Sharing History - 4-LEVEL HIERARCHY
+##### 2. Sharing History - 4-LEVEL HIERARCHY
 
 ```
 Context (SH Project)
@@ -4116,7 +4116,7 @@ sh:nc_themes:{country}:{exhibition_id}:{theme_id}
 sh:nc_subthemes:{country}:{exhibition_id}:{theme_id}:{subtheme_id}
 ```
 
-#####  3. Thematic Gallery - SELF-REFERENCING
+##### 3. Thematic Gallery - SELF-REFERENCING
 
 ```
 Context (THG Project)
@@ -4143,7 +4143,7 @@ thg:gallery:{gallery_id}
 thg:theme:{gallery_id}:{theme_id}
 ```
 
-#####  4. Travel - 3-LEVEL HIERARCHY (DENORMALIZED)
+##### 4. Travel - 3-LEVEL HIERARCHY (DENORMALIZED)
 
 ```
 Context (Travel Project)
@@ -4174,7 +4174,7 @@ travels:itineraries:{project_id}:{country}:{trail_id}:{number}
 travels:locations:{project_id}:{country}:{trail_id}:{itinerary_id}:{number}
 ```
 
-#####  5. Explore - 2-LEVEL HIERARCHY
+##### 5. Explore - 2-LEVEL HIERARCHY
 
 ```
 Context (Explore)
@@ -4204,7 +4204,7 @@ explore:locations:{locationId}
 explore:itineraries:{itineraryId}
 ```
 
-####  Collection Type Selection Rules
+#### Collection Type Selection Rules
 
 Use this decision tree when importing:
 
@@ -4230,9 +4230,9 @@ Is it a theme within exhibition/gallery?
 Default → type: collection
 ```
 
-###  Image Import Strategy - NEW APPROACH
+### Image Import Strategy - NEW APPROACH
 
-####  Problem: Multiple Image Use Cases
+#### Problem: Multiple Image Use Cases
 
 The legacy system had **two incompatible image models**:
 
@@ -4246,7 +4246,7 @@ The legacy system had **two incompatible image models**:
    - Contextualized caption specific to the gallery
    - Translated caption per language per gallery
 
-####  Solution: Tree-Structured Items with "picture" Type
+#### Solution: Tree-Structured Items with "picture" Type
 
 **New Model Philosophy**: Items form a **directory-tree structure** where:
 
@@ -4255,9 +4255,9 @@ The legacy system had **two incompatible image models**:
   - `detail` (architectural detail of monument)
   - **`picture`** (image as a standalone item)
 
-####  Image Import Rules
+#### Image Import Rules
 
-#####  Rule 1: Top-Level Item with Primary Image
+##### Rule 1: Top-Level Item with Primary Image
 
 For each top-level item (object/monument):
 
@@ -4271,7 +4271,7 @@ For each top-level item (object/monument):
 
 **Example**: `mwnf3:objects:{proj}:{country}:{museum}:{number}` gets ItemImage with order=1
 
-#####  Rule 2: Child Items of Type "picture"
+##### Rule 2: Child Items of Type "picture"
 
 For **every image** (including #1):
 
@@ -4294,7 +4294,7 @@ For **every image** (including #1):
 - ItemImage attached to parent (order=1 for primary)
 - Child item of type "picture" with its own ItemImage (same file, no duplication)
 
-#####  Rule 3: Thematic Gallery Contextual Images
+##### Rule 3: Thematic Gallery Contextual Images
 
 When thg gallery references a specific image with contextualized caption:
 
@@ -4310,9 +4310,9 @@ When thg gallery references a specific image with contextualized caption:
 - Default context (original caption)
 - Gallery context (contextualized caption)
 
-####  Image Import Examples
+#### Image Import Examples
 
-#####  Example 1: mwnf3 Object with 3 Images
+##### Example 1: mwnf3 Object with 3 Images
 
 **Legacy**:
 
@@ -4428,7 +4428,7 @@ Object (vm:ma:louvre:001)
        └─ Captions: EN, FR
 ```
 
-#####  Example 2: THG Gallery with Contextualized Image
+##### Example 2: THG Gallery with Contextualized Image
 
 **Legacy**:
 
@@ -4492,7 +4492,7 @@ ItemTranslation (picture 2, FR, GALLERY CONTEXT):
 - Default context (mwnf3 project): Original caption
 - Gallery 42 context: Contextualized caption
 
-####  Image Import Workflow
+#### Image Import Workflow
 
 **A: Import Parent Items**
 
@@ -4519,7 +4519,7 @@ ItemTranslation (picture 2, FR, GALLERY CONTEXT):
    - Find picture item via backward_compatibility
    - Add ItemTranslation with gallery context_id
 
-####  backward_compatibility for Images
+#### backward_compatibility for Images
 
 **ItemImage** (attached to parent item):
 
@@ -4547,9 +4547,9 @@ sh:object_images:{proj}:{country}:{num}:{image_num}
 # etc...
 ```
 
-###  Entity Mapping Reference
+### Entity Mapping Reference
 
-####  Projects → Contexts + Collections
+#### Projects → Contexts + Collections
 
 | Legacy Schema | Table                 | Maps To              | Collection Type | backward_compatibility           |
 | ------------- | --------------------- | -------------------- | --------------- | -------------------------------- |
@@ -4559,7 +4559,7 @@ sh:object_images:{proj}:{country}:{num}:{image_num}
 | travels       | (uses mwnf3.projects) | -                    | -               | -                                |
 | explore       | (implicit)            | Context + Collection | `collection`    | `explore:context`                |
 
-####  Partners
+#### Partners
 
 | Legacy Schema | Table          | Partner Type          | Deduplication Check | backward_compatibility              |
 | ------------- | -------------- | --------------------- | ------------------- | ----------------------------------- |
@@ -4572,7 +4572,7 @@ sh:object_images:{proj}:{country}:{num}:{image_num}
 
 **Partner Images**: Create **PartnerImage** records directly (not ImageUpload).
 
-####  Items (Objects, Monuments, Details)
+#### Items (Objects, Monuments, Details)
 
 | Legacy Schema | Table                  | Item Type | Normalization | PK Pattern       | backward_compatibility (NO LANG)                                   |
 | ------------- | ---------------------- | --------- | ------------- | ---------------- | ------------------------------------------------------------------ |
@@ -4594,7 +4594,7 @@ sh:object_images:{proj}:{country}:{num}:{image_num}
 - thg items: Check mwnf3 AND sh
 - explore items: Check REF*monuments*_ and REF*tr_monuments*_ fields FIRST
 
-####  Authors
+#### Authors
 
 | Legacy Schema | Table         | Deduplication   | backward_compatibility             |
 | ------------- | ------------- | --------------- | ---------------------------------- |
@@ -4606,7 +4606,7 @@ sh:object_images:{proj}:{country}:{num}:{image_num}
 
 - Type: writer, copyEditor, translator, translationCopyEditor
 
-####  Tags
+#### Tags
 
 | Legacy Schema | Table                   | Tag Category  | backward_compatibility |
 | ------------- | ----------------------- | ------------- | ---------------------- |
@@ -4619,13 +4619,13 @@ sh:object_images:{proj}:{country}:{num}:{image_num}
 
 - `thg_objects_thg_tags`, `thg_objects_sh_tags`, `thg_objects_mwnf3_tags`
 
-####  Collections (Hierarchical)
+#### Collections (Hierarchical)
 
 See [Collection Type Mapping](#collection-type-mapping--hierarchy) section for complete hierarchy mappings.
 
-###  backward_compatibility Format Standards
+### backward_compatibility Format Standards
 
-####  Format Convention
+#### Format Convention
 
 ```
 {schema}:{table}:{pk_columns_excluding_language}
@@ -4637,7 +4637,7 @@ See [Collection Type Mapping](#collection-type-mapping--hierarchy) section for c
 2. **Colon-separated** PK columns
 3. **Schema prefix** for disambiguation
 
-####  Complete Reference Table
+#### Complete Reference Table
 
 | Entity Type             | Schema  | Format Example                                                     |
 | ----------------------- | ------- | ------------------------------------------------------------------ |
@@ -4666,9 +4666,9 @@ See [Collection Type Mapping](#collection-type-mapping--hierarchy) section for c
 | **Tag**                 | thg     | `thg:tags:{tag_id}`                                                |
 | **Tag**                 | explore | `explore:themes:{theme_id}`                                        |
 
-###  Import Execution Order
+### Import Execution Order
 
-####  Phase Dependencies
+#### Phase Dependencies
 
 ```mermaid
 graph TD
@@ -4695,14 +4695,14 @@ graph TD
     U --> V[thg: Contextualized Picture Translations]
 ```
 
-####  Detailed Execution Sequence
+#### Detailed Execution Sequence
 
-#####  **PHASE 1: Foundation** (Already Seeded)
+##### **PHASE 1: Foundation** (Already Seeded)
 
 - ✅ Countries (3-char ISO codes)
 - ✅ Languages (3-char ISO codes)
 
-#####  **PHASE 2: mwnf3 Core (Foundation Schema)**
+##### **PHASE 2: mwnf3 Core (Foundation Schema)**
 
 **2.1: Contexts & Collections**
 
@@ -4748,7 +4748,7 @@ graph TD
 22. Import `objects_objects`, `objects_monuments`, `monuments_monuments` → ItemItemLink
 23. Parse linkobjects, linkmonuments fields → Additional ItemItemLink
 
-#####  **PHASE 3: Sharing History (Exhibitions)**
+##### **PHASE 3: Sharing History (Exhibitions)**
 
 **3.1: Contexts & Collections**
 
@@ -4774,16 +4774,13 @@ graph TD
 
 35. Import `rel_objects_*`, `rel_monuments_*` → collection_item pivots
 
-**3.5: Images**
-36. Import `sh_object_images` → ItemImage (all orders)
-37. Import ALL `sh_object_images` → Picture items + ItemImage + ItemTranslation
-38. Import `sh_monument_images` → Same pattern
+**3.5: Images** 36. Import `sh_object_images` → ItemImage (all orders) 37. Import ALL `sh_object_images` → Picture items + ItemImage + ItemTranslation 38. Import `sh_monument_images` → Same pattern
 
 **3.6: Relationships**
 
 39. Import sh author, tag relationships
 
-#####  **PHASE 4: Travel (Travel Guides)**
+##### **PHASE 4: Travel (Travel Guides)**
 
 **4.1: Collections (Denormalized - Group by non-lang PK)**
 
@@ -4799,7 +4796,7 @@ graph TD
 
 44. Import `tr_monuments_pictures` → ItemImage (all orders) + Picture items
 
-#####  **PHASE 5: Thematic Gallery (Cross-Schema)**
+##### **PHASE 5: Thematic Gallery (Cross-Schema)**
 
 **5.1: Contexts & Collections**
 
@@ -4835,7 +4832,7 @@ graph TD
 
 60. Import `thg_objects_thg_tags`, `thg_objects_sh_tags`, `thg_objects_mwnf3_tags`
 
-#####  **PHASE 6: Explore (Geographic Browser - CRITICAL 1808 Monuments)**
+##### **PHASE 6: Explore (Geographic Browser - CRITICAL 1808 Monuments)**
 
 **6.1: Collections**
 
@@ -4852,7 +4849,7 @@ graph TD
 **6.3: Themes & Itineraries**
 
 67. Import `explorethemes` → Tag
-68. Import `exploremonumentsthemes` → item*tag
+68. Import `exploremonumentsthemes` → item\*tag
 69. Import `explore_itineraries` → Collection (type: `itinerary`) + CollectionImage
 70. Import `explore_itineraries_rel*\*` → collection relationships
 
@@ -4860,7 +4857,7 @@ graph TD
 
 71. Import `exploremonument_pictures` → ItemImage (all orders) + Picture items
 
-#####  **PHASE 7: Contextualized Gallery Images (thg)**
+##### **PHASE 7: Contextualized Gallery Images (thg)**
 
 **7.1: Add Gallery-Specific Picture Translations**
 
@@ -4869,17 +4866,15 @@ graph TD
 - Find picture item via backward_compatibility
 - Add ItemTranslation with gallery context_id
 
-#####  **PHASE 8: Final Relationships**
+##### **PHASE 8: Final Relationships**
 
-**8.1: Item-Item Links**
-73. Parse related_monument fields (explore)
-74. Create all ItemItemLink records
+**8.1: Item-Item Links** 73. Parse related_monument fields (explore) 74. Create all ItemItemLink records
 
-###  Deduplication Strategy
+### Deduplication Strategy
 
-####  Critical Deduplication Points
+#### Critical Deduplication Points
 
-#####  1. Partners
+##### 1. Partners
 
 **Check before creating**:
 
@@ -4902,7 +4897,7 @@ if ($partner) {
 }
 ```
 
-#####  2. Items (Objects, Monuments)
+##### 2. Items (Objects, Monuments)
 
 **Deduplication Triggers**:
 
@@ -4943,7 +4938,7 @@ if ($row->REF_monuments_project_id) {
 // Only create if genuinely new
 ```
 
-#####  3. Authors
+##### 3. Authors
 
 **Check before creating**:
 
@@ -4958,7 +4953,7 @@ $author = Author::where('lastname', $lastname)
     ->first();
 ```
 
-#####  4. Images (ItemImage, CollectionImage, PartnerImage)
+##### 4. Images (ItemImage, CollectionImage, PartnerImage)
 
 **Deduplication Method**: File content hash
 
@@ -4988,7 +4983,7 @@ ItemImage::create([
 ]);
 ```
 
-#####  5. Tags
+##### 5. Tags
 
 **Tags can be shared across schemas** (especially thg using mwnf3 tags)
 
@@ -4996,7 +4991,7 @@ ItemImage::create([
 
 - Name + Category (exact match)
 
-####  backward_compatibility as Deduplication Key
+#### backward_compatibility as Deduplication Key
 
 **Primary Use**: Resolve legacy PKs to new UUIDs
 
@@ -5017,30 +5012,30 @@ if ($item) {
 
 ---
 
-###  Appendices
+### Appendices
 
 #### Appendice A. Language Code Mapping
 
-| Legacy (2-char) | ISO 639-2/T (3-char) | English Name      |
-| --------------- | -------------------- | ----------------- |
-| ar              | ara                  | Arabic - العربية  |
-| ch              | zho                  | Chinese           |
-| cs              | ces                  | Czech             |
-| de              | deu                  | German - Deutsch  |
-| el              | ell                  | Greek - ελληνικά  |
-| en              | eng                  | English           |
-| es              | spa                  | Spanish - Español |
-| fa              | fas                  | Farsi/Persian - فارسی |
-| fr              | fra                  | French - Français |
-| he              | heb                  | Hebrew            |
-| hr              | hrv                  | Croatian          |
-| hu              | hun                  | Hungarian         |
-| it              | ita                  | Italian - Italiano |
+| Legacy (2-char) | ISO 639-2/T (3-char) | English Name           |
+| --------------- | -------------------- | ---------------------- |
+| ar              | ara                  | Arabic - العربية       |
+| ch              | zho                  | Chinese                |
+| cs              | ces                  | Czech                  |
+| de              | deu                  | German - Deutsch       |
+| el              | ell                  | Greek - ελληνικά       |
+| en              | eng                  | English                |
+| es              | spa                  | Spanish - Español      |
+| fa              | fas                  | Farsi/Persian - فارسی  |
+| fr              | fra                  | French - Français      |
+| he              | heb                  | Hebrew                 |
+| hr              | hrv                  | Croatian               |
+| hu              | hun                  | Hungarian              |
+| it              | ita                  | Italian - Italiano     |
 | pt              | por                  | Portuguese - Português |
-| ru              | rus                  | Russian           |
-| se              | swe                  | Swedish           |
-| si              | slv                  | Slovenian         |
-| tr              | tur                  | Turkish - Türkçe  |
+| ru              | rus                  | Russian                |
+| se              | swe                  | Swedish                |
+| si              | slv                  | Slovenian              |
+| tr              | tur                  | Turkish - Türkçe       |
 
 **Note**: Legacy uses non-standard 2-character codes. Chinese uses `ch` instead of ISO `zh`, Swedish uses `se` instead of ISO `sv`, and Slovenian uses `si` instead of ISO `sl`.
 
@@ -5050,90 +5045,90 @@ if ($item) {
 
 Legacy uses non-standard 2-char codes, new model uses 3-char ISO 3166-1 alpha-3.
 
-| Legacy (2-char) | ISO 3166-1 (3-char) | Country Name               |
-| --------------- | ------------------- | -------------------------- |
-| ab              | alb                 | Albania                    |
-| ag              | arg                 | Argentina                  |
-| al              | aus                 | Australia                  |
-| at              | aut                 | Austria                    |
-| az              | aze                 | Azerbaijan                 |
-| be              | bel                 | Belgium                    |
-| bg              | bgd                 | Bangladesh                 |
-| bh              | bhr                 | Bahrain                    |
-| bl              | blr                 | Belarus                    |
-| br              | bra                 | Brazil                     |
-| bs              | bih                 | Bosnia-Herzegovina         |
-| bu              | bgr                 | Bulgaria                   |
-| ca              | can                 | Canada                     |
-| ch              | chn                 | China                      |
-| co              | com                 | Comoros                    |
-| cy              | cyp                 | Cyprus                     |
-| cz              | cze                 | Czech Republic             |
-| de              | deu                 | Germany                    |
-| dj              | dji                 | Djibouti                   |
-| dn              | dnk                 | Denmark                    |
-| dz              | dza                 | Algeria                    |
-| eg              | egy                 | Egypt                      |
-| es              | esp                 | Spain                      |
-| et              | est                 | Estonia                    |
-| fn              | fin                 | Finland                    |
-| fr              | fra                 | France                     |
-| ge              | geo                 | Georgia                    |
-| gr              | grc                 | Greece                     |
-| hr              | hrv                 | Croatia                    |
-| hu              | hun                 | Hungary                    |
-| ia              | irn                 | Iran                       |
-| in              | ind                 | India                      |
-| iq              | irq                 | Iraq                       |
-| ir              | irl                 | Ireland                    |
-| is              | isr                 | Israel                     |
-| it              | ita                 | Italy                      |
-| ix              | ita                 | Italy (Sicily)             |
-| jo              | jor                 | Jordan                     |
-| jp              | jpn                 | Japan                      |
-| kw              | kwt                 | Kuwait                     |
-| lb              | lbn                 | Lebanon                    |
-| ln              | ltu                 | Lithuania                  |
-| lt              | lva                 | Latvia                     |
-| lx              | lux                 | Luxembourg                 |
-| ly              | lby                 | Libya                      |
-| ma              | mar                 | Morocco                    |
+| Legacy (2-char) | ISO 3166-1 (3-char) | Country Name                |
+| --------------- | ------------------- | --------------------------- |
+| ab              | alb                 | Albania                     |
+| ag              | arg                 | Argentina                   |
+| al              | aus                 | Australia                   |
+| at              | aut                 | Austria                     |
+| az              | aze                 | Azerbaijan                  |
+| be              | bel                 | Belgium                     |
+| bg              | bgd                 | Bangladesh                  |
+| bh              | bhr                 | Bahrain                     |
+| bl              | blr                 | Belarus                     |
+| br              | bra                 | Brazil                      |
+| bs              | bih                 | Bosnia-Herzegovina          |
+| bu              | bgr                 | Bulgaria                    |
+| ca              | can                 | Canada                      |
+| ch              | chn                 | China                       |
+| co              | com                 | Comoros                     |
+| cy              | cyp                 | Cyprus                      |
+| cz              | cze                 | Czech Republic              |
+| de              | deu                 | Germany                     |
+| dj              | dji                 | Djibouti                    |
+| dn              | dnk                 | Denmark                     |
+| dz              | dza                 | Algeria                     |
+| eg              | egy                 | Egypt                       |
+| es              | esp                 | Spain                       |
+| et              | est                 | Estonia                     |
+| fn              | fin                 | Finland                     |
+| fr              | fra                 | France                      |
+| ge              | geo                 | Georgia                     |
+| gr              | grc                 | Greece                      |
+| hr              | hrv                 | Croatia                     |
+| hu              | hun                 | Hungary                     |
+| ia              | irn                 | Iran                        |
+| in              | ind                 | India                       |
+| iq              | irq                 | Iraq                        |
+| ir              | irl                 | Ireland                     |
+| is              | isr                 | Israel                      |
+| it              | ita                 | Italy                       |
+| ix              | ita                 | Italy (Sicily)              |
+| jo              | jor                 | Jordan                      |
+| jp              | jpn                 | Japan                       |
+| kw              | kwt                 | Kuwait                      |
+| lb              | lbn                 | Lebanon                     |
+| ln              | ltu                 | Lithuania                   |
+| lt              | lva                 | Latvia                      |
+| lx              | lux                 | Luxembourg                  |
+| ly              | lby                 | Libya                       |
+| ma              | mar                 | Morocco                     |
 | mc              | mkd                 | Macedonia (North Macedonia) |
-| md              | mda                 | Moldova                    |
-| ml              | mlt                 | Malta                      |
-| mn              | mne                 | Montenegro                 |
-| mt              | mrt                 | Mauritania                 |
-| my              | mys                 | Malaysia                   |
-| nt              | nld                 | Netherlands                |
-| nw              | nor                 | Norway                     |
-| on              | omn                 | Oman                       |
-| pa              | pse                 | Palestinian Authority      |
-| pd              | zzzpd               | Public domain (no country) |
-| pl              | pol                 | Poland                     |
-| pt              | prt                 | Portugal                   |
-| px              | pse                 | Palestine                  |
-| qt              | qat                 | Qatar                      |
-| rm              | rou                 | Romania                    |
-| rs              | rus                 | Russia                     |
-| sa              | sau                 | Saudi Arabia               |
-| sb              | srb                 | Serbia                     |
-| sd              | sdn                 | Sudan                      |
-| se              | swe                 | Sweden                     |
-| sf              | zaf                 | South Africa               |
-| si              | svn                 | Slovenia                   |
-| sl              | svk                 | Slovak Republic            |
-| so              | som                 | Somalia                    |
-| sw              | che                 | Switzerland                |
-| sy              | syr                 | Syria                      |
-| tn              | tun                 | Tunisia                    |
-| tr              | tur                 | Turkey                     |
-| ua              | are                 | United Arab Emirates       |
-| uc              | ukr                 | Ukraine                    |
-| uk              | gbr                 | United Kingdom             |
-| us              | usa                 | United States of America   |
-| va              | vat                 | Vatican city               |
+| md              | mda                 | Moldova                     |
+| ml              | mlt                 | Malta                       |
+| mn              | mne                 | Montenegro                  |
+| mt              | mrt                 | Mauritania                  |
+| my              | mys                 | Malaysia                    |
+| nt              | nld                 | Netherlands                 |
+| nw              | nor                 | Norway                      |
+| on              | omn                 | Oman                        |
+| pa              | pse                 | Palestinian Authority       |
+| pd              | zzzpd               | Public domain (no country)  |
+| pl              | pol                 | Poland                      |
+| pt              | prt                 | Portugal                    |
+| px              | pse                 | Palestine                   |
+| qt              | qat                 | Qatar                       |
+| rm              | rou                 | Romania                     |
+| rs              | rus                 | Russia                      |
+| sa              | sau                 | Saudi Arabia                |
+| sb              | srb                 | Serbia                      |
+| sd              | sdn                 | Sudan                       |
+| se              | swe                 | Sweden                      |
+| sf              | zaf                 | South Africa                |
+| si              | svn                 | Slovenia                    |
+| sl              | svk                 | Slovak Republic             |
+| so              | som                 | Somalia                     |
+| sw              | che                 | Switzerland                 |
+| sy              | syr                 | Syria                       |
+| tn              | tun                 | Tunisia                     |
+| tr              | tur                 | Turkey                      |
+| ua              | are                 | United Arab Emirates        |
+| uc              | ukr                 | Ukraine                     |
+| uk              | gbr                 | United Kingdom              |
+| us              | usa                 | United States of America    |
+| va              | vat                 | Vatican city                |
 | ww              | zzzww               | Other - no specific country |
-| ym              | yem                 | Yemen                      |
+| ym              | yem                 | Yemen                       |
 
 **Note**: Legacy uses non-standard 2-character codes. Many codes differ from ISO standards (e.g., `ab` for Albania instead of `al`, `bu` for Bulgaria instead of `bg`, `ch` for China instead of `cn`, `dn` for Denmark instead of `dk`, etc.). Special codes: `pd` (Public domain) maps to `zzzpd`, `ww` (Worldwide/Other) maps to `zzzww`, and `ix` (Italy/Sicily) maps to `ita`.
 
@@ -5141,7 +5136,7 @@ Legacy uses non-standard 2-char codes, new model uses 3-char ISO 3166-1 alpha-3.
 
 ---
 
-####  C. Collection Type Matrix
+#### C. Collection Type Matrix
 
 | Legacy Entity       | Schema          | Collection Type  | Has Children | Max Depth |
 | ------------------- | --------------- | ---------------- | ------------ | --------- |

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseImporter, ImportResult } from '../BaseImporter.js';
 import { BackwardCompatibilityFormatter } from '../../utils/BackwardCompatibilityFormatter.js';
 import { mapLanguageCode } from '../../utils/CodeMappings.js';
@@ -173,7 +174,7 @@ export class MonumentImporter extends BaseImporter {
     if (sampleTranslation) {
       this.collectSample(
         'monument',
-        sampleTranslation,
+        sampleTranslation as unknown as Record<string, unknown>,
         'success',
         undefined,
         mapLanguageCode(sampleTranslation.lang)
@@ -254,6 +255,7 @@ export class MonumentImporter extends BaseImporter {
       type: 'monument',
       collection_id: collectionId,
       partner_id: partnerId,
+      mwnf_reference: firstTranslation.working_number || null,
       backward_compatibility: backwardCompat,
     });
 
@@ -312,65 +314,58 @@ export class MonumentImporter extends BaseImporter {
     // Map legacy ISO 639-1 to ISO 639-3
     const languageId = mapLanguageCode(monument.lang);
 
-    // TODO: Resolve author IDs when API endpoints are available
-    // For now, author names are stored as text in extra field
-    const authorId = null;
-    const textCopyEditorId = null;
-    const translatorId = null;
-    const translationCopyEditorId = null;
+    // Create/find authors and get their IDs
+    const authorId = monument.preparedby
+      ? await this.findOrCreateAuthor(monument.preparedby, languageId)
+      : null;
+    const textCopyEditorId = monument.copyeditedby
+      ? await this.findOrCreateAuthor(monument.copyeditedby, languageId)
+      : null;
+    const translatorId = monument.translationby
+      ? await this.findOrCreateAuthor(monument.translationby, languageId)
+      : null;
+    const translationCopyEditorId = monument.translationcopyeditedby
+      ? await this.findOrCreateAuthor(monument.translationcopyeditedby, languageId)
+      : null;
 
     // Combine location, province, and address
     const locationParts = [monument.location, monument.province, monument.address].filter(Boolean);
     const locationFull = locationParts.length > 0 ? locationParts.join(', ') : null;
 
-    // Store author names and additional info in extra field
-    const extraData = {
-      preparedby: monument.preparedby || null,
-      copyeditedby: monument.copyeditedby || null,
-      translationby: monument.translationby || null,
-      translationcopyeditedby: monument.translationcopyeditedby || null,
-      phone: monument.phone || null,
-      fax: monument.fax || null,
-      email: monument.email || null,
-      institution: monument.institution || null,
-      patrons: monument.patrons || null,
-      architects: monument.architects || null,
-      history: monument.history || null,
-      external_sources: monument.external_sources || null,
-    };
+    // Build extra field ONLY for monument-specific fields that don't have dedicated columns
+    const extraData: Record<string, unknown> = {};
 
-    // DATA QUALITY: Handle missing required fields with fallbacks
-    let name = monument.name;
-    let description = monument.description;
+    // Only add to extra if the value is not null/empty
+    if (monument.phone) extraData.phone = monument.phone;
+    if (monument.fax) extraData.fax = monument.fax;
+    if (monument.email) extraData.email = monument.email;
+    if (monument.institution) extraData.institution = monument.institution;
+    if (monument.patrons) extraData.patrons = monument.patrons;
+    if (monument.architects) extraData.architects = monument.architects;
+    if (monument.history) extraData.history = monument.history;
+    if (monument.external_sources) extraData.external_sources = monument.external_sources;
+    if (monument.description2) extraData.description2 = monument.description2;
+    if ('copyright' in monument && monument.copyright)
+      extraData.copyright = monument.copyright as string;
 
-    if (!name || name.trim() === '') {
-      const warning = `${monument.project_id}:${monument.institution_id}:${monument.number}:${monument.lang} - Missing 'name', using fallback`;
+    // Extra field should be object or null (API will handle JSON encoding)
+    const extraField = Object.keys(extraData).length > 0 ? extraData : null;
+
+    // Use name and description as-is, no fake text insertion
+    const name = monument.name?.trim() || null;
+    const description = monument.description?.trim() || null;
+
+    // Validate required fields
+    if (!name) {
+      const warning = `${monument.project_id}:${monument.institution_id}:${monument.number}:${monument.lang} - Missing required 'name' field`;
       this.logWarning(`DATA QUALITY: Monument translation ${warning}`, {
         monument_key: `${monument.project_id}:${monument.institution_id}:${monument.number}`,
         language: monument.lang,
         issue: 'Missing name',
-        fallback_used: monument.working_number || `Monument ${monument.number}`,
       });
       result.warnings?.push(warning);
-      name = monument.working_number || `Monument ${monument.number}`;
-
-      // Collect sample for testing - missing name warning
-      this.collectSample('monument', monument, 'warning', 'missing_name', languageId);
-    }
-
-    if (!description || description.trim() === '') {
-      const warning = `${monument.project_id}:${monument.institution_id}:${monument.number}:${monument.lang} - Missing 'description', using fallback`;
-      this.logWarning(`DATA QUALITY: Monument translation ${warning}`, {
-        monument_key: `${monument.project_id}:${monument.institution_id}:${monument.number}`,
-        language: monument.lang,
-        issue: 'Missing description',
-        fallback_used: '(No description available)',
-      });
-      result.warnings?.push(warning);
-      description = '(No description available)';
-
-      // Collect sample for testing - missing description warning
-      this.collectSample('monument', monument, 'warning', 'missing_description', languageId);
+      // Skip this translation - name is required
+      return;
     }
 
     // DATA QUALITY: Truncate fields that exceed database limits (255 chars)
@@ -390,7 +385,13 @@ export class MonumentImporter extends BaseImporter {
       alternateName = alternateName.substring(0, 252) + '...';
 
       // Collect sample for testing - long alternate_name
-      this.collectSample('monument', monument, 'edge', 'long_alternate_name', languageId);
+      this.collectSample(
+        'monument',
+        monument as unknown as Record<string, unknown>,
+        'edge',
+        'long_alternate_name',
+        languageId
+      );
     }
 
     if (type && type.length > 255) {
@@ -406,20 +407,30 @@ export class MonumentImporter extends BaseImporter {
       type = type.substring(0, 252) + '...';
 
       // Collect sample for testing - long type field
-      this.collectSample('monument', monument, 'edge', 'long_type', languageId);
+      this.collectSample(
+        'monument',
+        monument as unknown as Record<string, unknown>,
+        'edge',
+        'long_type',
+        languageId
+      );
     }
 
-    // Convert HTML fields to Markdown (API expects Markdown, not HTML)
-    const descriptionMarkdown = convertHtmlToMarkdown(description);
-    const bibliographyMarkdown = convertHtmlToMarkdown(monument.bibliography);
+    // Convert ALL HTML fields to Markdown (including name field)
+    const nameMarkdown = convertHtmlToMarkdown(name || '');
+    const alternateNameMarkdown = alternateName ? convertHtmlToMarkdown(alternateName) : null;
+    const descriptionMarkdown = description ? convertHtmlToMarkdown(description) : null;
+    const bibliographyMarkdown = monument.bibliography
+      ? convertHtmlToMarkdown(monument.bibliography)
+      : null;
 
     await this.context.apiClient.itemTranslation.itemTranslationStore({
       item_id: itemId,
       language_id: languageId,
       context_id: contextId,
-      name: name,
-      description: descriptionMarkdown,
-      alternate_name: alternateName,
+      name: nameMarkdown,
+      description: descriptionMarkdown || '',
+      alternate_name: alternateNameMarkdown,
       type: type,
       dates: monument.date_description || null,
       location: locationFull,
@@ -429,7 +440,7 @@ export class MonumentImporter extends BaseImporter {
       text_copy_editor_id: textCopyEditorId,
       translator_id: translatorId,
       translation_copy_editor_id: translationCopyEditorId,
-      extra: JSON.stringify(extraData),
+      extra: extraField ? JSON.stringify(extraField) : null,
     });
   }
 
@@ -512,7 +523,7 @@ export class MonumentImporter extends BaseImporter {
               backward_compatibility: backwardCompat,
             };
 
-            const response = await this.context.apiClient.tag.tagStore(createPayload);
+            const response = await this.context.apiClient.tag.tagStore(createPayload as any);
             tagId = response.data.data.id;
 
             // Register in tracker (use 'item' as valid entityType)
@@ -530,8 +541,10 @@ export class MonumentImporter extends BaseImporter {
               const is422 = axiosError.response?.status === 422;
               const is500Duplicate =
                 axiosError.response?.status === 500 &&
-                axiosError.response?.data?.message?.includes('Duplicate entry') &&
-                axiosError.response?.data?.message?.includes('tags_name_category_lang_unique');
+                (axiosError.response?.data as any)?.message?.includes('Duplicate entry') &&
+                (axiosError.response?.data as any)?.message?.includes(
+                  'tags_name_category_lang_unique'
+                );
 
               if (is422 || is500Duplicate) {
                 // Tag exists - do exhaustive search by backward_compatibility
@@ -684,5 +697,118 @@ export class MonumentImporter extends BaseImporter {
     await this.context.apiClient.item.itemUpdateTags(itemId, {
       attach: tagIds,
     });
+  }
+
+  /**
+   * Find or create an Author from a name string
+   * Authors are language-independent (name is the same across languages)
+   */
+  private async findOrCreateAuthor(
+    authorName: string,
+    _languageId: string
+  ): Promise<string | null> {
+    if (!authorName || authorName.trim() === '') {
+      return null;
+    }
+
+    const trimmedName = authorName.trim();
+
+    // Check tracker first
+    const backwardCompat = BackwardCompatibilityFormatter.format({
+      schema: 'mwnf3',
+      table: 'authors',
+      pkValues: [trimmedName],
+    });
+
+    const existing = this.context.tracker.getUuid(backwardCompat);
+    if (existing) {
+      return existing;
+    }
+
+    // Search in API
+    const foundId = await this.findExistingAuthorByBackwardCompat(backwardCompat);
+    if (foundId) {
+      return foundId;
+    }
+
+    // Create new author
+    try {
+      const response = await (this.context.apiClient as any).author.authorStore({
+        name: trimmedName,
+        internal_name: trimmedName,
+        backward_compatibility: backwardCompat,
+      });
+
+      const authorId = response.data.data.id;
+
+      // Register in tracker
+      this.context.tracker.register({
+        uuid: authorId,
+        backwardCompatibility: backwardCompat,
+        entityType: 'item' as any,
+        createdAt: new Date(),
+      });
+
+      return authorId;
+    } catch (error) {
+      // If 422 conflict, try to find it
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 422) {
+          // Try exhaustive search
+          const foundId = await this.findExistingAuthorByBackwardCompat(backwardCompat, 200);
+          if (foundId) {
+            return foundId;
+          }
+        }
+      }
+      this.logError(
+        `Failed to create author: ${trimmedName}`,
+        error instanceof Error ? error : new Error(String(error))
+      );
+      return null;
+    }
+  }
+
+  /**
+   * Search for existing author by backward_compatibility
+   */
+  private async findExistingAuthorByBackwardCompat(
+    backwardCompat: string,
+    maxPages: number = 100
+  ): Promise<string | null> {
+    let page = 1;
+    const perPage = 100;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await (this.context.apiClient as any).author.authorIndex(
+        page,
+        perPage,
+        undefined
+      );
+      const authors = response.data.data;
+
+      const existing = authors.find((a: any) => a.backward_compatibility === backwardCompat);
+
+      if (existing) {
+        this.context.tracker.register({
+          uuid: existing.id,
+          backwardCompatibility: backwardCompat,
+          entityType: 'item' as any,
+          createdAt: new Date(),
+        });
+        return existing.id;
+      }
+
+      hasMore = authors.length === perPage;
+      page++;
+
+      if (page > maxPages) {
+        break;
+      }
+    }
+
+    return null;
   }
 }

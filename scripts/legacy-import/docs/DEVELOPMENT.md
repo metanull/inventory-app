@@ -1,11 +1,19 @@
 # Legacy Data Import - Development Guide
 
-Running the importer: 
+Running the importer:
+
 ```
 Set-Location E:\inventory\inventory-app\scripts\legacy-import
 $env:API_EMAIL="user@example.com"
 $env:API_PASSWORD="password"
 npx tsx src/index.ts import --start-at monument
+```
+
+Running the dumper:
+
+```
+Set-Location E:\inventory\inventory-app\scripts\legacy-import
+tsx src/dump-data.ts all
 ```
 
 ## Overview

@@ -150,7 +150,7 @@ export class ProjectImporter extends BaseImporter {
     });
 
     // Collect sample for testing
-    this.collectSample('project', project, 'success');
+    this.collectSample('project', project as unknown as Record<string, unknown>, 'success');
 
     // Skip API calls in sample-only mode
     if (this.isSampleOnlyMode) {

@@ -89,7 +89,13 @@ export class LanguageTranslationImporter extends BaseImporter {
     // Collect sample for testing (BEFORE API calls)
     const languageId = mapLanguageCode(languageName.lang_id);
     const displayLanguageId = mapLanguageCode(languageName.lang);
-    this.collectSample('language_translation', languageName, 'success', undefined, languageId);
+    this.collectSample(
+      'language_translation',
+      languageName as unknown as Record<string, unknown>,
+      'success',
+      undefined,
+      languageId
+    );
 
     if (this.context.dryRun || this.isSampleOnlyMode) {
       this.logInfo(
@@ -98,8 +104,10 @@ export class LanguageTranslationImporter extends BaseImporter {
 
       if (this.isSampleOnlyMode) {
         this.context.tracker.register({
+          entityType: 'context',
           uuid: `${languageId}:${displayLanguageId}`,
           backwardCompatibility: backwardCompat,
+          createdAt: new Date(),
         });
       }
       return true;

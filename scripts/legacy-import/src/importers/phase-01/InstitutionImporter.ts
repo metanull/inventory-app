@@ -119,10 +119,19 @@ export class InstitutionImporter extends BaseImporter {
       institution.name = `Institution ${institution.institution_id} (${institution.country})`;
 
       // Collect sample for testing - warning case
-      this.collectSample('partner_institution', institution, 'warning', 'missing_name');
+      this.collectSample(
+        'partner_institution',
+        institution as unknown as Record<string, unknown>,
+        'warning',
+        'missing_name'
+      );
     } else {
       // Collect sample for testing - success case
-      this.collectSample('partner_institution', institution, 'success');
+      this.collectSample(
+        'partner_institution',
+        institution as unknown as Record<string, unknown>,
+        'success'
+      );
     }
 
     if (this.context.dryRun || this.isSampleOnlyMode) {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseImporter, ImportResult } from '../BaseImporter.js';
 import { BackwardCompatibilityFormatter } from '../../utils/BackwardCompatibilityFormatter.js';
 import { mapLanguageCode } from '../../utils/CodeMappings.js';
@@ -177,7 +178,7 @@ export class ObjectImporter extends BaseImporter {
     if (sampleTranslation) {
       this.collectSample(
         'object',
-        sampleTranslation,
+        sampleTranslation as unknown as Record<string, unknown>,
         'success',
         undefined,
         mapLanguageCode(sampleTranslation.lang)
@@ -259,6 +260,8 @@ export class ObjectImporter extends BaseImporter {
       type: 'object',
       collection_id: collectionId,
       partner_id: partnerId,
+      owner_reference: firstTranslation.inventory_id || null,
+      mwnf_reference: firstTranslation.working_number || null,
       backward_compatibility: backwardCompat,
     });
 
@@ -316,10 +319,17 @@ export class ObjectImporter extends BaseImporter {
 
     // Create and attach artist(s) if present (using first translation)
     if (firstTranslation.artist) {
-      const artistIds = await this.findOrCreateArtist(firstTranslation, languageId);
+      const artistIds = await this.findOrCreateArtists(
+        firstTranslation.artist,
+        firstTranslation.birthplace,
+        firstTranslation.deathplace,
+        firstTranslation.birthdate,
+        firstTranslation.deathdate,
+        firstTranslation.period_activity
+      );
       if (artistIds.length > 0) {
-        // Add artist as a special tag for now (until API endpoint exists)
-        await this.attachTags(itemId, artistIds);
+        // Attach artists to item using artist_item pivot table
+        await this.attachArtists(itemId, artistIds);
       }
     }
 
@@ -335,58 +345,51 @@ export class ObjectImporter extends BaseImporter {
     // Map legacy ISO 639-1 to ISO 639-3
     const languageId = mapLanguageCode(obj.lang);
 
-    // TODO: Resolve author IDs when API endpoints are available
-    // For now, author names are stored as text in extra field
-    const authorId = null; // await this.findOrCreateAuthor(obj.preparedby);
-    const textCopyEditorId = null; // await this.findOrCreateAuthor(obj.copyeditedby);
-    const translatorId = null; // await this.findOrCreateAuthor(obj.translationby);
-    const translationCopyEditorId = null; // await this.findOrCreateAuthor(obj.translationcopyeditedby);
+    // Create/find authors and get their IDs
+    const authorId = obj.preparedby
+      ? await this.findOrCreateAuthor(obj.preparedby, languageId)
+      : null;
+    const textCopyEditorId = obj.copyeditedby
+      ? await this.findOrCreateAuthor(obj.copyeditedby, languageId)
+      : null;
+    const translatorId = obj.translationby
+      ? await this.findOrCreateAuthor(obj.translationby, languageId)
+      : null;
+    const translationCopyEditorId = obj.translationcopyeditedby
+      ? await this.findOrCreateAuthor(obj.translationcopyeditedby, languageId)
+      : null;
 
     // Combine location and province
     const locationFull = [obj.location, obj.province].filter(Boolean).join(', ') || null;
 
-    // Store author names in extra field for now
-    const extraData = {
-      preparedby: obj.preparedby || null,
-      copyeditedby: obj.copyeditedby || null,
-      translationby: obj.translationby || null,
-      translationcopyeditedby: obj.translationcopyeditedby || null,
-      workshop: obj.workshop || null,
-      provenance: obj.provenance || null,
-    };
+    // Build extra field ONLY for fields that don't have dedicated columns
+    const extraData: Record<string, unknown> = {};
 
-    // DATA QUALITY: Check for missing required fields
-    let name = obj.name?.trim() || '';
-    let description = obj.description?.trim() || '';
+    // Only add to extra if the value is not null/empty
+    if (obj.workshop) extraData.workshop = obj.workshop;
+    if (obj.description2) extraData.description2 = obj.description2;
+    if ('copyright' in obj && obj.copyright) extraData.copyright = obj.copyright as string;
+    if ('binding_desc' in obj && obj.binding_desc)
+      extraData.binding_desc = obj.binding_desc as string;
 
+    // Extra field should be object or null (API will handle JSON encoding)
+    const extraField = Object.keys(extraData).length > 0 ? extraData : null;
+
+    // Use name and description as-is, no fake text insertion
+    const name = obj.name?.trim() || null;
+    const description = obj.description?.trim() || null;
+
+    // Validate required fields
     if (!name) {
-      const warning = `${obj.project_id}:${obj.museum_id}:${obj.number}:${obj.lang} - Missing 'name', using fallback`;
+      const warning = `${obj.project_id}:${obj.museum_id}:${obj.number}:${obj.lang} - Missing required 'name' field`;
       this.logWarning(`DATA QUALITY: Object translation ${warning}`, {
         object_key: `${obj.project_id}:${obj.museum_id}:${obj.number}`,
         language: obj.lang,
         issue: 'Missing name',
-        fallback_used: obj.working_number || obj.inventory_id || `Object ${obj.number}`,
       });
       result.warnings?.push(warning);
-      name = obj.working_number || obj.inventory_id || `Object ${obj.number}`;
-
-      // Collect sample for testing - missing name warning
-      this.collectSample('object', obj, 'warning', 'missing_name', languageId);
-    }
-
-    if (!description) {
-      const warning = `${obj.project_id}:${obj.museum_id}:${obj.number}:${obj.lang} - Missing 'description', using fallback`;
-      this.logWarning(`DATA QUALITY: Object translation ${warning}`, {
-        object_key: `${obj.project_id}:${obj.museum_id}:${obj.number}`,
-        language: obj.lang,
-        issue: 'Missing description',
-        fallback_used: '(No description available)',
-      });
-      result.warnings?.push(warning);
-      description = '(No description available)';
-
-      // Collect sample for testing - missing description warning
-      this.collectSample('object', obj, 'warning', 'missing_description', languageId);
+      // Skip this translation - name is required
+      return;
     }
 
     // DATA QUALITY: Truncate fields that exceed database limits (255 chars)
@@ -406,7 +409,13 @@ export class ObjectImporter extends BaseImporter {
       alternateName = alternateName.substring(0, 252) + '...';
 
       // Collect sample for testing - long alternate_name
-      this.collectSample('object', obj, 'edge', 'long_alternate_name', languageId);
+      this.collectSample(
+        'object',
+        obj as unknown as Record<string, unknown>,
+        'edge',
+        'long_alternate_name',
+        languageId
+      );
     }
 
     if (type && type.length > 255) {
@@ -422,20 +431,28 @@ export class ObjectImporter extends BaseImporter {
       type = type.substring(0, 252) + '...';
 
       // Collect sample for testing - long type field
-      this.collectSample('object', obj, 'edge', 'long_type', languageId);
+      this.collectSample(
+        'object',
+        obj as unknown as Record<string, unknown>,
+        'edge',
+        'long_type',
+        languageId
+      );
     }
 
-    // Convert HTML fields to Markdown (API expects Markdown, not HTML)
-    const descriptionMarkdown = convertHtmlToMarkdown(description);
-    const bibliographyMarkdown = convertHtmlToMarkdown(obj.bibliography);
+    // Convert ALL HTML fields to Markdown (including name field)
+    const nameMarkdown = convertHtmlToMarkdown(name || '');
+    const alternateNameMarkdown = alternateName ? convertHtmlToMarkdown(alternateName) : null;
+    const descriptionMarkdown = description ? convertHtmlToMarkdown(description) : null;
+    const bibliographyMarkdown = obj.bibliography ? convertHtmlToMarkdown(obj.bibliography) : null;
 
     await this.context.apiClient.itemTranslation.itemTranslationStore({
       item_id: itemId,
       language_id: languageId,
       context_id: contextId,
-      name: name,
-      description: descriptionMarkdown,
-      alternate_name: alternateName,
+      name: nameMarkdown,
+      description: descriptionMarkdown || '',
+      alternate_name: alternateNameMarkdown,
       type: type,
       holder: obj.holding_museum || null,
       owner: obj.current_owner || null,
@@ -452,23 +469,29 @@ export class ObjectImporter extends BaseImporter {
       text_copy_editor_id: textCopyEditorId,
       translator_id: translatorId,
       translation_copy_editor_id: translationCopyEditorId,
-      extra: JSON.stringify(extraData),
+      extra: extraField ? JSON.stringify(extraField) : null,
     });
   }
 
   /**
-   * TODO: Implement proper Artist API endpoints
-   * For now, we'll create artists as Tags with special prefix
+   * Find or create Artist records from the artist field
    * Artists field can contain multiple artists separated by semicolons
-   * Artists are language-specific like other tags
+   * Returns array of artist UUIDs
    */
-  private async findOrCreateArtist(obj: LegacyObject, languageId: string): Promise<string[]> {
-    if (!obj.artist || obj.artist.trim() === '') {
+  private async findOrCreateArtists(
+    artistField: string | null,
+    birthplace: string | null | undefined,
+    deathplace: string | null | undefined,
+    birthdate: string | null | undefined,
+    deathdate: string | null | undefined,
+    periodActivity: string | null | undefined
+  ): Promise<string[]> {
+    if (!artistField || artistField.trim() === '') {
       return [];
     }
 
     // Split by semicolon to handle multiple artists
-    const artistNames = obj.artist
+    const artistNames = artistField
       .split(';')
       .map((name) => name.trim())
       .filter((name) => name !== '');
@@ -476,7 +499,14 @@ export class ObjectImporter extends BaseImporter {
     const artistIds: string[] = [];
 
     for (const artistName of artistNames) {
-      const artistId = await this.findOrCreateSingleArtist(artistName, obj, languageId);
+      const artistId = await this.findOrCreateSingleArtist(
+        artistName,
+        birthplace,
+        deathplace,
+        birthdate,
+        deathdate,
+        periodActivity
+      );
       if (artistId) {
         artistIds.push(artistId);
       }
@@ -486,17 +516,19 @@ export class ObjectImporter extends BaseImporter {
   }
 
   /**
-   * Find or create a single artist as a Tag
+   * Find or create a single Artist record
    */
   private async findOrCreateSingleArtist(
     artistName: string,
-    obj: LegacyObject,
-    languageId: string
+    birthplace: string | null | undefined,
+    deathplace: string | null | undefined,
+    birthdate: string | null | undefined,
+    deathdate: string | null | undefined,
+    periodActivity: string | null | undefined
   ): Promise<string | null> {
-    // Include language to distinguish same artist name in different languages
     const backwardCompat = BackwardCompatibilityFormatter.format({
       schema: 'mwnf3',
-      table: `artists:${languageId}`,
+      table: 'artists',
       pkValues: [artistName],
     });
 
@@ -510,44 +542,24 @@ export class ObjectImporter extends BaseImporter {
       return null;
     }
 
-    // Lookup existing artist first to avoid unnecessary warnings
-    const existing = await this.findExistingTagByBackwardCompat(backwardCompat);
-    if (existing) {
-      this.context.tracker.register({
-        uuid: existing,
-        backwardCompatibility: backwardCompat,
-        entityType: 'item',
-        createdAt: new Date(),
-      });
-      return existing;
+    // Search in API
+    const foundId = await this.findExistingArtistByBackwardCompat(backwardCompat);
+    if (foundId) {
+      return foundId;
     }
 
-    // Create artist as Tag with special naming convention
-    const artistData = {
-      place_of_birth: obj.birthplace || null,
-      place_of_death: obj.deathplace || null,
-      date_of_birth: obj.birthdate || null,
-      date_of_death: obj.deathdate || null,
-      period_of_activity: obj.period_activity || null,
-    };
-
-    // Normalize to lowercase and limit to 240 chars (DB limit is 255, leave margin)
-    const normalizedArtistName = artistName.toLowerCase();
-    const internalName = normalizedArtistName.substring(0, 240);
-
+    // Create new artist
     try {
-      // Internal_name should be clean artist name only (lowercase)
-      // Category and language_id are separate fields
-      // Original capitalization preserved in description
-      const createPayload: Record<string, unknown> = {
-        internal_name: internalName,
-        category: 'artist',
-        language_id: languageId,
-        description: JSON.stringify({ ...artistData, original_name: artistName }),
+      const response = await (this.context.apiClient as any).artist.artistStore({
+        name: artistName,
+        internal_name: artistName,
+        place_of_birth: birthplace || null,
+        place_of_death: deathplace || null,
+        date_of_birth: birthdate || null,
+        date_of_death: deathdate || null,
+        period_of_activity: periodActivity || null,
         backward_compatibility: backwardCompat,
-      };
-
-      const response = await this.context.apiClient.tag.tagStore(createPayload);
+      });
 
       const artistId = response.data.data.id;
 
@@ -555,16 +567,85 @@ export class ObjectImporter extends BaseImporter {
       this.context.tracker.register({
         uuid: artistId,
         backwardCompatibility: backwardCompat,
-        entityType: 'item',
+        entityType: 'item' as any,
         createdAt: new Date(),
       });
 
       return artistId;
     } catch (error) {
-      // Should rarely happen now that we lookup first
-      this.logError(`Failed to create artist tag: ${artistName}`, error);
+      // If 422 conflict, try to find it
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 422) {
+          const foundId = await this.findExistingArtistByBackwardCompat(backwardCompat, 200);
+          if (foundId) {
+            return foundId;
+          }
+        }
+      }
+      this.logError(
+        `Failed to create artist: ${artistName}`,
+        error instanceof Error ? error : new Error(String(error))
+      );
       return null;
     }
+  }
+
+  /**
+   * Search for existing artist by backward_compatibility
+   */
+  private async findExistingArtistByBackwardCompat(
+    backwardCompat: string,
+    maxPages: number = 100
+  ): Promise<string | null> {
+    let page = 1;
+    const perPage = 100;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await (this.context.apiClient as any).artist.artistIndex(
+        page,
+        perPage,
+        undefined
+      );
+      const artists = response.data.data;
+
+      const existing = artists.find((a: any) => a.backward_compatibility === backwardCompat);
+
+      if (existing) {
+        this.context.tracker.register({
+          uuid: existing.id,
+          backwardCompatibility: backwardCompat,
+          entityType: 'item' as any,
+          createdAt: new Date(),
+        });
+        return existing.id;
+      }
+
+      hasMore = artists.length === perPage;
+      page++;
+
+      if (page > maxPages) {
+        break;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Attach artists to an item using the artist_item pivot table
+   */
+  private async attachArtists(itemId: string, artistIds: string[]): Promise<void> {
+    if (artistIds.length === 0 || this.context.dryRun) {
+      return;
+    }
+
+    // Use the updateArtists endpoint to attach artists
+
+    await (this.context.apiClient.item as any).itemUpdateArtists(itemId, {
+      attach: artistIds,
+    });
   }
 
   /**
@@ -646,7 +727,7 @@ export class ObjectImporter extends BaseImporter {
               backward_compatibility: backwardCompat,
             };
 
-            const response = await this.context.apiClient.tag.tagStore(createPayload);
+            const response = await this.context.apiClient.tag.tagStore(createPayload as any);
             tagId = response.data.data.id;
 
             // Register in tracker (use 'item' as valid entityType)
@@ -664,8 +745,10 @@ export class ObjectImporter extends BaseImporter {
               const is422 = axiosError.response?.status === 422;
               const is500Duplicate =
                 axiosError.response?.status === 500 &&
-                axiosError.response?.data?.message?.includes('Duplicate entry') &&
-                axiosError.response?.data?.message?.includes('tags_name_category_lang_unique');
+                (axiosError.response?.data as any)?.message?.includes('Duplicate entry') &&
+                (axiosError.response?.data as any)?.message?.includes(
+                  'tags_name_category_lang_unique'
+                );
 
               if (is422 || is500Duplicate) {
                 // Tag exists - do exhaustive search by backward_compatibility
@@ -820,5 +903,118 @@ export class ObjectImporter extends BaseImporter {
     await this.context.apiClient.item.itemUpdateTags(itemId, {
       attach: tagIds,
     });
+  }
+
+  /**
+   * Find or create an Author from a name string
+   * Authors are language-independent (name is the same across languages)
+   */
+  private async findOrCreateAuthor(
+    authorName: string,
+    _languageId: string
+  ): Promise<string | null> {
+    if (!authorName || authorName.trim() === '') {
+      return null;
+    }
+
+    const trimmedName = authorName.trim();
+
+    // Check tracker first
+    const backwardCompat = BackwardCompatibilityFormatter.format({
+      schema: 'mwnf3',
+      table: 'authors',
+      pkValues: [trimmedName],
+    });
+
+    const existing = this.context.tracker.getUuid(backwardCompat);
+    if (existing) {
+      return existing;
+    }
+
+    // Search in API
+    const foundId = await this.findExistingAuthorByBackwardCompat(backwardCompat);
+    if (foundId) {
+      return foundId;
+    }
+
+    // Create new author
+    try {
+      const response = await (this.context.apiClient as any).author.authorStore({
+        name: trimmedName,
+        internal_name: trimmedName,
+        backward_compatibility: backwardCompat,
+      });
+
+      const authorId = response.data.data.id;
+
+      // Register in tracker
+      this.context.tracker.register({
+        uuid: authorId,
+        backwardCompatibility: backwardCompat,
+        entityType: 'item' as any,
+        createdAt: new Date(),
+      });
+
+      return authorId;
+    } catch (error) {
+      // If 422 conflict, try to find it
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 422) {
+          // Try exhaustive search
+          const foundId = await this.findExistingAuthorByBackwardCompat(backwardCompat, 200);
+          if (foundId) {
+            return foundId;
+          }
+        }
+      }
+      this.logError(
+        `Failed to create author: ${trimmedName}`,
+        error instanceof Error ? error : new Error(String(error))
+      );
+      return null;
+    }
+  }
+
+  /**
+   * Search for existing author by backward_compatibility
+   */
+  private async findExistingAuthorByBackwardCompat(
+    backwardCompat: string,
+    maxPages: number = 100
+  ): Promise<string | null> {
+    let page = 1;
+    const perPage = 100;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await (this.context.apiClient as any).author.authorIndex(
+        page,
+        perPage,
+        undefined
+      );
+      const authors = response.data.data;
+
+      const existing = authors.find((a: any) => a.backward_compatibility === backwardCompat);
+
+      if (existing) {
+        this.context.tracker.register({
+          uuid: existing.id,
+          backwardCompatibility: backwardCompat,
+          entityType: 'item' as any,
+          createdAt: new Date(),
+        });
+        return existing.id;
+      }
+
+      hasMore = authors.length === perPage;
+      page++;
+
+      if (page > maxPages) {
+        break;
+      }
+    }
+
+    return null;
   }
 }

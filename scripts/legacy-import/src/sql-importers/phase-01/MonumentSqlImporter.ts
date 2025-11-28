@@ -1,0 +1,287 @@
+import { BaseSqlImporter, type ImportResult } from '../base/BaseSqlImporter.js';
+import { v4 as uuidv4 } from 'uuid';
+import type { Connection } from 'mysql2/promise';
+import type { LegacyDatabase } from '../../database/LegacyDatabase.js';
+import { mapLanguageCode } from '../../utils/CodeMappings.js';
+import { convertHtmlToMarkdown } from '../../utils/HtmlToMarkdownConverter.js';
+import { AuthorHelper } from '../helpers/AuthorHelper.js';
+import { TagHelper } from '../helpers/TagHelper.js';
+
+interface LegacyMonument {
+  project_id: string;
+  country: string;
+  institution_id: string;
+  number: string;
+  lang: string;
+  working_number?: string;
+  name?: string;
+  name2?: string;
+  typeof?: string;
+  location?: string;
+  province?: string;
+  address?: string;
+  date_description?: string;
+  datationmethod?: string;
+  description?: string;
+  bibliography?: string;
+  preparedby?: string;
+  copyeditedby?: string;
+  translationby?: string;
+  translationcopyeditedby?: string;
+  dynasty?: string;
+  keywords?: string;
+  phone?: string;
+  fax?: string;
+  email?: string;
+  institution?: string;
+  patrons?: string;
+  architects?: string;
+  history?: string;
+  external_sources?: string;
+  description2?: string;
+  copyright?: string;
+}
+
+export class MonumentSqlImporter extends BaseSqlImporter {
+  private legacyDb: LegacyDatabase;
+  private authorHelper: AuthorHelper;
+  private tagHelper: TagHelper;
+
+  constructor(db: Connection, tracker: Map<string, string>, legacyDb: LegacyDatabase) {
+    super(db, tracker);
+    this.legacyDb = legacyDb;
+    this.authorHelper = new AuthorHelper(db, tracker, this.now);
+    this.tagHelper = new TagHelper(db, tracker, this.now);
+  }
+
+  getName(): string {
+    return 'MonumentSqlImporter';
+  }
+
+  async import(): Promise<ImportResult> {
+    const result: ImportResult = {
+      success: true,
+      imported: 0,
+      skipped: 0,
+      errors: [],
+    };
+
+    try {
+      this.log('Importing monuments...');
+
+      const monuments = await this.legacyDb.query<LegacyMonument>(
+        'SELECT * FROM mwnf3.monuments ORDER BY project_id, country, institution_id, number, lang'
+      );
+
+      const grouped = this.groupByMonument(monuments);
+      this.log(`Found ${grouped.length} unique monuments (${monuments.length} translations)`);
+
+      let processed = 0;
+      for (const group of grouped) {
+        try {
+          const success = await this.importMonument(group);
+          if (success) {
+            result.imported++;
+          } else {
+            result.skipped++;
+          }
+          processed++;
+          if (processed % 100 === 0) {
+            this.showProgress(processed, grouped.length);
+          }
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          result.errors.push(`${group.key}: ${message}`);
+        }
+      }
+
+      console.log('');
+      this.logSuccess(`Imported ${result.imported}, skipped ${result.skipped}`);
+    } catch (error) {
+      result.success = false;
+      const message = error instanceof Error ? error.message : String(error);
+      result.errors.push(message);
+      this.logError('Failed to import monuments', error);
+    }
+
+    return result;
+  }
+
+  private groupByMonument(monuments: LegacyMonument[]): Array<{
+    key: string;
+    translations: LegacyMonument[];
+  }> {
+    const map = new Map<string, LegacyMonument[]>();
+    for (const monument of monuments) {
+      const key = `${monument.project_id}:${monument.country}:${monument.institution_id}:${monument.number}`;
+      if (!map.has(key)) {
+        map.set(key, []);
+      }
+      map.get(key)!.push(monument);
+    }
+    return Array.from(map.entries()).map(([key, translations]) => ({ key, translations }));
+  }
+
+  private async importMonument(group: {
+    key: string;
+    translations: LegacyMonument[];
+  }): Promise<boolean> {
+    const first = group.translations[0];
+    if (!first) return false;
+
+    const backwardCompat = this.formatBackwardCompat('mwnf3', 'monuments', [
+      first.project_id,
+      first.country,
+      first.institution_id,
+      first.number,
+    ]);
+
+    if (await this.exists('items', backwardCompat)) {
+      return false;
+    }
+
+    // Resolve dependencies
+    const contextId = await this.findByBackwardCompat(
+      'contexts',
+      this.formatBackwardCompat('mwnf3', 'projects', [first.project_id])
+    );
+    if (!contextId) return false;
+
+    const collectionId = await this.findByBackwardCompat(
+      'collections',
+      this.formatBackwardCompat('mwnf3', 'projects', [first.project_id]) + ':collection'
+    );
+    if (!collectionId) return false;
+
+    const partnerId = await this.findByBackwardCompat(
+      'partners',
+      this.formatBackwardCompat('mwnf3', 'institutions', [first.institution_id, first.country])
+    );
+    if (!partnerId) return false;
+
+    // Create Item
+    const itemId = uuidv4();
+    await this.db.execute(
+      `INSERT INTO items (id, partner_id, collection_id, internal_name, type, mwnf_reference, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, 'monument', ?, ?, ?, ?)`,
+      [
+        itemId,
+        partnerId,
+        collectionId,
+        first.working_number || first.name || first.number,
+        first.working_number,
+        backwardCompat,
+        this.now,
+        this.now,
+      ]
+    );
+
+    this.tracker.set(backwardCompat, itemId);
+
+    // Create translations
+    for (const monument of group.translations) {
+      await this.importTranslation(itemId, contextId, monument);
+    }
+
+    // Create tags
+    await this.createTags(itemId, first);
+
+    return true;
+  }
+
+  private async importTranslation(
+    itemId: string,
+    contextId: string,
+    monument: LegacyMonument
+  ): Promise<void> {
+    const languageId = mapLanguageCode(monument.lang);
+    const name = monument.name?.trim();
+    if (!name) return;
+
+    // Create authors
+    const authorId = monument.preparedby
+      ? await this.authorHelper.findOrCreate(monument.preparedby)
+      : null;
+    const textCopyEditorId = monument.copyeditedby
+      ? await this.authorHelper.findOrCreate(monument.copyeditedby)
+      : null;
+    const translatorId = monument.translationby
+      ? await this.authorHelper.findOrCreate(monument.translationby)
+      : null;
+    const translationCopyEditorId = monument.translationcopyeditedby
+      ? await this.authorHelper.findOrCreate(monument.translationcopyeditedby)
+      : null;
+
+    // Build extra field for monument-specific fields
+    const extra: Record<string, string> = {};
+    if (monument.phone) extra.phone = monument.phone;
+    if (monument.fax) extra.fax = monument.fax;
+    if (monument.email) extra.email = monument.email;
+    if (monument.institution) extra.institution = monument.institution;
+    if (monument.patrons) extra.patrons = monument.patrons;
+    if (monument.architects) extra.architects = monument.architects;
+    if (monument.history) extra.history = monument.history;
+    if (monument.external_sources) extra.external_sources = monument.external_sources;
+    if (monument.description2) extra.description2 = monument.description2;
+    if (monument.copyright) extra.copyright = monument.copyright;
+    const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
+
+    // Convert HTML to Markdown
+    const nameMarkdown = convertHtmlToMarkdown(name);
+    const alternateNameMarkdown = monument.name2 ? convertHtmlToMarkdown(monument.name2) : null;
+    const descriptionMarkdown = monument.description
+      ? convertHtmlToMarkdown(monument.description)
+      : null;
+    const bibliographyMarkdown = monument.bibliography
+      ? convertHtmlToMarkdown(monument.bibliography)
+      : null;
+
+    const location =
+      [monument.location, monument.province, monument.address].filter(Boolean).join(', ') || null;
+
+    const translationId = uuidv4();
+    await this.db.execute(
+      `INSERT INTO item_translations (id, item_id, language_id, context_id, name, alternate_name, description, type, dates, location, method_for_datation, bibliography, author_id, text_copy_editor_id, translator_id, translation_copy_editor_id, extra, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        translationId,
+        itemId,
+        languageId,
+        contextId,
+        nameMarkdown,
+        alternateNameMarkdown,
+        descriptionMarkdown,
+        monument.typeof,
+        monument.date_description,
+        location,
+        monument.datationmethod,
+        bibliographyMarkdown,
+        authorId,
+        textCopyEditorId,
+        translatorId,
+        translationCopyEditorId,
+        extraJson,
+        this.now,
+        this.now,
+      ]
+    );
+  }
+
+  private async createTags(itemId: string, monument: LegacyMonument): Promise<void> {
+    const languageId = mapLanguageCode(monument.lang);
+    const tagIds: string[] = [];
+
+    if (monument.dynasty) {
+      tagIds.push(
+        ...(await this.tagHelper.findOrCreateList(monument.dynasty, 'dynasty', languageId))
+      );
+    }
+    if (monument.keywords) {
+      tagIds.push(
+        ...(await this.tagHelper.findOrCreateList(monument.keywords, 'keyword', languageId))
+      );
+    }
+
+    await this.tagHelper.attachToItem(itemId, tagIds);
+  }
+}

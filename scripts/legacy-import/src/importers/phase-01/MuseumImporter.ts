@@ -99,7 +99,7 @@ export class MuseumImporter extends BaseImporter {
     }
 
     // Collect sample for testing (BEFORE dependency resolution)
-    this.collectSample('partner_museum', museum, 'success');
+    this.collectSample('partner_museum', museum as unknown as Record<string, unknown>, 'success');
 
     if (this.context.dryRun || this.isSampleOnlyMode) {
       this.logInfo(
