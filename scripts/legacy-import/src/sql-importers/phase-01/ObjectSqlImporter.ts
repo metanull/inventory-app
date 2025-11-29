@@ -170,8 +170,12 @@ export class ObjectSqlImporter extends BaseSqlImporter {
     );
     if (!partnerId) return false;
 
-    // Create Item
+    // Create Item - use English name for internal_name
     const itemId = uuidv4();
+    const englishTranslation = group.translations.find((t) => t.lang === 'en') || first;
+    const internalName = englishTranslation.name
+      ? convertHtmlToMarkdown(englishTranslation.name)
+      : first.inventory_id || first.working_number || first.number;
     await this.db.execute(
       `INSERT INTO items (id, partner_id, collection_id, internal_name, type, owner_reference, mwnf_reference, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, 'object', ?, ?, ?, ?, ?)`,
@@ -179,7 +183,7 @@ export class ObjectSqlImporter extends BaseSqlImporter {
         itemId,
         partnerId,
         collectionId,
-        first.inventory_id || first.working_number || first.number,
+        internalName,
         first.inventory_id,
         first.working_number,
         backwardCompat,
@@ -235,11 +239,26 @@ export class ObjectSqlImporter extends BaseSqlImporter {
     if (obj.binding_desc) extra.binding_desc = obj.binding_desc;
     const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
+    // Build object key for logging
+    const objectKey = `${obj.project_id}:${obj.country}:${obj.museum_id}:${obj.number}`;
+
     // Convert HTML to Markdown
     const nameMarkdown = convertHtmlToMarkdown(name);
-    const alternateNameMarkdown = obj.name2 ? convertHtmlToMarkdown(obj.name2) : null;
+    let alternateNameMarkdown = obj.name2 ? convertHtmlToMarkdown(obj.name2) : null;
     const descriptionMarkdown = obj.description ? convertHtmlToMarkdown(obj.description) : null;
     const bibliographyMarkdown = obj.bibliography ? convertHtmlToMarkdown(obj.bibliography) : null;
+
+    // Truncate fields that exceed database limits (VARCHAR(255))
+    if (alternateNameMarkdown && alternateNameMarkdown.length > 255) {
+      this.log(`WARNING: Truncating alternate_name (${alternateNameMarkdown.length} → 255 chars) for ${objectKey}:${obj.lang}`);
+      alternateNameMarkdown = alternateNameMarkdown.substring(0, 252) + '...';
+    }
+    
+    let typeValue = obj.typeof || null;
+    if (typeValue && typeValue.length > 255) {
+      this.log(`WARNING: Truncating type (${typeValue.length} → 255 chars) for ${objectKey}:${obj.lang}`);
+      typeValue = typeValue.substring(0, 252) + '...';
+    }
 
     const location = [obj.location, obj.province].filter(Boolean).join(', ') || null;
 
@@ -255,7 +274,7 @@ export class ObjectSqlImporter extends BaseSqlImporter {
         nameMarkdown,
         alternateNameMarkdown,
         descriptionMarkdown,
-        obj.typeof,
+        typeValue,
         obj.holding_museum,
         obj.current_owner,
         obj.original_owner,

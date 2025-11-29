@@ -137,25 +137,25 @@ export class MuseumSqlImporter extends BaseSqlImporter {
       return false;
     }
 
-    // Resolve country
-    const countryBackwardCompat = this.formatBackwardCompat('production', 'countries', [
-      group.museum.country,
-    ]);
-    const countryId = await this.findByBackwardCompat('countries', countryBackwardCompat);
+    // Get or create default context for partners
+    const defaultContextId = await this.getOrCreateDefaultContext();
 
-    // Create Partner
+    // Create Partner (no country_id in schema)
     const partnerId = uuidv4();
+    const internalName = group.museum.name
+      ? convertHtmlToMarkdown(group.museum.name)
+      : group.museum.museum_id;
     await this.db.execute(
-      `INSERT INTO partners (id, country_id, type, internal_name, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, 'museum', ?, ?, ?, ?)`,
-      [partnerId, countryId, group.museum.museum_id, backwardCompat, this.now, this.now]
+      `INSERT INTO partners (id, type, internal_name, backward_compatibility, created_at, updated_at)
+       VALUES (?, 'museum', ?, ?, ?, ?)`,
+      [partnerId, internalName, backwardCompat, this.now, this.now]
     );
 
     this.tracker.set(backwardCompat, partnerId);
 
     // Create translations
     for (const translation of group.translations) {
-      await this.importTranslation(partnerId, group.museum, translation);
+      await this.importTranslation(partnerId, defaultContextId, group.museum, translation);
     }
 
     return true;
@@ -163,6 +163,7 @@ export class MuseumSqlImporter extends BaseSqlImporter {
 
   private async importTranslation(
     partnerId: string,
+    contextId: string,
     museum: LegacyMuseum,
     translation: LegacyMuseumName
   ): Promise<void> {
@@ -171,42 +172,59 @@ export class MuseumSqlImporter extends BaseSqlImporter {
     if (!name) return;
 
     const nameMarkdown = convertHtmlToMarkdown(name);
-    const alternateNameMarkdown = translation.ex_name
-      ? convertHtmlToMarkdown(translation.ex_name)
-      : null;
     const descriptionMarkdown = translation.description
       ? convertHtmlToMarkdown(translation.description)
       : null;
 
-    // Build extra field
+    // Build extra field with all additional data
     const extra: Record<string, string> = {};
     if (museum.phone) extra.phone = museum.phone;
     if (museum.fax) extra.fax = museum.fax;
     if (museum.email) extra.email = museum.email;
     if (museum.url) extra.url = museum.url;
+    if (museum.address) extra.address_legacy = museum.address;
+    if (translation.ex_name) extra.ex_name = translation.ex_name;
+    if (translation.ex_description) extra.ex_description = translation.ex_description;
     if (translation.opening_hours) extra.opening_hours = translation.opening_hours;
     if (translation.how_to_reach) extra.how_to_reach = translation.how_to_reach;
     if (museum.geoCoordinates) extra.geoCoordinates = museum.geoCoordinates;
-    if (translation.city) extra.city = translation.city;
-    if (translation.ex_description) extra.ex_description = translation.ex_description;
+    if (museum.country) extra.country_code = museum.country;
     const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
     const translationId = uuidv4();
     await this.db.execute(
-      `INSERT INTO partner_translations (id, partner_id, language_id, name, alternate_name, description, address, extra, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO partner_translations (id, partner_id, language_id, context_id, name, description, city_display, contact_website, contact_phone, contact_email_general, extra, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         translationId,
         partnerId,
         languageId,
+        contextId,
         nameMarkdown,
-        alternateNameMarkdown,
         descriptionMarkdown,
-        museum.address,
+        translation.city,
+        museum.url,
+        museum.phone,
+        museum.email,
         extraJson,
         this.now,
         this.now,
       ]
     );
+  }
+
+  private async getOrCreateDefaultContext(): Promise<string> {
+    const backwardCompat = 'system:default_partner_context';
+    const existing = await this.findByBackwardCompat('contexts', backwardCompat);
+    if (existing) return existing;
+
+    const contextId = uuidv4();
+    await this.db.execute(
+      `INSERT INTO contexts (id, internal_name, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      [contextId, 'default_partners', backwardCompat, this.now, this.now]
+    );
+    this.tracker.set(backwardCompat, contextId);
+    return contextId;
   }
 }

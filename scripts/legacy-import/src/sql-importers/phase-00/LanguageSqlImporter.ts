@@ -1,9 +1,12 @@
 import { BaseSqlImporter, type ImportResult } from '../base/BaseSqlImporter.js';
-import type { RowDataPacket } from 'mysql2/promise';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
-interface LanguageRow extends RowDataPacket {
+interface LanguageData {
   id: string;
   internal_name: string;
+  backward_compatibility: string;
+  is_default: boolean;
 }
 
 export class LanguageSqlImporter extends BaseSqlImporter {
@@ -20,28 +23,54 @@ export class LanguageSqlImporter extends BaseSqlImporter {
     };
 
     try {
-      this.log('Loading production language data...');
+      this.log('Loading production language data from JSON...');
 
-      // Load production language data (already seeded)
-      const [languages] = await this.db.execute<LanguageRow[]>(
-        'SELECT id, internal_name FROM languages ORDER BY id'
+      // Load languages from production JSON file (same as API importer and Laravel seeder)
+      // Path from scripts/legacy-import/src/sql-importers/phase-00 to database/seeders/data
+      const languagesPath = join(
+        process.cwd(),
+        '../../database/seeders/data/languages.json'
       );
+      const fileContent = readFileSync(languagesPath, 'utf-8');
+      const languages = JSON.parse(fileContent) as LanguageData[];
 
-      this.log(`Found ${languages.length} languages in production (already seeded)`);
+      this.log(`Found ${languages.length} languages to import`);
 
-      for (const lang of languages) {
-        // Languages are already seeded - just register them
-        const backwardCompat = `production:languages:${lang.id}`;
+      for (const language of languages) {
+        try {
+          const backwardCompat = language.backward_compatibility;
 
-        if (!this.tracker.has(backwardCompat)) {
-          this.tracker.set(backwardCompat, lang.id);
+          // Check if already exists
+          if (await this.exists('languages', backwardCompat)) {
+            result.skipped++;
+            this.tracker.set(backwardCompat, language.id);
+            continue;
+          }
+
+          // Insert language
+          await this.db.execute(
+            `INSERT INTO languages (id, internal_name, backward_compatibility, is_default, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+              language.id,
+              language.internal_name,
+              backwardCompat,
+              language.is_default ? 1 : 0,
+              this.now,
+              this.now,
+            ]
+          );
+
+          this.tracker.set(backwardCompat, language.id);
           result.imported++;
-        } else {
-          result.skipped++;
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          result.errors.push(`${language.id}: ${message}`);
+          this.logError(`Failed to import language ${language.id}`, error);
         }
       }
 
-      this.logSuccess(`Registered ${result.imported} languages, skipped ${result.skipped}`);
+      this.logSuccess(`Imported ${result.imported}, skipped ${result.skipped}`);
     } catch (error) {
       result.success = false;
       const message = error instanceof Error ? error.message : String(error);

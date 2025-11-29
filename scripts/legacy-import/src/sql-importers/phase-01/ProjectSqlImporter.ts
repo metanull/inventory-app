@@ -117,29 +117,30 @@ export class ProjectSqlImporter extends BaseSqlImporter {
       return false;
     }
 
-    const name = group.project.name || group.translations[0]?.name || group.projectId;
-
-    // Create Context
+    // Create Context (only internal_name, no name column)
     const contextId = uuidv4();
+    const internalName = group.project.name || group.projectId;
     await this.db.execute(
-      `INSERT INTO contexts (id, name, internal_name, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [contextId, name, group.projectId, backwardCompat, this.now, this.now]
+      `INSERT INTO contexts (id, internal_name, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      [contextId, internalName, backwardCompat, this.now, this.now]
     );
 
     this.tracker.set(backwardCompat, contextId);
 
-    // Create root Collection for this context
+    // Create root Collection for this context (with required language_id and context_id)
     const collectionId = uuidv4();
     const collectionBackwardCompat = `${backwardCompat}:collection`;
+    const defaultLanguage = 'eng'; // Use English as default
+    const collectionInternalName = group.project.name || group.projectId;
     await this.db.execute(
-      `INSERT INTO collections (id, context_id, name, internal_name, backward_compatibility, created_at, updated_at)
+      `INSERT INTO collections (id, internal_name, language_id, context_id, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         collectionId,
+        collectionInternalName,
+        defaultLanguage,
         contextId,
-        name,
-        `${group.projectId}_root`,
         collectionBackwardCompat,
         this.now,
         this.now,
@@ -147,6 +148,32 @@ export class ProjectSqlImporter extends BaseSqlImporter {
     );
 
     this.tracker.set(collectionBackwardCompat, collectionId);
+
+    // Create collection_translation for each language
+    for (const translation of group.translations) {
+      const translationId = uuidv4();
+      // Map legacy 2-char language code to ISO 639-3 (3-char)
+      const { mapLanguageCode } = await import('../../utils/CodeMappings.js');
+      const languageId = mapLanguageCode(translation.lang);
+      const title = translation.name || group.project.name || group.projectId;
+      const description = `Collection for ${title}`;
+
+      await this.db.execute(
+        `INSERT INTO collection_translations (id, collection_id, language_id, context_id, title, description, backward_compatibility, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          translationId,
+          collectionId,
+          languageId,
+          contextId,
+          title,
+          description,
+          `${collectionBackwardCompat}:${languageId}`,
+          this.now,
+          this.now,
+        ]
+      );
+    }
 
     return true;
   }

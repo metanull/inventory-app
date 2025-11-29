@@ -130,25 +130,25 @@ export class InstitutionSqlImporter extends BaseSqlImporter {
       return false;
     }
 
-    // Resolve country
-    const countryBackwardCompat = this.formatBackwardCompat('production', 'countries', [
-      group.institution.country,
-    ]);
-    const countryId = await this.findByBackwardCompat('countries', countryBackwardCompat);
+    // Get or create default context for partners
+    const defaultContextId = await this.getOrCreateDefaultContext();
 
-    // Create Partner
+    // Create Partner (no country_id in schema)
     const partnerId = uuidv4();
+    const internalName = group.institution.name
+      ? convertHtmlToMarkdown(group.institution.name)
+      : group.institution.institution_id;
     await this.db.execute(
-      `INSERT INTO partners (id, country_id, type, internal_name, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, 'institution', ?, ?, ?, ?)`,
-      [partnerId, countryId, group.institution.institution_id, backwardCompat, this.now, this.now]
+      `INSERT INTO partners (id, type, internal_name, backward_compatibility, created_at, updated_at)
+       VALUES (?, 'institution', ?, ?, ?, ?)`,
+      [partnerId, internalName, backwardCompat, this.now, this.now]
     );
 
     this.tracker.set(backwardCompat, partnerId);
 
     // Create translations
     for (const translation of group.translations) {
-      await this.importTranslation(partnerId, group.institution, translation);
+      await this.importTranslation(partnerId, defaultContextId, group.institution, translation);
     }
 
     return true;
@@ -156,6 +156,7 @@ export class InstitutionSqlImporter extends BaseSqlImporter {
 
   private async importTranslation(
     partnerId: string,
+    contextId: string,
     institution: LegacyInstitution,
     translation: LegacyInstitutionName
   ): Promise<void> {
@@ -170,28 +171,45 @@ export class InstitutionSqlImporter extends BaseSqlImporter {
 
     // Build extra field
     const extra: Record<string, string> = {};
-    if (institution.phone) extra.phone = institution.phone;
-    if (institution.fax) extra.fax = institution.fax;
-    if (institution.email) extra.email = institution.email;
-    if (institution.url) extra.url = institution.url;
-    if (institution.city) extra.city = institution.city;
+    if (institution.address) extra.address_legacy = institution.address;
+    if (institution.city) extra.city_legacy = institution.city;
+    if (institution.country) extra.country_code = institution.country;
     const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
     const translationId = uuidv4();
     await this.db.execute(
-      `INSERT INTO partner_translations (id, partner_id, language_id, name, alternate_name, description, address, extra, created_at, updated_at)
-       VALUES (?, ?, ?, ?, NULL, ?, ?, ?, ?, ?)`,
+      `INSERT INTO partner_translations (id, partner_id, language_id, context_id, name, description, city_display, contact_website, contact_phone, contact_email_general, extra, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         translationId,
         partnerId,
         languageId,
+        contextId,
         nameMarkdown,
         descriptionMarkdown,
-        institution.address,
+        institution.city,
+        institution.url,
+        institution.phone,
+        institution.email,
         extraJson,
         this.now,
         this.now,
       ]
     );
+  }
+
+  private async getOrCreateDefaultContext(): Promise<string> {
+    const backwardCompat = 'system:default_partner_context';
+    const existing = await this.findByBackwardCompat('contexts', backwardCompat);
+    if (existing) return existing;
+
+    const contextId = uuidv4();
+    await this.db.execute(
+      `INSERT INTO contexts (id, internal_name, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      [contextId, 'default_partners', backwardCompat, this.now, this.now]
+    );
+    this.tracker.set(backwardCompat, contextId);
+    return contextId;
   }
 }

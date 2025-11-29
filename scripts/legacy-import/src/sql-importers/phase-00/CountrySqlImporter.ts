@@ -1,9 +1,11 @@
 import { BaseSqlImporter, type ImportResult } from '../base/BaseSqlImporter.js';
-import type { RowDataPacket } from 'mysql2/promise';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
-interface CountryRow extends RowDataPacket {
+interface CountryData {
   id: string;
   internal_name: string;
+  backward_compatibility: string;
 }
 
 export class CountrySqlImporter extends BaseSqlImporter {
@@ -20,28 +22,47 @@ export class CountrySqlImporter extends BaseSqlImporter {
     };
 
     try {
-      this.log('Loading production country data...');
+      this.log('Loading production country data from JSON...');
 
-      // Load production country data (already seeded)
-      const [countries] = await this.db.execute<CountryRow[]>(
-        'SELECT id, internal_name FROM countries ORDER BY id'
+      // Load countries from production JSON file (same as API importer and Laravel seeder)
+      // Path from scripts/legacy-import to database/seeders/data
+      const countriesPath = join(
+        process.cwd(),
+        '../../database/seeders/data/countries.json'
       );
+      const fileContent = readFileSync(countriesPath, 'utf-8');
+      const countries = JSON.parse(fileContent) as CountryData[];
 
-      this.log(`Found ${countries.length} countries in production (already seeded)`);
+      this.log(`Found ${countries.length} countries to import`);
 
       for (const country of countries) {
-        // Countries are already seeded - just register them
-        const backwardCompat = `production:countries:${country.id}`;
+        try {
+          const backwardCompat = country.backward_compatibility;
 
-        if (!this.tracker.has(backwardCompat)) {
+          // Check if already exists
+          if (await this.exists('countries', backwardCompat)) {
+            result.skipped++;
+            this.tracker.set(backwardCompat, country.id);
+            continue;
+          }
+
+          // Insert country
+          await this.db.execute(
+            `INSERT INTO countries (id, internal_name, backward_compatibility, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?)`,
+            [country.id, country.internal_name, backwardCompat, this.now, this.now]
+          );
+
           this.tracker.set(backwardCompat, country.id);
           result.imported++;
-        } else {
-          result.skipped++;
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          result.errors.push(`${country.id}: ${message}`);
+          this.logError(`Failed to import country ${country.id}`, error);
         }
       }
 
-      this.logSuccess(`Registered ${result.imported} countries, skipped ${result.skipped}`);
+      this.logSuccess(`Imported ${result.imported}, skipped ${result.skipped}`);
     } catch (error) {
       result.success = false;
       const message = error instanceof Error ? error.message : String(error);
