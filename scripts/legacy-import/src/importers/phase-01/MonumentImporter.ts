@@ -269,9 +269,34 @@ export class MonumentImporter extends BaseImporter {
       createdAt: new Date(),
     });
 
-    // Create translations for each language
+    // Get EPM context ID for cross-project translations (matching SQL importer)
+    const epmContextBackwardCompat = BackwardCompatibilityFormatter.format({
+      schema: 'mwnf3',
+      table: 'projects',
+      pkValues: ['EPM'],
+    });
+    const epmContextId = this.context.tracker.getUuid(epmContextBackwardCompat);
+
+    // Create translations for each language (matching SQL importer logic)
     for (const translation of group.translations) {
-      await this.importTranslation(itemId, contextId, translation, result);
+      // For EPM: only use description2 as description (monuments don't typically have EPM but keep consistent)
+      if (translation.project_id === 'EPM') {
+        if (translation.description2 && translation.description2.trim()) {
+          await this.importTranslation(itemId, contextId, translation, result, 'description2');
+        }
+      }
+      // For all other projects:
+      else {
+        // Create translation in own context using description (if populated)
+        if (translation.description && translation.description.trim()) {
+          await this.importTranslation(itemId, contextId, translation, result, 'description');
+        }
+
+        // If description2 exists and EPM context exists, create EPM translation
+        if (translation.description2 && translation.description2.trim() && epmContextId) {
+          await this.importTranslation(itemId, epmContextId, translation, result, 'description2');
+        }
+      }
     }
 
     // Parse and create tags from dynasty and keywords (only from first translation to avoid duplicates)
@@ -309,10 +334,20 @@ export class MonumentImporter extends BaseImporter {
     itemId: string,
     contextId: string,
     monument: LegacyMonument,
-    result: ImportResult
+    result: ImportResult,
+    descriptionField: 'description' | 'description2' = 'description'
   ): Promise<void> {
     // Map legacy ISO 639-1 to ISO 639-3
     const languageId = mapLanguageCode(monument.lang);
+
+    // Determine which description to use based on descriptionField parameter
+    const sourceDescription =
+      descriptionField === 'description2' ? monument.description2 : monument.description;
+
+    // Skip if the selected description field is empty
+    if (!sourceDescription || !sourceDescription.trim()) {
+      return;
+    }
 
     // Create/find authors and get their IDs
     const authorId = monument.preparedby
@@ -328,11 +363,8 @@ export class MonumentImporter extends BaseImporter {
       ? await this.findOrCreateAuthor(monument.translationcopyeditedby, languageId)
       : null;
 
-    // Combine location, province, and address
-    const locationParts = [monument.location, monument.province, monument.address].filter(Boolean);
-    const locationFull = locationParts.length > 0 ? locationParts.join(', ') : null;
-
     // Build extra field ONLY for monument-specific fields that don't have dedicated columns
+    // NOTE: description2 is now handled properly as separate translations, not in extra
     const extraData: Record<string, unknown> = {};
 
     // Only add to extra if the value is not null/empty
@@ -344,16 +376,15 @@ export class MonumentImporter extends BaseImporter {
     if (monument.architects) extraData.architects = monument.architects;
     if (monument.history) extraData.history = monument.history;
     if (monument.external_sources) extraData.external_sources = monument.external_sources;
-    if (monument.description2) extraData.description2 = monument.description2;
     if ('copyright' in monument && monument.copyright)
       extraData.copyright = monument.copyright as string;
 
     // Extra field should be object or null (API will handle JSON encoding)
     const extraField = Object.keys(extraData).length > 0 ? extraData : null;
 
-    // Use name and description as-is, no fake text insertion
+    // Use name and description from source
     const name = monument.name?.trim() || null;
-    const description = monument.description?.trim() || null;
+    const description = sourceDescription.trim();
 
     // Validate required fields
     if (!name) {
@@ -416,25 +447,38 @@ export class MonumentImporter extends BaseImporter {
       );
     }
 
-    // Convert ALL HTML fields to Markdown (including name field)
+    // Convert ALL HTML fields to Markdown (matching SQL importer)
     const nameMarkdown = convertHtmlToMarkdown(name || '');
     const alternateNameMarkdown = alternateName ? convertHtmlToMarkdown(alternateName) : null;
-    const descriptionMarkdown = description ? convertHtmlToMarkdown(description) : null;
+    const descriptionMarkdown = convertHtmlToMarkdown(description);
     const bibliographyMarkdown = monument.bibliography
       ? convertHtmlToMarkdown(monument.bibliography)
       : null;
+    const typeMarkdown = type ? convertHtmlToMarkdown(type) : null;
+    const datesMarkdown = monument.date_description
+      ? convertHtmlToMarkdown(monument.date_description)
+      : null;
+    const methodForDatationMarkdown = monument.datationmethod
+      ? convertHtmlToMarkdown(monument.datationmethod)
+      : null;
+
+    // Convert location parts individually before joining (matching SQL importer)
+    const locationParts = [monument.location, monument.province, monument.address]
+      .filter(Boolean)
+      .map((part) => convertHtmlToMarkdown(part));
+    const locationMarkdown = locationParts.length > 0 ? locationParts.join(', ') : null;
 
     await this.context.apiClient.itemTranslation.itemTranslationStore({
       item_id: itemId,
       language_id: languageId,
       context_id: contextId,
       name: nameMarkdown,
-      description: descriptionMarkdown || '',
+      description: descriptionMarkdown,
       alternate_name: alternateNameMarkdown,
-      type: type,
-      dates: monument.date_description || null,
-      location: locationFull,
-      method_for_datation: monument.datationmethod || null,
+      type: typeMarkdown,
+      dates: datesMarkdown,
+      location: locationMarkdown,
+      method_for_datation: methodForDatationMarkdown,
       bibliography: bibliographyMarkdown,
       author_id: authorId,
       text_copy_editor_id: textCopyEditorId,
