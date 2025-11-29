@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
  * SQL-Based Legacy Importer
- * 
+ *
  * Imports data directly from legacy database to new database using SQL queries.
  * This is MUCH faster than the API-based importer but must implement the same logic.
- * 
+ *
  * Import order matches API-based importer (index.ts):
  * Phase 0: Languages, Countries, Default Context
  * Phase 1: Projects (creates Contexts + Collections), Partners (Museums, Institutions)
@@ -73,9 +73,15 @@ async function main() {
     const langStart = Date.now();
     const langResult = await langImporter.import();
     const langDuration = Date.now() - langStart;
-    logger.logImporterComplete('LanguageSqlImporter', langResult.imported, langResult.skipped, langResult.errors.length, langDuration);
+    logger.logImporterComplete(
+      'LanguageSqlImporter',
+      langResult.imported,
+      langResult.skipped,
+      langResult.errors.length,
+      langDuration
+    );
     if (langResult.errors.length > 0) {
-      langResult.errors.forEach(err => logger.logError('LanguageSqlImporter', err));
+      langResult.errors.forEach((err) => logger.logError('LanguageSqlImporter', err));
     }
     phase0Results.push({
       name: 'Languages',
@@ -89,9 +95,17 @@ async function main() {
     const langTransStart = Date.now();
     const langTransResult = await langTransImporter.import();
     const langTransDuration = Date.now() - langTransStart;
-    logger.logImporterComplete('LanguageTranslationSqlImporter', langTransResult.imported, langTransResult.skipped, langTransResult.errors.length, langTransDuration);
+    logger.logImporterComplete(
+      'LanguageTranslationSqlImporter',
+      langTransResult.imported,
+      langTransResult.skipped,
+      langTransResult.errors.length,
+      langTransDuration
+    );
     if (langTransResult.errors.length > 0) {
-      langTransResult.errors.forEach(err => logger.logError('LanguageTranslationSqlImporter', err));
+      langTransResult.errors.forEach((err) =>
+        logger.logError('LanguageTranslationSqlImporter', err)
+      );
     }
     phase0Results.push({
       name: 'Language Translations',
@@ -105,9 +119,15 @@ async function main() {
     const countryStart = Date.now();
     const countryResult = await countryImporter.import();
     const countryDuration = Date.now() - countryStart;
-    logger.logImporterComplete('CountrySqlImporter', countryResult.imported, countryResult.skipped, countryResult.errors.length, countryDuration);
+    logger.logImporterComplete(
+      'CountrySqlImporter',
+      countryResult.imported,
+      countryResult.skipped,
+      countryResult.errors.length,
+      countryDuration
+    );
     if (countryResult.errors.length > 0) {
-      countryResult.errors.forEach(err => logger.logError('CountrySqlImporter', err));
+      countryResult.errors.forEach((err) => logger.logError('CountrySqlImporter', err));
     }
     phase0Results.push({
       name: 'Countries',
@@ -121,9 +141,17 @@ async function main() {
     const countryTransStart = Date.now();
     const countryTransResult = await countryTransImporter.import();
     const countryTransDuration = Date.now() - countryTransStart;
-    logger.logImporterComplete('CountryTranslationSqlImporter', countryTransResult.imported, countryTransResult.skipped, countryTransResult.errors.length, countryTransDuration);
+    logger.logImporterComplete(
+      'CountryTranslationSqlImporter',
+      countryTransResult.imported,
+      countryTransResult.skipped,
+      countryTransResult.errors.length,
+      countryTransDuration
+    );
     if (countryTransResult.errors.length > 0) {
-      countryTransResult.errors.forEach(err => logger.logError('CountryTranslationSqlImporter', err));
+      countryTransResult.errors.forEach((err) =>
+        logger.logError('CountryTranslationSqlImporter', err)
+      );
     }
     phase0Results.push({
       name: 'Country Translations',
@@ -150,9 +178,15 @@ async function main() {
     const projectStart = Date.now();
     const projectResult = await projectImporter.import();
     const projectDuration = Date.now() - projectStart;
-    logger.logImporterComplete('ProjectSqlImporter', projectResult.imported, projectResult.skipped, projectResult.errors.length, projectDuration);
+    logger.logImporterComplete(
+      'ProjectSqlImporter',
+      projectResult.imported,
+      projectResult.skipped,
+      projectResult.errors.length,
+      projectDuration
+    );
     if (projectResult.errors.length > 0) {
-      projectResult.errors.forEach(err => logger.logError('ProjectSqlImporter', err));
+      projectResult.errors.forEach((err) => logger.logError('ProjectSqlImporter', err));
     }
     phase1Results.push({
       name: 'Projects',
@@ -166,9 +200,15 @@ async function main() {
     const museumStart = Date.now();
     const museumResult = await museumImporter.import();
     const museumDuration = Date.now() - museumStart;
-    logger.logImporterComplete('MuseumSqlImporter', museumResult.imported, museumResult.skipped, museumResult.errors.length, museumDuration);
+    logger.logImporterComplete(
+      'MuseumSqlImporter',
+      museumResult.imported,
+      museumResult.skipped,
+      museumResult.errors.length,
+      museumDuration
+    );
     if (museumResult.errors.length > 0) {
-      museumResult.errors.forEach(err => logger.logError('MuseumSqlImporter', err));
+      museumResult.errors.forEach((err) => logger.logError('MuseumSqlImporter', err));
     }
     phase1Results.push({
       name: 'Museums',
@@ -182,9 +222,15 @@ async function main() {
     const institutionStart = Date.now();
     const institutionResult = await institutionImporter.import();
     const institutionDuration = Date.now() - institutionStart;
-    logger.logImporterComplete('InstitutionSqlImporter', institutionResult.imported, institutionResult.skipped, institutionResult.errors.length, institutionDuration);
+    logger.logImporterComplete(
+      'InstitutionSqlImporter',
+      institutionResult.imported,
+      institutionResult.skipped,
+      institutionResult.errors.length,
+      institutionDuration
+    );
     if (institutionResult.errors.length > 0) {
-      institutionResult.errors.forEach(err => logger.logError('InstitutionSqlImporter', err));
+      institutionResult.errors.forEach((err) => logger.logError('InstitutionSqlImporter', err));
     }
     phase1Results.push({
       name: 'Institutions',
@@ -211,11 +257,20 @@ async function main() {
     const objectStart = Date.now();
     const objectResult = await objectImporter.import();
     const objectDuration = Date.now() - objectStart;
-    logger.logImporterComplete('ObjectSqlImporter', objectResult.imported, objectResult.skipped, objectResult.errors.length, objectDuration);
+    logger.logImporterComplete(
+      'ObjectSqlImporter',
+      objectResult.imported,
+      objectResult.skipped,
+      objectResult.errors.length,
+      objectDuration
+    );
     if (objectResult.errors.length > 0) {
-      objectResult.errors.slice(0, 10).forEach(err => logger.logError('ObjectSqlImporter', err));
+      objectResult.errors.slice(0, 10).forEach((err) => logger.logError('ObjectSqlImporter', err));
       if (objectResult.errors.length > 10) {
-        logger.logError('ObjectSqlImporter', `... and ${objectResult.errors.length - 10} more errors`);
+        logger.logError(
+          'ObjectSqlImporter',
+          `... and ${objectResult.errors.length - 10} more errors`
+        );
       }
     }
     phase2Results.push({
@@ -230,11 +285,22 @@ async function main() {
     const monumentStart = Date.now();
     const monumentResult = await monumentImporter.import();
     const monumentDuration = Date.now() - monumentStart;
-    logger.logImporterComplete('MonumentSqlImporter', monumentResult.imported, monumentResult.skipped, monumentResult.errors.length, monumentDuration);
+    logger.logImporterComplete(
+      'MonumentSqlImporter',
+      monumentResult.imported,
+      monumentResult.skipped,
+      monumentResult.errors.length,
+      monumentDuration
+    );
     if (monumentResult.errors.length > 0) {
-      monumentResult.errors.slice(0, 10).forEach(err => logger.logError('MonumentSqlImporter', err));
+      monumentResult.errors
+        .slice(0, 10)
+        .forEach((err) => logger.logError('MonumentSqlImporter', err));
       if (monumentResult.errors.length > 10) {
-        logger.logError('MonumentSqlImporter', `... and ${monumentResult.errors.length - 10} more errors`);
+        logger.logError(
+          'MonumentSqlImporter',
+          `... and ${monumentResult.errors.length - 10} more errors`
+        );
       }
     }
     phase2Results.push({
@@ -252,7 +318,7 @@ async function main() {
     logger.log(`Phase 2 completed in ${(phase2Duration / 1000).toFixed(2)}s`);
 
     // Summary
-    const phaseSummary = phases.map(phase => ({
+    const phaseSummary = phases.map((phase) => ({
       phase: phase.phase,
       duration: phase.totalDuration,
       imported: phase.importers.reduce((sum, imp) => sum + imp.result.imported, 0),
@@ -267,7 +333,7 @@ async function main() {
       for (const imp of phase.importers) {
         if (imp.result.errors.length > 0) {
           console.log(chalk.red(`\n${imp.name} errors (showing first 5):`));
-          imp.result.errors.slice(0, 5).forEach(err => console.log(chalk.red(`  - ${err}`)));
+          imp.result.errors.slice(0, 5).forEach((err) => console.log(chalk.red(`  - ${err}`)));
           if (imp.result.errors.length > 5) {
             console.log(chalk.red(`  ... and ${imp.result.errors.length - 5} more (see log file)`));
           }

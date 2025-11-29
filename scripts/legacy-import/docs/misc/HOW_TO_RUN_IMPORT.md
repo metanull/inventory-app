@@ -1,13 +1,9 @@
 ## Oneliner
 
-cd E:\inventory\inventory-app; `
-php artisan db:wipe; `
-php artisan migrate:refresh --quiet; `
-php artisan db:seed --class=MinimalDatabaseSeeder --quiet; `
-cd E:\inventory\inventory-app\scripts\legacy-import; `
-npx tsx src/sql-import-v2.ts
+cd E:\inventory\inventory-app; php artisan db:wipe; php artisan migrate:refresh --quiet; php artisan db:seed --class=MinimalDatabaseSeeder --quiet; cd E:\inventory\inventory-app\scripts\legacy-import; npx tsx src/sql-import-v2.ts
 
 ## Reset Database
+
 ```powershell
 cd E:\inventory\inventory-app
 php artisan db:wipe
@@ -18,22 +14,26 @@ php artisan db:seed --class=MinimalDatabaseSeeder --quiet
 ## Run the Importer
 
 ### Option 1: SQL Importer (RECOMMENDED - Much Faster)
+
 ```powershell
 cd E:\inventory\inventory-app\scripts\legacy-import
 npx tsx src/sql-import-v2.ts
 ```
 
 **Advantages:**
+
 - **MUCH faster**: Directly inserts into database using SQL queries (10-100x faster than API)
 - **Comprehensive logging**: Generates detailed log file in `logs/` directory
 - **Progress tracking**: Real-time progress display with error reporting
 - **Idempotent**: Safe to run multiple times, skips existing records
 
 **Log Output:**
+
 - Console: Real-time progress with color-coded status
 - File: Detailed log saved to `logs/sql-import-YYYY-MM-DDTHH-MM-SS.log`
 
 ### Option 2: API Importer (Slower, for Testing)
+
 ```powershell
 cd E:\inventory\inventory-app\scripts\legacy-import
 
@@ -49,6 +49,7 @@ npx tsx src/index.ts import
 ```
 
 **Use cases:**
+
 - Testing API endpoints
 - Validating API logic
 - Collecting test samples

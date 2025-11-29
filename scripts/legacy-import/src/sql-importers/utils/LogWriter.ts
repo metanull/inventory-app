@@ -69,7 +69,15 @@ export class LogWriter {
     this.log(message);
   }
 
-  logSummary(phases: Array<{ phase: string; duration: number; imported: number; skipped: number; errors: number }>): void {
+  logSummary(
+    phases: Array<{
+      phase: string;
+      duration: number;
+      imported: number;
+      skipped: number;
+      errors: number;
+    }>
+  ): void {
     const totalDuration = Date.now() - this.startTime;
     const totalImported = phases.reduce((sum, p) => sum + p.imported, 0);
     const totalSkipped = phases.reduce((sum, p) => sum + p.skipped, 0);
@@ -97,7 +105,9 @@ export class LogWriter {
     // Console summary
     console.log(chalk.bold.yellow('\n📊 IMPORT SUMMARY\n'));
     console.log(
-      chalk.bold.green(`✅ Total: ${totalImported} imported, ${totalSkipped} skipped, ${totalErrors} errors`)
+      chalk.bold.green(
+        `✅ Total: ${totalImported} imported, ${totalSkipped} skipped, ${totalErrors} errors`
+      )
     );
     console.log(chalk.gray(`Total duration: ${(totalDuration / 1000).toFixed(2)}s`));
     console.log(chalk.gray(`End time: ${new Date().toISOString()}`));

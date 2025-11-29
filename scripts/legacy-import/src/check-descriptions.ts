@@ -77,7 +77,13 @@ async function checkDescriptions() {
 
   for (const obj of objectsByProject) {
     if (!projectStats.has(obj.project_id)) {
-      projectStats.set(obj.project_id, { both: 0, onlyDesc: 0, onlyDesc2: 0, neither: 0, total: 0 });
+      projectStats.set(obj.project_id, {
+        both: 0,
+        onlyDesc: 0,
+        onlyDesc2: 0,
+        neither: 0,
+        total: 0,
+      });
     }
     const stats = projectStats.get(obj.project_id)!;
     stats.total++;
@@ -123,7 +129,13 @@ async function checkDescriptions() {
 
   for (const mon of monumentsByProject) {
     if (!monProjectStats.has(mon.project_id)) {
-      monProjectStats.set(mon.project_id, { both: 0, onlyDesc: 0, onlyDesc2: 0, neither: 0, total: 0 });
+      monProjectStats.set(mon.project_id, {
+        both: 0,
+        onlyDesc: 0,
+        onlyDesc2: 0,
+        neither: 0,
+        total: 0,
+      });
     }
     const stats = monProjectStats.get(mon.project_id)!;
     stats.total++;

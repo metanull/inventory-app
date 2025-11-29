@@ -176,18 +176,18 @@ export class ObjectSqlImporter extends BaseSqlImporter {
     const internalName = englishTranslation.name
       ? convertHtmlToMarkdown(englishTranslation.name)
       : first.inventory_id || first.working_number || first.number;
-    
+
     // Map country code to 3-char ISO
     const { mapCountryCode } = await import('../../utils/CodeMappings.js');
     const countryId = mapCountryCode(first.country);
-    
+
     // Get project_id from projects table (linked to context)
     const projectId = await this.findByBackwardCompat(
       'projects',
       this.formatBackwardCompat('mwnf3', 'projects', [first.project_id]) + ':project'
     );
     if (!projectId) return false;
-    
+
     await this.db.execute(
       `INSERT INTO items (id, partner_id, collection_id, internal_name, type, country_id, project_id, owner_reference, mwnf_reference, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, 'object', ?, ?, ?, ?, ?, ?, ?)`,
@@ -226,7 +226,7 @@ export class ObjectSqlImporter extends BaseSqlImporter {
         if (obj.description && obj.description.trim()) {
           await this.importTranslation(itemId, contextId, obj, 'description');
         }
-        
+
         // If description2 exists and EPM context exists, create EPM translation
         if (obj.description2 && obj.description2.trim() && epmContextId) {
           await this.importTranslation(itemId, epmContextId, obj, 'description2');
@@ -256,8 +256,9 @@ export class ObjectSqlImporter extends BaseSqlImporter {
     if (!name) return;
 
     // Determine which description to use based on descriptionField parameter
-    const sourceDescription = descriptionField === 'description2' ? obj.description2 : obj.description;
-    
+    const sourceDescription =
+      descriptionField === 'description2' ? obj.description2 : obj.description;
+
     // Skip if the selected description field is empty
     if (!sourceDescription || !sourceDescription.trim()) {
       return;
@@ -278,11 +279,37 @@ export class ObjectSqlImporter extends BaseSqlImporter {
     // Build object key for logging
     const objectKey = `${obj.project_id}:${obj.country}:${obj.museum_id}:${obj.number}`;
 
-    // Convert HTML to Markdown
+    // Convert HTML to Markdown for all text fields
     const nameMarkdown = convertHtmlToMarkdown(name);
     let alternateNameMarkdown = obj.name2 ? convertHtmlToMarkdown(obj.name2) : null;
     const bibliographyMarkdown = obj.bibliography ? convertHtmlToMarkdown(obj.bibliography) : null;
     const descriptionMarkdown = convertHtmlToMarkdown(sourceDescription);
+    const typeMarkdown = obj.typeof ? convertHtmlToMarkdown(obj.typeof) : null;
+    const holderMarkdown = obj.holding_museum ? convertHtmlToMarkdown(obj.holding_museum) : null;
+    const ownerMarkdown = obj.current_owner ? convertHtmlToMarkdown(obj.current_owner) : null;
+    const initialOwnerMarkdown = obj.original_owner
+      ? convertHtmlToMarkdown(obj.original_owner)
+      : null;
+    const datesMarkdown = obj.date_description ? convertHtmlToMarkdown(obj.date_description) : null;
+    const dimensionsMarkdown = obj.dimensions ? convertHtmlToMarkdown(obj.dimensions) : null;
+    const placeOfProductionMarkdown = obj.production_place
+      ? convertHtmlToMarkdown(obj.production_place)
+      : null;
+    const methodForDatationMarkdown = obj.datationmethod
+      ? convertHtmlToMarkdown(obj.datationmethod)
+      : null;
+    const methodForProvenanceMarkdown = obj.provenancemethod
+      ? convertHtmlToMarkdown(obj.provenancemethod)
+      : null;
+    const obtentionMarkdown = obj.obtentionmethod
+      ? convertHtmlToMarkdown(obj.obtentionmethod)
+      : null;
+
+    // Convert location (composed from multiple fields)
+    const locationParts = [obj.location, obj.province]
+      .filter(Boolean)
+      .map((part) => convertHtmlToMarkdown(part));
+    const locationMarkdown = locationParts.length > 0 ? locationParts.join(', ') : null;
 
     // Build extra field
     const extra: Record<string, string> = {};
@@ -293,17 +320,19 @@ export class ObjectSqlImporter extends BaseSqlImporter {
 
     // Truncate fields that exceed database limits (VARCHAR(255))
     if (alternateNameMarkdown && alternateNameMarkdown.length > 255) {
-      this.log(`WARNING: Truncating alternate_name (${alternateNameMarkdown.length} → 255 chars) for ${objectKey}:${obj.lang}`);
+      this.log(
+        `WARNING: Truncating alternate_name (${alternateNameMarkdown.length} → 255 chars) for ${objectKey}:${obj.lang}`
+      );
       alternateNameMarkdown = alternateNameMarkdown.substring(0, 252) + '...';
     }
-    
-    let typeValue = obj.typeof || null;
+
+    let typeValue = typeMarkdown;
     if (typeValue && typeValue.length > 255) {
-      this.log(`WARNING: Truncating type (${typeValue.length} → 255 chars) for ${objectKey}:${obj.lang}`);
+      this.log(
+        `WARNING: Truncating type (${typeValue.length} → 255 chars) for ${objectKey}:${obj.lang}`
+      );
       typeValue = typeValue.substring(0, 252) + '...';
     }
-
-    const location = [obj.location, obj.province].filter(Boolean).join(', ') || null;
 
     const translationId = uuidv4();
     await this.db.execute(
@@ -318,16 +347,16 @@ export class ObjectSqlImporter extends BaseSqlImporter {
         alternateNameMarkdown,
         descriptionMarkdown,
         typeValue,
-        obj.holding_museum,
-        obj.current_owner,
-        obj.original_owner,
-        obj.date_description,
-        location,
-        obj.dimensions,
-        obj.production_place,
-        obj.datationmethod,
-        obj.provenancemethod,
-        obj.obtentionmethod,
+        holderMarkdown,
+        ownerMarkdown,
+        initialOwnerMarkdown,
+        datesMarkdown,
+        locationMarkdown,
+        dimensionsMarkdown,
+        placeOfProductionMarkdown,
+        methodForDatationMarkdown,
+        methodForProvenanceMarkdown,
+        obtentionMarkdown,
         bibliographyMarkdown,
         authorId,
         textCopyEditorId,

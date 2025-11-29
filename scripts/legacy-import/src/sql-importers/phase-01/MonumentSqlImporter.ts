@@ -165,18 +165,18 @@ export class MonumentSqlImporter extends BaseSqlImporter {
     const internalName = englishTranslation.name
       ? convertHtmlToMarkdown(englishTranslation.name)
       : first.working_number || first.number;
-    
+
     // Map country code to 3-char ISO
     const { mapCountryCode } = await import('../../utils/CodeMappings.js');
     const countryId = mapCountryCode(first.country);
-    
+
     // Get project_id from projects table (linked to context)
     const projectId = await this.findByBackwardCompat(
       'projects',
       this.formatBackwardCompat('mwnf3', 'projects', [first.project_id]) + ':project'
     );
     if (!projectId) return false;
-    
+
     await this.db.execute(
       `INSERT INTO items (id, partner_id, collection_id, internal_name, type, country_id, project_id, mwnf_reference, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, 'monument', ?, ?, ?, ?, ?, ?)`,
@@ -214,7 +214,7 @@ export class MonumentSqlImporter extends BaseSqlImporter {
         if (monument.description && monument.description.trim()) {
           await this.importTranslation(itemId, contextId, monument, 'description');
         }
-        
+
         // If description2 exists and EPM context exists, create EPM translation
         if (monument.description2 && monument.description2.trim() && epmContextId) {
           await this.importTranslation(itemId, epmContextId, monument, 'description2');
@@ -239,8 +239,9 @@ export class MonumentSqlImporter extends BaseSqlImporter {
     if (!name) return;
 
     // Determine which description to use based on descriptionField parameter
-    const sourceDescription = descriptionField === 'description2' ? monument.description2 : monument.description;
-    
+    const sourceDescription =
+      descriptionField === 'description2' ? monument.description2 : monument.description;
+
     // Skip if the selected description field is empty
     if (!sourceDescription || !sourceDescription.trim()) {
       return;
@@ -263,10 +264,26 @@ export class MonumentSqlImporter extends BaseSqlImporter {
     // Build monument key for logging
     const monumentKey = `${monument.project_id}:${monument.country}:${monument.institution_id}:${monument.number}`;
 
-    // Convert HTML to Markdown
+    // Convert HTML to Markdown for all text fields
     const nameMarkdown = convertHtmlToMarkdown(name);
     let alternateNameMarkdown = monument.name2 ? convertHtmlToMarkdown(monument.name2) : null;
     const descriptionMarkdown = convertHtmlToMarkdown(sourceDescription);
+    const typeMarkdown = monument.typeof ? convertHtmlToMarkdown(monument.typeof) : null;
+    const datesMarkdown = monument.date_description
+      ? convertHtmlToMarkdown(monument.date_description)
+      : null;
+    const methodForDatationMarkdown = monument.datationmethod
+      ? convertHtmlToMarkdown(monument.datationmethod)
+      : null;
+    const bibliographyMarkdown = monument.bibliography
+      ? convertHtmlToMarkdown(monument.bibliography)
+      : null;
+
+    // Convert location (composed from multiple fields)
+    const locationParts = [monument.location, monument.province, monument.address]
+      .filter(Boolean)
+      .map((part) => convertHtmlToMarkdown(part));
+    const locationMarkdown = locationParts.length > 0 ? locationParts.join(', ') : null;
 
     // Build extra field for monument-specific fields
     const extra: Record<string, string> = {};
@@ -280,24 +297,22 @@ export class MonumentSqlImporter extends BaseSqlImporter {
     if (monument.external_sources) extra.external_sources = monument.external_sources;
     if (monument.copyright) extra.copyright = monument.copyright;
     const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
-    const bibliographyMarkdown = monument.bibliography
-      ? convertHtmlToMarkdown(monument.bibliography)
-      : null;
 
     // Truncate fields that exceed database limits (VARCHAR(255))
     if (alternateNameMarkdown && alternateNameMarkdown.length > 255) {
-      this.log(`WARNING: Truncating alternate_name (${alternateNameMarkdown.length} → 255 chars) for ${monumentKey}:${monument.lang}`);
+      this.log(
+        `WARNING: Truncating alternate_name (${alternateNameMarkdown.length} → 255 chars) for ${monumentKey}:${monument.lang}`
+      );
       alternateNameMarkdown = alternateNameMarkdown.substring(0, 252) + '...';
     }
-    
-    let typeValue = monument.typeof || null;
+
+    let typeValue = typeMarkdown;
     if (typeValue && typeValue.length > 255) {
-      this.log(`WARNING: Truncating type (${typeValue.length} → 255 chars) for ${monumentKey}:${monument.lang}`);
+      this.log(
+        `WARNING: Truncating type (${typeValue.length} → 255 chars) for ${monumentKey}:${monument.lang}`
+      );
       typeValue = typeValue.substring(0, 252) + '...';
     }
-
-    const location =
-      [monument.location, monument.province, monument.address].filter(Boolean).join(', ') || null;
 
     const translationId = uuidv4();
     await this.db.execute(
@@ -312,9 +327,9 @@ export class MonumentSqlImporter extends BaseSqlImporter {
         alternateNameMarkdown,
         descriptionMarkdown,
         typeValue,
-        monument.date_description,
-        location,
-        monument.datationmethod,
+        datesMarkdown,
+        locationMarkdown,
+        methodForDatationMarkdown,
         bibliographyMarkdown,
         authorId,
         textCopyEditorId,

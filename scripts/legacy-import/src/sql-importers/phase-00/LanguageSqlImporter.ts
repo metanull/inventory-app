@@ -27,10 +27,7 @@ export class LanguageSqlImporter extends BaseSqlImporter {
 
       // Load languages from production JSON file (same as API importer and Laravel seeder)
       // Path from scripts/legacy-import/src/sql-importers/phase-00 to database/seeders/data
-      const languagesPath = join(
-        process.cwd(),
-        '../../database/seeders/data/languages.json'
-      );
+      const languagesPath = join(process.cwd(), '../../database/seeders/data/languages.json');
       const fileContent = readFileSync(languagesPath, 'utf-8');
       const languages = JSON.parse(fileContent) as LanguageData[];
 

@@ -26,10 +26,7 @@ export class CountrySqlImporter extends BaseSqlImporter {
 
       // Load countries from production JSON file (same as API importer and Laravel seeder)
       // Path from scripts/legacy-import to database/seeders/data
-      const countriesPath = join(
-        process.cwd(),
-        '../../database/seeders/data/countries.json'
-      );
+      const countriesPath = join(process.cwd(), '../../database/seeders/data/countries.json');
       const fileContent = readFileSync(countriesPath, 'utf-8');
       const countries = JSON.parse(fileContent) as CountryData[];
 

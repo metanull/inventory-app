@@ -84,7 +84,9 @@ export class CountryTranslationSqlImporter extends BaseSqlImporter {
 
     // Skip invalid country codes (special codes like 'pd' and 'ww' map to 5-char codes that don't fit the schema)
     if (countryId.length > 3) {
-      this.log(`Skipping country translation for special code: ${countryName.country} (maps to ${countryId})`);
+      this.log(
+        `Skipping country translation for special code: ${countryName.country} (maps to ${countryId})`
+      );
       return false;
     }
 

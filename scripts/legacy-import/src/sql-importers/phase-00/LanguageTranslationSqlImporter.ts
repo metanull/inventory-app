@@ -81,32 +81,36 @@ export class LanguageTranslationSqlImporter extends BaseSqlImporter {
     // Map legacy 2-char codes to ISO 639-3
     let languageId: string;
     let displayLanguageId: string;
-    
+
     try {
       languageId = mapLanguageCode(langName.lang_id);
       displayLanguageId = mapLanguageCode(langName.lang);
     } catch (error) {
       // Unknown language code in mapping - skip
-      this.log(`Skipping language translation - unknown code: ${langName.lang_id} or ${langName.lang}`);
+      this.log(
+        `Skipping language translation - unknown code: ${langName.lang_id} or ${langName.lang}`
+      );
       return false;
     }
 
     // Check if both languages exist in the database
-    const [langExists] = await this.db.execute(
-      'SELECT id FROM languages WHERE id = ?',
-      [languageId]
-    );
-    const [displayLangExists] = await this.db.execute(
-      'SELECT id FROM languages WHERE id = ?',
-      [displayLanguageId]
-    );
-    
+    const [langExists] = await this.db.execute('SELECT id FROM languages WHERE id = ?', [
+      languageId,
+    ]);
+    const [displayLangExists] = await this.db.execute('SELECT id FROM languages WHERE id = ?', [
+      displayLanguageId,
+    ]);
+
     if ((langExists as any[]).length === 0) {
-      this.log(`Skipping language translation - language not found: ${languageId} (${langName.lang_id})`);
+      this.log(
+        `Skipping language translation - language not found: ${languageId} (${langName.lang_id})`
+      );
       return false;
     }
     if ((displayLangExists as any[]).length === 0) {
-      this.log(`Skipping language translation - display language not found: ${displayLanguageId} (${langName.lang})`);
+      this.log(
+        `Skipping language translation - display language not found: ${displayLanguageId} (${langName.lang})`
+      );
       return false;
     }
 
@@ -125,7 +129,15 @@ export class LanguageTranslationSqlImporter extends BaseSqlImporter {
     await this.db.execute(
       `INSERT INTO language_translations (id, language_id, display_language_id, name, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [translationId, languageId, displayLanguageId, langName.name, backwardCompat, this.now, this.now]
+      [
+        translationId,
+        languageId,
+        displayLanguageId,
+        langName.name,
+        backwardCompat,
+        this.now,
+        this.now,
+      ]
     );
 
     this.tracker.set(backwardCompat, translationId);

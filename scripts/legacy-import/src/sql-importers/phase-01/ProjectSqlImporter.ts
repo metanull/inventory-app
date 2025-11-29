@@ -131,7 +131,7 @@ export class ProjectSqlImporter extends BaseSqlImporter {
     // Create Project (linked to context)
     const projectId = uuidv4();
     const projectBackwardCompat = `${backwardCompat}:project`;
-    
+
     // Validate launch_date: MySQL can return invalid dates like '0000-00-00 00:00:00'
     let launchDate: string | null = null;
     let isLaunched = false;
