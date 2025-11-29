@@ -28,7 +28,7 @@ jobs:
       DB_DATABASE: ':memory:'
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: "Setup > Image > Install php"
         uses: shivammathur/setup-php@v2
@@ -112,7 +112,7 @@ jobs:
           - Integration
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: "Setup > Image > Install php"
         uses: shivammathur/setup-php@v2
@@ -158,7 +158,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: "Setup > Image > Install Node.js"
         uses: actions/setup-node@v6
@@ -187,7 +187,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: "Setup > Image > Install Node.js"
         uses: actions/setup-node@v6
