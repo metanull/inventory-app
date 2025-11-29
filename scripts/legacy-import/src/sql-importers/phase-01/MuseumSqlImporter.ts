@@ -4,6 +4,7 @@ import type { Connection } from 'mysql2/promise';
 import type { LegacyDatabase } from '../../database/LegacyDatabase.js';
 import { mapLanguageCode } from '../../utils/CodeMappings.js';
 import { convertHtmlToMarkdown } from '../../utils/HtmlToMarkdownConverter.js';
+import type { SampleCollector } from '../../utils/SampleCollector.js';
 
 interface LegacyMuseum {
   museum_id: string;
@@ -35,8 +36,13 @@ interface LegacyMuseumName {
 export class MuseumSqlImporter extends BaseSqlImporter {
   private legacyDb: LegacyDatabase;
 
-  constructor(db: Connection, tracker: Map<string, string>, legacyDb: LegacyDatabase) {
-    super(db, tracker);
+  constructor(
+    db: Connection,
+    tracker: Map<string, string>,
+    legacyDb: LegacyDatabase,
+    sampleCollector?: SampleCollector
+  ) {
+    super(db, tracker, sampleCollector);
     this.legacyDb = legacyDb;
   }
 

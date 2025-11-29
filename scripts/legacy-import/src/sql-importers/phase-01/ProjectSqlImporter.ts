@@ -2,6 +2,7 @@ import { BaseSqlImporter, type ImportResult } from '../base/BaseSqlImporter.js';
 import type { Connection } from 'mysql2/promise';
 import { v4 as uuidv4 } from 'uuid';
 import type { LegacyDatabase } from '../../database/LegacyDatabase.js';
+import type { SampleCollector } from '../../utils/SampleCollector.js';
 
 interface LegacyProject {
   project_id: string;
@@ -18,8 +19,13 @@ interface LegacyProjectName {
 export class ProjectSqlImporter extends BaseSqlImporter {
   private legacyDb: LegacyDatabase;
 
-  constructor(db: Connection, tracker: Map<string, string>, legacyDb: LegacyDatabase) {
-    super(db, tracker);
+  constructor(
+    db: Connection,
+    tracker: Map<string, string>,
+    legacyDb: LegacyDatabase,
+    sampleCollector?: SampleCollector
+  ) {
+    super(db, tracker, sampleCollector);
     this.legacyDb = legacyDb;
   }
 
@@ -139,7 +145,8 @@ export class ProjectSqlImporter extends BaseSqlImporter {
       const date = new Date(group.project.launchdate);
       // Check if date is valid (not NaN and not invalid date like 0000-00-00)
       if (!isNaN(date.getTime()) && date.getFullYear() > 1970) {
-        launchDate = date.toISOString().split('T')[0];
+        const isoDate = date.toISOString().split('T')[0];
+        launchDate = isoDate ?? null;
         isLaunched = true;
       }
     }

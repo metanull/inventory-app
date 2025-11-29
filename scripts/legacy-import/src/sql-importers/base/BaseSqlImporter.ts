@@ -1,5 +1,6 @@
 import type { Connection, RowDataPacket } from 'mysql2/promise';
 import chalk from 'chalk';
+import type { SampleCollector, SampleReason } from '../../utils/SampleCollector.js';
 
 export interface ImportResult {
   success: boolean;
@@ -12,11 +13,13 @@ export abstract class BaseSqlImporter {
   protected db: Connection;
   protected tracker: Map<string, string>;
   protected now: string;
+  protected sampleCollector?: SampleCollector;
 
-  constructor(db: Connection, tracker: Map<string, string>) {
+  constructor(db: Connection, tracker: Map<string, string>, sampleCollector?: SampleCollector) {
     this.db = db;
     this.tracker = tracker;
     this.now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    this.sampleCollector = sampleCollector;
   }
 
   abstract getName(): string;
@@ -79,5 +82,27 @@ export abstract class BaseSqlImporter {
     process.stdout.write(
       `\r  Progress: ${current}/${total} (${Math.round((current / total) * 100)}%)`
     );
+  }
+
+  /**
+   * Collect a sample record for test fixtures
+   * @param entityType - Type of entity (e.g., 'language', 'object', 'monument')
+   * @param data - The raw legacy data record
+   * @param reason - Why this sample is interesting ('success', 'warning', 'edge')
+   * @param details - Additional details about the reason
+   * @param language - Language code if applicable
+   * @param sourceDb - Source database name
+   */
+  protected collectSample(
+    entityType: string,
+    data: Record<string, unknown>,
+    reason: SampleReason,
+    details?: string,
+    language?: string,
+    sourceDb?: string
+  ): void {
+    if (this.sampleCollector) {
+      this.sampleCollector.collectSample(entityType, data, reason, details, language, sourceDb);
+    }
   }
 }

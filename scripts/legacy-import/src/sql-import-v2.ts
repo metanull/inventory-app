@@ -9,6 +9,11 @@
  * Phase 0: Languages, Countries, Default Context
  * Phase 1: Projects (creates Contexts + Collections), Partners (Museums, Institutions)
  * Phase 2: Items (Objects, Monuments) with Authors, Artists, Tags
+ *
+ * Options:
+ * --collect-samples: Collect sample data for test fixtures
+ * --sample-size <number>: Number of success samples per category (default: 20)
+ * --sample-db <path>: Path to sample database file (default: ./test-fixtures/samples.sqlite)
  */
 import dotenv from 'dotenv';
 import { resolve } from 'path';
@@ -26,8 +31,22 @@ import { ObjectSqlImporter } from './sql-importers/phase-01/ObjectSqlImporter.js
 import { MonumentSqlImporter } from './sql-importers/phase-01/MonumentSqlImporter.js';
 import type { ImportResult } from './sql-importers/base/BaseSqlImporter.js';
 import { LogWriter } from './sql-importers/utils/LogWriter.js';
+import { SampleCollector } from './utils/SampleCollector.js';
+import * as fs from 'fs';
 
 dotenv.config({ path: resolve(process.cwd(), '.env') });
+
+// Parse command line arguments
+const args = process.argv.slice(2);
+const collectSamples = args.includes('--collect-samples');
+const sampleSizeIdx = args.indexOf('--sample-size');
+const sampleSize = sampleSizeIdx >= 0 ? parseInt(args[sampleSizeIdx + 1] || '20', 10) : 20;
+const sampleDbIdx = args.indexOf('--sample-db');
+const sampleDbPath =
+  sampleDbIdx >= 0 && args[sampleDbIdx + 1]
+    ? args[sampleDbIdx + 1]
+    : './test-fixtures/samples.sqlite';
+const sampleDb = resolve(__dirname, '..', sampleDbPath!);
 
 const tracker = new Map<string, string>();
 
@@ -50,7 +69,31 @@ async function main() {
   console.log(chalk.bold('='.repeat(80)));
   console.log(chalk.gray(`Start time: ${new Date().toISOString()}`));
   console.log(chalk.gray(`Log file: ${logger.getLogFilePath()}`));
+  if (collectSamples) {
+    console.log(chalk.cyan(`🧪 Sample collection enabled: ${sampleDb}`));
+    console.log(chalk.cyan(`   Sample size: ${sampleSize} per category`));
+  }
   console.log('');
+
+  // Initialize sample collector if requested
+  let sampleCollector: SampleCollector | undefined;
+  if (collectSamples) {
+    // Auto-delete existing samples database to start fresh
+    if (fs.existsSync(sampleDb)) {
+      fs.unlinkSync(sampleDb);
+      logger.log('🗑️  Deleted existing sample database');
+    }
+
+    sampleCollector = new SampleCollector({
+      enabled: true,
+      dbPath: sampleDb,
+      sampleSize: sampleSize,
+      collectAllWarnings: true,
+      collectAllEdgeCases: true,
+      collectAllFoundation: true, // Collect ALL languages and countries
+    });
+    logger.log(`Sample collection initialized: ${sampleDb}`);
+  }
 
   const legacyDb = createLegacyDatabase();
   await legacyDb.connect();
@@ -69,7 +112,7 @@ async function main() {
 
     // Languages
     logger.logImporterStart('LanguageSqlImporter');
-    const langImporter = new LanguageSqlImporter(newDb, tracker);
+    const langImporter = new LanguageSqlImporter(newDb, tracker, sampleCollector);
     const langStart = Date.now();
     const langResult = await langImporter.import();
     const langDuration = Date.now() - langStart;
@@ -91,7 +134,12 @@ async function main() {
 
     // Language Translations
     logger.logImporterStart('LanguageTranslationSqlImporter');
-    const langTransImporter = new LanguageTranslationSqlImporter(newDb, tracker, legacyDb);
+    const langTransImporter = new LanguageTranslationSqlImporter(
+      newDb,
+      tracker,
+      legacyDb,
+      sampleCollector
+    );
     const langTransStart = Date.now();
     const langTransResult = await langTransImporter.import();
     const langTransDuration = Date.now() - langTransStart;
@@ -115,7 +163,7 @@ async function main() {
 
     // Countries
     logger.logImporterStart('CountrySqlImporter');
-    const countryImporter = new CountrySqlImporter(newDb, tracker);
+    const countryImporter = new CountrySqlImporter(newDb, tracker, sampleCollector);
     const countryStart = Date.now();
     const countryResult = await countryImporter.import();
     const countryDuration = Date.now() - countryStart;
@@ -137,7 +185,12 @@ async function main() {
 
     // Country Translations
     logger.logImporterStart('CountryTranslationSqlImporter');
-    const countryTransImporter = new CountryTranslationSqlImporter(newDb, tracker, legacyDb);
+    const countryTransImporter = new CountryTranslationSqlImporter(
+      newDb,
+      tracker,
+      legacyDb,
+      sampleCollector
+    );
     const countryTransStart = Date.now();
     const countryTransResult = await countryTransImporter.import();
     const countryTransDuration = Date.now() - countryTransStart;
@@ -174,7 +227,7 @@ async function main() {
 
     // Projects (creates Contexts + Collections)
     logger.logImporterStart('ProjectSqlImporter');
-    const projectImporter = new ProjectSqlImporter(newDb, tracker, legacyDb);
+    const projectImporter = new ProjectSqlImporter(newDb, tracker, legacyDb, sampleCollector);
     const projectStart = Date.now();
     const projectResult = await projectImporter.import();
     const projectDuration = Date.now() - projectStart;
@@ -196,7 +249,7 @@ async function main() {
 
     // Museums
     logger.logImporterStart('MuseumSqlImporter');
-    const museumImporter = new MuseumSqlImporter(newDb, tracker, legacyDb);
+    const museumImporter = new MuseumSqlImporter(newDb, tracker, legacyDb, sampleCollector);
     const museumStart = Date.now();
     const museumResult = await museumImporter.import();
     const museumDuration = Date.now() - museumStart;
@@ -218,7 +271,12 @@ async function main() {
 
     // Institutions
     logger.logImporterStart('InstitutionSqlImporter');
-    const institutionImporter = new InstitutionSqlImporter(newDb, tracker, legacyDb);
+    const institutionImporter = new InstitutionSqlImporter(
+      newDb,
+      tracker,
+      legacyDb,
+      sampleCollector
+    );
     const institutionStart = Date.now();
     const institutionResult = await institutionImporter.import();
     const institutionDuration = Date.now() - institutionStart;
@@ -253,7 +311,7 @@ async function main() {
 
     // Objects (creates Authors, Artists, Tags)
     logger.logImporterStart('ObjectSqlImporter');
-    const objectImporter = new ObjectSqlImporter(newDb, tracker, legacyDb);
+    const objectImporter = new ObjectSqlImporter(newDb, tracker, legacyDb, sampleCollector);
     const objectStart = Date.now();
     const objectResult = await objectImporter.import();
     const objectDuration = Date.now() - objectStart;
@@ -281,7 +339,7 @@ async function main() {
 
     // Monuments (creates Authors, Tags)
     logger.logImporterStart('MonumentSqlImporter');
-    const monumentImporter = new MonumentSqlImporter(newDb, tracker, legacyDb);
+    const monumentImporter = new MonumentSqlImporter(newDb, tracker, legacyDb, sampleCollector);
     const monumentStart = Date.now();
     const monumentResult = await monumentImporter.import();
     const monumentDuration = Date.now() - monumentStart;
@@ -339,6 +397,29 @@ async function main() {
           }
         }
       }
+    }
+
+    // Show sample collection statistics
+    if (sampleCollector) {
+      const stats = sampleCollector.getStats();
+      const totalSamples = Object.values(stats).reduce((sum, count) => sum + count, 0);
+
+      console.log('');
+      console.log(chalk.cyan('🧪 Sample Collection Summary'));
+      console.log(chalk.cyan(`   Total samples: ${totalSamples}`));
+      console.log(chalk.cyan(`   Database: ${sampleDb}`));
+
+      // Show breakdown by category
+      const categories = Object.entries(stats).sort(([, a], [, b]) => b - a);
+      if (categories.length > 0 && categories.length <= 20) {
+        console.log(chalk.cyan('   Breakdown:'));
+        categories.forEach(([category, count]) => {
+          console.log(chalk.cyan(`     - ${category}: ${count}`));
+        });
+      }
+
+      sampleCollector.close();
+      logger.log(`Sample collection complete: ${totalSamples} samples collected`);
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);

@@ -201,6 +201,7 @@ export class SampleBasedTestHelper {
           data: { data: { id: generateUuid(), ...data } },
         })),
         itemUpdateTags: vi.fn().mockResolvedValue({ data: { data: {} } }),
+        itemUpdateArtists: vi.fn().mockResolvedValue({ data: { data: {} } }),
       },
       itemTranslation: {
         itemTranslationStore: vi.fn().mockImplementation(async (data) => ({
@@ -215,6 +216,18 @@ export class SampleBasedTestHelper {
       },
       itemTag: {
         attachTagItem: vi.fn().mockResolvedValue({ data: { data: {} } }),
+      },
+      author: {
+        authorStore: vi.fn().mockImplementation(async (data) => ({
+          data: { data: { id: generateUuid(), ...data } },
+        })),
+        authorIndex: vi.fn().mockResolvedValue({ data: { data: [] } }),
+      },
+      artist: {
+        artistStore: vi.fn().mockImplementation(async (data) => ({
+          data: { data: { id: generateUuid(), ...data } },
+        })),
+        artistIndex: vi.fn().mockResolvedValue({ data: { data: [] } }),
       },
     };
   }

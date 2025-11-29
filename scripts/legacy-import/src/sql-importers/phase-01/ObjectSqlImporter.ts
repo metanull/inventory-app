@@ -7,6 +7,7 @@ import { convertHtmlToMarkdown } from '../../utils/HtmlToMarkdownConverter.js';
 import { AuthorHelper } from '../helpers/AuthorHelper.js';
 import { ArtistHelper } from '../helpers/ArtistHelper.js';
 import { TagHelper } from '../helpers/TagHelper.js';
+import type { SampleCollector } from '../../utils/SampleCollector.js';
 
 interface LegacyObject {
   project_id: string;
@@ -57,8 +58,13 @@ export class ObjectSqlImporter extends BaseSqlImporter {
   private artistHelper: ArtistHelper;
   private tagHelper: TagHelper;
 
-  constructor(db: Connection, tracker: Map<string, string>, legacyDb: LegacyDatabase) {
-    super(db, tracker);
+  constructor(
+    db: Connection,
+    tracker: Map<string, string>,
+    legacyDb: LegacyDatabase,
+    sampleCollector?: SampleCollector
+  ) {
+    super(db, tracker, sampleCollector);
     this.legacyDb = legacyDb;
     this.authorHelper = new AuthorHelper(db, tracker, this.now);
     this.artistHelper = new ArtistHelper(db, tracker, this.now);

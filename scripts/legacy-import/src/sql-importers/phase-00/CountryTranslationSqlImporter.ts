@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { Connection } from 'mysql2/promise';
 import type { LegacyDatabase } from '../../database/LegacyDatabase.js';
 import { mapLanguageCode, mapCountryCode } from '../../utils/CodeMappings.js';
+import type { SampleCollector } from '../../utils/SampleCollector.js';
 
 interface LegacyCountryName {
   country: string;
@@ -17,8 +18,13 @@ interface LegacyCountryName {
 export class CountryTranslationSqlImporter extends BaseSqlImporter {
   private legacyDb: LegacyDatabase;
 
-  constructor(db: Connection, tracker: Map<string, string>, legacyDb: LegacyDatabase) {
-    super(db, tracker);
+  constructor(
+    db: Connection,
+    tracker: Map<string, string>,
+    legacyDb: LegacyDatabase,
+    sampleCollector?: SampleCollector
+  ) {
+    super(db, tracker, sampleCollector);
     this.legacyDb = legacyDb;
   }
 

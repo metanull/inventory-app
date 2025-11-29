@@ -126,10 +126,11 @@ describe('ObjectImporter', () => {
       const expectedLangId = mapLanguageCode(sample.lang);
       expect(apiData.language_id).toBe(expectedLangId);
 
-      // Validate name (with fallback logic)
+      // Validate name (with fallback logic and HTML to Markdown conversion)
       if (sample.name && sample.name.trim() !== '') {
-        // Importer may trim whitespace
-        expect((apiData.name as string).trim()).toBe(sample.name.trim());
+        // Importer converts HTML to Markdown and may trim whitespace
+        const expectedName = convertHtmlToMarkdown(sample.name.trim());
+        expect((apiData.name as string).trim()).toBe(expectedName);
       } else if (sample.working_number && sample.working_number.trim() !== '') {
         expect((apiData.name as string).trim()).toBe(sample.working_number.trim());
       } else {

@@ -1,8 +1,9 @@
 import { BaseSqlImporter, type ImportResult } from '../base/BaseSqlImporter.js';
 import { v4 as uuidv4 } from 'uuid';
-import type { Connection } from 'mysql2/promise';
+import type { Connection, RowDataPacket } from 'mysql2/promise';
 import type { LegacyDatabase } from '../../database/LegacyDatabase.js';
 import { mapLanguageCode } from '../../utils/CodeMappings.js';
+import type { SampleCollector } from '../../utils/SampleCollector.js';
 
 interface LegacyLanguageName {
   lang_id: string;
@@ -17,8 +18,13 @@ interface LegacyLanguageName {
 export class LanguageTranslationSqlImporter extends BaseSqlImporter {
   private legacyDb: LegacyDatabase;
 
-  constructor(db: Connection, tracker: Map<string, string>, legacyDb: LegacyDatabase) {
-    super(db, tracker);
+  constructor(
+    db: Connection,
+    tracker: Map<string, string>,
+    legacyDb: LegacyDatabase,
+    sampleCollector?: SampleCollector
+  ) {
+    super(db, tracker, sampleCollector);
     this.legacyDb = legacyDb;
   }
 
@@ -85,7 +91,7 @@ export class LanguageTranslationSqlImporter extends BaseSqlImporter {
     try {
       languageId = mapLanguageCode(langName.lang_id);
       displayLanguageId = mapLanguageCode(langName.lang);
-    } catch (error) {
+    } catch {
       // Unknown language code in mapping - skip
       this.log(
         `Skipping language translation - unknown code: ${langName.lang_id} or ${langName.lang}`
@@ -101,13 +107,13 @@ export class LanguageTranslationSqlImporter extends BaseSqlImporter {
       displayLanguageId,
     ]);
 
-    if ((langExists as any[]).length === 0) {
+    if ((langExists as RowDataPacket[]).length === 0) {
       this.log(
         `Skipping language translation - language not found: ${languageId} (${langName.lang_id})`
       );
       return false;
     }
-    if ((displayLangExists as any[]).length === 0) {
+    if ((displayLangExists as RowDataPacket[]).length === 0) {
       this.log(
         `Skipping language translation - display language not found: ${displayLanguageId} (${langName.lang})`
       );
