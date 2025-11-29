@@ -1,0 +1,280 @@
+/**
+ * Object Importer
+ *
+ * Imports objects (items) from legacy database.
+ * Handles:
+ * - Denormalized data (multiple language rows per object)
+ * - EPM description2 handling
+ * - Tags, authors, and artists
+ */
+
+import { BaseImporter } from '../../core/base-importer.js';
+import type { ImportResult } from '../../core/types.js';
+import {
+  groupObjectsByPK,
+  transformObject,
+  transformObjectTranslation,
+  extractObjectTags,
+  extractObjectArtists,
+  planTranslations,
+} from '../../domain/transformers/index.js';
+import type { LegacyObject, ObjectGroup } from '../../domain/types/index.js';
+import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
+import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { TagHelper } from '../../helpers/tag-helper.js';
+import { AuthorHelper } from '../../helpers/author-helper.js';
+import { ArtistHelper } from '../../helpers/artist-helper.js';
+
+export class ObjectImporter extends BaseImporter {
+  private tagHelper!: TagHelper;
+  private authorHelper!: AuthorHelper;
+  private artistHelper!: ArtistHelper;
+
+  getName(): string {
+    return 'ObjectImporter';
+  }
+
+  async import(): Promise<ImportResult> {
+    const result = this.createResult();
+
+    // Initialize helpers
+    this.tagHelper = new TagHelper(this.context.strategy, this.context.tracker);
+    this.authorHelper = new AuthorHelper(this.context.strategy, this.context.tracker);
+    this.artistHelper = new ArtistHelper(this.context.strategy, this.context.tracker);
+
+    try {
+      this.logInfo('Importing objects...');
+
+      // Query all objects (denormalized - multiple rows per object)
+      const objects = await this.context.legacyDb.query<LegacyObject>(
+        'SELECT * FROM mwnf3.objects ORDER BY project_id, country, museum_id, number'
+      );
+
+      if (objects.length === 0) {
+        this.logInfo('No objects found');
+        return result;
+      }
+
+      // Group objects by non-lang PK columns
+      const objectGroups = groupObjectsByPK(objects);
+      this.logInfo(`Found ${objectGroups.length} unique objects (${objects.length} language rows)`);
+
+      // Check if EPM context exists
+      const epmContextBackwardCompat = formatBackwardCompatibility({
+        schema: 'mwnf3',
+        table: 'projects',
+        pkValues: ['EPM'],
+      });
+      const epmContextId = this.getEntityUuid(epmContextBackwardCompat);
+      const hasEpmContext = !!epmContextId;
+
+      // Import each object group
+      for (const group of objectGroups) {
+        try {
+          const imported = await this.importObject(group, hasEpmContext, epmContextId, result);
+          if (imported) {
+            result.imported++;
+            this.showProgress();
+          } else {
+            result.skipped++;
+            this.showSkipped();
+          }
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          result.errors.push(`${group.project_id}:${group.museum_id}:${group.number}: ${message}`);
+          this.logError(`Object ${group.project_id}:${group.museum_id}:${group.number}`, error);
+          this.showError();
+        }
+      }
+
+      this.showSummary(result.imported, result.skipped, result.errors.length);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      result.errors.push(`Failed to query objects: ${message}`);
+      result.success = false;
+    }
+
+    result.success = result.errors.length === 0;
+    return result;
+  }
+
+  private async importObject(
+    group: ObjectGroup,
+    hasEpmContext: boolean,
+    epmContextId: string | null,
+    result: ImportResult
+  ): Promise<boolean> {
+    const transformed = transformObject(group);
+
+    // Check if already imported
+    if (this.entityExists(transformed.backwardCompatibility)) {
+      return false;
+    }
+
+    // Collect sample
+    const sampleTranslation = group.translations[0];
+    if (sampleTranslation) {
+      this.collectSample(
+        'object',
+        sampleTranslation as unknown as Record<string, unknown>,
+        'success',
+        undefined,
+        mapLanguageCode(sampleTranslation.lang)
+      );
+    }
+
+    if (this.isDryRun || this.isSampleOnlyMode) {
+      this.logInfo(
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import object: ${group.project_id}:${group.museum_id}:${group.number}`
+      );
+      this.registerEntity(
+        `sample-item-${group.project_id}-${group.museum_id}-${group.number}`,
+        transformed.backwardCompatibility,
+        'item'
+      );
+      return true;
+    }
+
+    // Resolve dependencies
+    const contextBackwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'projects',
+      pkValues: [group.project_id],
+    });
+    const contextId = this.getEntityUuid(contextBackwardCompat);
+    if (!contextId) {
+      this.logWarning(`Skipping object ${group.project_id}:${group.museum_id}:${group.number} - project not found`);
+      return false;
+    }
+
+    const collectionBackwardCompat = `${contextBackwardCompat}:collection`;
+    const collectionId = this.getEntityUuid(collectionBackwardCompat);
+    if (!collectionId) {
+      this.logWarning(`Skipping object ${group.project_id}:${group.museum_id}:${group.number} - collection not found`);
+      return false;
+    }
+
+    const partnerBackwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'museums',
+      pkValues: [group.museum_id, group.country],
+    });
+    const partnerId = this.getEntityUuid(partnerBackwardCompat);
+    if (!partnerId) {
+      this.logWarning(`Skipping object ${group.project_id}:${group.museum_id}:${group.number} - museum not found`);
+      return false;
+    }
+
+    const projectBackwardCompat = `${contextBackwardCompat}:project`;
+    const projectId = this.getEntityUuid(projectBackwardCompat);
+
+    // Create Item
+    const itemData = {
+      ...transformed.data,
+      collection_id: collectionId,
+      partner_id: partnerId,
+      project_id: projectId || null,
+    };
+
+    const itemId = await this.context.strategy.writeItem(itemData);
+    this.registerEntity(itemId, transformed.backwardCompatibility, 'item');
+
+    // Create translations
+    const translationPlans = planTranslations(group, hasEpmContext);
+    for (const plan of translationPlans) {
+      try {
+        const translationResult = transformObjectTranslation(plan.translation, plan.descriptionField);
+        if (!translationResult) continue;
+
+        // Add any warnings to result
+        if (translationResult.warnings.length > 0) {
+          result.warnings?.push(...translationResult.warnings);
+        }
+
+        // Resolve authors
+        const authorId = translationResult.authorName
+          ? await this.authorHelper.findOrCreate(translationResult.authorName)
+          : null;
+        const textCopyEditorId = translationResult.textCopyEditorName
+          ? await this.authorHelper.findOrCreate(translationResult.textCopyEditorName)
+          : null;
+        const translatorId = translationResult.translatorName
+          ? await this.authorHelper.findOrCreate(translationResult.translatorName)
+          : null;
+        const translationCopyEditorId = translationResult.translationCopyEditorName
+          ? await this.authorHelper.findOrCreate(translationResult.translationCopyEditorName)
+          : null;
+
+        // Determine context for translation
+        const translationContextId = plan.contextType === 'epm' ? epmContextId! : contextId;
+
+        await this.context.strategy.writeItemTranslation({
+          ...translationResult.data,
+          item_id: itemId,
+          context_id: translationContextId,
+          author_id: authorId,
+          text_copy_editor_id: textCopyEditorId,
+          translator_id: translatorId,
+          translation_copy_editor_id: translationCopyEditorId,
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        this.logWarning(`Failed to create translation: ${message}`);
+      }
+    }
+
+    // Create tags (from first translation only to avoid duplicates)
+    const firstTranslation = group.translations[0];
+    if (firstTranslation) {
+      const extractedTags = extractObjectTags(firstTranslation);
+      const tagIds: string[] = [];
+
+      if (extractedTags.materials.length > 0) {
+        for (const material of extractedTags.materials) {
+          const tagId = await this.tagHelper.findOrCreate(material, 'material', extractedTags.languageId);
+          if (tagId) tagIds.push(tagId);
+        }
+      }
+
+      if (extractedTags.dynasties.length > 0) {
+        for (const dynasty of extractedTags.dynasties) {
+          const tagId = await this.tagHelper.findOrCreate(dynasty, 'dynasty', extractedTags.languageId);
+          if (tagId) tagIds.push(tagId);
+        }
+      }
+
+      if (extractedTags.keywords.length > 0) {
+        for (const keyword of extractedTags.keywords) {
+          const tagId = await this.tagHelper.findOrCreate(keyword, 'keyword', extractedTags.languageId);
+          if (tagId) tagIds.push(tagId);
+        }
+      }
+
+      if (tagIds.length > 0) {
+        await this.tagHelper.attachToItem(itemId, tagIds);
+      }
+
+      // Create artists
+      const extractedArtists = extractObjectArtists(firstTranslation);
+      const artistIds: string[] = [];
+
+      for (const artistData of extractedArtists) {
+        const artistId = await this.artistHelper.findOrCreate(
+          artistData.name,
+          artistData.birthplace,
+          artistData.deathplace,
+          artistData.birthdate,
+          artistData.deathdate,
+          artistData.periodActivity
+        );
+        if (artistId) artistIds.push(artistId);
+      }
+
+      if (artistIds.length > 0) {
+        await this.artistHelper.attachToItem(itemId, artistIds);
+      }
+    }
+
+    return true;
+  }
+}
