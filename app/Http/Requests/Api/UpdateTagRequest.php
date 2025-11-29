@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Api;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateTagRequest extends FormRequest
 {
@@ -26,9 +25,20 @@ class UpdateTagRequest extends FormRequest
 
         return [
             'id' => ['prohibited'],
-            'internal_name' => ['required', 'string', Rule::unique('tags', 'internal_name')->ignore($tag?->id)],
+            'internal_name' => ['required', 'string'],
+            'category' => ['nullable', 'string', 'in:keyword,material,artist,dynasty'],
+            'language_id' => ['nullable', 'string', 'size:3', 'exists:languages,id'],
             'backward_compatibility' => ['nullable', 'string'],
             'description' => ['required', 'string'],
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        // Uniqueness is enforced by database constraint, not validation
+        // This allows updating other fields while keeping internal_name + category + language_id unchanged
     }
 }

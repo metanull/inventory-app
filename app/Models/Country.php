@@ -35,4 +35,12 @@ class Country extends Model
     {
         return $this->hasMany(Partner::class)->chaperone('country');
     }
+
+    /**
+     * Get the translations for this country.
+     */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(CountryTranslation::class, 'country_id');
+    }
 }

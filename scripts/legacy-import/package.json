@@ -1,0 +1,48 @@
+{
+  "name": "legacy-import",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Legacy database import utility for Inventory Management System",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "format": "prettier --write .",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@inquirer/password": "^5.0.1",
+    "@metanull/inventory-app-api-client": "1.0.1-dev.1124.1053",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/turndown": "^5.0.6",
+    "axios": "^1.13.2",
+    "better-sqlite3": "^12.4.6",
+    "commander": "^14.0.2",
+    "dotenv": "^17.2.3",
+    "marked": "^17.0.1",
+    "mysql2": "^3.11.6",
+    "turndown": "^7.2.2",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.47.0",
+    "@typescript-eslint/parser": "^8.47.0",
+    "@vitest/coverage-v8": "^4.0.10",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^4.0.10"
+  },
+  "engines": {
+    "node": ">=24.11.0",
+    "npm": ">=11.0.0"
+  }
+}

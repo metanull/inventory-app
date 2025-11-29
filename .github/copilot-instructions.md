@@ -1,5 +1,7 @@
 # Inventory Management API - Copilot Instructions
 
+**CRITICAL**: DO NOT USE THE TERMINAL TO READ/WRITE FILES!
+
 ## Project Overview
 
 The **Inventory Management API** is a comprehensive Laravel 12 backend application for museum inventory management at Museum With No Frontiers. This is a monorepo containing:

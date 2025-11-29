@@ -16,6 +16,8 @@
 
         <x-display.description-list>
             <x-display.field label="Internal Name" :value="$tag->internal_name" />
+            <x-display.field label="Category" :value="$tag->category ? ucfirst($tag->category) : 'No category'" />
+            <x-display.field label="Language" :value="$tag->language?->name ?? 'No language'" />
             <x-display.field label="Description" :value="$tag->description" />
         </x-display.description-list>
 

@@ -54,7 +54,16 @@ class AllowList
                 'partnerTranslation',
             ],
             'country' => [
-                'items', 'partners',
+                'items', 'partners', 'translations',
+            ],
+            'country_translation' => [
+                'country', 'language',
+            ],
+            'language' => [
+                'translations',
+            ],
+            'language_translation' => [
+                'language', 'displayLanguage',
             ],
             'project' => [
                 'context', 'language',
