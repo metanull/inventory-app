@@ -80,4 +80,12 @@ class Language extends Model
             self::query()->update(['is_default' => false]);
         });
     }
+
+    /**
+     * Get the translations for this language (how this language is named in other languages).
+     */
+    public function translations()
+    {
+        return $this->hasMany(LanguageTranslation::class, 'language_id');
+    }
 }
