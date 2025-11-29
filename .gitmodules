@@ -1,0 +1,6 @@
+[submodule ".legacy-database/ddl"]
+	path = .legacy-database/ddl
+	url = https://bitbucket.org/mwnf/database-creation.git
+[submodule ".legacy-database/data"]
+	path = .legacy-database/data
+	url = https://bitbucket.org/mwnf/database-content.git

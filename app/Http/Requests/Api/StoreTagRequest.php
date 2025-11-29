@@ -23,9 +23,20 @@ class StoreTagRequest extends FormRequest
     {
         return [
             'id' => ['prohibited'],
-            'internal_name' => ['required', 'string', 'unique:tags,internal_name'],
+            'internal_name' => ['required', 'string'],
+            'category' => ['nullable', 'string', 'in:keyword,material,artist,dynasty'],
+            'language_id' => ['nullable', 'string', 'size:3', 'exists:languages,id'],
             'backward_compatibility' => ['nullable', 'string'],
             'description' => ['required', 'string'],
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        // Ensure uniqueness is checked across internal_name + category + language_id
+        // This is handled by the database unique constraint, not validation
     }
 }

@@ -14,7 +14,9 @@ class UpdateTagRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'internal_name' => ['required', 'string', 'max:255', 'unique:tags,internal_name,'.$this->route('tag')->id],
+            'internal_name' => ['required', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'in:keyword,material,artist,dynasty'],
+            'language_id' => ['nullable', 'string', 'size:3', 'exists:languages,id'],
             'description' => ['required', 'string', 'max:1000'],
             'backward_compatibility' => ['nullable', 'string', 'max:255'],
         ];

@@ -9,6 +9,33 @@
         />
     </x-form.field>
 
+    <x-form.field label="Category" name="category" variant="gray">
+        <x-form.select 
+            name="category" 
+            :value="old('category', $tag->category ?? '')"
+        >
+            <option value="">-- No Category --</option>
+            <option value="keyword" @selected(old('category', $tag->category ?? '') === 'keyword')>Keyword</option>
+            <option value="material" @selected(old('category', $tag->category ?? '') === 'material')>Material</option>
+            <option value="artist" @selected(old('category', $tag->category ?? '') === 'artist')>Artist</option>
+            <option value="dynasty" @selected(old('category', $tag->category ?? '') === 'dynasty')>Dynasty</option>
+        </x-form.select>
+    </x-form.field>
+
+    <x-form.field label="Language" name="language_id" variant="gray">
+        <x-form.select 
+            name="language_id" 
+            :value="old('language_id', $tag->language_id ?? '')"
+        >
+            <option value="">-- No Language --</option>
+            @foreach(\App\Models\Language::all() as $language)
+                <option value="{{ $language->id }}" @selected(old('language_id', $tag->language_id ?? '') === $language->id)>
+                    {{ $language->name }}
+                </option>
+            @endforeach
+        </x-form.select>
+    </x-form.field>
+
     <x-form.field label="Description" name="description" variant="gray" required>
         <x-form.textarea 
             name="description" 

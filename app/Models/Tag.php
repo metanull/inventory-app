@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Tag extends Model
@@ -15,6 +16,8 @@ class Tag extends Model
 
     protected $fillable = [
         'internal_name',
+        'category',
+        'language_id',
         'backward_compatibility',
         'description',
     ];
@@ -25,6 +28,14 @@ class Tag extends Model
     public function items(): BelongsToMany
     {
         return $this->belongsToMany(Item::class)->withTimestamps();
+    }
+
+    /**
+     * Get the language this tag belongs to (optional).
+     */
+    public function language(): BelongsTo
+    {
+        return $this->belongsTo(Language::class);
     }
 
     /**
@@ -39,6 +50,22 @@ class Tag extends Model
         return $query->whereHas('items', function (Builder $query) use ($itemId) {
             $query->where('items.id', $itemId);
         });
+    }
+
+    /**
+     * Scope to get tags by category.
+     */
+    public function scopeByCategory(Builder $query, string $category): Builder
+    {
+        return $query->where('category', $category);
+    }
+
+    /**
+     * Scope to get tags by language.
+     */
+    public function scopeByLanguage(Builder $query, string $languageId): Builder
+    {
+        return $query->where('language_id', $languageId);
     }
 
     /**
