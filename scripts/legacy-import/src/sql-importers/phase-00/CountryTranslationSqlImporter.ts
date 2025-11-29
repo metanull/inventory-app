@@ -2,8 +2,9 @@ import { BaseSqlImporter, type ImportResult } from '../base/BaseSqlImporter.js';
 import { v4 as uuidv4 } from 'uuid';
 import type { Connection } from 'mysql2/promise';
 import type { LegacyDatabase } from '../../database/LegacyDatabase.js';
-import { mapLanguageCode, mapCountryCode } from '../../utils/CodeMappings.js';
+import { mapCountryCode, mapLanguageCode } from '../../utils/CodeMappings.js';
 import type { SampleCollector } from '../../utils/SampleCollector.js';
+import type { LogWriter } from '../utils/LogWriter.js';
 
 interface LegacyCountryName {
   country: string;
@@ -22,9 +23,10 @@ export class CountryTranslationSqlImporter extends BaseSqlImporter {
     db: Connection,
     tracker: Map<string, string>,
     legacyDb: LegacyDatabase,
-    sampleCollector?: SampleCollector
+    sampleCollector?: SampleCollector,
+    logger?: LogWriter
   ) {
-    super(db, tracker, sampleCollector);
+    super(db, tracker, sampleCollector, logger);
     this.legacyDb = legacyDb;
   }
 

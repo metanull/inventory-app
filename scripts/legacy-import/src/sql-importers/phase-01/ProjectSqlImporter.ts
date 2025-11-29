@@ -3,6 +3,7 @@ import type { Connection } from 'mysql2/promise';
 import { v4 as uuidv4 } from 'uuid';
 import type { LegacyDatabase } from '../../database/LegacyDatabase.js';
 import type { SampleCollector } from '../../utils/SampleCollector.js';
+import type { LogWriter } from '../utils/LogWriter.js';
 
 interface LegacyProject {
   project_id: string;
@@ -23,9 +24,10 @@ export class ProjectSqlImporter extends BaseSqlImporter {
     db: Connection,
     tracker: Map<string, string>,
     legacyDb: LegacyDatabase,
-    sampleCollector?: SampleCollector
+    sampleCollector?: SampleCollector,
+    logger?: LogWriter
   ) {
-    super(db, tracker, sampleCollector);
+    super(db, tracker, sampleCollector, logger);
     this.legacyDb = legacyDb;
   }
 

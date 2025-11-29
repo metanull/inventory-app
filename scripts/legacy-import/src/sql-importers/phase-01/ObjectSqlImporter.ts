@@ -8,6 +8,7 @@ import { AuthorHelper } from '../helpers/AuthorHelper.js';
 import { ArtistHelper } from '../helpers/ArtistHelper.js';
 import { TagHelper } from '../helpers/TagHelper.js';
 import type { SampleCollector } from '../../utils/SampleCollector.js';
+import type { LogWriter } from '../utils/LogWriter.js';
 
 interface LegacyObject {
   project_id: string;
@@ -62,9 +63,10 @@ export class ObjectSqlImporter extends BaseSqlImporter {
     db: Connection,
     tracker: Map<string, string>,
     legacyDb: LegacyDatabase,
-    sampleCollector?: SampleCollector
+    sampleCollector?: SampleCollector,
+    logger?: LogWriter
   ) {
-    super(db, tracker, sampleCollector);
+    super(db, tracker, sampleCollector, logger);
     this.legacyDb = legacyDb;
     this.authorHelper = new AuthorHelper(db, tracker, this.now);
     this.artistHelper = new ArtistHelper(db, tracker, this.now);

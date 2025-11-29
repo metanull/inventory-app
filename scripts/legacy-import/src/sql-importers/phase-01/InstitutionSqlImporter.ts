@@ -4,6 +4,7 @@ import type { Connection } from 'mysql2/promise';
 import type { LegacyDatabase } from '../../database/LegacyDatabase.js';
 import { mapLanguageCode } from '../../utils/CodeMappings.js';
 import type { SampleCollector } from '../../utils/SampleCollector.js';
+import type { LogWriter } from '../utils/LogWriter.js';
 import { convertHtmlToMarkdown } from '../../utils/HtmlToMarkdownConverter.js';
 
 interface LegacyInstitution {
@@ -33,9 +34,10 @@ export class InstitutionSqlImporter extends BaseSqlImporter {
     db: Connection,
     tracker: Map<string, string>,
     legacyDb: LegacyDatabase,
-    sampleCollector?: SampleCollector
+    sampleCollector?: SampleCollector,
+    logger?: LogWriter
   ) {
-    super(db, tracker, sampleCollector);
+    super(db, tracker, sampleCollector, logger);
     this.legacyDb = legacyDb;
   }
 

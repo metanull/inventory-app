@@ -7,6 +7,7 @@ import { convertHtmlToMarkdown } from '../../utils/HtmlToMarkdownConverter.js';
 import { AuthorHelper } from '../helpers/AuthorHelper.js';
 import { TagHelper } from '../helpers/TagHelper.js';
 import type { SampleCollector } from '../../utils/SampleCollector.js';
+import type { LogWriter } from '../utils/LogWriter.js';
 
 interface LegacyMonument {
   project_id: string;
@@ -52,9 +53,10 @@ export class MonumentSqlImporter extends BaseSqlImporter {
     db: Connection,
     tracker: Map<string, string>,
     legacyDb: LegacyDatabase,
-    sampleCollector?: SampleCollector
+    sampleCollector?: SampleCollector,
+    logger?: LogWriter
   ) {
-    super(db, tracker, sampleCollector);
+    super(db, tracker, sampleCollector, logger);
     this.legacyDb = legacyDb;
     this.authorHelper = new AuthorHelper(db, tracker, this.now);
     this.tagHelper = new TagHelper(db, tracker, this.now);

@@ -58,9 +58,23 @@ export abstract class BaseSqlImporter {
   }
 
   protected logError(message: string, error?: unknown): void {
-    console.error(chalk.red(`[${this.getName()}] ❌ ${message}`));
+    const logMessage = `[${this.getName()}] ❌ ${message}`;
+    console.error(chalk.red(logMessage));
+    if (this.logger) {
+      this.logger.log(logMessage);
+    }
+
     if (error) {
-      console.error(chalk.red(`  ${error instanceof Error ? error.message : String(error)}`));
+      const errorDetail = `  ${error instanceof Error ? error.message : String(error)}`;
+      console.error(chalk.red(errorDetail));
+      if (this.logger) {
+        this.logger.log(errorDetail);
+
+        // Log stack trace if available
+        if (error instanceof Error && error.stack) {
+          this.logger.log(`  Stack: ${error.stack}`);
+        }
+      }
     }
   }
 
