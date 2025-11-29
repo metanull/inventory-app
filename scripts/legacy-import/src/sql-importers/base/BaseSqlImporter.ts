@@ -1,6 +1,7 @@
 import type { Connection, RowDataPacket } from 'mysql2/promise';
 import chalk from 'chalk';
 import type { SampleCollector, SampleReason } from '../../utils/SampleCollector.js';
+import type { LogWriter } from '../utils/LogWriter.js';
 
 export interface ImportResult {
   success: boolean;
@@ -14,27 +15,46 @@ export abstract class BaseSqlImporter {
   protected tracker: Map<string, string>;
   protected now: string;
   protected sampleCollector?: SampleCollector;
+  protected logger?: LogWriter;
 
-  constructor(db: Connection, tracker: Map<string, string>, sampleCollector?: SampleCollector) {
+  constructor(
+    db: Connection,
+    tracker: Map<string, string>,
+    sampleCollector?: SampleCollector,
+    logger?: LogWriter
+  ) {
     this.db = db;
     this.tracker = tracker;
     this.now = new Date().toISOString().slice(0, 19).replace('T', ' ');
     this.sampleCollector = sampleCollector;
+    this.logger = logger;
   }
 
   abstract getName(): string;
   abstract import(): Promise<ImportResult>;
 
   protected log(message: string): void {
-    console.log(`[${this.getName()}] ${message}`);
+    const logMessage = `[${this.getName()}] ${message}`;
+    console.log(logMessage);
+    if (this.logger) {
+      this.logger.log(logMessage);
+    }
   }
 
   protected logSuccess(message: string): void {
-    console.log(chalk.green(`[${this.getName()}] ✅ ${message}`));
+    const logMessage = `[${this.getName()}] ✅ ${message}`;
+    console.log(chalk.green(logMessage));
+    if (this.logger) {
+      this.logger.log(logMessage);
+    }
   }
 
   protected logWarning(message: string): void {
-    console.log(chalk.yellow(`[${this.getName()}] ⚠️  ${message}`));
+    const logMessage = `[${this.getName()}] ⚠️  ${message}`;
+    console.log(chalk.yellow(logMessage));
+    if (this.logger) {
+      this.logger.log(logMessage);
+    }
   }
 
   protected logError(message: string, error?: unknown): void {

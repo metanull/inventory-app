@@ -769,90 +769,23 @@ export class MonumentImporter extends BaseImporter {
       return existing;
     }
 
-    // Search in API
-    const foundId = await this.findExistingAuthorByBackwardCompat(backwardCompat);
-    if (foundId) {
-      return foundId;
-    }
-
     // Create new author
-    try {
-      const response = await (this.context.apiClient as any).author.authorStore({
-        name: trimmedName,
-        internal_name: trimmedName,
-        backward_compatibility: backwardCompat,
-      });
+    const response = await (this.context.apiClient as any).author.authorStore({
+      name: trimmedName,
+      internal_name: trimmedName,
+      backward_compatibility: backwardCompat,
+    });
 
-      const authorId = response.data.data.id;
+    const authorId = response.data.data.id;
 
-      // Register in tracker
-      this.context.tracker.register({
-        uuid: authorId,
-        backwardCompatibility: backwardCompat,
-        entityType: 'item' as any,
-        createdAt: new Date(),
-      });
+    // Register in tracker
+    this.context.tracker.register({
+      uuid: authorId,
+      backwardCompatibility: backwardCompat,
+      entityType: 'item' as any,
+      createdAt: new Date(),
+    });
 
-      return authorId;
-    } catch (error) {
-      // If 422 conflict, try to find it
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number } };
-        if (axiosError.response?.status === 422) {
-          // Try exhaustive search
-          const foundId = await this.findExistingAuthorByBackwardCompat(backwardCompat, 200);
-          if (foundId) {
-            return foundId;
-          }
-        }
-      }
-      this.logError(
-        `Failed to create author: ${trimmedName}`,
-        error instanceof Error ? error : new Error(String(error))
-      );
-      return null;
-    }
-  }
-
-  /**
-   * Search for existing author by backward_compatibility
-   */
-  private async findExistingAuthorByBackwardCompat(
-    backwardCompat: string,
-    maxPages: number = 100
-  ): Promise<string | null> {
-    let page = 1;
-    const perPage = 100;
-    let hasMore = true;
-
-    while (hasMore) {
-      const response = await (this.context.apiClient as any).author.authorIndex(
-        page,
-        perPage,
-        undefined
-      );
-      const authors = response.data.data;
-
-      const existing = authors.find((a: any) => a.backward_compatibility === backwardCompat);
-
-      if (existing) {
-        this.context.tracker.register({
-          uuid: existing.id,
-          backwardCompatibility: backwardCompat,
-          entityType: 'item' as any,
-          createdAt: new Date(),
-        });
-        return existing.id;
-      }
-
-      hasMore = authors.length === perPage;
-      page++;
-
-      if (page > maxPages) {
-        break;
-      }
-    }
-
-    return null;
+    return authorId;
   }
 }

@@ -233,7 +233,7 @@ describe('InstitutionImporter', () => {
     });
 
     it('should handle API errors gracefully', async () => {
-      const mockInstitutions = [{ institution_id: 'unesco', country: 'fr' }];
+      const mockInstitutions = [{ institution_id: 'unesco', country: 'fr', name: 'UNESCO' }];
 
       vi.mocked(mockContext.legacyDb.query)
         .mockResolvedValueOnce(mockInstitutions)
@@ -249,6 +249,22 @@ describe('InstitutionImporter', () => {
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0]).toContain('unesco');
       expect(result.errors[0]).toContain('API connection failed');
+      expect(result.success).toBe(false);
+    });
+
+    it('should throw error on missing required name field', async () => {
+      const mockInstitutions = [{ institution_id: 'unesco', country: 'fr' }]; // Missing name
+
+      vi.mocked(mockContext.legacyDb.query)
+        .mockResolvedValueOnce(mockInstitutions)
+        .mockResolvedValueOnce([]);
+
+      const result = await importer.import();
+
+      expect(result.imported).toBe(0);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toContain('unesco');
+      expect(result.errors[0]).toContain("missing required field 'name'");
       expect(result.success).toBe(false);
     });
   });

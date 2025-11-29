@@ -98,90 +98,30 @@ export class ApiTagHelper {
       return tagId;
     }
 
-    // Lookup existing tag first to avoid unnecessary create attempts and warnings
-    tagId = await this.findExistingByBackwardCompat(backwardCompat);
-
-    if (tagId) {
-      // Register in tracker for fast future lookups
-      this.tracker.register({
-        uuid: tagId,
-        backwardCompatibility: backwardCompat,
-        entityType: 'item',
-        createdAt: new Date(),
-      });
-      return tagId;
-    }
-
     // Tag doesn't exist, create it
-    try {
-      // Internal_name should be clean tag value only (e.g., "portrait", "leather")
-      // ALWAYS lowercase to avoid case-sensitivity issues
-      // Original capitalization preserved in description for display
-      const createPayload: Record<string, unknown> = {
-        internal_name: normalizedTagName,
-        category: category,
-        language_id: languageId,
-        description: tagName, // Keep original capitalization for display
-        backward_compatibility: backwardCompat,
-      };
+    // Internal_name should be clean tag value only (e.g., "portrait", "leather")
+    // ALWAYS lowercase to avoid case-sensitivity issues
+    // Original capitalization preserved in description for display
+    const createPayload: Record<string, unknown> = {
+      internal_name: normalizedTagName,
+      category: category,
+      language_id: languageId,
+      description: tagName, // Keep original capitalization for display
+      backward_compatibility: backwardCompat,
+    };
 
-      const response = await this.apiClient.tag.tagStore(createPayload as any);
-      tagId = response.data.data.id;
+    const response = await this.apiClient.tag.tagStore(createPayload as any);
+    tagId = response.data.data.id;
 
-      // Register in tracker
-      this.tracker.register({
-        uuid: tagId,
-        backwardCompatibility: backwardCompat,
-        entityType: 'item',
-        createdAt: new Date(),
-      });
+    // Register in tracker
+    this.tracker.register({
+      uuid: tagId,
+      backwardCompatibility: backwardCompat,
+      entityType: 'item',
+      createdAt: new Date(),
+    });
 
-      return tagId;
-    } catch (error) {
-      // Both 422 and 500 with unique constraint error mean tag already exists
-      // Our lookup missed it (pagination issue or backward_compatibility mismatch)
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number; data?: unknown } };
-        const is422 = axiosError.response?.status === 422;
-        const is500Duplicate =
-          axiosError.response?.status === 500 &&
-          (axiosError.response?.data as any)?.message?.includes('Duplicate entry') &&
-          (axiosError.response?.data as any)?.message?.includes('tags_name_category_lang_unique');
-
-        if (is422 || is500Duplicate) {
-          // Tag exists - do exhaustive search by backward_compatibility
-          tagId = await this.findExistingByBackwardCompat(backwardCompat, 200);
-
-          if (!tagId) {
-            // Still not found by backward_compatibility - try searching by actual fields
-            tagId = await this.findExistingByFields(normalizedTagName, category, languageId);
-          }
-
-          if (tagId) {
-            // Found it! Register for future
-            this.tracker.register({
-              uuid: tagId,
-              backwardCompatibility: backwardCompat,
-              entityType: 'item',
-              createdAt: new Date(),
-            });
-            return tagId;
-          } else {
-            // Still can't find it - log warning but continue
-            console.warn(
-              `Tag exists (${is500Duplicate ? '500 duplicate' : '422 conflict'}) but cannot be found: ${category}:${languageId}:${tagName}`
-            );
-          }
-        } else {
-          // Other error - log it
-          console.error(`Failed to create tag: ${category}:${tagName}`, error);
-        }
-      } else {
-        console.error(`Failed to create tag: ${category}:${tagName}`, error);
-      }
-    }
-
-    return null;
+    return tagId;
   }
 
   /**
@@ -198,99 +138,5 @@ export class ApiTagHelper {
     await this.apiClient.item.itemUpdateTags(itemId, {
       attach: tagIds,
     });
-  }
-
-  /**
-   * Search for existing tag by backward_compatibility
-   * @param backwardCompat The backward compatibility value to search for
-   * @param maxPages Maximum pages to search (default 100, use 200 for exhaustive retry)
-   * @returns Tag UUID or null if not found
-   */
-  private async findExistingByBackwardCompat(
-    backwardCompat: string,
-    maxPages: number = 100
-  ): Promise<string | null> {
-    let page = 1;
-    const perPage = 100;
-    let hasMore = true;
-
-    while (hasMore) {
-      const response = await this.apiClient.tag.tagIndex(page, perPage, undefined);
-      const tags = response.data.data;
-
-      const existing = tags.find((t) => t.backward_compatibility === backwardCompat);
-
-      if (existing) {
-        this.tracker.register({
-          uuid: existing.id,
-          backwardCompatibility: backwardCompat,
-          entityType: 'item',
-          createdAt: new Date(),
-        });
-        return existing.id;
-      }
-
-      hasMore = tags.length === perPage;
-      page++;
-
-      if (page > maxPages) {
-        if (maxPages >= 200) {
-          console.warn(`Exhaustive search failed after ${maxPages} pages for: ${backwardCompat}`);
-        }
-        break;
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Search for existing tag by the actual unique constraint fields
-   * Used as fallback when backward_compatibility search fails
-   * @param internalName The tag name (e.g., "portrait", "leather")
-   * @param category The tag category
-   * @param languageId The language ID
-   * @returns Tag UUID or null if not found
-   */
-  private async findExistingByFields(
-    internalName: string,
-    category: string,
-    languageId: string
-  ): Promise<string | null> {
-    let page = 1;
-    const perPage = 100;
-    let hasMore = true;
-
-    // Normalize for case-insensitive comparison (MariaDB unique constraint is case-insensitive)
-    const normalizedName = internalName.toLowerCase();
-    const normalizedCategory = category?.toLowerCase();
-    const normalizedLanguage = languageId?.toLowerCase();
-
-    while (hasMore) {
-      const response = await this.apiClient.tag.tagIndex(page, perPage, undefined);
-      const tags = response.data.data;
-
-      // Search by the actual unique constraint fields (case-insensitive)
-      const existing = tags.find(
-        (t) =>
-          t.internal_name?.toLowerCase() === normalizedName &&
-          t.category?.toLowerCase() === normalizedCategory &&
-          t.language_id?.toLowerCase() === normalizedLanguage
-      );
-
-      if (existing) {
-        return existing.id;
-      }
-
-      hasMore = tags.length === perPage;
-      page++;
-
-      // Limit search to prevent infinite loops
-      if (page > 200) {
-        break;
-      }
-    }
-
-    return null;
   }
 }

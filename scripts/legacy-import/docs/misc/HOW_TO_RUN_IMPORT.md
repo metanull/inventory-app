@@ -4,6 +4,10 @@
 cd E:\inventory\inventory-app; php artisan db:wipe; php artisan migrate:refresh --quiet; php artisan db:seed --class=MinimalDatabaseSeeder --quiet; cd E:\inventory\inventory-app\scripts\legacy-import; npx tsx src/sql-import-v2.ts
 ```
 
+```powershell
+cd E:\inventory\inventory-app; php artisan db:wipe; php artisan migrate:refresh --quiet; php artisan db:seed --class=MinimalDatabaseSeeder --quiet; cd E:\inventory\inventory-app\scripts\legacy-import; $env:API_EMAIL="user@example.com"; $env:API_PASSWORD="password"; npx tsx src/index.ts login; npx tsx src/index.ts import
+```
+
 **With sample collection:**
 
 ```powershell

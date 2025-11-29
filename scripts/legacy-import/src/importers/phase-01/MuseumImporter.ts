@@ -159,79 +159,19 @@ export class MuseumImporter extends BaseImporter {
     // Map 2-character country code to 3-character code
     const countryId = museum.country ? mapCountryCode(museum.country) : undefined;
 
-    // Try to create Partner (may already exist from previous import run)
-    let partnerId: string | undefined = undefined;
-    try {
-      const partnerResponse = await this.context.apiClient.partner.partnerStore({
-        internal_name: museum.name,
-        type: 'museum',
-        country_id: countryId,
-        project_id: projectId, // Use Project UUID, not Context UUID
-        latitude: latitude,
-        longitude: longitude,
-        map_zoom: museum.zoom ? parseInt(museum.zoom) : undefined,
-        visible: true,
-        backward_compatibility: backwardCompat,
-      });
-      partnerId = partnerResponse.data.data.id;
-    } catch (error) {
-      // If 422 conflict, check if it's a backward_compatibility duplicate or other validation error
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number; data?: unknown } };
-        if (axiosError.response?.status === 422) {
-          const responseData = axiosError.response?.data as { message?: string } | undefined;
-          const errorMessage = responseData?.message || '';
-
-          // Only try to find existing partner if error is about backward_compatibility duplicate
-          if (
-            errorMessage.includes('backward_compatibility') ||
-            errorMessage.includes('already been taken')
-          ) {
-            // Query API to find existing Partner by backward_compatibility
-            // Paginate through all results since there may be more than 100 partners
-            let found = false;
-            let page = 1;
-            const perPage = 100;
-
-            while (!found) {
-              const partnersPage = await this.context.apiClient.partner.partnerIndex(
-                page,
-                perPage,
-                undefined
-              );
-
-              const existing = partnersPage.data.data.find(
-                (p) => p.backward_compatibility === backwardCompat
-              );
-
-              if (existing) {
-                partnerId = existing.id;
-                found = true;
-              } else if (partnersPage.data.data.length < perPage) {
-                // Reached last page without finding partner
-                throw new Error(
-                  `Partner conflict but not found in API: ${museum.museum_id}:${museum.country}`
-                );
-              } else {
-                page++;
-              }
-            }
-          } else {
-            // Other validation error - re-throw with details
-            throw error;
-          }
-        } else {
-          throw error; // Re-throw non-422 errors
-        }
-      } else {
-        throw error;
-      }
-    }
-
-    // Ensure partnerId was successfully obtained
-    if (!partnerId) {
-      throw new Error(`Failed to get Partner ID for museum ${museum.museum_id}:${museum.country}`);
-    }
+    // Create Partner
+    const partnerResponse = await this.context.apiClient.partner.partnerStore({
+      internal_name: museum.name,
+      type: 'museum',
+      country_id: countryId,
+      project_id: projectId, // Use Project UUID, not Context UUID
+      latitude: latitude,
+      longitude: longitude,
+      map_zoom: museum.zoom ? parseInt(museum.zoom) : undefined,
+      visible: true,
+      backward_compatibility: backwardCompat,
+    });
+    const partnerId = partnerResponse.data.data.id;
 
     // Register in tracker
     this.context.tracker.register({
@@ -269,35 +209,23 @@ export class MuseumImporter extends BaseImporter {
       throw new Error(`Context not found for project ${museum.project_id}`);
     }
 
-    try {
-      await this.context.apiClient.partnerTranslation.partnerTranslationStore({
-        partner_id: partnerId,
-        language_id: languageId,
-        context_id: contextId,
-        name: translation.name,
-        description: translation.description || null,
-        // Address fields
-        city_display: translation.city || null,
-        address_line_1: museum.address || null,
-        postal_code: museum.postal_address || null,
-        address_notes: translation.how_to_reach || null,
-        // Contact fields
-        contact_phone: museum.phone || null,
-        contact_email_general: museum.email || null,
-        contact_website: museum.url || null,
-        contact_notes: translation.opening_hours || null,
-      });
-    } catch (error) {
-      // If 422 conflict, translation already exists - skip silently
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number } };
-        if (axiosError.response?.status === 422) {
-          // Translation already exists, skip
-          return;
-        }
-      }
-      throw error; // Re-throw non-422 errors
-    }
+    await this.context.apiClient.partnerTranslation.partnerTranslationStore({
+      partner_id: partnerId,
+      language_id: languageId,
+      context_id: contextId,
+      name: translation.name,
+      description: translation.description || null,
+      // Address fields
+      city_display: translation.city || null,
+      address_line_1: museum.address || null,
+      postal_code: museum.postal_address || null,
+      address_notes: translation.how_to_reach || null,
+      // Contact fields
+      contact_phone: museum.phone || null,
+      contact_email_general: museum.email || null,
+      contact_website: museum.url || null,
+      contact_notes: translation.opening_hours || null,
+    });
   }
 }
 

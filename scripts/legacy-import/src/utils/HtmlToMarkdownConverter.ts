@@ -36,7 +36,9 @@ export function convertHtmlToMarkdown(html: string | null | undefined): string {
     return markdown.trim();
   } catch (error) {
     // Re-throw with more context instead of falling back to unsafe operations
-    throw new Error(`Failed to convert HTML to Markdown: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `Failed to convert HTML to Markdown: ${error instanceof Error ? error.message : String(error)}`
+    );
   }
 }
 

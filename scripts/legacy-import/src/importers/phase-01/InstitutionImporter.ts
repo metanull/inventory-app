@@ -87,7 +87,7 @@ export class InstitutionImporter extends BaseImporter {
   private async importInstitution(
     institution: LegacyInstitution,
     translations: LegacyInstitutionName[],
-    result: ImportResult
+    _result: ImportResult
   ): Promise<boolean> {
     // Format backward_compatibility with ALL PK fields (institution_id + country)
     const backwardCompat = BackwardCompatibilityFormatter.format({
@@ -104,35 +104,19 @@ export class InstitutionImporter extends BaseImporter {
     // Map 2-character country code to 3-character code
     const countryId = institution.country ? mapCountryCode(institution.country) : undefined;
 
-    // DATA QUALITY: Check for missing internal_name
+    // DATA QUALITY: Validate required fields
     if (!institution.name || institution.name.trim() === '') {
-      const warning = `${institution.institution_id}:${institution.country} - Missing 'name' field, using fallback`;
-      this.logWarning(`DATA QUALITY ISSUE: Institution ${warning}`, {
-        institution_id: institution.institution_id,
-        country: institution.country,
-        issue: 'Missing internal_name',
-        recommendation: 'Either: 1) Keep fallback logic, or 2) Fix legacy data',
-        fallback_used: `Institution ${institution.institution_id} (${institution.country})`,
-      });
-      result.warnings?.push(warning);
-      // Use fallback: Generate name from ID
-      institution.name = `Institution ${institution.institution_id} (${institution.country})`;
-
-      // Collect sample for testing - warning case
-      this.collectSample(
-        'partner_institution',
-        institution as unknown as Record<string, unknown>,
-        'warning',
-        'missing_name'
-      );
-    } else {
-      // Collect sample for testing - success case
-      this.collectSample(
-        'partner_institution',
-        institution as unknown as Record<string, unknown>,
-        'success'
+      throw new Error(
+        `Institution ${institution.institution_id}:${institution.country} has missing required field 'name'`
       );
     }
+
+    // Collect sample for testing
+    this.collectSample(
+      'partner_institution',
+      institution as unknown as Record<string, unknown>,
+      'success'
+    );
 
     if (this.context.dryRun || this.isSampleOnlyMode) {
       this.logInfo(
@@ -152,77 +136,15 @@ export class InstitutionImporter extends BaseImporter {
       return true;
     }
 
-    // Try to create Partner (may already exist from previous import run)
-    // Use institution.name from legacy database
-    let partnerId: string | undefined = undefined;
-    try {
-      const partnerResponse = await this.context.apiClient.partner.partnerStore({
-        internal_name: institution.name,
-        type: 'institution',
-        country_id: countryId,
-        visible: true,
-        backward_compatibility: backwardCompat,
-      });
-      partnerId = partnerResponse.data.data.id;
-    } catch (error) {
-      // If 422 conflict, check if it's a backward_compatibility duplicate or other validation error
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number; data?: unknown } };
-        if (axiosError.response?.status === 422) {
-          const responseData = axiosError.response?.data as { message?: string } | undefined;
-          const errorMessage = responseData?.message || '';
-
-          // Only try to find existing partner if error is about backward_compatibility duplicate
-          if (
-            errorMessage.includes('backward_compatibility') ||
-            errorMessage.includes('already been taken')
-          ) {
-            // Paginate through all results to find the existing partner
-            let found = false;
-            let page = 1;
-            const perPage = 100;
-
-            while (!found) {
-              const partnersPage = await this.context.apiClient.partner.partnerIndex(
-                page,
-                perPage,
-                undefined
-              );
-
-              const existing = partnersPage.data.data.find(
-                (p) => p.backward_compatibility === backwardCompat
-              );
-
-              if (existing) {
-                partnerId = existing.id;
-                found = true;
-              } else if (partnersPage.data.data.length < perPage) {
-                // Reached last page without finding partner
-                throw new Error(
-                  `Partner conflict but not found in API: ${institution.institution_id}:${institution.country}`
-                );
-              } else {
-                page++;
-              }
-            }
-          } else {
-            // Other validation error - re-throw with details
-            throw error;
-          }
-        } else {
-          throw error;
-        }
-      } else {
-        throw error;
-      }
-    }
-
-    // Ensure partnerId was successfully obtained
-    if (!partnerId) {
-      throw new Error(
-        `Failed to get Partner ID for institution ${institution.institution_id}:${institution.country}`
-      );
-    }
+    // Create Partner
+    const partnerResponse = await this.context.apiClient.partner.partnerStore({
+      internal_name: institution.name,
+      type: 'institution',
+      country_id: countryId,
+      visible: true,
+      backward_compatibility: backwardCompat,
+    });
+    const partnerId = partnerResponse.data.data.id;
 
     // Register in tracker
     this.context.tracker.register({
@@ -284,32 +206,21 @@ export class InstitutionImporter extends BaseImporter {
 
     const contactNotes = contactParts.length > 0 ? contactParts.join('\n') : null;
 
-    try {
-      await this.context.apiClient.partnerTranslation.partnerTranslationStore({
-        partner_id: partnerId,
-        language_id: languageId,
-        context_id: contextId,
-        name: translation.name,
-        description: translation.description || null,
-        // Address fields
-        city_display: institution.city || null,
-        address_line_1: institution.address || null,
-        // Contact fields
-        contact_phone: institution.phone || null,
-        contact_email_general: institution.email || null,
-        contact_website: institution.url || null,
-        contact_notes: contactNotes,
-      });
-    } catch (error) {
-      // If 422 conflict, translation already exists - skip silently
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number } };
-        if (axiosError.response?.status === 422) {
-          return; // Translation already exists, skip
-        }
-      }
-      throw error;
-    }
+    await this.context.apiClient.partnerTranslation.partnerTranslationStore({
+      partner_id: partnerId,
+      language_id: languageId,
+      context_id: contextId,
+      name: translation.name,
+      description: translation.description || null,
+      // Address fields
+      city_display: institution.city || null,
+      address_line_1: institution.address || null,
+      // Contact fields
+      contact_phone: institution.phone || null,
+      contact_email_general: institution.email || null,
+      contact_website: institution.url || null,
+      contact_notes: contactNotes,
+    });
   }
 }
 

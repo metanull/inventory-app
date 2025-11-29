@@ -112,7 +112,7 @@ async function main() {
 
     // Languages
     logger.logImporterStart('LanguageSqlImporter');
-    const langImporter = new LanguageSqlImporter(newDb, tracker, sampleCollector);
+    const langImporter = new LanguageSqlImporter(newDb, tracker, sampleCollector, logger);
     const langStart = Date.now();
     const langResult = await langImporter.import();
     const langDuration = Date.now() - langStart;
@@ -138,7 +138,8 @@ async function main() {
       newDb,
       tracker,
       legacyDb,
-      sampleCollector
+      sampleCollector,
+      logger
     );
     const langTransStart = Date.now();
     const langTransResult = await langTransImporter.import();
@@ -163,7 +164,7 @@ async function main() {
 
     // Countries
     logger.logImporterStart('CountrySqlImporter');
-    const countryImporter = new CountrySqlImporter(newDb, tracker, sampleCollector);
+    const countryImporter = new CountrySqlImporter(newDb, tracker, sampleCollector, logger);
     const countryStart = Date.now();
     const countryResult = await countryImporter.import();
     const countryDuration = Date.now() - countryStart;
@@ -189,7 +190,8 @@ async function main() {
       newDb,
       tracker,
       legacyDb,
-      sampleCollector
+      sampleCollector,
+      logger
     );
     const countryTransStart = Date.now();
     const countryTransResult = await countryTransImporter.import();
@@ -227,7 +229,13 @@ async function main() {
 
     // Projects (creates Contexts + Collections)
     logger.logImporterStart('ProjectSqlImporter');
-    const projectImporter = new ProjectSqlImporter(newDb, tracker, legacyDb, sampleCollector);
+    const projectImporter = new ProjectSqlImporter(
+      newDb,
+      tracker,
+      legacyDb,
+      sampleCollector,
+      logger
+    );
     const projectStart = Date.now();
     const projectResult = await projectImporter.import();
     const projectDuration = Date.now() - projectStart;
@@ -249,7 +257,7 @@ async function main() {
 
     // Museums
     logger.logImporterStart('MuseumSqlImporter');
-    const museumImporter = new MuseumSqlImporter(newDb, tracker, legacyDb, sampleCollector);
+    const museumImporter = new MuseumSqlImporter(newDb, tracker, legacyDb, sampleCollector, logger);
     const museumStart = Date.now();
     const museumResult = await museumImporter.import();
     const museumDuration = Date.now() - museumStart;
@@ -275,7 +283,8 @@ async function main() {
       newDb,
       tracker,
       legacyDb,
-      sampleCollector
+      sampleCollector,
+      logger
     );
     const institutionStart = Date.now();
     const institutionResult = await institutionImporter.import();
@@ -311,7 +320,7 @@ async function main() {
 
     // Objects (creates Authors, Artists, Tags)
     logger.logImporterStart('ObjectSqlImporter');
-    const objectImporter = new ObjectSqlImporter(newDb, tracker, legacyDb, sampleCollector);
+    const objectImporter = new ObjectSqlImporter(newDb, tracker, legacyDb, sampleCollector, logger);
     const objectStart = Date.now();
     const objectResult = await objectImporter.import();
     const objectDuration = Date.now() - objectStart;
@@ -339,7 +348,13 @@ async function main() {
 
     // Monuments (creates Authors, Tags)
     logger.logImporterStart('MonumentSqlImporter');
-    const monumentImporter = new MonumentSqlImporter(newDb, tracker, legacyDb, sampleCollector);
+    const monumentImporter = new MonumentSqlImporter(
+      newDb,
+      tracker,
+      legacyDb,
+      sampleCollector,
+      logger
+    );
     const monumentStart = Date.now();
     const monumentResult = await monumentImporter.import();
     const monumentDuration = Date.now() - monumentStart;

@@ -600,95 +600,29 @@ export class ObjectImporter extends BaseImporter {
       return null;
     }
 
-    // Search in API
-    const foundId = await this.findExistingArtistByBackwardCompat(backwardCompat);
-    if (foundId) {
-      return foundId;
-    }
-
     // Create new artist
-    try {
-      const response = await (this.context.apiClient as any).artist.artistStore({
-        name: artistName,
-        internal_name: artistName,
-        place_of_birth: birthplace || null,
-        place_of_death: deathplace || null,
-        date_of_birth: birthdate || null,
-        date_of_death: deathdate || null,
-        period_of_activity: periodActivity || null,
-        backward_compatibility: backwardCompat,
-      });
+    const response = await (this.context.apiClient as any).artist.artistStore({
+      name: artistName,
+      internal_name: artistName,
+      place_of_birth: birthplace || null,
+      place_of_death: deathplace || null,
+      date_of_birth: birthdate || null,
+      date_of_death: deathdate || null,
+      period_of_activity: periodActivity || null,
+      backward_compatibility: backwardCompat,
+    });
 
-      const artistId = response.data.data.id;
+    const artistId = response.data.data.id;
 
-      // Register in tracker
-      this.context.tracker.register({
-        uuid: artistId,
-        backwardCompatibility: backwardCompat,
-        entityType: 'item' as any,
-        createdAt: new Date(),
-      });
+    // Register in tracker
+    this.context.tracker.register({
+      uuid: artistId,
+      backwardCompatibility: backwardCompat,
+      entityType: 'item' as any,
+      createdAt: new Date(),
+    });
 
-      return artistId;
-    } catch (error) {
-      // If 422 conflict, try to find it
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number } };
-        if (axiosError.response?.status === 422) {
-          const foundId = await this.findExistingArtistByBackwardCompat(backwardCompat, 200);
-          if (foundId) {
-            return foundId;
-          }
-        }
-      }
-      this.logError(
-        `Failed to create artist: ${artistName}`,
-        error instanceof Error ? error : new Error(String(error))
-      );
-      return null;
-    }
-  }
-
-  /**
-   * Search for existing artist by backward_compatibility
-   */
-  private async findExistingArtistByBackwardCompat(
-    backwardCompat: string,
-    maxPages: number = 100
-  ): Promise<string | null> {
-    let page = 1;
-    const perPage = 100;
-    let hasMore = true;
-
-    while (hasMore) {
-      const response = await (this.context.apiClient as any).artist.artistIndex(
-        page,
-        perPage,
-        undefined
-      );
-      const artists = response.data.data;
-
-      const existing = artists.find((a: any) => a.backward_compatibility === backwardCompat);
-
-      if (existing) {
-        this.context.tracker.register({
-          uuid: existing.id,
-          backwardCompatibility: backwardCompat,
-          entityType: 'item' as any,
-          createdAt: new Date(),
-        });
-        return existing.id;
-      }
-
-      hasMore = artists.length === perPage;
-      page++;
-
-      if (page > maxPages) {
-        break;
-      }
-    }
-
-    return null;
+    return artistId;
   }
 
   /**
@@ -989,90 +923,23 @@ export class ObjectImporter extends BaseImporter {
       return existing;
     }
 
-    // Search in API
-    const foundId = await this.findExistingAuthorByBackwardCompat(backwardCompat);
-    if (foundId) {
-      return foundId;
-    }
-
     // Create new author
-    try {
-      const response = await (this.context.apiClient as any).author.authorStore({
-        name: trimmedName,
-        internal_name: trimmedName,
-        backward_compatibility: backwardCompat,
-      });
+    const response = await (this.context.apiClient as any).author.authorStore({
+      name: trimmedName,
+      internal_name: trimmedName,
+      backward_compatibility: backwardCompat,
+    });
 
-      const authorId = response.data.data.id;
+    const authorId = response.data.data.id;
 
-      // Register in tracker
-      this.context.tracker.register({
-        uuid: authorId,
-        backwardCompatibility: backwardCompat,
-        entityType: 'item' as any,
-        createdAt: new Date(),
-      });
+    // Register in tracker
+    this.context.tracker.register({
+      uuid: authorId,
+      backwardCompatibility: backwardCompat,
+      entityType: 'item' as any,
+      createdAt: new Date(),
+    });
 
-      return authorId;
-    } catch (error) {
-      // If 422 conflict, try to find it
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number } };
-        if (axiosError.response?.status === 422) {
-          // Try exhaustive search
-          const foundId = await this.findExistingAuthorByBackwardCompat(backwardCompat, 200);
-          if (foundId) {
-            return foundId;
-          }
-        }
-      }
-      this.logError(
-        `Failed to create author: ${trimmedName}`,
-        error instanceof Error ? error : new Error(String(error))
-      );
-      return null;
-    }
-  }
-
-  /**
-   * Search for existing author by backward_compatibility
-   */
-  private async findExistingAuthorByBackwardCompat(
-    backwardCompat: string,
-    maxPages: number = 100
-  ): Promise<string | null> {
-    let page = 1;
-    const perPage = 100;
-    let hasMore = true;
-
-    while (hasMore) {
-      const response = await (this.context.apiClient as any).author.authorIndex(
-        page,
-        perPage,
-        undefined
-      );
-      const authors = response.data.data;
-
-      const existing = authors.find((a: any) => a.backward_compatibility === backwardCompat);
-
-      if (existing) {
-        this.context.tracker.register({
-          uuid: existing.id,
-          backwardCompatibility: backwardCompat,
-          entityType: 'item' as any,
-          createdAt: new Date(),
-        });
-        return existing.id;
-      }
-
-      hasMore = authors.length === perPage;
-      page++;
-
-      if (page > maxPages) {
-        break;
-      }
-    }
-
-    return null;
+    return authorId;
   }
 }
