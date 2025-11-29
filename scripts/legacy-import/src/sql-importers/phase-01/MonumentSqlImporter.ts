@@ -165,14 +165,28 @@ export class MonumentSqlImporter extends BaseSqlImporter {
     const internalName = englishTranslation.name
       ? convertHtmlToMarkdown(englishTranslation.name)
       : first.working_number || first.number;
+    
+    // Map country code to 3-char ISO
+    const { mapCountryCode } = await import('../../utils/CodeMappings.js');
+    const countryId = mapCountryCode(first.country);
+    
+    // Get project_id from projects table (linked to context)
+    const projectId = await this.findByBackwardCompat(
+      'projects',
+      this.formatBackwardCompat('mwnf3', 'projects', [first.project_id]) + ':project'
+    );
+    if (!projectId) return false;
+    
     await this.db.execute(
-      `INSERT INTO items (id, partner_id, collection_id, internal_name, type, mwnf_reference, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, 'monument', ?, ?, ?, ?)`,
+      `INSERT INTO items (id, partner_id, collection_id, internal_name, type, country_id, project_id, mwnf_reference, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, 'monument', ?, ?, ?, ?, ?, ?)`,
       [
         itemId,
         partnerId,
         collectionId,
         internalName,
+        countryId,
+        projectId,
         first.working_number,
         backwardCompat,
         this.now,
@@ -182,9 +196,30 @@ export class MonumentSqlImporter extends BaseSqlImporter {
 
     this.tracker.set(backwardCompat, itemId);
 
+    // Get EPM context ID for cross-project translations
+    const epmContextId = await this.findByBackwardCompat(
+      'contexts',
+      this.formatBackwardCompat('mwnf3', 'projects', ['EPM'])
+    );
+
     // Create translations
     for (const monument of group.translations) {
-      await this.importTranslation(itemId, contextId, monument);
+      // For EPM: only use description2 as description (monuments don't have EPM but keep consistent)
+      if (monument.project_id === 'EPM') {
+        await this.importTranslation(itemId, contextId, monument, 'description2');
+      }
+      // For all other projects:
+      else {
+        // Create translation in own context using description (if populated)
+        if (monument.description && monument.description.trim()) {
+          await this.importTranslation(itemId, contextId, monument, 'description');
+        }
+        
+        // If description2 exists and EPM context exists, create EPM translation
+        if (monument.description2 && monument.description2.trim() && epmContextId) {
+          await this.importTranslation(itemId, epmContextId, monument, 'description2');
+        }
+      }
     }
 
     // Create tags
@@ -196,11 +231,20 @@ export class MonumentSqlImporter extends BaseSqlImporter {
   private async importTranslation(
     itemId: string,
     contextId: string,
-    monument: LegacyMonument
+    monument: LegacyMonument,
+    descriptionField: 'description' | 'description2'
   ): Promise<void> {
     const languageId = mapLanguageCode(monument.lang);
     const name = monument.name?.trim();
     if (!name) return;
+
+    // Determine which description to use based on descriptionField parameter
+    const sourceDescription = descriptionField === 'description2' ? monument.description2 : monument.description;
+    
+    // Skip if the selected description field is empty
+    if (!sourceDescription || !sourceDescription.trim()) {
+      return;
+    }
 
     // Create authors
     const authorId = monument.preparedby
@@ -216,6 +260,14 @@ export class MonumentSqlImporter extends BaseSqlImporter {
       ? await this.authorHelper.findOrCreate(monument.translationcopyeditedby)
       : null;
 
+    // Build monument key for logging
+    const monumentKey = `${monument.project_id}:${monument.country}:${monument.institution_id}:${monument.number}`;
+
+    // Convert HTML to Markdown
+    const nameMarkdown = convertHtmlToMarkdown(name);
+    let alternateNameMarkdown = monument.name2 ? convertHtmlToMarkdown(monument.name2) : null;
+    const descriptionMarkdown = convertHtmlToMarkdown(sourceDescription);
+
     // Build extra field for monument-specific fields
     const extra: Record<string, string> = {};
     if (monument.phone) extra.phone = monument.phone;
@@ -226,19 +278,8 @@ export class MonumentSqlImporter extends BaseSqlImporter {
     if (monument.architects) extra.architects = monument.architects;
     if (monument.history) extra.history = monument.history;
     if (monument.external_sources) extra.external_sources = monument.external_sources;
-    if (monument.description2) extra.description2 = monument.description2;
     if (monument.copyright) extra.copyright = monument.copyright;
     const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
-
-    // Build monument key for logging
-    const monumentKey = `${monument.project_id}:${monument.country}:${monument.museum_id}:${monument.number}`;
-
-    // Convert HTML to Markdown
-    const nameMarkdown = convertHtmlToMarkdown(name);
-    let alternateNameMarkdown = monument.name2 ? convertHtmlToMarkdown(monument.name2) : null;
-    const descriptionMarkdown = monument.description
-      ? convertHtmlToMarkdown(monument.description)
-      : null;
     const bibliographyMarkdown = monument.bibliography
       ? convertHtmlToMarkdown(monument.bibliography)
       : null;

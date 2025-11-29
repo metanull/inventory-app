@@ -176,14 +176,28 @@ export class ObjectSqlImporter extends BaseSqlImporter {
     const internalName = englishTranslation.name
       ? convertHtmlToMarkdown(englishTranslation.name)
       : first.inventory_id || first.working_number || first.number;
+    
+    // Map country code to 3-char ISO
+    const { mapCountryCode } = await import('../../utils/CodeMappings.js');
+    const countryId = mapCountryCode(first.country);
+    
+    // Get project_id from projects table (linked to context)
+    const projectId = await this.findByBackwardCompat(
+      'projects',
+      this.formatBackwardCompat('mwnf3', 'projects', [first.project_id]) + ':project'
+    );
+    if (!projectId) return false;
+    
     await this.db.execute(
-      `INSERT INTO items (id, partner_id, collection_id, internal_name, type, owner_reference, mwnf_reference, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, 'object', ?, ?, ?, ?, ?)`,
+      `INSERT INTO items (id, partner_id, collection_id, internal_name, type, country_id, project_id, owner_reference, mwnf_reference, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, 'object', ?, ?, ?, ?, ?, ?, ?)`,
       [
         itemId,
         partnerId,
         collectionId,
         internalName,
+        countryId,
+        projectId,
         first.inventory_id,
         first.working_number,
         backwardCompat,
@@ -194,9 +208,30 @@ export class ObjectSqlImporter extends BaseSqlImporter {
 
     this.tracker.set(backwardCompat, itemId);
 
+    // Get EPM context ID for cross-project translations
+    const epmContextId = await this.findByBackwardCompat(
+      'contexts',
+      this.formatBackwardCompat('mwnf3', 'projects', ['EPM'])
+    );
+
     // Create translations
     for (const obj of group.translations) {
-      await this.importTranslation(itemId, contextId, obj);
+      // For EPM: only use description2 as description
+      if (obj.project_id === 'EPM') {
+        await this.importTranslation(itemId, contextId, obj, 'description2');
+      }
+      // For all other projects:
+      else {
+        // Create translation in own context using description (if populated)
+        if (obj.description && obj.description.trim()) {
+          await this.importTranslation(itemId, contextId, obj, 'description');
+        }
+        
+        // If description2 exists and EPM context exists, create EPM translation
+        if (obj.description2 && obj.description2.trim() && epmContextId) {
+          await this.importTranslation(itemId, epmContextId, obj, 'description2');
+        }
+      }
     }
 
     // Create tags
@@ -213,11 +248,20 @@ export class ObjectSqlImporter extends BaseSqlImporter {
   private async importTranslation(
     itemId: string,
     contextId: string,
-    obj: LegacyObject
+    obj: LegacyObject,
+    descriptionField: 'description' | 'description2'
   ): Promise<void> {
     const languageId = mapLanguageCode(obj.lang);
     const name = obj.name?.trim();
     if (!name) return;
+
+    // Determine which description to use based on descriptionField parameter
+    const sourceDescription = descriptionField === 'description2' ? obj.description2 : obj.description;
+    
+    // Skip if the selected description field is empty
+    if (!sourceDescription || !sourceDescription.trim()) {
+      return;
+    }
 
     // Create authors
     const authorId = obj.preparedby ? await this.authorHelper.findOrCreate(obj.preparedby) : null;
@@ -231,22 +275,21 @@ export class ObjectSqlImporter extends BaseSqlImporter {
       ? await this.authorHelper.findOrCreate(obj.translationcopyeditedby)
       : null;
 
-    // Build extra field
-    const extra: Record<string, string> = {};
-    if (obj.workshop) extra.workshop = obj.workshop;
-    if (obj.description2) extra.description2 = obj.description2;
-    if (obj.copyright) extra.copyright = obj.copyright;
-    if (obj.binding_desc) extra.binding_desc = obj.binding_desc;
-    const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
-
     // Build object key for logging
     const objectKey = `${obj.project_id}:${obj.country}:${obj.museum_id}:${obj.number}`;
 
     // Convert HTML to Markdown
     const nameMarkdown = convertHtmlToMarkdown(name);
     let alternateNameMarkdown = obj.name2 ? convertHtmlToMarkdown(obj.name2) : null;
-    const descriptionMarkdown = obj.description ? convertHtmlToMarkdown(obj.description) : null;
     const bibliographyMarkdown = obj.bibliography ? convertHtmlToMarkdown(obj.bibliography) : null;
+    const descriptionMarkdown = convertHtmlToMarkdown(sourceDescription);
+
+    // Build extra field
+    const extra: Record<string, string> = {};
+    if (obj.workshop) extra.workshop = obj.workshop;
+    if (obj.copyright) extra.copyright = obj.copyright;
+    if (obj.binding_desc) extra.binding_desc = obj.binding_desc;
+    const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
     // Truncate fields that exceed database limits (VARCHAR(255))
     if (alternateNameMarkdown && alternateNameMarkdown.length > 255) {

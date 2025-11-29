@@ -128,6 +128,41 @@ export class ProjectSqlImporter extends BaseSqlImporter {
 
     this.tracker.set(backwardCompat, contextId);
 
+    // Create Project (linked to context)
+    const projectId = uuidv4();
+    const projectBackwardCompat = `${backwardCompat}:project`;
+    
+    // Validate launch_date: MySQL can return invalid dates like '0000-00-00 00:00:00'
+    let launchDate: string | null = null;
+    let isLaunched = false;
+    if (group.project.launchdate) {
+      const date = new Date(group.project.launchdate);
+      // Check if date is valid (not NaN and not invalid date like 0000-00-00)
+      if (!isNaN(date.getTime()) && date.getFullYear() > 1970) {
+        launchDate = date.toISOString().split('T')[0];
+        isLaunched = true;
+      }
+    }
+
+    await this.db.execute(
+      `INSERT INTO projects (id, internal_name, context_id, language_id, launch_date, is_launched, is_enabled, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        projectId,
+        internalName,
+        contextId,
+        'eng', // Default language
+        launchDate,
+        isLaunched ? 1 : 0,
+        1, // is_enabled = true
+        projectBackwardCompat,
+        this.now,
+        this.now,
+      ]
+    );
+
+    this.tracker.set(projectBackwardCompat, projectId);
+
     // Create root Collection for this context (with required language_id and context_id)
     const collectionId = uuidv4();
     const collectionBackwardCompat = `${backwardCompat}:collection`;

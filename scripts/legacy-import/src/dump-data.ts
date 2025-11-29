@@ -338,7 +338,8 @@ const DUMP_CONFIGS: Record<string, DumpConfig> = {
       {
         name: 'items',
         query: `
-          SELECT id, internal_name, type, partner_id, parent_id, backward_compatibility, created_at, updated_at
+          SELECT id, internal_name, type, partner_id, parent_id, country_id, project_id, collection_id, 
+                 owner_reference, mwnf_reference, backward_compatibility, created_at, updated_at
           FROM items
           WHERE type = 'object'
           ORDER BY backward_compatibility
@@ -378,7 +379,8 @@ const DUMP_CONFIGS: Record<string, DumpConfig> = {
       {
         name: 'items',
         query: `
-          SELECT id, internal_name, type, partner_id, parent_id, backward_compatibility, created_at, updated_at
+          SELECT id, internal_name, type, partner_id, parent_id, country_id, project_id, collection_id, 
+                 mwnf_reference, backward_compatibility, created_at, updated_at
           FROM items
           WHERE type = 'monument'
           ORDER BY backward_compatibility
