@@ -35,9 +35,8 @@ export function convertHtmlToMarkdown(html: string | null | undefined): string {
     const markdown = turndownService.turndown(trimmed);
     return markdown.trim();
   } catch (error) {
-    // Fallback: if Turndown fails, return the original text with HTML tags stripped
-    console.warn('HTML to Markdown conversion failed:', error);
-    return trimmed.replace(/<[^>]+>/g, '').trim();
+    // Re-throw with more context instead of falling back to unsafe operations
+    throw new Error(`Failed to convert HTML to Markdown: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
