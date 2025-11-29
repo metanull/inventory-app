@@ -323,13 +323,16 @@ export class SqlWriteStrategy implements IWriteStrategy {
       );
       this.tracker.set(data.backward_compatibility, id);
       return id;
-    } catch {
-      // Duplicate - try to find existing
+    } catch (error) {
+      // Duplicate entry - try to find existing record
+      // This is expected when the same tag is imported multiple times
       const existing = await this.findByBackwardCompatibility('tags', data.backward_compatibility);
       if (existing) {
         return existing;
       }
-      throw new Error(`Failed to create or find tag: ${data.backward_compatibility}`);
+      // If we can't find it after the error, re-throw with context
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to create or find tag: ${data.backward_compatibility}. Original error: ${message}`);
     }
   }
 
@@ -343,13 +346,16 @@ export class SqlWriteStrategy implements IWriteStrategy {
       );
       this.tracker.set(data.backward_compatibility, id);
       return id;
-    } catch {
-      // Duplicate - try to find existing
+    } catch (error) {
+      // Duplicate entry - try to find existing record
+      // This is expected when the same author is imported multiple times
       const existing = await this.findByBackwardCompatibility('authors', data.backward_compatibility);
       if (existing) {
         return existing;
       }
-      throw new Error(`Failed to create or find author: ${data.backward_compatibility}`);
+      // If we can't find it after the error, re-throw with context
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to create or find author: ${data.backward_compatibility}. Original error: ${message}`);
     }
   }
 
@@ -375,13 +381,16 @@ export class SqlWriteStrategy implements IWriteStrategy {
       );
       this.tracker.set(data.backward_compatibility, id);
       return id;
-    } catch {
-      // Duplicate - try to find existing
+    } catch (error) {
+      // Duplicate entry - try to find existing record
+      // This is expected when the same artist is imported multiple times
       const existing = await this.findByBackwardCompatibility('artists', data.backward_compatibility);
       if (existing) {
         return existing;
       }
-      throw new Error(`Failed to create or find artist: ${data.backward_compatibility}`);
+      // If we can't find it after the error, re-throw with context
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to create or find artist: ${data.backward_compatibility}. Original error: ${message}`);
     }
   }
 

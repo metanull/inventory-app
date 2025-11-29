@@ -3,11 +3,10 @@
  * Unified Legacy Import CLI
  *
  * This is the main entry point for the unified import system.
- * It supports both SQL and API strategies (currently only SQL is implemented).
+ * Currently implements SQL-based import strategy.
  *
  * Usage:
- *   npm run import -- --strategy sql [options]
- *   npm run import:sql [options]
+ *   npm run import [options]
  *
  * Options:
  *   --dry-run          Simulate import without writing data
