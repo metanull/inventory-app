@@ -23,6 +23,23 @@ This importer follows a clean architecture with clear separation of concerns:
 └─────────────────┘         └──────────────────┘
 ```
 
+### Legacy Database Interface
+
+The `ILegacyDatabase` interface (defined in `core/base-importer.ts`) provides read access to the legacy database:
+
+```typescript
+interface ILegacyDatabase {
+  query<T>(sql: string): Promise<T[]>;
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+}
+```
+
+**Important Notes:**
+- Queries must use actual legacy table names (e.g., `mwnf3.objects`, `mwnf3.museums`)
+- The legacy schema differs from the new schema - transformers handle mapping
+- Languages and countries are loaded from JSON files, NOT from the legacy database
+
 ### Directory Structure
 
 ```
@@ -144,17 +161,17 @@ npm run import -- validate
 
 ## Environment Variables
 
-Create a `.env` file with:
+Create a `.env` file in the `scripts/importer` directory with:
 
 ```env
-# Legacy Database (source)
+# Legacy Database (source) - for reading projects, partners, and items
 LEGACY_DB_HOST=localhost
 LEGACY_DB_PORT=3306
 LEGACY_DB_USER=root
 LEGACY_DB_PASSWORD=secret
 LEGACY_DB_DATABASE=mwnf3
 
-# New Database (target)
+# New Database (target) - where data will be imported to
 DB_HOST=localhost
 DB_PORT=3306
 DB_USERNAME=root
@@ -162,12 +179,60 @@ DB_PASSWORD=secret
 DB_DATABASE=inventory
 ```
 
+### Required Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `LEGACY_DB_HOST` | Legacy database hostname | `localhost` |
+| `LEGACY_DB_PORT` | Legacy database port | `3306` |
+| `LEGACY_DB_USER` | Legacy database username | `root` |
+| `LEGACY_DB_PASSWORD` | Legacy database password | (empty) |
+| `LEGACY_DB_DATABASE` | Legacy database name | `mwnf3` |
+| `DB_HOST` | Target database hostname | `localhost` |
+| `DB_PORT` | Target database port | `3306` |
+| `DB_USERNAME` | Target database username | `root` |
+| `DB_PASSWORD` | Target database password | (empty) |
+| `DB_DATABASE` | Target database name | `inventory` |
+
+### Validating Database Connections
+
+Before running the import, validate your database connections:
+
+```bash
+npm run import -- validate
+```
+
+This will test both legacy and target database connections and report any issues.
+
+## Data Sources
+
+### Reference Data (Languages & Countries)
+Languages and countries are **NOT** imported from the legacy database. Instead, they are loaded from production JSON files:
+- `database/seeders/data/languages.json` - ISO 639-3 language codes
+- `database/seeders/data/countries.json` - ISO 3166-1 alpha-3 country codes
+
+These files are the same sources used by Laravel seeders and the API importer.
+
+### Legacy Database Data
+The following entities are imported from the legacy database (`mwnf3`):
+- **Projects**: `mwnf3.projects`, `mwnf3.projectnames`
+- **Museums**: `mwnf3.museums`, `mwnf3.museumsnames`
+- **Institutions**: `mwnf3.institutions`, `mwnf3.institutionnames`
+- **Objects**: `mwnf3.objects`
+- **Monuments**: `mwnf3.monuments`
+
 ## Adding New Importers
 
 1. Create legacy type in `domain/types/legacy.ts`
 2. Create transformer in `domain/transformers/`
 3. Create importer in `importers/phase-XX/`
 4. Add to CLI registry in `cli/import.ts`
+
+## Sample Collection
+
+**Note:** Sample collection for test fixtures is not currently implemented in this unified importer. The interface `ISampleCollector` exists in `core/base-importer.ts` but is not active.
+
+If you need to collect sample data for testing, use the legacy importer at `scripts/legacy-import/sql-import-v2.ts` which has full sample collection support via the `--collect-samples` flag.
 
 ## Extending with API Strategy
 
