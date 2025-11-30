@@ -1,13 +1,29 @@
 /**
  * Language Importer
  *
- * Imports languages and language translations from legacy database.
+ * Imports languages from the production JSON file in database/seeders/data/languages.json.
+ * This is the same data source used by the Laravel seeder and the legacy SQL importer.
  */
 
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-import { transformLanguage, transformLanguageTranslation } from '../../domain/transformers/index.js';
-import type { LegacyLanguage, LegacyLanguageName } from '../../domain/types/index.js';
+
+// Get the directory of the current module for robust path resolution
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+/**
+ * Language data structure from the JSON file
+ */
+interface LanguageJsonData {
+  id: string; // ISO 639-3 code (e.g., 'eng', 'fra')
+  internal_name: string;
+  backward_compatibility: string; // ISO 639-1 code (e.g., 'en', 'fr')
+  is_default: boolean;
+}
 
 export class LanguageImporter extends BaseImporter {
   getName(): string {
@@ -18,21 +34,23 @@ export class LanguageImporter extends BaseImporter {
     const result = this.createResult();
 
     try {
-      this.logInfo('Importing languages...');
+      this.logInfo('Loading languages from production JSON file...');
 
-      // Query legacy languages
-      const languages = await this.context.legacyDb.query<LegacyLanguage>(
-        'SELECT * FROM mwnf3.langs ORDER BY code'
-      );
+      // Load languages from production JSON file (same as Laravel seeder)
+      // Path is from scripts/importer/src/importers/phase-00 to database/seeders/data
+      const languagesPath = join(__dirname, '../../../../../database/seeders/data/languages.json');
+      const fileContent = readFileSync(languagesPath, 'utf-8');
+      const languages = JSON.parse(fileContent) as LanguageJsonData[];
 
-      this.logInfo(`Found ${languages.length} languages`);
+      this.logInfo(`Found ${languages.length} languages to import`);
 
-      for (const legacy of languages) {
+      for (const language of languages) {
         try {
-          const transformed = transformLanguage(legacy);
+          // Use backward_compatibility as the tracking key (consistent with legacy importer)
+          const backwardCompat = language.backward_compatibility;
 
-          // Check if already exists
-          if (this.entityExists(transformed.backwardCompatibility)) {
+          // Check if already exists in tracker
+          if (this.entityExists(backwardCompat)) {
             result.skipped++;
             this.showSkipped();
             continue;
@@ -41,29 +59,38 @@ export class LanguageImporter extends BaseImporter {
           // Collect sample for foundation data
           this.collectSample(
             'language',
-            legacy as unknown as Record<string, unknown>,
+            language as unknown as Record<string, unknown>,
             'foundation'
           );
 
           if (this.isDryRun || this.isSampleOnlyMode) {
-            this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import language: ${legacy.code}`);
+            this.logInfo(
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import language: ${language.id} (${language.internal_name})`
+            );
             // Register for tracking even in dry-run
-            this.registerEntity(transformed.data.id, transformed.backwardCompatibility, 'language');
+            this.registerEntity(language.id, backwardCompat, 'language');
             result.imported++;
             this.showProgress();
             continue;
           }
 
           // Write language using strategy
-          await this.context.strategy.writeLanguage(transformed.data);
-          this.registerEntity(transformed.data.id, transformed.backwardCompatibility, 'language');
+          await this.context.strategy.writeLanguage({
+            id: language.id,
+            internal_name: language.internal_name,
+            backward_compatibility: backwardCompat,
+            is_default: language.is_default,
+            is_enabled: true,
+          });
+
+          this.registerEntity(language.id, backwardCompat, 'language');
 
           result.imported++;
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(`${legacy.code}: ${message}`);
-          this.logError(`Language ${legacy.code}`, error);
+          result.errors.push(`${language.id}: ${message}`);
+          this.logError(`Language ${language.id}`, error);
           this.showError();
         }
       }
@@ -71,7 +98,7 @@ export class LanguageImporter extends BaseImporter {
       this.showSummary(result.imported, result.skipped, result.errors.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      result.errors.push(`Failed to query languages: ${message}`);
+      result.errors.push(`Failed to load languages from JSON: ${message}`);
       result.success = false;
     }
 
@@ -83,7 +110,12 @@ export class LanguageImporter extends BaseImporter {
 /**
  * Language Translation Importer
  *
- * Imports language name translations.
+ * Note: Language translations are not imported from JSON files.
+ * The language names are already set in the languages.json file via internal_name.
+ * This importer is kept as a no-op for compatibility with the import orchestration.
+ *
+ * If language translations from the legacy database are needed in the future,
+ * they should be queried from mwnf3.langnames with proper mapping.
  */
 export class LanguageTranslationImporter extends BaseImporter {
   getName(): string {
@@ -93,48 +125,11 @@ export class LanguageTranslationImporter extends BaseImporter {
   async import(): Promise<ImportResult> {
     const result = this.createResult();
 
-    try {
-      this.logInfo('Importing language translations...');
+    this.logInfo('Language translations are embedded in languages.json - skipping legacy import');
+    this.logInfo('Each language has its internal_name set from the production JSON file');
 
-      // Query legacy language names
-      const languageNames = await this.context.legacyDb.query<LegacyLanguageName>(
-        'SELECT * FROM mwnf3.langnames ORDER BY code, lang'
-      );
-
-      this.logInfo(`Found ${languageNames.length} language translations`);
-
-      for (const legacy of languageNames) {
-        try {
-          const transformed = transformLanguageTranslation(legacy);
-
-          if (this.isDryRun || this.isSampleOnlyMode) {
-            this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import language translation: ${legacy.code}:${legacy.lang}`);
-            result.imported++;
-            this.showProgress();
-            continue;
-          }
-
-          // Write language translation using strategy
-          await this.context.strategy.writeLanguageTranslation(transformed.data);
-
-          result.imported++;
-          this.showProgress();
-        } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(`${legacy.code}:${legacy.lang}: ${message}`);
-          this.logError(`Language translation ${legacy.code}:${legacy.lang}`, error);
-          this.showError();
-        }
-      }
-
-      this.showSummary(result.imported, result.skipped, result.errors.length);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      result.errors.push(`Failed to query language translations: ${message}`);
-      result.success = false;
-    }
-
-    result.success = result.errors.length === 0;
+    this.showSummary(result.imported, result.skipped, result.errors.length);
+    result.success = true;
     return result;
   }
 }
