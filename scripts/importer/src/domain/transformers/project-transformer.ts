@@ -82,8 +82,7 @@ export function transformProject(legacy: LegacyProject): TransformedProjectBundl
     const date = new Date(legacy.launchdate);
     // Check if date is valid (not NaN and not invalid date like 0000-00-00)
     if (!isNaN(date.getTime()) && date.getFullYear() > 1970) {
-      const isoDate = date.toISOString().split('T')[0];
-      launchDate = isoDate ?? null;
+      launchDate = date.toISOString().split('T')[0];
       isLaunched = true;
     }
   }
