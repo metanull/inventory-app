@@ -48,13 +48,13 @@ export function groupMonumentsByPK(monuments: LegacyMonument[]): MonumentGroup[]
   const groups = new Map<string, MonumentGroup>();
 
   for (const monument of monuments) {
-    const key = `${monument.project_id}:${monument.country}:${monument.museum_id}:${monument.number}`;
+    const key = `${monument.project_id}:${monument.country}:${monument.institution_id}:${monument.number}`;
 
     if (!groups.has(key)) {
       groups.set(key, {
         project_id: monument.project_id,
         country: monument.country,
-        museum_id: monument.museum_id,
+        institution_id: monument.institution_id,
         number: monument.number,
         translations: [],
       });
@@ -78,7 +78,7 @@ export function transformMonument(group: MonumentGroup): TransformedMonument {
   const backwardCompatibility = formatBackwardCompatibility({
     schema: 'mwnf3',
     table: 'monuments',
-    pkValues: [group.project_id, group.country, group.museum_id, group.number],
+    pkValues: [group.project_id, group.country, group.institution_id, group.number],
   });
 
   const countryId = mapCountryCode(group.country);
@@ -108,7 +108,7 @@ export function transformMonumentTranslation(
 ): TransformedMonumentTranslation | null {
   const languageId = mapLanguageCode(monument.lang);
   const warnings: string[] = [];
-  const monumentKey = `${monument.project_id}:${monument.museum_id}:${monument.number}`;
+  const monumentKey = `${monument.project_id}:${monument.institution_id}:${monument.number}`;
 
   // Determine which description to use
   const sourceDescription = descriptionField === 'description2' ? monument.description2 : monument.description;
