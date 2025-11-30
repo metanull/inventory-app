@@ -29,6 +29,7 @@ import type { ImportResult } from '../core/types.js';
 import { FileLogger, type PhaseSummary } from '../core/file-logger.js';
 
 import {
+  DefaultContextImporter,
   LanguageImporter,
   LanguageTranslationImporter,
   CountryImporter,
@@ -53,6 +54,13 @@ interface ImporterConfig {
 
 const ALL_IMPORTERS: ImporterConfig[] = [
   // Phase 0: Reference Data
+  {
+    key: 'default-context',
+    name: 'Default Context',
+    description: 'Create default context with is_default=true',
+    importerClass: DefaultContextImporter,
+    dependencies: [],
+  },
   {
     key: 'language',
     name: 'Languages',
@@ -290,7 +298,7 @@ program
 
       // Helper to determine phase
       const getPhase = (key: string): string => {
-        if (['language', 'language-translation', 'country', 'country-translation'].includes(key)) {
+        if (['default-context', 'language', 'language-translation', 'country', 'country-translation'].includes(key)) {
           return 'Phase 0: Reference Data';
         } else if (['project', 'partner'].includes(key)) {
           return 'Phase 1: Projects and Partners';

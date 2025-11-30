@@ -107,9 +107,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeContext(data: ContextData): Promise<string> {
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO contexts (id, internal_name, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?)`,
-      [id, data.internal_name, data.backward_compatibility, this.now, this.now]
+      `INSERT INTO contexts (id, internal_name, is_default, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [id, data.internal_name, data.is_default ? 1 : 0, data.backward_compatibility, this.now, this.now]
     );
 
     this.tracker.set(data.backward_compatibility, id);
