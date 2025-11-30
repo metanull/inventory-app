@@ -95,14 +95,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     name: 'Projects',
     description: 'Import projects (creates Context, Collection, Project)',
     importerClass: ProjectImporter,
-    dependencies: ['language'],
+    dependencies: ['default-context', 'language'],
   },
   {
     key: 'partner',
     name: 'Partners',
     description: 'Import museums and institutions',
     importerClass: PartnerImporter,
-    dependencies: ['project', 'language', 'country'],
+    dependencies: ['default-context', 'project', 'language', 'country'],
   },
   {
     key: 'object',
