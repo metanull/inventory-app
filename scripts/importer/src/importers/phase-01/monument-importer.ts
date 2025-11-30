@@ -40,7 +40,7 @@ export class MonumentImporter extends BaseImporter {
 
       // Query all monuments (denormalized - multiple rows per monument)
       const monuments = await this.context.legacyDb.query<LegacyMonument>(
-        'SELECT * FROM mwnf3.monuments ORDER BY project_id, country, museum_id, number'
+        'SELECT * FROM mwnf3.monuments ORDER BY project_id, country, institution_id, number'
       );
 
       if (monuments.length === 0) {
@@ -74,8 +74,8 @@ export class MonumentImporter extends BaseImporter {
           }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(`${group.project_id}:${group.museum_id}:${group.number}: ${message}`);
-          this.logError(`Monument ${group.project_id}:${group.museum_id}:${group.number}`, error);
+          result.errors.push(`${group.project_id}:${group.institution_id}:${group.number}: ${message}`);
+          this.logError(`Monument ${group.project_id}:${group.institution_id}:${group.number}`, error);
           this.showError();
         }
       }
@@ -118,10 +118,10 @@ export class MonumentImporter extends BaseImporter {
 
     if (this.isDryRun || this.isSampleOnlyMode) {
       this.logInfo(
-        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import monument: ${group.project_id}:${group.museum_id}:${group.number}`
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import monument: ${group.project_id}:${group.institution_id}:${group.number}`
       );
       this.registerEntity(
-        `sample-item-${group.project_id}-${group.museum_id}-${group.number}`,
+        `sample-item-${group.project_id}-${group.institution_id}-${group.number}`,
         transformed.backwardCompatibility,
         'item'
       );
@@ -136,25 +136,25 @@ export class MonumentImporter extends BaseImporter {
     });
     const contextId = this.getEntityUuid(contextBackwardCompat);
     if (!contextId) {
-      this.logWarning(`Skipping monument ${group.project_id}:${group.museum_id}:${group.number} - project not found`);
+      this.logWarning(`Skipping monument ${group.project_id}:${group.institution_id}:${group.number} - project not found`);
       return false;
     }
 
     const collectionBackwardCompat = `${contextBackwardCompat}:collection`;
     const collectionId = this.getEntityUuid(collectionBackwardCompat);
     if (!collectionId) {
-      this.logWarning(`Skipping monument ${group.project_id}:${group.museum_id}:${group.number} - collection not found`);
+      this.logWarning(`Skipping monument ${group.project_id}:${group.institution_id}:${group.number} - collection not found`);
       return false;
     }
 
     const partnerBackwardCompat = formatBackwardCompatibility({
       schema: 'mwnf3',
-      table: 'museums',
-      pkValues: [group.museum_id, group.country],
+      table: 'institutions',
+      pkValues: [group.institution_id, group.country],
     });
     const partnerId = this.getEntityUuid(partnerBackwardCompat);
     if (!partnerId) {
-      this.logWarning(`Skipping monument ${group.project_id}:${group.museum_id}:${group.number} - museum not found`);
+      this.logWarning(`Skipping monument ${group.project_id}:${group.institution_id}:${group.number} - institution not found`);
       return false;
     }
 

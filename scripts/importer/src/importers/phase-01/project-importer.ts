@@ -107,6 +107,7 @@ export class ProjectImporter extends BaseImporter {
               await this.context.strategy.writeCollectionTranslation({
                 ...translationBundle.collectionTranslation,
                 collection_id: collectionId,
+                context_id: contextId,
               });
 
               // Project translation

@@ -3,6 +3,7 @@
  */
 
 // Phase 00: Reference Data
+export { DefaultContextImporter } from './phase-00/index.js';
 export { LanguageImporter, LanguageTranslationImporter } from './phase-00/index.js';
 export { CountryImporter, CountryTranslationImporter } from './phase-00/index.js';
 
