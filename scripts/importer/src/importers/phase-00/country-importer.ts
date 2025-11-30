@@ -1,13 +1,23 @@
 /**
  * Country Importer
  *
- * Imports countries and country translations from legacy database.
+ * Imports countries from the production JSON file in database/seeders/data/countries.json.
+ * This is the same data source used by the Laravel seeder and the legacy SQL importer.
  */
 
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-import { transformCountry, transformCountryTranslation } from '../../domain/transformers/index.js';
-import type { LegacyCountry, LegacyCountryName } from '../../domain/types/index.js';
+
+/**
+ * Country data structure from the JSON file
+ */
+interface CountryJsonData {
+  id: string; // ISO 3166-1 alpha-3 code (e.g., 'usa', 'fra')
+  internal_name: string;
+  backward_compatibility: string; // ISO 3166-1 alpha-2 code (e.g., 'us', 'fr')
+}
 
 export class CountryImporter extends BaseImporter {
   getName(): string {
@@ -18,52 +28,59 @@ export class CountryImporter extends BaseImporter {
     const result = this.createResult();
 
     try {
-      this.logInfo('Importing countries...');
+      this.logInfo('Loading countries from production JSON file...');
 
-      // Query legacy countries
-      const countries = await this.context.legacyDb.query<LegacyCountry>(
-        'SELECT * FROM mwnf3.countries ORDER BY code'
-      );
+      // Load countries from production JSON file (same as Laravel seeder)
+      // Path is relative from the importer package root to database/seeders/data
+      const countriesPath = join(process.cwd(), '../../database/seeders/data/countries.json');
+      const fileContent = readFileSync(countriesPath, 'utf-8');
+      const countries = JSON.parse(fileContent) as CountryJsonData[];
 
-      this.logInfo(`Found ${countries.length} countries`);
+      this.logInfo(`Found ${countries.length} countries to import`);
 
-      for (const legacy of countries) {
+      for (const country of countries) {
         try {
-          const transformed = transformCountry(legacy);
+          // Use backward_compatibility as the tracking key (consistent with legacy importer)
+          const backwardCompat = country.backward_compatibility;
 
-          // Check if already exists
-          if (this.entityExists(transformed.backwardCompatibility)) {
+          // Check if already exists in tracker
+          if (this.entityExists(backwardCompat)) {
             result.skipped++;
             this.showSkipped();
             continue;
           }
 
           // Collect sample for foundation data
-          this.collectSample(
-            'country',
-            legacy as unknown as Record<string, unknown>,
-            'foundation'
-          );
+          this.collectSample('country', country as unknown as Record<string, unknown>, 'foundation');
 
           if (this.isDryRun || this.isSampleOnlyMode) {
-            this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import country: ${legacy.code}`);
+            this.logInfo(
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import country: ${country.id} (${country.internal_name})`
+            );
             // Register for tracking even in dry-run
-            this.registerEntity(transformed.data.id, transformed.backwardCompatibility, 'country');
+            this.registerEntity(country.id, backwardCompat, 'country');
             result.imported++;
             this.showProgress();
             continue;
           }
 
           // Write country using strategy
-          await this.context.strategy.writeCountry(transformed.data);
-          this.registerEntity(transformed.data.id, transformed.backwardCompatibility, 'country');
+          await this.context.strategy.writeCountry({
+            id: country.id,
+            internal_name: country.internal_name,
+            backward_compatibility: backwardCompat,
+            is_default: false,
+            is_enabled: true,
+          });
+
+          this.registerEntity(country.id, backwardCompat, 'country');
 
           result.imported++;
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(`${legacy.code}: ${message}`);
-          this.logError(`Country ${legacy.code}`, error);
+          result.errors.push(`${country.id}: ${message}`);
+          this.logError(`Country ${country.id}`, error);
           this.showError();
         }
       }
@@ -71,7 +88,7 @@ export class CountryImporter extends BaseImporter {
       this.showSummary(result.imported, result.skipped, result.errors.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      result.errors.push(`Failed to query countries: ${message}`);
+      result.errors.push(`Failed to load countries from JSON: ${message}`);
       result.success = false;
     }
 
@@ -83,7 +100,12 @@ export class CountryImporter extends BaseImporter {
 /**
  * Country Translation Importer
  *
- * Imports country name translations.
+ * Note: Country translations are not imported from JSON files.
+ * The country names are already set in the countries.json file via internal_name.
+ * This importer is kept as a no-op for compatibility with the import orchestration.
+ *
+ * If country translations from the legacy database are needed in the future,
+ * they should be queried from mwnf3.countrynames with proper mapping.
  */
 export class CountryTranslationImporter extends BaseImporter {
   getName(): string {
@@ -93,48 +115,11 @@ export class CountryTranslationImporter extends BaseImporter {
   async import(): Promise<ImportResult> {
     const result = this.createResult();
 
-    try {
-      this.logInfo('Importing country translations...');
+    this.logInfo('Country translations are embedded in countries.json - skipping legacy import');
+    this.logInfo('Each country has its internal_name set from the production JSON file');
 
-      // Query legacy country names
-      const countryNames = await this.context.legacyDb.query<LegacyCountryName>(
-        'SELECT * FROM mwnf3.countrynames ORDER BY code, lang'
-      );
-
-      this.logInfo(`Found ${countryNames.length} country translations`);
-
-      for (const legacy of countryNames) {
-        try {
-          const transformed = transformCountryTranslation(legacy);
-
-          if (this.isDryRun || this.isSampleOnlyMode) {
-            this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import country translation: ${legacy.code}:${legacy.lang}`);
-            result.imported++;
-            this.showProgress();
-            continue;
-          }
-
-          // Write country translation using strategy
-          await this.context.strategy.writeCountryTranslation(transformed.data);
-
-          result.imported++;
-          this.showProgress();
-        } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(`${legacy.code}:${legacy.lang}: ${message}`);
-          this.logError(`Country translation ${legacy.code}:${legacy.lang}`, error);
-          this.showError();
-        }
-      }
-
-      this.showSummary(result.imported, result.skipped, result.errors.length);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      result.errors.push(`Failed to query country translations: ${message}`);
-      result.success = false;
-    }
-
-    result.success = result.errors.length === 0;
+    this.showSummary(result.imported, result.skipped, result.errors.length);
+    result.success = true;
     return result;
   }
 }
