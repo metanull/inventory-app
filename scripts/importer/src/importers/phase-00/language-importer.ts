@@ -75,12 +75,13 @@ export class LanguageImporter extends BaseImporter {
           }
 
           // Write language using strategy
+          // Note: Only pass fields that exist in the database table
+          // The languages table has: id, internal_name, backward_compatibility, is_default
           await this.context.strategy.writeLanguage({
             id: language.id,
             internal_name: language.internal_name,
             backward_compatibility: backwardCompat,
             is_default: language.is_default,
-            is_enabled: true,
           });
 
           this.registerEntity(language.id, backwardCompat, 'language');

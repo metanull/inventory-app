@@ -103,20 +103,17 @@ describe('CountryImporter', () => {
     await importer.import();
 
     // Check that writeCountry was called with correct data
+    // Note: is_default and is_enabled are not passed because the countries table doesn't have those columns
     expect(mockStrategy.writeCountry).toHaveBeenCalledWith({
       id: 'usa',
       internal_name: 'United States of America',
       backward_compatibility: 'us',
-      is_default: false,
-      is_enabled: true,
     });
 
     expect(mockStrategy.writeCountry).toHaveBeenCalledWith({
       id: 'fra',
       internal_name: 'France',
       backward_compatibility: 'fr',
-      is_default: false,
-      is_enabled: true,
     });
   });
 
