@@ -6,9 +6,14 @@
  */
 
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+
+// Get the directory of the current module for robust path resolution
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * Country data structure from the JSON file
@@ -31,8 +36,8 @@ export class CountryImporter extends BaseImporter {
       this.logInfo('Loading countries from production JSON file...');
 
       // Load countries from production JSON file (same as Laravel seeder)
-      // Path is relative from the importer package root to database/seeders/data
-      const countriesPath = join(process.cwd(), '../../database/seeders/data/countries.json');
+      // Path is from scripts/importer/src/importers/phase-00 to database/seeders/data
+      const countriesPath = join(__dirname, '../../../../../database/seeders/data/countries.json');
       const fileContent = readFileSync(countriesPath, 'utf-8');
       const countries = JSON.parse(fileContent) as CountryJsonData[];
 

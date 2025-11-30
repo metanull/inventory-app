@@ -6,9 +6,14 @@
  */
 
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+
+// Get the directory of the current module for robust path resolution
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * Language data structure from the JSON file
@@ -32,8 +37,8 @@ export class LanguageImporter extends BaseImporter {
       this.logInfo('Loading languages from production JSON file...');
 
       // Load languages from production JSON file (same as Laravel seeder)
-      // Path is relative from the importer package root to database/seeders/data
-      const languagesPath = join(process.cwd(), '../../database/seeders/data/languages.json');
+      // Path is from scripts/importer/src/importers/phase-00 to database/seeders/data
+      const languagesPath = join(__dirname, '../../../../../database/seeders/data/languages.json');
       const fileContent = readFileSync(languagesPath, 'utf-8');
       const languages = JSON.parse(fileContent) as LanguageJsonData[];
 
