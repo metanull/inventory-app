@@ -173,7 +173,7 @@ export interface ObjectGroup {
 export interface LegacyMonument {
   project_id: string;
   country: string;
-  museum_id: string;
+  institution_id: string;
   number: string;
   lang: string;
   working_number?: string;
@@ -200,7 +200,7 @@ export interface LegacyMonument {
 export interface MonumentGroup {
   project_id: string;
   country: string;
-  museum_id: string;
+  institution_id: string;
   number: string;
   translations: LegacyMonument[];
 }

@@ -149,12 +149,12 @@ export class MonumentImporter extends BaseImporter {
 
     const partnerBackwardCompat = formatBackwardCompatibility({
       schema: 'mwnf3',
-      table: 'museums',
+      table: 'institutions',
       pkValues: [group.institution_id, group.country],
     });
     const partnerId = this.getEntityUuid(partnerBackwardCompat);
     if (!partnerId) {
-      this.logWarning(`Skipping monument ${group.project_id}:${group.institution_id}:${group.number} - museum not found`);
+      this.logWarning(`Skipping monument ${group.project_id}:${group.institution_id}:${group.number} - institution not found`);
       return false;
     }
 

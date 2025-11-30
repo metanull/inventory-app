@@ -128,9 +128,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeCollection(data: CollectionData): Promise<string> {
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO collections (id, context_id, parent_id, internal_name, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [id, data.context_id, data.parent_id, data.internal_name, data.backward_compatibility, this.now, this.now]
+      `INSERT INTO collections (id, context_id, language_id, parent_id, internal_name, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, data.context_id, data.language_id, data.parent_id, data.internal_name, data.backward_compatibility, this.now, this.now]
     );
 
     this.tracker.set(data.backward_compatibility, id);
@@ -140,9 +140,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeCollectionTranslation(data: CollectionTranslationData): Promise<void> {
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO collection_translations (id, collection_id, language_id, name, description, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [id, data.collection_id, data.language_id, data.name, data.description, this.now, this.now]
+      `INSERT INTO collection_translations (id, collection_id, language_id, context_id, title, description, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, data.collection_id, data.language_id, data.context_id, data.title, data.description, this.now, this.now]
     );
   }
 

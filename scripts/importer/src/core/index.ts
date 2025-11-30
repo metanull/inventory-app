@@ -48,3 +48,7 @@ export type {
   ILogger,
 } from './base-importer.js';
 export { BaseImporter, ConsoleLogger } from './base-importer.js';
+
+// File Logger
+export type { PhaseSummary } from './file-logger.js';
+export { FileLogger } from './file-logger.js';

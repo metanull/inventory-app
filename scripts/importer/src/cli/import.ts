@@ -26,6 +26,7 @@ import { UnifiedTracker } from '../core/tracker.js';
 import { SqlWriteStrategy } from '../strategies/sql-strategy.js';
 import type { ImportContext, ILegacyDatabase } from '../core/base-importer.js';
 import type { ImportResult } from '../core/types.js';
+import { FileLogger, type PhaseSummary } from '../core/file-logger.js';
 
 import {
   LanguageImporter,
@@ -217,6 +218,9 @@ program
   .option('--only <importer>', 'Run only the specified importer')
   .option('--list-importers', 'List all available importers')
   .action(async (options) => {
+    // Initialize file logger
+    const logger = new FileLogger('ImportCLI', 'logs');
+
     try {
       const dryRun = options.dryRun === true;
       const startAt = options.startAt;
@@ -243,20 +247,25 @@ program
       console.log(chalk.bold.cyan('UNIFIED LEGACY IMPORT'));
       console.log(chalk.bold('='.repeat(80)));
       console.log(chalk.gray(`Start time: ${new Date().toISOString()}`));
+      console.log(chalk.gray(`Log file: ${logger.getLogFilePath()}`));
       console.log(chalk.gray(`Dry-run: ${dryRun ? 'YES' : 'NO'}`));
       if (startAt) console.log(chalk.gray(`Start at: ${startAt}`));
       if (stopAt) console.log(chalk.gray(`Stop at: ${stopAt}`));
       if (only) console.log(chalk.gray(`Only: ${only}`));
       console.log('');
 
+      logger.info(`Import started with options: dryRun=${dryRun}, startAt=${startAt || 'none'}, stopAt=${stopAt || 'none'}, only=${only || 'none'}`);
+
       // Connect to databases
       console.log(chalk.cyan('Connecting to databases...'));
       const legacyDb = new LegacyDatabase();
       await legacyDb.connect();
       console.log(chalk.green('✓ Legacy database connected'));
+      logger.info('Legacy database connected');
 
       const newDb = await createNewDbConnection();
       console.log(chalk.green('✓ New database connected'));
+      logger.info('New database connected');
 
       // Initialize tracker and strategy
       const tracker = new UnifiedTracker();
@@ -270,46 +279,93 @@ program
         dryRun,
       };
 
-      // Track results
+      // Track results and phases
       const results = new Map<string, ImportResult>();
-      const startTime = Date.now();
+      const phases: PhaseSummary[] = [];
+      let currentPhase = 'Phase 0: Reference Data';
+      let phaseStart = Date.now();
+      let phaseImported = 0;
+      let phaseSkipped = 0;
+      let phaseErrors = 0;
+
+      // Helper to determine phase
+      const getPhase = (key: string): string => {
+        if (['language', 'language-translation', 'country', 'country-translation'].includes(key)) {
+          return 'Phase 0: Reference Data';
+        } else if (['project', 'partner'].includes(key)) {
+          return 'Phase 1: Projects and Partners';
+        } else {
+          return 'Phase 2: Items';
+        }
+      };
 
       // Execute importers
       for (const config of ALL_IMPORTERS) {
         const shouldRun = shouldRunImporter(config, only, startAt, stopAt);
 
+        // Check if phase changed
+        const newPhase = getPhase(config.key);
+        if (newPhase !== currentPhase && shouldRun) {
+          // Save current phase results
+          if (phaseImported > 0 || phaseSkipped > 0 || phaseErrors > 0) {
+            phases.push({
+              phase: currentPhase,
+              duration: Date.now() - phaseStart,
+              imported: phaseImported,
+              skipped: phaseSkipped,
+              errors: phaseErrors,
+            });
+          }
+          // Start new phase
+          currentPhase = newPhase;
+          phaseStart = Date.now();
+          phaseImported = 0;
+          phaseSkipped = 0;
+          phaseErrors = 0;
+          logger.logPhaseStart(currentPhase);
+        }
+
         if (!shouldRun) {
           console.log(chalk.gray(`⏭  Skipping ${config.name}`));
+          logger.info(`Skipping ${config.name}`);
           continue;
         }
 
-        console.log(chalk.cyan(`\n▶  Starting ${config.name}...`));
+        logger.logImporterStart(config.name);
+        const importerStart = Date.now();
 
         try {
           const importer = new config.importerClass(importContext);
           const result = await importer.import();
           results.set(config.key, result);
 
+          const importerDuration = Date.now() - importerStart;
+          phaseImported += result.imported;
+          phaseSkipped += result.skipped;
+          phaseErrors += result.errors.length;
+
+          logger.logImporterComplete(config.name, result.imported, result.skipped, result.errors.length, importerDuration);
+
           if (result.errors.length > 0) {
-            console.log(chalk.red(`   ❌ ${config.name} completed with ${result.errors.length} errors`));
-            // Show first few errors
-            result.errors.slice(0, 5).forEach((err) => {
-              console.log(chalk.red(`      - ${err}`));
+            // Log errors to file
+            result.errors.forEach((err) => {
+              logger.logImporterError(config.name, err);
             });
-            if (result.errors.length > 5) {
-              console.log(chalk.red(`      ... and ${result.errors.length - 5} more errors`));
-            }
-          } else {
-            console.log(chalk.green(`   ✓ ${config.name} completed: ${result.imported} imported, ${result.skipped} skipped`));
           }
 
           // Report warnings
           if (result.warnings && result.warnings.length > 0) {
             console.log(chalk.yellow(`   ⚠  ${result.warnings.length} warnings`));
+            result.warnings.forEach((warn) => {
+              logger.warning(`${config.name}: ${warn}`);
+            });
           }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          console.log(chalk.red(`   ❌ ${config.name} failed: ${message}`));
+          const importerDuration = Date.now() - importerStart;
+          phaseErrors++;
+          logger.logImporterComplete(config.name, 0, 0, 1, importerDuration);
+          logger.logImporterError(config.name, message);
           results.set(config.key, {
             success: false,
             imported: 0,
@@ -317,6 +373,17 @@ program
             errors: [message],
           });
         }
+      }
+
+      // Save final phase results
+      if (phaseImported > 0 || phaseSkipped > 0 || phaseErrors > 0) {
+        phases.push({
+          phase: currentPhase,
+          duration: Date.now() - phaseStart,
+          imported: phaseImported,
+          skipped: phaseSkipped,
+          errors: phaseErrors,
+        });
       }
 
       // Calculate totals
@@ -330,32 +397,21 @@ program
         { imported: 0, skipped: 0, errors: 0, warnings: 0 }
       );
 
-      const duration = Date.now() - startTime;
-
-      // Summary
-      console.log(chalk.bold('\n' + '='.repeat(80)));
-      console.log(chalk.bold.cyan('IMPORT SUMMARY'));
-      console.log(chalk.bold('='.repeat(80)));
-      console.log(chalk.green(`✓ Imported: ${totals.imported}`));
-      console.log(chalk.gray(`⏭ Skipped:  ${totals.skipped}`));
-      if (totals.errors > 0) {
-        console.log(chalk.red(`❌ Errors:   ${totals.errors}`));
-      }
-      if (totals.warnings > 0) {
-        console.log(chalk.yellow(`⚠  Warnings: ${totals.warnings}`));
-      }
-      console.log(chalk.gray(`⏱  Duration: ${(duration / 1000).toFixed(2)}s`));
-      console.log('');
+      // Log final summary (handles both console and file output)
+      logger.logFinalSummary(phases);
 
       // Cleanup
+      logger.info('Disconnecting from databases...');
       await legacyDb.disconnect();
       await newDb.end();
+      logger.info('Import process ended');
 
       if (totals.errors > 0) {
         process.exit(1);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      logger.error('Fatal error', error);
       console.error(chalk.red(`\nFatal error: ${message}`));
       if (error instanceof Error && error.stack) {
         console.error(chalk.gray(error.stack));

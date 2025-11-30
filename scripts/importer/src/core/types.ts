@@ -137,6 +137,7 @@ export interface ContextTranslationData {
  */
 export interface CollectionData extends BaseEntityData {
   context_id: string;
+  language_id: string; // Required: ISO 639-3 code
   parent_id?: string | null;
 }
 
@@ -146,7 +147,8 @@ export interface CollectionData extends BaseEntityData {
 export interface CollectionTranslationData {
   collection_id: string;
   language_id: string;
-  name: string;
+  context_id: string;
+  title: string;
   description?: string | null;
 }
 
