@@ -216,7 +216,7 @@ These files are the same sources used by Laravel seeders and the API importer.
 ### Legacy Database Data
 The following entities are imported from the legacy database (`mwnf3`):
 - **Projects**: `mwnf3.projects`, `mwnf3.projectnames`
-- **Museums**: `mwnf3.museums`, `mwnf3.museumsnames`
+- **Museums**: `mwnf3.museums`, `mwnf3.museumnames`
 - **Institutions**: `mwnf3.institutions`, `mwnf3.institutionnames`
 - **Objects**: `mwnf3.objects`
 - **Monuments**: `mwnf3.monuments`
