@@ -59,8 +59,9 @@ export function transformProject(legacy: LegacyProject): TransformedProjectBundl
 
   // Context
   const contextBackwardCompat = baseBackwardCompat;
+  const internalName = legacy.name || legacy.project_id;
   const contextData: ContextData = {
-    internal_name: legacy.project_id,
+    internal_name: internalName,
     backward_compatibility: contextBackwardCompat,
     is_default: false,
   };
@@ -68,20 +69,34 @@ export function transformProject(legacy: LegacyProject): TransformedProjectBundl
   // Collection (root collection for project)
   const collectionBackwardCompat = `${baseBackwardCompat}:collection`;
   const collectionData: Omit<CollectionData, 'context_id'> = {
-    internal_name: `${legacy.project_id}_collection`,
+    internal_name: internalName,
     backward_compatibility: collectionBackwardCompat,
     language_id: 'eng', // Default to English
     parent_id: null,
   };
 
+  // Validate launch_date: MySQL can return invalid dates like '0000-00-00 00:00:00'
+  let launchDate: string | null = null;
+  let isLaunched = false;
+  if (legacy.launchdate) {
+    const date = new Date(legacy.launchdate);
+    // Check if date is valid (not NaN and not invalid date like 0000-00-00)
+    if (!isNaN(date.getTime()) && date.getFullYear() > 1970) {
+      const isoDate = date.toISOString().split('T')[0];
+      launchDate = isoDate ?? null;
+      isLaunched = true;
+    }
+  }
+
   // Project
   const projectBackwardCompat = `${baseBackwardCompat}:project`;
   const projectData: Omit<ProjectData, 'context_id'> = {
-    internal_name: legacy.project_id,
+    internal_name: internalName,
     backward_compatibility: projectBackwardCompat,
-    start_date: legacy.start_date || null,
-    end_date: legacy.end_date || null,
-    is_launched: legacy.active === 1 || legacy.active === true,
+    language_id: 'eng', // Default language
+    launch_date: launchDate,
+    is_launched: isLaunched,
+    is_enabled: true,
   };
 
   return {

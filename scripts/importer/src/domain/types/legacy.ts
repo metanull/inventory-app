@@ -43,8 +43,7 @@ export interface LegacyCountryName {
 export interface LegacyProject {
   project_id: string;
   name?: string;
-  start_date?: string | null;
-  end_date?: string | null;
+  launchdate?: string | null;
   active?: number | boolean;
 }
 
@@ -92,6 +91,7 @@ export interface LegacyMuseumName {
 
 export interface LegacyInstitution {
   institution_id: string;
+  country: string;
   name: string;
   city?: string;
   address?: string;
@@ -103,6 +103,7 @@ export interface LegacyInstitution {
 
 export interface LegacyInstitutionName {
   institution_id: string;
+  country: string;
   lang: string;
   name: string;
   description?: string;

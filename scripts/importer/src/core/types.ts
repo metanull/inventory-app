@@ -157,9 +157,10 @@ export interface CollectionTranslationData {
  */
 export interface ProjectData extends BaseEntityData {
   context_id: string;
-  start_date?: string | null;
-  end_date?: string | null;
+  language_id: string; // Required: ISO 639-3 code
+  launch_date?: string | null;
   is_launched?: boolean;
+  is_enabled?: boolean;
 }
 
 /**

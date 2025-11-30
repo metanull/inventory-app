@@ -107,22 +107,18 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeContext(data: ContextData): Promise<string> {
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO contexts (id, internal_name, is_default, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [id, data.internal_name, data.is_default ? 1 : 0, data.backward_compatibility, this.now, this.now]
+      `INSERT INTO contexts (id, internal_name, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      [id, data.internal_name, data.backward_compatibility, this.now, this.now]
     );
 
     this.tracker.set(data.backward_compatibility, id);
     return id;
   }
 
-  async writeContextTranslation(data: ContextTranslationData): Promise<void> {
-    const id = uuidv4();
-    await this.db.execute(
-      `INSERT INTO context_translations (id, context_id, language_id, name, description, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [id, data.context_id, data.language_id, data.name, data.description, this.now, this.now]
-    );
+  async writeContextTranslation(_data: ContextTranslationData): Promise<void> {
+    // No-op: context_translations table does not exist in current schema
+    // The old importer does not create context translations
   }
 
   async writeCollection(data: CollectionData): Promise<string> {
@@ -149,15 +145,16 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeProject(data: ProjectData): Promise<string> {
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO projects (id, context_id, internal_name, start_date, end_date, is_launched, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO projects (id, internal_name, context_id, language_id, launch_date, is_launched, is_enabled, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
-        data.context_id,
         data.internal_name,
-        data.start_date,
-        data.end_date,
+        data.context_id,
+        data.language_id,
+        data.launch_date,
         data.is_launched ? 1 : 0,
+        data.is_enabled !== false ? 1 : 0, // Default to true
         data.backward_compatibility,
         this.now,
         this.now,
@@ -168,13 +165,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
     return id;
   }
 
-  async writeProjectTranslation(data: ProjectTranslationData): Promise<void> {
-    const id = uuidv4();
-    await this.db.execute(
-      `INSERT INTO project_translations (id, project_id, language_id, context_id, name, description, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, data.project_id, data.language_id, data.context_id, data.name, data.description, this.now, this.now]
-    );
+  async writeProjectTranslation(_data: ProjectTranslationData): Promise<void> {
+    // No-op: project_translations table does not exist in current schema
+    // The old importer does not create project translations
   }
 
   // =========================================================================

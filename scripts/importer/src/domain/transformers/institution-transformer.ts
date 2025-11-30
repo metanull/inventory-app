@@ -36,6 +36,8 @@ export interface InstitutionExtraFields {
   email?: string;
   url?: string;
   address_legacy?: string;
+  city_legacy?: string;
+  country_code?: string;
 }
 
 /**
@@ -45,7 +47,7 @@ export function transformInstitution(legacy: LegacyInstitution): TransformedInst
   const backwardCompatibility = formatBackwardCompatibility({
     schema: 'mwnf3',
     table: 'institutions',
-    pkValues: [legacy.institution_id],
+    pkValues: [legacy.institution_id, legacy.country],
   });
 
   const internalName = legacy.name ? convertHtmlToMarkdown(legacy.name) : legacy.institution_id;
@@ -85,11 +87,9 @@ export function transformInstitutionTranslation(
 
   // Build extra field with all additional data
   const extra: InstitutionExtraFields = {};
-  if (institution.phone) extra.phone = institution.phone;
-  if (institution.fax) extra.fax = institution.fax;
-  if (institution.email) extra.email = institution.email;
-  if (institution.url) extra.url = institution.url;
   if (institution.address) extra.address_legacy = institution.address;
+  if (institution.city) extra.city_legacy = institution.city;
+  if (institution.country) extra.country_code = institution.country;
 
   const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
@@ -126,7 +126,7 @@ export function groupInstitutionsByKey(
   const translationMap = new Map<string, LegacyInstitutionName[]>();
 
   for (const translation of institutionNames) {
-    const key = translation.institution_id;
+    const key = `${translation.institution_id}:${translation.country}`;
     if (!translationMap.has(key)) {
       translationMap.set(key, []);
     }
@@ -134,7 +134,7 @@ export function groupInstitutionsByKey(
   }
 
   return institutions.map((institution) => {
-    const key = institution.institution_id;
+    const key = `${institution.institution_id}:${institution.country}`;
     return {
       key,
       institution,

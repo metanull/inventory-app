@@ -180,11 +180,11 @@ export class PartnerImporter extends BaseImporter {
 
     // Query legacy institutions
     const institutions = await this.context.legacyDb.query<LegacyInstitution>(
-      'SELECT * FROM mwnf3.institutions ORDER BY institution_id'
+      'SELECT * FROM mwnf3.institutions ORDER BY institution_id, country'
     );
 
     const institutionNames = await this.context.legacyDb.query<LegacyInstitutionName>(
-      'SELECT * FROM mwnf3.institutionnames ORDER BY institution_id, lang'
+      'SELECT * FROM mwnf3.institutionnames ORDER BY institution_id, country, lang'
     );
 
     const grouped = groupInstitutionsByKey(institutions, institutionNames);
