@@ -90,10 +90,10 @@ export const COUNTRY_CODE_MAP: Record<string, string> = {
   nw: 'nor', // Norway
   on: 'omn', // Oman
   pa: 'pse', // Palestinian Authority
-  pd: 'zzzpd', // Public domain (no country) - special code
+  pd: 'xxx', // Public domain (no country) - special code
   pl: 'pol', // Poland
   pt: 'prt', // Portugal
-  px: 'pse', // Palestine
+  px: 'pse', // Palestine - special code, maps to same as 'pa'
   qt: 'qat', // Qatar
   rm: 'rou', // Romania
   rs: 'rus', // Russia
@@ -114,7 +114,7 @@ export const COUNTRY_CODE_MAP: Record<string, string> = {
   uk: 'gbr', // United Kingdom
   us: 'usa', // United States of America
   va: 'vat', // Vatican city
-  ww: 'zzzww', // Other - special code for no specific country
+  ww: 'zzz', // Other - special code for no specific country
   ym: 'yem', // Yemen
 };
 

@@ -144,16 +144,14 @@ export class ObjectImporter extends BaseImporter {
     });
     const contextId = this.getEntityUuid(contextBackwardCompat);
     if (!contextId) {
-      this.logWarning(`Skipping object ${group.project_id}:${group.museum_id}:${group.number} - project not found`);
-      return false;
+      throw new Error(`Project context not found: ${contextBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its project.`);
     }
 
     // Use same backward_compatibility as context - tracker composite key handles uniqueness
     const collectionBackwardCompat = contextBackwardCompat;
     const collectionId = this.getEntityUuid(collectionBackwardCompat);
     if (!collectionId) {
-      this.logWarning(`Skipping object ${group.project_id}:${group.museum_id}:${group.number} - collection not found`);
-      return false;
+      throw new Error(`Collection not found: ${collectionBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its collection.`);
     }
 
     const partnerBackwardCompat = formatBackwardCompatibility({
@@ -163,8 +161,7 @@ export class ObjectImporter extends BaseImporter {
     });
     const partnerId = this.getEntityUuid(partnerBackwardCompat);
     if (!partnerId) {
-      this.logWarning(`Skipping object ${group.project_id}:${group.museum_id}:${group.number} - museum not found`);
-      return false;
+      throw new Error(`Museum partner not found: ${partnerBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its museum.`);
     }
 
     // Use same backward_compatibility as context

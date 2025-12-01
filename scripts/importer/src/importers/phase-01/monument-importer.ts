@@ -137,16 +137,14 @@ export class MonumentImporter extends BaseImporter {
     });
     const contextId = this.getEntityUuid(contextBackwardCompat);
     if (!contextId) {
-      this.logWarning(`Skipping monument ${group.project_id}:${group.institution_id}:${group.number} - project not found`);
-      return false;
+      throw new Error(`Project context not found: ${contextBackwardCompat}. Monument ${transformed.backwardCompatibility} cannot be imported without its project.`);
     }
 
     // Use same backward_compatibility as context - tracker composite key handles uniqueness
     const collectionBackwardCompat = contextBackwardCompat;
     const collectionId = this.getEntityUuid(collectionBackwardCompat);
     if (!collectionId) {
-      this.logWarning(`Skipping monument ${group.project_id}:${group.institution_id}:${group.number} - collection not found`);
-      return false;
+      throw new Error(`Collection not found: ${collectionBackwardCompat}. Monument ${transformed.backwardCompatibility} cannot be imported without its collection.`);
     }
 
     const partnerBackwardCompat = formatBackwardCompatibility({
@@ -156,8 +154,7 @@ export class MonumentImporter extends BaseImporter {
     });
     const partnerId = this.getEntityUuid(partnerBackwardCompat);
     if (!partnerId) {
-      this.logWarning(`Skipping monument ${group.project_id}:${group.institution_id}:${group.number} - institution not found`);
-      return false;
+      throw new Error(`Institution partner not found: ${partnerBackwardCompat}. Monument ${transformed.backwardCompatibility} cannot be imported without its institution.`);
     }
 
     // Use same backward_compatibility as context
