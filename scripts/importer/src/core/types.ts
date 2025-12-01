@@ -85,7 +85,6 @@ export interface BaseEntityData {
 export interface LanguageData extends BaseEntityData {
   id: string; // ISO 639-3 code
   is_default?: boolean;
-  is_enabled?: boolean;
 }
 
 /**

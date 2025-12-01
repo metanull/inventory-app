@@ -37,11 +37,16 @@ export function transformLanguage(legacy: LegacyLanguage): TransformedLanguage {
     pkValues: [legacy.code],
   });
 
+  if (!legacy.name) {
+    throw new Error(
+      `Language ${legacy.code} has no name for internal_name`
+    );
+  }
+
   const data: LanguageData = {
     id: iso3Code,
-    internal_name: legacy.name || iso3Code,
+    internal_name: legacy.name,
     is_default: legacy.code === 'en', // English is default
-    is_enabled: legacy.active === 1 || legacy.active === true,
     backward_compatibility: backwardCompatibility,
   };
 
