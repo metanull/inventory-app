@@ -119,9 +119,8 @@ export class CountryTranslationImporter extends BaseImporter {
     try {
       this.logInfo('Importing country translations from legacy database...');
 
-      // Import the transformer and code mappings
+      // Import the transformer
       const { transformCountryTranslation } = await import('../../domain/transformers/index.js');
-      const { mapCountryCode } = await import('../../utils/code-mappings.js');
 
       // Query country translations from legacy database
       interface LegacyCountryName {

@@ -131,9 +131,8 @@ export class LanguageTranslationImporter extends BaseImporter {
     try {
       this.logInfo('Importing language translations from legacy database...');
 
-      // Import the transformer and code mappings
+      // Import the transformer
       const { transformLanguageTranslation } = await import('../../domain/transformers/index.js');
-      const { mapLanguageCode } = await import('../../utils/code-mappings.js');
 
       // Query language translations from legacy database
       interface LegacyLanguageName {
