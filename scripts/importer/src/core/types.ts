@@ -224,6 +224,7 @@ export interface ItemTranslationData {
   item_id: string;
   language_id: string;
   context_id: string;
+  backward_compatibility: string;
   name: string;
   description: string;
   alternate_name?: string | null;

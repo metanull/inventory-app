@@ -19,6 +19,7 @@ export interface TransformedMonument {
   data: Omit<ItemData, 'collection_id' | 'partner_id' | 'project_id'>;
   backwardCompatibility: string;
   countryId: string;
+  warning: string | null;
 }
 
 /**
@@ -76,10 +77,14 @@ export function groupMonumentsByPK(monuments: LegacyMonument[]): MonumentGroup[]
 
 /**
  * Transform a monument group to item data
+ * @param group Monument group with all translations
+ * @param defaultLanguageId Default language ID to use for internal_name
  */
-export function transformMonument(group: MonumentGroup): TransformedMonument {
-  const firstTranslation = group.translations[0];
-  if (!firstTranslation) {
+export function transformMonument(
+  group: MonumentGroup,
+  defaultLanguageId: string
+): TransformedMonument {
+  if (!group.translations || group.translations.length === 0) {
     throw new Error('No translations found for monument');
   }
 
@@ -91,19 +96,31 @@ export function transformMonument(group: MonumentGroup): TransformedMonument {
 
   const countryId = mapCountryCode(group.country);
 
-  // internal_name must always be converted from firstTranslation.name - no fallback
-  if (!firstTranslation.name) {
-    throw new Error(
-      `Monument ${group.project_id}:${group.country}:${group.institution_id}:${group.number} missing required name field`
-    );
+  // Find translation in default language
+  const defaultTranslation = group.translations.find(
+    (t) => mapLanguageCode(t.lang) === defaultLanguageId
+  );
+
+  let selectedTranslation = defaultTranslation;
+  let warning: string | null = null;
+
+  if (!defaultTranslation) {
+    // Warn and use first available translation
+    selectedTranslation = group.translations[0];
+    warning = `Monument ${backwardCompatibility} has no translation in default language ${defaultLanguageId}, using ${mapLanguageCode(selectedTranslation!.lang)} instead`;
   }
-  const internalName = convertHtmlToMarkdown(firstTranslation.name);
+
+  // internal_name must always be converted from selected translation name - no fallback
+  if (!selectedTranslation!.name) {
+    throw new Error(`Monument ${backwardCompatibility} missing required name field`);
+  }
+  const internalName = convertHtmlToMarkdown(selectedTranslation!.name);
 
   const data: Omit<ItemData, 'collection_id' | 'partner_id' | 'project_id'> = {
     type: 'monument',
     internal_name: internalName,
-    owner_reference: firstTranslation.inventory_id || null,
-    mwnf_reference: firstTranslation.working_number || null,
+    owner_reference: selectedTranslation!.inventory_id || null,
+    mwnf_reference: selectedTranslation!.working_number || null,
     backward_compatibility: backwardCompatibility,
     country_id: countryId,
   };
@@ -112,6 +129,7 @@ export function transformMonument(group: MonumentGroup): TransformedMonument {
     data,
     backwardCompatibility,
     countryId,
+    warning,
   };
 }
 
@@ -187,6 +205,13 @@ export function transformMonumentTranslation(
     .map((part) => convertHtmlToMarkdown(part));
   const locationMarkdown = locationParts.length > 0 ? locationParts.join(', ') : null;
 
+  // backward_compatibility matches parent item
+  const backwardCompatibility = formatBackwardCompatibility({
+    schema: 'mwnf3',
+    table: 'monuments',
+    pkValues: [monument.project_id, monument.country, monument.institution_id, monument.number],
+  });
+
   const data: Omit<
     ItemTranslationData,
     | 'item_id'
@@ -197,6 +222,7 @@ export function transformMonumentTranslation(
     | 'translation_copy_editor_id'
   > = {
     language_id: languageId,
+    backward_compatibility: backwardCompatibility,
     name: nameMarkdown,
     description: descriptionMarkdown,
     alternate_name: alternateNameMarkdown,

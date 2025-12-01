@@ -70,7 +70,7 @@ describe('transformObject', () => {
       ],
     };
 
-    const result = transformObject(group);
+    const result = transformObject(group, 'eng');
 
     expect(result.data.type).toBe('object');
     expect(result.data.internal_name).toBe('INV001');
@@ -90,7 +90,7 @@ describe('transformObject', () => {
       ],
     };
 
-    const result = transformObject(group);
+    const result = transformObject(group, 'eng');
 
     expect(result.data.internal_name).toBe('001');
   });

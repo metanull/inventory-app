@@ -9,6 +9,7 @@ import type { IWriteStrategy } from '../core/strategy.js';
 import type { ITracker } from '../core/tracker.js';
 import type { TagData } from '../core/types.js';
 import { formatBackwardCompatibility } from '../utils/backward-compatibility.js';
+import { stripHtml } from '../utils/html-to-markdown.js';
 
 export class TagHelper {
   private strategy: IWriteStrategy;
@@ -54,7 +55,13 @@ export class TagHelper {
    * Find or create a single tag
    */
   async findOrCreate(name: string, category: string, languageId: string): Promise<string | null> {
-    const normalized = name.toLowerCase();
+    // Strip HTML from tag name
+    const cleanName = stripHtml(name);
+    if (!cleanName) {
+      return null;
+    }
+
+    const normalized = cleanName.toLowerCase();
     const backwardCompat = formatBackwardCompatibility({
       schema: 'mwnf3',
       table: `tags:${category}:${languageId}`,
@@ -78,7 +85,7 @@ export class TagHelper {
       internal_name: normalized,
       category: category,
       language_id: languageId,
-      description: name, // Keep original capitalization for display
+      description: cleanName, // Keep original capitalization for display (HTML stripped)
       backward_compatibility: backwardCompat,
     };
 

@@ -100,7 +100,13 @@ export class MonumentImporter extends BaseImporter {
     epmContextId: string | null,
     result: ImportResult
   ): Promise<boolean> {
-    const transformed = transformMonument(group);
+    const defaultLanguageId = this.getDefaultLanguageId();
+    const transformed = transformMonument(group, defaultLanguageId);
+
+    // Log warning if translation in default language is missing
+    if (transformed.warning) {
+      this.logWarning(transformed.warning);
+    }
 
     // Check if already imported
     if (this.entityExists(transformed.backwardCompatibility, 'item')) {

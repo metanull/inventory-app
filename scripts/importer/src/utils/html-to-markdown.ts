@@ -64,3 +64,36 @@ export function convertHtmlFieldsToMarkdown<T extends Record<string, unknown>>(
 
   return result as T;
 }
+
+/**
+ * Strip all HTML tags and return plain text
+ * Uses Turndown to convert HTML to markdown, then strips markdown formatting
+ * This is more robust than regex-based HTML stripping
+ */
+export function stripHtml(html: string | null | undefined): string {
+  if (!html || typeof html !== 'string') {
+    return '';
+  }
+
+  // First convert HTML to markdown using Turndown (handles malformed HTML gracefully)
+  const markdown = convertHtmlToMarkdown(html);
+
+  // Strip markdown formatting to get plain text
+  return markdown
+    .replace(/^#+\s+/gm, '') // Remove heading markers
+    .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold
+    .replace(/\*(.+?)\*/g, '$1') // Remove italic
+    .replace(/__(.+?)__/g, '$1') // Remove bold (underscore)
+    .replace(/_(.+?)_/g, '$1') // Remove italic (underscore)
+    .replace(/~~(.+?)~~/g, '$1') // Remove strikethrough
+    .replace(/`(.+?)`/g, '$1') // Remove inline code
+    .replace(/```[\s\S]*?```/g, '') // Remove code blocks
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1') // Convert links to text
+    .replace(/!\[.*?\]\(.+?\)/g, '') // Remove images
+    .replace(/^[*\-+]\s+/gm, '') // Remove list markers
+    .replace(/^\d+\.\s+/gm, '') // Remove ordered list markers
+    .replace(/^>\s+/gm, '') // Remove blockquotes
+    .replace(/---/g, '') // Remove horizontal rules
+    .replace(/\n{3,}/g, '\n\n') // Normalize multiple newlines
+    .trim();
+}

@@ -105,7 +105,13 @@ export class ObjectImporter extends BaseImporter {
     epmContextId: string | null,
     result: ImportResult
   ): Promise<boolean> {
-    const transformed = transformObject(group);
+    const defaultLanguageId = this.getDefaultLanguageId();
+    const transformed = transformObject(group, defaultLanguageId);
+
+    // Log warning if translation in default language is missing
+    if (transformed.warning) {
+      this.logWarning(transformed.warning);
+    }
 
     // Check if already imported
     if (this.entityExists(transformed.backwardCompatibility, 'item')) {

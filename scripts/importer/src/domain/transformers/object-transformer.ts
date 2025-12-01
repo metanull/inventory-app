@@ -23,6 +23,7 @@ export interface TransformedObject {
   data: Omit<ItemData, 'collection_id' | 'partner_id' | 'project_id'>;
   backwardCompatibility: string;
   countryId: string;
+  warning: string | null;
 }
 
 /**
@@ -94,10 +95,11 @@ export function groupObjectsByPK(objects: LegacyObject[]): ObjectGroup[] {
 
 /**
  * Transform an object group to item data
+ * @param group Object group with all translations
+ * @param defaultLanguageId Default language ID to use for internal_name
  */
-export function transformObject(group: ObjectGroup): TransformedObject {
-  const firstTranslation = group.translations[0];
-  if (!firstTranslation) {
+export function transformObject(group: ObjectGroup, defaultLanguageId: string): TransformedObject {
+  if (!group.translations || group.translations.length === 0) {
     throw new Error('No translations found for object');
   }
 
@@ -109,19 +111,31 @@ export function transformObject(group: ObjectGroup): TransformedObject {
 
   const countryId = mapCountryCode(group.country);
 
-  // internal_name must always be converted from firstTranslation.name - no fallback
-  if (!firstTranslation.name) {
-    throw new Error(
-      `Object ${group.project_id}:${group.country}:${group.museum_id}:${group.number} missing required name field`
-    );
+  // Find translation in default language
+  const defaultTranslation = group.translations.find(
+    (t) => mapLanguageCode(t.lang) === defaultLanguageId
+  );
+
+  let selectedTranslation = defaultTranslation;
+  let warning: string | null = null;
+
+  if (!defaultTranslation) {
+    // Warn and use first available translation
+    selectedTranslation = group.translations[0];
+    warning = `Object ${backwardCompatibility} has no translation in default language ${defaultLanguageId}, using ${mapLanguageCode(selectedTranslation!.lang)} instead`;
   }
-  const internalName = convertHtmlToMarkdown(firstTranslation.name);
+
+  // internal_name must always be converted from selected translation name - no fallback
+  if (!selectedTranslation!.name) {
+    throw new Error(`Object ${backwardCompatibility} missing required name field`);
+  }
+  const internalName = convertHtmlToMarkdown(selectedTranslation!.name);
 
   const data: Omit<ItemData, 'collection_id' | 'partner_id' | 'project_id'> = {
     type: 'object',
     internal_name: internalName,
-    owner_reference: firstTranslation.inventory_id || null,
-    mwnf_reference: firstTranslation.working_number || null,
+    owner_reference: selectedTranslation!.inventory_id || null,
+    mwnf_reference: selectedTranslation!.working_number || null,
     backward_compatibility: backwardCompatibility,
     country_id: countryId,
   };
@@ -130,6 +144,7 @@ export function transformObject(group: ObjectGroup): TransformedObject {
     data,
     backwardCompatibility,
     countryId,
+    warning,
   };
 }
 
@@ -215,6 +230,13 @@ export function transformObjectTranslation(
   if (obj.binding_desc) extraData.binding_desc = obj.binding_desc;
   const extraField = Object.keys(extraData).length > 0 ? JSON.stringify(extraData) : null;
 
+  // backward_compatibility matches parent item
+  const backwardCompatibility = formatBackwardCompatibility({
+    schema: 'mwnf3',
+    table: 'objects',
+    pkValues: [obj.project_id, obj.country, obj.museum_id, obj.number],
+  });
+
   const data: Omit<
     ItemTranslationData,
     | 'item_id'
@@ -225,6 +247,7 @@ export function transformObjectTranslation(
     | 'translation_copy_editor_id'
   > = {
     language_id: languageId,
+    backward_compatibility: backwardCompatibility,
     name: nameMarkdown,
     description: descriptionMarkdown,
     alternate_name: alternateNameMarkdown,
