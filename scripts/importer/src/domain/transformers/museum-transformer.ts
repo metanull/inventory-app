@@ -54,7 +54,11 @@ export function transformMuseum(legacy: LegacyMuseum): TransformedMuseum {
     pkValues: [legacy.museum_id, legacy.country],
   });
 
-  const internalName = legacy.name ? convertHtmlToMarkdown(legacy.name) : legacy.museum_id;
+  // internal_name must always be converted from legacy.name - no fallback
+  if (!legacy.name) {
+    throw new Error(`Museum ${legacy.museum_id}:${legacy.country} missing required name field`);
+  }
+  const internalName = convertHtmlToMarkdown(legacy.name);
 
   const data: PartnerData = {
     type: 'museum',
