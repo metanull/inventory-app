@@ -101,9 +101,15 @@ export function transformObject(group: ObjectGroup): TransformedObject {
 
   const countryId = mapCountryCode(group.country);
 
+  // internal_name must always be converted from firstTranslation.name - no fallback
+  if (!firstTranslation.name) {
+    throw new Error(`Object ${group.project_id}:${group.country}:${group.museum_id}:${group.number} missing required name field`);
+  }
+  const internalName = convertHtmlToMarkdown(firstTranslation.name);
+
   const data: Omit<ItemData, 'collection_id' | 'partner_id' | 'project_id'> = {
     type: 'object',
-    internal_name: firstTranslation.inventory_id || firstTranslation.working_number || group.number,
+    internal_name: internalName,
     owner_reference: firstTranslation.inventory_id || null,
     mwnf_reference: firstTranslation.working_number || null,
     backward_compatibility: backwardCompatibility,

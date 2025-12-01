@@ -57,7 +57,10 @@ export function transformProject(legacy: LegacyProject, defaultLanguageId: strin
     pkValues: [legacy.project_id],
   });
 
-  // Context
+  // Context - internal_name must always be legacy.project_id - no fallback
+  if (!legacy.project_id) {
+    throw new Error('Project missing required project_id field');
+  }
   const contextBackwardCompat = baseBackwardCompat;
   const contextData: ContextData = {
     internal_name: legacy.project_id,
@@ -65,7 +68,7 @@ export function transformProject(legacy: LegacyProject, defaultLanguageId: strin
     is_default: false,
   };
 
-  // Collection (root collection for project)
+  // Collection (root collection for project) - internal_name derived from required legacy.project_id
   const collectionBackwardCompat = `${baseBackwardCompat}:collection`;
   const collectionData: Omit<CollectionData, 'context_id'> = {
     internal_name: `${legacy.project_id}_collection`,
@@ -99,7 +102,11 @@ export function transformProjectTranslation(
 ): TransformedProjectTranslationBundle {
   const languageId = mapLanguageCode(legacy.lang);
 
-  const name = legacy.name ? convertHtmlToMarkdown(legacy.name) : legacy.project_id;
+  // Translation name is required - no fallback
+  if (!legacy.name) {
+    throw new Error(`Project translation ${legacy.project_id}:${legacy.lang} missing required name field`);
+  }
+  const name = convertHtmlToMarkdown(legacy.name);
   const description = legacy.description ? convertHtmlToMarkdown(legacy.description) : null;
 
   return {
