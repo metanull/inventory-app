@@ -157,6 +157,17 @@ export abstract class BaseImporter {
   }
 
   /**
+   * Get the default context ID from tracker
+   */
+  protected getDefaultContextId(): string {
+    const defaultContextId = this.context.tracker.getMetadata('default_context_id');
+    if (!defaultContextId) {
+      throw new Error('Default context ID not found in tracker. Default context import must run first.');
+    }
+    return defaultContextId;
+  }
+
+  /**
    * Check if we're in dry-run mode
    */
   protected get isDryRun(): boolean {

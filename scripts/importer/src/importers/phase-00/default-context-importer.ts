@@ -39,6 +39,7 @@ export class DefaultContextImporter extends BaseImporter {
       if (existingId) {
         this.logInfo(`Default context already exists in database: ${existingId}`);
         this.registerEntity(existingId, DEFAULT_CONTEXT_BACKWARD_COMPAT, 'context');
+        this.context.tracker.setMetadata('default_context_id', existingId);
         result.skipped++;
         this.showSkipped();
         this.showSummary(result.imported, result.skipped, result.errors.length);
@@ -47,7 +48,9 @@ export class DefaultContextImporter extends BaseImporter {
 
       if (this.isDryRun || this.isSampleOnlyMode) {
         this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create default context`);
-        this.registerEntity('sample-default-context', DEFAULT_CONTEXT_BACKWARD_COMPAT, 'context');
+        const sampleContextId = 'sample-default-context';
+        this.registerEntity(sampleContextId, DEFAULT_CONTEXT_BACKWARD_COMPAT, 'context');
+        this.context.tracker.setMetadata('default_context_id', sampleContextId);
         result.imported++;
         this.showProgress();
         this.showSummary(result.imported, result.skipped, result.errors.length);
@@ -62,6 +65,8 @@ export class DefaultContextImporter extends BaseImporter {
       });
 
       this.registerEntity(contextId, DEFAULT_CONTEXT_BACKWARD_COMPAT, 'context');
+      // Store default context ID in metadata for use by other importers
+      this.context.tracker.setMetadata('default_context_id', contextId);
       this.logInfo(`Created default context: ${contextId}`);
 
       result.imported++;
