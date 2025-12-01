@@ -149,17 +149,6 @@ export class LanguageTranslationImporter extends BaseImporter {
 
       for (const legacy of languageNames) {
         try {
-          // Map legacy 2-char code to ISO 3-char code
-          const iso3Code = mapLanguageCode(legacy.lang_id);
-          
-          // Check if language exists in tracker (pass entityType to avoid collisions with countries)
-          if (!this.entityExists(legacy.lang_id, 'language')) {
-            this.logWarning(`Language ${legacy.lang_id} (${iso3Code}) not found, skipping translation for ${legacy.lang}`);
-            result.skipped++;
-            this.showSkipped();
-            continue;
-          }
-
           // Collect sample
           this.collectSample(
             'language_translation',
@@ -177,6 +166,8 @@ export class LanguageTranslationImporter extends BaseImporter {
           }
 
           // Transform and write language translation
+          // The transformer will map legacy 2-char code to ISO 3-char code
+          // If the language doesn't exist, the database foreign key will reject it (handled in catch block)
           const transformed = transformLanguageTranslation({ code: legacy.lang_id, lang: legacy.lang, name: legacy.name });
           await this.context.strategy.writeLanguageTranslation(transformed.data);
 
@@ -184,9 +175,15 @@ export class LanguageTranslationImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(`${legacy.lang_id}:${legacy.lang}: ${message}`);
-          this.logError(`Language translation ${legacy.lang_id}:${legacy.lang}`, error);
-          this.showError();
+          // Skip this translation if language or display language doesn't exist (foreign key violation)
+          if (message.includes('foreign key constraint fails')) {
+            result.skipped++;
+            this.showSkipped();
+          } else {
+            result.errors.push(`${legacy.lang_id}:${legacy.lang}: ${message}`);
+            this.logError(`Language translation ${legacy.lang_id}:${legacy.lang}`, error);
+            this.showError();
+          }
         }
       }
 

@@ -137,17 +137,6 @@ export class CountryTranslationImporter extends BaseImporter {
 
       for (const legacy of countryNames) {
         try {
-          // Map legacy 2-char code to ISO 3-char code
-          const iso3Code = mapCountryCode(legacy.country);
-          
-          // Check if country exists in tracker (pass entityType to avoid collisions with languages)
-          if (!this.entityExists(legacy.country, 'country')) {
-            this.logWarning(`Country ${legacy.country} (${iso3Code}) not found, skipping translation for ${legacy.lang}`);
-            result.skipped++;
-            this.showSkipped();
-            continue;
-          }
-
           // Collect sample
           this.collectSample(
             'country_translation',
@@ -165,6 +154,8 @@ export class CountryTranslationImporter extends BaseImporter {
           }
 
           // Transform and write country translation
+          // The transformer will map legacy 2-char code to ISO 3-char code
+          // If the country doesn't exist, the database foreign key will reject it (handled in catch block)
           const transformed = transformCountryTranslation({ code: legacy.country, lang: legacy.lang, name: legacy.name });
           await this.context.strategy.writeCountryTranslation(transformed.data);
 
@@ -172,9 +163,15 @@ export class CountryTranslationImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(`${legacy.country}:${legacy.lang}: ${message}`);
-          this.logError(`Country translation ${legacy.country}:${legacy.lang}`, error);
-          this.showError();
+          // Skip this translation if country or language doesn't exist (foreign key violation)
+          if (message.includes('foreign key constraint fails')) {
+            result.skipped++;
+            this.showSkipped();
+          } else {
+            result.errors.push(`${legacy.country}:${legacy.lang}: ${message}`);
+            this.logError(`Country translation ${legacy.country}:${legacy.lang}`, error);
+            this.showError();
+          }
         }
       }
 
