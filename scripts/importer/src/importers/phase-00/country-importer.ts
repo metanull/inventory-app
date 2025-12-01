@@ -119,27 +119,31 @@ export class CountryTranslationImporter extends BaseImporter {
     try {
       this.logInfo('Importing country translations from legacy database...');
 
-      // Import the transformer
+      // Import the transformer and code mappings
       const { transformCountryTranslation } = await import('../../domain/transformers/index.js');
+      const { mapCountryCode } = await import('../../utils/code-mappings.js');
 
       // Query country translations from legacy database
       interface LegacyCountryName {
-        code: string;
+        country: string;
         lang: string;
         name: string;
       }
       const countryNames = await this.context.legacyDb.query<LegacyCountryName>(
-        'SELECT code, lang, name FROM mwnf3.countrynames ORDER BY code, lang'
+        'SELECT country, lang, name FROM mwnf3.countrynames ORDER BY country, lang'
       );
 
       this.logInfo(`Found ${countryNames.length} country translations to import`);
 
       for (const legacy of countryNames) {
         try {
-          // Check if country exists in tracker
-          const countryBackwardCompat = `mwnf3:countries:${legacy.code}`;
+          // Map legacy 2-char code to ISO 3-char code
+          const iso3Code = mapCountryCode(legacy.country);
+          
+          // Check if country exists in tracker using original 2-char code for backward compat
+          const countryBackwardCompat = `mwnf3:countries:${legacy.country}`;
           if (!this.entityExists(countryBackwardCompat)) {
-            this.logWarning(`Country ${legacy.code} not found, skipping translation for ${legacy.lang}`);
+            this.logWarning(`Country ${legacy.country} (${iso3Code}) not found, skipping translation for ${legacy.lang}`);
             result.skipped++;
             this.showSkipped();
             continue;
@@ -154,7 +158,7 @@ export class CountryTranslationImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import country translation: ${legacy.code} (${legacy.lang})`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import country translation: ${legacy.country} (${legacy.lang})`
             );
             result.imported++;
             this.showProgress();
@@ -162,15 +166,15 @@ export class CountryTranslationImporter extends BaseImporter {
           }
 
           // Transform and write country translation
-          const transformed = transformCountryTranslation(legacy);
+          const transformed = transformCountryTranslation({ code: legacy.country, lang: legacy.lang, name: legacy.name });
           await this.context.strategy.writeCountryTranslation(transformed.data);
 
           result.imported++;
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(`${legacy.code}:${legacy.lang}: ${message}`);
-          this.logError(`Country translation ${legacy.code}:${legacy.lang}`, error);
+          result.errors.push(`${legacy.country}:${legacy.lang}: ${message}`);
+          this.logError(`Country translation ${legacy.country}:${legacy.lang}`, error);
           this.showError();
         }
       }
