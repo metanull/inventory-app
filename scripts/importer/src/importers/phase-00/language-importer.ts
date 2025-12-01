@@ -167,7 +167,11 @@ export class LanguageTranslationImporter extends BaseImporter {
           // Transform and write language translation
           // The transformer will map legacy 2-char code to ISO 3-char code
           // If the language doesn't exist, the database foreign key will reject it (handled in catch block)
-          const transformed = transformLanguageTranslation({ code: legacy.lang_id, lang: legacy.lang, name: legacy.name });
+          const transformed = transformLanguageTranslation({
+            code: legacy.lang_id,
+            lang: legacy.lang,
+            name: legacy.name,
+          });
           await this.context.strategy.writeLanguageTranslation(transformed.data);
 
           result.imported++;

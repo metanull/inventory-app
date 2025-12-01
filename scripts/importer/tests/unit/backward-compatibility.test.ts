@@ -59,7 +59,9 @@ describe('parseBackwardCompatibility', () => {
   });
 
   it('should throw on invalid format', () => {
-    expect(() => parseBackwardCompatibility('invalid')).toThrow('Invalid backward_compatibility format');
+    expect(() => parseBackwardCompatibility('invalid')).toThrow(
+      'Invalid backward_compatibility format'
+    );
   });
 });
 

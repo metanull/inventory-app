@@ -144,14 +144,18 @@ export class ObjectImporter extends BaseImporter {
     });
     const contextId = this.getEntityUuid(contextBackwardCompat);
     if (!contextId) {
-      throw new Error(`Project context not found: ${contextBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its project.`);
+      throw new Error(
+        `Project context not found: ${contextBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its project.`
+      );
     }
 
     // Use same backward_compatibility as context - tracker composite key handles uniqueness
     const collectionBackwardCompat = contextBackwardCompat;
     const collectionId = this.getEntityUuid(collectionBackwardCompat);
     if (!collectionId) {
-      throw new Error(`Collection not found: ${collectionBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its collection.`);
+      throw new Error(
+        `Collection not found: ${collectionBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its collection.`
+      );
     }
 
     const partnerBackwardCompat = formatBackwardCompatibility({
@@ -161,7 +165,9 @@ export class ObjectImporter extends BaseImporter {
     });
     const partnerId = this.getEntityUuid(partnerBackwardCompat);
     if (!partnerId) {
-      throw new Error(`Museum partner not found: ${partnerBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its museum.`);
+      throw new Error(
+        `Museum partner not found: ${partnerBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its museum.`
+      );
     }
 
     // Use same backward_compatibility as context
@@ -183,7 +189,10 @@ export class ObjectImporter extends BaseImporter {
     const translationPlans = planTranslations(group, hasEpmContext);
     for (const plan of translationPlans) {
       try {
-        const translationResult = transformObjectTranslation(plan.translation, plan.descriptionField);
+        const translationResult = transformObjectTranslation(
+          plan.translation,
+          plan.descriptionField
+        );
         if (!translationResult) continue;
 
         // Add any warnings to result
@@ -231,21 +240,33 @@ export class ObjectImporter extends BaseImporter {
 
       if (extractedTags.materials.length > 0) {
         for (const material of extractedTags.materials) {
-          const tagId = await this.tagHelper.findOrCreate(material, 'material', extractedTags.languageId);
+          const tagId = await this.tagHelper.findOrCreate(
+            material,
+            'material',
+            extractedTags.languageId
+          );
           if (tagId) tagIds.push(tagId);
         }
       }
 
       if (extractedTags.dynasties.length > 0) {
         for (const dynasty of extractedTags.dynasties) {
-          const tagId = await this.tagHelper.findOrCreate(dynasty, 'dynasty', extractedTags.languageId);
+          const tagId = await this.tagHelper.findOrCreate(
+            dynasty,
+            'dynasty',
+            extractedTags.languageId
+          );
           if (tagId) tagIds.push(tagId);
         }
       }
 
       if (extractedTags.keywords.length > 0) {
         for (const keyword of extractedTags.keywords) {
-          const tagId = await this.tagHelper.findOrCreate(keyword, 'keyword', extractedTags.languageId);
+          const tagId = await this.tagHelper.findOrCreate(
+            keyword,
+            'keyword',
+            extractedTags.languageId
+          );
           if (tagId) tagIds.push(tagId);
         }
       }

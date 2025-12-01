@@ -8,17 +8,18 @@ We have analysed the possibility to merge them into one single tool - following 
 ### Current State
 
 **Two Parallel Hierarchies:**
+
 1. **API Importers** (`/importers/`) - 16 files
    - Use `InventoryApiClient` to make REST calls
    - Tracker: `BackwardCompatibilityTracker` (class-based)
    - Helpers: `ApiArtistHelper`, `ApiAuthorHelper`, `ApiTagHelper`
-   
-2. **SQL Importers** (`/sql-importers/`) - 14 files  
+2. **SQL Importers** (`/sql-importers/`) - 14 files
    - Direct SQL `INSERT` via `mysql2/promise`
    - Tracker: `Map<string, string>` (simple map)
    - Helpers: `ArtistHelper`, `AuthorHelper`, `TagHelper`
 
 **Shared Code:**
+
 - ✅ `HtmlToMarkdownConverter` - identical usage
 - ✅ `CodeMappings` - identical
 - ✅ `SampleCollector` - identical
@@ -78,6 +79,7 @@ We have analysed the possibility to merge them into one single tool - following 
 ### Implementation Strategy
 
 **Phase 1: Extract Business Logic (Non-Breaking)**
+
 ```typescript
 // NEW: /src/domain/transformers/ObjectTransformer.ts
 export class ObjectTransformer {
@@ -92,6 +94,7 @@ const transformed = ObjectTransformer.transform(legacyData);
 ```
 
 **Phase 2: Unified Strategy Pattern**
+
 ```typescript
 interface WriteStrategy {
   writeItem(item: ItemData): Promise<string>; // Returns UUID
@@ -117,6 +120,7 @@ class SqlWriteStrategy implements WriteStrategy {
 ```
 
 **Phase 3: Single Importer Classes**
+
 ```typescript
 export class ObjectImporter extends BaseImporter {
   constructor(
@@ -127,7 +131,7 @@ export class ObjectImporter extends BaseImporter {
 
   async import(): Promise<ImportResult> {
     const objects = await this.legacyDb.query('SELECT...');
-    
+
     for (const obj of objects) {
       const transformed = ObjectTransformer.transform(obj);
       const itemId = await this.writeStrategy.writeItem(transformed.item);
@@ -151,7 +155,7 @@ export class ObjectImporter extends BaseImporter {
 
 1. **Week 1**: Extract transformers, both importers use them
 2. **Week 2**: Create strategy interfaces, API strategy wraps existing
-3. **Week 3**: SQL strategy wraps existing  
+3. **Week 3**: SQL strategy wraps existing
 4. **Week 4**: Unified importer classes, deprecate old ones
 5. **Week 5**: Remove old importers after validation
 

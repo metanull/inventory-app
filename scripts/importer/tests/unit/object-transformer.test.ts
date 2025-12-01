@@ -31,7 +31,14 @@ describe('groupObjectsByPK', () => {
 
   it('should preserve object data in groups', () => {
     const objects: LegacyObject[] = [
-      { project_id: 'EPM', country: 'eg', museum_id: 'cairo', number: '001', lang: 'en', name: 'Test' },
+      {
+        project_id: 'EPM',
+        country: 'eg',
+        museum_id: 'cairo',
+        number: '001',
+        lang: 'en',
+        name: 'Test',
+      },
     ];
 
     const groups = groupObjectsByPK(objects);
@@ -52,7 +59,14 @@ describe('transformObject', () => {
       museum_id: 'cairo',
       number: '001',
       translations: [
-        { project_id: 'EPM', country: 'eg', museum_id: 'cairo', number: '001', lang: 'en', inventory_id: 'INV001' },
+        {
+          project_id: 'EPM',
+          country: 'eg',
+          museum_id: 'cairo',
+          number: '001',
+          lang: 'en',
+          inventory_id: 'INV001',
+        },
       ],
     };
 
@@ -277,7 +291,14 @@ describe('planTranslations', () => {
       museum_id: 'cairo',
       number: '001',
       translations: [
-        { project_id: 'EPM', country: 'eg', museum_id: 'cairo', number: '001', lang: 'en', description2: 'EPM content' },
+        {
+          project_id: 'EPM',
+          country: 'eg',
+          museum_id: 'cairo',
+          number: '001',
+          lang: 'en',
+          description2: 'EPM content',
+        },
       ],
     };
 

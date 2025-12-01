@@ -29,7 +29,15 @@ export interface TransformedObject {
  * Transformed object translation result
  */
 export interface TransformedObjectTranslation {
-  data: Omit<ItemTranslationData, 'item_id' | 'context_id' | 'author_id' | 'text_copy_editor_id' | 'translator_id' | 'translation_copy_editor_id'>;
+  data: Omit<
+    ItemTranslationData,
+    | 'item_id'
+    | 'context_id'
+    | 'author_id'
+    | 'text_copy_editor_id'
+    | 'translator_id'
+    | 'translation_copy_editor_id'
+  >;
   authorName: string | null;
   textCopyEditorName: string | null;
   translatorName: string | null;
@@ -103,7 +111,9 @@ export function transformObject(group: ObjectGroup): TransformedObject {
 
   // internal_name must always be converted from firstTranslation.name - no fallback
   if (!firstTranslation.name) {
-    throw new Error(`Object ${group.project_id}:${group.country}:${group.museum_id}:${group.number} missing required name field`);
+    throw new Error(
+      `Object ${group.project_id}:${group.country}:${group.museum_id}:${group.number} missing required name field`
+    );
   }
   const internalName = convertHtmlToMarkdown(firstTranslation.name);
 
@@ -137,7 +147,8 @@ export function transformObjectTranslation(
   const objectKey = `${obj.project_id}:${obj.museum_id}:${obj.number}`;
 
   // Determine which description to use
-  const sourceDescription = descriptionField === 'description2' ? obj.description2 : obj.description;
+  const sourceDescription =
+    descriptionField === 'description2' ? obj.description2 : obj.description;
 
   // Skip if description is empty
   if (!sourceDescription || !sourceDescription.trim()) {
@@ -159,7 +170,9 @@ export function transformObjectTranslation(
   // Handle alternate_name with truncation
   let alternateNameMarkdown = obj.name2 ? convertHtmlToMarkdown(obj.name2) : null;
   if (alternateNameMarkdown && alternateNameMarkdown.length > 255) {
-    warnings.push(`${objectKey}:${obj.lang} - alternate_name truncated (${alternateNameMarkdown.length} → 255 chars)`);
+    warnings.push(
+      `${objectKey}:${obj.lang} - alternate_name truncated (${alternateNameMarkdown.length} → 255 chars)`
+    );
     alternateNameMarkdown = alternateNameMarkdown.substring(0, 252) + '...';
   }
 
@@ -173,12 +186,20 @@ export function transformObjectTranslation(
   // Convert other fields
   const holderMarkdown = obj.holding_museum ? convertHtmlToMarkdown(obj.holding_museum) : null;
   const ownerMarkdown = obj.current_owner ? convertHtmlToMarkdown(obj.current_owner) : null;
-  const initialOwnerMarkdown = obj.original_owner ? convertHtmlToMarkdown(obj.original_owner) : null;
+  const initialOwnerMarkdown = obj.original_owner
+    ? convertHtmlToMarkdown(obj.original_owner)
+    : null;
   const datesMarkdown = obj.date_description ? convertHtmlToMarkdown(obj.date_description) : null;
   const dimensionsMarkdown = obj.dimensions ? convertHtmlToMarkdown(obj.dimensions) : null;
-  const placeOfProductionMarkdown = obj.production_place ? convertHtmlToMarkdown(obj.production_place) : null;
-  const methodForDatationMarkdown = obj.datationmethod ? convertHtmlToMarkdown(obj.datationmethod) : null;
-  const methodForProvenanceMarkdown = obj.provenancemethod ? convertHtmlToMarkdown(obj.provenancemethod) : null;
+  const placeOfProductionMarkdown = obj.production_place
+    ? convertHtmlToMarkdown(obj.production_place)
+    : null;
+  const methodForDatationMarkdown = obj.datationmethod
+    ? convertHtmlToMarkdown(obj.datationmethod)
+    : null;
+  const methodForProvenanceMarkdown = obj.provenancemethod
+    ? convertHtmlToMarkdown(obj.provenancemethod)
+    : null;
   const obtentionMarkdown = obj.obtentionmethod ? convertHtmlToMarkdown(obj.obtentionmethod) : null;
 
   // Convert location (composed from multiple fields)
@@ -194,7 +215,15 @@ export function transformObjectTranslation(
   if (obj.binding_desc) extraData.binding_desc = obj.binding_desc;
   const extraField = Object.keys(extraData).length > 0 ? JSON.stringify(extraData) : null;
 
-  const data: Omit<ItemTranslationData, 'item_id' | 'context_id' | 'author_id' | 'text_copy_editor_id' | 'translator_id' | 'translation_copy_editor_id'> = {
+  const data: Omit<
+    ItemTranslationData,
+    | 'item_id'
+    | 'context_id'
+    | 'author_id'
+    | 'text_copy_editor_id'
+    | 'translator_id'
+    | 'translation_copy_editor_id'
+  > = {
     language_id: languageId,
     name: nameMarkdown,
     description: descriptionMarkdown,
@@ -291,10 +320,10 @@ export function parseTagString(tagString: string | undefined | null): string[] {
 
 /**
  * Determine which translations need to be created for EPM handling
- * 
+ *
  * EPM (European Project Mediterranean) logic:
  * - For EPM project: only use description2 as description
- * - For other projects: 
+ * - For other projects:
  *   - Create translation in own context using description
  *   - If description2 exists and EPM context exists, create EPM translation
  */
@@ -304,10 +333,7 @@ export interface TranslationPlan {
   descriptionField: 'description' | 'description2';
 }
 
-export function planTranslations(
-  group: ObjectGroup,
-  hasEpmContext: boolean
-): TranslationPlan[] {
+export function planTranslations(group: ObjectGroup, hasEpmContext: boolean): TranslationPlan[] {
   const plans: TranslationPlan[] = [];
 
   for (const translation of group.translations) {

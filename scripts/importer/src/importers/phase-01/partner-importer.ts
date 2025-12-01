@@ -78,7 +78,10 @@ export class PartnerImporter extends BaseImporter {
     }
 
     // Check database
-    const found = await this.context.strategy.findByBackwardCompatibility('contexts', backwardCompat);
+    const found = await this.context.strategy.findByBackwardCompatibility(
+      'contexts',
+      backwardCompat
+    );
     if (found) {
       this.defaultContextId = found;
       this.registerEntity(found, backwardCompat, 'context');
@@ -129,15 +132,17 @@ export class PartnerImporter extends BaseImporter {
         }
 
         // Collect sample
-        this.collectSample(
-          'museum',
-          group.museum as unknown as Record<string, unknown>,
-          'success'
-        );
+        this.collectSample('museum', group.museum as unknown as Record<string, unknown>, 'success');
 
         if (this.isDryRun || this.isSampleOnlyMode) {
-          this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import museum: ${group.key}`);
-          this.registerEntity('sample-museum-' + group.key, transformed.backwardCompatibility, 'partner');
+          this.logInfo(
+            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import museum: ${group.key}`
+          );
+          this.registerEntity(
+            'sample-museum-' + group.key,
+            transformed.backwardCompatibility,
+            'partner'
+          );
           result.imported++;
           this.showProgress();
           continue;
@@ -158,7 +163,9 @@ export class PartnerImporter extends BaseImporter {
             });
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            this.logWarning(`Failed to create translation for museum ${group.key}:${translation.lang}: ${message}`);
+            this.logWarning(
+              `Failed to create translation for museum ${group.key}:${translation.lang}: ${message}`
+            );
           }
         }
 
@@ -209,8 +216,14 @@ export class PartnerImporter extends BaseImporter {
         );
 
         if (this.isDryRun || this.isSampleOnlyMode) {
-          this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import institution: ${group.key}`);
-          this.registerEntity('sample-institution-' + group.key, transformed.backwardCompatibility, 'partner');
+          this.logInfo(
+            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import institution: ${group.key}`
+          );
+          this.registerEntity(
+            'sample-institution-' + group.key,
+            transformed.backwardCompatibility,
+            'partner'
+          );
           result.imported++;
           this.showProgress();
           continue;
@@ -231,7 +244,9 @@ export class PartnerImporter extends BaseImporter {
             });
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            this.logWarning(`Failed to create translation for institution ${group.key}:${translation.lang}: ${message}`);
+            this.logWarning(
+              `Failed to create translation for institution ${group.key}:${translation.lang}: ${message}`
+            );
           }
         }
 

@@ -104,7 +104,14 @@ export class SqlWriteStrategy implements IWriteStrategy {
     await this.db.execute(
       `INSERT INTO contexts (id, internal_name, is_default, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [id, data.internal_name, data.is_default ? 1 : 0, data.backward_compatibility, this.now, this.now]
+      [
+        id,
+        data.internal_name,
+        data.is_default ? 1 : 0,
+        data.backward_compatibility,
+        this.now,
+        this.now,
+      ]
     );
 
     this.tracker.set(data.backward_compatibility, id);
@@ -121,7 +128,16 @@ export class SqlWriteStrategy implements IWriteStrategy {
     await this.db.execute(
       `INSERT INTO collections (id, context_id, language_id, parent_id, internal_name, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, data.context_id, data.language_id, data.parent_id, data.internal_name, data.backward_compatibility, this.now, this.now]
+      [
+        id,
+        data.context_id,
+        data.language_id,
+        data.parent_id,
+        data.internal_name,
+        data.backward_compatibility,
+        this.now,
+        this.now,
+      ]
     );
 
     this.tracker.set(data.backward_compatibility, id);
@@ -133,7 +149,16 @@ export class SqlWriteStrategy implements IWriteStrategy {
     await this.db.execute(
       `INSERT INTO collection_translations (id, collection_id, language_id, context_id, title, description, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, data.collection_id, data.language_id, data.context_id, data.title, data.description, this.now, this.now]
+      [
+        id,
+        data.collection_id,
+        data.language_id,
+        data.context_id,
+        data.title,
+        data.description,
+        this.now,
+        this.now,
+      ]
     );
   }
 
@@ -307,7 +332,16 @@ export class SqlWriteStrategy implements IWriteStrategy {
       await this.db.execute(
         `INSERT INTO tags (id, internal_name, category, language_id, description, backward_compatibility, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, data.internal_name, data.category, data.language_id, data.description, data.backward_compatibility, this.now, this.now]
+        [
+          id,
+          data.internal_name,
+          data.category,
+          data.language_id,
+          data.description,
+          data.backward_compatibility,
+          this.now,
+          this.now,
+        ]
       );
       this.tracker.set(data.backward_compatibility, id);
       return id;
@@ -320,7 +354,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
       }
       // If we can't find it after the error, re-throw with context
       const message = error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to create or find tag: ${data.backward_compatibility}. Original error: ${message}`);
+      throw new Error(
+        `Failed to create or find tag: ${data.backward_compatibility}. Original error: ${message}`
+      );
     }
   }
 
@@ -337,13 +373,18 @@ export class SqlWriteStrategy implements IWriteStrategy {
     } catch (error) {
       // Duplicate entry - try to find existing record
       // This is expected when the same author is imported multiple times
-      const existing = await this.findByBackwardCompatibility('authors', data.backward_compatibility);
+      const existing = await this.findByBackwardCompatibility(
+        'authors',
+        data.backward_compatibility
+      );
       if (existing) {
         return existing;
       }
       // If we can't find it after the error, re-throw with context
       const message = error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to create or find author: ${data.backward_compatibility}. Original error: ${message}`);
+      throw new Error(
+        `Failed to create or find author: ${data.backward_compatibility}. Original error: ${message}`
+      );
     }
   }
 
@@ -372,13 +413,18 @@ export class SqlWriteStrategy implements IWriteStrategy {
     } catch (error) {
       // Duplicate entry - try to find existing record
       // This is expected when the same artist is imported multiple times
-      const existing = await this.findByBackwardCompatibility('artists', data.backward_compatibility);
+      const existing = await this.findByBackwardCompatibility(
+        'artists',
+        data.backward_compatibility
+      );
       if (existing) {
         return existing;
       }
       // If we can't find it after the error, re-throw with context
       const message = error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to create or find artist: ${data.backward_compatibility}. Original error: ${message}`);
+      throw new Error(
+        `Failed to create or find artist: ${data.backward_compatibility}. Original error: ${message}`
+      );
     }
   }
 
@@ -399,7 +445,10 @@ export class SqlWriteStrategy implements IWriteStrategy {
     return rows.length > 0;
   }
 
-  async findByBackwardCompatibility(table: string, backwardCompatibility: string): Promise<string | null> {
+  async findByBackwardCompatibility(
+    table: string,
+    backwardCompatibility: string
+  ): Promise<string | null> {
     // Check tracker first
     const cached = this.tracker.getUuid(backwardCompatibility);
     if (cached) {

@@ -38,9 +38,7 @@ export function transformCountry(legacy: LegacyCountry): TransformedCountry {
   });
 
   if (!legacy.name) {
-    throw new Error(
-      `Country ${legacy.code} has no name for internal_name`
-    );
+    throw new Error(`Country ${legacy.code} has no name for internal_name`);
   }
 
   const data: CountryData = {

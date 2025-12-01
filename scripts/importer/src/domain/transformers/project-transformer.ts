@@ -50,7 +50,10 @@ export interface TransformedProjectTranslationBundle {
 /**
  * Transform a legacy project to context + collection + project bundle
  */
-export function transformProject(legacy: LegacyProject, defaultLanguageId: string): TransformedProjectBundle {
+export function transformProject(
+  legacy: LegacyProject,
+  defaultLanguageId: string
+): TransformedProjectBundle {
   const baseBackwardCompat = formatBackwardCompatibility({
     schema: 'mwnf3',
     table: 'projects',
@@ -105,7 +108,9 @@ export function transformProjectTranslation(
 
   // Translation name is required - no fallback
   if (!legacy.name) {
-    throw new Error(`Project translation ${legacy.project_id}:${legacy.lang} missing required name field`);
+    throw new Error(
+      `Project translation ${legacy.project_id}:${legacy.lang} missing required name field`
+    );
   }
   const name = convertHtmlToMarkdown(legacy.name);
   const description = legacy.description ? convertHtmlToMarkdown(legacy.description) : null;

@@ -53,11 +53,7 @@ export class TagHelper {
   /**
    * Find or create a single tag
    */
-  async findOrCreate(
-    name: string,
-    category: string,
-    languageId: string
-  ): Promise<string | null> {
+  async findOrCreate(name: string, category: string, languageId: string): Promise<string | null> {
     const normalized = name.toLowerCase();
     const backwardCompat = formatBackwardCompatibility({
       schema: 'mwnf3',

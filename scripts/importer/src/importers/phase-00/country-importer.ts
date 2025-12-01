@@ -56,7 +56,11 @@ export class CountryImporter extends BaseImporter {
           }
 
           // Collect sample for foundation data
-          this.collectSample('country', country as unknown as Record<string, unknown>, 'foundation');
+          this.collectSample(
+            'country',
+            country as unknown as Record<string, unknown>,
+            'foundation'
+          );
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
@@ -155,7 +159,11 @@ export class CountryTranslationImporter extends BaseImporter {
           // Transform and write country translation
           // The transformer will map legacy 2-char code to ISO 3-char code
           // If the country doesn't exist, the database foreign key will reject it (handled in catch block)
-          const transformed = transformCountryTranslation({ code: legacy.country, lang: legacy.lang, name: legacy.name });
+          const transformed = transformCountryTranslation({
+            code: legacy.country,
+            lang: legacy.lang,
+            name: legacy.name,
+          });
           await this.context.strategy.writeCountryTranslation(transformed.data);
 
           result.imported++;

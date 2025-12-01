@@ -57,18 +57,28 @@ export class ProjectImporter extends BaseImporter {
           }
 
           // Collect sample
-          this.collectSample(
-            'project',
-            legacy as unknown as Record<string, unknown>,
-            'success'
-          );
+          this.collectSample('project', legacy as unknown as Record<string, unknown>, 'success');
 
           if (this.isDryRun || this.isSampleOnlyMode) {
-            this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import project: ${legacy.project_id}`);
+            this.logInfo(
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import project: ${legacy.project_id}`
+            );
             // Register for tracking even in dry-run
-            this.registerEntity('sample-context-' + legacy.project_id, transformed.context.backwardCompatibility, 'context');
-            this.registerEntity('sample-collection-' + legacy.project_id, transformed.collection.backwardCompatibility, 'collection');
-            this.registerEntity('sample-project-' + legacy.project_id, transformed.project.backwardCompatibility, 'project');
+            this.registerEntity(
+              'sample-context-' + legacy.project_id,
+              transformed.context.backwardCompatibility,
+              'context'
+            );
+            this.registerEntity(
+              'sample-collection-' + legacy.project_id,
+              transformed.collection.backwardCompatibility,
+              'collection'
+            );
+            this.registerEntity(
+              'sample-project-' + legacy.project_id,
+              transformed.project.backwardCompatibility,
+              'project'
+            );
             result.imported++;
             this.showProgress();
             continue;
@@ -84,7 +94,11 @@ export class ProjectImporter extends BaseImporter {
             context_id: contextId,
           };
           const collectionId = await this.context.strategy.writeCollection(collectionData);
-          this.registerEntity(collectionId, transformed.collection.backwardCompatibility, 'collection');
+          this.registerEntity(
+            collectionId,
+            transformed.collection.backwardCompatibility,
+            'collection'
+          );
 
           // 3. Create Project (linked to context)
           const projectData = {
@@ -121,7 +135,9 @@ export class ProjectImporter extends BaseImporter {
               });
             } catch (error) {
               const message = error instanceof Error ? error.message : String(error);
-              this.logWarning(`Failed to create translation for ${legacy.project_id}:${legacyTranslation.lang}: ${message}`);
+              this.logWarning(
+                `Failed to create translation for ${legacy.project_id}:${legacyTranslation.lang}: ${message}`
+              );
             }
           }
 

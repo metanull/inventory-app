@@ -47,7 +47,9 @@ export class DefaultContextImporter extends BaseImporter {
       }
 
       if (this.isDryRun || this.isSampleOnlyMode) {
-        this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create default context`);
+        this.logInfo(
+          `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create default context`
+        );
         const sampleContextId = 'sample-default-context';
         this.registerEntity(sampleContextId, DEFAULT_CONTEXT_BACKWARD_COMPAT, 'context');
         this.context.tracker.setMetadata('default_context_id', sampleContextId);

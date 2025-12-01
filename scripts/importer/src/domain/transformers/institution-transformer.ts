@@ -52,7 +52,9 @@ export function transformInstitution(legacy: LegacyInstitution): TransformedInst
 
   // internal_name must always be converted from legacy.name - no fallback
   if (!legacy.name) {
-    throw new Error(`Institution ${legacy.institution_id}:${legacy.country} missing required name field`);
+    throw new Error(
+      `Institution ${legacy.institution_id}:${legacy.country} missing required name field`
+    );
   }
   const internalName = convertHtmlToMarkdown(legacy.name);
 

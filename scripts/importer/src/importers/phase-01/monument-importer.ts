@@ -50,7 +50,9 @@ export class MonumentImporter extends BaseImporter {
 
       // Group monuments by non-lang PK columns
       const monumentGroups = groupMonumentsByPK(monuments);
-      this.logInfo(`Found ${monumentGroups.length} unique monuments (${monuments.length} language rows)`);
+      this.logInfo(
+        `Found ${monumentGroups.length} unique monuments (${monuments.length} language rows)`
+      );
 
       // Check if EPM context exists
       const epmContextBackwardCompat = formatBackwardCompatibility({
@@ -137,14 +139,18 @@ export class MonumentImporter extends BaseImporter {
     });
     const contextId = this.getEntityUuid(contextBackwardCompat);
     if (!contextId) {
-      throw new Error(`Project context not found: ${contextBackwardCompat}. Monument ${transformed.backwardCompatibility} cannot be imported without its project.`);
+      throw new Error(
+        `Project context not found: ${contextBackwardCompat}. Monument ${transformed.backwardCompatibility} cannot be imported without its project.`
+      );
     }
 
     // Use same backward_compatibility as context - tracker composite key handles uniqueness
     const collectionBackwardCompat = contextBackwardCompat;
     const collectionId = this.getEntityUuid(collectionBackwardCompat);
     if (!collectionId) {
-      throw new Error(`Collection not found: ${collectionBackwardCompat}. Monument ${transformed.backwardCompatibility} cannot be imported without its collection.`);
+      throw new Error(
+        `Collection not found: ${collectionBackwardCompat}. Monument ${transformed.backwardCompatibility} cannot be imported without its collection.`
+      );
     }
 
     const partnerBackwardCompat = formatBackwardCompatibility({
@@ -154,7 +160,9 @@ export class MonumentImporter extends BaseImporter {
     });
     const partnerId = this.getEntityUuid(partnerBackwardCompat);
     if (!partnerId) {
-      throw new Error(`Institution partner not found: ${partnerBackwardCompat}. Monument ${transformed.backwardCompatibility} cannot be imported without its institution.`);
+      throw new Error(
+        `Institution partner not found: ${partnerBackwardCompat}. Monument ${transformed.backwardCompatibility} cannot be imported without its institution.`
+      );
     }
 
     // Use same backward_compatibility as context
@@ -226,7 +234,11 @@ export class MonumentImporter extends BaseImporter {
 
       if (extractedTags.keywords.length > 0) {
         for (const keyword of extractedTags.keywords) {
-          const tagId = await this.tagHelper.findOrCreate(keyword, 'keyword', extractedTags.languageId);
+          const tagId = await this.tagHelper.findOrCreate(
+            keyword,
+            'keyword',
+            extractedTags.languageId
+          );
           if (tagId) tagIds.push(tagId);
         }
       }

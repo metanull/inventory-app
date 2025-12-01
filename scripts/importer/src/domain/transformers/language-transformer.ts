@@ -38,9 +38,7 @@ export function transformLanguage(legacy: LegacyLanguage): TransformedLanguage {
   });
 
   if (!legacy.name) {
-    throw new Error(
-      `Language ${legacy.code} has no name for internal_name`
-    );
+    throw new Error(`Language ${legacy.code} has no name for internal_name`);
   }
 
   const data: LanguageData = {

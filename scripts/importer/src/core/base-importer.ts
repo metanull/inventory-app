@@ -162,7 +162,9 @@ export abstract class BaseImporter {
   protected getDefaultContextId(): string {
     const defaultContextId = this.context.tracker.getMetadata('default_context_id');
     if (!defaultContextId) {
-      throw new Error('Default context ID not found in tracker. Default context import must run first.');
+      throw new Error(
+        'Default context ID not found in tracker. Default context import must run first.'
+      );
     }
     return defaultContextId;
   }
@@ -246,7 +248,14 @@ export abstract class BaseImporter {
     sourceDb?: string
   ): void {
     if (this.context.sampleCollector) {
-      this.context.sampleCollector.collectSample(entityType, data, reason, details, language, sourceDb);
+      this.context.sampleCollector.collectSample(
+        entityType,
+        data,
+        reason,
+        details,
+        language,
+        sourceDb
+      );
     }
   }
 

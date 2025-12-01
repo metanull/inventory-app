@@ -6,7 +6,10 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CountryImporter, CountryTranslationImporter } from '../../src/importers/phase-00/country-importer.js';
+import {
+  CountryImporter,
+  CountryTranslationImporter,
+} from '../../src/importers/phase-00/country-importer.js';
 import { UnifiedTracker } from '../../src/core/tracker.js';
 import type { ImportContext, ILegacyDatabase } from '../../src/core/base-importer.js';
 import type { IWriteStrategy } from '../../src/core/strategy.js';

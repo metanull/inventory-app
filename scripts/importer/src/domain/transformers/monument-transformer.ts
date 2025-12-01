@@ -25,7 +25,15 @@ export interface TransformedMonument {
  * Transformed monument translation result
  */
 export interface TransformedMonumentTranslation {
-  data: Omit<ItemTranslationData, 'item_id' | 'context_id' | 'author_id' | 'text_copy_editor_id' | 'translator_id' | 'translation_copy_editor_id'>;
+  data: Omit<
+    ItemTranslationData,
+    | 'item_id'
+    | 'context_id'
+    | 'author_id'
+    | 'text_copy_editor_id'
+    | 'translator_id'
+    | 'translation_copy_editor_id'
+  >;
   authorName: string | null;
   textCopyEditorName: string | null;
   translatorName: string | null;
@@ -85,7 +93,9 @@ export function transformMonument(group: MonumentGroup): TransformedMonument {
 
   // internal_name must always be converted from firstTranslation.name - no fallback
   if (!firstTranslation.name) {
-    throw new Error(`Monument ${group.project_id}:${group.country}:${group.institution_id}:${group.number} missing required name field`);
+    throw new Error(
+      `Monument ${group.project_id}:${group.country}:${group.institution_id}:${group.number} missing required name field`
+    );
   }
   const internalName = convertHtmlToMarkdown(firstTranslation.name);
 
@@ -117,7 +127,8 @@ export function transformMonumentTranslation(
   const monumentKey = `${monument.project_id}:${monument.institution_id}:${monument.number}`;
 
   // Determine which description to use
-  const sourceDescription = descriptionField === 'description2' ? monument.description2 : monument.description;
+  const sourceDescription =
+    descriptionField === 'description2' ? monument.description2 : monument.description;
 
   // Skip if description is empty
   if (!sourceDescription || !sourceDescription.trim()) {
@@ -134,27 +145,41 @@ export function transformMonumentTranslation(
   // Convert HTML to Markdown
   const nameMarkdown = convertHtmlToMarkdown(name);
   const descriptionMarkdown = convertHtmlToMarkdown(sourceDescription);
-  const bibliographyMarkdown = monument.bibliography ? convertHtmlToMarkdown(monument.bibliography) : null;
+  const bibliographyMarkdown = monument.bibliography
+    ? convertHtmlToMarkdown(monument.bibliography)
+    : null;
 
   // Handle alternate_name with truncation
   let alternateNameMarkdown = monument.name2 ? convertHtmlToMarkdown(monument.name2) : null;
   if (alternateNameMarkdown && alternateNameMarkdown.length > 255) {
-    warnings.push(`${monumentKey}:${monument.lang} - alternate_name truncated (${alternateNameMarkdown.length} → 255 chars)`);
+    warnings.push(
+      `${monumentKey}:${monument.lang} - alternate_name truncated (${alternateNameMarkdown.length} → 255 chars)`
+    );
     alternateNameMarkdown = alternateNameMarkdown.substring(0, 252) + '...';
   }
 
   // Handle type with truncation
   let typeMarkdown = monument.typeof ? convertHtmlToMarkdown(monument.typeof) : null;
   if (typeMarkdown && typeMarkdown.length > 255) {
-    warnings.push(`${monumentKey}:${monument.lang} - type truncated (${typeMarkdown.length} → 255 chars)`);
+    warnings.push(
+      `${monumentKey}:${monument.lang} - type truncated (${typeMarkdown.length} → 255 chars)`
+    );
     typeMarkdown = typeMarkdown.substring(0, 252) + '...';
   }
 
   // Convert other fields
-  const ownerMarkdown = monument.current_owner ? convertHtmlToMarkdown(monument.current_owner) : null;
-  const initialOwnerMarkdown = monument.original_owner ? convertHtmlToMarkdown(monument.original_owner) : null;
-  const datesMarkdown = monument.date_description ? convertHtmlToMarkdown(monument.date_description) : null;
-  const methodForDatationMarkdown = monument.datationmethod ? convertHtmlToMarkdown(monument.datationmethod) : null;
+  const ownerMarkdown = monument.current_owner
+    ? convertHtmlToMarkdown(monument.current_owner)
+    : null;
+  const initialOwnerMarkdown = monument.original_owner
+    ? convertHtmlToMarkdown(monument.original_owner)
+    : null;
+  const datesMarkdown = monument.date_description
+    ? convertHtmlToMarkdown(monument.date_description)
+    : null;
+  const methodForDatationMarkdown = monument.datationmethod
+    ? convertHtmlToMarkdown(monument.datationmethod)
+    : null;
 
   // Convert location (composed from multiple fields)
   const locationParts = [monument.location, monument.province]
@@ -162,7 +187,15 @@ export function transformMonumentTranslation(
     .map((part) => convertHtmlToMarkdown(part));
   const locationMarkdown = locationParts.length > 0 ? locationParts.join(', ') : null;
 
-  const data: Omit<ItemTranslationData, 'item_id' | 'context_id' | 'author_id' | 'text_copy_editor_id' | 'translator_id' | 'translation_copy_editor_id'> = {
+  const data: Omit<
+    ItemTranslationData,
+    | 'item_id'
+    | 'context_id'
+    | 'author_id'
+    | 'text_copy_editor_id'
+    | 'translator_id'
+    | 'translation_copy_editor_id'
+  > = {
     language_id: languageId,
     name: nameMarkdown,
     description: descriptionMarkdown,
