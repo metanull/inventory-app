@@ -343,7 +343,7 @@ program
         const importerStart = Date.now();
 
         try {
-          const importer = new config.importerClass(importContext);
+          const importer = new config.importerClass(importContext, logger);
           const result = await importer.import();
           results.set(config.key, result);
 
