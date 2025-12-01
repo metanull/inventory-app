@@ -33,7 +33,7 @@ export interface ITracker {
    * Set a backward_compatibility to UUID mapping directly
    * Used for simple tracking scenarios
    */
-  set(backwardCompatibility: string, uuid: string): void;
+  set(backwardCompatibility: string, uuid: string, entityType: EntityType): void;
 
   /**
    * Get all entities of a specific type
@@ -98,19 +98,16 @@ export class UnifiedTracker implements ITracker {
     return this.entities.get(key)?.uuid ?? null;
   }
 
-  set(backwardCompatibility: string, uuid: string): void {
-    // Default to 'item' type for backward compatibility
-    const key = this.getKey(backwardCompatibility, 'item');
-    // If entity doesn't exist, create a minimal entry
+  set(backwardCompatibility: string, uuid: string, entityType: EntityType): void {
+    const key = this.getKey(backwardCompatibility, entityType);
     if (!this.entities.has(key)) {
       this.entities.set(key, {
         uuid,
         backwardCompatibility,
-        entityType: 'item', // Default type for simple set operations
+        entityType,
         createdAt: new Date(),
       });
     } else {
-      // Update existing entity's UUID
       const entity = this.entities.get(key)!;
       entity.uuid = uuid;
     }

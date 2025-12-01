@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { Connection, RowDataPacket } from 'mysql2/promise';
 import type { IWriteStrategy } from '../core/strategy.js';
 import type {
+  EntityType,
   LanguageData,
   LanguageTranslationData,
   CountryData,
@@ -27,6 +28,25 @@ import type {
   AuthorData,
   ArtistData,
 } from '../core/types.js';
+
+const tableEntityMap: Record<string, EntityType> = {
+  languages: 'language',
+  countries: 'country',
+  contexts: 'context',
+  collections: 'collection',
+  projects: 'project',
+  partners: 'partner',
+  items: 'item',
+  tags: 'tag',
+  authors: 'author',
+  artists: 'artist',
+  language_translations: 'language_translation',
+  country_translations: 'country_translation',
+};
+
+function mapTableToEntityType(table: string): EntityType | null {
+  return tableEntityMap[table] ?? null;
+}
 import type { ITracker } from '../core/tracker.js';
 
 export class SqlWriteStrategy implements IWriteStrategy {
@@ -60,7 +80,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       ]
     );
 
-    this.tracker.set(data.backward_compatibility, data.id);
+    this.tracker.set(data.backward_compatibility, data.id, 'language');
     return data.id;
   }
 
@@ -82,7 +102,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       [data.id, data.internal_name, data.backward_compatibility, this.now, this.now]
     );
 
-    this.tracker.set(data.backward_compatibility, data.id);
+    this.tracker.set(data.backward_compatibility, data.id, 'country');
     return data.id;
   }
 
@@ -114,7 +134,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       ]
     );
 
-    this.tracker.set(data.backward_compatibility, id);
+    this.tracker.set(data.backward_compatibility, id, 'context');
     return id;
   }
 
@@ -140,7 +160,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       ]
     );
 
-    this.tracker.set(data.backward_compatibility, id);
+    this.tracker.set(data.backward_compatibility, id, 'collection');
     return id;
   }
 
@@ -181,7 +201,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       ]
     );
 
-    this.tracker.set(data.backward_compatibility, id);
+    this.tracker.set(data.backward_compatibility, id, 'project');
     return id;
   }
 
@@ -202,7 +222,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       [id, data.type, data.internal_name, data.backward_compatibility, this.now, this.now]
     );
 
-    this.tracker.set(data.backward_compatibility, id);
+    this.tracker.set(data.backward_compatibility, id, 'partner');
     return id;
   }
 
@@ -254,7 +274,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       ]
     );
 
-    this.tracker.set(data.backward_compatibility, id);
+    this.tracker.set(data.backward_compatibility, id, 'item');
     return id;
   }
 
@@ -343,7 +363,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
           this.now,
         ]
       );
-      this.tracker.set(data.backward_compatibility, id);
+      this.tracker.set(data.backward_compatibility, id, 'tag');
       return id;
     } catch (error) {
       // Duplicate entry - try to find existing record
@@ -368,7 +388,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
          VALUES (?, ?, ?, ?, ?, ?)`,
         [id, data.name, data.internal_name, data.backward_compatibility, this.now, this.now]
       );
-      this.tracker.set(data.backward_compatibility, id);
+      this.tracker.set(data.backward_compatibility, id, 'author');
       return id;
     } catch (error) {
       // Duplicate entry - try to find existing record
@@ -408,7 +428,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
           this.now,
         ]
       );
-      this.tracker.set(data.backward_compatibility, id);
+      this.tracker.set(data.backward_compatibility, id, 'artist');
       return id;
     } catch (error) {
       // Duplicate entry - try to find existing record
@@ -433,8 +453,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
   // =========================================================================
 
   async exists(table: string, backwardCompatibility: string): Promise<boolean> {
-    // Check tracker first
-    if (this.tracker.exists(backwardCompatibility)) {
+    const entityType = mapTableToEntityType(table);
+    if (entityType && this.tracker.exists(backwardCompatibility, entityType)) {
       return true;
     }
 
@@ -449,8 +469,11 @@ export class SqlWriteStrategy implements IWriteStrategy {
     table: string,
     backwardCompatibility: string
   ): Promise<string | null> {
+    const entityType = mapTableToEntityType(table);
     // Check tracker first
-    const cached = this.tracker.getUuid(backwardCompatibility);
+    const cached = entityType
+      ? this.tracker.getUuid(backwardCompatibility, entityType)
+      : this.tracker.getUuid(backwardCompatibility);
     if (cached) {
       return cached;
     }
@@ -462,7 +485,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
     if (rows.length > 0 && rows[0]) {
       const id = rows[0].id as string;
-      this.tracker.set(backwardCompatibility, id);
+      if (entityType) {
+        this.tracker.set(backwardCompatibility, id, entityType);
+      }
       return id;
     }
 

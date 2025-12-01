@@ -21,14 +21,14 @@ describe('UnifiedTracker', () => {
         createdAt: new Date(),
       });
 
-      expect(tracker.exists('mwnf3:langs:en')).toBe(true);
-      expect(tracker.getUuid('mwnf3:langs:en')).toBe('test-uuid');
+      expect(tracker.exists('mwnf3:langs:en', 'language')).toBe(true);
+      expect(tracker.getUuid('mwnf3:langs:en', 'language')).toBe('test-uuid');
     });
   });
 
   describe('exists', () => {
     it('should return false for non-existent entity', () => {
-      expect(tracker.exists('mwnf3:langs:xx')).toBe(false);
+      expect(tracker.exists('mwnf3:langs:xx', 'language')).toBe(false);
     });
 
     it('should return true for registered entity', () => {
@@ -39,13 +39,13 @@ describe('UnifiedTracker', () => {
         createdAt: new Date(),
       });
 
-      expect(tracker.exists('mwnf3:langs:en')).toBe(true);
+      expect(tracker.exists('mwnf3:langs:en', 'language')).toBe(true);
     });
   });
 
   describe('getUuid', () => {
     it('should return null for non-existent entity', () => {
-      expect(tracker.getUuid('mwnf3:langs:xx')).toBeNull();
+      expect(tracker.getUuid('mwnf3:langs:xx', 'language')).toBeNull();
     });
 
     it('should return uuid for registered entity', () => {
@@ -56,16 +56,16 @@ describe('UnifiedTracker', () => {
         createdAt: new Date(),
       });
 
-      expect(tracker.getUuid('mwnf3:langs:en')).toBe('test-uuid');
+      expect(tracker.getUuid('mwnf3:langs:en', 'language')).toBe('test-uuid');
     });
   });
 
   describe('set', () => {
     it('should create a new entry if not exists', () => {
-      tracker.set('mwnf3:langs:en', 'test-uuid');
+      tracker.set('mwnf3:langs:en', 'test-uuid', 'language');
 
-      expect(tracker.exists('mwnf3:langs:en')).toBe(true);
-      expect(tracker.getUuid('mwnf3:langs:en')).toBe('test-uuid');
+      expect(tracker.exists('mwnf3:langs:en', 'language')).toBe(true);
+      expect(tracker.getUuid('mwnf3:langs:en', 'language')).toBe('test-uuid');
     });
 
     it('should update existing entry uuid', () => {
@@ -76,9 +76,9 @@ describe('UnifiedTracker', () => {
         createdAt: new Date(),
       });
 
-      tracker.set('mwnf3:langs:en', 'new-uuid');
+      tracker.set('mwnf3:langs:en', 'new-uuid', 'language');
 
-      expect(tracker.getUuid('mwnf3:langs:en')).toBe('new-uuid');
+      expect(tracker.getUuid('mwnf3:langs:en', 'language')).toBe('new-uuid');
     });
   });
 
@@ -176,7 +176,7 @@ describe('UnifiedTracker', () => {
       tracker.clear();
 
       expect(tracker.getAll().length).toBe(0);
-      expect(tracker.exists('bc1')).toBe(false);
+      expect(tracker.exists('bc1', 'language')).toBe(false);
     });
   });
 

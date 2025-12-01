@@ -66,6 +66,7 @@ describe('transformObject', () => {
           number: '001',
           lang: 'en',
           inventory_id: 'INV001',
+          name: 'Egyptian Vase',
         },
       ],
     };
@@ -73,13 +74,13 @@ describe('transformObject', () => {
     const result = transformObject(group, 'eng');
 
     expect(result.data.type).toBe('object');
-    expect(result.data.internal_name).toBe('INV001');
+    expect(result.data.internal_name).toBe('Egyptian Vase');
     expect(result.data.owner_reference).toBe('INV001');
     expect(result.backwardCompatibility).toBe('mwnf3:objects:EPM:eg:cairo:001');
     expect(result.countryId).toBe('egy');
   });
 
-  it('should use number as fallback for internal_name', () => {
+  it('throws when translation missing name', () => {
     const group: ObjectGroup = {
       project_id: 'EPM',
       country: 'eg',
@@ -90,9 +91,9 @@ describe('transformObject', () => {
       ],
     };
 
-    const result = transformObject(group, 'eng');
-
-    expect(result.data.internal_name).toBe('001');
+    expect(() => transformObject(group, 'eng')).toThrow(
+      'Object mwnf3:objects:EPM:eg:cairo:001 missing required name field'
+    );
   });
 });
 
