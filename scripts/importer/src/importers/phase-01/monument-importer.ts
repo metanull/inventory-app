@@ -74,8 +74,9 @@ export class MonumentImporter extends BaseImporter {
           }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(`${group.project_id}:${group.institution_id}:${group.number}: ${message}`);
-          this.logError(`Monument ${group.project_id}:${group.institution_id}:${group.number}`, error);
+          const backwardCompat = `mwnf3:monuments:${group.project_id}:${group.country}:${group.institution_id}:${group.number}`;
+          result.errors.push(`${backwardCompat}: ${message}`);
+          this.logError(`Monument ${backwardCompat}`, error);
           this.showError();
         }
       }
@@ -140,7 +141,8 @@ export class MonumentImporter extends BaseImporter {
       return false;
     }
 
-    const collectionBackwardCompat = `${contextBackwardCompat}:collection`;
+    // Use same backward_compatibility as context - tracker composite key handles uniqueness
+    const collectionBackwardCompat = contextBackwardCompat;
     const collectionId = this.getEntityUuid(collectionBackwardCompat);
     if (!collectionId) {
       this.logWarning(`Skipping monument ${group.project_id}:${group.institution_id}:${group.number} - collection not found`);
@@ -158,7 +160,8 @@ export class MonumentImporter extends BaseImporter {
       return false;
     }
 
-    const projectBackwardCompat = `${contextBackwardCompat}:project`;
+    // Use same backward_compatibility as context
+    const projectBackwardCompat = contextBackwardCompat;
     const projectId = this.getEntityUuid(projectBackwardCompat);
 
     // Create Item

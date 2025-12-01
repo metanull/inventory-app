@@ -69,7 +69,8 @@ export function transformProject(legacy: LegacyProject, defaultLanguageId: strin
   };
 
   // Collection (root collection for project) - internal_name derived from required legacy.project_id
-  const collectionBackwardCompat = `${baseBackwardCompat}:collection`;
+  // Use same backward_compatibility as context - tracker composite key (entityType:backwardCompat) handles uniqueness
+  const collectionBackwardCompat = baseBackwardCompat;
   const collectionData: Omit<CollectionData, 'context_id'> = {
     internal_name: `${legacy.project_id}_collection`,
     backward_compatibility: collectionBackwardCompat,
@@ -77,8 +78,8 @@ export function transformProject(legacy: LegacyProject, defaultLanguageId: strin
     language_id: defaultLanguageId,
   };
 
-  // Project
-  const projectBackwardCompat = `${baseBackwardCompat}:project`;
+  // Project - use same backward_compatibility as context
+  const projectBackwardCompat = baseBackwardCompat;
   const projectData: Omit<ProjectData, 'context_id'> = {
     internal_name: legacy.project_id,
     backward_compatibility: projectBackwardCompat,
