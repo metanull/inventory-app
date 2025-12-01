@@ -24,7 +24,7 @@ import mysql from 'mysql2/promise';
 
 import { UnifiedTracker } from '../core/tracker.js';
 import { SqlWriteStrategy } from '../strategies/sql-strategy.js';
-import type { ImportContext, ILegacyDatabase } from '../core/base-importer.js';
+import type { ImportContext, ILegacyDatabase, ILogger } from '../core/base-importer.js';
 import type { ImportResult } from '../core/types.js';
 import { FileLogger, type PhaseSummary } from '../core/file-logger.js';
 
@@ -48,7 +48,10 @@ interface ImporterConfig {
   key: string;
   name: string;
   description: string;
-  importerClass: new (context: ImportContext) => { import(): Promise<ImportResult>; getName(): string };
+  importerClass: new (
+    context: ImportContext,
+    logger?: ILogger
+  ) => { import(): Promise<ImportResult>; getName(): string };
   dependencies?: string[];
 }
 
@@ -240,7 +243,9 @@ program
       if (listImporters) {
         console.log(chalk.bold('\nAvailable Importers:\n'));
         ALL_IMPORTERS.forEach((imp, idx) => {
-          console.log(`  ${(idx + 1).toString().padStart(2)}. ${imp.key.padEnd(22)} - ${imp.description}`);
+          console.log(
+            `  ${(idx + 1).toString().padStart(2)}. ${imp.key.padEnd(22)} - ${imp.description}`
+          );
         });
         console.log('\nUsage examples:');
         console.log('  npm run import                          # Run all importers');
@@ -262,7 +267,9 @@ program
       if (only) console.log(chalk.gray(`Only: ${only}`));
       console.log('');
 
-      logger.info(`Import started with options: dryRun=${dryRun}, startAt=${startAt || 'none'}, stopAt=${stopAt || 'none'}, only=${only || 'none'}`);
+      logger.info(
+        `Import started with options: dryRun=${dryRun}, startAt=${startAt || 'none'}, stopAt=${stopAt || 'none'}, only=${only || 'none'}`
+      );
 
       // Connect to databases
       console.log(chalk.cyan('Connecting to databases...'));
@@ -298,7 +305,15 @@ program
 
       // Helper to determine phase
       const getPhase = (key: string): string => {
-        if (['default-context', 'language', 'language-translation', 'country', 'country-translation'].includes(key)) {
+        if (
+          [
+            'default-context',
+            'language',
+            'language-translation',
+            'country',
+            'country-translation',
+          ].includes(key)
+        ) {
           return 'Phase 0: Reference Data';
         } else if (['project', 'partner'].includes(key)) {
           return 'Phase 1: Projects and Partners';
@@ -343,7 +358,7 @@ program
         const importerStart = Date.now();
 
         try {
-          const importer = new config.importerClass(importContext);
+          const importer = new config.importerClass(importContext, logger);
           const result = await importer.import();
           results.set(config.key, result);
 
@@ -352,7 +367,13 @@ program
           phaseSkipped += result.skipped;
           phaseErrors += result.errors.length;
 
-          logger.logImporterComplete(config.name, result.imported, result.skipped, result.errors.length, importerDuration);
+          logger.logImporterComplete(
+            config.name,
+            result.imported,
+            result.skipped,
+            result.errors.length,
+            importerDuration
+          );
 
           if (result.errors.length > 0) {
             // Log errors to file

@@ -31,7 +31,14 @@ describe('groupObjectsByPK', () => {
 
   it('should preserve object data in groups', () => {
     const objects: LegacyObject[] = [
-      { project_id: 'EPM', country: 'eg', museum_id: 'cairo', number: '001', lang: 'en', name: 'Test' },
+      {
+        project_id: 'EPM',
+        country: 'eg',
+        museum_id: 'cairo',
+        number: '001',
+        lang: 'en',
+        name: 'Test',
+      },
     ];
 
     const groups = groupObjectsByPK(objects);
@@ -52,20 +59,28 @@ describe('transformObject', () => {
       museum_id: 'cairo',
       number: '001',
       translations: [
-        { project_id: 'EPM', country: 'eg', museum_id: 'cairo', number: '001', lang: 'en', inventory_id: 'INV001' },
+        {
+          project_id: 'EPM',
+          country: 'eg',
+          museum_id: 'cairo',
+          number: '001',
+          lang: 'en',
+          inventory_id: 'INV001',
+          name: 'Egyptian Vase',
+        },
       ],
     };
 
-    const result = transformObject(group);
+    const result = transformObject(group, 'eng');
 
     expect(result.data.type).toBe('object');
-    expect(result.data.internal_name).toBe('INV001');
+    expect(result.data.internal_name).toBe('Egyptian Vase');
     expect(result.data.owner_reference).toBe('INV001');
     expect(result.backwardCompatibility).toBe('mwnf3:objects:EPM:eg:cairo:001');
     expect(result.countryId).toBe('egy');
   });
 
-  it('should use number as fallback for internal_name', () => {
+  it('throws when translation missing name', () => {
     const group: ObjectGroup = {
       project_id: 'EPM',
       country: 'eg',
@@ -76,9 +91,9 @@ describe('transformObject', () => {
       ],
     };
 
-    const result = transformObject(group);
-
-    expect(result.data.internal_name).toBe('001');
+    expect(() => transformObject(group, 'eng')).toThrow(
+      'Object mwnf3:objects:EPM:eg:cairo:001 missing required name field'
+    );
   });
 });
 
@@ -277,7 +292,14 @@ describe('planTranslations', () => {
       museum_id: 'cairo',
       number: '001',
       translations: [
-        { project_id: 'EPM', country: 'eg', museum_id: 'cairo', number: '001', lang: 'en', description2: 'EPM content' },
+        {
+          project_id: 'EPM',
+          country: 'eg',
+          museum_id: 'cairo',
+          number: '001',
+          lang: 'en',
+          description2: 'EPM content',
+        },
       ],
     };
 

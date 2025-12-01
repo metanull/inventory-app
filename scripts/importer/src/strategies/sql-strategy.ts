@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { Connection, RowDataPacket } from 'mysql2/promise';
 import type { IWriteStrategy } from '../core/strategy.js';
 import type {
+  EntityType,
   LanguageData,
   LanguageTranslationData,
   CountryData,
@@ -27,6 +28,25 @@ import type {
   AuthorData,
   ArtistData,
 } from '../core/types.js';
+
+const tableEntityMap: Record<string, EntityType> = {
+  languages: 'language',
+  countries: 'country',
+  contexts: 'context',
+  collections: 'collection',
+  projects: 'project',
+  partners: 'partner',
+  items: 'item',
+  tags: 'tag',
+  authors: 'author',
+  artists: 'artist',
+  language_translations: 'language_translation',
+  country_translations: 'country_translation',
+};
+
+function mapTableToEntityType(table: string): EntityType | null {
+  return tableEntityMap[table] ?? null;
+}
 import type { ITracker } from '../core/tracker.js';
 
 export class SqlWriteStrategy implements IWriteStrategy {
@@ -60,16 +80,16 @@ export class SqlWriteStrategy implements IWriteStrategy {
       ]
     );
 
-    this.tracker.set(data.backward_compatibility, data.id);
+    this.tracker.set(data.backward_compatibility, data.id, 'language');
     return data.id;
   }
 
   async writeLanguageTranslation(data: LanguageTranslationData): Promise<void> {
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO language_translations (id, language_id, target_language_id, name, created_at, updated_at)
+      `INSERT INTO language_translations (id, language_id, display_language_id, name, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [id, data.language_id, data.target_language_id, data.name, this.now, this.now]
+      [id, data.language_id, data.display_language_id, data.name, this.now, this.now]
     );
   }
 
@@ -82,7 +102,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       [data.id, data.internal_name, data.backward_compatibility, this.now, this.now]
     );
 
-    this.tracker.set(data.backward_compatibility, data.id);
+    this.tracker.set(data.backward_compatibility, data.id, 'country');
     return data.id;
   }
 
@@ -104,10 +124,17 @@ export class SqlWriteStrategy implements IWriteStrategy {
     await this.db.execute(
       `INSERT INTO contexts (id, internal_name, is_default, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [id, data.internal_name, data.is_default ? 1 : 0, data.backward_compatibility, this.now, this.now]
+      [
+        id,
+        data.internal_name,
+        data.is_default ? 1 : 0,
+        data.backward_compatibility,
+        this.now,
+        this.now,
+      ]
     );
 
-    this.tracker.set(data.backward_compatibility, id);
+    this.tracker.set(data.backward_compatibility, id, 'context');
     return id;
   }
 
@@ -121,10 +148,19 @@ export class SqlWriteStrategy implements IWriteStrategy {
     await this.db.execute(
       `INSERT INTO collections (id, context_id, language_id, parent_id, internal_name, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, data.context_id, data.language_id, data.parent_id, data.internal_name, data.backward_compatibility, this.now, this.now]
+      [
+        id,
+        data.context_id,
+        data.language_id,
+        data.parent_id,
+        data.internal_name,
+        data.backward_compatibility,
+        this.now,
+        this.now,
+      ]
     );
 
-    this.tracker.set(data.backward_compatibility, id);
+    this.tracker.set(data.backward_compatibility, id, 'collection');
     return id;
   }
 
@@ -133,7 +169,16 @@ export class SqlWriteStrategy implements IWriteStrategy {
     await this.db.execute(
       `INSERT INTO collection_translations (id, collection_id, language_id, context_id, title, description, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, data.collection_id, data.language_id, data.context_id, data.title, data.description, this.now, this.now]
+      [
+        id,
+        data.collection_id,
+        data.language_id,
+        data.context_id,
+        data.title,
+        data.description,
+        this.now,
+        this.now,
+      ]
     );
   }
 
@@ -156,7 +201,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       ]
     );
 
-    this.tracker.set(data.backward_compatibility, id);
+    this.tracker.set(data.backward_compatibility, id, 'project');
     return id;
   }
 
@@ -177,7 +222,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       [id, data.type, data.internal_name, data.backward_compatibility, this.now, this.now]
     );
 
-    this.tracker.set(data.backward_compatibility, id);
+    this.tracker.set(data.backward_compatibility, id, 'partner');
     return id;
   }
 
@@ -229,7 +274,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       ]
     );
 
-    this.tracker.set(data.backward_compatibility, id);
+    this.tracker.set(data.backward_compatibility, id, 'item');
     return id;
   }
 
@@ -307,9 +352,18 @@ export class SqlWriteStrategy implements IWriteStrategy {
       await this.db.execute(
         `INSERT INTO tags (id, internal_name, category, language_id, description, backward_compatibility, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, data.internal_name, data.category, data.language_id, data.description, data.backward_compatibility, this.now, this.now]
+        [
+          id,
+          data.internal_name,
+          data.category,
+          data.language_id,
+          data.description,
+          data.backward_compatibility,
+          this.now,
+          this.now,
+        ]
       );
-      this.tracker.set(data.backward_compatibility, id);
+      this.tracker.set(data.backward_compatibility, id, 'tag');
       return id;
     } catch (error) {
       // Duplicate entry - try to find existing record
@@ -320,7 +374,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
       }
       // If we can't find it after the error, re-throw with context
       const message = error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to create or find tag: ${data.backward_compatibility}. Original error: ${message}`);
+      throw new Error(
+        `Failed to create or find tag: ${data.backward_compatibility}. Original error: ${message}`
+      );
     }
   }
 
@@ -332,18 +388,23 @@ export class SqlWriteStrategy implements IWriteStrategy {
          VALUES (?, ?, ?, ?, ?, ?)`,
         [id, data.name, data.internal_name, data.backward_compatibility, this.now, this.now]
       );
-      this.tracker.set(data.backward_compatibility, id);
+      this.tracker.set(data.backward_compatibility, id, 'author');
       return id;
     } catch (error) {
       // Duplicate entry - try to find existing record
       // This is expected when the same author is imported multiple times
-      const existing = await this.findByBackwardCompatibility('authors', data.backward_compatibility);
+      const existing = await this.findByBackwardCompatibility(
+        'authors',
+        data.backward_compatibility
+      );
       if (existing) {
         return existing;
       }
       // If we can't find it after the error, re-throw with context
       const message = error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to create or find author: ${data.backward_compatibility}. Original error: ${message}`);
+      throw new Error(
+        `Failed to create or find author: ${data.backward_compatibility}. Original error: ${message}`
+      );
     }
   }
 
@@ -367,18 +428,23 @@ export class SqlWriteStrategy implements IWriteStrategy {
           this.now,
         ]
       );
-      this.tracker.set(data.backward_compatibility, id);
+      this.tracker.set(data.backward_compatibility, id, 'artist');
       return id;
     } catch (error) {
       // Duplicate entry - try to find existing record
       // This is expected when the same artist is imported multiple times
-      const existing = await this.findByBackwardCompatibility('artists', data.backward_compatibility);
+      const existing = await this.findByBackwardCompatibility(
+        'artists',
+        data.backward_compatibility
+      );
       if (existing) {
         return existing;
       }
       // If we can't find it after the error, re-throw with context
       const message = error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to create or find artist: ${data.backward_compatibility}. Original error: ${message}`);
+      throw new Error(
+        `Failed to create or find artist: ${data.backward_compatibility}. Original error: ${message}`
+      );
     }
   }
 
@@ -387,8 +453,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
   // =========================================================================
 
   async exists(table: string, backwardCompatibility: string): Promise<boolean> {
-    // Check tracker first
-    if (this.tracker.exists(backwardCompatibility)) {
+    const entityType = mapTableToEntityType(table);
+    if (entityType && this.tracker.exists(backwardCompatibility, entityType)) {
       return true;
     }
 
@@ -399,9 +465,15 @@ export class SqlWriteStrategy implements IWriteStrategy {
     return rows.length > 0;
   }
 
-  async findByBackwardCompatibility(table: string, backwardCompatibility: string): Promise<string | null> {
+  async findByBackwardCompatibility(
+    table: string,
+    backwardCompatibility: string
+  ): Promise<string | null> {
+    const entityType = mapTableToEntityType(table);
     // Check tracker first
-    const cached = this.tracker.getUuid(backwardCompatibility);
+    const cached = entityType
+      ? this.tracker.getUuid(backwardCompatibility, entityType)
+      : this.tracker.getUuid(backwardCompatibility);
     if (cached) {
       return cached;
     }
@@ -413,7 +485,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
     if (rows.length > 0 && rows[0]) {
       const id = rows[0].id as string;
-      this.tracker.set(backwardCompatibility, id);
+      if (entityType) {
+        this.tracker.set(backwardCompatibility, id, entityType);
+      }
       return id;
     }
 

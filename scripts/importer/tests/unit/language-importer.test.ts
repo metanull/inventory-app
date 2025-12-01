@@ -6,7 +6,10 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { LanguageImporter, LanguageTranslationImporter } from '../../src/importers/phase-00/language-importer.js';
+import {
+  LanguageImporter,
+  LanguageTranslationImporter,
+} from '../../src/importers/phase-00/language-importer.js';
 import { UnifiedTracker } from '../../src/core/tracker.js';
 import type { ImportContext, ILegacyDatabase } from '../../src/core/base-importer.js';
 import type { IWriteStrategy } from '../../src/core/strategy.js';
@@ -124,14 +127,14 @@ describe('LanguageImporter', () => {
     await importer.import();
 
     // Check that tracker has the languages registered
-    expect(tracker.exists('en')).toBe(true);
-    expect(tracker.exists('fr')).toBe(true);
-    expect(tracker.exists('ar')).toBe(true);
+    expect(tracker.exists('en', 'language')).toBe(true);
+    expect(tracker.exists('fr', 'language')).toBe(true);
+    expect(tracker.exists('ar', 'language')).toBe(true);
 
     // Check that the tracker returns correct UUIDs
-    expect(tracker.getUuid('en')).toBe('eng');
-    expect(tracker.getUuid('fr')).toBe('fra');
-    expect(tracker.getUuid('ar')).toBe('ara');
+    expect(tracker.getUuid('en', 'language')).toBe('eng');
+    expect(tracker.getUuid('fr', 'language')).toBe('fra');
+    expect(tracker.getUuid('ar', 'language')).toBe('ara');
   });
 
   it('should skip languages that already exist in tracker', async () => {
@@ -161,8 +164,8 @@ describe('LanguageImporter', () => {
     expect(mockStrategy.writeLanguage).not.toHaveBeenCalled();
 
     // But should still register in tracker
-    expect(tracker.exists('en')).toBe(true);
-    expect(tracker.exists('fr')).toBe(true);
+    expect(tracker.exists('en', 'language')).toBe(true);
+    expect(tracker.exists('fr', 'language')).toBe(true);
 
     // And report as imported
     expect(result.imported).toBe(3);
@@ -175,12 +178,15 @@ describe('LanguageTranslationImporter', () => {
   let mockStrategy: IWriteStrategy;
   let tracker: UnifiedTracker;
   let context: ImportContext;
+  let translationQueryMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
+    translationQueryMock = vi.fn();
+
     mockLegacyDb = {
-      query: vi.fn(),
+      query: translationQueryMock as ILegacyDatabase['query'],
       connect: vi.fn(),
       disconnect: vi.fn(),
     };
@@ -224,17 +230,16 @@ describe('LanguageTranslationImporter', () => {
     expect(importer.getName()).toBe('LanguageTranslationImporter');
   });
 
-  it('should be a no-op that returns success without querying database', async () => {
+  it('should query legacy database even if no translations exist', async () => {
+    translationQueryMock.mockResolvedValue([]);
     const importer = new LanguageTranslationImporter(context);
     const result = await importer.import();
 
-    // Should not query the legacy database
-    expect(mockLegacyDb.query).not.toHaveBeenCalled();
+    expect(translationQueryMock).toHaveBeenCalledWith(
+      'SELECT lang_id, lang, name FROM mwnf3.langnames ORDER BY lang_id, lang'
+    );
 
-    // Should not write anything
     expect(mockStrategy.writeLanguageTranslation).not.toHaveBeenCalled();
-
-    // Should return success with no imports
     expect(result.success).toBe(true);
     expect(result.imported).toBe(0);
     expect(result.skipped).toBe(0);

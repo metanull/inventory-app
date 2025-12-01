@@ -49,8 +49,8 @@ export class LanguageImporter extends BaseImporter {
           // Use backward_compatibility as the tracking key (consistent with legacy importer)
           const backwardCompat = language.backward_compatibility;
 
-          // Check if already exists in tracker
-          if (this.entityExists(backwardCompat)) {
+          // Check if already exists in tracker (pass entityType to avoid collisions with countries)
+          if (this.entityExists(backwardCompat, 'language')) {
             result.skipped++;
             this.showSkipped();
             continue;
@@ -86,6 +86,12 @@ export class LanguageImporter extends BaseImporter {
 
           this.registerEntity(language.id, backwardCompat, 'language');
 
+          // Track default language ID for use by other importers
+          if (language.is_default) {
+            this.context.tracker.setMetadata('default_language_id', language.id);
+            this.logInfo(`Tracked default language: ${language.id}`);
+          }
+
           result.imported++;
           this.showProgress();
         } catch (error) {
@@ -111,12 +117,8 @@ export class LanguageImporter extends BaseImporter {
 /**
  * Language Translation Importer
  *
- * Note: Language translations are not imported from JSON files.
- * The language names are already set in the languages.json file via internal_name.
- * This importer is kept as a no-op for compatibility with the import orchestration.
- *
- * If language translations from the legacy database are needed in the future,
- * they should be queried from mwnf3.langnames with proper mapping.
+ * Imports language translations from the legacy database.
+ * This must run after LanguageImporter has imported languages from JSON.
  */
 export class LanguageTranslationImporter extends BaseImporter {
   getName(): string {
@@ -126,11 +128,76 @@ export class LanguageTranslationImporter extends BaseImporter {
   async import(): Promise<ImportResult> {
     const result = this.createResult();
 
-    this.logInfo('Language translations are embedded in languages.json - skipping legacy import');
-    this.logInfo('Each language has its internal_name set from the production JSON file');
+    try {
+      this.logInfo('Importing language translations from legacy database...');
 
-    this.showSummary(result.imported, result.skipped, result.errors.length);
-    result.success = true;
+      // Import the transformer
+      const { transformLanguageTranslation } = await import('../../domain/transformers/index.js');
+
+      // Query language translations from legacy database
+      interface LegacyLanguageName {
+        lang_id: string;
+        lang: string;
+        name: string;
+      }
+      const languageNames = await this.context.legacyDb.query<LegacyLanguageName>(
+        'SELECT lang_id, lang, name FROM mwnf3.langnames ORDER BY lang_id, lang'
+      );
+
+      this.logInfo(`Found ${languageNames.length} language translations to import`);
+
+      for (const legacy of languageNames) {
+        try {
+          // Collect sample
+          this.collectSample(
+            'language_translation',
+            legacy as unknown as Record<string, unknown>,
+            'success'
+          );
+
+          if (this.isDryRun || this.isSampleOnlyMode) {
+            this.logInfo(
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import language translation: ${legacy.lang_id} (${legacy.lang})`
+            );
+            result.imported++;
+            this.showProgress();
+            continue;
+          }
+
+          // Transform and write language translation
+          // The transformer will map legacy 2-char code to ISO 3-char code
+          // If the language doesn't exist, the database foreign key will reject it (handled in catch block)
+          const transformed = transformLanguageTranslation({
+            code: legacy.lang_id,
+            lang: legacy.lang,
+            name: legacy.name,
+          });
+          await this.context.strategy.writeLanguageTranslation(transformed.data);
+
+          result.imported++;
+          this.showProgress();
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          // Skip this translation if language or display language doesn't exist (foreign key violation)
+          if (message.includes('foreign key constraint fails')) {
+            result.skipped++;
+            this.showSkipped();
+          } else {
+            result.errors.push(`${legacy.lang_id}:${legacy.lang}: ${message}`);
+            this.logError(`Language translation ${legacy.lang_id}:${legacy.lang}`, error);
+            this.showError();
+          }
+        }
+      }
+
+      this.showSummary(result.imported, result.skipped, result.errors.length);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      result.errors.push(`Failed to query language translations: ${message}`);
+      result.success = false;
+    }
+
+    result.success = result.errors.length === 0;
     return result;
   }
 }

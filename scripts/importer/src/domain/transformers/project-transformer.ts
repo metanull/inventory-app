@@ -49,53 +49,51 @@ export interface TransformedProjectTranslationBundle {
 
 /**
  * Transform a legacy project to context + collection + project bundle
+ * @param projectName The project name from the default language translation to use as internal_name
  */
-export function transformProject(legacy: LegacyProject): TransformedProjectBundle {
+export function transformProject(
+  legacy: LegacyProject,
+  defaultLanguageId: string,
+  projectName: string
+): TransformedProjectBundle {
   const baseBackwardCompat = formatBackwardCompatibility({
     schema: 'mwnf3',
     table: 'projects',
     pkValues: [legacy.project_id],
   });
 
-  // Context
+  // Context - internal_name uses project name (unaltered) from default language
+  if (!legacy.project_id) {
+    throw new Error('Project missing required project_id field');
+  }
+  if (!projectName) {
+    throw new Error(`Project ${legacy.project_id} missing project name for internal_name`);
+  }
   const contextBackwardCompat = baseBackwardCompat;
-  const internalName = legacy.name || legacy.project_id;
   const contextData: ContextData = {
-    internal_name: internalName,
+    internal_name: projectName,
     backward_compatibility: contextBackwardCompat,
     is_default: false,
   };
 
-  // Collection (root collection for project)
-  const collectionBackwardCompat = `${baseBackwardCompat}:collection`;
+  // Collection - internal_name uses project name (unaltered) from default language
+  // Use same backward_compatibility as context - tracker composite key (entityType:backwardCompat) handles uniqueness
+  const collectionBackwardCompat = baseBackwardCompat;
   const collectionData: Omit<CollectionData, 'context_id'> = {
-    internal_name: internalName,
+    internal_name: projectName,
     backward_compatibility: collectionBackwardCompat,
-    language_id: 'eng', // Default to English
     parent_id: null,
+    language_id: defaultLanguageId,
   };
 
-  // Validate launch_date: MySQL can return invalid dates like '0000-00-00 00:00:00'
-  let launchDate: string | null = null;
-  let isLaunched = false;
-  if (legacy.launchdate) {
-    const date = new Date(legacy.launchdate);
-    // Check if date is valid (not NaN and not invalid date like 0000-00-00)
-    if (!isNaN(date.getTime()) && date.getFullYear() > 1970) {
-      launchDate = date.toISOString().split('T')[0];
-      isLaunched = true;
-    }
-  }
-
-  // Project
-  const projectBackwardCompat = `${baseBackwardCompat}:project`;
+  // Project - internal_name uses project name (unaltered) from default language
+  const projectBackwardCompat = baseBackwardCompat;
   const projectData: Omit<ProjectData, 'context_id'> = {
-    internal_name: internalName,
+    internal_name: projectName,
     backward_compatibility: projectBackwardCompat,
-    language_id: 'eng', // Default language
-    launch_date: launchDate,
-    is_launched: isLaunched,
-    is_enabled: true,
+    language_id: defaultLanguageId,
+    launch_date: legacy.launchdate || null,
+    is_launched: legacy.active === 1 || legacy.active === true,
   };
 
   return {
@@ -113,8 +111,26 @@ export function transformProjectTranslation(
 ): TransformedProjectTranslationBundle {
   const languageId = mapLanguageCode(legacy.lang);
 
-  const name = legacy.name ? convertHtmlToMarkdown(legacy.name) : legacy.project_id;
-  const description = legacy.description ? convertHtmlToMarkdown(legacy.description) : null;
+  // Translation name and description are required - no fallback
+  if (!legacy.name) {
+    throw new Error(
+      `Project translation ${legacy.project_id}:${legacy.lang} missing required name field`
+    );
+  }
+  if (!legacy.description) {
+    throw new Error(
+      `Project translation ${legacy.project_id}:${legacy.lang} missing required description field`
+    );
+  }
+  const name = convertHtmlToMarkdown(legacy.name);
+  const description = convertHtmlToMarkdown(legacy.description);
+
+  // Collection translation uses same backward_compatibility as parent collection
+  const backwardCompatibility = formatBackwardCompatibility({
+    schema: 'mwnf3',
+    table: 'projects',
+    pkValues: [legacy.project_id],
+  });
 
   return {
     contextTranslation: {
@@ -124,6 +140,7 @@ export function transformProjectTranslation(
     },
     collectionTranslation: {
       language_id: languageId,
+      backward_compatibility: backwardCompatibility,
       title: name,
       description: description,
     },

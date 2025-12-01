@@ -65,7 +65,7 @@ export class ObjectImporter extends BaseImporter {
         table: 'projects',
         pkValues: ['EPM'],
       });
-      const epmContextId = this.getEntityUuid(epmContextBackwardCompat);
+      const epmContextId = this.getEntityUuid(epmContextBackwardCompat, 'context');
       const hasEpmContext = !!epmContextId;
 
       // Import each object group
@@ -81,8 +81,9 @@ export class ObjectImporter extends BaseImporter {
           }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(`${group.project_id}:${group.museum_id}:${group.number}: ${message}`);
-          this.logError(`Object ${group.project_id}:${group.museum_id}:${group.number}`, error);
+          const backwardCompat = `mwnf3:objects:${group.project_id}:${group.country}:${group.museum_id}:${group.number}`;
+          result.errors.push(`${backwardCompat}: ${message}`);
+          this.logError(`Object ${backwardCompat}`, error);
           this.showError();
         }
       }
@@ -104,10 +105,16 @@ export class ObjectImporter extends BaseImporter {
     epmContextId: string | null,
     result: ImportResult
   ): Promise<boolean> {
-    const transformed = transformObject(group);
+    const defaultLanguageId = this.getDefaultLanguageId();
+    const transformed = transformObject(group, defaultLanguageId);
+
+    // Log warning if translation in default language is missing
+    if (transformed.warning) {
+      this.logWarning(transformed.warning);
+    }
 
     // Check if already imported
-    if (this.entityExists(transformed.backwardCompatibility)) {
+    if (this.entityExists(transformed.backwardCompatibility, 'item')) {
       return false;
     }
 
@@ -141,17 +148,20 @@ export class ObjectImporter extends BaseImporter {
       table: 'projects',
       pkValues: [group.project_id],
     });
-    const contextId = this.getEntityUuid(contextBackwardCompat);
+    const contextId = this.getEntityUuid(contextBackwardCompat, 'context');
     if (!contextId) {
-      this.logWarning(`Skipping object ${group.project_id}:${group.museum_id}:${group.number} - project not found`);
-      return false;
+      throw new Error(
+        `Project context not found: ${contextBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its project.`
+      );
     }
 
-    const collectionBackwardCompat = `${contextBackwardCompat}:collection`;
-    const collectionId = this.getEntityUuid(collectionBackwardCompat);
+    // Use same backward_compatibility as context - tracker composite key handles uniqueness
+    const collectionBackwardCompat = contextBackwardCompat;
+    const collectionId = this.getEntityUuid(collectionBackwardCompat, 'collection');
     if (!collectionId) {
-      this.logWarning(`Skipping object ${group.project_id}:${group.museum_id}:${group.number} - collection not found`);
-      return false;
+      throw new Error(
+        `Collection not found: ${collectionBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its collection.`
+      );
     }
 
     const partnerBackwardCompat = formatBackwardCompatibility({
@@ -159,14 +169,16 @@ export class ObjectImporter extends BaseImporter {
       table: 'museums',
       pkValues: [group.museum_id, group.country],
     });
-    const partnerId = this.getEntityUuid(partnerBackwardCompat);
+    const partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
     if (!partnerId) {
-      this.logWarning(`Skipping object ${group.project_id}:${group.museum_id}:${group.number} - museum not found`);
-      return false;
+      throw new Error(
+        `Museum partner not found: ${partnerBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its museum.`
+      );
     }
 
-    const projectBackwardCompat = `${contextBackwardCompat}:project`;
-    const projectId = this.getEntityUuid(projectBackwardCompat);
+    // Use same backward_compatibility as context
+    const projectBackwardCompat = contextBackwardCompat;
+    const projectId = this.getEntityUuid(projectBackwardCompat, 'project');
 
     // Create Item
     const itemData = {
@@ -183,7 +195,10 @@ export class ObjectImporter extends BaseImporter {
     const translationPlans = planTranslations(group, hasEpmContext);
     for (const plan of translationPlans) {
       try {
-        const translationResult = transformObjectTranslation(plan.translation, plan.descriptionField);
+        const translationResult = transformObjectTranslation(
+          plan.translation,
+          plan.descriptionField
+        );
         if (!translationResult) continue;
 
         // Add any warnings to result
@@ -231,21 +246,33 @@ export class ObjectImporter extends BaseImporter {
 
       if (extractedTags.materials.length > 0) {
         for (const material of extractedTags.materials) {
-          const tagId = await this.tagHelper.findOrCreate(material, 'material', extractedTags.languageId);
+          const tagId = await this.tagHelper.findOrCreate(
+            material,
+            'material',
+            extractedTags.languageId
+          );
           if (tagId) tagIds.push(tagId);
         }
       }
 
       if (extractedTags.dynasties.length > 0) {
         for (const dynasty of extractedTags.dynasties) {
-          const tagId = await this.tagHelper.findOrCreate(dynasty, 'dynasty', extractedTags.languageId);
+          const tagId = await this.tagHelper.findOrCreate(
+            dynasty,
+            'dynasty',
+            extractedTags.languageId
+          );
           if (tagId) tagIds.push(tagId);
         }
       }
 
       if (extractedTags.keywords.length > 0) {
         for (const keyword of extractedTags.keywords) {
-          const tagId = await this.tagHelper.findOrCreate(keyword, 'keyword', extractedTags.languageId);
+          const tagId = await this.tagHelper.findOrCreate(
+            keyword,
+            'keyword',
+            extractedTags.languageId
+          );
           if (tagId) tagIds.push(tagId);
         }
       }

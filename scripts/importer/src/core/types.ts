@@ -85,7 +85,6 @@ export interface BaseEntityData {
 export interface LanguageData extends BaseEntityData {
   id: string; // ISO 639-3 code
   is_default?: boolean;
-  is_enabled?: boolean;
 }
 
 /**
@@ -93,7 +92,7 @@ export interface LanguageData extends BaseEntityData {
  */
 export interface LanguageTranslationData {
   language_id: string; // The language being translated
-  target_language_id: string; // The language of the translation
+  display_language_id: string; // The language of the translation
   name: string;
 }
 
@@ -102,8 +101,6 @@ export interface LanguageTranslationData {
  */
 export interface CountryData extends BaseEntityData {
   id: string; // ISO 3166-1 alpha-3 code
-  is_default?: boolean;
-  is_enabled?: boolean;
 }
 
 /**
@@ -148,6 +145,7 @@ export interface CollectionTranslationData {
   collection_id: string;
   language_id: string;
   context_id: string;
+  backward_compatibility: string;
   title: string;
   description?: string | null;
 }
@@ -179,6 +177,13 @@ export interface ProjectTranslationData {
  */
 export interface PartnerData extends BaseEntityData {
   type: 'museum' | 'institution';
+  latitude?: number | null;
+  longitude?: number | null;
+  map_zoom?: number | null;
+  country_id?: string | null;
+  project_id?: string | null;
+  monument_item_id?: string | null;
+  visible?: boolean | null;
 }
 
 /**
@@ -188,9 +193,11 @@ export interface PartnerTranslationData {
   partner_id: string;
   language_id: string;
   context_id: string;
+  backward_compatibility: string;
   name: string;
   description?: string | null;
   city_display?: string | null;
+  address?: string | null;
   contact_website?: string | null;
   contact_phone?: string | null;
   contact_email_general?: string | null;
@@ -217,6 +224,7 @@ export interface ItemTranslationData {
   item_id: string;
   language_id: string;
   context_id: string;
+  backward_compatibility: string;
   name: string;
   description: string;
   alternate_name?: string | null;

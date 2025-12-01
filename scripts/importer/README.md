@@ -36,6 +36,7 @@ interface ILegacyDatabase {
 ```
 
 **Important Notes:**
+
 - Queries must use actual legacy table names (e.g., `mwnf3.objects`, `mwnf3.museums`)
 - The legacy schema differs from the new schema - transformers handle mapping
 - Languages and countries are loaded from JSON files, NOT from the legacy database
@@ -82,6 +83,7 @@ src/
 ### 1. Single Source of Truth for Business Logic
 
 All transformation logic is in the `domain/transformers/` directory. These are **pure functions** that:
+
 - Take legacy data as input
 - Return transformed data ready for persistence
 - Have no side effects
@@ -90,6 +92,7 @@ All transformation logic is in the `domain/transformers/` directory. These are *
 ### 2. Strategy Pattern for Write Operations
 
 The `IWriteStrategy` interface abstracts how data is written:
+
 - `SqlWriteStrategy`: Direct SQL INSERT statements (fast)
 - `ApiWriteStrategy`: REST API calls (future, for validation)
 
@@ -98,6 +101,7 @@ Importers don't know which strategy is being used - they just call `strategy.wri
 ### 3. Unified Tracker
 
 The `ITracker` interface provides a consistent way to track imported entities:
+
 - Prevents duplicate imports
 - Resolves dependencies between entities
 - Works with both in-memory Map and persistent storage
@@ -105,6 +109,7 @@ The `ITracker` interface provides a consistent way to track imported entities:
 ### 4. DRY (Don't Repeat Yourself)
 
 Business logic is written once in transformers:
+
 - HTML to Markdown conversion
 - Field truncation and validation
 - EPM description2 handling
@@ -123,26 +128,26 @@ npm install
 
 ```bash
 # Run all importers
-npm run import
+npx tsx src/cli/import.ts import
 
 # Dry run (simulate without writing)
-npm run import -- --dry-run
+npx tsx src/cli/import.ts import --dry-run
 
 # Run specific importer only
-npm run import -- --only partner
+npx tsx src/cli/import.ts import --only partner
 
 # Run from a specific point
-npm run import -- --start-at project
+npx tsx src/cli/import.ts import --start-at project
 
 # List available importers
-npm run import -- --list-importers
+npx tsx src/cli/import.ts import --list-importers
 ```
 
 ### Validation
 
 ```bash
 # Validate database connections
-npm run import -- validate
+npx tsx src/cli/import.ts import validate
 ```
 
 ## Import Order
@@ -181,25 +186,25 @@ DB_DATABASE=inventory
 
 ### Required Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `LEGACY_DB_HOST` | Legacy database hostname | `localhost` |
-| `LEGACY_DB_PORT` | Legacy database port | `3306` |
-| `LEGACY_DB_USER` | Legacy database username | `root` |
-| `LEGACY_DB_PASSWORD` | Legacy database password | (empty) |
-| `LEGACY_DB_DATABASE` | Legacy database name | `mwnf3` |
-| `DB_HOST` | Target database hostname | `localhost` |
-| `DB_PORT` | Target database port | `3306` |
-| `DB_USERNAME` | Target database username | `root` |
-| `DB_PASSWORD` | Target database password | (empty) |
-| `DB_DATABASE` | Target database name | `inventory` |
+| Variable             | Description              | Default     |
+| -------------------- | ------------------------ | ----------- |
+| `LEGACY_DB_HOST`     | Legacy database hostname | `localhost` |
+| `LEGACY_DB_PORT`     | Legacy database port     | `3306`      |
+| `LEGACY_DB_USER`     | Legacy database username | `root`      |
+| `LEGACY_DB_PASSWORD` | Legacy database password | (empty)     |
+| `LEGACY_DB_DATABASE` | Legacy database name     | `mwnf3`     |
+| `DB_HOST`            | Target database hostname | `localhost` |
+| `DB_PORT`            | Target database port     | `3306`      |
+| `DB_USERNAME`        | Target database username | `root`      |
+| `DB_PASSWORD`        | Target database password | (empty)     |
+| `DB_DATABASE`        | Target database name     | `inventory` |
 
 ### Validating Database Connections
 
 Before running the import, validate your database connections:
 
 ```bash
-npm run import -- validate
+npx tsx src/cli/import.ts import validate
 ```
 
 This will test both legacy and target database connections and report any issues.
@@ -207,14 +212,18 @@ This will test both legacy and target database connections and report any issues
 ## Data Sources
 
 ### Reference Data (Languages & Countries)
+
 Languages and countries are **NOT** imported from the legacy database. Instead, they are loaded from production JSON files:
+
 - `database/seeders/data/languages.json` - ISO 639-3 language codes
 - `database/seeders/data/countries.json` - ISO 3166-1 alpha-3 country codes
 
 These files are the same sources used by Laravel seeders and the API importer.
 
 ### Legacy Database Data
+
 The following entities are imported from the legacy database (`mwnf3`):
+
 - **Projects**: `mwnf3.projects`, `mwnf3.projectnames`
 - **Museums**: `mwnf3.museums`, `mwnf3.museumnames`
 - **Institutions**: `mwnf3.institutions`, `mwnf3.institutionnames`

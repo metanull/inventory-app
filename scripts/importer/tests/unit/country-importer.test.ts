@@ -6,7 +6,10 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CountryImporter, CountryTranslationImporter } from '../../src/importers/phase-00/country-importer.js';
+import {
+  CountryImporter,
+  CountryTranslationImporter,
+} from '../../src/importers/phase-00/country-importer.js';
 import { UnifiedTracker } from '../../src/core/tracker.js';
 import type { ImportContext, ILegacyDatabase } from '../../src/core/base-importer.js';
 import type { IWriteStrategy } from '../../src/core/strategy.js';
@@ -122,14 +125,14 @@ describe('CountryImporter', () => {
     await importer.import();
 
     // Check that tracker has the countries registered
-    expect(tracker.exists('us')).toBe(true);
-    expect(tracker.exists('fr')).toBe(true);
-    expect(tracker.exists('eg')).toBe(true);
+    expect(tracker.exists('us', 'country')).toBe(true);
+    expect(tracker.exists('fr', 'country')).toBe(true);
+    expect(tracker.exists('eg', 'country')).toBe(true);
 
     // Check that the tracker returns correct UUIDs
-    expect(tracker.getUuid('us')).toBe('usa');
-    expect(tracker.getUuid('fr')).toBe('fra');
-    expect(tracker.getUuid('eg')).toBe('egy');
+    expect(tracker.getUuid('us', 'country')).toBe('usa');
+    expect(tracker.getUuid('fr', 'country')).toBe('fra');
+    expect(tracker.getUuid('eg', 'country')).toBe('egy');
   });
 
   it('should skip countries that already exist in tracker', async () => {
@@ -159,8 +162,8 @@ describe('CountryImporter', () => {
     expect(mockStrategy.writeCountry).not.toHaveBeenCalled();
 
     // But should still register in tracker
-    expect(tracker.exists('us')).toBe(true);
-    expect(tracker.exists('fr')).toBe(true);
+    expect(tracker.exists('us', 'country')).toBe(true);
+    expect(tracker.exists('fr', 'country')).toBe(true);
 
     // And report as imported
     expect(result.imported).toBe(3);
@@ -173,12 +176,15 @@ describe('CountryTranslationImporter', () => {
   let mockStrategy: IWriteStrategy;
   let tracker: UnifiedTracker;
   let context: ImportContext;
+  let translationQueryMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
+    translationQueryMock = vi.fn();
+
     mockLegacyDb = {
-      query: vi.fn(),
+      query: translationQueryMock as ILegacyDatabase['query'],
       connect: vi.fn(),
       disconnect: vi.fn(),
     };
@@ -222,17 +228,16 @@ describe('CountryTranslationImporter', () => {
     expect(importer.getName()).toBe('CountryTranslationImporter');
   });
 
-  it('should be a no-op that returns success without querying database', async () => {
+  it('should query legacy database even if no translations exist', async () => {
+    translationQueryMock.mockResolvedValue([]);
     const importer = new CountryTranslationImporter(context);
     const result = await importer.import();
 
-    // Should not query the legacy database
-    expect(mockLegacyDb.query).not.toHaveBeenCalled();
+    expect(translationQueryMock).toHaveBeenCalledWith(
+      'SELECT country, lang, name FROM mwnf3.countrynames ORDER BY country, lang'
+    );
 
-    // Should not write anything
     expect(mockStrategy.writeCountryTranslation).not.toHaveBeenCalled();
-
-    // Should return success with no imports
     expect(result.success).toBe(true);
     expect(result.imported).toBe(0);
     expect(result.skipped).toBe(0);

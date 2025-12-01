@@ -146,6 +146,30 @@ export abstract class BaseImporter {
   }
 
   /**
+   * Get the default language ID from tracker
+   */
+  protected getDefaultLanguageId(): string {
+    const defaultLangId = this.context.tracker.getMetadata('default_language_id');
+    if (!defaultLangId) {
+      throw new Error('Default language ID not found in tracker. Language import must run first.');
+    }
+    return defaultLangId;
+  }
+
+  /**
+   * Get the default context ID from tracker
+   */
+  protected getDefaultContextId(): string {
+    const defaultContextId = this.context.tracker.getMetadata('default_context_id');
+    if (!defaultContextId) {
+      throw new Error(
+        'Default context ID not found in tracker. Default context import must run first.'
+      );
+    }
+    return defaultContextId;
+  }
+
+  /**
    * Check if we're in dry-run mode
    */
   protected get isDryRun(): boolean {
@@ -224,7 +248,14 @@ export abstract class BaseImporter {
     sourceDb?: string
   ): void {
     if (this.context.sampleCollector) {
-      this.context.sampleCollector.collectSample(entityType, data, reason, details, language, sourceDb);
+      this.context.sampleCollector.collectSample(
+        entityType,
+        data,
+        reason,
+        details,
+        language,
+        sourceDb
+      );
     }
   }
 
@@ -245,16 +276,16 @@ export abstract class BaseImporter {
   }
 
   /**
-   * Check if entity already exists in tracker
+   * Check if entity already exists in tracker (entityType is required to avoid collisions)
    */
-  protected entityExists(backwardCompatibility: string): boolean {
-    return this.context.tracker.exists(backwardCompatibility);
+  protected entityExists(backwardCompatibility: string, entityType: EntityType): boolean {
+    return this.context.tracker.exists(backwardCompatibility, entityType);
   }
 
   /**
-   * Get UUID from tracker by backward_compatibility
+   * Get UUID from tracker by backward_compatibility (entityType is required to avoid collisions)
    */
-  protected getEntityUuid(backwardCompatibility: string): string | null {
-    return this.context.tracker.getUuid(backwardCompatibility);
+  protected getEntityUuid(backwardCompatibility: string, entityType: EntityType): string | null {
+    return this.context.tracker.getUuid(backwardCompatibility, entityType);
   }
 }
