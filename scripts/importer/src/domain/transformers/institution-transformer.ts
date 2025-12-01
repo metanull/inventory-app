@@ -50,7 +50,11 @@ export function transformInstitution(legacy: LegacyInstitution): TransformedInst
     pkValues: [legacy.institution_id, legacy.country],
   });
 
-  const internalName = legacy.name ? convertHtmlToMarkdown(legacy.name) : legacy.institution_id;
+  // internal_name must always be converted from legacy.name - no fallback
+  if (!legacy.name) {
+    throw new Error(`Institution ${legacy.institution_id}:${legacy.country} missing required name field`);
+  }
+  const internalName = convertHtmlToMarkdown(legacy.name);
 
   const data: PartnerData = {
     type: 'institution',
