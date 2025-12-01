@@ -103,12 +103,12 @@ describe('LanguageImporter', () => {
     await importer.import();
 
     // Check that writeLanguage was called with correct data
+    // Note: is_enabled is not passed because the languages table doesn't have that column
     expect(mockStrategy.writeLanguage).toHaveBeenCalledWith({
       id: 'eng',
       internal_name: 'English',
       backward_compatibility: 'en',
       is_default: true,
-      is_enabled: true,
     });
 
     expect(mockStrategy.writeLanguage).toHaveBeenCalledWith({
@@ -116,7 +116,6 @@ describe('LanguageImporter', () => {
       internal_name: 'Français',
       backward_compatibility: 'fr',
       is_default: false,
-      is_enabled: true,
     });
   });
 

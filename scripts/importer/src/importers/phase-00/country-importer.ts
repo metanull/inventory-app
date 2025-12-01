@@ -70,12 +70,12 @@ export class CountryImporter extends BaseImporter {
           }
 
           // Write country using strategy
+          // Note: Only pass fields that exist in the database table
+          // The countries table has: id, internal_name, backward_compatibility
           await this.context.strategy.writeCountry({
             id: country.id,
             internal_name: country.internal_name,
             backward_compatibility: backwardCompat,
-            is_default: false,
-            is_enabled: true,
           });
 
           this.registerEntity(country.id, backwardCompat, 'country');

@@ -45,15 +45,16 @@ export class SqlWriteStrategy implements IWriteStrategy {
   // =========================================================================
 
   async writeLanguage(data: LanguageData): Promise<string> {
+    // Note: Match the old importer which uses: id, internal_name, backward_compatibility, is_default
+    // The languages table does NOT have an is_enabled column
     await this.db.execute(
-      `INSERT INTO languages (id, internal_name, is_default, is_enabled, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO languages (id, internal_name, backward_compatibility, is_default, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [
         data.id,
         data.internal_name,
-        data.is_default ? 1 : 0,
-        data.is_enabled ? 1 : 0,
         data.backward_compatibility,
+        data.is_default ? 1 : 0,
         this.now,
         this.now,
       ]
@@ -73,18 +74,12 @@ export class SqlWriteStrategy implements IWriteStrategy {
   }
 
   async writeCountry(data: CountryData): Promise<string> {
+    // Note: Match the old importer which uses: id, internal_name, backward_compatibility
+    // The countries table does NOT have is_default or is_enabled columns
     await this.db.execute(
-      `INSERT INTO countries (id, internal_name, is_default, is_enabled, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [
-        data.id,
-        data.internal_name,
-        data.is_default ? 1 : 0,
-        data.is_enabled ? 1 : 0,
-        data.backward_compatibility,
-        this.now,
-        this.now,
-      ]
+      `INSERT INTO countries (id, internal_name, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      [data.id, data.internal_name, data.backward_compatibility, this.now, this.now]
     );
 
     this.tracker.set(data.backward_compatibility, data.id);
