@@ -105,12 +105,8 @@ export class CountryImporter extends BaseImporter {
 /**
  * Country Translation Importer
  *
- * Note: Country translations are not imported from JSON files.
- * The country names are already set in the countries.json file via internal_name.
- * This importer is kept as a no-op for compatibility with the import orchestration.
- *
- * If country translations from the legacy database are needed in the future,
- * they should be queried from mwnf3.countrynames with proper mapping.
+ * Imports country translations from the legacy database.
+ * This must run after CountryImporter has imported countries from JSON.
  */
 export class CountryTranslationImporter extends BaseImporter {
   getName(): string {
@@ -120,11 +116,73 @@ export class CountryTranslationImporter extends BaseImporter {
   async import(): Promise<ImportResult> {
     const result = this.createResult();
 
-    this.logInfo('Country translations are embedded in countries.json - skipping legacy import');
-    this.logInfo('Each country has its internal_name set from the production JSON file');
+    try {
+      this.logInfo('Importing country translations from legacy database...');
 
-    this.showSummary(result.imported, result.skipped, result.errors.length);
-    result.success = true;
+      // Import the transformer
+      const { transformCountryTranslation } = await import('../../domain/transformers/index.js');
+
+      // Query country translations from legacy database
+      interface LegacyCountryName {
+        code: string;
+        lang: string;
+        name: string;
+      }
+      const countryNames = await this.context.legacyDb.query<LegacyCountryName>(
+        'SELECT code, lang, name FROM mwnf3.countrynames ORDER BY code, lang'
+      );
+
+      this.logInfo(`Found ${countryNames.length} country translations to import`);
+
+      for (const legacy of countryNames) {
+        try {
+          // Check if country exists in tracker
+          const countryBackwardCompat = `mwnf3:countries:${legacy.code}`;
+          if (!this.entityExists(countryBackwardCompat)) {
+            this.logWarning(`Country ${legacy.code} not found, skipping translation for ${legacy.lang}`);
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
+          // Collect sample
+          this.collectSample(
+            'country_translation',
+            legacy as unknown as Record<string, unknown>,
+            'success'
+          );
+
+          if (this.isDryRun || this.isSampleOnlyMode) {
+            this.logInfo(
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import country translation: ${legacy.code} (${legacy.lang})`
+            );
+            result.imported++;
+            this.showProgress();
+            continue;
+          }
+
+          // Transform and write country translation
+          const transformed = transformCountryTranslation(legacy);
+          await this.context.strategy.writeCountryTranslation(transformed.data);
+
+          result.imported++;
+          this.showProgress();
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          result.errors.push(`${legacy.code}:${legacy.lang}: ${message}`);
+          this.logError(`Country translation ${legacy.code}:${legacy.lang}`, error);
+          this.showError();
+        }
+      }
+
+      this.showSummary(result.imported, result.skipped, result.errors.length);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      result.errors.push(`Failed to query country translations: ${message}`);
+      result.success = false;
+    }
+
+    result.success = result.errors.length === 0;
     return result;
   }
 }

@@ -42,7 +42,7 @@ export interface TransformedProjectBundle {
  */
 export interface TransformedProjectTranslationBundle {
   contextTranslation: Omit<ContextTranslationData, 'context_id'>;
-  collectionTranslation: Omit<CollectionTranslationData, 'collection_id'>;
+  collectionTranslation: Omit<CollectionTranslationData, 'collection_id' | 'context_id'>;
   projectTranslation: Omit<ProjectTranslationData, 'project_id' | 'context_id'>;
   languageId: string;
 }
@@ -79,8 +79,8 @@ export function transformProject(legacy: LegacyProject, defaultLanguageId: strin
   const projectData: Omit<ProjectData, 'context_id'> = {
     internal_name: legacy.project_id,
     backward_compatibility: projectBackwardCompat,
-    start_date: legacy.start_date || null,
-    end_date: legacy.end_date || null,
+    language_id: defaultLanguageId,
+    launch_date: legacy.launchdate || null,
     is_launched: legacy.active === 1 || legacy.active === true,
   };
 
@@ -110,7 +110,7 @@ export function transformProjectTranslation(
     },
     collectionTranslation: {
       language_id: languageId,
-      name: name,
+      title: name,
       description: description,
     },
     projectTranslation: {
