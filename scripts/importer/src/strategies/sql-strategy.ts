@@ -67,9 +67,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeLanguageTranslation(data: LanguageTranslationData): Promise<void> {
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO language_translations (id, language_id, target_language_id, name, created_at, updated_at)
+      `INSERT INTO language_translations (id, language_id, display_language_id, name, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [id, data.language_id, data.target_language_id, data.name, this.now, this.now]
+      [id, data.language_id, data.display_language_id, data.name, this.now, this.now]
     );
   }
 

@@ -48,8 +48,8 @@ export class CountryImporter extends BaseImporter {
           // Use backward_compatibility as the tracking key (consistent with legacy importer)
           const backwardCompat = country.backward_compatibility;
 
-          // Check if already exists in tracker
-          if (this.entityExists(backwardCompat)) {
+          // Check if already exists in tracker (pass entityType to avoid collisions with languages)
+          if (this.entityExists(backwardCompat, 'country')) {
             result.skipped++;
             this.showSkipped();
             continue;
@@ -140,9 +140,8 @@ export class CountryTranslationImporter extends BaseImporter {
           // Map legacy 2-char code to ISO 3-char code
           const iso3Code = mapCountryCode(legacy.country);
           
-          // Check if country exists in tracker using original 2-char code for backward compat
-          const countryBackwardCompat = `mwnf3:countries:${legacy.country}`;
-          if (!this.entityExists(countryBackwardCompat)) {
+          // Check if country exists in tracker (pass entityType to avoid collisions with languages)
+          if (!this.entityExists(legacy.country, 'country')) {
             this.logWarning(`Country ${legacy.country} (${iso3Code}) not found, skipping translation for ${legacy.lang}`);
             result.skipped++;
             this.showSkipped();

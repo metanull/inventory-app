@@ -92,7 +92,7 @@ export interface LanguageData extends BaseEntityData {
  */
 export interface LanguageTranslationData {
   language_id: string; // The language being translated
-  target_language_id: string; // The language of the translation
+  display_language_id: string; // The language of the translation
   name: string;
 }
 

@@ -24,7 +24,7 @@ import mysql from 'mysql2/promise';
 
 import { UnifiedTracker } from '../core/tracker.js';
 import { SqlWriteStrategy } from '../strategies/sql-strategy.js';
-import type { ImportContext, ILegacyDatabase } from '../core/base-importer.js';
+import type { ImportContext, ILegacyDatabase, ILogger } from '../core/base-importer.js';
 import type { ImportResult } from '../core/types.js';
 import { FileLogger, type PhaseSummary } from '../core/file-logger.js';
 
@@ -48,7 +48,7 @@ interface ImporterConfig {
   key: string;
   name: string;
   description: string;
-  importerClass: new (context: ImportContext) => { import(): Promise<ImportResult>; getName(): string };
+  importerClass: new (context: ImportContext, logger?: ILogger) => { import(): Promise<ImportResult>; getName(): string };
   dependencies?: string[];
 }
 

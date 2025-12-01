@@ -67,7 +67,7 @@ export function transformLanguageTranslation(
 
   const data: LanguageTranslationData = {
     language_id: languageId,
-    target_language_id: targetLanguageId,
+    display_language_id: targetLanguageId,
     name: legacy.name,
   };
 

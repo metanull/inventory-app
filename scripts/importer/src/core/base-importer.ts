@@ -256,16 +256,16 @@ export abstract class BaseImporter {
   }
 
   /**
-   * Check if entity already exists in tracker
+   * Check if entity already exists in tracker (with optional entityType to avoid collisions)
    */
-  protected entityExists(backwardCompatibility: string): boolean {
-    return this.context.tracker.exists(backwardCompatibility);
+  protected entityExists(backwardCompatibility: string, entityType?: EntityType): boolean {
+    return this.context.tracker.exists(backwardCompatibility, entityType);
   }
 
   /**
-   * Get UUID from tracker by backward_compatibility
+   * Get UUID from tracker by backward_compatibility (with optional entityType to avoid collisions)
    */
-  protected getEntityUuid(backwardCompatibility: string): string | null {
-    return this.context.tracker.getUuid(backwardCompatibility);
+  protected getEntityUuid(backwardCompatibility: string, entityType?: EntityType): string | null {
+    return this.context.tracker.getUuid(backwardCompatibility, entityType);
   }
 }

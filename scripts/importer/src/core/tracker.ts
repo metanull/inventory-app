@@ -20,14 +20,14 @@ export interface ITracker {
   register(entity: ImportedEntity): void;
 
   /**
-   * Check if entity was already imported
+   * Check if entity was already imported (requires entityType to avoid collisions)
    */
-  exists(backwardCompatibility: string): boolean;
+  exists(backwardCompatibility: string, entityType?: EntityType): boolean;
 
   /**
-   * Get UUID of previously imported entity
+   * Get UUID of previously imported entity (requires entityType to avoid collisions)
    */
-  getUuid(backwardCompatibility: string): string | null;
+  getUuid(backwardCompatibility: string, entityType?: EntityType): string | null;
 
   /**
    * Set a backward_compatibility to UUID mapping directly
@@ -76,22 +76,34 @@ export class UnifiedTracker implements ITracker {
   private entities = new Map<string, ImportedEntity>();
   private metadata = new Map<string, string>();
 
+  /**
+   * Generate composite key for entity lookup
+   */
+  private getKey(backwardCompatibility: string, entityType?: EntityType): string {
+    return entityType ? `${entityType}:${backwardCompatibility}` : backwardCompatibility;
+  }
+
   register(entity: ImportedEntity): void {
-    this.entities.set(entity.backwardCompatibility, entity);
+    const key = this.getKey(entity.backwardCompatibility, entity.entityType);
+    this.entities.set(key, entity);
   }
 
-  exists(backwardCompatibility: string): boolean {
-    return this.entities.has(backwardCompatibility);
+  exists(backwardCompatibility: string, entityType?: EntityType): boolean {
+    const key = this.getKey(backwardCompatibility, entityType);
+    return this.entities.has(key);
   }
 
-  getUuid(backwardCompatibility: string): string | null {
-    return this.entities.get(backwardCompatibility)?.uuid ?? null;
+  getUuid(backwardCompatibility: string, entityType?: EntityType): string | null {
+    const key = this.getKey(backwardCompatibility, entityType);
+    return this.entities.get(key)?.uuid ?? null;
   }
 
   set(backwardCompatibility: string, uuid: string): void {
+    // Default to 'item' type for backward compatibility
+    const key = this.getKey(backwardCompatibility, 'item');
     // If entity doesn't exist, create a minimal entry
-    if (!this.entities.has(backwardCompatibility)) {
-      this.entities.set(backwardCompatibility, {
+    if (!this.entities.has(key)) {
+      this.entities.set(key, {
         uuid,
         backwardCompatibility,
         entityType: 'item', // Default type for simple set operations
@@ -99,7 +111,7 @@ export class UnifiedTracker implements ITracker {
       });
     } else {
       // Update existing entity's UUID
-      const entity = this.entities.get(backwardCompatibility)!;
+      const entity = this.entities.get(key)!;
       entity.uuid = uuid;
     }
   }

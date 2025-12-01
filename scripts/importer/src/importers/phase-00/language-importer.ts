@@ -49,8 +49,8 @@ export class LanguageImporter extends BaseImporter {
           // Use backward_compatibility as the tracking key (consistent with legacy importer)
           const backwardCompat = language.backward_compatibility;
 
-          // Check if already exists in tracker
-          if (this.entityExists(backwardCompat)) {
+          // Check if already exists in tracker (pass entityType to avoid collisions with countries)
+          if (this.entityExists(backwardCompat, 'language')) {
             result.skipped++;
             this.showSkipped();
             continue;
@@ -152,9 +152,8 @@ export class LanguageTranslationImporter extends BaseImporter {
           // Map legacy 2-char code to ISO 3-char code
           const iso3Code = mapLanguageCode(legacy.lang_id);
           
-          // Check if language exists in tracker using original 2-char code for backward compat
-          const languageBackwardCompat = `mwnf3:langs:${legacy.lang_id}`;
-          if (!this.entityExists(languageBackwardCompat)) {
+          // Check if language exists in tracker (pass entityType to avoid collisions with countries)
+          if (!this.entityExists(legacy.lang_id, 'language')) {
             this.logWarning(`Language ${legacy.lang_id} (${iso3Code}) not found, skipping translation for ${legacy.lang}`);
             result.skipped++;
             this.showSkipped();
