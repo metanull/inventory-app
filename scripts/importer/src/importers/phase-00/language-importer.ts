@@ -86,6 +86,12 @@ export class LanguageImporter extends BaseImporter {
 
           this.registerEntity(language.id, backwardCompat, 'language');
 
+          // Track default language ID for use by other importers
+          if (language.is_default) {
+            this.context.tracker.setMetadata('default_language_id', language.id);
+            this.logInfo(`Tracked default language: ${language.id}`);
+          }
+
           result.imported++;
           this.showProgress();
         } catch (error) {

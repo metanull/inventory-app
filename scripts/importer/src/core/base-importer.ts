@@ -146,6 +146,17 @@ export abstract class BaseImporter {
   }
 
   /**
+   * Get the default language ID from tracker
+   */
+  protected getDefaultLanguageId(): string {
+    const defaultLangId = this.context.tracker.getMetadata('default_language_id');
+    if (!defaultLangId) {
+      throw new Error('Default language ID not found in tracker. Language import must run first.');
+    }
+    return defaultLangId;
+  }
+
+  /**
    * Check if we're in dry-run mode
    */
   protected get isDryRun(): boolean {

@@ -54,6 +54,16 @@ export interface ITracker {
    * Clear all tracked entities
    */
   clear(): void;
+
+  /**
+   * Set metadata value
+   */
+  setMetadata(key: string, value: string): void;
+
+  /**
+   * Get metadata value
+   */
+  getMetadata(key: string): string | null;
 }
 
 /**
@@ -64,6 +74,7 @@ export interface ITracker {
  */
 export class UnifiedTracker implements ITracker {
   private entities = new Map<string, ImportedEntity>();
+  private metadata = new Map<string, string>();
 
   register(entity: ImportedEntity): void {
     this.entities.set(entity.backwardCompatibility, entity);
@@ -131,6 +142,15 @@ export class UnifiedTracker implements ITracker {
 
   clear(): void {
     this.entities.clear();
+    this.metadata.clear();
+  }
+
+  setMetadata(key: string, value: string): void {
+    this.metadata.set(key, value);
+  }
+
+  getMetadata(key: string): string | null {
+    return this.metadata.get(key) ?? null;
   }
 
   /**
