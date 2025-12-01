@@ -276,16 +276,16 @@ export abstract class BaseImporter {
   }
 
   /**
-   * Check if entity already exists in tracker (with optional entityType to avoid collisions)
+   * Check if entity already exists in tracker (entityType is required to avoid collisions)
    */
-  protected entityExists(backwardCompatibility: string, entityType?: EntityType): boolean {
+  protected entityExists(backwardCompatibility: string, entityType: EntityType): boolean {
     return this.context.tracker.exists(backwardCompatibility, entityType);
   }
 
   /**
-   * Get UUID from tracker by backward_compatibility (with optional entityType to avoid collisions)
+   * Get UUID from tracker by backward_compatibility (entityType is required to avoid collisions)
    */
-  protected getEntityUuid(backwardCompatibility: string, entityType?: EntityType): string | null {
+  protected getEntityUuid(backwardCompatibility: string, entityType: EntityType): string | null {
     return this.context.tracker.getUuid(backwardCompatibility, entityType);
   }
 }

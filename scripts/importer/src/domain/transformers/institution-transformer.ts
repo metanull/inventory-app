@@ -7,7 +7,7 @@
 
 import type { LegacyInstitution, LegacyInstitutionName } from '../types/index.js';
 import type { PartnerData, PartnerTranslationData } from '../../core/types.js';
-import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { mapLanguageCode, mapCountryCode } from '../../utils/code-mappings.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 
@@ -62,6 +62,13 @@ export function transformInstitution(legacy: LegacyInstitution): TransformedInst
     type: 'institution',
     internal_name: internalName,
     backward_compatibility: backwardCompatibility,
+    latitude: null, // Institutions don't have geocoordinates in legacy data
+    longitude: null,
+    map_zoom: 16, // default zoom
+    country_id: legacy.country ? mapCountryCode(legacy.country) : null,
+    project_id: null,
+    monument_item_id: null,
+    visible: false, // Default to false
   };
 
   return {
@@ -91,19 +98,26 @@ export function transformInstitutionTranslation(
     ? convertHtmlToMarkdown(translation.description)
     : null;
 
-  // Build extra field with all additional data
+  // backward_compatibility matches parent partner
+  const backwardCompatibility = formatBackwardCompatibility({
+    schema: 'mwnf3',
+    table: 'institutions',
+    pkValues: [institution.institution_id, institution.country],
+  });
+
+  // Build extra field with only non-standard additional data
   const extra: InstitutionExtraFields = {};
-  if (institution.address) extra.address_legacy = institution.address;
-  if (institution.city) extra.city_legacy = institution.city;
-  if (institution.country) extra.country_code = institution.country;
+  if (institution.fax) extra.fax = institution.fax;
 
   const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
   const data: Omit<PartnerTranslationData, 'partner_id' | 'context_id'> = {
     language_id: languageId,
+    backward_compatibility: backwardCompatibility,
     name: nameMarkdown,
     description: descriptionMarkdown,
     city_display: institution.city || null,
+    address: institution.address || null,
     contact_website: institution.url || null,
     contact_phone: institution.phone || null,
     contact_email_general: institution.email || null,

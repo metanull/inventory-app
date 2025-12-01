@@ -9,6 +9,8 @@ import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 import { transformProject, transformProjectTranslation } from '../../domain/transformers/index.js';
 import type { LegacyProject, LegacyProjectName } from '../../domain/types/index.js';
+import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 
 export class ProjectImporter extends BaseImporter {
   getName(): string {
@@ -31,6 +33,53 @@ export class ProjectImporter extends BaseImporter {
         'SELECT * FROM mwnf3.projectnames ORDER BY project_id, lang'
       );
 
+      // Query generated descriptions from thematic gallery
+      interface ProjectDescription {
+        language_id: string;
+        project_id: string;
+        description: string;
+      }
+      const projectDescriptions = await this.context.legacyDb.query<ProjectDescription>(`
+        SELECT * FROM (
+          SELECT projectnames.lang AS language_id, projectnames.project_id AS project_id, CONCAT(projectnames.name) AS description
+          FROM mwnf3.projectnames
+          WHERE NOT EXISTS (
+            SELECT * FROM mwnf3_thematic_gallery.thg_gallery 
+            WHERE thg_gallery.mwnf3_project_id = projectnames.project_id
+          )
+          AND NOT EXISTS (
+            SELECT * FROM mwnf3.projectnames pn2 
+            WHERE projectnames.lang <> 'en' 
+            AND pn2.project_id = projectnames.project_id 
+            AND pn2.lang = 'en' 
+            AND pn2.name = projectnames.name
+          )
+          UNION ALL 
+          SELECT 'en' AS language_id, thg_gallery.mwnf3_project_id AS project_id, CONCAT(thg_projects.name, ' - ', thg_gallery.name) AS description
+          FROM mwnf3_thematic_gallery.thg_gallery 
+          INNER JOIN mwnf3_thematic_gallery.thg_projects ON thg_projects.project_id = thg_gallery.project_id
+          WHERE thg_gallery.mwnf3_project_id IS NOT NULL
+        ) project_description
+        WHERE project_id NOT IN ('CAR', 'EXTEST', 'STI')
+        ORDER BY project_id, language_id
+      `);
+
+      // Index descriptions by project_id and language_id
+      const descriptionMap = new Map<string, string>();
+      for (const desc of projectDescriptions) {
+        const key = `${desc.project_id}:${desc.language_id}`;
+        descriptionMap.set(key, desc.description);
+      }
+
+      // Merge descriptions into project names
+      for (const name of projectNames) {
+        const key = `${name.project_id}:${name.lang}`;
+        const generatedDesc = descriptionMap.get(key);
+        if (generatedDesc && !name.description) {
+          name.description = generatedDesc;
+        }
+      }
+
       // Group translations by project_id
       const translationMap = new Map<string, LegacyProjectName[]>();
       for (const name of projectNames) {
@@ -47,10 +96,24 @@ export class ProjectImporter extends BaseImporter {
 
       for (const legacy of projects) {
         try {
-          const transformed = transformProject(legacy, defaultLanguageId);
+          // Get translations for this project
+          const translations = translationMap.get(legacy.project_id) || [];
+
+          // Find the default language translation to get project name
+          const defaultLangTranslation = translations.find(
+            (t) => mapLanguageCode(t.lang) === defaultLanguageId
+          );
+          if (!defaultLangTranslation || !defaultLangTranslation.name) {
+            throw new Error(
+              `Project ${legacy.project_id} missing translation for default language ${defaultLanguageId}`
+            );
+          }
+
+          const projectName = convertHtmlToMarkdown(defaultLangTranslation.name);
+          const transformed = transformProject(legacy, defaultLanguageId, projectName);
 
           // Check if already exists
-          if (this.entityExists(transformed.context.backwardCompatibility)) {
+          if (this.entityExists(transformed.context.backwardCompatibility, 'context')) {
             result.skipped++;
             this.showSkipped();
             continue;
@@ -108,8 +171,7 @@ export class ProjectImporter extends BaseImporter {
           const projectId = await this.context.strategy.writeProject(projectData);
           this.registerEntity(projectId, transformed.project.backwardCompatibility, 'project');
 
-          // 4. Create translations
-          const translations = translationMap.get(legacy.project_id) || [];
+          // 4. Create translations (translations already retrieved earlier)
           for (const legacyTranslation of translations) {
             try {
               const translationBundle = transformProjectTranslation(legacyTranslation);

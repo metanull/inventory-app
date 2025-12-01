@@ -7,7 +7,7 @@
 
 import type { LegacyMuseum, LegacyMuseumName } from '../types/index.js';
 import type { PartnerData, PartnerTranslationData } from '../../core/types.js';
-import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { mapLanguageCode, mapCountryCode } from '../../utils/code-mappings.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 
@@ -60,10 +60,33 @@ export function transformMuseum(legacy: LegacyMuseum): TransformedMuseum {
   }
   const internalName = convertHtmlToMarkdown(legacy.name);
 
+  // Parse geoCoordinates if available (format: "lat,long" or "lat,long,zoom")
+  let latitude: number | null = null;
+  let longitude: number | null = null;
+  let mapZoom: number | null = 16; // default zoom
+
+  if (legacy.geoCoordinates) {
+    const parts = legacy.geoCoordinates.split(',').map((p) => p.trim());
+    if (parts.length >= 2) {
+      latitude = parseFloat(parts[0]) || null;
+      longitude = parseFloat(parts[1]) || null;
+      if (parts.length >= 3) {
+        mapZoom = parseInt(parts[2], 10) || 16;
+      }
+    }
+  }
+
   const data: PartnerData = {
     type: 'museum',
     internal_name: internalName,
     backward_compatibility: backwardCompatibility,
+    latitude,
+    longitude,
+    map_zoom: mapZoom,
+    country_id: legacy.country ? mapCountryCode(legacy.country) : null,
+    project_id: null, // Museums don't have direct project association in legacy data
+    monument_item_id: null,
+    visible: false, // Default to false, can be updated later
   };
 
   return {
@@ -91,27 +114,30 @@ export function transformMuseumTranslation(
     ? convertHtmlToMarkdown(translation.description)
     : null;
 
-  // Build extra field with all additional data
+  // backward_compatibility matches parent partner
+  const backwardCompatibility = formatBackwardCompatibility({
+    schema: 'mwnf3',
+    table: 'museums',
+    pkValues: [museum.museum_id, museum.country],
+  });
+
+  // Build extra field with only non-standard additional data
   const extra: MuseumExtraFields = {};
-  if (museum.phone) extra.phone = museum.phone;
   if (museum.fax) extra.fax = museum.fax;
-  if (museum.email) extra.email = museum.email;
-  if (museum.url) extra.url = museum.url;
-  if (museum.address) extra.address_legacy = museum.address;
   if (translation.ex_name) extra.ex_name = translation.ex_name;
   if (translation.ex_description) extra.ex_description = translation.ex_description;
   if (translation.opening_hours) extra.opening_hours = translation.opening_hours;
   if (translation.how_to_reach) extra.how_to_reach = translation.how_to_reach;
-  if (museum.geoCoordinates) extra.geoCoordinates = museum.geoCoordinates;
-  if (museum.country) extra.country_code = museum.country;
 
   const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
   const data: Omit<PartnerTranslationData, 'partner_id' | 'context_id'> = {
     language_id: languageId,
+    backward_compatibility: backwardCompatibility,
     name: nameMarkdown,
     description: descriptionMarkdown,
     city_display: translation.city || null,
+    address: museum.address || null,
     contact_website: museum.url || null,
     contact_phone: museum.phone || null,
     contact_email_general: museum.email || null,

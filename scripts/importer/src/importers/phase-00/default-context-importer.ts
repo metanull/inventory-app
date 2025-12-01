@@ -22,7 +22,7 @@ export class DefaultContextImporter extends BaseImporter {
       this.logInfo('Creating default context...');
 
       // Check if default context already exists
-      if (this.entityExists(DEFAULT_CONTEXT_BACKWARD_COMPAT)) {
+      if (this.entityExists(DEFAULT_CONTEXT_BACKWARD_COMPAT, 'context')) {
         this.logInfo('Default context already exists, skipping');
         result.skipped++;
         this.showSkipped();

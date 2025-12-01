@@ -145,6 +145,7 @@ export interface CollectionTranslationData {
   collection_id: string;
   language_id: string;
   context_id: string;
+  backward_compatibility: string;
   title: string;
   description?: string | null;
 }
@@ -176,6 +177,13 @@ export interface ProjectTranslationData {
  */
 export interface PartnerData extends BaseEntityData {
   type: 'museum' | 'institution';
+  latitude?: number | null;
+  longitude?: number | null;
+  map_zoom?: number | null;
+  country_id?: string | null;
+  project_id?: string | null;
+  monument_item_id?: string | null;
+  visible?: boolean | null;
 }
 
 /**
@@ -185,9 +193,11 @@ export interface PartnerTranslationData {
   partner_id: string;
   language_id: string;
   context_id: string;
+  backward_compatibility: string;
   name: string;
   description?: string | null;
   city_display?: string | null;
+  address?: string | null;
   contact_website?: string | null;
   contact_phone?: string | null;
   contact_email_general?: string | null;
