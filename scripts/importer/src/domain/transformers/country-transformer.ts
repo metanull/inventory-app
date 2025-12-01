@@ -37,11 +37,15 @@ export function transformCountry(legacy: LegacyCountry): TransformedCountry {
     pkValues: [legacy.code],
   });
 
+  if (!legacy.name) {
+    throw new Error(
+      `Country ${legacy.code} has no name for internal_name`
+    );
+  }
+
   const data: CountryData = {
     id: iso3Code,
-    internal_name: legacy.name || iso3Code,
-    is_default: false,
-    is_enabled: true,
+    internal_name: legacy.name,
     backward_compatibility: backwardCompatibility,
   };
 

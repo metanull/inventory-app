@@ -123,26 +123,26 @@ npm install
 
 ```bash
 # Run all importers
-npm run import
+npx tsx src/cli/import.ts import
 
 # Dry run (simulate without writing)
-npm run import -- --dry-run
+npx tsx src/cli/import.ts import --dry-run
 
 # Run specific importer only
-npm run import -- --only partner
+npx tsx src/cli/import.ts import --only partner
 
 # Run from a specific point
-npm run import -- --start-at project
+npx tsx src/cli/import.ts import --start-at project
 
 # List available importers
-npm run import -- --list-importers
+npx tsx src/cli/import.ts import --list-importers
 ```
 
 ### Validation
 
 ```bash
 # Validate database connections
-npm run import -- validate
+npx tsx src/cli/import.ts import validate
 ```
 
 ## Import Order
@@ -199,7 +199,7 @@ DB_DATABASE=inventory
 Before running the import, validate your database connections:
 
 ```bash
-npm run import -- validate
+npx tsx src/cli/import.ts import validate
 ```
 
 This will test both legacy and target database connections and report any issues.

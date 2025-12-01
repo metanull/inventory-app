@@ -102,8 +102,6 @@ export interface LanguageTranslationData {
  */
 export interface CountryData extends BaseEntityData {
   id: string; // ISO 3166-1 alpha-3 code
-  is_default?: boolean;
-  is_enabled?: boolean;
 }
 
 /**
