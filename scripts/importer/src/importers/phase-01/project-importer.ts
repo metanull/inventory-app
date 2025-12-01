@@ -42,9 +42,12 @@ export class ProjectImporter extends BaseImporter {
 
       this.logInfo(`Found ${projects.length} projects with ${projectNames.length} translations`);
 
+      // Get default language ID from tracker
+      const defaultLanguageId = this.getDefaultLanguageId();
+
       for (const legacy of projects) {
         try {
-          const transformed = transformProject(legacy);
+          const transformed = transformProject(legacy, defaultLanguageId);
 
           // Check if already exists
           if (this.entityExists(transformed.context.backwardCompatibility)) {

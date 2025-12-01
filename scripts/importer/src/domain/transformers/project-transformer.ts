@@ -42,7 +42,7 @@ export interface TransformedProjectBundle {
  */
 export interface TransformedProjectTranslationBundle {
   contextTranslation: Omit<ContextTranslationData, 'context_id'>;
-  collectionTranslation: Omit<CollectionTranslationData, 'collection_id' | 'context_id'>;
+  collectionTranslation: Omit<CollectionTranslationData, 'collection_id'>;
   projectTranslation: Omit<ProjectTranslationData, 'project_id' | 'context_id'>;
   languageId: string;
 }
@@ -50,7 +50,7 @@ export interface TransformedProjectTranslationBundle {
 /**
  * Transform a legacy project to context + collection + project bundle
  */
-export function transformProject(legacy: LegacyProject): TransformedProjectBundle {
+export function transformProject(legacy: LegacyProject, defaultLanguageId: string): TransformedProjectBundle {
   const baseBackwardCompat = formatBackwardCompatibility({
     schema: 'mwnf3',
     table: 'projects',
@@ -59,9 +59,8 @@ export function transformProject(legacy: LegacyProject): TransformedProjectBundl
 
   // Context
   const contextBackwardCompat = baseBackwardCompat;
-  const internalName = legacy.name || legacy.project_id;
   const contextData: ContextData = {
-    internal_name: internalName,
+    internal_name: legacy.project_id,
     backward_compatibility: contextBackwardCompat,
     is_default: false,
   };
@@ -69,33 +68,20 @@ export function transformProject(legacy: LegacyProject): TransformedProjectBundl
   // Collection (root collection for project)
   const collectionBackwardCompat = `${baseBackwardCompat}:collection`;
   const collectionData: Omit<CollectionData, 'context_id'> = {
-    internal_name: internalName,
+    internal_name: `${legacy.project_id}_collection`,
     backward_compatibility: collectionBackwardCompat,
-    language_id: 'eng', // Default to English
     parent_id: null,
+    language_id: defaultLanguageId,
   };
-
-  // Validate launch_date: MySQL can return invalid dates like '0000-00-00 00:00:00'
-  let launchDate: string | null = null;
-  let isLaunched = false;
-  if (legacy.launchdate) {
-    const date = new Date(legacy.launchdate);
-    // Check if date is valid (not NaN and not invalid date like 0000-00-00)
-    if (!isNaN(date.getTime()) && date.getFullYear() > 1970) {
-      launchDate = date.toISOString().split('T')[0];
-      isLaunched = true;
-    }
-  }
 
   // Project
   const projectBackwardCompat = `${baseBackwardCompat}:project`;
   const projectData: Omit<ProjectData, 'context_id'> = {
-    internal_name: internalName,
+    internal_name: legacy.project_id,
     backward_compatibility: projectBackwardCompat,
-    language_id: 'eng', // Default language
-    launch_date: launchDate,
-    is_launched: isLaunched,
-    is_enabled: true,
+    start_date: legacy.start_date || null,
+    end_date: legacy.end_date || null,
+    is_launched: legacy.active === 1 || legacy.active === true,
   };
 
   return {
@@ -124,7 +110,7 @@ export function transformProjectTranslation(
     },
     collectionTranslation: {
       language_id: languageId,
-      title: name,
+      name: name,
       description: description,
     },
     projectTranslation: {
