@@ -38,6 +38,7 @@ import {
   PartnerImporter,
   ObjectImporter,
   MonumentImporter,
+  MonumentDetailImporter,
 } from '../importers/index.js';
 
 // Load environment variables
@@ -120,6 +121,13 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import monument items',
     importerClass: MonumentImporter,
     dependencies: ['project', 'partner', 'language'],
+  },
+  {
+    key: 'monument-detail',
+    name: 'Monument Details',
+    description: 'Import monument detail items (children of monuments)',
+    importerClass: MonumentDetailImporter,
+    dependencies: ['monument', 'default-context', 'language'],
   },
 ];
 

@@ -208,11 +208,12 @@ export interface PartnerTranslationData {
  * Item data for write operations
  */
 export interface ItemData extends BaseEntityData {
-  type: 'object' | 'monument';
+  type: 'object' | 'monument' | 'detail';
   collection_id: string;
   partner_id: string;
   country_id?: string | null;
   project_id?: string | null;
+  parent_id?: string | null;
   owner_reference?: string | null;
   mwnf_reference?: string | null;
 }

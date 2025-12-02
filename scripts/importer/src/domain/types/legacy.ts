@@ -205,3 +205,30 @@ export interface MonumentGroup {
   number: string;
   translations: LegacyMonument[];
 }
+
+// ============================================================================
+// Monument Detail Types
+// ============================================================================
+
+export interface LegacyMonumentDetail {
+  project_id: string;
+  country_id: string;
+  institution_id: string;
+  monument_id: string;
+  lang_id: string;
+  detail_id: string;
+  name?: string;
+  description?: string;
+  location?: string;
+  date?: string;
+  artist?: string;
+}
+
+export interface MonumentDetailGroup {
+  project_id: string;
+  country_id: string;
+  institution_id: string;
+  monument_id: string;
+  detail_id: string;
+  translations: LegacyMonumentDetail[];
+}

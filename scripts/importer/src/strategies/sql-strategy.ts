@@ -256,12 +256,13 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeItem(data: ItemData): Promise<string> {
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO items (id, partner_id, collection_id, internal_name, type, country_id, project_id, owner_reference, mwnf_reference, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO items (id, partner_id, collection_id, parent_id, internal_name, type, country_id, project_id, owner_reference, mwnf_reference, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         data.partner_id,
         data.collection_id,
+        data.parent_id ?? null,
         data.internal_name,
         data.type,
         data.country_id,

@@ -12,3 +12,4 @@ export { ProjectImporter } from './phase-01/index.js';
 export { PartnerImporter } from './phase-01/index.js';
 export { ObjectImporter } from './phase-01/index.js';
 export { MonumentImporter } from './phase-01/index.js';
+export { MonumentDetailImporter } from './phase-01/index.js';
