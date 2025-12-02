@@ -69,3 +69,13 @@ export {
   type ExtractedMonumentTags,
   type MonumentTranslationPlan,
 } from './monument-transformer.js';
+
+export {
+  groupMonumentDetailsByPK,
+  transformMonumentDetail,
+  transformMonumentDetailTranslation,
+  extractMonumentDetailTags,
+  type TransformedMonumentDetail,
+  type TransformedMonumentDetailTranslation,
+  type ExtractedMonumentDetailTags,
+} from './monument-detail-transformer.js';
