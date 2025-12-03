@@ -184,8 +184,7 @@ export class ObjectPictureImporter extends BaseImporter {
     // Create child Item (type="picture")
     const pictureItemId = await this.createPictureItem(group, parentItemId, result);
 
-    // Create ItemImage for child Item
-    const displayOrder = 1; // Each picture Item has only one image
+    // Create ItemImage for child Item (use currentDisplayOrder for proper sequencing)
     const itemImageData: ItemImageData = {
       item_id: pictureItemId,
       path: group.path,
@@ -193,7 +192,7 @@ export class ObjectPictureImporter extends BaseImporter {
       mime_type: mimeType,
       size: 1, // Fake size as required
       alt_text: group.path,
-      display_order: displayOrder,
+      display_order: currentDisplayOrder,
     };
     await this.context.strategy.writeItemImage(itemImageData);
 
