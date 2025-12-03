@@ -5,7 +5,7 @@
  * It follows the same pattern as the legacy importer's LogWriter.
  */
 
-import { writeFileSync, appendFileSync, mkdirSync } from 'fs';
+import { writeFile, appendFile, mkdir } from 'fs/promises';
 import { resolve } from 'path';
 import chalk from 'chalk';
 import type { ILogger } from './base-importer.js';
@@ -35,33 +35,42 @@ export class FileLogger implements ILogger {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     this.logFilePath = resolve(process.cwd(), logDir, `import-${timestamp}.log`);
 
-    // Ensure log directory exists
-    mkdirSync(resolve(process.cwd(), logDir), { recursive: true });
-
-    // Initialize log file
-    this.writeHeader();
+    // Initialize log file asynchronously (fire and forget with error handling)
+    this.initLogFile(logDir).catch((err) => {
+      console.error(`Failed to initialize log file: ${err}`);
+    });
   }
 
-  private writeHeader(): void {
-    const header = [
-      '='.repeat(80),
-      'UNIFIED LEGACY IMPORT LOG',
-      '='.repeat(80),
-      `Start time: ${new Date().toISOString()}`,
-      `Log file: ${this.logFilePath}`,
-      '',
-    ].join('\n');
+  private async initLogFile(logDir: string): Promise<void> {
+    try {
+      // Ensure log directory exists
+      await mkdir(resolve(process.cwd(), logDir), { recursive: true });
 
-    writeFileSync(this.logFilePath, header + '\n');
+      // Write header
+      const header = [
+        '='.repeat(80),
+        'UNIFIED LEGACY IMPORT LOG',
+        '='.repeat(80),
+        `Start time: ${new Date().toISOString()}`,
+        `Log file: ${this.logFilePath}`,
+        '',
+      ].join('\n');
+
+      await writeFile(this.logFilePath, header + '\n');
+    } catch (error) {
+      console.error(`Error initializing log file: ${error}`);
+    }
   }
 
   /**
-   * Write a line to the log file
+   * Write a line to the log file (async, fire-and-forget with error handling)
    */
   private writeToFile(message: string): void {
     const timestamp = new Date().toISOString();
     const logLine = `[${timestamp}] ${message}`;
-    appendFileSync(this.logFilePath, logLine + '\n');
+    appendFile(this.logFilePath, logLine + '\n').catch((err) => {
+      console.error(`Failed to write to log file: ${err}`);
+    });
   }
 
   /**
@@ -126,7 +135,9 @@ export class FileLogger implements ILogger {
    */
   logPhaseStart(phaseName: string): void {
     const line = `\n${'='.repeat(80)}\nPHASE: ${phaseName}\n${'='.repeat(80)}`;
-    appendFileSync(this.logFilePath, line + '\n');
+    appendFile(this.logFilePath, line + '\n').catch((err) => {
+      console.error(`Failed to write phase start to log: ${err}`);
+    });
     console.log(chalk.bold.yellow(`\n📦 ${phaseName}\n`));
   }
 
@@ -191,7 +202,8 @@ export class FileLogger implements ILogger {
       '='.repeat(80),
     ].join('\n');
 
-    appendFileSync(this.logFilePath, summary + '\n');
+    appendFile(this.logFilePath, summary + '\n').catch((err) => {
+      console.error(`Failed to write final summary to log: ${err}`);\n    });
 
     // Console summary
     console.log(chalk.bold.yellow('\n📊 IMPORT SUMMARY\n'));

@@ -104,6 +104,7 @@ export class ObjectPictureImporter extends BaseImporter {
 
   private groupPictures(pictures: LegacyObjectPicture[]): PictureGroup[] {
     const groups = new Map<string, PictureGroup>();
+    const parentDisplayOrders = new Map<string, number>(); // Track display_order per parent
 
     for (const pic of pictures) {
       const key = `${pic.project_id}:${pic.country}:${pic.museum_id}:${pic.number}:${pic.type}:${pic.image_number}`;
@@ -172,6 +173,11 @@ export class ObjectPictureImporter extends BaseImporter {
     // Determine if this is the first image
     const isFirstImage = group.type === '' && group.image_number === 1;
 
+    // Calculate display_order for this parent item (increment sequence per parent)
+    const parentDisplayOrders = this.context.tracker.getMetadata(`display_order:${parentItemId}`);
+    const currentDisplayOrder = parentDisplayOrders ? parseInt(parentDisplayOrders, 10) + 1 : 1;
+    this.context.tracker.setMetadata(`display_order:${parentItemId}`, String(currentDisplayOrder));
+
     // Extract metadata
     const mimeType = this.getMimeType(group.path);
     const originalName = path.basename(group.path);
@@ -201,7 +207,7 @@ export class ObjectPictureImporter extends BaseImporter {
         mime_type: mimeType,
         size: 1,
         alt_text: group.path,
-        display_order: 1,
+        display_order: currentDisplayOrder,
       };
       await this.context.strategy.writeItemImage(parentImageData);
     }

@@ -201,7 +201,7 @@ export class MonumentPictureImporter extends BaseImporter {
         mime_type: mimeType,
         size: 1,
         alt_text: group.path,
-        display_order: 1,
+        display_order: currentDisplayOrder,
       };
       await this.context.strategy.writeItemImage(parentImageData);
     }

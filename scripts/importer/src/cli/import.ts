@@ -178,7 +178,7 @@ class LegacyDatabase implements ILegacyDatabase {
       user: process.env['LEGACY_DB_USER'] || 'root',
       password: process.env['LEGACY_DB_PASSWORD'] || '',
       database: process.env['LEGACY_DB_DATABASE'] || 'mwnf3',
-      multipleStatements: true,
+      multipleStatements: false, // Disabled for security - use single queries
     };
   }
 
@@ -193,11 +193,11 @@ class LegacyDatabase implements ILegacyDatabase {
     }
   }
 
-  async query<T>(sql: string): Promise<T[]> {
+  async query<T>(sql: string, params?: unknown[]): Promise<T[]> {
     if (!this.connection) {
       throw new Error('Database not connected');
     }
-    const [rows] = await this.connection.execute(sql);
+    const [rows] = params ? await this.connection.execute(sql, params) : await this.connection.execute(sql);
     return rows as T[];
   }
 }

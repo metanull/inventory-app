@@ -177,11 +177,16 @@ export class MonumentDetailPictureImporter extends BaseImporter {
     // Determine if this is the first image (picture_id = 1)
     const isFirstImage = group.picture_id === 1;
 
+    // Calculate display_order for this parent item (increment sequence per parent)
+    const parentDisplayOrders = this.context.tracker.getMetadata(`display_order:${parentItemId}`);
+    const currentDisplayOrder = parentDisplayOrders ? parseInt(parentDisplayOrders, 10) + 1 : 1;
+    this.context.tracker.setMetadata(`display_order:${parentItemId}`, String(currentDisplayOrder));
+
     // Extract metadata
     const mimeType = this.getMimeType(group.path);
     const originalName = path.basename(group.path);
 
-    // Create child Item (type="detail")
+    // Create child Item (type="picture")
     const pictureItemId = await this.createPictureItem(group, parentItemId, result);
 
     // Create ItemImage for child Item
@@ -206,7 +211,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
         mime_type: mimeType,
         size: 1,
         alt_text: group.path,
-        display_order: 1,
+        display_order: currentDisplayOrder,
       };
       await this.context.strategy.writeItemImage(parentImageData);
     }
