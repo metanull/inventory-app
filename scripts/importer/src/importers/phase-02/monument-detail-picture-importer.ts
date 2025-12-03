@@ -306,13 +306,27 @@ export class MonumentDetailPictureImporter extends BaseImporter {
   ): Promise<void> {
     const languageId = mapLanguageCode(translation.lang_id);
 
-    // Determine name: use caption or fallback
-    let name: string;
-    if (translation.caption && translation.caption.trim()) {
-      name = convertHtmlToMarkdown(translation.caption);
-    } else {
-      name = `Image ${translation.picture_id}`;
-    }
+    // Get parent item's name in this language
+    const parentBackwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'monuments_details',
+      pkValues: [
+        translation.project_id,
+        translation.country_id,
+        translation.institution_id,
+        translation.monument_id,
+        String(translation.detail_id),
+        translation.lang_id,
+      ],
+    });
+    const parentName = await this.getParentItemName(parentBackwardCompat, languageId);
+    const name = parentName ? convertHtmlToMarkdown(parentName) : `Image ${translation.picture_id}`;
+
+    // Use caption as description if present (empty string if no caption, as field doesn't accept null)
+    const description =
+      translation.caption && translation.caption.trim()
+        ? convertHtmlToMarkdown(translation.caption)
+        : '';
 
     // Build extra with copyright if present
     const translationExtra: Record<string, unknown> = { ...itemExtra };
@@ -325,7 +339,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
       language_id: languageId,
       context_id: contextId,
       name,
-      description: '', // Empty description as pictures don't have description
+      description,
       alternate_name: null,
       type: null,
       holder: null,
@@ -364,6 +378,22 @@ export class MonumentDetailPictureImporter extends BaseImporter {
       if (artistId) {
         await this.artistHelper.attachToItem(pictureItemId, [artistId]);
       }
+    }
+  }
+
+  private async getParentItemName(
+    parentBackwardCompat: string,
+    _languageId: string
+  ): Promise<string | null> {
+    try {
+      const params = parentBackwardCompat.split(':').slice(2);
+      const result = await this.context.legacyDb.query<{ name: string }>(
+        'SELECT name FROM mwnf3.monuments_details WHERE project_id = ? AND country_id = ? AND institution_id = ? AND monument_id = ? AND detail_id = ? AND lang_id = ?',
+        params
+      );
+      return result.length > 0 ? result[0]!.name : null;
+    } catch {
+      return null;
     }
   }
 

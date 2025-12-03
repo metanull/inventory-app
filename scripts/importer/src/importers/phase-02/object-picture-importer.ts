@@ -104,7 +104,6 @@ export class ObjectPictureImporter extends BaseImporter {
 
   private groupPictures(pictures: LegacyObjectPicture[]): PictureGroup[] {
     const groups = new Map<string, PictureGroup>();
-    const parentDisplayOrders = new Map<string, number>(); // Track display_order per parent
 
     for (const pic of pictures) {
       const key = `${pic.project_id}:${pic.country}:${pic.museum_id}:${pic.number}:${pic.type}:${pic.image_number}`;
@@ -305,15 +304,28 @@ export class ObjectPictureImporter extends BaseImporter {
   ): Promise<void> {
     const languageId = mapLanguageCode(translation.lang);
 
-    // Determine name: use caption or fallback to parent item's name
-    let name: string;
-    if (translation.caption && translation.caption.trim()) {
-      name = convertHtmlToMarkdown(translation.caption);
-    } else {
-      // Get parent item's name from first translation in this language
-      // For simplicity, use the path as fallback
-      name = `Image ${translation.image_number}`;
-    }
+    // Get parent item's name in this language
+    const parentBackwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'objects',
+      pkValues: [
+        translation.project_id,
+        translation.country,
+        translation.museum_id,
+        String(translation.number),
+        translation.lang,
+      ],
+    });
+    const parentName = await this.getParentItemName(parentBackwardCompat, languageId);
+    const name = parentName
+      ? convertHtmlToMarkdown(parentName)
+      : `Image ${translation.image_number}`;
+
+    // Use caption as description if present (empty string if no caption, as field doesn't accept null)
+    const description =
+      translation.caption && translation.caption.trim()
+        ? convertHtmlToMarkdown(translation.caption)
+        : '';
 
     // Build extra with copyright if present
     const translationExtra: Record<string, unknown> = { ...itemExtra };
@@ -326,7 +338,7 @@ export class ObjectPictureImporter extends BaseImporter {
       language_id: languageId,
       context_id: contextId,
       name,
-      description: '', // Empty description as pictures don't have description
+      description,
       alternate_name: null,
       type: null,
       holder: null,
@@ -365,6 +377,22 @@ export class ObjectPictureImporter extends BaseImporter {
       if (artistId) {
         await this.artistHelper.attachToItem(pictureItemId, [artistId]);
       }
+    }
+  }
+
+  private async getParentItemName(
+    parentBackwardCompat: string,
+    _languageId: string
+  ): Promise<string | null> {
+    try {
+      const params = parentBackwardCompat.split(':').slice(2);
+      const result = await this.context.legacyDb.query<{ name: string }>(
+        'SELECT name FROM mwnf3.objects WHERE project_id = ? AND country = ? AND museum_id = ? AND number = ? AND lang = ?',
+        params
+      );
+      return result.length > 0 ? result[0]!.name : null;
+    } catch {
+      return null;
     }
   }
 

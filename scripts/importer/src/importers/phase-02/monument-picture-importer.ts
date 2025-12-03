@@ -172,6 +172,11 @@ export class MonumentPictureImporter extends BaseImporter {
     // Determine if this is the first image
     const isFirstImage = group.type === '' && group.image_number === 1;
 
+    // Calculate display_order for this parent item (increment sequence per parent)
+    const parentDisplayOrders = this.context.tracker.getMetadata(`display_order:${parentItemId}`);
+    const currentDisplayOrder = parentDisplayOrders ? parseInt(parentDisplayOrders, 10) + 1 : 1;
+    this.context.tracker.setMetadata(`display_order:${parentItemId}`, String(currentDisplayOrder));
+
     // Extract metadata from first translation
     const mimeType = this.getMimeType(group.path);
     const originalName = path.basename(group.path);
@@ -299,13 +304,29 @@ export class MonumentPictureImporter extends BaseImporter {
   ): Promise<void> {
     const languageId = mapLanguageCode(translation.lang);
 
-    // Determine name: use caption or fallback
-    let name: string;
-    if (translation.caption && translation.caption.trim()) {
-      name = convertHtmlToMarkdown(translation.caption);
-    } else {
-      name = `Image ${translation.image_number}`;
-    }
+    // Get parent item's name in this language
+    const parentBackwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'monuments',
+      pkValues: [
+        translation.project_id,
+        translation.country,
+        translation.institution_id,
+        String(translation.number),
+        translation.type,
+        translation.lang,
+      ],
+    });
+    const parentName = await this.getParentItemName(parentBackwardCompat, languageId);
+    const name = parentName
+      ? convertHtmlToMarkdown(parentName)
+      : `Image ${translation.image_number}`;
+
+    // Use caption as description if present (empty string if no caption, as field doesn't accept null)
+    const description =
+      translation.caption && translation.caption.trim()
+        ? convertHtmlToMarkdown(translation.caption)
+        : '';
 
     // Build extra with copyright if present
     const translationExtra: Record<string, unknown> = { ...itemExtra };
@@ -318,7 +339,7 @@ export class MonumentPictureImporter extends BaseImporter {
       language_id: languageId,
       context_id: contextId,
       name,
-      description: '', // Empty description as pictures don't have description
+      description,
       alternate_name: null,
       type: null,
       holder: null,
@@ -357,6 +378,22 @@ export class MonumentPictureImporter extends BaseImporter {
       if (artistId) {
         await this.artistHelper.attachToItem(pictureItemId, [artistId]);
       }
+    }
+  }
+
+  private async getParentItemName(
+    parentBackwardCompat: string,
+    _languageId: string
+  ): Promise<string | null> {
+    try {
+      const params = parentBackwardCompat.split(':').slice(2);
+      const result = await this.context.legacyDb.query<{ name: string }>(
+        'SELECT name FROM mwnf3.monuments WHERE project_id = ? AND country = ? AND institution_id = ? AND number = ? AND type = ? AND lang = ?',
+        params
+      );
+      return result.length > 0 ? result[0]!.name : null;
+    } catch {
+      return null;
     }
   }
 

@@ -39,7 +39,7 @@ export interface ISampleCollector {
  * Legacy database interface for reading source data
  */
 export interface ILegacyDatabase {
-  query<T>(sql: string): Promise<T[]>;
+  query<T>(sql: string, params?: unknown[]): Promise<T[]>;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
 }

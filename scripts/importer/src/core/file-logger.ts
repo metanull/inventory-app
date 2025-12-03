@@ -203,7 +203,8 @@ export class FileLogger implements ILogger {
     ].join('\n');
 
     appendFile(this.logFilePath, summary + '\n').catch((err) => {
-      console.error(`Failed to write final summary to log: ${err}`);\n    });
+      console.error(`Failed to write final summary to log: ${err}`);
+    });
 
     // Console summary
     console.log(chalk.bold.yellow('\n📊 IMPORT SUMMARY\n'));

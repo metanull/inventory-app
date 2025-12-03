@@ -197,7 +197,9 @@ class LegacyDatabase implements ILegacyDatabase {
     if (!this.connection) {
       throw new Error('Database not connected');
     }
-    const [rows] = params ? await this.connection.execute(sql, params) : await this.connection.execute(sql);
+    const [rows] = params
+      ? await this.connection.execute(sql, params)
+      : await this.connection.execute(sql);
     return rows as T[];
   }
 }
