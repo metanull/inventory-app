@@ -63,6 +63,8 @@ describe('LanguageImporter', () => {
       writeTag: vi.fn().mockResolvedValue('tag-uuid'),
       writeAuthor: vi.fn().mockResolvedValue('author-uuid'),
       writeArtist: vi.fn().mockResolvedValue('artist-uuid'),
+      writeItemImage: vi.fn().mockResolvedValue('item-image-uuid'),
+      writePartnerImage: vi.fn().mockResolvedValue('partner-image-uuid'),
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
     };
@@ -211,6 +213,8 @@ describe('LanguageTranslationImporter', () => {
       writeTag: vi.fn().mockResolvedValue('tag-uuid'),
       writeAuthor: vi.fn().mockResolvedValue('author-uuid'),
       writeArtist: vi.fn().mockResolvedValue('artist-uuid'),
+      writeItemImage: vi.fn().mockResolvedValue('item-image-uuid'),
+      writePartnerImage: vi.fn().mockResolvedValue('partner-image-uuid'),
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
     };

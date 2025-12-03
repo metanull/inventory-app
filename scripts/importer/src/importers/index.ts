@@ -13,3 +13,9 @@ export { PartnerImporter } from './phase-01/index.js';
 export { ObjectImporter } from './phase-01/index.js';
 export { MonumentImporter } from './phase-01/index.js';
 export { MonumentDetailImporter } from './phase-01/index.js';
+
+// Phase 02: Images
+export { ObjectPictureImporter } from './phase-02/index.js';
+export { MonumentPictureImporter } from './phase-02/index.js';
+export { MonumentDetailPictureImporter } from './phase-02/index.js';
+export { PartnerPictureImporter } from './phase-02/index.js';

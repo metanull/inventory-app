@@ -27,6 +27,8 @@ import type {
   TagData,
   AuthorData,
   ArtistData,
+  ItemImageData,
+  PartnerImageData,
 } from '../core/types.js';
 
 const tableEntityMap: Record<string, EntityType> = {
@@ -87,9 +89,17 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeLanguageTranslation(data: LanguageTranslationData): Promise<void> {
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO language_translations (id, language_id, display_language_id, name, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [id, data.language_id, data.display_language_id, data.name, this.now, this.now]
+      `INSERT INTO language_translations (id, language_id, display_language_id, name, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        data.language_id,
+        data.display_language_id,
+        data.name,
+        data.backward_compatibility,
+        this.now,
+        this.now,
+      ]
     );
   }
 
@@ -109,9 +119,17 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeCountryTranslation(data: CountryTranslationData): Promise<void> {
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO country_translations (id, country_id, language_id, name, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [id, data.country_id, data.language_id, data.name, this.now, this.now]
+      `INSERT INTO country_translations (id, country_id, language_id, name, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        data.country_id,
+        data.language_id,
+        data.name,
+        data.backward_compatibility,
+        this.now,
+        this.now,
+      ]
     );
   }
 
@@ -167,8 +185,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeCollectionTranslation(data: CollectionTranslationData): Promise<void> {
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO collection_translations (id, collection_id, language_id, context_id, title, description, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO collection_translations (id, collection_id, language_id, context_id, title, description, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         data.collection_id,
@@ -176,6 +194,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
         data.context_id,
         data.title,
         data.description,
+        data.backward_compatibility,
         this.now,
         this.now,
       ]
@@ -229,8 +248,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writePartnerTranslation(data: PartnerTranslationData): Promise<void> {
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO partner_translations (id, partner_id, language_id, context_id, name, description, city_display, contact_website, contact_phone, contact_email_general, extra, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO partner_translations (id, partner_id, language_id, context_id, name, description, city_display, contact_website, contact_phone, contact_email_general, extra, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         data.partner_id,
@@ -243,6 +262,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
         data.contact_phone,
         data.contact_email_general,
         data.extra,
+        data.backward_compatibility,
         this.now,
         this.now,
       ]
@@ -282,8 +302,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeItemTranslation(data: ItemTranslationData): Promise<void> {
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO item_translations (id, item_id, language_id, context_id, name, alternate_name, description, type, holder, owner, initial_owner, dates, location, dimensions, place_of_production, method_for_datation, method_for_provenance, obtention, bibliography, author_id, text_copy_editor_id, translator_id, translation_copy_editor_id, extra, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO item_translations (id, item_id, language_id, context_id, name, alternate_name, description, type, holder, owner, initial_owner, dates, location, dimensions, place_of_production, method_for_datation, method_for_provenance, obtention, bibliography, author_id, text_copy_editor_id, translator_id, translation_copy_editor_id, extra, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         data.item_id,
@@ -309,6 +329,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
         data.translator_id,
         data.translation_copy_editor_id,
         data.extra,
+        data.backward_compatibility,
         this.now,
         this.now,
       ]
@@ -447,6 +468,52 @@ export class SqlWriteStrategy implements IWriteStrategy {
         `Failed to create or find artist: ${data.backward_compatibility}. Original error: ${message}`
       );
     }
+  }
+
+  async writeItemImage(data: ItemImageData): Promise<string> {
+    const id = data.id || uuidv4();
+    await this.db.execute(
+      `INSERT INTO item_images (id, item_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        data.item_id,
+        data.path,
+        data.original_name,
+        data.mime_type,
+        data.size,
+        data.alt_text,
+        data.display_order,
+        this.now,
+        this.now,
+      ]
+    );
+    // Track using lowercase path as unique identifier
+    this.tracker.set(data.path.toLowerCase(), id, 'image');
+    return id;
+  }
+
+  async writePartnerImage(data: PartnerImageData): Promise<string> {
+    const id = data.id || uuidv4();
+    await this.db.execute(
+      `INSERT INTO partner_images (id, partner_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        data.partner_id,
+        data.path,
+        data.original_name,
+        data.mime_type,
+        data.size,
+        data.alt_text,
+        data.display_order,
+        this.now,
+        this.now,
+      ]
+    );
+    // Track using lowercase path as unique identifier
+    this.tracker.set(data.path.toLowerCase(), id, 'image');
+    return id;
   }
 
   // =========================================================================

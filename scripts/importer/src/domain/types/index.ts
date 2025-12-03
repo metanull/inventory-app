@@ -19,4 +19,9 @@ export type {
   MonumentGroup,
   LegacyMonumentDetail,
   MonumentDetailGroup,
+  LegacyObjectPicture,
+  LegacyMonumentPicture,
+  LegacyMonumentDetailPicture,
+  LegacyMuseumPicture,
+  LegacyInstitutionPicture,
 } from './legacy.js';

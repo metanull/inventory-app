@@ -84,26 +84,30 @@ export class UnifiedTracker implements ITracker {
   }
 
   register(entity: ImportedEntity): void {
-    const key = this.getKey(entity.backwardCompatibility, entity.entityType);
-    this.entities.set(key, entity);
+    const normalizedBackwardCompat = entity.backwardCompatibility.toLowerCase();
+    const key = this.getKey(normalizedBackwardCompat, entity.entityType);
+    this.entities.set(key, { ...entity, backwardCompatibility: normalizedBackwardCompat });
   }
 
-  exists(backwardCompatibility: string, entityType?: EntityType): boolean {
-    const key = this.getKey(backwardCompatibility, entityType);
+  exists(backwardCompatibility: string, entityType: EntityType): boolean {
+    const normalizedBackwardCompat = backwardCompatibility.toLowerCase();
+    const key = this.getKey(normalizedBackwardCompat, entityType);
     return this.entities.has(key);
   }
 
-  getUuid(backwardCompatibility: string, entityType?: EntityType): string | null {
-    const key = this.getKey(backwardCompatibility, entityType);
+  getUuid(backwardCompatibility: string, entityType: EntityType): string | null {
+    const normalizedBackwardCompat = backwardCompatibility.toLowerCase();
+    const key = this.getKey(normalizedBackwardCompat, entityType);
     return this.entities.get(key)?.uuid ?? null;
   }
 
   set(backwardCompatibility: string, uuid: string, entityType: EntityType): void {
-    const key = this.getKey(backwardCompatibility, entityType);
+    const normalizedBackwardCompat = backwardCompatibility.toLowerCase();
+    const key = this.getKey(normalizedBackwardCompat, entityType);
     if (!this.entities.has(key)) {
       this.entities.set(key, {
         uuid,
-        backwardCompatibility,
+        backwardCompatibility: normalizedBackwardCompat,
         entityType,
         createdAt: new Date(),
       });
@@ -167,5 +171,19 @@ export class UnifiedTracker implements ITracker {
    */
   get size(): number {
     return this.entities.size;
+  }
+
+  /**
+   * Get total count of entities in tracker (for debugging)
+   */
+  getEntitiesCount(): number {
+    return this.entities.size;
+  }
+
+  /**
+   * Get all keys in tracker (for debugging)
+   */
+  getAllKeys(): string[] {
+    return Array.from(this.entities.keys());
   }
 }

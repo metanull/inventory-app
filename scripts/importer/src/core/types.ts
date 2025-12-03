@@ -94,6 +94,7 @@ export interface LanguageTranslationData {
   language_id: string; // The language being translated
   display_language_id: string; // The language of the translation
   name: string;
+  backward_compatibility: string;
 }
 
 /**
@@ -110,6 +111,7 @@ export interface CountryTranslationData {
   country_id: string;
   language_id: string;
   name: string;
+  backward_compatibility: string;
 }
 
 /**
@@ -208,7 +210,7 @@ export interface PartnerTranslationData {
  * Item data for write operations
  */
 export interface ItemData extends BaseEntityData {
-  type: 'object' | 'monument' | 'detail';
+  type: 'object' | 'monument' | 'detail' | 'picture';
   collection_id: string;
   partner_id: string;
   country_id?: string | null;
@@ -274,4 +276,32 @@ export interface ArtistData extends BaseEntityData {
   date_of_birth?: string | null;
   date_of_death?: string | null;
   period_of_activity?: string | null;
+}
+
+/**
+ * Item image data for write operations
+ */
+export interface ItemImageData {
+  id?: string; // Optional: for preserving IDs from AvailableImage
+  item_id: string;
+  path: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  alt_text?: string | null;
+  display_order: number;
+}
+
+/**
+ * Partner image data for write operations
+ */
+export interface PartnerImageData {
+  id?: string; // Optional: for preserving IDs from AvailableImage
+  partner_id: string;
+  path: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  alt_text?: string | null;
+  display_order: number;
 }

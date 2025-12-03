@@ -39,6 +39,10 @@ import {
   ObjectImporter,
   MonumentImporter,
   MonumentDetailImporter,
+  ObjectPictureImporter,
+  MonumentPictureImporter,
+  MonumentDetailPictureImporter,
+  PartnerPictureImporter,
 } from '../importers/index.js';
 
 // Load environment variables
@@ -129,6 +133,35 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     importerClass: MonumentDetailImporter,
     dependencies: ['monument', 'default-context', 'language'],
   },
+  // Phase 2: Images
+  {
+    key: 'object-picture',
+    name: 'Object Pictures',
+    description: 'Import object pictures (ItemImages + child picture Items)',
+    importerClass: ObjectPictureImporter,
+    dependencies: ['object', 'default-context', 'language'],
+  },
+  {
+    key: 'monument-picture',
+    name: 'Monument Pictures',
+    description: 'Import monument pictures (ItemImages + child picture Items)',
+    importerClass: MonumentPictureImporter,
+    dependencies: ['monument', 'default-context', 'language'],
+  },
+  {
+    key: 'monument-detail-picture',
+    name: 'Monument Detail Pictures',
+    description: 'Import monument detail pictures (ItemImages + child picture Items)',
+    importerClass: MonumentDetailPictureImporter,
+    dependencies: ['monument-detail', 'default-context', 'language'],
+  },
+  {
+    key: 'partner-picture',
+    name: 'Partner Pictures',
+    description: 'Import museum and institution pictures (PartnerImages)',
+    importerClass: PartnerPictureImporter,
+    dependencies: ['partner'],
+  },
 ];
 
 /**
@@ -145,7 +178,7 @@ class LegacyDatabase implements ILegacyDatabase {
       user: process.env['LEGACY_DB_USER'] || 'root',
       password: process.env['LEGACY_DB_PASSWORD'] || '',
       database: process.env['LEGACY_DB_DATABASE'] || 'mwnf3',
-      multipleStatements: true,
+      multipleStatements: false, // Disabled for security - use single queries
     };
   }
 
@@ -160,11 +193,13 @@ class LegacyDatabase implements ILegacyDatabase {
     }
   }
 
-  async query<T>(sql: string): Promise<T[]> {
+  async query<T>(sql: string, params?: unknown[]): Promise<T[]> {
     if (!this.connection) {
       throw new Error('Database not connected');
     }
-    const [rows] = await this.connection.execute(sql);
+    const [rows] = params
+      ? await this.connection.execute(sql, params)
+      : await this.connection.execute(sql);
     return rows as T[];
   }
 }
@@ -325,8 +360,10 @@ program
           return 'Phase 0: Reference Data';
         } else if (['project', 'partner'].includes(key)) {
           return 'Phase 1: Projects and Partners';
-        } else {
+        } else if (['object', 'monument', 'monument-detail'].includes(key)) {
           return 'Phase 2: Items';
+        } else {
+          return 'Phase 3: Images';
         }
       };
 

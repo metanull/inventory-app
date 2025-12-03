@@ -232,3 +232,69 @@ export interface MonumentDetailGroup {
   detail_id: string;
   translations: LegacyMonumentDetail[];
 }
+
+// ============================================================================
+// Picture Types
+// ============================================================================
+
+export interface LegacyObjectPicture {
+  project_id: string;
+  country: string;
+  museum_id: string;
+  number: number;
+  lang: string;
+  type: string;
+  image_number: number;
+  path: string;
+  caption?: string;
+  photographer?: string;
+  copyright?: string;
+}
+
+export interface LegacyMonumentPicture {
+  project_id: string;
+  country: string;
+  institution_id: string;
+  number: number;
+  lang: string;
+  type: string;
+  image_number: number;
+  path: string;
+  caption?: string;
+  photographer?: string;
+  copyright?: string;
+}
+
+export interface LegacyMonumentDetailPicture {
+  project_id: string;
+  country_id: string;
+  institution_id: string;
+  monument_id: number;
+  lang_id: string;
+  detail_id: number;
+  picture_id: number;
+  path: string;
+  caption?: string;
+  photographer?: string;
+  copyright?: string;
+}
+
+export interface LegacyMuseumPicture {
+  museum_id: string;
+  country: string;
+  image_number: number;
+  path: string;
+  caption?: string;
+  photographer?: string;
+  copyright?: string;
+}
+
+export interface LegacyInstitutionPicture {
+  institution_id: string;
+  country: string;
+  image_number: number;
+  path: string;
+  caption?: string;
+  photographer?: string;
+  copyright?: string;
+}

@@ -27,6 +27,8 @@ import type {
   TagData,
   AuthorData,
   ArtistData,
+  ItemImageData,
+  PartnerImageData,
 } from './types.js';
 
 /**
@@ -164,6 +166,18 @@ export interface IWriteStrategy {
    * @returns The artist UUID
    */
   writeArtist(data: ArtistData): Promise<string>;
+
+  /**
+   * Write an item image record
+   * @returns The item image UUID
+   */
+  writeItemImage(data: ItemImageData): Promise<string>;
+
+  /**
+   * Write a partner image record
+   * @returns The partner image UUID
+   */
+  writePartnerImage(data: PartnerImageData): Promise<string>;
 
   // =========================================================================
   // Lookup Methods
