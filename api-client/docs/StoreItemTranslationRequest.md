@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **context_id** | **string** |  | [default to undefined]
 **name** | **string** |  | [default to undefined]
 **alternate_name** | **string** |  | [optional] [default to undefined]
-**description** | **string** |  | [default to undefined]
+**description** | **string** |  | [optional] [default to undefined]
 **type** | **string** |  | [optional] [default to undefined]
 **holder** | **string** |  | [optional] [default to undefined]
 **owner** | **string** |  | [optional] [default to undefined]

@@ -16,7 +16,7 @@ class HealthTest extends TestCase
     {
         $response = $this->get(route('web.welcome'));
         $response->assertOk();
-        $response->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+        $response->assertHeader('Content-Type', 'text/html; charset=utf-8');
         $response->assertViewIs('home');
     }
 }

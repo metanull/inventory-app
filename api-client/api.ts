@@ -1668,7 +1668,7 @@ export interface StoreItemTranslationRequest {
     'context_id': string;
     'name': string;
     'alternate_name'?: string | null;
-    'description': string;
+    'description'?: string | null;
     'type'?: string | null;
     'holder'?: string | null;
     'owner'?: string | null;
