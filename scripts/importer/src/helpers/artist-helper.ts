@@ -42,7 +42,7 @@ export class ArtistHelper {
     });
 
     // Check tracker first
-    const existing = this.tracker.getUuid(backwardCompat);
+    const existing = this.tracker.getUuid(backwardCompat, 'artist');
     if (existing) {
       return existing;
     }

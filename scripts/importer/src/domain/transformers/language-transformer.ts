@@ -63,10 +63,17 @@ export function transformLanguageTranslation(
   const languageId = mapLanguageCode(legacy.code);
   const targetLanguageId = mapLanguageCode(legacy.lang);
 
+  const backwardCompatibility = formatBackwardCompatibility({
+    schema: 'mwnf3',
+    table: 'langnames',
+    pkValues: [legacy.code, legacy.lang],
+  });
+
   const data: LanguageTranslationData = {
     language_id: languageId,
     display_language_id: targetLanguageId,
     name: legacy.name,
+    backward_compatibility: backwardCompatibility,
   };
 
   return { data };

@@ -39,6 +39,10 @@ import {
   ObjectImporter,
   MonumentImporter,
   MonumentDetailImporter,
+  ObjectPictureImporter,
+  MonumentPictureImporter,
+  MonumentDetailPictureImporter,
+  PartnerPictureImporter,
 } from '../importers/index.js';
 
 // Load environment variables
@@ -128,6 +132,35 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import monument detail items (children of monuments)',
     importerClass: MonumentDetailImporter,
     dependencies: ['monument', 'default-context', 'language'],
+  },
+  // Phase 2: Images
+  {
+    key: 'object-picture',
+    name: 'Object Pictures',
+    description: 'Import object pictures (ItemImages + child picture Items)',
+    importerClass: ObjectPictureImporter,
+    dependencies: ['object', 'default-context', 'language'],
+  },
+  {
+    key: 'monument-picture',
+    name: 'Monument Pictures',
+    description: 'Import monument pictures (ItemImages + child picture Items)',
+    importerClass: MonumentPictureImporter,
+    dependencies: ['monument', 'default-context', 'language'],
+  },
+  {
+    key: 'monument-detail-picture',
+    name: 'Monument Detail Pictures',
+    description: 'Import monument detail pictures (ItemImages + child picture Items)',
+    importerClass: MonumentDetailPictureImporter,
+    dependencies: ['monument-detail', 'default-context', 'language'],
+  },
+  {
+    key: 'partner-picture',
+    name: 'Partner Pictures',
+    description: 'Import museum and institution pictures (PartnerImages)',
+    importerClass: PartnerPictureImporter,
+    dependencies: ['partner'],
   },
 ];
 
@@ -325,8 +358,10 @@ program
           return 'Phase 0: Reference Data';
         } else if (['project', 'partner'].includes(key)) {
           return 'Phase 1: Projects and Partners';
-        } else {
+        } else if (['object', 'monument', 'monument-detail'].includes(key)) {
           return 'Phase 2: Items';
+        } else {
+          return 'Phase 3: Images';
         }
       };
 

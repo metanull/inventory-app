@@ -62,10 +62,17 @@ export function transformCountryTranslation(
   const countryId = mapCountryCode(legacy.code);
   const languageId = mapLanguageCode(legacy.lang);
 
+  const backwardCompatibility = formatBackwardCompatibility({
+    schema: 'mwnf3',
+    table: 'countrynames',
+    pkValues: [legacy.code, legacy.lang],
+  });
+
   const data: CountryTranslationData = {
     country_id: countryId,
     language_id: languageId,
     name: legacy.name,
+    backward_compatibility: backwardCompatibility,
   };
 
   return { data };

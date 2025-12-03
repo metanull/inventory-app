@@ -35,7 +35,7 @@ export class AuthorHelper {
     });
 
     // Check tracker first
-    const existing = this.tracker.getUuid(backwardCompat);
+    const existing = this.tracker.getUuid(backwardCompat, 'author');
     if (existing) {
       return existing;
     }

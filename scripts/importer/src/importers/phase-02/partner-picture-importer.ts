@@ -1,0 +1,291 @@
+/**
+ * Partner Picture Importer
+ *
+ * Imports pictures from mwnf3.museums_pictures and mwnf3.institutions_pictures.
+ *
+ * Strategy:
+ * - Simpler than Item pictures - direct attachment to Partner
+ * - No child items created
+ * - Each picture becomes a PartnerImage
+ * - Caption, photographer, copyright stored as metadata
+ */
+
+import { BaseImporter } from '../../core/base-importer.js';
+import type { ImportResult, PartnerImageData } from '../../core/types.js';
+import type { LegacyMuseumPicture, LegacyInstitutionPicture } from '../../domain/types/index.js';
+import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
+import path from 'path';
+
+export class PartnerPictureImporter extends BaseImporter {
+  getName(): string {
+    return 'PartnerPictureImporter';
+  }
+
+  async import(): Promise<ImportResult> {
+    const result = this.createResult();
+
+    try {
+      this.logInfo('Importing partner pictures...');
+
+      // Import museum pictures
+      const museumResult = await this.importMuseumPictures();
+      result.imported += museumResult.imported;
+      result.skipped += museumResult.skipped;
+      result.errors.push(...museumResult.errors);
+
+      // Import institution pictures
+      const institutionResult = await this.importInstitutionPictures();
+      result.imported += institutionResult.imported;
+      result.skipped += institutionResult.skipped;
+      result.errors.push(...institutionResult.errors);
+
+      this.showSummary(result.imported, result.skipped, result.errors.length);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      result.errors.push(`Failed to import partner pictures: ${message}`);
+      result.success = false;
+    }
+
+    result.success = result.errors.length === 0;
+    return result;
+  }
+
+  private async importMuseumPictures(): Promise<ImportResult> {
+    const result = this.createResult();
+
+    try {
+      this.logInfo('Importing museum pictures...');
+
+      const pictures = await this.context.legacyDb.query<LegacyMuseumPicture>(
+        'SELECT * FROM mwnf3.museums_pictures ORDER BY museum_id, country, image_number'
+      );
+
+      if (pictures.length === 0) {
+        this.logInfo('No museum pictures found');
+        return result;
+      }
+
+      this.logInfo(`Found ${pictures.length} museum pictures`);
+
+      // Import each picture
+      for (const picture of pictures) {
+        try {
+          const imported = await this.importMuseumPicture(picture);
+          if (imported) {
+            result.imported++;
+            this.showProgress();
+          } else {
+            result.skipped++;
+            this.showSkipped();
+          }
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          const backwardCompat = formatBackwardCompatibility({
+            schema: 'mwnf3',
+            table: 'museums_pictures',
+            pkValues: [picture.museum_id, picture.country, String(picture.image_number)],
+          });
+          result.errors.push(`${backwardCompat}: ${message}`);
+          this.logError(`Museum picture ${backwardCompat}`, error);
+          this.showError();
+        }
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      result.errors.push(`Failed to query museum pictures: ${message}`);
+    }
+
+    return result;
+  }
+
+  private async importMuseumPicture(picture: LegacyMuseumPicture): Promise<boolean> {
+    const backwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'museums_pictures',
+      pkValues: [picture.museum_id, picture.country, String(picture.image_number)],
+    });
+
+    // Check if already imported using lowercase path as unique identifier
+    const imageKey = picture.path.toLowerCase();
+    if (this.entityExists(imageKey, 'image')) {
+      return false;
+    }
+
+    if (this.isDryRun || this.isSampleOnlyMode) {
+      this.logInfo(
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import museum picture: ${backwardCompat}`
+      );
+      this.registerEntity(`sample-image-${backwardCompat}`, imageKey, 'image');
+      return true;
+    }
+
+    // Find Partner
+    const partnerBackwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'museums',
+      pkValues: [picture.museum_id, picture.country],
+    });
+    const partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
+    if (!partnerId) {
+      throw new Error(`Partner not found: ${partnerBackwardCompat}`);
+    }
+
+    // Build alt_text from caption or use path
+    let altText = picture.path;
+    if (picture.caption && picture.caption.trim()) {
+      altText = picture.caption.trim();
+    }
+
+    // Truncate alt_text if too long (database limit)
+    if (altText.length > 500) {
+      altText = altText.substring(0, 497) + '...';
+    }
+
+    // Extract metadata
+    const mimeType = this.getMimeType(picture.path);
+    const originalName = path.basename(picture.path);
+
+    // Create PartnerImage
+    const imageData: PartnerImageData = {
+      id: undefined,
+      partner_id: partnerId,
+      path: picture.path,
+      original_name: originalName,
+      mime_type: mimeType,
+      size: 1, // Fake size as required
+      alt_text: altText || null,
+      display_order: picture.image_number,
+    };
+
+    await this.context.strategy.writePartnerImage(imageData);
+    // Image is tracked by path in writePartnerImage, no need to register here
+
+    return true;
+  }
+
+  private async importInstitutionPictures(): Promise<ImportResult> {
+    const result = this.createResult();
+
+    try {
+      this.logInfo('Importing institution pictures...');
+
+      const pictures = await this.context.legacyDb.query<LegacyInstitutionPicture>(
+        'SELECT * FROM mwnf3.institutions_pictures ORDER BY institution_id, country, image_number'
+      );
+
+      if (pictures.length === 0) {
+        this.logInfo('No institution pictures found');
+        return result;
+      }
+
+      this.logInfo(`Found ${pictures.length} institution pictures`);
+
+      // Import each picture
+      for (const picture of pictures) {
+        try {
+          const imported = await this.importInstitutionPicture(picture);
+          if (imported) {
+            result.imported++;
+            this.showProgress();
+          } else {
+            result.skipped++;
+            this.showSkipped();
+          }
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          const backwardCompat = formatBackwardCompatibility({
+            schema: 'mwnf3',
+            table: 'institutions_pictures',
+            pkValues: [picture.institution_id, picture.country, String(picture.image_number)],
+          });
+          result.errors.push(`${backwardCompat}: ${message}`);
+          this.logError(`Institution picture ${backwardCompat}`, error);
+          this.showError();
+        }
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      result.errors.push(`Failed to query institution pictures: ${message}`);
+    }
+
+    return result;
+  }
+
+  private async importInstitutionPicture(picture: LegacyInstitutionPicture): Promise<boolean> {
+    const backwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'institutions_pictures',
+      pkValues: [picture.institution_id, picture.country, String(picture.image_number)],
+    });
+
+    // Check if already imported using lowercase path as unique identifier
+    const imageKey = picture.path.toLowerCase();
+    if (this.entityExists(imageKey, 'image')) {
+      return false;
+    }
+
+    if (this.isDryRun || this.isSampleOnlyMode) {
+      this.logInfo(
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import institution picture: ${backwardCompat}`
+      );
+      this.registerEntity(`sample-image-${backwardCompat}`, imageKey, 'image');
+      return true;
+    }
+
+    // Find Partner
+    const partnerBackwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'institutions',
+      pkValues: [picture.institution_id, picture.country],
+    });
+    const partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
+    if (!partnerId) {
+      throw new Error(`Partner not found: ${partnerBackwardCompat}`);
+    }
+
+    // Build alt_text from caption or use path
+    let altText = picture.path;
+    if (picture.caption && picture.caption.trim()) {
+      altText = picture.caption.trim();
+    }
+
+    // Truncate alt_text if too long (database limit)
+    if (altText.length > 500) {
+      altText = altText.substring(0, 497) + '...';
+    }
+
+    // Extract metadata
+    const mimeType = this.getMimeType(picture.path);
+    const originalName = path.basename(picture.path);
+
+    // Create PartnerImage
+    const imageData: PartnerImageData = {
+      id: undefined,
+      partner_id: partnerId,
+      path: picture.path,
+      original_name: originalName,
+      mime_type: mimeType,
+      size: 1, // Fake size as required
+      alt_text: altText || null,
+      display_order: picture.image_number,
+    };
+
+    await this.context.strategy.writePartnerImage(imageData);
+    // Image is tracked by path in writePartnerImage, no need to register here
+
+    return true;
+  }
+
+  private getMimeType(filePath: string): string {
+    const ext = path.extname(filePath).toLowerCase();
+    const mimeTypes: Record<string, string> = {
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.gif': 'image/gif',
+      '.webp': 'image/webp',
+      '.svg': 'image/svg+xml',
+    };
+    return mimeTypes[ext] || 'image/jpeg';
+  }
+}
