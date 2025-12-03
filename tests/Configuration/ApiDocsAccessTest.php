@@ -66,7 +66,7 @@ class ApiDocsAccessTest extends TestCase
         });
 
         $response = $this->get(route('scramble.docs.ui'));
-        $response->assertHeader('content-type', 'text/html; charset=UTF-8');
+        $response->assertHeader('content-type', 'text/html; charset=utf-8');
 
         $response = $this->get(route('scramble.docs.document'));
         $response->assertHeader('content-type', 'application/json');
