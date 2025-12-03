@@ -18924,7 +18924,10 @@
                         "maxLength": 255
                     },
                     "description": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "type": {
                         "type": [
@@ -19045,8 +19048,7 @@
                     "item_id",
                     "language_id",
                     "context_id",
-                    "name",
-                    "description"
+                    "name"
                 ],
                 "title": "StoreItemTranslationRequest"
             },
