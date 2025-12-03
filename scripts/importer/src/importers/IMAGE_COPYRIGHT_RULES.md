@@ -1,7 +1,8 @@
 # Copyright Rules
 
 ## Watermark eligibility
-Only the sections listed in DatabaseCopyrightResolver::WATERMARK_SECTIONS (objects, monuments, trails + variants, activities, products, books, schools, presslounge, explore_location, sh_*, thg_*, etc.) receive a copyright. Other sections fall back to '© Museum With No Frontiers'.
+
+Only the sections listed in DatabaseCopyrightResolver::WATERMARK*SECTIONS (objects, monuments, trails + variants, activities, products, books, schools, presslounge, explore_location, sh*_, thg\__, etc.) receive a copyright. Other sections fall back to '© Museum With No Frontiers'.
 
 ## Global defaults & special cases
 
@@ -33,5 +34,3 @@ When the respective DB connection is missing or the query returns nothing, the r
 
 - Sharing History: '© MWNF | Sharing History' (objects), '© MWNF | Sharing History' (monuments/about).
 - Thematic Gallery: '© MWNF | Thematic Gallery' or '© MWNF | Thematic Gallery', depending on length.
-
-
