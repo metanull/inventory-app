@@ -23,7 +23,7 @@ import type {
 import type { LegacyMonumentDetailPicture } from '../../domain/types/index.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 import { mapLanguageCode } from '../../utils/code-mappings.js';
-import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
+import { convertHtmlToMarkdown, stripHtml } from '../../utils/html-to-markdown.js';
 import { ArtistHelper } from '../../helpers/artist-helper.js';
 import path from 'path';
 
@@ -251,13 +251,19 @@ export class MonumentDetailPictureImporter extends BaseImporter {
       throw new Error(`Partner not found: ${partnerBackwardCompat}`);
     }
 
+    // Get parent's internal_name from metadata
+    const parentInternalName = this.context.tracker.getMetadata(`internal_name:${parentItemId}`);
+    if (!parentInternalName) {
+      throw new Error(`Parent item internal_name not found: ${parentItemId}`);
+    }
+
     // No extra field needed (monument detail pictures don't have type field)
     const extra: Record<string, unknown> = {};
 
     // Create Item
     const itemData: ItemData = {
       type: 'picture',
-      internal_name: `Picture ${group.picture_id} for ${group.project_id}:${group.institution_id}:${group.monument_id}:${group.detail_id}`,
+      internal_name: `${parentInternalName}, Image ${group.picture_id}`,
       collection_id: collectionId,
       partner_id: partnerId,
       parent_id: parentItemId,
@@ -319,7 +325,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
       ],
     });
     const parentName = await this.getParentItemName(parentBackwardCompat, languageId);
-    const name = parentName ? convertHtmlToMarkdown(parentName) : `Image ${translation.picture_id}`;
+    const name = parentName ? stripHtml(parentName).trim() : `Image ${translation.picture_id}`;
 
     // Use caption as description if present (empty string if no caption, as field doesn't accept null)
     const description =

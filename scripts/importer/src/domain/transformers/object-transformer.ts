@@ -14,7 +14,7 @@ import type { LegacyObject, ObjectGroup } from '../types/index.js';
 import type { ItemData, ItemTranslationData } from '../../core/types.js';
 import { mapLanguageCode, mapCountryCode } from '../../utils/code-mappings.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
-import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
+import { convertHtmlToMarkdown, stripHtml } from '../../utils/html-to-markdown.js';
 
 /**
  * Transformed object result
@@ -129,7 +129,7 @@ export function transformObject(group: ObjectGroup, defaultLanguageId: string): 
   if (!selectedTranslation!.name) {
     throw new Error(`Object ${backwardCompatibility} missing required name field`);
   }
-  const internalName = convertHtmlToMarkdown(selectedTranslation!.name);
+  const internalName = stripHtml(selectedTranslation!.name).trim();
 
   const data: Omit<ItemData, 'collection_id' | 'partner_id' | 'project_id'> = {
     type: 'object',

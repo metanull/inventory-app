@@ -23,7 +23,7 @@ import type {
 import type { LegacyObjectPicture } from '../../domain/types/index.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 import { mapLanguageCode } from '../../utils/code-mappings.js';
-import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
+import { convertHtmlToMarkdown, stripHtml } from '../../utils/html-to-markdown.js';
 import { ArtistHelper } from '../../helpers/artist-helper.js';
 import path from 'path';
 
@@ -247,6 +247,12 @@ export class ObjectPictureImporter extends BaseImporter {
       throw new Error(`Partner not found: ${partnerBackwardCompat}`);
     }
 
+    // Get parent's internal_name from metadata
+    const parentInternalName = this.context.tracker.getMetadata(`internal_name:${parentItemId}`);
+    if (!parentInternalName) {
+      throw new Error(`Parent item internal_name not found: ${parentItemId}`);
+    }
+
     // Build extra with legacy type if not empty
     const extra: Record<string, unknown> = {};
     if (group.type && group.type.trim() !== '') {
@@ -256,7 +262,7 @@ export class ObjectPictureImporter extends BaseImporter {
     // Create Item
     const itemData: ItemData = {
       type: 'picture',
-      internal_name: `Picture ${group.image_number} for ${group.project_id}:${group.museum_id}:${group.number}`,
+      internal_name: `${parentInternalName}, Image ${group.image_number}`,
       collection_id: collectionId,
       partner_id: partnerId,
       parent_id: parentItemId,
@@ -317,7 +323,7 @@ export class ObjectPictureImporter extends BaseImporter {
     });
     const parentName = await this.getParentItemName(parentBackwardCompat, languageId);
     const name = parentName
-      ? convertHtmlToMarkdown(parentName)
+      ? stripHtml(parentName).trim()
       : `Image ${translation.image_number}`;
 
     // Use caption as description if present (empty string if no caption, as field doesn't accept null)

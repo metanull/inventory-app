@@ -9,7 +9,7 @@ import type { LegacyMonument, MonumentGroup } from '../types/index.js';
 import type { ItemData, ItemTranslationData } from '../../core/types.js';
 import { mapLanguageCode, mapCountryCode } from '../../utils/code-mappings.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
-import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
+import { convertHtmlToMarkdown, stripHtml } from '../../utils/html-to-markdown.js';
 import { parseTagString } from './object-transformer.js';
 
 /**
@@ -114,7 +114,7 @@ export function transformMonument(
   if (!selectedTranslation!.name) {
     throw new Error(`Monument ${backwardCompatibility} missing required name field`);
   }
-  const internalName = convertHtmlToMarkdown(selectedTranslation!.name);
+  const internalName = stripHtml(selectedTranslation!.name).trim();
 
   const data: Omit<ItemData, 'collection_id' | 'partner_id' | 'project_id'> = {
     type: 'monument',

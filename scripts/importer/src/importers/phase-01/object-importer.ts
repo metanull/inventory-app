@@ -190,6 +190,7 @@ export class ObjectImporter extends BaseImporter {
 
     const itemId = await this.context.strategy.writeItem(itemData);
     this.registerEntity(itemId, transformed.backwardCompatibility, 'item');
+    this.context.tracker.setMetadata(`internal_name:${itemId}`, itemData.internal_name);
 
     // Create translations
     const translationPlans = planTranslations(group, hasEpmContext);
