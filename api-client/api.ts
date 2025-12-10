@@ -1606,7 +1606,6 @@ export interface StoreCountryTranslationRequest {
     'extra'?: Array<string> | null;
 }
 export interface StoreGlossaryRequest {
-    'id'?: string;
     'internal_name': string;
     'backward_compatibility'?: string | null;
 }
