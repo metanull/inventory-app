@@ -18654,9 +18654,6 @@
             "StoreGlossaryRequest": {
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
                     "internal_name": {
                         "type": "string"
                     },

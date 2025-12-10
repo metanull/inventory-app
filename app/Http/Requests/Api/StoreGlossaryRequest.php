@@ -14,7 +14,6 @@ class StoreGlossaryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => ['prohibited'],
             'internal_name' => ['required', 'string', 'unique:glossaries,internal_name'],
             'backward_compatibility' => ['nullable', 'string'],
         ];
