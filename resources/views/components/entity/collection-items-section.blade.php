@@ -46,7 +46,7 @@
                                         </a>
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
                                             <x-display.item-type-icon :type="$item->type" class="w-3 h-3 mr-1" />
-                                            {{ ucfirst($item->type) }}
+                                            {{ $item->type->label() }}
                                         </span>
                                     </div>
                                     @if($item->backward_compatibility)
