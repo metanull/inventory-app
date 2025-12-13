@@ -373,6 +373,20 @@ export class SqlWriteStrategy implements IWriteStrategy {
     }
   }
 
+  async attachItemsToCollection(collectionId: string, itemIds: string[]): Promise<void> {
+    for (const itemId of itemIds) {
+      try {
+        await this.db.execute(
+          `INSERT IGNORE INTO collection_item (collection_id, item_id, created_at, updated_at)
+           VALUES (?, ?, ?, ?)`,
+          [collectionId, itemId, this.now, this.now]
+        );
+      } catch {
+        // Ignore duplicates
+      }
+    }
+  }
+
   // =========================================================================
   // Supporting Entities
   // =========================================================================
