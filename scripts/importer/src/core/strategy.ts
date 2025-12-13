@@ -152,6 +152,18 @@ export interface IWriteStrategy {
    */
   attachItemsToCollection(collectionId: string, itemIds: string[]): Promise<void>;
 
+  /**
+   * Attach partners to a collection via many-to-many relationship
+   * @param collectionId The collection UUID
+   * @param partnerIds Array of partner UUIDs
+   * @param collectionType The collection type (default: 'project')
+   */
+  attachPartnersToCollection(
+    collectionId: string,
+    partnerIds: string[],
+    collectionType?: string
+  ): Promise<void>;
+
   // =========================================================================
   // Supporting Entities
   // =========================================================================
