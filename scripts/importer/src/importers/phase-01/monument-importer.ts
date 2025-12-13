@@ -257,6 +257,9 @@ export class MonumentImporter extends BaseImporter {
     // Attach item to its collection via many-to-many relationship
     await this.context.strategy.attachItemsToCollection(collectionId, [itemId]);
 
+    // Attach partner to collection (gracefully handles duplicates)
+    await this.context.strategy.attachPartnersToCollection(collectionId, [partnerId], 'project');
+
     return true;
   }
 }

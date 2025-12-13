@@ -387,6 +387,24 @@ export class SqlWriteStrategy implements IWriteStrategy {
     }
   }
 
+  async attachPartnersToCollection(
+    collectionId: string,
+    partnerIds: string[],
+    collectionType: string = 'project'
+  ): Promise<void> {
+    for (const partnerId of partnerIds) {
+      try {
+        await this.db.execute(
+          `INSERT IGNORE INTO collection_partner (collection_id, collection_type, partner_id, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?)`,
+          [collectionId, collectionType, partnerId, this.now, this.now]
+        );
+      } catch {
+        // Ignore duplicates - this is expected when multiple items share the same partner
+      }
+    }
+  }
+
   // =========================================================================
   // Supporting Entities
   // =========================================================================
