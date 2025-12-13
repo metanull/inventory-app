@@ -3,7 +3,7 @@
 	if ( 'I know what I do!' -eq (Read-Host -Prompt 'Type "I know what I do!" to continue...')) {
 		$Managers = @('havelangep@hotmail.com')
 		$Users = @('havelangep@hotmail.com', 'havelangep@gmail.com', 'evaplaysviolin@gmail.com', 'eva@museumwnf.net', 'management@museumwnf.net')
-		$Directory = 'C:\mwnf-server\github-apps\production\inventory-app'
+		$Directory = Split-Path -Parent $PSScriptRoot
 
 		if ((Resolve-Path $Directory -ErrorAction Continue)) {
 			Set-Location $Directory

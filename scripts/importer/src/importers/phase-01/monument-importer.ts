@@ -254,6 +254,9 @@ export class MonumentImporter extends BaseImporter {
       }
     }
 
+    // Attach item to its collection via many-to-many relationship
+    await this.context.strategy.attachItemsToCollection(collectionId, [itemId]);
+
     return true;
   }
 }

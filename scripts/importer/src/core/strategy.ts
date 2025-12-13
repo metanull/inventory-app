@@ -145,6 +145,13 @@ export interface IWriteStrategy {
    */
   attachArtistsToItem(itemId: string, artistIds: string[]): Promise<void>;
 
+  /**
+   * Attach items to a collection via many-to-many relationship
+   * @param collectionId The collection UUID
+   * @param itemIds Array of item UUIDs
+   */
+  attachItemsToCollection(collectionId: string, itemIds: string[]): Promise<void>;
+
   // =========================================================================
   // Supporting Entities
   // =========================================================================
