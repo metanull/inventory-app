@@ -52,7 +52,7 @@
                                                 </a>
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
                                                     <x-display.item-type-icon :type="$link->target->type" class="w-3 h-3 mr-1" />
-                                                    {{ ucfirst($link->target->type) }}
+                                                    {{ $link->target->type->label() }}
                                                 </span>
                                             </div>
                                         </div>
@@ -123,7 +123,7 @@
                                                 </a>
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
                                                     <x-display.item-type-icon :type="$link->source->type" class="w-3 h-3 mr-1" />
-                                                    {{ ucfirst($link->source->type) }}
+                                                    {{ $link->source->type->label() }}
                                                 </span>
                                             </div>
                                         </div>
