@@ -205,16 +205,120 @@ class LegacyDatabase implements ILegacyDatabase {
 }
 
 /**
+ * Resilient database connection wrapper with automatic reconnection
+ */
+class ResilientConnection {
+  private connection: mysql.Connection | null = null;
+  private config: mysql.ConnectionOptions;
+  private reconnecting = false;
+
+  constructor(config: mysql.ConnectionOptions) {
+    this.config = config;
+  }
+
+  async connect(): Promise<void> {
+    this.connection = await mysql.createConnection(this.config);
+    
+    // Handle connection errors
+    this.connection.on('error', (err: Error & { code?: string }) => {
+      console.error('[ResilientConnection] Connection error:', err.message);
+      if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'ECONNRESET') {
+        this.reconnect().catch(reconnectErr => console.error('[ResilientConnection] Reconnect failed:', reconnectErr));
+      }
+    });
+  }
+
+  private async reconnect(): Promise<void> {
+    if (this.reconnecting) return;
+    
+    this.reconnecting = true;
+    console.log('[ResilientConnection] Connection lost, attempting to reconnect...');
+    
+    try {
+      if (this.connection) {
+        try {
+          await this.connection.end();
+        } catch {
+          // Ignore errors when closing dead connection
+        }
+      }
+      
+      await this.connect();
+      console.log('[ResilientConnection] Reconnected successfully');
+    } finally {
+      this.reconnecting = false;
+    }
+  }
+
+  async execute<T extends mysql.RowDataPacket[] | mysql.RowDataPacket[][] | mysql.OkPacket | mysql.OkPacket[] | mysql.ResultSetHeader>(
+    sql: string,
+    values?: unknown
+  ): Promise<[T, mysql.FieldPacket[]]> {
+    const maxRetries = 5;
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        if (!this.connection) {
+          await this.connect();
+        }
+
+        if (!this.connection) {
+          throw new Error('Failed to establish connection');
+        }
+
+        return await this.connection.execute<T>(sql, values);
+      } catch (err) {
+        const error = err as Error & { code?: string };
+        lastError = error;
+        const isConnectionError = 
+          error.code === 'PROTOCOL_CONNECTION_LOST' ||
+          error.code === 'ECONNRESET' ||
+          error.message?.includes('connection is in closed state');
+
+        if (isConnectionError && attempt < maxRetries) {
+          console.log(`[ResilientConnection] Connection error on attempt ${attempt}/${maxRetries}, retrying in ${attempt * 2}s...`);
+          await new Promise(resolve => setTimeout(resolve, attempt * 2000));
+          await this.reconnect();
+        } else if (!isConnectionError) {
+          // Not a connection error, throw immediately
+          throw err;
+        }
+      }
+    }
+
+    throw new Error(`Failed after ${maxRetries} attempts: ${lastError?.message}`);
+  }
+
+  async end(): Promise<void> {
+    if (this.connection) {
+      await this.connection.end();
+      this.connection = null;
+    }
+  }
+
+  getConnection(): mysql.Connection {
+    if (!this.connection) {
+      throw new Error('Connection not established');
+    }
+    return this.connection;
+  }
+}
+
+/**
  * Create connection to new database
  */
-async function createNewDbConnection(): Promise<mysql.Connection> {
-  return mysql.createConnection({
+async function createNewDbConnection(): Promise<ResilientConnection> {
+  const resilientConn = new ResilientConnection({
     host: process.env['DB_HOST'] || 'localhost',
     port: parseInt(process.env['DB_PORT'] || '3306', 10),
     user: process.env['DB_USERNAME'] || 'root',
     password: process.env['DB_PASSWORD'] || '',
     database: process.env['DB_DATABASE'] || 'inventory',
   });
+  
+  await resilientConn.connect();
+  return resilientConn;
 }
 
 /**

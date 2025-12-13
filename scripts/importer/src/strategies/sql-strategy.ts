@@ -6,7 +6,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import type { Connection, RowDataPacket } from 'mysql2/promise';
+import type { RowDataPacket } from 'mysql2/promise';
 import type { IWriteStrategy } from '../core/strategy.js';
 import type {
   EntityType,
@@ -51,12 +51,21 @@ function mapTableToEntityType(table: string): EntityType | null {
 }
 import type { ITracker } from '../core/tracker.js';
 
+// Type for resilient connection wrapper
+type DatabaseConnection = {
+  execute<T extends RowDataPacket[] | RowDataPacket[][] | import('mysql2').OkPacket | import('mysql2').OkPacket[] | import('mysql2').ResultSetHeader>(
+    sql: string,
+    values?: unknown
+  ): Promise<[T, import('mysql2').FieldPacket[]]>;
+  end(): Promise<void>;
+};
+
 export class SqlWriteStrategy implements IWriteStrategy {
-  private db: Connection;
+  private db: DatabaseConnection;
   private tracker: ITracker;
   private now: string;
 
-  constructor(db: Connection, tracker: ITracker) {
+  constructor(db: DatabaseConnection, tracker: ITracker) {
     this.db = db;
     this.tracker = tracker;
     this.now = new Date().toISOString().slice(0, 19).replace('T', ' ');
