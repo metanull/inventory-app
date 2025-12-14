@@ -69,9 +69,11 @@ class AvailableImageTest extends TestCase
         $availableImageListener->handle($availableImageEvent);
 
         // The Listener should have created a new image in the public disk, and have updated
-        // the path of the AvailableImage model to point to the new image in the public disk.
+        // the path of the AvailableImage model to point to just the filename
         $availableImage->refresh();
-        $this->assertFileExists(Storage::disk('public')->path($availableImage->path));
+        $directory = trim(config('localstorage.available.images.directory'), '/');
+        $fullPath = $directory.'/'.$availableImage->path;
+        $this->assertFileExists(Storage::disk('public')->path($fullPath));
     }
 
     public function test_availableimagelistener_updates_the_image_path_in_database(): void

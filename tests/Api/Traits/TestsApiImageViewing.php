@@ -22,8 +22,21 @@ trait TestsApiImageViewing
     {
         // Set up fake storage for image tests
         Storage::fake('local');
-        // Configure the storage disk for images
-        config(['localstorage.available.images.disk' => 'local']);
+        Storage::fake('public');
+
+        // Configure the storage disks for images based on model class
+        $modelClass = $this->getModelClass();
+
+        // AvailableImage uses available.images config
+        if (str_contains($modelClass, 'AvailableImage')) {
+            config(['localstorage.available.images.disk' => 'local']);
+            config(['localstorage.available.images.directory' => 'images']);
+        }
+        // ItemImage, PartnerImage, etc use pictures config
+        else {
+            config(['localstorage.pictures.disk' => 'local']);
+            config(['localstorage.pictures.directory' => 'pictures']);
+        }
     }
 
     protected function createTestImageFile(string $path): void
@@ -47,12 +60,19 @@ trait TestsApiImageViewing
         $this->setUpImageStorage();
 
         $modelClass = $this->getModelClass();
-        $imagePath = 'images/test-download.jpg';
 
-        $this->createTestImageFile($imagePath);
+        // Determine directory based on model class
+        $directory = str_contains($modelClass, 'AvailableImage') ? 'images' : 'pictures';
 
-        // Create image with path and optional fields based on what the model supports
-        $attributes = ['path' => $imagePath];
+        // Store file with directory on disk
+        $storagePathOnDisk = $directory.'/test-download.jpg';
+        // But database should store just filename
+        $pathInDatabase = 'test-download.jpg';
+
+        $this->createTestImageFile($storagePathOnDisk);
+
+        // Create image with path and optional columns if the model supports them
+        $attributes = ['path' => $pathInDatabase];
 
         if ($this->hasColumn('original_name')) {
             $attributes['original_name'] = 'test-download.jpg';
@@ -84,8 +104,9 @@ trait TestsApiImageViewing
         $this->setUpImageStorage();
 
         $modelClass = $this->getModelClass();
+        // Database stores just filename
         $image = $modelClass::factory()->create(array_merge($this->getFactoryData(), [
-            'path' => 'images/non-existent-file.jpg',
+            'path' => 'non-existent-file.jpg',
         ]));
 
         $response = $this->get(route($this->getResourceName().'.download', $image));
@@ -98,12 +119,19 @@ trait TestsApiImageViewing
         $this->setUpImageStorage();
 
         $modelClass = $this->getModelClass();
-        $imagePath = 'images/test-view.jpg';
 
-        $this->createTestImageFile($imagePath);
+        // Determine directory based on model class
+        $directory = str_contains($modelClass, 'AvailableImage') ? 'images' : 'pictures';
+
+        // Store file with directory on disk
+        $storagePathOnDisk = $directory.'/test-view.jpg';
+        // But database should store just filename
+        $pathInDatabase = 'test-view.jpg';
+
+        $this->createTestImageFile($storagePathOnDisk);
 
         // Create image with path and optional mime_type if the model supports it
-        $attributes = ['path' => $imagePath];
+        $attributes = ['path' => $pathInDatabase];
 
         if ($this->hasColumn('mime_type')) {
             $attributes['mime_type'] = 'image/jpeg';

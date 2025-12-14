@@ -44,6 +44,7 @@ import {
   MonumentDetailPictureImporter,
   PartnerPictureImporter,
 } from '../importers/index.js';
+import { ImageSyncTool } from '../tools/image-sync.js';
 
 // Load environment variables
 dotenv.config({ path: resolve(process.cwd(), '.env') });
@@ -201,6 +202,17 @@ class LegacyDatabase implements ILegacyDatabase {
       ? await this.connection.execute(sql, params)
       : await this.connection.execute(sql);
     return rows as T[];
+  }
+
+  async execute(sql: string, params?: unknown[]): Promise<void> {
+    if (!this.connection) {
+      throw new Error('Database not connected');
+    }
+    if (params) {
+      await this.connection.execute(sql, params);
+    } else {
+      await this.connection.execute(sql);
+    }
   }
 }
 
@@ -636,6 +648,104 @@ program
       process.exit(1);
     } else {
       console.log(chalk.green('\n✓ All connections validated successfully.'));
+    }
+  });
+
+program
+  .command('image-sync')
+  .description('Synchronize legacy images to new storage (ItemImages and PartnerImages with size=1)')
+  .option('--symlink', 'Create symbolic links instead of copying files', false)
+  .option('--dry-run', 'Simulate synchronization without making changes', false)
+  .action(async (options) => {
+    const logger = new FileLogger('ImageSync', 'logs');
+
+    try {
+      const useSymlink = options.symlink === true;
+      const dryRun = options.dryRun === true;
+
+      console.log(chalk.bold('='.repeat(80)));
+      console.log(chalk.bold.cyan('IMAGE SYNCHRONIZATION'));
+      console.log(chalk.bold('='.repeat(80)));
+      console.log(chalk.gray(`Start time: ${new Date().toISOString()}`));
+      console.log(chalk.gray(`Log file: ${logger.getLogFilePath()}`));
+      console.log(chalk.gray(`Mode: ${useSymlink ? 'SYMLINK' : 'COPY'}`));
+      console.log(chalk.gray(`Dry-run: ${dryRun ? 'YES' : 'NO'}`));
+      console.log('');
+
+      logger.info(
+        `Image sync started with options: symlink=${useSymlink}, dryRun=${dryRun}`
+      );
+
+      // Get configuration
+      const legacyImagesRoot = process.env['LEGACY_IMAGES_ROOT'] || 'C:\\mwnf-server\\pictures\\images';
+      
+      // Get new images root from Laravel artisan command
+      console.log(chalk.cyan('Getting image storage path from Laravel...'));
+      const { exec } = await import('child_process');
+      const { promisify } = await import('util');
+      const execAsync = promisify(exec);
+      
+      const laravelRoot = resolve(process.cwd(), '../..');
+      const { stdout } = await execAsync('php artisan storage:image-path pictures', { cwd: laravelRoot });
+      const newImagesRoot = stdout.trim();
+      
+      console.log(chalk.green(`✓ Image storage path: ${newImagesRoot}`));
+      logger.info(`Image storage path: ${newImagesRoot}`);
+
+      // Connect to database
+      console.log(chalk.cyan('Connecting to database...'));
+      const newDb = await createNewDbConnection();
+      console.log(chalk.green('✓ Database connected'));
+      logger.info('Database connected');
+
+      // Create and run image sync tool
+      const tool = new ImageSyncTool(
+        newDb.getConnection(),
+        {
+          useSymlink,
+          legacyImagesRoot,
+          newImagesRoot,
+          dryRun,
+        },
+        logger
+      );
+
+      const result = await tool.run();
+
+      // Cleanup
+      await newDb.end();
+      console.log(chalk.green('\n✓ Database disconnected'));
+
+      // Final summary
+      console.log('');
+      console.log(chalk.bold('='.repeat(80)));
+      if (result.success) {
+        console.log(chalk.bold.green('IMAGE SYNC COMPLETED SUCCESSFULLY'));
+        console.log(chalk.gray(`End time: ${new Date().toISOString()}`));
+        console.log(chalk.green(`✓ ${result.imported} images synchronized`));
+        console.log(chalk.yellow(`⊘ ${result.skipped} images skipped`));
+      } else {
+        console.log(chalk.bold.red('IMAGE SYNC COMPLETED WITH ERRORS'));
+        console.log(chalk.gray(`End time: ${new Date().toISOString()}`));
+        console.log(chalk.green(`✓ ${result.imported} images synchronized`));
+        console.log(chalk.yellow(`⊘ ${result.skipped} images skipped`));
+        console.log(chalk.red(`✗ ${result.errors.length} errors`));
+        console.log('');
+        console.log(chalk.red('Errors:'));
+        result.errors.slice(0, 10).forEach((err) => console.log(chalk.red(`  - ${err}`)));
+        if (result.errors.length > 10) {
+          console.log(chalk.red(`  ... and ${result.errors.length - 10} more errors`));
+        }
+      }
+      console.log(chalk.bold('='.repeat(80)));
+
+      process.exit(result.success ? 0 : 1);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error('ImageSync', error);
+      console.log(chalk.red(`\n❌ Image sync failed: ${message}`));
+      console.log(chalk.red(error instanceof Error ? error.stack : ''));
+      process.exit(1);
     }
   });
 

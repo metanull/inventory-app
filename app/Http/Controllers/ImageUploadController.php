@@ -28,9 +28,10 @@ class ImageUploadController extends Controller
 
         // Store the file in the local/private directory and disk.
         $file = $request->file('file');
-        $path = $file->store(config('localstorage.uploads.images.directory'), config('localstorage.uploads.images.disk'));
+        $storagePath = $file->store(config('localstorage.uploads.images.directory'), config('localstorage.uploads.images.disk'));
 
-        $validated['path'] = $path;
+        // Store only filename in database (no directory)
+        $validated['path'] = basename($storagePath);
 
         $imageUpload = ImageUpload::create($validated);
         $imageUpload->refresh();

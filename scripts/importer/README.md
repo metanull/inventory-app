@@ -124,7 +124,11 @@ cd scripts/importer
 npm install
 ```
 
-### Running Imports
+### Available Commands
+
+The importer CLI provides three main commands:
+
+#### 1. Import Command - Import legacy data
 
 ```bash
 # Run all importers
@@ -136,18 +140,55 @@ npx tsx src/cli/import.ts import --dry-run
 # Run specific importer only
 npx tsx src/cli/import.ts import --only partner
 
-# Run from a specific point
+# Run from a specific point onwards
 npx tsx src/cli/import.ts import --start-at project
+
+# Run up to and including a specific point
+npx tsx src/cli/import.ts import --stop-at partner
 
 # List available importers
 npx tsx src/cli/import.ts import --list-importers
 ```
 
-### Validation
+#### 2. Validate Command - Test database connections
 
 ```bash
 # Validate database connections
-npx tsx src/cli/import.ts import validate
+npx tsx src/cli/import.ts validate
+```
+
+#### 3. Image Sync Command - Synchronize legacy images
+
+```bash
+# Copy legacy images to new storage
+npx tsx src/cli/import.ts image-sync
+
+# Use symbolic links instead of copying (faster, for testing)
+npx tsx src/cli/import.ts image-sync --symlink
+
+# Dry run (simulate without making changes)
+npx tsx src/cli/import.ts image-sync --dry-run
+
+# Combine options
+npx tsx src/cli/import.ts image-sync --symlink --dry-run
+```
+
+**Image Sync Details:**
+- Finds ItemImage and PartnerImage records with `size=1` (legacy placeholders)
+- Copies or symlinks actual image files from legacy storage
+- Updates database records with correct path, size, and metadata
+- Only connects to the new database (not the legacy database)
+- Requires `LEGACY_IMAGES_ROOT` environment variable
+
+### Quick Reference
+
+```bash
+# Show all commands
+npx tsx src/cli/import.ts --help
+
+# Show command-specific help
+npx tsx src/cli/import.ts import --help
+npx tsx src/cli/import.ts image-sync --help
 ```
 
 ## Import Order
@@ -182,22 +223,26 @@ DB_PORT=3306
 DB_USERNAME=root
 DB_PASSWORD=secret
 DB_DATABASE=inventory
+
+# Legacy Images Root - for image synchronization
+LEGACY_IMAGES_ROOT=C:\mwnf-server\pictures\images
 ```
 
 ### Required Environment Variables
 
-| Variable             | Description              | Default     |
-| -------------------- | ------------------------ | ----------- |
-| `LEGACY_DB_HOST`     | Legacy database hostname | `localhost` |
-| `LEGACY_DB_PORT`     | Legacy database port     | `3306`      |
-| `LEGACY_DB_USER`     | Legacy database username | `root`      |
-| `LEGACY_DB_PASSWORD` | Legacy database password | (empty)     |
-| `LEGACY_DB_DATABASE` | Legacy database name     | `mwnf3`     |
-| `DB_HOST`            | Target database hostname | `localhost` |
-| `DB_PORT`            | Target database port     | `3306`      |
-| `DB_USERNAME`        | Target database username | `root`      |
-| `DB_PASSWORD`        | Target database password | (empty)     |
-| `DB_DATABASE`        | Target database name     | `inventory` |
+| Variable             | Description                        | Default                           |
+| -------------------- | ---------------------------------- | --------------------------------- |
+| `LEGACY_DB_HOST`     | Legacy database hostname           | `localhost`                       |
+| `LEGACY_DB_PORT`     | Legacy database port               | `3306`                            |
+| `LEGACY_DB_USER`     | Legacy database username           | `root`                            |
+| `LEGACY_DB_PASSWORD` | Legacy database password           | (empty)                           |
+| `LEGACY_DB_DATABASE` | Legacy database name               | `mwnf3`                           |
+| `DB_HOST`            | Target database hostname           | `localhost`                       |
+| `DB_PORT`            | Target database port               | `3306`                            |
+| `DB_USERNAME`        | Target database username           | `root`                            |
+| `DB_PASSWORD`        | Target database password           | (empty)                           |
+| `DB_DATABASE`        | Target database name               | `inventory`                       |
+| `LEGACY_IMAGES_ROOT` | Root directory of legacy images    | `C:\mwnf-server\pictures\images`  |
 
 ### Validating Database Connections
 

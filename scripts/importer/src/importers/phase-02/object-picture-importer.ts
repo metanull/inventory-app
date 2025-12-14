@@ -22,7 +22,7 @@ import type {
 } from '../../core/types.js';
 import type { LegacyObjectPicture } from '../../domain/types/index.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
-import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { mapLanguageCode, mapCountryCode } from '../../utils/code-mappings.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 import { ArtistHelper } from '../../helpers/artist-helper.js';
 import path from 'path';
@@ -247,6 +247,12 @@ export class ObjectPictureImporter extends BaseImporter {
       throw new Error(`Partner not found: ${partnerBackwardCompat}`);
     }
 
+    // Get project_id using same backward_compatibility as context
+    const projectId = this.getEntityUuid(contextBackwardCompat, 'project');
+
+    // Map country code from legacy 2-char to ISO 3-char
+    const countryId = mapCountryCode(group.country);
+
     // Build extra with legacy type if not empty
     const extra: Record<string, unknown> = {};
     if (group.type && group.type.trim() !== '') {
@@ -260,8 +266,8 @@ export class ObjectPictureImporter extends BaseImporter {
       collection_id: collectionId,
       partner_id: partnerId,
       parent_id: parentItemId,
-      country_id: null,
-      project_id: null,
+      country_id: countryId,
+      project_id: projectId || null,
       owner_reference: null,
       mwnf_reference: null,
       backward_compatibility: this.getPictureBackwardCompatibility(group),

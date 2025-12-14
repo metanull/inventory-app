@@ -161,13 +161,16 @@ class ItemImageController extends Controller
      */
     public function download(ItemImage $itemImage)
     {
-        // ItemImages share files with AvailableImages (same disk/path), so use the available images disk
-        $disk = config('localstorage.available.images.disk');
+        $disk = config('localstorage.pictures.disk');
+        $directory = trim(config('localstorage.pictures.directory'), '/');
         $filename = $itemImage->original_name ?: basename($itemImage->path);
+
+        // Prepend directory to path
+        $storagePath = $directory.'/'.$itemImage->path;
 
         return \App\Http\Responses\FileResponse::download(
             $disk,
-            $itemImage->path,
+            $storagePath,
             $filename,
             $itemImage->mime_type
         );
@@ -178,12 +181,15 @@ class ItemImageController extends Controller
      */
     public function view(ItemImage $itemImage)
     {
-        // ItemImages share files with AvailableImages (same disk/path), so use the available images disk
-        $disk = config('localstorage.available.images.disk');
+        $disk = config('localstorage.pictures.disk');
+        $directory = trim(config('localstorage.pictures.directory'), '/');
+
+        // Prepend directory to path
+        $storagePath = $directory.'/'.$itemImage->path;
 
         return \App\Http\Responses\FileResponse::view(
             $disk,
-            $itemImage->path,
+            $storagePath,
             $itemImage->mime_type
         );
     }

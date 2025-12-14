@@ -5,7 +5,6 @@ namespace App\Listeners;
 use App\Events\AvailableImageEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Storage;
-use League\Flysystem\WhitespacePathNormalizer;
 
 /**
  * Class AvailableImageListener
@@ -43,7 +42,7 @@ class AvailableImageListener
         $finalDisk = config('localstorage.available.images.disk');
         $finalDir = trim(config('localstorage.available.images.directory'), '/');
 
-        // Get filename
+        // Get filename (path should already be just filename)
         $filename = basename($file->path);
 
         // Move the file from the source disk to the destination disk
@@ -54,10 +53,8 @@ class AvailableImageListener
         // Delete the file from the source disk
         Storage::disk($uploadDisk)->delete($uploadeDir.'/'.$filename);
 
-        // Update the file model with the new path
-        $normalizer = new WhitespacePathNormalizer;
-
-        $file->path = $normalizer->normalizePath($finalDir.'/'.$filename);
+        // Update the file model with just the filename (no directory)
+        $file->path = $filename;
         $file->save();
     }
 }
