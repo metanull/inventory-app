@@ -18,3 +18,15 @@ export {
 } from './code-mappings.js';
 
 export { convertHtmlToMarkdown, convertHtmlFieldsToMarkdown } from './html-to-markdown.js';
+
+export {
+  normalizePath,
+  getFileExtension,
+  getLegacyImagePath,
+  getNewImagePath,
+  copyFile,
+  symlinkFile,
+  getFileSize,
+  fileExists,
+  ensureDirectory,
+} from './image-sync.js';

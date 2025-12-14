@@ -38,6 +38,7 @@ describe('CountryImporter', () => {
     // Create mock legacy database (should NOT be called)
     mockLegacyDb = {
       query: vi.fn(),
+      execute: vi.fn(),
       connect: vi.fn(),
       disconnect: vi.fn(),
     };
@@ -65,6 +66,8 @@ describe('CountryImporter', () => {
       writeArtist: vi.fn().mockResolvedValue('artist-uuid'),
       writeItemImage: vi.fn().mockResolvedValue('item-image-uuid'),
       writePartnerImage: vi.fn().mockResolvedValue('partner-image-uuid'),
+      attachItemsToCollection: vi.fn().mockResolvedValue(undefined),
+      attachPartnersToCollection: vi.fn().mockResolvedValue(undefined),
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
     };
@@ -187,6 +190,7 @@ describe('CountryTranslationImporter', () => {
 
     mockLegacyDb = {
       query: translationQueryMock as ILegacyDatabase['query'],
+      execute: vi.fn(),
       connect: vi.fn(),
       disconnect: vi.fn(),
     };
@@ -213,6 +217,8 @@ describe('CountryTranslationImporter', () => {
       writeArtist: vi.fn().mockResolvedValue('artist-uuid'),
       writeItemImage: vi.fn().mockResolvedValue('item-image-uuid'),
       writePartnerImage: vi.fn().mockResolvedValue('partner-image-uuid'),
+      attachItemsToCollection: vi.fn().mockResolvedValue(undefined),
+      attachPartnersToCollection: vi.fn().mockResolvedValue(undefined),
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
     };

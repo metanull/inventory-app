@@ -113,17 +113,17 @@ class ImageUploadListener
             $availableImageDisk = config('localstorage.available.images.disk');
             $availableImageDirectory = config('localstorage.available.images.directory');
 
-            // Create the new path in the available images directory
+            // Get just the filename (without directory)
             $filename = basename($file->path);
-            $newPath = $availableImageDirectory.'/'.$filename;
 
-            // Store the processed image to the available images directory
-            $putResult = Storage::disk($availableImageDisk)->put($newPath, $processedImageData);
+            // Store file in configured directory on disk
+            $storagePath = $availableImageDirectory.'/'.$filename;
+            $putResult = Storage::disk($availableImageDisk)->put($storagePath, $processedImageData);
 
             if (! $putResult) {
                 Log::error('Failed to store processed image.', [
                     'disk' => $availableImageDisk,
-                    'path' => $newPath,
+                    'path' => $storagePath,
                     'data_size' => strlen($processedImageData),
                 ]);
 
@@ -133,7 +133,8 @@ class ImageUploadListener
             // Clean up the original upload file
             Storage::disk($uploadDisk)->delete($file->path);
 
-            $availableImage = new AvailableImage(['path' => $newPath]);
+            // Store only filename in database (no directory)
+            $availableImage = new AvailableImage(['path' => $filename]);
             $availableImage->id = $event->imageUpload->id;
             $availableImage->save();
 

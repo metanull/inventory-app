@@ -161,13 +161,16 @@ class CollectionImageController extends Controller
      */
     public function download(CollectionImage $collectionImage)
     {
-        // CollectionImages share files with AvailableImages (same disk/path), so use the available images disk
-        $disk = config('localstorage.available.images.disk');
+        $disk = config('localstorage.pictures.disk');
+        $directory = trim(config('localstorage.pictures.directory'), '/');
         $filename = $collectionImage->original_name ?: basename($collectionImage->path);
+
+        // Prepend directory to path
+        $storagePath = $directory.'/'.$collectionImage->path;
 
         return \App\Http\Responses\FileResponse::download(
             $disk,
-            $collectionImage->path,
+            $storagePath,
             $filename,
             $collectionImage->mime_type
         );
@@ -178,12 +181,15 @@ class CollectionImageController extends Controller
      */
     public function view(CollectionImage $collectionImage)
     {
-        // CollectionImages share files with AvailableImages (same disk/path), so use the available images disk
-        $disk = config('localstorage.available.images.disk');
+        $disk = config('localstorage.pictures.disk');
+        $directory = trim(config('localstorage.pictures.directory'), '/');
+
+        // Prepend directory to path
+        $storagePath = $directory.'/'.$collectionImage->path;
 
         return \App\Http\Responses\FileResponse::view(
             $disk,
-            $collectionImage->path,
+            $storagePath,
             $collectionImage->mime_type
         );
     }

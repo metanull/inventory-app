@@ -40,6 +40,7 @@ export interface ISampleCollector {
  */
 export interface ILegacyDatabase {
   query<T>(sql: string, params?: unknown[]): Promise<T[]>;
+  execute(sql: string, params?: unknown[]): Promise<void>;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
 }
