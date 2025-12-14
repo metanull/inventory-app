@@ -149,11 +149,15 @@ class PartnerTranslationImageController extends Controller
         }
 
         $disk = config('localstorage.pictures.disk');
+        $directory = trim(config('localstorage.pictures.directory'), '/');
         $filename = $partnerTranslationImage->original_name ?: basename($partnerTranslationImage->path);
+
+        // Prepend directory to path
+        $storagePath = $directory.'/'.$partnerTranslationImage->path;
 
         return \App\Http\Responses\FileResponse::download(
             $disk,
-            $partnerTranslationImage->path,
+            $storagePath,
             $filename,
             $partnerTranslationImage->mime_type
         );
@@ -170,10 +174,14 @@ class PartnerTranslationImageController extends Controller
         }
 
         $disk = config('localstorage.pictures.disk');
+        $directory = trim(config('localstorage.pictures.directory'), '/');
+
+        // Prepend directory to path
+        $storagePath = $directory.'/'.$partnerTranslationImage->path;
 
         return \App\Http\Responses\FileResponse::view(
             $disk,
-            $partnerTranslationImage->path,
+            $storagePath,
             $partnerTranslationImage->mime_type
         );
     }

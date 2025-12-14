@@ -57,10 +57,14 @@ class AvailableImageController extends Controller
     public function view(AvailableImage $availableImage)
     {
         $disk = config('localstorage.available.images.disk');
+        $directory = trim(config('localstorage.available.images.directory'), '/');
+
+        // Prepend directory to path
+        $storagePath = $directory.'/'.$availableImage->path;
 
         return \App\Http\Responses\FileResponse::view(
             $disk,
-            $availableImage->path
+            $storagePath
         );
     }
 
@@ -70,11 +74,15 @@ class AvailableImageController extends Controller
     public function download(AvailableImage $availableImage)
     {
         $disk = config('localstorage.available.images.disk');
+        $directory = trim(config('localstorage.available.images.directory'), '/');
         $filename = basename($availableImage->path);
+
+        // Prepend directory to path
+        $storagePath = $directory.'/'.$availableImage->path;
 
         return \App\Http\Responses\FileResponse::download(
             $disk,
-            $availableImage->path,
+            $storagePath,
             $filename
         );
     }
