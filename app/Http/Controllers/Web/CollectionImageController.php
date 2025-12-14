@@ -149,11 +149,15 @@ class CollectionImageController extends Controller
         }
 
         $disk = config('localstorage.pictures.disk');
+        $directory = trim(config('localstorage.pictures.directory'), '/');
         $filename = $collectionImage->original_name ?: basename($collectionImage->path);
+
+        // Prepend directory to path
+        $storagePath = $directory.'/'.$collectionImage->path;
 
         return \App\Http\Responses\FileResponse::download(
             $disk,
-            $collectionImage->path,
+            $storagePath,
             $filename,
             $collectionImage->mime_type
         );
@@ -170,10 +174,14 @@ class CollectionImageController extends Controller
         }
 
         $disk = config('localstorage.pictures.disk');
+        $directory = trim(config('localstorage.pictures.directory'), '/');
+
+        // Prepend directory to path
+        $storagePath = $directory.'/'.$collectionImage->path;
 
         return \App\Http\Responses\FileResponse::view(
             $disk,
-            $collectionImage->path,
+            $storagePath,
             $collectionImage->mime_type
         );
     }
