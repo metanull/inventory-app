@@ -230,22 +230,24 @@ class ResilientConnection {
 
   async connect(): Promise<void> {
     this.connection = await mysql.createConnection(this.config);
-    
+
     // Handle connection errors
     this.connection.on('error', (err: Error & { code?: string }) => {
       console.error('[ResilientConnection] Connection error:', err.message);
       if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'ECONNRESET') {
-        this.reconnect().catch(reconnectErr => console.error('[ResilientConnection] Reconnect failed:', reconnectErr));
+        this.reconnect().catch((reconnectErr) =>
+          console.error('[ResilientConnection] Reconnect failed:', reconnectErr)
+        );
       }
     });
   }
 
   private async reconnect(): Promise<void> {
     if (this.reconnecting) return;
-    
+
     this.reconnecting = true;
     console.log('[ResilientConnection] Connection lost, attempting to reconnect...');
-    
+
     try {
       if (this.connection) {
         try {
@@ -254,7 +256,7 @@ class ResilientConnection {
           // Ignore errors when closing dead connection
         }
       }
-      
+
       await this.connect();
       console.log('[ResilientConnection] Reconnected successfully');
     } finally {
@@ -262,10 +264,14 @@ class ResilientConnection {
     }
   }
 
-  async execute<T extends mysql.RowDataPacket[] | mysql.RowDataPacket[][] | mysql.OkPacket | mysql.OkPacket[] | mysql.ResultSetHeader>(
-    sql: string,
-    values?: unknown
-  ): Promise<[T, mysql.FieldPacket[]]> {
+  async execute<
+    T extends
+      | mysql.RowDataPacket[]
+      | mysql.RowDataPacket[][]
+      | mysql.OkPacket
+      | mysql.OkPacket[]
+      | mysql.ResultSetHeader,
+  >(sql: string, values?: unknown): Promise<[T, mysql.FieldPacket[]]> {
     const maxRetries = 5;
     let lastError: Error | null = null;
 
@@ -283,14 +289,16 @@ class ResilientConnection {
       } catch (err) {
         const error = err as Error & { code?: string };
         lastError = error;
-        const isConnectionError = 
+        const isConnectionError =
           error.code === 'PROTOCOL_CONNECTION_LOST' ||
           error.code === 'ECONNRESET' ||
           error.message?.includes('connection is in closed state');
 
         if (isConnectionError && attempt < maxRetries) {
-          console.log(`[ResilientConnection] Connection error on attempt ${attempt}/${maxRetries}, retrying in ${attempt * 2}s...`);
-          await new Promise(resolve => setTimeout(resolve, attempt * 2000));
+          console.log(
+            `[ResilientConnection] Connection error on attempt ${attempt}/${maxRetries}, retrying in ${attempt * 2}s...`
+          );
+          await new Promise((resolve) => setTimeout(resolve, attempt * 2000));
           await this.reconnect();
         } else if (!isConnectionError) {
           // Not a connection error, throw immediately
@@ -328,7 +336,7 @@ async function createNewDbConnection(): Promise<ResilientConnection> {
     password: process.env['DB_PASSWORD'] || '',
     database: process.env['DB_DATABASE'] || 'inventory',
   });
-  
+
   await resilientConn.connect();
   return resilientConn;
 }
@@ -653,7 +661,9 @@ program
 
 program
   .command('image-sync')
-  .description('Synchronize legacy images to new storage (ItemImages and PartnerImages with size=1)')
+  .description(
+    'Synchronize legacy images to new storage (ItemImages and PartnerImages with size=1)'
+  )
   .option('--symlink', 'Create symbolic links instead of copying files', false)
   .option('--dry-run', 'Simulate synchronization without making changes', false)
   .action(async (options) => {
@@ -672,23 +682,24 @@ program
       console.log(chalk.gray(`Dry-run: ${dryRun ? 'YES' : 'NO'}`));
       console.log('');
 
-      logger.info(
-        `Image sync started with options: symlink=${useSymlink}, dryRun=${dryRun}`
-      );
+      logger.info(`Image sync started with options: symlink=${useSymlink}, dryRun=${dryRun}`);
 
       // Get configuration
-      const legacyImagesRoot = process.env['LEGACY_IMAGES_ROOT'] || 'C:\\mwnf-server\\pictures\\images';
-      
+      const legacyImagesRoot =
+        process.env['LEGACY_IMAGES_ROOT'] || 'C:\\mwnf-server\\pictures\\images';
+
       // Get new images root from Laravel artisan command
       console.log(chalk.cyan('Getting image storage path from Laravel...'));
       const { exec } = await import('child_process');
       const { promisify } = await import('util');
       const execAsync = promisify(exec);
-      
+
       const laravelRoot = resolve(process.cwd(), '../..');
-      const { stdout } = await execAsync('php artisan storage:image-path pictures', { cwd: laravelRoot });
+      const { stdout } = await execAsync('php artisan storage:image-path pictures', {
+        cwd: laravelRoot,
+      });
       const newImagesRoot = stdout.trim();
-      
+
       console.log(chalk.green(`✓ Image storage path: ${newImagesRoot}`));
       logger.info(`Image storage path: ${newImagesRoot}`);
 

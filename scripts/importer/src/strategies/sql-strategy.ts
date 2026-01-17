@@ -53,7 +53,14 @@ import type { ITracker } from '../core/tracker.js';
 
 // Type for resilient connection wrapper
 type DatabaseConnection = {
-  execute<T extends RowDataPacket[] | RowDataPacket[][] | import('mysql2').OkPacket | import('mysql2').OkPacket[] | import('mysql2').ResultSetHeader>(
+  execute<
+    T extends
+      | RowDataPacket[]
+      | RowDataPacket[][]
+      | import('mysql2').OkPacket
+      | import('mysql2').OkPacket[]
+      | import('mysql2').ResultSetHeader,
+  >(
     sql: string,
     values?: unknown
   ): Promise<[T, import('mysql2').FieldPacket[]]>;

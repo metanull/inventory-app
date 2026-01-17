@@ -236,11 +236,9 @@ npx tsx src/cli/import.ts import
 - `--help` - Syntax help
 - `--list-importers` - List available importers
 - `--dry-run` - Dry run (simulate without writing)
-npx tsx src/cli/import.ts import --dry-run
 - `--only {importer}` - Run specific importer only (e.g. `--only partner`)
 - `--start-at {importer}` - Run from a specific point onwards (e.g. `--start-at project`)
 - `--stop-at {importer}` - Run up to and including a specific point (e.g. `--stop-at partner`)
-
 
 #### 2. Validate Command - Test database connections
 
@@ -262,15 +260,13 @@ npx tsx src/cli/import.ts image-sync
 - `--symlink` - Use symbolic links instead of copying (faster, for testing)
 - `---dry-run-` - Dry run (simulate without making changes)
 
-
 **Image Sync Details:**
+
 - Finds ItemImage and PartnerImage records with `size=1` (legacy placeholders)
 - Copies or symlinks actual image files from legacy storage
 - Updates database records with correct path, size, and metadata
 - Only connects to the new database (not the legacy database)
 - Requires `LEGACY_IMAGES_ROOT` environment variable
-
-
 
 ### Logging
 
@@ -284,6 +280,7 @@ logs/
 ```
 
 **Log Contents**:
+
 - Import start time and configuration
 - Per-importer progress (imported, skipped, errors)
 - Warnings with context
@@ -292,6 +289,7 @@ logs/
 - Final statistics
 
 **Console Output**:
+
 - Real-time progress indicators (`.` = imported, `s` = skipped, `×` = error)
 - Phase headers and summaries
 - Final success/failure status
@@ -301,27 +299,33 @@ logs/
 Importers run in strict sequence to satisfy dependencies. Each importer logs detailed information to timestamped files in the `logs/` directory.
 
 ### **Phase 0: Reference Data**
+
 Foundation data loaded from JSON files and legacy database translations:
-   - `default-context` - Create default context (is_default=true)
-   - `language` - Languages from JSON file
-   - `language-translation` - Language name translations from legacy DB
-   - `country` - Countries from JSON file
-   - `country-translation` - Country name translations from legacy DB
+
+- `default-context` - Create default context (is_default=true)
+- `language` - Languages from JSON file
+- `language-translation` - Language name translations from legacy DB
+- `country` - Countries from JSON file
+- `country-translation` - Country name translations from legacy DB
 
 ### **Phase 1: Core Data**
+
 Primary entities imported from legacy mwnf3 database:
-   - `project` - Projects (creates Context, Collection, and Project)
-   - `partner` - Partners (Museums + Institutions)
-   - `object` - Object items
-   - `monument` - Monument items
-   - `monument-detail` - Monument detail items (children of monuments)
+
+- `project` - Projects (creates Context, Collection, and Project)
+- `partner` - Partners (Museums + Institutions)
+- `object` - Object items
+- `monument` - Monument items
+- `monument-detail` - Monument detail items (children of monuments)
 
 ### **Phase 2: Images**
+
 Image records with metadata (ItemImages and PartnerImages):
-   - `object-picture` - Object pictures (ItemImages + child picture Items)
-   - `monument-picture` - Monument pictures (ItemImages + child picture Items)
-   - `monument-detail-picture` - Monument detail pictures (ItemImages + child picture Items)
-   - `partner-picture` - Partner pictures (PartnerImages only)
+
+- `object-picture` - Object pictures (ItemImages + child picture Items)
+- `monument-picture` - Monument pictures (ItemImages + child picture Items)
+- `monument-detail-picture` - Monument detail pictures (ItemImages + child picture Items)
+- `partner-picture` - Partner pictures (PartnerImages only)
 
 ## Environment Variables
 
@@ -348,19 +352,19 @@ LEGACY_IMAGES_ROOT=C:\mwnf-server\pictures\images
 
 ### Required Environment Variables
 
-| Variable             | Description                        | Default                           |
-| -------------------- | ---------------------------------- | --------------------------------- |
-| `LEGACY_DB_HOST`     | Legacy database hostname           | `localhost`                       |
-| `LEGACY_DB_PORT`     | Legacy database port               | `3306`                            |
-| `LEGACY_DB_USER`     | Legacy database username           | `root`                            |
-| `LEGACY_DB_PASSWORD` | Legacy database password           | (empty)                           |
-| `LEGACY_DB_DATABASE` | Legacy database name               | `mwnf3`                           |
-| `DB_HOST`            | Target database hostname           | `localhost`                       |
-| `DB_PORT`            | Target database port               | `3306`                            |
-| `DB_USERNAME`        | Target database username           | `root`                            |
-| `DB_PASSWORD`        | Target database password           | (empty)                           |
-| `DB_DATABASE`        | Target database name               | `inventory`                       |
-| `LEGACY_IMAGES_ROOT` | Root directory of legacy images    | `C:\mwnf-server\pictures\images`  |
+| Variable             | Description                     | Default                          |
+| -------------------- | ------------------------------- | -------------------------------- |
+| `LEGACY_DB_HOST`     | Legacy database hostname        | `localhost`                      |
+| `LEGACY_DB_PORT`     | Legacy database port            | `3306`                           |
+| `LEGACY_DB_USER`     | Legacy database username        | `root`                           |
+| `LEGACY_DB_PASSWORD` | Legacy database password        | (empty)                          |
+| `LEGACY_DB_DATABASE` | Legacy database name            | `mwnf3`                          |
+| `DB_HOST`            | Target database hostname        | `localhost`                      |
+| `DB_PORT`            | Target database port            | `3306`                           |
+| `DB_USERNAME`        | Target database username        | `root`                           |
+| `DB_PASSWORD`        | Target database password        | (empty)                          |
+| `DB_DATABASE`        | Target database name            | `inventory`                      |
+| `LEGACY_IMAGES_ROOT` | Root directory of legacy images | `C:\mwnf-server\pictures\images` |
 
 ### Validating Database Connections
 
