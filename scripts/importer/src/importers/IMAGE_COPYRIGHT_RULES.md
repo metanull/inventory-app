@@ -2,7 +2,7 @@
 
 ## Watermark eligibility
 
-Only the sections listed in DatabaseCopyrightResolver::WATERMARK*SECTIONS (objects, monuments, trails + variants, activities, products, books, schools, presslounge, explore_location, sh*_, thg\__, etc.) receive a copyright. Other sections fall back to '© Museum With No Frontiers'.
+Only the sections listed in DatabaseCopyrightResolver::WATERMARK*SECTIONS (objects, monuments, trails + variants, activities, products, books, schools, presslounge, explore_location, sh*\_, thg\_\_, etc.) receive a copyright. Other sections fall back to '© Museum With No Frontiers'.
 
 ## Global defaults & special cases
 
