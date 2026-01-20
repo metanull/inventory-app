@@ -2,12 +2,12 @@
 
 namespace App\Http\Requests\Api;
 
-use App\Http\Requests\Api\Concerns\HasPaginationAndIncludes;
+use App\Http\Requests\Api\Concerns\HasPagination;
 use Illuminate\Foundation\Http\FormRequest;
 
 class IndexCollectionRequest extends FormRequest
 {
-    use HasPaginationAndIncludes;
+    use HasPagination;
 
     public function authorize(): bool
     {
@@ -19,12 +19,6 @@ class IndexCollectionRequest extends FormRequest
         return [
             'page' => 'sometimes|integer|min:1',
             'per_page' => 'sometimes|integer|min:1|max:100',
-            'include' => 'sometimes|string',
         ];
-    }
-
-    protected function getIncludeAllowlistKey(): string
-    {
-        return 'collection';
     }
 }
