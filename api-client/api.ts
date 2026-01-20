@@ -106,10 +106,8 @@ export interface AttachGlossarySynonymRequest {
 }
 export interface AttachItemCollectionRequest {
     'item_id': string;
-    'include'?: string;
 }
 export interface AttachItemsCollectionRequest {
-    'include'?: string;
     'item_ids': Array<string>;
 }
 export interface AttachTagItemRequest {
@@ -3172,11 +3170,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
-         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItem: async (collection: string, itemId: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionDetachItem: async (collection: string, itemId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'collection' is not null or undefined
             assertParamExists('collectionDetachItem', 'collection', collection)
             // verify required parameter 'itemId' is not null or undefined
@@ -3202,10 +3199,6 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
                 localVarQueryParameter['item_id'] = itemId;
             }
 
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -3222,11 +3215,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
-         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItems: async (collection: string, itemIds: Array<string>, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionDetachItems: async (collection: string, itemIds: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'collection' is not null or undefined
             assertParamExists('collectionDetachItems', 'collection', collection)
             // verify required parameter 'itemIds' is not null or undefined
@@ -3252,10 +3244,6 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
                 localVarQueryParameter['item_ids[]'] = itemIds;
             }
 
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -3272,11 +3260,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * @summary Display a listing of the collections
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionIndex: async (page?: number, perPage?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/collection`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -3301,10 +3288,6 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
                 localVarQueryParameter['per_page'] = perPage;
             }
 
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -3320,11 +3303,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * 
          * @summary Display the specified collection
          * @param {string} collection The collection ID
-         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionShow: async (collection: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionShow: async (collection: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'collection' is not null or undefined
             assertParamExists('collectionShow', 'collection', collection)
             const localVarPath = `/collection/{collection}`
@@ -3343,10 +3325,6 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
 
 
     
@@ -3552,12 +3530,11 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
-         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItem(collection, itemId, include, options);
+        async collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItem(collection, itemId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionDetachItem']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -3567,12 +3544,11 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
-         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItems(collection, itemIds, include, options);
+        async collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItems(collection, itemIds, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionDetachItems']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -3582,12 +3558,11 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the collections
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionIndex(page, perPage, include, options);
+        async collectionIndex(page?: number, perPage?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionIndex(page, perPage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -3596,12 +3571,11 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified collection
          * @param {string} collection The collection ID
-         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionShow(collection: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionShow(collection, include, options);
+        async collectionShow(collection: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionShow(collection, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionShow']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -3704,47 +3678,43 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
-         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
-            return localVarFp.collectionDetachItem(collection, itemId, include, options).then((request) => request(axios, basePath));
+        collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
+            return localVarFp.collectionDetachItem(collection, itemId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
-         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
-            return localVarFp.collectionDetachItems(collection, itemIds, include, options).then((request) => request(axios, basePath));
+        collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
+            return localVarFp.collectionDetachItems(collection, itemIds, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Display a listing of the collections
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionIndex200Response> {
-            return localVarFp.collectionIndex(page, perPage, include, options).then((request) => request(axios, basePath));
+        collectionIndex(page?: number, perPage?: number, options?: RawAxiosRequestConfig): AxiosPromise<CollectionIndex200Response> {
+            return localVarFp.collectionIndex(page, perPage, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Display the specified collection
          * @param {string} collection The collection ID
-         * @param {string} [include] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionShow(collection: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
-            return localVarFp.collectionShow(collection, include, options).then((request) => request(axios, basePath));
+        collectionShow(collection: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
+            return localVarFp.collectionShow(collection, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3837,12 +3807,11 @@ export class CollectionApi extends BaseAPI {
      * @summary Detach an item from a collection
      * @param {string} collection The collection ID
      * @param {string} itemId 
-     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionDetachItem(collection, itemId, include, options).then((request) => request(this.axios, this.basePath));
+    public collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionDetachItem(collection, itemId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3850,12 +3819,11 @@ export class CollectionApi extends BaseAPI {
      * @summary Detach multiple items from a collection
      * @param {string} collection The collection ID
      * @param {Array<string>} itemIds 
-     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionDetachItems(collection, itemIds, include, options).then((request) => request(this.axios, this.basePath));
+    public collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionDetachItems(collection, itemIds, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3863,24 +3831,22 @@ export class CollectionApi extends BaseAPI {
      * @summary Display a listing of the collections
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public collectionIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
+    public collectionIndex(page?: number, perPage?: number, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionIndex(page, perPage, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Display the specified collection
      * @param {string} collection The collection ID
-     * @param {string} [include] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public collectionShow(collection: string, include?: string, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionShow(collection, include, options).then((request) => request(this.axios, this.basePath));
+    public collectionShow(collection: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionShow(collection, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
