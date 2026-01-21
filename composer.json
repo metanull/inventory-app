@@ -19,7 +19,7 @@
         "laravel/tinker": "^2.10.2",
         "league/commonmark": "^2.8.0",
         "league/html-to-markdown": "^5.1",
-        "livewire/livewire": "^3.0",
+        "livewire/livewire": "^4.0",
         "propaganistas/laravel-phone": "^6.0",
         "spatie/laravel-permission": "^6.21",
         "symfony/process": "^7.4.0"
