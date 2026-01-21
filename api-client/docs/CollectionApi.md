@@ -256,12 +256,10 @@ const apiInstance = new CollectionApi(configuration);
 
 let collection: string; //The collection ID (default to undefined)
 let itemId: string; // (default to undefined)
-let include: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.collectionDetachItem(
     collection,
-    itemId,
-    include
+    itemId
 );
 ```
 
@@ -271,7 +269,6 @@ const { status, data } = await apiInstance.collectionDetachItem(
 |------------- | ------------- | ------------- | -------------|
 | **collection** | [**string**] | The collection ID | defaults to undefined|
 | **itemId** | [**string**] |  | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -316,12 +313,10 @@ const apiInstance = new CollectionApi(configuration);
 
 let collection: string; //The collection ID (default to undefined)
 let itemIds: Array<string>; // (default to undefined)
-let include: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.collectionDetachItems(
     collection,
-    itemIds,
-    include
+    itemIds
 );
 ```
 
@@ -331,7 +326,6 @@ const { status, data } = await apiInstance.collectionDetachItems(
 |------------- | ------------- | ------------- | -------------|
 | **collection** | [**string**] | The collection ID | defaults to undefined|
 | **itemIds** | **Array&lt;string&gt;** |  | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -376,12 +370,10 @@ const apiInstance = new CollectionApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.collectionIndex(
     page,
-    perPage,
-    include
+    perPage
 );
 ```
 
@@ -391,7 +383,6 @@ const { status, data } = await apiInstance.collectionIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -434,11 +425,9 @@ const configuration = new Configuration();
 const apiInstance = new CollectionApi(configuration);
 
 let collection: string; //The collection ID (default to undefined)
-let include: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.collectionShow(
-    collection,
-    include
+    collection
 );
 ```
 
@@ -447,7 +436,6 @@ const { status, data } = await apiInstance.collectionShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **collection** | [**string**] | The collection ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -523,8 +511,8 @@ const { status, data } = await apiInstance.collectionStore(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | &#x60;CollectionResource&#x60; |  -  |
-|**422** | Validation error |  -  |
 |**401** | Unauthenticated |  -  |
+|**422** | Validation error |  -  |
 |**403** | Authorization error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

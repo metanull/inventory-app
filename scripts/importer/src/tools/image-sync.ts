@@ -91,7 +91,9 @@ export class ImageSyncTool {
       result.skipped += partnerImageResults.skipped;
       result.errors.push(...partnerImageResults.errors);
 
-      this.logger.info(`\nSummary: ${result.imported} synced, ${result.skipped} skipped, ${result.errors.length} errors`);
+      this.logger.info(
+        `\nSummary: ${result.imported} synced, ${result.skipped} skipped, ${result.errors.length} errors`
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Image sync failed: ${message}`);

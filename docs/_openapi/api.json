@@ -603,13 +603,6 @@
                             "type": "string",
                             "format": "uuid"
                         }
-                    },
-                    {
-                        "name": "include",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
                     }
                 ],
                 "responses": {
@@ -691,14 +684,14 @@
                             }
                         }
                     },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     },
                     "403": {
                         "$ref": "#/components/responses/AuthorizationException"
@@ -751,14 +744,14 @@
                             }
                         }
                     },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     },
                     "403": {
                         "$ref": "#/components/responses/AuthorizationException"
@@ -819,13 +812,6 @@
                             "type": "integer",
                             "minimum": 1,
                             "maximum": 100
-                        }
-                    },
-                    {
-                        "name": "include",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
                         }
                     }
                 ],
@@ -1015,11 +1001,11 @@
                             }
                         }
                     },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     },
                     "403": {
                         "$ref": "#/components/responses/AuthorizationException"
@@ -1179,13 +1165,6 @@
                             "type": "string",
                             "format": "uuid"
                         }
-                    },
-                    {
-                        "name": "include",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
                     }
                 ],
                 "responses": {
@@ -1250,13 +1229,6 @@
                                 "type": "string",
                                 "format": "uuid"
                             }
-                        }
-                    },
-                    {
-                        "name": "include",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
                         }
                     }
                 ],
@@ -16072,9 +16044,6 @@
                     "item_id": {
                         "type": "string",
                         "format": "uuid"
-                    },
-                    "include": {
-                        "type": "string"
                     }
                 },
                 "required": [
@@ -16085,9 +16054,6 @@
             "AttachItemsCollectionRequest": {
                 "type": "object",
                 "properties": {
-                    "include": {
-                        "type": "string"
-                    },
                     "item_ids": {
                         "type": "array",
                         "items": {
