@@ -1,6 +1,6 @@
 {
   "name": "@metanull/inventory-app-api-client",
-  "version": "1.0.1-dev.1210.2216",
+  "version": "1.0.1-dev.0120.2209",
   "main": "index.ts",
   "types": "index.ts",
   "description": "TypeScript-Axios client for inventory-app API",
