@@ -22,14 +22,16 @@ runs:
     - name: "Setup > PHP"
       uses: shivammathur/setup-php@v2
       with:
+        php-version: '8.4'
         extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
+        tools: composer:v2
 
     - name: "Setup > Composer > Install Dependencies"
       shell: bash
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: ':memory:'
-      run: composer install -q --no-ansi --no-interaction --no-progress --prefer-dist
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
     - name: "Generate TypeScript client"
       id: generate
