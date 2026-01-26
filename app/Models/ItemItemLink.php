@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ItemItemLink extends Model
 {
@@ -56,6 +57,14 @@ class ItemItemLink extends Model
     public function context(): BelongsTo
     {
         return $this->belongsTo(Context::class);
+    }
+
+    /**
+     * Get all translations for this link.
+     */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(ItemItemLinkTranslation::class);
     }
 
     /**

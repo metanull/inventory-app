@@ -29,6 +29,8 @@ class ItemItemLinkResource extends JsonResource
             'target' => new ItemResource($this->whenLoaded('target')),
             // The context (ContextResource)
             'context' => new ContextResource($this->whenLoaded('context')),
+            // The translations (ItemItemLinkTranslationResource collection)
+            'translations' => ItemItemLinkTranslationResource::collection($this->whenLoaded('translations')),
             // The date of creation of the resource (managed by the system)
             'created_at' => $this->created_at,
             // The date of last modification of the resource (managed by the system)
