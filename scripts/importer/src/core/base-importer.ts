@@ -277,16 +277,97 @@ export abstract class BaseImporter {
   }
 
   /**
-   * Check if entity already exists in tracker (entityType is required to avoid collisions)
+   * Map EntityType to database table name for lookup queries
+   */
+  private entityTypeToTable(entityType: EntityType): string {
+    const mapping: Record<EntityType, string> = {
+      language: 'languages',
+      language_translation: 'language_translations',
+      country: 'countries',
+      country_translation: 'country_translations',
+      context: 'contexts',
+      collection: 'collections',
+      project: 'projects',
+      partner: 'partners',
+      partner_translation: 'partner_translations',
+      item: 'items',
+      item_translation: 'item_translations',
+      image: 'item_images',
+      tag: 'tags',
+      author: 'authors',
+      artist: 'artists',
+      glossary: 'glossaries',
+      glossary_translation: 'glossary_translations',
+      glossary_spelling: 'glossary_spellings',
+      theme: 'themes',
+      theme_translation: 'theme_translations',
+      item_item_link: 'item_item_links',
+      item_item_link_translation: 'item_item_link_translations',
+    };
+    return mapping[entityType];
+  }
+
+  /**
+   * Check if entity already exists in tracker or database
+   * First checks tracker (memory), then falls back to database for skipped phases.
    */
   protected entityExists(backwardCompatibility: string, entityType: EntityType): boolean {
     return this.context.tracker.exists(backwardCompatibility, entityType);
   }
 
   /**
+   * Check if entity already exists (async version with database fallback)
+   * First checks tracker (memory), then falls back to database for skipped phases.
+   */
+  protected async entityExistsAsync(
+    backwardCompatibility: string,
+    entityType: EntityType
+  ): Promise<boolean> {
+    // Check tracker first (fast path)
+    if (this.context.tracker.exists(backwardCompatibility, entityType)) {
+      return true;
+    }
+
+    // Fall back to database lookup for entities from skipped phases
+    const table = this.entityTypeToTable(entityType);
+    return this.context.strategy.exists(table, backwardCompatibility);
+  }
+
+  /**
    * Get UUID from tracker by backward_compatibility (entityType is required to avoid collisions)
+   * @deprecated Use getEntityUuidAsync for proper database fallback when starting from later phases
    */
   protected getEntityUuid(backwardCompatibility: string, entityType: EntityType): string | null {
     return this.context.tracker.getUuid(backwardCompatibility, entityType);
+  }
+
+  /**
+   * Get UUID from tracker or database by backward_compatibility
+   * First checks tracker (memory), then falls back to database for entities from skipped phases.
+   * This is essential when starting import from a later phase (e.g., --start-at phase-05).
+   */
+  protected async getEntityUuidAsync(
+    backwardCompatibility: string,
+    entityType: EntityType
+  ): Promise<string | null> {
+    // Check tracker first (fast path)
+    const trackerResult = this.context.tracker.getUuid(backwardCompatibility, entityType);
+    if (trackerResult) {
+      return trackerResult;
+    }
+
+    // Fall back to database lookup for entities from skipped phases
+    const table = this.entityTypeToTable(entityType);
+    const dbResult = await this.context.strategy.findByBackwardCompatibility(
+      table,
+      backwardCompatibility
+    );
+
+    // If found in database, cache in tracker for future lookups
+    if (dbResult) {
+      this.context.tracker.set(backwardCompatibility, dbResult, entityType);
+    }
+
+    return dbResult;
   }
 }

@@ -111,10 +111,10 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
           }
 
           // Check if language exists in tracker
-          if (!this.entityExists(languageId, 'language')) {
+          if (!(await this.entityExistsAsync(languageId, 'language'))) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Theme item ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}: Language '${languageId}' not found in tracker`
+              `Theme item ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}: Language '${languageId}' not found`
             );
             result.skipped++;
             this.showSkipped();
@@ -143,8 +143,8 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Get the item ID from tracker
-          const itemId = this.getEntityUuid(itemBackwardCompat, 'item');
+          // Get the item ID from tracker or database (items are from earlier phases)
+          const itemId = await this.getEntityUuidAsync(itemBackwardCompat, 'item');
           if (!itemId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
@@ -155,9 +155,9 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Get the context ID for this gallery
+          // Get the context ID for this gallery (Phase 05 internal, but use async for consistency)
           const galleryBackwardCompat = `thg_gallery.${legacy.gallery_id}`;
-          const contextId = this.getEntityUuid(galleryBackwardCompat, 'context');
+          const contextId = await this.getEntityUuidAsync(galleryBackwardCompat, 'context');
           if (!contextId) {
             result.warnings = result.warnings || [];
             result.warnings.push(

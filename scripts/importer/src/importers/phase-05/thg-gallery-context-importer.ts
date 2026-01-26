@@ -72,8 +72,8 @@ export class ThgGalleryContextImporter extends BaseImporter {
         try {
           const backwardCompat = `thg_gallery.${legacy.gallery_id}`;
 
-          // Check if already exists
-          if (this.entityExists(backwardCompat, 'context')) {
+          // Check if already exists (use async for database fallback)
+          if (await this.entityExistsAsync(backwardCompat, 'context')) {
             result.skipped++;
             this.showSkipped();
             continue;

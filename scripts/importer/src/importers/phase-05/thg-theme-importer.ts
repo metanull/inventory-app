@@ -52,16 +52,16 @@ export class ThgThemeImporter extends BaseImporter {
         try {
           const backwardCompat = `thg_theme.${legacy.gallery_id}.${legacy.theme_id}`;
 
-          // Check if already exists
-          if (this.entityExists(backwardCompat, 'theme')) {
+          // Check if already exists (use async for database fallback)
+          if (await this.entityExistsAsync(backwardCompat, 'theme')) {
             result.skipped++;
             this.showSkipped();
             continue;
           }
 
-          // Get the collection ID for this gallery
+          // Get the collection ID for this gallery (use async for database fallback)
           const galleryBackwardCompat = `thg_gallery.${legacy.gallery_id}`;
-          const collectionId = this.getEntityUuid(galleryBackwardCompat, 'collection');
+          const collectionId = await this.getEntityUuidAsync(galleryBackwardCompat, 'collection');
           if (!collectionId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
@@ -72,11 +72,11 @@ export class ThgThemeImporter extends BaseImporter {
             continue;
           }
 
-          // Resolve parent theme ID if exists
+          // Resolve parent theme ID if exists (use async for database fallback)
           let parentId: string | null = null;
           if (legacy.parent_theme_id !== null) {
             const parentBackwardCompat = `thg_theme.${legacy.gallery_id}.${legacy.parent_theme_id}`;
-            parentId = this.getEntityUuid(parentBackwardCompat, 'theme');
+            parentId = await this.getEntityUuidAsync(parentBackwardCompat, 'theme');
             if (!parentId) {
               // Parent theme not yet imported - this should be rare with sorted query
               result.warnings = result.warnings || [];

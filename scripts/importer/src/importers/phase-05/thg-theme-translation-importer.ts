@@ -66,10 +66,10 @@ export class ThgThemeTranslationImporter extends BaseImporter {
           }
 
           // Check if language exists in tracker
-          if (!this.entityExists(languageId, 'language')) {
+          if (!(await this.entityExistsAsync(languageId, 'language'))) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Theme ${legacy.gallery_id}.${legacy.theme_id}: Language '${languageId}' not found in tracker`
+              `Theme ${legacy.gallery_id}.${legacy.theme_id}: Language '${languageId}' not found`
             );
             result.skipped++;
             this.showSkipped();
@@ -79,8 +79,8 @@ export class ThgThemeTranslationImporter extends BaseImporter {
           const themeBackwardCompat = `thg_theme.${legacy.gallery_id}.${legacy.theme_id}`;
           const backwardCompat = `thg_theme_i18n.${legacy.gallery_id}.${legacy.theme_id}.${legacy.language_id}`;
 
-          // Get the theme ID
-          const themeId = this.getEntityUuid(themeBackwardCompat, 'theme');
+          // Get the theme ID (use async for database fallback)
+          const themeId = await this.getEntityUuidAsync(themeBackwardCompat, 'theme');
           if (!themeId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
@@ -91,9 +91,9 @@ export class ThgThemeTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Get the context ID for this gallery
+          // Get the context ID for this gallery (use async for database fallback)
           const galleryBackwardCompat = `thg_gallery.${legacy.gallery_id}`;
-          const contextId = this.getEntityUuid(galleryBackwardCompat, 'context');
+          const contextId = await this.getEntityUuidAsync(galleryBackwardCompat, 'context');
           if (!contextId) {
             result.warnings = result.warnings || [];
             result.warnings.push(

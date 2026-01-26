@@ -65,20 +65,20 @@ export class ThgItemRelatedTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Check if language exists in tracker
-          if (!this.entityExists(languageId, 'language')) {
+          // Check if language exists in tracker or database (languages are from Phase 00)
+          if (!(await this.entityExistsAsync(languageId, 'language'))) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Item link ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}->${legacy.related_item_id}: Language '${languageId}' not found in tracker`
+              `Item link ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}->${legacy.related_item_id}: Language '${languageId}' not found`
             );
             result.skipped++;
             this.showSkipped();
             continue;
           }
 
-          // Get the item-item link ID from tracker
+          // Get the item-item link ID (use async for database fallback)
           const linkBackwardCompat = `thg_item_related.${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}.${legacy.related_item_id}`;
-          const linkId = this.getEntityUuid(linkBackwardCompat, 'item_item_link');
+          const linkId = await this.getEntityUuidAsync(linkBackwardCompat, 'item_item_link');
           if (!linkId) {
             result.warnings = result.warnings || [];
             result.warnings.push(

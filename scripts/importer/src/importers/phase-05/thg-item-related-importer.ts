@@ -139,8 +139,8 @@ export class ThgItemRelatedImporter extends BaseImporter {
             continue;
           }
 
-          // Get the source item ID from tracker
-          const sourceId = this.getEntityUuid(sourceBackwardCompat, 'item');
+          // Get the source item ID from tracker or database (items are from earlier phases)
+          const sourceId = await this.getEntityUuidAsync(sourceBackwardCompat, 'item');
           if (!sourceId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
@@ -151,8 +151,8 @@ export class ThgItemRelatedImporter extends BaseImporter {
             continue;
           }
 
-          // Get the target item ID from tracker
-          const targetId = this.getEntityUuid(targetBackwardCompat, 'item');
+          // Get the target item ID from tracker or database (items are from earlier phases)
+          const targetId = await this.getEntityUuidAsync(targetBackwardCompat, 'item');
           if (!targetId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
@@ -163,9 +163,9 @@ export class ThgItemRelatedImporter extends BaseImporter {
             continue;
           }
 
-          // Get the context ID for this gallery
+          // Get the context ID for this gallery (Phase 05 internal, but use async for consistency)
           const galleryBackwardCompat = `thg_gallery.${legacy.gallery_id}`;
-          const contextId = this.getEntityUuid(galleryBackwardCompat, 'context');
+          const contextId = await this.getEntityUuidAsync(galleryBackwardCompat, 'context');
           if (!contextId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
@@ -179,8 +179,8 @@ export class ThgItemRelatedImporter extends BaseImporter {
           // Create backward compatibility key for the link
           const backwardCompat = `thg_item_related.${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}.${legacy.related_item_id}`;
 
-          // Check if already exists
-          if (this.entityExists(backwardCompat, 'item_item_link')) {
+          // Check if already exists (use async for database fallback)
+          if (await this.entityExistsAsync(backwardCompat, 'item_item_link')) {
             result.skipped++;
             this.showSkipped();
             continue;

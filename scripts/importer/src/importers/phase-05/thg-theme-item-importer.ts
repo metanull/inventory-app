@@ -85,10 +85,10 @@ export class ThgThemeItemImporter extends BaseImporter {
             continue;
           }
 
-          // Get the item ID from tracker
-          const itemId = this.getEntityUuid(itemBackwardCompat, 'item');
+          // Get the item ID from tracker or database (items are from earlier phases)
+          const itemId = await this.getEntityUuidAsync(itemBackwardCompat, 'item');
           if (!itemId) {
-            // Item not found in tracker - might not be imported yet
+            // Item not found in tracker or database - might not be imported yet
             result.warnings = result.warnings || [];
             result.warnings.push(
               `Theme item ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}: Item not found (${itemBackwardCompat})`
@@ -97,9 +97,9 @@ export class ThgThemeItemImporter extends BaseImporter {
             continue;
           }
 
-          // Get the collection ID for this gallery
+          // Get the collection ID for this gallery (Phase 05 internal)
           const galleryBackwardCompat = `thg_gallery.${legacy.gallery_id}`;
-          const collectionId = this.getEntityUuid(galleryBackwardCompat, 'collection');
+          const collectionId = await this.getEntityUuidAsync(galleryBackwardCompat, 'collection');
           if (!collectionId) {
             result.warnings = result.warnings || [];
             result.warnings.push(

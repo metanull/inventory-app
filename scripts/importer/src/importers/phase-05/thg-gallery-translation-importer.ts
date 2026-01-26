@@ -64,10 +64,10 @@ export class ThgGalleryTranslationImporter extends BaseImporter {
           }
 
           // Check if language exists in tracker
-          if (!this.entityExists(languageId, 'language')) {
+          if (!(await this.entityExistsAsync(languageId, 'language'))) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Gallery ${legacy.gallery_id}: Language '${languageId}' not found in tracker`
+              `Gallery ${legacy.gallery_id}: Language '${languageId}' not found`
             );
             result.skipped++;
             this.showSkipped();
@@ -81,8 +81,8 @@ export class ThgGalleryTranslationImporter extends BaseImporter {
           // Note: We can't directly check collection_translation by backward_compatibility easily
           // So we'll rely on the import process to handle duplicates
 
-          // Get the collection ID
-          const collectionId = this.getEntityUuid(galleryBackwardCompat, 'collection');
+          // Get the collection ID (use async for database fallback)
+          const collectionId = await this.getEntityUuidAsync(galleryBackwardCompat, 'collection');
           if (!collectionId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
@@ -93,8 +93,8 @@ export class ThgGalleryTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Get the context ID (same as the gallery's context)
-          const contextId = this.getEntityUuid(galleryBackwardCompat, 'context');
+          // Get the context ID (same as the gallery's context, use async for database fallback)
+          const contextId = await this.getEntityUuidAsync(galleryBackwardCompat, 'context');
           if (!contextId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
