@@ -15,7 +15,7 @@
     "type-check": "tsc --noEmit",
     "import:api": "tsx src/cli/api-import.ts",
     "import:sql": "tsx src/cli/sql-import.ts",
-    "import": "tsx src/cli/import.ts",
+    "import": "tsx src/cli/import.ts import",
     "image-sync": "tsx src/cli/import.ts image-sync"
   },
   "dependencies": {
