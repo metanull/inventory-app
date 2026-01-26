@@ -19,3 +19,10 @@ export { ObjectPictureImporter } from './phase-02/index.js';
 export { MonumentPictureImporter } from './phase-02/index.js';
 export { MonumentDetailPictureImporter } from './phase-02/index.js';
 export { PartnerPictureImporter } from './phase-02/index.js';
+
+// Phase 04: Glossary
+export {
+  GlossaryImporter,
+  GlossaryTranslationImporter,
+  GlossarySpellingImporter,
+} from './phase-04/index.js';

@@ -29,6 +29,9 @@ import type {
   ArtistData,
   ItemImageData,
   PartnerImageData,
+  GlossaryData,
+  GlossaryTranslationData,
+  GlossarySpellingData,
 } from '../core/types.js';
 
 const tableEntityMap: Record<string, EntityType> = {
@@ -44,6 +47,9 @@ const tableEntityMap: Record<string, EntityType> = {
   artists: 'artist',
   language_translations: 'language_translation',
   country_translations: 'country_translation',
+  glossaries: 'glossary',
+  glossary_translations: 'glossary_translation',
+  glossary_spellings: 'glossary_spelling',
 };
 
 function mapTableToEntityType(table: string): EntityType | null {
@@ -561,6 +567,41 @@ export class SqlWriteStrategy implements IWriteStrategy {
     );
     // Track using lowercase path as unique identifier
     this.tracker.set(data.path.toLowerCase(), id, 'image');
+    return id;
+  }
+
+  // =========================================================================
+  // Glossary
+  // =========================================================================
+
+  async writeGlossary(data: GlossaryData): Promise<string> {
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO glossaries (id, internal_name, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      [id, data.internal_name, data.backward_compatibility, this.now, this.now]
+    );
+
+    this.tracker.set(data.backward_compatibility, id, 'glossary');
+    return id;
+  }
+
+  async writeGlossaryTranslation(data: GlossaryTranslationData): Promise<void> {
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO glossary_translations (id, glossary_id, language_id, definition, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [id, data.glossary_id, data.language_id, data.definition, this.now, this.now]
+    );
+  }
+
+  async writeGlossarySpelling(data: GlossarySpellingData): Promise<string> {
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO glossary_spellings (id, glossary_id, language_id, spelling, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [id, data.glossary_id, data.language_id, data.spelling, this.now, this.now]
+    );
     return id;
   }
 

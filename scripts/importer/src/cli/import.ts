@@ -43,6 +43,9 @@ import {
   MonumentPictureImporter,
   MonumentDetailPictureImporter,
   PartnerPictureImporter,
+  GlossaryImporter,
+  GlossaryTranslationImporter,
+  GlossarySpellingImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -162,6 +165,28 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import museum and institution pictures (PartnerImages)',
     importerClass: PartnerPictureImporter,
     dependencies: ['partner'],
+  },
+  // Phase 3: Glossary
+  {
+    key: 'glossary',
+    name: 'Glossary Words',
+    description: 'Import glossary words from legacy database',
+    importerClass: GlossaryImporter,
+    dependencies: ['language'],
+  },
+  {
+    key: 'glossary-translation',
+    name: 'Glossary Definitions',
+    description: 'Import glossary definitions (translations)',
+    importerClass: GlossaryTranslationImporter,
+    dependencies: ['glossary', 'language'],
+  },
+  {
+    key: 'glossary-spelling',
+    name: 'Glossary Spellings',
+    description: 'Import glossary spelling variants',
+    importerClass: GlossarySpellingImporter,
+    dependencies: ['glossary', 'language'],
   },
 ];
 
@@ -486,8 +511,21 @@ program
           return 'Phase 1: Projects and Partners';
         } else if (['object', 'monument', 'monument-detail'].includes(key)) {
           return 'Phase 2: Items';
-        } else {
+        } else if (
+          [
+            'object-picture',
+            'monument-picture',
+            'monument-detail-picture',
+            'partner-picture',
+          ].includes(key)
+        ) {
           return 'Phase 3: Images';
+        } else if (
+          ['glossary', 'glossary-translation', 'glossary-spelling'].includes(key)
+        ) {
+          return 'Phase 4: Glossary';
+        } else {
+          return 'Phase Unknown';
         }
       };
 

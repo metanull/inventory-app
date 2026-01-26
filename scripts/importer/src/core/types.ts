@@ -55,7 +55,10 @@ export type EntityType =
   | 'image'
   | 'tag'
   | 'author'
-  | 'artist';
+  | 'artist'
+  | 'glossary'
+  | 'glossary_translation'
+  | 'glossary_spelling';
 
 /**
  * Imported entity record for tracking
@@ -304,4 +307,27 @@ export interface PartnerImageData {
   size: number;
   alt_text?: string | null;
   display_order: number;
+}
+
+/**
+ * Glossary (Word) data for write operations
+ */
+export type GlossaryData = BaseEntityData;
+
+/**
+ * Glossary translation (definition) data for write operations
+ */
+export interface GlossaryTranslationData {
+  glossary_id: string;
+  language_id: string;
+  definition: string;
+}
+
+/**
+ * Glossary spelling data for write operations
+ */
+export interface GlossarySpellingData {
+  glossary_id: string;
+  language_id: string;
+  spelling: string;
 }
