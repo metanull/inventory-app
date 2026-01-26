@@ -46,6 +46,15 @@ import {
   GlossaryImporter,
   GlossaryTranslationImporter,
   GlossarySpellingImporter,
+  ThgGalleryContextImporter,
+  ThgGalleryImporter,
+  ThgGalleryTranslationImporter,
+  ThgThemeImporter,
+  ThgThemeTranslationImporter,
+  ThgThemeItemImporter,
+  ThgThemeItemTranslationImporter,
+  ThgItemRelatedImporter,
+  ThgItemRelatedTranslationImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -166,7 +175,7 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     importerClass: PartnerPictureImporter,
     dependencies: ['partner'],
   },
-  // Phase 3: Glossary
+  // Phase 4: Glossary
   {
     key: 'glossary',
     name: 'Glossary Words',
@@ -187,6 +196,70 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import glossary spelling variants',
     importerClass: GlossarySpellingImporter,
     dependencies: ['glossary', 'language'],
+  },
+  // Phase 5: Thematic Galleries
+  {
+    key: 'thg-gallery-context',
+    name: 'THG Gallery Contexts',
+    description: 'Create contexts for thematic galleries/exhibitions',
+    importerClass: ThgGalleryContextImporter,
+    dependencies: [],
+  },
+  {
+    key: 'thg-gallery',
+    name: 'THG Galleries',
+    description: 'Import thematic galleries as collections',
+    importerClass: ThgGalleryImporter,
+    dependencies: ['thg-gallery-context'],
+  },
+  {
+    key: 'thg-gallery-translation',
+    name: 'THG Gallery Translations',
+    description: 'Import thematic gallery translations',
+    importerClass: ThgGalleryTranslationImporter,
+    dependencies: ['thg-gallery', 'language'],
+  },
+  {
+    key: 'thg-theme',
+    name: 'THG Themes',
+    description: 'Import thematic gallery themes',
+    importerClass: ThgThemeImporter,
+    dependencies: ['thg-gallery'],
+  },
+  {
+    key: 'thg-theme-translation',
+    name: 'THG Theme Translations',
+    description: 'Import thematic gallery theme translations',
+    importerClass: ThgThemeTranslationImporter,
+    dependencies: ['thg-theme', 'thg-gallery-context', 'language'],
+  },
+  {
+    key: 'thg-theme-item',
+    name: 'THG Theme Items',
+    description: 'Attach items to thematic gallery collections',
+    importerClass: ThgThemeItemImporter,
+    dependencies: ['thg-gallery', 'object', 'monument', 'monument-detail'],
+  },
+  {
+    key: 'thg-theme-item-translation',
+    name: 'THG Theme Item Translations',
+    description: 'Import contextual item descriptions for thematic galleries',
+    importerClass: ThgThemeItemTranslationImporter,
+    dependencies: ['thg-theme-item', 'thg-gallery-context', 'language'],
+  },
+  {
+    key: 'thg-item-related',
+    name: 'THG Item Relations',
+    description: 'Import item-to-item links within thematic galleries',
+    importerClass: ThgItemRelatedImporter,
+    dependencies: ['thg-theme-item', 'thg-gallery-context'],
+  },
+  {
+    key: 'thg-item-related-translation',
+    name: 'THG Item Relation Translations',
+    description: 'Import translations for item-to-item links',
+    importerClass: ThgItemRelatedTranslationImporter,
+    dependencies: ['thg-item-related', 'language'],
   },
 ];
 
@@ -524,6 +597,20 @@ program
           ['glossary', 'glossary-translation', 'glossary-spelling'].includes(key)
         ) {
           return 'Phase 4: Glossary';
+        } else if (
+          [
+            'thg-gallery-context',
+            'thg-gallery',
+            'thg-gallery-translation',
+            'thg-theme',
+            'thg-theme-translation',
+            'thg-theme-item',
+            'thg-theme-item-translation',
+            'thg-item-related',
+            'thg-item-related-translation',
+          ].includes(key)
+        ) {
+          return 'Phase 5: Thematic Galleries';
         } else {
           return 'Phase Unknown';
         }

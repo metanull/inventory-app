@@ -26,3 +26,16 @@ export {
   GlossaryTranslationImporter,
   GlossarySpellingImporter,
 } from './phase-04/index.js';
+
+// Phase 05: Thematic Galleries
+export {
+  ThgGalleryContextImporter,
+  ThgGalleryImporter,
+  ThgGalleryTranslationImporter,
+  ThgThemeImporter,
+  ThgThemeTranslationImporter,
+  ThgThemeItemImporter,
+  ThgThemeItemTranslationImporter,
+  ThgItemRelatedImporter,
+  ThgItemRelatedTranslationImporter,
+} from './phase-05/index.js';
