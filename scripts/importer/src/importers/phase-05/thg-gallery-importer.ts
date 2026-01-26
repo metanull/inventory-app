@@ -42,8 +42,8 @@ export class ThgGalleryImporter extends BaseImporter {
     try {
       this.logInfo('Importing thematic galleries as collections...');
 
-      // Get default language ID
-      const defaultLanguageId = this.getDefaultLanguageId();
+      // Get default language ID (use async for database fallback when starting from later phases)
+      const defaultLanguageId = await this.getDefaultLanguageIdAsync();
 
       // Query galleries from legacy database
       const galleries = await this.context.legacyDb.query<LegacyThgGallery>(

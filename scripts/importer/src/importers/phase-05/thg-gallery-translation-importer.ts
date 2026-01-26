@@ -14,7 +14,6 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-import { mapLanguageCode } from '../../utils/code-mappings.js';
 
 /**
  * Legacy exhibition_i18n structure
@@ -51,23 +50,13 @@ export class ThgGalleryTranslationImporter extends BaseImporter {
 
       for (const legacy of translations) {
         try {
-          // Map 2-letter to 3-letter language code
-          const languageId = mapLanguageCode(legacy.language_id);
+          // Get the language ID by its legacy 2-char code (backward_compatibility)
+          // Returns the ISO-3 code (e.g., 'en' → 'eng')
+          const languageId = await this.getLanguageIdByLegacyCodeAsync(legacy.language_id);
           if (!languageId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Gallery ${legacy.gallery_id}: Unknown language code '${legacy.language_id}'`
-            );
-            result.skipped++;
-            this.showSkipped();
-            continue;
-          }
-
-          // Check if language exists in tracker
-          if (!(await this.entityExistsAsync(languageId, 'language'))) {
-            result.warnings = result.warnings || [];
-            result.warnings.push(
-              `Gallery ${legacy.gallery_id}: Language '${languageId}' not found`
+              `Gallery ${legacy.gallery_id}: Language '${legacy.language_id}' not found`
             );
             result.skipped++;
             this.showSkipped();
