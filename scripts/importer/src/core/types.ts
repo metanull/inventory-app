@@ -58,7 +58,11 @@ export type EntityType =
   | 'artist'
   | 'glossary'
   | 'glossary_translation'
-  | 'glossary_spelling';
+  | 'glossary_spelling'
+  | 'theme'
+  | 'theme_translation'
+  | 'item_item_link'
+  | 'item_item_link_translation';
 
 /**
  * Imported entity record for tracking
@@ -331,3 +335,52 @@ export interface GlossarySpellingData {
   language_id: string;
   spelling: string;
 }
+
+// ============================================================================
+// Phase 05 Types - Thematic Gallery
+// ============================================================================
+
+/**
+ * Theme data for write operations
+ */
+export interface ThemeData {
+  collection_id: string;
+  parent_id?: string | null;
+  display_order: number;
+  internal_name: string;
+  backward_compatibility: string;
+}
+
+/**
+ * Theme translation data for write operations
+ */
+export interface ThemeTranslationData {
+  theme_id: string;
+  language_id: string;
+  context_id: string;
+  title: string;
+  description?: string | null;
+  introduction?: string | null;
+  backward_compatibility: string;
+}
+
+/**
+ * Item-Item Link data for write operations
+ */
+export interface ItemItemLinkData {
+  source_id: string;
+  target_id: string;
+  context_id: string;
+}
+
+/**
+ * Item-Item Link Translation data for write operations
+ */
+export interface ItemItemLinkTranslationData {
+  item_item_link_id: string;
+  language_id: string;
+  description?: string | null;
+  reciprocal_description?: string | null;
+  backward_compatibility?: string | null;
+}
+

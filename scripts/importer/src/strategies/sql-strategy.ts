@@ -32,6 +32,10 @@ import type {
   GlossaryData,
   GlossaryTranslationData,
   GlossarySpellingData,
+  ThemeData,
+  ThemeTranslationData,
+  ItemItemLinkData,
+  ItemItemLinkTranslationData,
 } from '../core/types.js';
 
 const tableEntityMap: Record<string, EntityType> = {
@@ -50,6 +54,10 @@ const tableEntityMap: Record<string, EntityType> = {
   glossaries: 'glossary',
   glossary_translations: 'glossary_translation',
   glossary_spellings: 'glossary_spelling',
+  themes: 'theme',
+  theme_translations: 'theme_translation',
+  item_item_links: 'item_item_link',
+  item_item_link_translations: 'item_item_link_translation',
 };
 
 function mapTableToEntityType(table: string): EntityType | null {
@@ -603,6 +611,87 @@ export class SqlWriteStrategy implements IWriteStrategy {
       [id, data.glossary_id, data.language_id, data.spelling, this.now, this.now]
     );
     return id;
+  }
+
+  // =========================================================================
+  // Themes (Thematic Gallery)
+  // =========================================================================
+
+  async writeTheme(data: ThemeData): Promise<string> {
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO themes (id, collection_id, parent_id, display_order, internal_name, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        data.collection_id,
+        data.parent_id ?? null,
+        data.display_order,
+        data.internal_name,
+        data.backward_compatibility,
+        this.now,
+        this.now,
+      ]
+    );
+
+    this.tracker.set(data.backward_compatibility, id, 'theme');
+    return id;
+  }
+
+  async writeThemeTranslation(data: ThemeTranslationData): Promise<void> {
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO theme_translations (id, theme_id, language_id, context_id, title, description, introduction, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        data.theme_id,
+        data.language_id,
+        data.context_id,
+        data.title,
+        data.description ?? null,
+        data.introduction ?? null,
+        data.backward_compatibility,
+        this.now,
+        this.now,
+      ]
+    );
+  }
+
+  // =========================================================================
+  // Item Links
+  // =========================================================================
+
+  async writeItemItemLink(data: ItemItemLinkData): Promise<string> {
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO item_item_links (id, source_id, target_id, context_id, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [id, data.source_id, data.target_id, data.context_id, this.now, this.now]
+    );
+
+    // Use a composite key for backward compatibility tracking
+    const backwardCompat = `${data.source_id}:${data.target_id}:${data.context_id}`;
+    this.tracker.set(backwardCompat, id, 'item_item_link');
+    return id;
+  }
+
+  async writeItemItemLinkTranslation(data: ItemItemLinkTranslationData): Promise<void> {
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO item_item_link_translations (id, item_item_link_id, language_id, description, reciprocal_description, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        data.item_item_link_id,
+        data.language_id,
+        data.description ?? null,
+        data.reciprocal_description ?? null,
+        data.backward_compatibility ?? null,
+        this.now,
+        this.now,
+      ]
+    );
   }
 
   // =========================================================================

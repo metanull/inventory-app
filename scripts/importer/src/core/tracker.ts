@@ -141,6 +141,10 @@ export class UnifiedTracker implements ITracker {
       glossary: 0,
       glossary_translation: 0,
       glossary_spelling: 0,
+      theme: 0,
+      theme_translation: 0,
+      item_item_link: 0,
+      item_item_link_translation: 0,
     };
 
     for (const entity of this.entities.values()) {
