@@ -66,9 +66,12 @@ export class ThgGalleryTranslationImporter extends BaseImporter {
           const galleryBackwardCompat = `thg_gallery.${legacy.gallery_id}`;
           const backwardCompat = `thg_exhibition_i18n.${legacy.gallery_id}.${legacy.language_id}`;
 
-          // Check if already exists
-          // Note: We can't directly check collection_translation by backward_compatibility easily
-          // So we'll rely on the import process to handle duplicates
+          // Check if already exists (use async for database fallback)
+          if (await this.entityExistsAsync(backwardCompat, 'collection_translation')) {
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
 
           // Get the collection ID (use async for database fallback)
           const collectionId = await this.getEntityUuidAsync(galleryBackwardCompat, 'collection');

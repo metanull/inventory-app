@@ -5,13 +5,13 @@
  * Provides multilingual descriptions for item-to-item links.
  *
  * Legacy schema:
- * - mwnf3_thematic_gallery.theme_item_related_i18n (gallery_id, theme_id, item_id, related_item_id, language_id, description)
+ * - mwnf3_thematic_gallery.theme_item_related_i18n (gallery_id, theme_id, item_id, related_gallery_id, related_theme_id, related_item_id, language_id, contextual_description, reciprocal_description)
  *
  * New schema:
  * - item_item_link_translations (id, item_item_link_id, language_id, description, reciprocal_description, backward_compatibility)
  *
- * Note: description describes source → target direction
- * reciprocal_description would describe target → source (if available)
+ * Note: contextual_description describes source → target direction
+ * reciprocal_description describes target → source
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
@@ -24,9 +24,12 @@ interface LegacyThemeItemRelatedI18n {
   gallery_id: number;
   theme_id: number;
   item_id: number;
+  related_gallery_id: number;
+  related_theme_id: number;
   related_item_id: number;
   language_id: string; // 2-letter code
-  description: string | null;
+  contextual_description: string | null;
+  reciprocal_description: string | null;
 }
 
 export class ThgItemRelatedTranslationImporter extends BaseImporter {
@@ -42,9 +45,9 @@ export class ThgItemRelatedTranslationImporter extends BaseImporter {
 
       // Query translations from legacy database
       const translations = await this.context.legacyDb.query<LegacyThemeItemRelatedI18n>(
-        `SELECT gallery_id, theme_id, item_id, related_item_id, language_id, description
+        `SELECT gallery_id, theme_id, item_id, related_gallery_id, related_theme_id, related_item_id, language_id, contextual_description, reciprocal_description
          FROM mwnf3_thematic_gallery.theme_item_related_i18n
-         WHERE description IS NOT NULL AND description != ''
+         WHERE contextual_description IS NOT NULL AND contextual_description != ''
          ORDER BY gallery_id, theme_id, item_id, related_item_id, language_id`
       );
 
@@ -102,8 +105,8 @@ export class ThgItemRelatedTranslationImporter extends BaseImporter {
           await this.context.strategy.writeItemItemLinkTranslation({
             item_item_link_id: linkId,
             language_id: languageId,
-            description: legacy.description,
-            reciprocal_description: null, // Not provided in legacy data
+            description: legacy.contextual_description,
+            reciprocal_description: legacy.reciprocal_description,
             backward_compatibility: backwardCompat,
           });
 

@@ -331,6 +331,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeItemTranslation(data: ItemTranslationData): Promise<void> {
     const id = uuidv4();
+    // Convert undefined values to null for SQL compatibility
+    const safeNull = (val: string | null | undefined): string | null => val ?? null;
     await this.db.execute(
       `INSERT INTO item_translations (id, item_id, language_id, context_id, name, alternate_name, description, type, holder, owner, initial_owner, dates, location, dimensions, place_of_production, method_for_datation, method_for_provenance, obtention, bibliography, author_id, text_copy_editor_id, translator_id, translation_copy_editor_id, extra, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -340,25 +342,25 @@ export class SqlWriteStrategy implements IWriteStrategy {
         data.language_id,
         data.context_id,
         data.name,
-        data.alternate_name,
+        safeNull(data.alternate_name),
         data.description,
-        data.type,
-        data.holder,
-        data.owner,
-        data.initial_owner,
-        data.dates,
-        data.location,
-        data.dimensions,
-        data.place_of_production,
-        data.method_for_datation,
-        data.method_for_provenance,
-        data.obtention,
-        data.bibliography,
-        data.author_id,
-        data.text_copy_editor_id,
-        data.translator_id,
-        data.translation_copy_editor_id,
-        data.extra,
+        safeNull(data.type),
+        safeNull(data.holder),
+        safeNull(data.owner),
+        safeNull(data.initial_owner),
+        safeNull(data.dates),
+        safeNull(data.location),
+        safeNull(data.dimensions),
+        safeNull(data.place_of_production),
+        safeNull(data.method_for_datation),
+        safeNull(data.method_for_provenance),
+        safeNull(data.obtention),
+        safeNull(data.bibliography),
+        safeNull(data.author_id),
+        safeNull(data.text_copy_editor_id),
+        safeNull(data.translator_id),
+        safeNull(data.translation_copy_editor_id),
+        safeNull(data.extra),
         data.backward_compatibility,
         this.now,
         this.now,
@@ -664,15 +666,17 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeItemItemLink(data: ItemItemLinkData): Promise<string> {
     const id = uuidv4();
+    const backwardCompat = data.backward_compatibility ?? null;
     await this.db.execute(
-      `INSERT INTO item_item_links (id, source_id, target_id, context_id, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [id, data.source_id, data.target_id, data.context_id, this.now, this.now]
+      `INSERT INTO item_item_links (id, source_id, target_id, context_id, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [id, data.source_id, data.target_id, data.context_id, backwardCompat, this.now, this.now]
     );
 
-    // Use a composite key for backward compatibility tracking
-    const backwardCompat = `${data.source_id}:${data.target_id}:${data.context_id}`;
-    this.tracker.set(backwardCompat, id, 'item_item_link');
+    // Track with provided backward_compatibility if available, otherwise use composite key
+    if (backwardCompat) {
+      this.tracker.set(backwardCompat, id, 'item_item_link');
+    }
     return id;
   }
 

@@ -129,6 +129,7 @@ export class UnifiedTracker implements ITracker {
       country_translation: 0,
       context: 0,
       collection: 0,
+      collection_translation: 0,
       project: 0,
       partner: 0,
       partner_translation: 0,

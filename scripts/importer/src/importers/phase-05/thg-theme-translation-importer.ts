@@ -68,6 +68,13 @@ export class ThgThemeTranslationImporter extends BaseImporter {
           const themeBackwardCompat = `thg_theme.${legacy.gallery_id}.${legacy.theme_id}`;
           const backwardCompat = `thg_theme_i18n.${legacy.gallery_id}.${legacy.theme_id}.${legacy.language_id}`;
 
+          // Check if already exists (use async for database fallback)
+          if (await this.entityExistsAsync(backwardCompat, 'theme_translation')) {
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           // Get the theme ID (use async for database fallback)
           const themeId = await this.getEntityUuidAsync(themeBackwardCompat, 'theme');
           if (!themeId) {

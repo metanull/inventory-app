@@ -47,6 +47,7 @@ export type EntityType =
   | 'country_translation'
   | 'context'
   | 'collection'
+  | 'collection_translation'
   | 'project'
   | 'partner'
   | 'partner_translation'
@@ -371,6 +372,7 @@ export interface ItemItemLinkData {
   source_id: string;
   target_id: string;
   context_id: string;
+  backward_compatibility?: string | null;
 }
 
 /**

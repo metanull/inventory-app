@@ -381,6 +381,7 @@ export abstract class BaseImporter {
       country_translation: 'country_translations',
       context: 'contexts',
       collection: 'collections',
+      collection_translation: 'collection_translations',
       project: 'projects',
       partner: 'partners',
       partner_translation: 'partner_translations',

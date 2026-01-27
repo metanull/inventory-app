@@ -26,7 +26,6 @@ interface LegacyThemeItem {
   gallery_id: number;
   theme_id: number;
   item_id: number;
-  sort_order: number;
   // mwnf3 object references
   mwnf3_object_project_id: string | null;
   mwnf3_object_country_id: string | null;
@@ -57,15 +56,30 @@ export class ThgThemeItemImporter extends BaseImporter {
       this.logInfo('Importing theme-item associations (mwnf3 items only)...');
 
       // Query theme_item entries from legacy database
-      const themeItems = await this.context.legacyDb.query<LegacyThemeItem>(
-        `SELECT gallery_id, theme_id, item_id, sort_order,
-                mwnf3_object_project_id, mwnf3_object_country_id, mwnf3_object_partner_id, mwnf3_object_item_id,
-                mwnf3_monument_project_id, mwnf3_monument_country_id, mwnf3_monument_partner_id, mwnf3_monument_item_id,
-                mwnf3_monument_detail_project_id, mwnf3_monument_detail_country_id, mwnf3_monument_detail_partner_id,
-                mwnf3_monument_detail_item_id, mwnf3_monument_detail_detail_id
-         FROM mwnf3_thematic_gallery.theme_item
-         ORDER BY gallery_id, theme_id, sort_order`
-      );
+      // Note: The legacy schema may not have this table or may have different columns - handle gracefully
+      let themeItems: LegacyThemeItem[];
+      try {
+        themeItems = await this.context.legacyDb.query<LegacyThemeItem>(
+          `SELECT gallery_id, theme_id, item_id,
+                  mwnf3_object_project_id, mwnf3_object_country_id, mwnf3_object_partner_id, mwnf3_object_item_id,
+                  mwnf3_monument_project_id, mwnf3_monument_country_id, mwnf3_monument_partner_id, mwnf3_monument_item_id,
+                  mwnf3_monument_detail_project_id, mwnf3_monument_detail_country_id, mwnf3_monument_detail_partner_id,
+                  mwnf3_monument_detail_item_id, mwnf3_monument_detail_detail_id
+           FROM mwnf3_thematic_gallery.theme_item
+           ORDER BY gallery_id, theme_id, item_id`
+        );
+      } catch (queryError) {
+        const message = queryError instanceof Error ? queryError.message : String(queryError);
+        if (message.includes("doesn't exist") || message.includes('Unknown column')) {
+          this.logInfo(
+            `⚠️ Skipping: Legacy theme_item table not available (${message})`
+          );
+          result.warnings = result.warnings || [];
+          result.warnings.push(`Legacy theme_item table not available: ${message}`);
+          return result;
+        }
+        throw queryError;
+      }
 
       this.logInfo(`Found ${themeItems.length} theme-item associations to process`);
 
@@ -182,26 +196,29 @@ export class ThgThemeItemImporter extends BaseImporter {
    */
   private resolveItemReference(legacy: LegacyThemeItem): string | null {
     // Check mwnf3_object reference
+    // Format: mwnf3:objects:PROJECT:COUNTRY:MUSEUM:NUMBER (matching object-transformer.ts)
     if (
       legacy.mwnf3_object_project_id &&
       legacy.mwnf3_object_country_id &&
       legacy.mwnf3_object_partner_id &&
       legacy.mwnf3_object_item_id !== null
     ) {
-      return `mwnf3_object.${legacy.mwnf3_object_project_id}.${legacy.mwnf3_object_country_id}.${legacy.mwnf3_object_partner_id}.${legacy.mwnf3_object_item_id}`;
+      return `mwnf3:objects:${legacy.mwnf3_object_project_id}:${legacy.mwnf3_object_country_id}:${legacy.mwnf3_object_partner_id}:${legacy.mwnf3_object_item_id}`;
     }
 
     // Check mwnf3_monument reference
+    // Format: mwnf3:monuments:PROJECT:COUNTRY:INSTITUTION:NUMBER (matching monument-transformer.ts)
     if (
       legacy.mwnf3_monument_project_id &&
       legacy.mwnf3_monument_country_id &&
       legacy.mwnf3_monument_partner_id &&
       legacy.mwnf3_monument_item_id !== null
     ) {
-      return `mwnf3_monument.${legacy.mwnf3_monument_project_id}.${legacy.mwnf3_monument_country_id}.${legacy.mwnf3_monument_partner_id}.${legacy.mwnf3_monument_item_id}`;
+      return `mwnf3:monuments:${legacy.mwnf3_monument_project_id}:${legacy.mwnf3_monument_country_id}:${legacy.mwnf3_monument_partner_id}:${legacy.mwnf3_monument_item_id}`;
     }
 
     // Check mwnf3_monument_detail reference
+    // Format: mwnf3:monument_details:PROJECT:COUNTRY:INSTITUTION:MONUMENT:DETAIL (matching monument-detail-transformer.ts)
     if (
       legacy.mwnf3_monument_detail_project_id &&
       legacy.mwnf3_monument_detail_country_id &&
@@ -209,7 +226,7 @@ export class ThgThemeItemImporter extends BaseImporter {
       legacy.mwnf3_monument_detail_item_id !== null &&
       legacy.mwnf3_monument_detail_detail_id !== null
     ) {
-      return `mwnf3_monument_detail.${legacy.mwnf3_monument_detail_project_id}.${legacy.mwnf3_monument_detail_country_id}.${legacy.mwnf3_monument_detail_partner_id}.${legacy.mwnf3_monument_detail_item_id}.${legacy.mwnf3_monument_detail_detail_id}`;
+      return `mwnf3:monument_details:${legacy.mwnf3_monument_detail_project_id}:${legacy.mwnf3_monument_detail_country_id}:${legacy.mwnf3_monument_detail_partner_id}:${legacy.mwnf3_monument_detail_item_id}:${legacy.mwnf3_monument_detail_detail_id}`;
     }
 
     // Not an mwnf3 item (sh, thg, explore, travel, etc.)
