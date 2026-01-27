@@ -10,7 +10,7 @@
 
 import type { ShLegacyMonument, ShLegacyMonumentText, ShMonumentGroup } from '../types/index.js';
 import type { ItemData, ItemTranslationData } from '../../core/types.js';
-import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { mapCountryCode, mapLanguageCode } from '../../utils/code-mappings.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 import { formatShBackwardCompatibility } from './sh-project-transformer.js';
 
@@ -103,7 +103,7 @@ export function transformShMonument(
     internal_name: internalName,
     type: 'monument',
     backward_compatibility: backwardCompat,
-    country_id: group.country,
+    country_id: mapCountryCode(group.country),
     parent_id: null,
     owner_reference: null,
     mwnf_reference: group.working_number || null,

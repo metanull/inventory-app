@@ -11,7 +11,7 @@ import type {
   ShMonumentDetailGroup,
 } from '../types/index.js';
 import type { ItemData, ItemTranslationData } from '../../core/types.js';
-import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { mapCountryCode, mapLanguageCode } from '../../utils/code-mappings.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 import { formatShBackwardCompatibility } from './sh-project-transformer.js';
 
@@ -109,7 +109,7 @@ export function transformShMonumentDetail(
     internal_name: internalName,
     type: 'detail',
     backward_compatibility: backwardCompat,
-    country_id: group.country,
+    country_id: mapCountryCode(group.country),
     owner_reference: null,
     mwnf_reference: null,
   };

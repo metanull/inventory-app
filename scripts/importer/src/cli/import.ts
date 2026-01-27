@@ -56,6 +56,7 @@ import {
   GlossaryImporter,
   GlossaryTranslationImporter,
   GlossarySpellingImporter,
+  // Phase 05: Thematic Galleries
   ThgGalleryContextImporter,
   ThgGalleryImporter,
   ThgGalleryTranslationImporter,
@@ -65,6 +66,11 @@ import {
   ThgThemeItemTranslationImporter,
   ThgItemRelatedImporter,
   ThgItemRelatedTranslationImporter,
+  // Phase 05: Gallery-Item Link Importers
+  ThgGalleryMwnf3ObjectImporter,
+  ThgGalleryMwnf3MonumentImporter,
+  ThgGalleryShObjectImporter,
+  ThgGalleryShMonumentImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -335,6 +341,35 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import translations for item-to-item links',
     importerClass: ThgItemRelatedTranslationImporter,
     dependencies: ['thg-item-related', 'language'],
+  },
+  // Phase 05: Gallery-Item Link Importers (direct links from thg_gallery to items)
+  {
+    key: 'thg-gallery-mwnf3-object',
+    name: 'THG Gallery MWNF3 Objects',
+    description: 'Link mwnf3 objects to THG gallery collections',
+    importerClass: ThgGalleryMwnf3ObjectImporter,
+    dependencies: ['thg-gallery', 'object'],
+  },
+  {
+    key: 'thg-gallery-mwnf3-monument',
+    name: 'THG Gallery MWNF3 Monuments',
+    description: 'Link mwnf3 monuments to THG gallery collections',
+    importerClass: ThgGalleryMwnf3MonumentImporter,
+    dependencies: ['thg-gallery', 'monument'],
+  },
+  {
+    key: 'thg-gallery-sh-object',
+    name: 'THG Gallery SH Objects',
+    description: 'Link Sharing History objects to THG gallery collections',
+    importerClass: ThgGalleryShObjectImporter,
+    dependencies: ['thg-gallery', 'sh-object'],
+  },
+  {
+    key: 'thg-gallery-sh-monument',
+    name: 'THG Gallery SH Monuments',
+    description: 'Link Sharing History monuments to THG gallery collections',
+    importerClass: ThgGalleryShMonumentImporter,
+    dependencies: ['thg-gallery', 'sh-monument'],
   },
 ];
 

@@ -50,4 +50,9 @@ export {
   ThgThemeItemTranslationImporter,
   ThgItemRelatedImporter,
   ThgItemRelatedTranslationImporter,
+  // Gallery-Item Link Importers
+  ThgGalleryMwnf3ObjectImporter,
+  ThgGalleryMwnf3MonumentImporter,
+  ThgGalleryShObjectImporter,
+  ThgGalleryShMonumentImporter,
 } from './phase-05/index.js';

@@ -66,6 +66,13 @@ export function convertHtmlFieldsToMarkdown<T extends Record<string, unknown>>(
 }
 
 /**
+ * Fields that should be skipped during sanitization.
+ * These are typically JSON fields that are already properly formatted
+ * and should not be processed by the HTML-to-Markdown converter.
+ */
+const SKIP_SANITIZE_FIELDS = new Set(['extra']);
+
+/**
  * Sanitize ALL string fields in an object by converting HTML to Markdown
  *
  * This function iterates over all properties of the object and converts
@@ -76,6 +83,9 @@ export function convertHtmlFieldsToMarkdown<T extends Record<string, unknown>>(
  * Use this as a catch-all sanitizer at the persistence layer to ensure
  * no HTML content reaches the database.
  *
+ * Note: Fields in SKIP_SANITIZE_FIELDS (like 'extra') are preserved as-is
+ * since they contain pre-formatted JSON strings that should not be modified.
+ *
  * @param data The data object to sanitize
  * @returns A new object with all string fields converted from HTML to Markdown
  */
@@ -84,6 +94,10 @@ export function sanitizeAllStrings<T extends object>(data: T): T {
 
   for (const key of Object.keys(result) as (keyof T)[]) {
     const value = result[key];
+    // Skip fields that should not be sanitized (e.g., JSON fields like 'extra')
+    if (SKIP_SANITIZE_FIELDS.has(key as string)) {
+      continue;
+    }
     if (typeof value === 'string') {
       (result as Record<string, unknown>)[key as string] = convertHtmlToMarkdown(value);
     }

@@ -170,7 +170,7 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
       group.number,
       group.detail_id
     );
-    const parentItemId = this.getEntityUuid(parentBackwardCompat, 'item');
+    const parentItemId = await this.getEntityUuidAsync(parentBackwardCompat, 'item');
     if (!parentItemId) {
       throw new Error(`Parent SH monument detail not found: ${parentBackwardCompat}`);
     }
@@ -228,9 +228,9 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
   ): Promise<string> {
     // Get SH project context and collection
     const contextBackwardCompat = formatShBackwardCompatibility('sh_projects', group.project_id);
-    const contextId = this.getEntityUuid(contextBackwardCompat, 'context');
-    const collectionId = this.getEntityUuid(contextBackwardCompat, 'collection');
-    const projectId = this.getEntityUuid(contextBackwardCompat, 'project');
+    const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context');
+    const collectionId = await this.getEntityUuidAsync(contextBackwardCompat, 'collection');
+    const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
 
     // Use default context if SH context not found
     const defaultContextId = this.getDefaultContextId();

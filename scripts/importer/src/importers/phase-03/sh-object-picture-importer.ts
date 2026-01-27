@@ -21,7 +21,7 @@ import type {
 } from '../../core/types.js';
 import type { ShLegacyObjectImage, ShLegacyObjectImageText } from '../../domain/types/index.js';
 import { formatShBackwardCompatibility } from '../../domain/transformers/index.js';
-import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { mapCountryCode, mapLanguageCode } from '../../utils/code-mappings.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 import path from 'path';
 
@@ -169,7 +169,7 @@ export class ShObjectPictureImporter extends BaseImporter {
       group.country,
       group.number
     );
-    const parentItemId = this.getEntityUuid(parentBackwardCompat, 'item');
+    const parentItemId = await this.getEntityUuidAsync(parentBackwardCompat, 'item');
     if (!parentItemId) {
       throw new Error(`Parent SH object not found: ${parentBackwardCompat}`);
     }
@@ -224,17 +224,17 @@ export class ShObjectPictureImporter extends BaseImporter {
   private async createPictureItem(group: ShPictureGroup, parentItemId: string): Promise<string> {
     // Get SH project context and collection
     const contextBackwardCompat = formatShBackwardCompatibility('sh_projects', group.project_id);
-    const contextId = this.getEntityUuid(contextBackwardCompat, 'context');
+    const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context');
     if (!contextId) {
       throw new Error(`SH Context not found: ${contextBackwardCompat}`);
     }
 
-    const collectionId = this.getEntityUuid(contextBackwardCompat, 'collection');
+    const collectionId = await this.getEntityUuidAsync(contextBackwardCompat, 'collection');
     if (!collectionId) {
       throw new Error(`SH Collection not found: ${contextBackwardCompat}`);
     }
 
-    const projectId = this.getEntityUuid(contextBackwardCompat, 'project');
+    const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
 
     // Try to find partner from the parent object
     const parentBackwardCompat = formatShBackwardCompatibility(
@@ -248,7 +248,7 @@ export class ShObjectPictureImporter extends BaseImporter {
     );
     let partnerId: string | null = null;
     if (partnerBackwardCompat) {
-      partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
+      partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
     }
 
     // If no partner found, use a default partner from the collection
@@ -272,7 +272,7 @@ export class ShObjectPictureImporter extends BaseImporter {
       internal_name: internalName,
       type: 'picture',
       backward_compatibility: this.getPictureBackwardCompatibility(group),
-      country_id: group.country,
+      country_id: mapCountryCode(group.country),
       parent_id: parentItemId,
       collection_id: collectionId,
       partner_id: partnerId,

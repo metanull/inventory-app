@@ -7,7 +7,7 @@
 
 import type { ShLegacyPartner, ShLegacyPartnerName } from '../types/index.js';
 import type { PartnerData, PartnerTranslationData } from '../../core/types.js';
-import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { mapCountryCode, mapLanguageCode } from '../../utils/code-mappings.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 import { formatShBackwardCompatibility } from './sh-project-transformer.js';
 
@@ -153,7 +153,7 @@ export function transformShPartner(legacy: ShLegacyPartner): TransformedShPartne
     internal_name: convertHtmlToMarkdown(legacy.name),
     type: partnerType,
     backward_compatibility: backwardCompat,
-    country_id: legacy.country || null,
+    country_id: legacy.country ? mapCountryCode(legacy.country) : null,
     latitude,
     longitude,
     map_zoom: mapZoom,

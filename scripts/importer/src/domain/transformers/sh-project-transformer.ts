@@ -22,12 +22,16 @@ const SH_PROJECTS_TABLE = 'sh_projects';
 
 /**
  * Format backward compatibility string for SH entities
+ * All string values are normalized to lowercase for consistent key matching
  */
 export function formatShBackwardCompatibility(
   table: string,
   ...pkValues: (string | number)[]
 ): string {
-  return `${SH_SCHEMA}:${table}:${pkValues.join(':')}`;
+  const normalizedValues = pkValues.map((v) =>
+    typeof v === 'string' ? v.toLowerCase() : v
+  );
+  return `${SH_SCHEMA}:${table}:${normalizedValues.join(':')}`;
 }
 
 /**
