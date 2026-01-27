@@ -47,7 +47,9 @@ export class ThgGalleryShMonumentImporter extends BaseImporter {
       } catch (queryError) {
         const message = queryError instanceof Error ? queryError.message : String(queryError);
         if (message.includes("doesn't exist") || message.includes('Unknown column')) {
-          this.logInfo(`⚠️ Skipping: Legacy thg_gallery_sh_monuments table not available (${message})`);
+          this.logInfo(
+            `⚠️ Skipping: Legacy thg_gallery_sh_monuments table not available (${message})`
+          );
           result.warnings = result.warnings || [];
           result.warnings.push(`Legacy thg_gallery_sh_monuments table not available: ${message}`);
           return result;
@@ -117,10 +119,7 @@ export class ThgGalleryShMonumentImporter extends BaseImporter {
           result.errors.push(
             `Gallery ${legacy.gallery_id} SH monument ${legacy.sh_monuments_project_id}:${legacy.sh_monuments_country}:${legacy.sh_monuments_number}: ${message}`
           );
-          this.logError(
-            `Gallery ${legacy.gallery_id} SH monument`,
-            error
-          );
+          this.logError(`Gallery ${legacy.gallery_id} SH monument`, error);
           this.showError();
         }
       }

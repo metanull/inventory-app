@@ -28,9 +28,7 @@ export function formatShBackwardCompatibility(
   table: string,
   ...pkValues: (string | number)[]
 ): string {
-  const normalizedValues = pkValues.map((v) =>
-    typeof v === 'string' ? v.toLowerCase() : v
-  );
+  const normalizedValues = pkValues.map((v) => (typeof v === 'string' ? v.toLowerCase() : v));
   return `${SH_SCHEMA}:${table}:${normalizedValues.join(':')}`;
 }
 
