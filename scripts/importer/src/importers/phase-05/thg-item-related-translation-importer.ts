@@ -69,7 +69,7 @@ export class ThgItemRelatedTranslationImporter extends BaseImporter {
           }
 
           // Get the item-item link ID (use async for database fallback)
-          const linkBackwardCompat = `thg_item_related.${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}.${legacy.related_item_id}`;
+          const linkBackwardCompat = `mwnf3_thematic_gallery:theme_item_related:${legacy.gallery_id}:${legacy.theme_id}:${legacy.item_id}:${legacy.related_item_id}`;
           const linkId = await this.getEntityUuidAsync(linkBackwardCompat, 'item_item_link');
           if (!linkId) {
             result.warnings = result.warnings || [];
@@ -81,7 +81,7 @@ export class ThgItemRelatedTranslationImporter extends BaseImporter {
             continue;
           }
 
-          const backwardCompat = `thg_item_related_i18n.${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}.${legacy.related_item_id}.${legacy.language_id}`;
+          const backwardCompat = `mwnf3_thematic_gallery:theme_item_related_i18n:${legacy.gallery_id}:${legacy.theme_id}:${legacy.item_id}:${legacy.related_item_id}:${legacy.language_id}`;
 
           // Collect sample
           this.collectSample(

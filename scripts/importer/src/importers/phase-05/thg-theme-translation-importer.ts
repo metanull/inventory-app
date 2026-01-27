@@ -65,8 +65,8 @@ export class ThgThemeTranslationImporter extends BaseImporter {
             continue;
           }
 
-          const themeBackwardCompat = `thg_theme.${legacy.gallery_id}.${legacy.theme_id}`;
-          const backwardCompat = `thg_theme_i18n.${legacy.gallery_id}.${legacy.theme_id}.${legacy.language_id}`;
+          const themeBackwardCompat = `mwnf3_thematic_gallery:theme:${legacy.gallery_id}:${legacy.theme_id}`;
+          const backwardCompat = `mwnf3_thematic_gallery:theme_i18n:${legacy.gallery_id}:${legacy.theme_id}:${legacy.language_id}`;
 
           // Check if already exists (use async for database fallback)
           if (await this.entityExistsAsync(backwardCompat, 'theme_translation')) {
@@ -88,7 +88,7 @@ export class ThgThemeTranslationImporter extends BaseImporter {
           }
 
           // Get the context ID for this gallery (use async for database fallback)
-          const galleryBackwardCompat = `thg_gallery.${legacy.gallery_id}`;
+          const galleryBackwardCompat = `mwnf3_thematic_gallery:thg_gallery:${legacy.gallery_id}`;
           const contextId = await this.getEntityUuidAsync(galleryBackwardCompat, 'context');
           if (!contextId) {
             result.warnings = result.warnings || [];

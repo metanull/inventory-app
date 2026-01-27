@@ -112,7 +112,7 @@ export class ThgThemeItemImporter extends BaseImporter {
           }
 
           // Get the collection ID for this gallery (Phase 05 internal)
-          const galleryBackwardCompat = `thg_gallery.${legacy.gallery_id}`;
+          const galleryBackwardCompat = `mwnf3_thematic_gallery:thg_gallery:${legacy.gallery_id}`;
           const collectionId = await this.getEntityUuidAsync(galleryBackwardCompat, 'collection');
           if (!collectionId) {
             result.warnings = result.warnings || [];

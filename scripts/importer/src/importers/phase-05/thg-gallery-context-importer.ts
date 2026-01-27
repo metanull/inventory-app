@@ -12,7 +12,7 @@
  * - contexts (id, internal_name, backward_compatibility, is_default)
  *
  * Context naming: {gallery|exhibition}_{name_slug}
- * Backward compatibility: thg_gallery.{gallery_id}
+ * Backward compatibility: mwnf3_thematic_gallery:thg_gallery:{gallery_id}
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
@@ -70,7 +70,7 @@ export class ThgGalleryContextImporter extends BaseImporter {
 
       for (const legacy of galleries) {
         try {
-          const backwardCompat = `thg_gallery.${legacy.gallery_id}`;
+          const backwardCompat = `mwnf3_thematic_gallery:thg_gallery:${legacy.gallery_id}`;
 
           // Check if already exists (use async for database fallback)
           if (await this.entityExistsAsync(backwardCompat, 'context')) {

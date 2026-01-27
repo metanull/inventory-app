@@ -47,8 +47,8 @@ export class GlossaryImporter extends BaseImporter {
 
       for (const legacy of words) {
         try {
-          // Use word_id as backward compatibility key
-          const backwardCompat = `word_${legacy.word_id}`;
+          // Use standard backward compatibility format: database:table:pk
+          const backwardCompat = `mwnf3:glossary:${legacy.word_id}`;
 
           // Check if already exists
           if (this.entityExists(backwardCompat, 'glossary')) {
@@ -146,13 +146,9 @@ export class GlossaryTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Find the glossary word by backward_compatibility
-          // This will check the tracker first, then fall back to database if needed
-          const wordBackwardCompat = `word_${legacy.word_id}`;
-          const glossaryId = await this.context.strategy.findByBackwardCompatibility(
-            'glossaries',
-            wordBackwardCompat
-          );
+          // Find the glossary word by backward_compatibility using tracker
+          const wordBackwardCompat = `mwnf3:glossary:${legacy.word_id}`;
+          const glossaryId = this.getEntityUuid(wordBackwardCompat, 'glossary');
 
           if (!glossaryId) {
             result.errors.push(
@@ -269,13 +265,9 @@ export class GlossarySpellingImporter extends BaseImporter {
             continue;
           }
 
-          // Find the glossary word by backward_compatibility
-          // This will check the tracker first, then fall back to database if needed
-          const wordBackwardCompat = `word_${legacy.word_id}`;
-          const glossaryId = await this.context.strategy.findByBackwardCompatibility(
-            'glossaries',
-            wordBackwardCompat
-          );
+          // Find the glossary word by backward_compatibility using tracker
+          const wordBackwardCompat = `mwnf3:glossary:${legacy.word_id}`;
+          const glossaryId = this.getEntityUuid(wordBackwardCompat, 'glossary');
 
           if (!glossaryId) {
             result.errors.push(

@@ -160,7 +160,7 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
           }
 
           // Get the context ID for this gallery (Phase 05 internal, but use async for consistency)
-          const galleryBackwardCompat = `thg_gallery.${legacy.gallery_id}`;
+          const galleryBackwardCompat = `mwnf3_thematic_gallery:thg_gallery:${legacy.gallery_id}`;
           const contextId = await this.getEntityUuidAsync(galleryBackwardCompat, 'context');
           if (!contextId) {
             result.warnings = result.warnings || [];
@@ -172,7 +172,7 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
             continue;
           }
 
-          const backwardCompat = `thg_theme_item_i18n.${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}.${legacy.language_id}`;
+          const backwardCompat = `mwnf3_thematic_gallery:theme_item_i18n:${legacy.gallery_id}:${legacy.theme_id}:${legacy.item_id}:${legacy.language_id}`;
 
           // Check if this translation already exists (skip if so)
           const existsInDb = await this.entityExistsAsync(backwardCompat, 'item_translation');

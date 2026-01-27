@@ -9,7 +9,7 @@
  * New schema:
  * - themes (id, collection_id, parent_id, display_order, internal_name, backward_compatibility)
  *
- * Backward compatibility: thg_theme.{gallery_id}.{theme_id}
+ * Backward compatibility: mwnf3_thematic_gallery:theme:{gallery_id}:{theme_id}
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
@@ -50,7 +50,7 @@ export class ThgThemeImporter extends BaseImporter {
       // Two-pass import: first themes without parents, then themes with parents
       for (const legacy of themes) {
         try {
-          const backwardCompat = `thg_theme.${legacy.gallery_id}.${legacy.theme_id}`;
+          const backwardCompat = `mwnf3_thematic_gallery:theme:${legacy.gallery_id}:${legacy.theme_id}`;
 
           // Check if already exists (use async for database fallback)
           if (await this.entityExistsAsync(backwardCompat, 'theme')) {
@@ -60,7 +60,7 @@ export class ThgThemeImporter extends BaseImporter {
           }
 
           // Get the collection ID for this gallery (use async for database fallback)
-          const galleryBackwardCompat = `thg_gallery.${legacy.gallery_id}`;
+          const galleryBackwardCompat = `mwnf3_thematic_gallery:thg_gallery:${legacy.gallery_id}`;
           const collectionId = await this.getEntityUuidAsync(galleryBackwardCompat, 'collection');
           if (!collectionId) {
             result.warnings = result.warnings || [];
@@ -75,7 +75,7 @@ export class ThgThemeImporter extends BaseImporter {
           // Resolve parent theme ID if exists (use async for database fallback)
           let parentId: string | null = null;
           if (legacy.parent_theme_id !== null) {
-            const parentBackwardCompat = `thg_theme.${legacy.gallery_id}.${legacy.parent_theme_id}`;
+            const parentBackwardCompat = `mwnf3_thematic_gallery:theme:${legacy.gallery_id}:${legacy.parent_theme_id}`;
             parentId = await this.getEntityUuidAsync(parentBackwardCompat, 'theme');
             if (!parentId) {
               // Parent theme not yet imported - this should be rare with sorted query

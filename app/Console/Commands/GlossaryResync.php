@@ -38,6 +38,7 @@ class GlossaryResync extends Command
         if ($remove) {
             if (! $force && ! $this->confirm('This will REMOVE ALL rows from item_translation_spelling. Continue?')) {
                 $this->info('Aborted. No changes were made.');
+
                 return 1;
             }
 
@@ -57,6 +58,7 @@ class GlossaryResync extends Command
 
         if ($totalWords === 0) {
             $this->info('No glossary spellings found. Nothing to do.');
+
             return 0;
         }
 

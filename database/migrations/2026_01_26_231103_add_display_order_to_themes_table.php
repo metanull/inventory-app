@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -23,7 +24,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('themes', function (Blueprint $table) {
-            $table->dropIndex(['collection_id', 'display_order']);
+            // MariaDB may require an index for the existing foreign key on `collection_id`.
+            // Only drop the composite index for SQLite where it was explicitly created.
+            if (DB::connection()->getDriverName() === 'sqlite') {
+                $table->dropIndex(['collection_id', 'display_order']);
+            }
+
             $table->dropColumn('display_order');
         });
     }

@@ -11,7 +11,7 @@
  *
  * Collection type: 'gallery' (THG project) or 'exhibition' (EXH project)
  * Context: Uses the context created by ThgGalleryContextImporter
- * Backward compatibility: thg_gallery.{gallery_id}
+ * Backward compatibility: mwnf3_thematic_gallery:thg_gallery:{gallery_id}
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
@@ -54,7 +54,7 @@ export class ThgGalleryImporter extends BaseImporter {
 
       for (const legacy of galleries) {
         try {
-          const backwardCompat = `thg_gallery.${legacy.gallery_id}`;
+          const backwardCompat = `mwnf3_thematic_gallery:thg_gallery:${legacy.gallery_id}`;
 
           // Check if already exists as collection (use async for database fallback)
           if (await this.entityExistsAsync(backwardCompat, 'collection')) {
