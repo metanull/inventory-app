@@ -92,7 +92,9 @@ export function transformShPartner(legacy: ShLegacyPartner): TransformedShPartne
   const mapZoom = legacy.zoom ? parseInt(legacy.zoom, 10) : null;
 
   // Determine partner type from category (only 'museum' or 'institution' allowed)
-  const partnerType: 'museum' | 'institution' = legacy.partner_category?.toLowerCase().includes('museum')
+  const partnerType: 'museum' | 'institution' = legacy.partner_category
+    ?.toLowerCase()
+    .includes('museum')
     ? 'museum'
     : 'institution';
 
@@ -187,11 +189,12 @@ export function transformShPartnerTranslation(
     descriptionParts.unshift(`City: ${convertHtmlToMarkdown(legacy.city)}`);
   }
 
-  const data: Omit<PartnerTranslationData, 'partner_id' | 'context_id' | 'backward_compatibility'> = {
-    language_id: languageId,
-    name: convertHtmlToMarkdown(legacy.name),
-    description: descriptionParts.length > 0 ? descriptionParts.join('\n\n') : null,
-  };
+  const data: Omit<PartnerTranslationData, 'partner_id' | 'context_id' | 'backward_compatibility'> =
+    {
+      language_id: languageId,
+      name: convertHtmlToMarkdown(legacy.name),
+      description: descriptionParts.length > 0 ? descriptionParts.join('\n\n') : null,
+    };
 
   return {
     data,

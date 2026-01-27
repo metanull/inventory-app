@@ -90,9 +90,7 @@ export class ThgThemeItemImporter extends BaseImporter {
       } catch (queryError) {
         const message = queryError instanceof Error ? queryError.message : String(queryError);
         if (message.includes("doesn't exist") || message.includes('Unknown column')) {
-          this.logInfo(
-            `⚠️ Skipping: Legacy theme_item table not available (${message})`
-          );
+          this.logInfo(`⚠️ Skipping: Legacy theme_item table not available (${message})`);
           result.warnings = result.warnings || [];
           result.warnings.push(`Legacy theme_item table not available: ${message}`);
           return result;
@@ -178,7 +176,9 @@ export class ThgThemeItemImporter extends BaseImporter {
 
       // Log skipped statistics
       if (skippedNonMwnf3 > 0) {
-        this.logInfo(`Skipped ${skippedNonMwnf3} non-mwnf3 items (will be imported in future phases)`);
+        this.logInfo(
+          `Skipped ${skippedNonMwnf3} non-mwnf3 items (will be imported in future phases)`
+        );
       }
       if (skippedNoItem > 0) {
         this.logInfo(`Skipped ${skippedNoItem} items not found in tracker`);
@@ -198,7 +198,11 @@ export class ThgThemeItemImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped + skippedNonMwnf3 + skippedNoItem, result.errors.length);
+      this.showSummary(
+        result.imported,
+        result.skipped + skippedNonMwnf3 + skippedNoItem,
+        result.errors.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.success = false;

@@ -61,11 +61,7 @@ export class GlossaryImporter extends BaseImporter {
           const internalName = legacy.name || `word_${legacy.word_id}`;
 
           // Collect sample
-          this.collectSample(
-            'glossary',
-            legacy as unknown as Record<string, unknown>,
-            'success'
-          );
+          this.collectSample('glossary', legacy as unknown as Record<string, unknown>, 'success');
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
@@ -151,9 +147,7 @@ export class GlossaryTranslationImporter extends BaseImporter {
           const glossaryId = this.getEntityUuid(wordBackwardCompat, 'glossary');
 
           if (!glossaryId) {
-            result.errors.push(
-              `Glossary word not found for definition: word_id=${legacy.word_id}`
-            );
+            result.errors.push(`Glossary word not found for definition: word_id=${legacy.word_id}`);
             this.showError();
             continue;
           }

@@ -136,11 +136,11 @@ export function transformShObjectTranslation(
   const descriptions = [text.description, text.description2]
     .filter((d): d is string => !!d && d.trim() !== '')
     .map((d) => convertHtmlToMarkdown(d));
-  
+
   if (descriptions.length === 0) {
     return null;
   }
-  
+
   const description = descriptions.join('\n\n');
 
   // Build alternate name from name2, second_name, third_name
@@ -148,7 +148,7 @@ export function transformShObjectTranslation(
     .filter((n): n is string => !!n && n.trim() !== '')
     .map((n) => convertHtmlToMarkdown(n));
   let alternateName = alternateNames.length > 0 ? alternateNames.join('; ') : null;
-  
+
   // Truncate if needed
   if (alternateName && alternateName.length > 255) {
     alternateName = alternateName.substring(0, 252) + '...';
@@ -167,9 +167,10 @@ export function transformShObjectTranslation(
   // Build owner info
   const owner = text.current_owner ? convertHtmlToMarkdown(text.current_owner) : null;
   const initialOwner = text.original_owner ? convertHtmlToMarkdown(text.original_owner) : null;
-  const holder = text.holding_museum || text.holding_institution_org
-    ? convertHtmlToMarkdown(text.holding_museum || text.holding_institution_org || '')
-    : null;
+  const holder =
+    text.holding_museum || text.holding_institution_org
+      ? convertHtmlToMarkdown(text.holding_museum || text.holding_institution_org || '')
+      : null;
 
   // Build location
   const locationParts = [text.location, text.province]

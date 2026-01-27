@@ -87,9 +87,7 @@ export class ThgItemRelatedImporter extends BaseImporter {
       } catch (queryError) {
         const message = queryError instanceof Error ? queryError.message : String(queryError);
         if (message.includes("doesn't exist") || message.includes('Unknown column')) {
-          this.logInfo(
-            `⚠️ Skipping: Legacy theme_item table not available (${message})`
-          );
+          this.logInfo(`⚠️ Skipping: Legacy theme_item table not available (${message})`);
           result.warnings = result.warnings || [];
           result.warnings.push(`Legacy theme_item table not available: ${message}`);
           return result;
@@ -115,9 +113,7 @@ export class ThgItemRelatedImporter extends BaseImporter {
           const sourceThemeItem = this.themeItemCache.get(sourceKey);
           if (!sourceThemeItem) {
             result.warnings = result.warnings || [];
-            result.warnings.push(
-              `Item relation ${sourceKey}: source theme_item not found`
-            );
+            result.warnings.push(`Item relation ${sourceKey}: source theme_item not found`);
             result.skipped++;
             this.showSkipped();
             continue;

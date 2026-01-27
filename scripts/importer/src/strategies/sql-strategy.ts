@@ -283,7 +283,14 @@ export class SqlWriteStrategy implements IWriteStrategy {
     await this.db.execute(
       `INSERT INTO partners (id, type, internal_name, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [id, sanitized.type, sanitized.internal_name, sanitized.backward_compatibility, this.now, this.now]
+      [
+        id,
+        sanitized.type,
+        sanitized.internal_name,
+        sanitized.backward_compatibility,
+        this.now,
+        this.now,
+      ]
     );
 
     this.tracker.set(sanitized.backward_compatibility, id, 'partner');
@@ -473,7 +480,10 @@ export class SqlWriteStrategy implements IWriteStrategy {
     } catch (error) {
       // Duplicate entry - try to find existing record
       // This is expected when the same tag is imported multiple times
-      const existing = await this.findByBackwardCompatibility('tags', sanitized.backward_compatibility);
+      const existing = await this.findByBackwardCompatibility(
+        'tags',
+        sanitized.backward_compatibility
+      );
       if (existing) {
         return existing;
       }
@@ -492,7 +502,14 @@ export class SqlWriteStrategy implements IWriteStrategy {
       await this.db.execute(
         `INSERT INTO authors (id, name, internal_name, backward_compatibility, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?)`,
-        [id, sanitized.name, sanitized.internal_name, sanitized.backward_compatibility, this.now, this.now]
+        [
+          id,
+          sanitized.name,
+          sanitized.internal_name,
+          sanitized.backward_compatibility,
+          this.now,
+          this.now,
+        ]
       );
       this.tracker.set(sanitized.backward_compatibility, id, 'author');
       return id;
@@ -699,7 +716,15 @@ export class SqlWriteStrategy implements IWriteStrategy {
     await this.db.execute(
       `INSERT INTO item_item_links (id, source_id, target_id, context_id, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [id, sanitized.source_id, sanitized.target_id, sanitized.context_id, backwardCompat, this.now, this.now]
+      [
+        id,
+        sanitized.source_id,
+        sanitized.target_id,
+        sanitized.context_id,
+        backwardCompat,
+        this.now,
+        this.now,
+      ]
     );
 
     // Track with provided backward_compatibility if available, otherwise use composite key

@@ -159,10 +159,7 @@ export class ShMonumentImporter extends BaseImporter {
     // Partner (optional - use SH partner if available)
     let partnerId: string | null = null;
     if (group.partners_id) {
-      const partnerBackwardCompat = formatShBackwardCompatibility(
-        'sh_partners',
-        group.partners_id
-      );
+      const partnerBackwardCompat = formatShBackwardCompatibility('sh_partners', group.partners_id);
       partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
       if (!partnerId) {
         this.logWarning(

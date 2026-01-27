@@ -385,4 +385,3 @@ export interface ItemItemLinkTranslationData {
   reciprocal_description?: string | null;
   backward_compatibility?: string | null;
 }
-

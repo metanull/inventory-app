@@ -44,9 +44,7 @@ export class ShProjectImporter extends BaseImporter {
         translationMap.get(name.project_id)!.push(name);
       }
 
-      this.logInfo(
-        `Found ${projects.length} SH projects with ${projectNames.length} translations`
-      );
+      this.logInfo(`Found ${projects.length} SH projects with ${projectNames.length} translations`);
 
       // Get default language ID from tracker
       const defaultLanguageId = this.getDefaultLanguageId();
@@ -68,9 +66,7 @@ export class ShProjectImporter extends BaseImporter {
           } else if (legacy.name) {
             projectTitle = legacy.name;
           } else {
-            throw new Error(
-              `SH Project ${legacy.project_id} missing title for internal_name`
-            );
+            throw new Error(`SH Project ${legacy.project_id} missing title for internal_name`);
           }
 
           const transformed = transformShProject(legacy, defaultLanguageId, projectTitle);

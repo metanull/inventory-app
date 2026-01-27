@@ -135,11 +135,11 @@ export function transformShMonumentTranslation(
   const descriptions = [text.description, text.description2, text.history]
     .filter((d): d is string => !!d && d.trim() !== '')
     .map((d) => convertHtmlToMarkdown(d));
-  
+
   if (descriptions.length === 0) {
     return null;
   }
-  
+
   const description = descriptions.join('\n\n');
 
   // Build alternate name from name2, second_name, third_name
@@ -147,7 +147,7 @@ export function transformShMonumentTranslation(
     .filter((n): n is string => !!n && n.trim() !== '')
     .map((n) => convertHtmlToMarkdown(n));
   let alternateName = alternateNames.length > 0 ? alternateNames.join('; ') : null;
-  
+
   // Truncate if needed
   if (alternateName && alternateName.length > 255) {
     alternateName = alternateName.substring(0, 252) + '...';
@@ -164,9 +164,10 @@ export function transformShMonumentTranslation(
   const dates = datesParts.length > 0 ? datesParts.join('; ') : null;
 
   // Build holder info from institution
-  const holder = text.institution || text.responsible_institution_org
-    ? convertHtmlToMarkdown(text.institution || text.responsible_institution_org || '')
-    : null;
+  const holder =
+    text.institution || text.responsible_institution_org
+      ? convertHtmlToMarkdown(text.institution || text.responsible_institution_org || '')
+      : null;
 
   // Build location
   const locationParts = [text.location, text.province]

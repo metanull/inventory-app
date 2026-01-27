@@ -145,9 +145,7 @@ export class ThgGalleryTranslationImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(
-            `Gallery ${legacy.gallery_id} (${legacy.language_id}): ${message}`
-          );
+          result.errors.push(`Gallery ${legacy.gallery_id} (${legacy.language_id}): ${message}`);
           this.logError(`Gallery ${legacy.gallery_id} (${legacy.language_id})`, error);
           this.showError();
         }

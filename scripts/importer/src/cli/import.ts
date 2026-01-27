@@ -305,7 +305,15 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     name: 'THG Theme Items',
     description: 'Attach items to thematic gallery collections (mwnf3 and SH)',
     importerClass: ThgThemeItemImporter,
-    dependencies: ['thg-gallery', 'object', 'monument', 'monument-detail', 'sh-object', 'sh-monument', 'sh-monument-detail'],
+    dependencies: [
+      'thg-gallery',
+      'object',
+      'monument',
+      'monument-detail',
+      'sh-object',
+      'sh-monument',
+      'sh-monument-detail',
+    ],
   },
   {
     key: 'thg-theme-item-translation',
@@ -660,9 +668,7 @@ program
           ].includes(key)
         ) {
           return 'Phase 3: Images';
-        } else if (
-          ['glossary', 'glossary-translation', 'glossary-spelling'].includes(key)
-        ) {
+        } else if (['glossary', 'glossary-translation', 'glossary-spelling'].includes(key)) {
           return 'Phase 4: Glossary';
         } else if (
           [

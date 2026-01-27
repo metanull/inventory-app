@@ -142,7 +142,10 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
     );
   }
 
-  private async importPicture(group: ShDetailPictureGroup, _result: ImportResult): Promise<boolean> {
+  private async importPicture(
+    group: ShDetailPictureGroup,
+    _result: ImportResult
+  ): Promise<boolean> {
     const backwardCompat = this.getPictureBackwardCompatibility(group);
 
     // Check if already imported

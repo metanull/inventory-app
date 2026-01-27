@@ -15,10 +15,7 @@ import type {
   ItemTranslationData,
   ItemImageData,
 } from '../../core/types.js';
-import type {
-  ShLegacyMonumentImage,
-  ShLegacyMonumentImageText,
-} from '../../domain/types/index.js';
+import type { ShLegacyMonumentImage, ShLegacyMonumentImageText } from '../../domain/types/index.js';
 import { formatShBackwardCompatibility } from '../../domain/transformers/index.js';
 import { mapLanguageCode } from '../../utils/code-mappings.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
@@ -220,10 +217,7 @@ export class ShMonumentPictureImporter extends BaseImporter {
     return true;
   }
 
-  private async createPictureItem(
-    group: ShPictureGroup,
-    parentItemId: string
-  ): Promise<string> {
+  private async createPictureItem(group: ShPictureGroup, parentItemId: string): Promise<string> {
     // Get SH project context and collection
     const contextBackwardCompat = formatShBackwardCompatibility('sh_projects', group.project_id);
     const contextId = this.getEntityUuid(contextBackwardCompat, 'context');
@@ -278,7 +272,9 @@ export class ShMonumentPictureImporter extends BaseImporter {
       }
 
       // Use caption as name, empty string for description (required field)
-      const name = text.caption ? convertHtmlToMarkdown(text.caption) : `Image ${group.image_number}`;
+      const name = text.caption
+        ? convertHtmlToMarkdown(text.caption)
+        : `Image ${group.image_number}`;
       const description = ''; // Pictures use empty string
 
       const translationData: ItemTranslationData = {

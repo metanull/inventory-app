@@ -16,7 +16,11 @@ import {
   transformShObjectTranslation,
   formatShBackwardCompatibility,
 } from '../../domain/transformers/index.js';
-import type { ShLegacyObject, ShLegacyObjectText, ShObjectGroup } from '../../domain/types/index.js';
+import type {
+  ShLegacyObject,
+  ShLegacyObjectText,
+  ShObjectGroup,
+} from '../../domain/types/index.js';
 
 export class ShObjectImporter extends BaseImporter {
   getName(): string {
@@ -155,10 +159,7 @@ export class ShObjectImporter extends BaseImporter {
     // Partner (optional - use SH partner if available)
     let partnerId: string | null = null;
     if (group.partners_id) {
-      const partnerBackwardCompat = formatShBackwardCompatibility(
-        'sh_partners',
-        group.partners_id
-      );
+      const partnerBackwardCompat = formatShBackwardCompatibility('sh_partners', group.partners_id);
       partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
       if (!partnerId) {
         this.logWarning(

@@ -23,7 +23,10 @@ const SH_PROJECTS_TABLE = 'sh_projects';
 /**
  * Format backward compatibility string for SH entities
  */
-export function formatShBackwardCompatibility(table: string, ...pkValues: (string | number)[]): string {
+export function formatShBackwardCompatibility(
+  table: string,
+  ...pkValues: (string | number)[]
+): string {
   return `${SH_SCHEMA}:${table}:${pkValues.join(':')}`;
 }
 
@@ -50,8 +53,14 @@ export interface TransformedShProjectBundle {
  */
 export interface TransformedShProjectTranslationBundle {
   contextTranslation: Omit<ContextTranslationData, 'context_id' | 'backward_compatibility'>;
-  collectionTranslation: Omit<CollectionTranslationData, 'collection_id' | 'context_id' | 'backward_compatibility'>;
-  projectTranslation: Omit<ProjectTranslationData, 'project_id' | 'context_id' | 'backward_compatibility'>;
+  collectionTranslation: Omit<
+    CollectionTranslationData,
+    'collection_id' | 'context_id' | 'backward_compatibility'
+  >;
+  projectTranslation: Omit<
+    ProjectTranslationData,
+    'project_id' | 'context_id' | 'backward_compatibility'
+  >;
   languageId: string;
 }
 

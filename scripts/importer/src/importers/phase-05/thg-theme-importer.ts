@@ -93,11 +93,7 @@ export class ThgThemeImporter extends BaseImporter {
           const internalName = `theme_${legacy.gallery_id}_${legacy.theme_id}`;
 
           // Collect sample
-          this.collectSample(
-            'thg_theme',
-            legacy as unknown as Record<string, unknown>,
-            'success'
-          );
+          this.collectSample('thg_theme', legacy as unknown as Record<string, unknown>, 'success');
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
@@ -124,9 +120,7 @@ export class ThgThemeImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(
-            `Theme ${legacy.gallery_id}.${legacy.theme_id}: ${message}`
-          );
+          result.errors.push(`Theme ${legacy.gallery_id}.${legacy.theme_id}: ${message}`);
           this.logError(`Theme ${legacy.gallery_id}.${legacy.theme_id}`, error);
           this.showError();
         }
