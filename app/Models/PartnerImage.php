@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\HasDisplayOrder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class PartnerImage extends Model
 {
-    use HasFactory, HasUuids;
+    use HasDisplayOrder, HasFactory, HasUuids;
 
     /**
      * The attributes that are mass assignable.
@@ -57,94 +59,32 @@ class PartnerImage extends Model
 
     /**
      * Get the next available display order for a partner.
+     *
+     * @deprecated Use static::getNextDisplayOrderFor(['partner_id' => $partnerId]) instead
      */
     public static function getNextDisplayOrderForPartner(string $partnerId): int
     {
-        $maxOrder = static::where('partner_id', $partnerId)->max('display_order');
-
-        return $maxOrder ? $maxOrder + 1 : 1;
+        return static::getNextDisplayOrderFor(['partner_id' => $partnerId]);
     }
 
     /**
-     * Move this image up in the display order.
+     * Get a query builder scoped to this image's siblings (same partner_id).
+     *
+     * @return Builder<static>
      */
-    public function moveUp(): bool
+    protected function getSiblingsQuery(): Builder
     {
-        return $this->moveInDirection('up');
-    }
-
-    /**
-     * Move this image down in the display order.
-     */
-    public function moveDown(): bool
-    {
-        return $this->moveInDirection('down');
-    }
-
-    /**
-     * Move image in specified direction within a transaction.
-     */
-    protected function moveInDirection(string $direction): bool
-    {
-        return $this->getConnection()->transaction(function () use ($direction) {
-            // Lock current image first to prevent race conditions
-            $currentImage = static::where('id', $this->id)->lockForUpdate()->first();
-            if (! $currentImage) {
-                return false;
-            }
-
-            $currentOrder = $currentImage->display_order;
-
-            if ($direction === 'up') {
-                if ($currentOrder <= 1) {
-                    return false;
-                }
-
-                $targetImage = static::where('partner_id', $this->partner_id)
-                    ->where('display_order', $currentOrder - 1)
-                    ->lockForUpdate()
-                    ->first();
-            } else { // down
-                $targetImage = static::where('partner_id', $this->partner_id)
-                    ->where('display_order', $currentOrder + 1)
-                    ->lockForUpdate()
-                    ->first();
-            }
-
-            if (! $targetImage) {
-                return false;
-            }
-
-            // Swap display orders
-            $targetOrder = $targetImage->display_order;
-            $targetImage->update(['display_order' => $currentOrder]);
-            $currentImage->update(['display_order' => $targetOrder]);
-
-            // Update this instance with the new order
-            $this->display_order = $targetOrder;
-
-            return true;
-        });
+        return static::where('partner_id', $this->partner_id);
     }
 
     /**
      * Tighten the display order for all images of a partner, eliminating gaps.
+     *
+     * @deprecated Use tightenOrdering() instead
      */
     public function tightenOrderingForPartner(): void
     {
-        $this->getConnection()->transaction(function () {
-            $images = static::where('partner_id', $this->partner_id)
-                ->orderBy('display_order')
-                ->lockForUpdate()
-                ->get();
-
-            foreach ($images as $index => $image) {
-                $newOrder = $index + 1;
-                if ($image->display_order !== $newOrder) {
-                    $image->update(['display_order' => $newOrder]);
-                }
-            }
-        });
+        $this->tightenOrdering();
     }
 
     /**
@@ -221,24 +161,5 @@ class PartnerImage extends Model
 
             return $availableImage;
         });
-    }
-
-    /**
-     * Override delete to handle reordering.
-     */
-    public function delete()
-    {
-        $result = parent::delete();
-
-        // Tighten ordering after deletion to eliminate gaps
-        if ($result) {
-            // We need to get any remaining image from the same partner to call tightenOrderingForPartner
-            $remainingImage = static::where('partner_id', $this->partner_id)->first();
-            if ($remainingImage) {
-                $remainingImage->tightenOrderingForPartner();
-            }
-        }
-
-        return $result;
     }
 }
