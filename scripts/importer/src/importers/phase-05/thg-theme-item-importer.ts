@@ -2,7 +2,7 @@
  * THG Theme Item Importer
  *
  * Imports theme_item entries, linking items to collections via the collection_item pivot.
- * Only imports mwnf3-resolvable items (objects/monuments/details).
+ * Imports mwnf3-resolvable items and SH (Sharing History) items.
  *
  * Legacy schema:
  * - mwnf3_thematic_gallery.theme_item (gallery_id, theme_id, various item reference columns)
@@ -10,17 +10,20 @@
  * New schema:
  * - collection_item pivot (collection_id, item_id) via attachItemsToCollection
  *
- * Supported item references (mwnf3 only for now):
+ * Supported item references:
  * - mwnf3_object_{project}_{country}_{partner}_{item}
  * - mwnf3_monument_{project}_{country}_{partner}_{item}
  * - mwnf3_monument_detail_{project}_{country}_{partner}_{item}_{detail}
+ * - sh_object_{project}_{country}_{item}
+ * - sh_monument_{project}_{country}_{item}
+ * - sh_monument_detail_{project}_{country}_{item}_{detail}
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 
 /**
- * Legacy theme_item structure (simplified - only mwnf3 columns)
+ * Legacy theme_item structure (mwnf3 and SH columns)
  */
 interface LegacyThemeItem {
   gallery_id: number;
@@ -42,6 +45,19 @@ interface LegacyThemeItem {
   mwnf3_monument_detail_partner_id: string | null;
   mwnf3_monument_detail_item_id: number | null;
   mwnf3_monument_detail_detail_id: number | null;
+  // SH (Sharing History) object references
+  sh_object_project_id: string | null;
+  sh_object_country_id: string | null;
+  sh_object_item_id: number | null;
+  // SH monument references
+  sh_monument_project_id: string | null;
+  sh_monument_country_id: string | null;
+  sh_monument_item_id: number | null;
+  // SH monument detail references
+  sh_monument_detail_project_id: string | null;
+  sh_monument_detail_country_id: string | null;
+  sh_monument_detail_item_id: number | null;
+  sh_monument_detail_detail_id: number | null;
 }
 
 export class ThgThemeItemImporter extends BaseImporter {
@@ -53,7 +69,7 @@ export class ThgThemeItemImporter extends BaseImporter {
     const result = this.createResult();
 
     try {
-      this.logInfo('Importing theme-item associations (mwnf3 items only)...');
+      this.logInfo('Importing theme-item associations (mwnf3 and SH items)...');
 
       // Query theme_item entries from legacy database
       // Note: The legacy schema may not have this table or may have different columns - handle gracefully
@@ -64,7 +80,10 @@ export class ThgThemeItemImporter extends BaseImporter {
                   mwnf3_object_project_id, mwnf3_object_country_id, mwnf3_object_partner_id, mwnf3_object_item_id,
                   mwnf3_monument_project_id, mwnf3_monument_country_id, mwnf3_monument_partner_id, mwnf3_monument_item_id,
                   mwnf3_monument_detail_project_id, mwnf3_monument_detail_country_id, mwnf3_monument_detail_partner_id,
-                  mwnf3_monument_detail_item_id, mwnf3_monument_detail_detail_id
+                  mwnf3_monument_detail_item_id, mwnf3_monument_detail_detail_id,
+                  sh_object_project_id, sh_object_country_id, sh_object_item_id,
+                  sh_monument_project_id, sh_monument_country_id, sh_monument_item_id,
+                  sh_monument_detail_project_id, sh_monument_detail_country_id, sh_monument_detail_item_id, sh_monument_detail_detail_id
            FROM mwnf3_thematic_gallery.theme_item
            ORDER BY gallery_id, theme_id, item_id`
         );
@@ -192,7 +211,7 @@ export class ThgThemeItemImporter extends BaseImporter {
 
   /**
    * Resolve item reference from theme_item to backward_compatibility string
-   * Returns null if not an mwnf3 item
+   * Returns null if not a resolvable item (mwnf3 or SH)
    */
   private resolveItemReference(legacy: LegacyThemeItem): string | null {
     // Check mwnf3_object reference
@@ -229,7 +248,38 @@ export class ThgThemeItemImporter extends BaseImporter {
       return `mwnf3:monument_details:${legacy.mwnf3_monument_detail_project_id}:${legacy.mwnf3_monument_detail_country_id}:${legacy.mwnf3_monument_detail_partner_id}:${legacy.mwnf3_monument_detail_item_id}:${legacy.mwnf3_monument_detail_detail_id}`;
     }
 
-    // Not an mwnf3 item (sh, thg, explore, travel, etc.)
+    // Check SH (Sharing History) object reference
+    // Format: mwnf3_sharing_history:sh_objects:PROJECT:COUNTRY:NUMBER
+    if (
+      legacy.sh_object_project_id &&
+      legacy.sh_object_country_id &&
+      legacy.sh_object_item_id !== null
+    ) {
+      return `mwnf3_sharing_history:sh_objects:${legacy.sh_object_project_id}:${legacy.sh_object_country_id}:${legacy.sh_object_item_id}`;
+    }
+
+    // Check SH monument reference
+    // Format: mwnf3_sharing_history:sh_monuments:PROJECT:COUNTRY:NUMBER
+    if (
+      legacy.sh_monument_project_id &&
+      legacy.sh_monument_country_id &&
+      legacy.sh_monument_item_id !== null
+    ) {
+      return `mwnf3_sharing_history:sh_monuments:${legacy.sh_monument_project_id}:${legacy.sh_monument_country_id}:${legacy.sh_monument_item_id}`;
+    }
+
+    // Check SH monument detail reference
+    // Format: mwnf3_sharing_history:sh_monument_details:PROJECT:COUNTRY:NUMBER:DETAIL
+    if (
+      legacy.sh_monument_detail_project_id &&
+      legacy.sh_monument_detail_country_id &&
+      legacy.sh_monument_detail_item_id !== null &&
+      legacy.sh_monument_detail_detail_id !== null
+    ) {
+      return `mwnf3_sharing_history:sh_monument_details:${legacy.sh_monument_detail_project_id}:${legacy.sh_monument_detail_country_id}:${legacy.sh_monument_detail_item_id}:${legacy.sh_monument_detail_detail_id}`;
+    }
+
+    // Not a resolvable item (thg, explore, travel, etc.)
     return null;
   }
 }

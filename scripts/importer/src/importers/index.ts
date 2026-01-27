@@ -20,6 +20,18 @@ export { MonumentPictureImporter } from './phase-02/index.js';
 export { MonumentDetailPictureImporter } from './phase-02/index.js';
 export { PartnerPictureImporter } from './phase-02/index.js';
 
+// Phase 03: Sharing History Data
+export {
+  ShProjectImporter,
+  ShPartnerImporter,
+  ShObjectImporter,
+  ShMonumentImporter,
+  ShMonumentDetailImporter,
+  ShObjectPictureImporter,
+  ShMonumentPictureImporter,
+  ShMonumentDetailPictureImporter,
+} from './phase-03/index.js';
+
 // Phase 04: Glossary
 export {
   GlossaryImporter,

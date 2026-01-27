@@ -1,21 +1,19 @@
 /**
- * Phase 03 Importers Index
+ * Phase 03 Importers - Sharing History Data
  *
- * PLACEHOLDER - Phase 03 will import data from mwnf3_sharing_history legacy database.
- *
- * The mwnf3_sharing_history database contains similar structures to mwnf3, but with
- * some differences. This phase was intentionally skipped during initial development
- * and will be implemented soon.
- *
- * Expected importers:
- * - SH Project Importer (sharing history projects)
- * - SH Partner Importer (sharing history partners)
- * - SH Object Importer (sharing history objects)
- * - SH Monument Importer (sharing history monuments)
- * - SH Picture Importers (images for the above)
- *
- * Backward compatibility format will follow:
- *   mwnf3_sharing_history:{table}:{pk1}:{pk2}:...
+ * Imports data from the mwnf3_sharing_history legacy database.
+ * Creates:
+ * - Contexts, Collections, Projects for each SH project
+ * - Partners (reusing mwnf3 partners where possible via mapping)
+ * - Objects, Monuments, Monument Details as Items
+ * - Pictures for all item types
  */
 
-export {};
+export { ShProjectImporter } from './sh-project-importer.js';
+export { ShPartnerImporter } from './sh-partner-importer.js';
+export { ShObjectImporter } from './sh-object-importer.js';
+export { ShMonumentImporter } from './sh-monument-importer.js';
+export { ShMonumentDetailImporter } from './sh-monument-detail-importer.js';
+export { ShObjectPictureImporter } from './sh-object-picture-importer.js';
+export { ShMonumentPictureImporter } from './sh-monument-picture-importer.js';
+export { ShMonumentDetailPictureImporter } from './sh-monument-detail-picture-importer.js';

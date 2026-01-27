@@ -43,6 +43,16 @@ import {
   MonumentPictureImporter,
   MonumentDetailPictureImporter,
   PartnerPictureImporter,
+  // Phase 03: Sharing History
+  ShProjectImporter,
+  ShPartnerImporter,
+  ShObjectImporter,
+  ShMonumentImporter,
+  ShMonumentDetailImporter,
+  ShObjectPictureImporter,
+  ShMonumentPictureImporter,
+  ShMonumentDetailPictureImporter,
+  // Phase 04: Glossary
   GlossaryImporter,
   GlossaryTranslationImporter,
   GlossarySpellingImporter,
@@ -175,6 +185,63 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     importerClass: PartnerPictureImporter,
     dependencies: ['partner'],
   },
+  // Phase 3: Sharing History Data
+  {
+    key: 'sh-project',
+    name: 'SH Projects',
+    description: 'Import Sharing History projects (Context, Collection, Project)',
+    importerClass: ShProjectImporter,
+    dependencies: ['default-context', 'language'],
+  },
+  {
+    key: 'sh-partner',
+    name: 'SH Partners',
+    description: 'Import Sharing History partners (reuses mwnf3 partners via mapping)',
+    importerClass: ShPartnerImporter,
+    dependencies: ['default-context', 'sh-project', 'partner', 'language', 'country'],
+  },
+  {
+    key: 'sh-object',
+    name: 'SH Objects',
+    description: 'Import Sharing History object items',
+    importerClass: ShObjectImporter,
+    dependencies: ['sh-project', 'sh-partner', 'language'],
+  },
+  {
+    key: 'sh-monument',
+    name: 'SH Monuments',
+    description: 'Import Sharing History monument items',
+    importerClass: ShMonumentImporter,
+    dependencies: ['sh-project', 'sh-partner', 'language'],
+  },
+  {
+    key: 'sh-monument-detail',
+    name: 'SH Monument Details',
+    description: 'Import Sharing History monument detail items',
+    importerClass: ShMonumentDetailImporter,
+    dependencies: ['sh-monument', 'default-context', 'language'],
+  },
+  {
+    key: 'sh-object-picture',
+    name: 'SH Object Pictures',
+    description: 'Import Sharing History object pictures',
+    importerClass: ShObjectPictureImporter,
+    dependencies: ['sh-object', 'default-context', 'language'],
+  },
+  {
+    key: 'sh-monument-picture',
+    name: 'SH Monument Pictures',
+    description: 'Import Sharing History monument pictures',
+    importerClass: ShMonumentPictureImporter,
+    dependencies: ['sh-monument', 'default-context', 'language'],
+  },
+  {
+    key: 'sh-monument-detail-picture',
+    name: 'SH Monument Detail Pictures',
+    description: 'Import Sharing History monument detail pictures',
+    importerClass: ShMonumentDetailPictureImporter,
+    dependencies: ['sh-monument-detail', 'default-context', 'language'],
+  },
   // Phase 4: Glossary
   {
     key: 'glossary',
@@ -236,9 +303,9 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   {
     key: 'thg-theme-item',
     name: 'THG Theme Items',
-    description: 'Attach items to thematic gallery collections',
+    description: 'Attach items to thematic gallery collections (mwnf3 and SH)',
     importerClass: ThgThemeItemImporter,
-    dependencies: ['thg-gallery', 'object', 'monument', 'monument-detail'],
+    dependencies: ['thg-gallery', 'object', 'monument', 'monument-detail', 'sh-object', 'sh-monument', 'sh-monument-detail'],
   },
   {
     key: 'thg-theme-item-translation',

@@ -220,7 +220,7 @@ export interface PartnerTranslationData {
 export interface ItemData extends BaseEntityData {
   type: 'object' | 'monument' | 'detail' | 'picture';
   collection_id: string;
-  partner_id: string;
+  partner_id: string | null;
   country_id?: string | null;
   project_id?: string | null;
   parent_id?: string | null;
