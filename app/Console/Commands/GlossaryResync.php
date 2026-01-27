@@ -26,7 +26,7 @@ class GlossaryResync extends Command
      *
      * @var string
      */
-    protected $description = 'Re-synchronise glossary spellings to item translations (removes existing links optionally and queues SyncSpellingToItemTranslations jobs in chunks)';
+    protected $description = 'Re-synchronise glossary spellings to item translations (removes existing links optionally and queues SyncSpellingToItemTranslations jobs in chunks). Refer to laravel artisan queue:work for more info how to run the queue.';
 
     public function handle(): int
     {
