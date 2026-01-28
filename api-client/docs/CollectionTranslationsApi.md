@@ -147,7 +147,7 @@ const configuration = new Configuration();
 const apiInstance = new CollectionTranslationsApi(configuration);
 
 let collectionTranslation: string; //The collection translation ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //No related resources available for inclusion on this endpoint. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.collectionTranslationShow(
     collectionTranslation,
@@ -160,7 +160,7 @@ const { status, data } = await apiInstance.collectionTranslationShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **collectionTranslation** | [**string**] | The collection translation ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | No related resources available for inclusion on this endpoint. | (optional) defaults to undefined|
 
 
 ### Return type

@@ -133,7 +133,7 @@ const apiInstance = new AvailableImageApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //No related resources available for inclusion on this endpoint. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.availableImageIndex(
     page,
@@ -148,7 +148,7 @@ const { status, data } = await apiInstance.availableImageIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | No related resources available for inclusion on this endpoint. | (optional) defaults to undefined|
 
 
 ### Return type

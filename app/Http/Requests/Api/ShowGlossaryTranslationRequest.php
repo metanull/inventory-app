@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api;
 
 use App\Http\Requests\Api\Concerns\HasIncludes;
+use App\Rules\IncludeRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ShowGlossaryTranslationRequest extends FormRequest
@@ -17,7 +18,7 @@ class ShowGlossaryTranslationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'include' => 'sometimes|string',
+            'include' => ['sometimes', 'string', new IncludeRule('glossary_translation')],
         ];
     }
 

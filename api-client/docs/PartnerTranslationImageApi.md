@@ -249,7 +249,7 @@ const apiInstance = new PartnerTranslationImageApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `partnerTranslation`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.partnerTranslationImageIndex(
     page,
@@ -264,7 +264,7 @@ const { status, data } = await apiInstance.partnerTranslationImageIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;partnerTranslation&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -411,7 +411,7 @@ const configuration = new Configuration();
 const apiInstance = new PartnerTranslationImageApi(configuration);
 
 let partnerTranslationImage: string; //The partner translation image ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `partnerTranslation`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.partnerTranslationImageShow(
     partnerTranslationImage,
@@ -424,7 +424,7 @@ const { status, data } = await apiInstance.partnerTranslationImageShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **partnerTranslationImage** | [**string**] | The partner translation image ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;partnerTranslation&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

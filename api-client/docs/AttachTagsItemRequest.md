@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**include** | **string** |  | [optional] [default to undefined]
+**include** | **string** | Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;. | [optional] [default to undefined]
 **tag_ids** | **Array&lt;string&gt;** |  | [default to undefined]
 
 ## Example

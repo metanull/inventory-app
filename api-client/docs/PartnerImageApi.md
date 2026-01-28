@@ -249,7 +249,7 @@ const apiInstance = new PartnerImageApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `partner`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.partnerImageIndex(
     page,
@@ -264,7 +264,7 @@ const { status, data } = await apiInstance.partnerImageIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -411,7 +411,7 @@ const configuration = new Configuration();
 const apiInstance = new PartnerImageApi(configuration);
 
 let partnerImage: string; //The partner image ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `partner`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.partnerImageShow(
     partnerImage,
@@ -424,7 +424,7 @@ const { status, data } = await apiInstance.partnerImageShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **partnerImage** | [**string**] | The partner image ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

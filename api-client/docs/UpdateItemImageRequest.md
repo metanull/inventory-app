@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **size** | **number** |  | [optional] [default to undefined]
 **alt_text** | **string** |  | [optional] [default to undefined]
 **display_order** | **number** |  | [optional] [default to undefined]
-**include** | **string** |  | [optional] [default to undefined]
+**include** | **string** | Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;. | [optional] [default to undefined]
 
 ## Example
 

@@ -197,7 +197,7 @@ const apiInstance = new GlossaryApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `translations`, `spellings`, `synonyms`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.glossaryIndex(
     page,
@@ -212,7 +212,7 @@ const { status, data } = await apiInstance.glossaryIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;spellings&#x60;, &#x60;synonyms&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -255,7 +255,7 @@ const configuration = new Configuration();
 const apiInstance = new GlossaryApi(configuration);
 
 let glossary: string; //The glossary ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `translations`, `spellings`, `synonyms`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.glossaryShow(
     glossary,
@@ -268,7 +268,7 @@ const { status, data } = await apiInstance.glossaryShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **glossary** | [**string**] | The glossary ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;spellings&#x60;, &#x60;synonyms&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

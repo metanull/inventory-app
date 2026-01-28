@@ -352,7 +352,7 @@ const configuration = new Configuration();
 const apiInstance = new ItemImageApi(configuration);
 
 let itemImage: string; //The item image ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `item`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemImageShow(
     itemImage,
@@ -365,7 +365,7 @@ const { status, data } = await apiInstance.itemImageShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **itemImage** | [**string**] | The item image ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -629,7 +629,7 @@ const configuration = new Configuration();
 const apiInstance = new ItemImageApi(configuration);
 
 let item: string; //The item ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `item`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemImagesIndex(
     item,
@@ -642,7 +642,7 @@ const { status, data } = await apiInstance.itemImagesIndex(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **item** | [**string**] | The item ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

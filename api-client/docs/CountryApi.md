@@ -80,7 +80,7 @@ const apiInstance = new CountryApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `items`, `partners`, `translations`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.countryIndex(
     page,
@@ -95,7 +95,7 @@ const { status, data } = await apiInstance.countryIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -138,7 +138,7 @@ const configuration = new Configuration();
 const apiInstance = new CountryApi(configuration);
 
 let country: string; //The country ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `items`, `partners`, `translations`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.countryShow(
     country,
@@ -151,7 +151,7 @@ const { status, data } = await apiInstance.countryShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **country** | [**string**] | The country ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

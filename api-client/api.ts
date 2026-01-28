@@ -84,21 +84,33 @@ export interface ArtistResource {
 export interface AttachFromAvailableCollectionImageRequest {
     'available_image_id': string;
     'alt_text'?: string | null;
+    /**
+     * Comma-separated list of related resources to include. Valid values: `collection`.
+     */
     'include'?: string;
 }
 export interface AttachFromAvailableItemImageRequest {
     'available_image_id': string;
     'alt_text'?: string | null;
+    /**
+     * Comma-separated list of related resources to include. Valid values: `item`.
+     */
     'include'?: string;
 }
 export interface AttachFromAvailablePartnerImageRequest {
     'available_image_id': string;
     'alt_text'?: string | null;
+    /**
+     * Comma-separated list of related resources to include. Valid values: `partner`.
+     */
     'include'?: string;
 }
 export interface AttachFromAvailablePartnerTranslationImageRequest {
     'available_image_id': string;
     'alt_text'?: string | null;
+    /**
+     * Comma-separated list of related resources to include. Valid values: `partnerTranslation`.
+     */
     'include'?: string;
 }
 export interface AttachGlossarySynonymRequest {
@@ -106,15 +118,29 @@ export interface AttachGlossarySynonymRequest {
 }
 export interface AttachItemCollectionRequest {
     'item_id': string;
+    /**
+     * Comma-separated list of related resources to include. Valid values: `language`, `context`, `translations`, `partners`, `items`, `attachedItems`, `collectionImages`.
+     */
+    'include'?: string;
 }
 export interface AttachItemsCollectionRequest {
+    /**
+     * Comma-separated list of related resources to include. Valid values: `language`, `context`, `translations`, `partners`, `items`, `attachedItems`, `collectionImages`.
+     */
+    'include'?: string;
     'item_ids': Array<string>;
 }
 export interface AttachTagItemRequest {
     'tag_id': string;
+    /**
+     * Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.
+     */
     'include'?: string;
 }
 export interface AttachTagsItemRequest {
+    /**
+     * Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.
+     */
     'include'?: string;
     'tag_ids': Array<string>;
 }
@@ -805,6 +831,10 @@ export interface ItemItemLinkResource {
      */
     'context'?: ContextResource;
     /**
+     * The translations (ItemItemLinkTranslationResource collection)
+     */
+    'translations'?: Array<ItemItemLinkTranslationResource>;
+    /**
      * The date of creation of the resource (managed by the system)
      */
     'created_at': string | null;
@@ -815,6 +845,56 @@ export interface ItemItemLinkResource {
 }
 export interface ItemItemLinkShow200Response {
     'data': ItemItemLinkResource;
+}
+export interface ItemItemLinkTranslationIndex200Response {
+    'data': Array<ItemItemLinkTranslationResource>;
+    'links': AvailableImageIndex200ResponseLinks;
+    'meta': AvailableImageIndex200ResponseMeta;
+}
+export interface ItemItemLinkTranslationResource {
+    /**
+     * The unique identifier (GUID)
+     */
+    'id': string;
+    /**
+     * The item-item link this translation belongs to (ItemItemLinkResource id)
+     */
+    'item_item_link_id': string;
+    /**
+     * The language of this translation (LanguageResource id)
+     */
+    'language_id': string;
+    /**
+     * The description of the link (source → target direction)
+     */
+    'description': string | null;
+    /**
+     * The reciprocal description of the link (target → source direction)
+     */
+    'reciprocal_description': string | null;
+    /**
+     * The Id(s) of matching resource in the legacy system (if any)
+     */
+    'backward_compatibility': string | null;
+    /**
+     * The date of creation of the resource (managed by the system)
+     */
+    'created_at': string | null;
+    /**
+     * The date of last modification of the resource (managed by the system)
+     */
+    'updated_at': string | null;
+    /**
+     * The item-item link relationship (ItemItemLinkResource)
+     */
+    'item_item_link'?: ItemItemLinkResource;
+    /**
+     * The language relationship (LanguageResource)
+     */
+    'language'?: LanguageResource;
+}
+export interface ItemItemLinkTranslationShow200Response {
+    'data': ItemItemLinkTranslationResource;
 }
 export interface ItemResource {
     /**
@@ -1635,6 +1715,16 @@ export interface StoreItemItemLinkRequest {
     'created_at'?: string;
     'updated_at'?: string;
 }
+export interface StoreItemItemLinkTranslationRequest {
+    'id'?: string;
+    'item_item_link_id': string;
+    'language_id': string;
+    'description'?: string | null;
+    'reciprocal_description'?: string | null;
+    'backward_compatibility'?: string | null;
+    'created_at'?: string;
+    'updated_at'?: string;
+}
 export interface StoreItemRequest {
     'id'?: string;
     'internal_name': string;
@@ -1701,12 +1791,12 @@ export interface StoreLanguageTranslationRequest {
 }
 export interface StoreLocationRequest {
     'internal_name': string;
-    'country_id': number;
+    'country_id': string;
     'backward_compatibility'?: string | null;
     'translations': Array<StoreLocationRequestTranslationsInner>;
 }
 export interface StoreLocationRequestTranslationsInner {
-    'language_id': number;
+    'language_id': string;
     'name': string;
 }
 export interface StoreLocationTranslationRequest {
@@ -1810,7 +1900,7 @@ export interface StoreProjectRequest {
 }
 export interface StoreProvinceRequest {
     'internal_name': string;
-    'country_id': number;
+    'country_id': string;
     'backward_compatibility'?: string | null;
     'translations': Array<StoreLocationRequestTranslationsInner>;
 }
@@ -2038,6 +2128,9 @@ export interface UpdateCollectionImageRequest {
     'size'?: number;
     'alt_text'?: string | null;
     'display_order'?: number;
+    /**
+     * Comma-separated list of related resources to include. Valid values: `collection`.
+     */
     'include'?: string;
 }
 export interface UpdateCollectionRequest {
@@ -2117,6 +2210,9 @@ export interface UpdateItemImageRequest {
     'size'?: number;
     'alt_text'?: string | null;
     'display_order'?: number;
+    /**
+     * Comma-separated list of related resources to include. Valid values: `item`.
+     */
     'include'?: string;
 }
 export interface UpdateItemItemLinkRequest {
@@ -2124,6 +2220,16 @@ export interface UpdateItemItemLinkRequest {
     'source_id': string;
     'target_id': string;
     'context_id': string;
+    'created_at'?: string;
+    'updated_at'?: string;
+}
+export interface UpdateItemItemLinkTranslationRequest {
+    'id'?: string;
+    'item_item_link_id': string;
+    'language_id': string;
+    'description'?: string | null;
+    'reciprocal_description'?: string | null;
+    'backward_compatibility'?: string | null;
     'created_at'?: string;
     'updated_at'?: string;
 }
@@ -2193,12 +2299,12 @@ export interface UpdateLanguageTranslationRequest {
 }
 export interface UpdateLocationRequest {
     'internal_name': string;
-    'country_id': number;
+    'country_id': string;
     'backward_compatibility'?: string | null;
     'translations'?: Array<UpdateLocationRequestTranslationsInner>;
 }
 export interface UpdateLocationRequestTranslationsInner {
-    'language_id'?: number;
+    'language_id'?: string;
     'name'?: string;
 }
 export interface UpdateLocationTranslationRequest {
@@ -2302,7 +2408,7 @@ export interface UpdateProjectRequest {
 }
 export interface UpdateProvinceRequest {
     'internal_name': string;
-    'country_id': number;
+    'country_id': string;
     'backward_compatibility'?: string | null;
     'translations'?: Array<UpdateLocationRequestTranslationsInner>;
 }
@@ -2383,10 +2489,16 @@ export const VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum = {
 export type VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum = typeof VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum[keyof typeof VerifyTwoFactorMobileAppAuthenticationRequestMethodEnum];
 
 export interface WithAllTagsItemRequest {
+    /**
+     * Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.
+     */
     'include'?: string;
     'tags': Array<string>;
 }
 export interface WithAnyTagsItemRequest {
+    /**
+     * Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.
+     */
     'include'?: string;
     'tags': Array<string>;
 }
@@ -2507,7 +2619,7 @@ export const AvailableImageApiAxiosParamCreator = function (configuration?: Conf
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -2751,7 +2863,7 @@ export const AvailableImageApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -2849,7 +2961,7 @@ export const AvailableImageApiFactory = function (configuration?: Configuration,
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -2932,7 +3044,7 @@ export class AvailableImageApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] No related resources available for inclusion on this endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -3170,10 +3282,11 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItem: async (collection: string, itemId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionDetachItem: async (collection: string, itemId: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'collection' is not null or undefined
             assertParamExists('collectionDetachItem', 'collection', collection)
             // verify required parameter 'itemId' is not null or undefined
@@ -3199,6 +3312,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
                 localVarQueryParameter['item_id'] = itemId;
             }
 
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -3215,10 +3332,11 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItems: async (collection: string, itemIds: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionDetachItems: async (collection: string, itemIds: Array<string>, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'collection' is not null or undefined
             assertParamExists('collectionDetachItems', 'collection', collection)
             // verify required parameter 'itemIds' is not null or undefined
@@ -3244,6 +3362,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
                 localVarQueryParameter['item_ids[]'] = itemIds;
             }
 
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -3260,10 +3382,11 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * @summary Display a listing of the collections
          * @param {number} [page] 
          * @param {number} [perPage] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionIndex: async (page?: number, perPage?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/collection`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -3288,6 +3411,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
                 localVarQueryParameter['per_page'] = perPage;
             }
 
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -3303,10 +3430,11 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
          * 
          * @summary Display the specified collection
          * @param {string} collection The collection ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionShow: async (collection: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        collectionShow: async (collection: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'collection' is not null or undefined
             assertParamExists('collectionShow', 'collection', collection)
             const localVarPath = `/collection/{collection}`
@@ -3325,6 +3453,10 @@ export const CollectionApiAxiosParamCreator = function (configuration?: Configur
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -3530,11 +3662,12 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItem(collection, itemId, options);
+        async collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItem(collection, itemId, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionDetachItem']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -3544,11 +3677,12 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItems(collection, itemIds, options);
+        async collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionDetachItems(collection, itemIds, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionDetachItems']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -3558,11 +3692,12 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the collections
          * @param {number} [page] 
          * @param {number} [perPage] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionIndex(page?: number, perPage?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionIndex(page, perPage, options);
+        async collectionIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionIndex(page, perPage, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionIndex']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -3571,11 +3706,12 @@ export const CollectionApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified collection
          * @param {string} collection The collection ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async collectionShow(collection: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionShow(collection, options);
+        async collectionShow(collection: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.collectionShow(collection, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CollectionApi.collectionShow']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -3678,43 +3814,47 @@ export const CollectionApiFactory = function (configuration?: Configuration, bas
          * @summary Detach an item from a collection
          * @param {string} collection The collection ID
          * @param {string} itemId 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
-            return localVarFp.collectionDetachItem(collection, itemId, options).then((request) => request(axios, basePath));
+        collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
+            return localVarFp.collectionDetachItem(collection, itemId, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Detach multiple items from a collection
          * @param {string} collection The collection ID
          * @param {Array<string>} itemIds 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
-            return localVarFp.collectionDetachItems(collection, itemIds, options).then((request) => request(axios, basePath));
+        collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
+            return localVarFp.collectionDetachItems(collection, itemIds, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Display a listing of the collections
          * @param {number} [page] 
          * @param {number} [perPage] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionIndex(page?: number, perPage?: number, options?: RawAxiosRequestConfig): AxiosPromise<CollectionIndex200Response> {
-            return localVarFp.collectionIndex(page, perPage, options).then((request) => request(axios, basePath));
+        collectionIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionIndex200Response> {
+            return localVarFp.collectionIndex(page, perPage, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Display the specified collection
          * @param {string} collection The collection ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        collectionShow(collection: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
-            return localVarFp.collectionShow(collection, options).then((request) => request(axios, basePath));
+        collectionShow(collection: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionShow200Response> {
+            return localVarFp.collectionShow(collection, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3807,11 +3947,12 @@ export class CollectionApi extends BaseAPI {
      * @summary Detach an item from a collection
      * @param {string} collection The collection ID
      * @param {string} itemId 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public collectionDetachItem(collection: string, itemId: string, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionDetachItem(collection, itemId, options).then((request) => request(this.axios, this.basePath));
+    public collectionDetachItem(collection: string, itemId: string, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionDetachItem(collection, itemId, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3819,11 +3960,12 @@ export class CollectionApi extends BaseAPI {
      * @summary Detach multiple items from a collection
      * @param {string} collection The collection ID
      * @param {Array<string>} itemIds 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public collectionDetachItems(collection: string, itemIds: Array<string>, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionDetachItems(collection, itemIds, options).then((request) => request(this.axios, this.basePath));
+    public collectionDetachItems(collection: string, itemIds: Array<string>, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionDetachItems(collection, itemIds, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3831,22 +3973,24 @@ export class CollectionApi extends BaseAPI {
      * @summary Display a listing of the collections
      * @param {number} [page] 
      * @param {number} [perPage] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public collectionIndex(page?: number, perPage?: number, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionIndex(page, perPage, options).then((request) => request(this.axios, this.basePath));
+    public collectionIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Display the specified collection
      * @param {string} collection The collection ID
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;context&#x60;, &#x60;translations&#x60;, &#x60;partners&#x60;, &#x60;items&#x60;, &#x60;attachedItems&#x60;, &#x60;collectionImages&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public collectionShow(collection: string, options?: RawAxiosRequestConfig) {
-        return CollectionApiFp(this.configuration).collectionShow(collection, options).then((request) => request(this.axios, this.basePath));
+    public collectionShow(collection: string, include?: string, options?: RawAxiosRequestConfig) {
+        return CollectionApiFp(this.configuration).collectionShow(collection, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4140,7 +4284,7 @@ export const CollectionImageApiAxiosParamCreator = function (configuration?: Con
          * 
          * @summary Display the specified collection image
          * @param {string} collectionImage The collection image ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;collection&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4343,7 +4487,7 @@ export const CollectionImageApiAxiosParamCreator = function (configuration?: Con
          * 
          * @summary Display a listing of collection images for a specific collection
          * @param {string} collection The collection ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;collection&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4518,7 +4662,7 @@ export const CollectionImageApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified collection image
          * @param {string} collectionImage The collection image ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;collection&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4586,7 +4730,7 @@ export const CollectionImageApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display a listing of collection images for a specific collection
          * @param {string} collection The collection ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;collection&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4684,7 +4828,7 @@ export const CollectionImageApiFactory = function (configuration?: Configuration
          * 
          * @summary Display the specified collection image
          * @param {string} collectionImage The collection image ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;collection&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4737,7 +4881,7 @@ export const CollectionImageApiFactory = function (configuration?: Configuration
          * 
          * @summary Display a listing of collection images for a specific collection
          * @param {string} collection The collection ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;collection&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4833,7 +4977,7 @@ export class CollectionImageApi extends BaseAPI {
      * 
      * @summary Display the specified collection image
      * @param {string} collectionImage The collection image ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;collection&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -4891,7 +5035,7 @@ export class CollectionImageApi extends BaseAPI {
      * 
      * @summary Display a listing of collection images for a specific collection
      * @param {string} collection The collection ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;collection&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -5025,7 +5169,7 @@ export const CollectionTranslationApiAxiosParamCreator = function (configuration
          * 
          * @summary Display the specified collection translation
          * @param {string} collectionTranslation The collection translation ID
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5232,7 +5376,7 @@ export const CollectionTranslationApiFp = function(configuration?: Configuration
          * 
          * @summary Display the specified collection translation
          * @param {string} collectionTranslation The collection translation ID
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5321,7 +5465,7 @@ export const CollectionTranslationApiFactory = function (configuration?: Configu
          * 
          * @summary Display the specified collection translation
          * @param {string} collectionTranslation The collection translation ID
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5398,7 +5542,7 @@ export class CollectionTranslationApi extends BaseAPI {
      * 
      * @summary Display the specified collection translation
      * @param {string} collectionTranslation The collection translation ID
-     * @param {string} [include] 
+     * @param {string} [include] No related resources available for inclusion on this endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -5555,7 +5699,7 @@ export const CollectionTranslationsApiAxiosParamCreator = function (configuratio
          * 
          * @summary Display the specified collection translation
          * @param {string} collectionTranslation The collection translation ID
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5762,7 +5906,7 @@ export const CollectionTranslationsApiFp = function(configuration?: Configuratio
          * 
          * @summary Display the specified collection translation
          * @param {string} collectionTranslation The collection translation ID
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5851,7 +5995,7 @@ export const CollectionTranslationsApiFactory = function (configuration?: Config
          * 
          * @summary Display the specified collection translation
          * @param {string} collectionTranslation The collection translation ID
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5928,7 +6072,7 @@ export class CollectionTranslationsApi extends BaseAPI {
      * 
      * @summary Display the specified collection translation
      * @param {string} collectionTranslation The collection translation ID
-     * @param {string} [include] 
+     * @param {string} [include] No related resources available for inclusion on this endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -6090,7 +6234,7 @@ export const ContextApiAxiosParamCreator = function (configuration?: Configurati
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6182,7 +6326,7 @@ export const ContextApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary Display the specified resource
          * @param {string} context The context ID
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6400,7 +6544,7 @@ export const ContextApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6428,7 +6572,7 @@ export const ContextApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} context The context ID
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6521,7 +6665,7 @@ export const ContextApiFactory = function (configuration?: Configuration, basePa
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6543,7 +6687,7 @@ export const ContextApiFactory = function (configuration?: Configuration, basePa
          * 
          * @summary Display the specified resource
          * @param {string} context The context ID
-         * @param {string} [include] 
+         * @param {string} [include] No related resources available for inclusion on this endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6625,7 +6769,7 @@ export class ContextApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] No related resources available for inclusion on this endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -6649,7 +6793,7 @@ export class ContextApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} context The context ID
-     * @param {string} [include] 
+     * @param {string} [include] No related resources available for inclusion on this endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -6743,7 +6887,7 @@ export const CountryApiAxiosParamCreator = function (configuration?: Configurati
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6791,7 +6935,7 @@ export const CountryApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary Display the specified resource
          * @param {string} country The country ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6985,7 +7129,7 @@ export const CountryApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6999,7 +7143,7 @@ export const CountryApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} country The country ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7074,7 +7218,7 @@ export const CountryApiFactory = function (configuration?: Configuration, basePa
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7085,7 +7229,7 @@ export const CountryApiFactory = function (configuration?: Configuration, basePa
          * 
          * @summary Display the specified resource
          * @param {string} country The country ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7147,7 +7291,7 @@ export class CountryApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -7159,7 +7303,7 @@ export class CountryApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} country The country ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -7253,7 +7397,7 @@ export const CountryTranslationApiAxiosParamCreator = function (configuration?: 
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7301,7 +7445,7 @@ export const CountryTranslationApiAxiosParamCreator = function (configuration?: 
          * 
          * @summary Display the specified resource
          * @param {string} countryTranslation The country translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7491,7 +7635,7 @@ export const CountryTranslationApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7505,7 +7649,7 @@ export const CountryTranslationApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} countryTranslation The country translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7580,7 +7724,7 @@ export const CountryTranslationApiFactory = function (configuration?: Configurat
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7591,7 +7735,7 @@ export const CountryTranslationApiFactory = function (configuration?: Configurat
          * 
          * @summary Display the specified resource
          * @param {string} countryTranslation The country translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7653,7 +7797,7 @@ export class CountryTranslationApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;language&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -7665,7 +7809,7 @@ export class CountryTranslationApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} countryTranslation The country translation ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;language&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -8003,7 +8147,7 @@ export const GlossaryApiAxiosParamCreator = function (configuration?: Configurat
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;spellings&#x60;, &#x60;synonyms&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8051,7 +8195,7 @@ export const GlossaryApiAxiosParamCreator = function (configuration?: Configurat
          * 
          * @summary Display the specified resource
          * @param {string} glossary The glossary ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;spellings&#x60;, &#x60;synonyms&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8273,7 +8417,7 @@ export const GlossaryApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;spellings&#x60;, &#x60;synonyms&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8287,7 +8431,7 @@ export const GlossaryApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} glossary The glossary ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;spellings&#x60;, &#x60;synonyms&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8384,7 +8528,7 @@ export const GlossaryApiFactory = function (configuration?: Configuration, baseP
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;spellings&#x60;, &#x60;synonyms&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8395,7 +8539,7 @@ export const GlossaryApiFactory = function (configuration?: Configuration, baseP
          * 
          * @summary Display the specified resource
          * @param {string} glossary The glossary ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;spellings&#x60;, &#x60;synonyms&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8481,7 +8625,7 @@ export class GlossaryApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;spellings&#x60;, &#x60;synonyms&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -8493,7 +8637,7 @@ export class GlossaryApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} glossary The glossary ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;spellings&#x60;, &#x60;synonyms&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -8587,7 +8731,7 @@ export const GlossarySpellingApiAxiosParamCreator = function (configuration?: Co
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;, &#x60;itemTranslations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8635,7 +8779,7 @@ export const GlossarySpellingApiAxiosParamCreator = function (configuration?: Co
          * 
          * @summary Display the specified resource
          * @param {string} glossarySpelling The glossary spelling ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;, &#x60;itemTranslations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8825,7 +8969,7 @@ export const GlossarySpellingApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;, &#x60;itemTranslations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8839,7 +8983,7 @@ export const GlossarySpellingApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} glossarySpelling The glossary spelling ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;, &#x60;itemTranslations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8914,7 +9058,7 @@ export const GlossarySpellingApiFactory = function (configuration?: Configuratio
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;, &#x60;itemTranslations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8925,7 +9069,7 @@ export const GlossarySpellingApiFactory = function (configuration?: Configuratio
          * 
          * @summary Display the specified resource
          * @param {string} glossarySpelling The glossary spelling ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;, &#x60;itemTranslations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8987,7 +9131,7 @@ export class GlossarySpellingApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;, &#x60;itemTranslations&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -8999,7 +9143,7 @@ export class GlossarySpellingApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} glossarySpelling The glossary spelling ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;, &#x60;itemTranslations&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -9093,7 +9237,7 @@ export const GlossaryTranslationApiAxiosParamCreator = function (configuration?:
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9141,7 +9285,7 @@ export const GlossaryTranslationApiAxiosParamCreator = function (configuration?:
          * 
          * @summary Display the specified resource
          * @param {string} glossaryTranslation The glossary translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9331,7 +9475,7 @@ export const GlossaryTranslationApiFp = function(configuration?: Configuration) 
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9345,7 +9489,7 @@ export const GlossaryTranslationApiFp = function(configuration?: Configuration) 
          * 
          * @summary Display the specified resource
          * @param {string} glossaryTranslation The glossary translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9420,7 +9564,7 @@ export const GlossaryTranslationApiFactory = function (configuration?: Configura
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9431,7 +9575,7 @@ export const GlossaryTranslationApiFactory = function (configuration?: Configura
          * 
          * @summary Display the specified resource
          * @param {string} glossaryTranslation The glossary translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9493,7 +9637,7 @@ export class GlossaryTranslationApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -9505,7 +9649,7 @@ export class GlossaryTranslationApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} glossaryTranslation The glossary translation ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -10270,7 +10414,7 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
          * @summary Get items by type
          * @param {string} type 
          * @param {ItemByTypeTypeEnum} type2 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -10318,7 +10462,7 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
         /**
          * 
          * @summary Get child items (items with a parent)
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -10397,7 +10541,7 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
          * @summary Detach a single tag from an item
          * @param {string} item The item ID
          * @param {string} tagId 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -10447,7 +10591,7 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
          * @summary Detach multiple tags from an item
          * @param {string} item The item ID
          * @param {Array<string>} [tagIds] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -10494,7 +10638,7 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
          * 
          * @summary Get items for a specific tag
          * @param {string} tag The tag ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -10538,7 +10682,7 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -10585,7 +10729,7 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
         /**
          * 
          * @summary Get parent items (items with no parent)
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -10625,7 +10769,7 @@ export const ItemApiAxiosParamCreator = function (configuration?: Configuration)
          * 
          * @summary Display the specified resource
          * @param {string} item The item ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -10952,7 +11096,7 @@ export const ItemApiFp = function(configuration?: Configuration) {
          * @summary Get items by type
          * @param {string} type 
          * @param {ItemByTypeTypeEnum} type2 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -10965,7 +11109,7 @@ export const ItemApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Get child items (items with a parent)
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -10993,7 +11137,7 @@ export const ItemApiFp = function(configuration?: Configuration) {
          * @summary Detach a single tag from an item
          * @param {string} item The item ID
          * @param {string} tagId 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -11008,7 +11152,7 @@ export const ItemApiFp = function(configuration?: Configuration) {
          * @summary Detach multiple tags from an item
          * @param {string} item The item ID
          * @param {Array<string>} [tagIds] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -11022,7 +11166,7 @@ export const ItemApiFp = function(configuration?: Configuration) {
          * 
          * @summary Get items for a specific tag
          * @param {string} tag The tag ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -11037,7 +11181,7 @@ export const ItemApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -11050,7 +11194,7 @@ export const ItemApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Get parent items (items with no parent)
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -11064,7 +11208,7 @@ export const ItemApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} item The item ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -11191,7 +11335,7 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
          * @summary Get items by type
          * @param {string} type 
          * @param {ItemByTypeTypeEnum} type2 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -11201,7 +11345,7 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
         /**
          * 
          * @summary Get child items (items with a parent)
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -11223,7 +11367,7 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
          * @summary Detach a single tag from an item
          * @param {string} item The item ID
          * @param {string} tagId 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -11235,7 +11379,7 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
          * @summary Detach multiple tags from an item
          * @param {string} item The item ID
          * @param {Array<string>} [tagIds] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -11246,7 +11390,7 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
          * 
          * @summary Get items for a specific tag
          * @param {string} tag The tag ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -11258,7 +11402,7 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -11268,7 +11412,7 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
         /**
          * 
          * @summary Get parent items (items with no parent)
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -11279,7 +11423,7 @@ export const ItemApiFactory = function (configuration?: Configuration, basePath?
          * 
          * @summary Display the specified resource
          * @param {string} item The item ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -11385,7 +11529,7 @@ export class ItemApi extends BaseAPI {
      * @summary Get items by type
      * @param {string} type 
      * @param {ItemByTypeTypeEnum} type2 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -11396,7 +11540,7 @@ export class ItemApi extends BaseAPI {
     /**
      * 
      * @summary Get child items (items with a parent)
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -11420,7 +11564,7 @@ export class ItemApi extends BaseAPI {
      * @summary Detach a single tag from an item
      * @param {string} item The item ID
      * @param {string} tagId 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -11433,7 +11577,7 @@ export class ItemApi extends BaseAPI {
      * @summary Detach multiple tags from an item
      * @param {string} item The item ID
      * @param {Array<string>} [tagIds] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -11445,7 +11589,7 @@ export class ItemApi extends BaseAPI {
      * 
      * @summary Get items for a specific tag
      * @param {string} tag The tag ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -11458,7 +11602,7 @@ export class ItemApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -11469,7 +11613,7 @@ export class ItemApi extends BaseAPI {
     /**
      * 
      * @summary Get parent items (items with no parent)
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -11481,7 +11625,7 @@ export class ItemApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} item The item ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -11811,7 +11955,7 @@ export const ItemImageApiAxiosParamCreator = function (configuration?: Configura
          * 
          * @summary Display the specified item image
          * @param {string} itemImage The item image ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -12014,7 +12158,7 @@ export const ItemImageApiAxiosParamCreator = function (configuration?: Configura
          * 
          * @summary Display a listing of item images for a specific item
          * @param {string} item The item ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -12189,7 +12333,7 @@ export const ItemImageApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified item image
          * @param {string} itemImage The item image ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -12257,7 +12401,7 @@ export const ItemImageApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display a listing of item images for a specific item
          * @param {string} item The item ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -12355,7 +12499,7 @@ export const ItemImageApiFactory = function (configuration?: Configuration, base
          * 
          * @summary Display the specified item image
          * @param {string} itemImage The item image ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -12408,7 +12552,7 @@ export const ItemImageApiFactory = function (configuration?: Configuration, base
          * 
          * @summary Display a listing of item images for a specific item
          * @param {string} item The item ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -12504,7 +12648,7 @@ export class ItemImageApi extends BaseAPI {
      * 
      * @summary Display the specified item image
      * @param {string} itemImage The item image ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -12562,7 +12706,7 @@ export class ItemImageApi extends BaseAPI {
      * 
      * @summary Display a listing of item images for a specific item
      * @param {string} item The item ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -13112,6 +13256,1042 @@ export class ItemItemLinkApi extends BaseAPI {
 
 
 /**
+ * ItemItemLinkTranslationApi - axios parameter creator
+ */
+export const ItemItemLinkTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationDestroy: async (itemItemLinkTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemItemLinkTranslation' is not null or undefined
+            assertParamExists('itemItemLinkTranslationDestroy', 'itemItemLinkTranslation', itemItemLinkTranslation)
+            const localVarPath = `/item-item-link-translation/{itemItemLinkTranslation}`
+                .replace(`{${"itemItemLinkTranslation"}}`, encodeURIComponent(String(itemItemLinkTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of item-item link translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [itemItemLinkId] 
+         * @param {string} [languageId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationIndex: async (page?: number, perPage?: number, itemItemLinkId?: string, languageId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/item-item-link-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (itemItemLinkId !== undefined) {
+                localVarQueryParameter['item_item_link_id'] = itemItemLinkId;
+            }
+
+            if (languageId !== undefined) {
+                localVarQueryParameter['language_id'] = languageId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;itemItemLink&#x60;, &#x60;language&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationShow: async (itemItemLinkTranslation: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemItemLinkTranslation' is not null or undefined
+            assertParamExists('itemItemLinkTranslationShow', 'itemItemLinkTranslation', itemItemLinkTranslation)
+            const localVarPath = `/item-item-link-translation/{itemItemLinkTranslation}`
+                .replace(`{${"itemItemLinkTranslation"}}`, encodeURIComponent(String(itemItemLinkTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created item-item link translation
+         * @param {StoreItemItemLinkTranslationRequest} storeItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationStore: async (storeItemItemLinkTranslationRequest: StoreItemItemLinkTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storeItemItemLinkTranslationRequest' is not null or undefined
+            assertParamExists('itemItemLinkTranslationStore', 'storeItemItemLinkTranslationRequest', storeItemItemLinkTranslationRequest)
+            const localVarPath = `/item-item-link-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storeItemItemLinkTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationUpdate: async (itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemItemLinkTranslation' is not null or undefined
+            assertParamExists('itemItemLinkTranslationUpdate', 'itemItemLinkTranslation', itemItemLinkTranslation)
+            // verify required parameter 'updateItemItemLinkTranslationRequest' is not null or undefined
+            assertParamExists('itemItemLinkTranslationUpdate', 'updateItemItemLinkTranslationRequest', updateItemItemLinkTranslationRequest)
+            const localVarPath = `/item-item-link-translation/{itemItemLinkTranslation}`
+                .replace(`{${"itemItemLinkTranslation"}}`, encodeURIComponent(String(itemItemLinkTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateItemItemLinkTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationUpdate2: async (itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemItemLinkTranslation' is not null or undefined
+            assertParamExists('itemItemLinkTranslationUpdate2', 'itemItemLinkTranslation', itemItemLinkTranslation)
+            // verify required parameter 'updateItemItemLinkTranslationRequest' is not null or undefined
+            assertParamExists('itemItemLinkTranslationUpdate2', 'updateItemItemLinkTranslationRequest', updateItemItemLinkTranslationRequest)
+            const localVarPath = `/item-item-link-translation/{itemItemLinkTranslation}`
+                .replace(`{${"itemItemLinkTranslation"}}`, encodeURIComponent(String(itemItemLinkTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateItemItemLinkTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ItemItemLinkTranslationApi - functional programming interface
+ */
+export const ItemItemLinkTranslationApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ItemItemLinkTranslationApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkTranslationDestroy(itemItemLinkTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkTranslationDestroy(itemItemLinkTranslation, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkTranslationApi.itemItemLinkTranslationDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of item-item link translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [itemItemLinkId] 
+         * @param {string} [languageId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkTranslationIndex(page?: number, perPage?: number, itemItemLinkId?: string, languageId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkTranslationIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkTranslationIndex(page, perPage, itemItemLinkId, languageId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkTranslationApi.itemItemLinkTranslationIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;itemItemLink&#x60;, &#x60;language&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkTranslationShow(itemItemLinkTranslation: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkTranslationShow(itemItemLinkTranslation, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkTranslationApi.itemItemLinkTranslationShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created item-item link translation
+         * @param {StoreItemItemLinkTranslationRequest} storeItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkTranslationStore(storeItemItemLinkTranslationRequest: StoreItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkTranslationStore(storeItemItemLinkTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkTranslationApi.itemItemLinkTranslationStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkTranslationUpdate(itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkTranslationUpdate(itemItemLinkTranslation, updateItemItemLinkTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkTranslationApi.itemItemLinkTranslationUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkTranslationUpdate2(itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkTranslationUpdate2(itemItemLinkTranslation, updateItemItemLinkTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkTranslationApi.itemItemLinkTranslationUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ItemItemLinkTranslationApi - factory interface
+ */
+export const ItemItemLinkTranslationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ItemItemLinkTranslationApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationDestroy(itemItemLinkTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.itemItemLinkTranslationDestroy(itemItemLinkTranslation, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of item-item link translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [itemItemLinkId] 
+         * @param {string} [languageId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationIndex(page?: number, perPage?: number, itemItemLinkId?: string, languageId?: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkTranslationIndex200Response> {
+            return localVarFp.itemItemLinkTranslationIndex(page, perPage, itemItemLinkId, languageId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;itemItemLink&#x60;, &#x60;language&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationShow(itemItemLinkTranslation: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkTranslationShow200Response> {
+            return localVarFp.itemItemLinkTranslationShow(itemItemLinkTranslation, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created item-item link translation
+         * @param {StoreItemItemLinkTranslationRequest} storeItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationStore(storeItemItemLinkTranslationRequest: StoreItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkTranslationShow200Response> {
+            return localVarFp.itemItemLinkTranslationStore(storeItemItemLinkTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationUpdate(itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkTranslationShow200Response> {
+            return localVarFp.itemItemLinkTranslationUpdate(itemItemLinkTranslation, updateItemItemLinkTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationUpdate2(itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkTranslationShow200Response> {
+            return localVarFp.itemItemLinkTranslationUpdate2(itemItemLinkTranslation, updateItemItemLinkTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ItemItemLinkTranslationApi - object-oriented interface
+ */
+export class ItemItemLinkTranslationApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified item-item link translation
+     * @param {string} itemItemLinkTranslation The item item link translation ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkTranslationDestroy(itemItemLinkTranslation: string, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkTranslationApiFp(this.configuration).itemItemLinkTranslationDestroy(itemItemLinkTranslation, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of item-item link translations
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [itemItemLinkId] 
+     * @param {string} [languageId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkTranslationIndex(page?: number, perPage?: number, itemItemLinkId?: string, languageId?: string, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkTranslationApiFp(this.configuration).itemItemLinkTranslationIndex(page, perPage, itemItemLinkId, languageId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified item-item link translation
+     * @param {string} itemItemLinkTranslation The item item link translation ID
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;itemItemLink&#x60;, &#x60;language&#x60;.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkTranslationShow(itemItemLinkTranslation: string, include?: string, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkTranslationApiFp(this.configuration).itemItemLinkTranslationShow(itemItemLinkTranslation, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created item-item link translation
+     * @param {StoreItemItemLinkTranslationRequest} storeItemItemLinkTranslationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkTranslationStore(storeItemItemLinkTranslationRequest: StoreItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkTranslationApiFp(this.configuration).itemItemLinkTranslationStore(storeItemItemLinkTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified item-item link translation
+     * @param {string} itemItemLinkTranslation The item item link translation ID
+     * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkTranslationUpdate(itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkTranslationApiFp(this.configuration).itemItemLinkTranslationUpdate(itemItemLinkTranslation, updateItemItemLinkTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified item-item link translation
+     * @param {string} itemItemLinkTranslation The item item link translation ID
+     * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkTranslationUpdate2(itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkTranslationApiFp(this.configuration).itemItemLinkTranslationUpdate2(itemItemLinkTranslation, updateItemItemLinkTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ItemItemLinkTranslationsApi - axios parameter creator
+ */
+export const ItemItemLinkTranslationsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationDestroy: async (itemItemLinkTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemItemLinkTranslation' is not null or undefined
+            assertParamExists('itemItemLinkTranslationDestroy', 'itemItemLinkTranslation', itemItemLinkTranslation)
+            const localVarPath = `/item-item-link-translation/{itemItemLinkTranslation}`
+                .replace(`{${"itemItemLinkTranslation"}}`, encodeURIComponent(String(itemItemLinkTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of item-item link translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [itemItemLinkId] 
+         * @param {string} [languageId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationIndex: async (page?: number, perPage?: number, itemItemLinkId?: string, languageId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/item-item-link-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (itemItemLinkId !== undefined) {
+                localVarQueryParameter['item_item_link_id'] = itemItemLinkId;
+            }
+
+            if (languageId !== undefined) {
+                localVarQueryParameter['language_id'] = languageId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;itemItemLink&#x60;, &#x60;language&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationShow: async (itemItemLinkTranslation: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemItemLinkTranslation' is not null or undefined
+            assertParamExists('itemItemLinkTranslationShow', 'itemItemLinkTranslation', itemItemLinkTranslation)
+            const localVarPath = `/item-item-link-translation/{itemItemLinkTranslation}`
+                .replace(`{${"itemItemLinkTranslation"}}`, encodeURIComponent(String(itemItemLinkTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created item-item link translation
+         * @param {StoreItemItemLinkTranslationRequest} storeItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationStore: async (storeItemItemLinkTranslationRequest: StoreItemItemLinkTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storeItemItemLinkTranslationRequest' is not null or undefined
+            assertParamExists('itemItemLinkTranslationStore', 'storeItemItemLinkTranslationRequest', storeItemItemLinkTranslationRequest)
+            const localVarPath = `/item-item-link-translation`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storeItemItemLinkTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationUpdate: async (itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemItemLinkTranslation' is not null or undefined
+            assertParamExists('itemItemLinkTranslationUpdate', 'itemItemLinkTranslation', itemItemLinkTranslation)
+            // verify required parameter 'updateItemItemLinkTranslationRequest' is not null or undefined
+            assertParamExists('itemItemLinkTranslationUpdate', 'updateItemItemLinkTranslationRequest', updateItemItemLinkTranslationRequest)
+            const localVarPath = `/item-item-link-translation/{itemItemLinkTranslation}`
+                .replace(`{${"itemItemLinkTranslation"}}`, encodeURIComponent(String(itemItemLinkTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateItemItemLinkTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationUpdate2: async (itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemItemLinkTranslation' is not null or undefined
+            assertParamExists('itemItemLinkTranslationUpdate2', 'itemItemLinkTranslation', itemItemLinkTranslation)
+            // verify required parameter 'updateItemItemLinkTranslationRequest' is not null or undefined
+            assertParamExists('itemItemLinkTranslationUpdate2', 'updateItemItemLinkTranslationRequest', updateItemItemLinkTranslationRequest)
+            const localVarPath = `/item-item-link-translation/{itemItemLinkTranslation}`
+                .replace(`{${"itemItemLinkTranslation"}}`, encodeURIComponent(String(itemItemLinkTranslation)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateItemItemLinkTranslationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ItemItemLinkTranslationsApi - functional programming interface
+ */
+export const ItemItemLinkTranslationsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ItemItemLinkTranslationsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkTranslationDestroy(itemItemLinkTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkTranslationDestroy(itemItemLinkTranslation, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkTranslationsApi.itemItemLinkTranslationDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of item-item link translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [itemItemLinkId] 
+         * @param {string} [languageId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkTranslationIndex(page?: number, perPage?: number, itemItemLinkId?: string, languageId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkTranslationIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkTranslationIndex(page, perPage, itemItemLinkId, languageId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkTranslationsApi.itemItemLinkTranslationIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;itemItemLink&#x60;, &#x60;language&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkTranslationShow(itemItemLinkTranslation: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkTranslationShow(itemItemLinkTranslation, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkTranslationsApi.itemItemLinkTranslationShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created item-item link translation
+         * @param {StoreItemItemLinkTranslationRequest} storeItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkTranslationStore(storeItemItemLinkTranslationRequest: StoreItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkTranslationStore(storeItemItemLinkTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkTranslationsApi.itemItemLinkTranslationStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkTranslationUpdate(itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkTranslationUpdate(itemItemLinkTranslation, updateItemItemLinkTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkTranslationsApi.itemItemLinkTranslationUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemItemLinkTranslationUpdate2(itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemItemLinkTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemItemLinkTranslationUpdate2(itemItemLinkTranslation, updateItemItemLinkTranslationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemItemLinkTranslationsApi.itemItemLinkTranslationUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ItemItemLinkTranslationsApi - factory interface
+ */
+export const ItemItemLinkTranslationsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ItemItemLinkTranslationsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationDestroy(itemItemLinkTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.itemItemLinkTranslationDestroy(itemItemLinkTranslation, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of item-item link translations
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {string} [itemItemLinkId] 
+         * @param {string} [languageId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationIndex(page?: number, perPage?: number, itemItemLinkId?: string, languageId?: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkTranslationIndex200Response> {
+            return localVarFp.itemItemLinkTranslationIndex(page, perPage, itemItemLinkId, languageId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;itemItemLink&#x60;, &#x60;language&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationShow(itemItemLinkTranslation: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkTranslationShow200Response> {
+            return localVarFp.itemItemLinkTranslationShow(itemItemLinkTranslation, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created item-item link translation
+         * @param {StoreItemItemLinkTranslationRequest} storeItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationStore(storeItemItemLinkTranslationRequest: StoreItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkTranslationShow200Response> {
+            return localVarFp.itemItemLinkTranslationStore(storeItemItemLinkTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationUpdate(itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkTranslationShow200Response> {
+            return localVarFp.itemItemLinkTranslationUpdate(itemItemLinkTranslation, updateItemItemLinkTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified item-item link translation
+         * @param {string} itemItemLinkTranslation The item item link translation ID
+         * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemItemLinkTranslationUpdate2(itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ItemItemLinkTranslationShow200Response> {
+            return localVarFp.itemItemLinkTranslationUpdate2(itemItemLinkTranslation, updateItemItemLinkTranslationRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ItemItemLinkTranslationsApi - object-oriented interface
+ */
+export class ItemItemLinkTranslationsApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified item-item link translation
+     * @param {string} itemItemLinkTranslation The item item link translation ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkTranslationDestroy(itemItemLinkTranslation: string, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkTranslationsApiFp(this.configuration).itemItemLinkTranslationDestroy(itemItemLinkTranslation, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of item-item link translations
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {string} [itemItemLinkId] 
+     * @param {string} [languageId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkTranslationIndex(page?: number, perPage?: number, itemItemLinkId?: string, languageId?: string, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkTranslationsApiFp(this.configuration).itemItemLinkTranslationIndex(page, perPage, itemItemLinkId, languageId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified item-item link translation
+     * @param {string} itemItemLinkTranslation The item item link translation ID
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;itemItemLink&#x60;, &#x60;language&#x60;.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkTranslationShow(itemItemLinkTranslation: string, include?: string, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkTranslationsApiFp(this.configuration).itemItemLinkTranslationShow(itemItemLinkTranslation, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created item-item link translation
+     * @param {StoreItemItemLinkTranslationRequest} storeItemItemLinkTranslationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkTranslationStore(storeItemItemLinkTranslationRequest: StoreItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkTranslationsApiFp(this.configuration).itemItemLinkTranslationStore(storeItemItemLinkTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified item-item link translation
+     * @param {string} itemItemLinkTranslation The item item link translation ID
+     * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkTranslationUpdate(itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkTranslationsApiFp(this.configuration).itemItemLinkTranslationUpdate(itemItemLinkTranslation, updateItemItemLinkTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified item-item link translation
+     * @param {string} itemItemLinkTranslation The item item link translation ID
+     * @param {UpdateItemItemLinkTranslationRequest} updateItemItemLinkTranslationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public itemItemLinkTranslationUpdate2(itemItemLinkTranslation: string, updateItemItemLinkTranslationRequest: UpdateItemItemLinkTranslationRequest, options?: RawAxiosRequestConfig) {
+        return ItemItemLinkTranslationsApiFp(this.configuration).itemItemLinkTranslationUpdate2(itemItemLinkTranslation, updateItemItemLinkTranslationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
  * ItemTranslationApi - axios parameter creator
  */
 export const ItemTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
@@ -13222,7 +14402,7 @@ export const ItemTranslationApiAxiosParamCreator = function (configuration?: Con
          * 
          * @summary Display the specified item translation
          * @param {string} itemTranslation The item translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;author&#x60;, &#x60;textCopyEditor&#x60;, &#x60;translator&#x60;, &#x60;translationCopyEditor&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -13429,7 +14609,7 @@ export const ItemTranslationApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified item translation
          * @param {string} itemTranslation The item translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;author&#x60;, &#x60;textCopyEditor&#x60;, &#x60;translator&#x60;, &#x60;translationCopyEditor&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -13518,7 +14698,7 @@ export const ItemTranslationApiFactory = function (configuration?: Configuration
          * 
          * @summary Display the specified item translation
          * @param {string} itemTranslation The item translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;author&#x60;, &#x60;textCopyEditor&#x60;, &#x60;translator&#x60;, &#x60;translationCopyEditor&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -13595,7 +14775,7 @@ export class ItemTranslationApi extends BaseAPI {
      * 
      * @summary Display the specified item translation
      * @param {string} itemTranslation The item translation ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;author&#x60;, &#x60;textCopyEditor&#x60;, &#x60;translator&#x60;, &#x60;translationCopyEditor&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -13752,7 +14932,7 @@ export const ItemTranslationsApiAxiosParamCreator = function (configuration?: Co
          * 
          * @summary Display the specified item translation
          * @param {string} itemTranslation The item translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;author&#x60;, &#x60;textCopyEditor&#x60;, &#x60;translator&#x60;, &#x60;translationCopyEditor&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -13959,7 +15139,7 @@ export const ItemTranslationsApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified item translation
          * @param {string} itemTranslation The item translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;author&#x60;, &#x60;textCopyEditor&#x60;, &#x60;translator&#x60;, &#x60;translationCopyEditor&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -14048,7 +15228,7 @@ export const ItemTranslationsApiFactory = function (configuration?: Configuratio
          * 
          * @summary Display the specified item translation
          * @param {string} itemTranslation The item translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;author&#x60;, &#x60;textCopyEditor&#x60;, &#x60;translator&#x60;, &#x60;translationCopyEditor&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -14125,7 +15305,7 @@ export class ItemTranslationsApi extends BaseAPI {
      * 
      * @summary Display the specified item translation
      * @param {string} itemTranslation The item translation ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;author&#x60;, &#x60;textCopyEditor&#x60;, &#x60;translator&#x60;, &#x60;translationCopyEditor&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -14989,7 +16169,7 @@ export const LanguageTranslationApiAxiosParamCreator = function (configuration?:
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;displayLanguage&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -15037,7 +16217,7 @@ export const LanguageTranslationApiAxiosParamCreator = function (configuration?:
          * 
          * @summary Display the specified resource
          * @param {string} languageTranslation The language translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;displayLanguage&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -15227,7 +16407,7 @@ export const LanguageTranslationApiFp = function(configuration?: Configuration) 
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;displayLanguage&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -15241,7 +16421,7 @@ export const LanguageTranslationApiFp = function(configuration?: Configuration) 
          * 
          * @summary Display the specified resource
          * @param {string} languageTranslation The language translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;displayLanguage&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -15316,7 +16496,7 @@ export const LanguageTranslationApiFactory = function (configuration?: Configura
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;displayLanguage&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -15327,7 +16507,7 @@ export const LanguageTranslationApiFactory = function (configuration?: Configura
          * 
          * @summary Display the specified resource
          * @param {string} languageTranslation The language translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;displayLanguage&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -15389,7 +16569,7 @@ export class LanguageTranslationApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;displayLanguage&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -15401,7 +16581,7 @@ export class LanguageTranslationApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} languageTranslation The language translation ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;language&#x60;, &#x60;displayLanguage&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -15495,7 +16675,7 @@ export const LocationApiAxiosParamCreator = function (configuration?: Configurat
          * @summary Display a listing of locations
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -15543,7 +16723,7 @@ export const LocationApiAxiosParamCreator = function (configuration?: Configurat
          * 
          * @summary Display the specified location
          * @param {string} location The location ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -15737,7 +16917,7 @@ export const LocationApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of locations
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -15751,7 +16931,7 @@ export const LocationApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified location
          * @param {string} location The location ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -15826,7 +17006,7 @@ export const LocationApiFactory = function (configuration?: Configuration, baseP
          * @summary Display a listing of locations
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -15837,7 +17017,7 @@ export const LocationApiFactory = function (configuration?: Configuration, baseP
          * 
          * @summary Display the specified location
          * @param {string} location The location ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -15899,7 +17079,7 @@ export class LocationApi extends BaseAPI {
      * @summary Display a listing of locations
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -15911,7 +17091,7 @@ export class LocationApi extends BaseAPI {
      * 
      * @summary Display the specified location
      * @param {string} location The location ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -17697,7 +18877,7 @@ export const PartnerApiAxiosParamCreator = function (configuration?: Configurati
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -17745,7 +18925,7 @@ export const PartnerApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary Display the specified resource
          * @param {string} partner The partner ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -17939,7 +19119,7 @@ export const PartnerApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -17953,7 +19133,7 @@ export const PartnerApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} partner The partner ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -18028,7 +19208,7 @@ export const PartnerApiFactory = function (configuration?: Configuration, basePa
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -18039,7 +19219,7 @@ export const PartnerApiFactory = function (configuration?: Configuration, basePa
          * 
          * @summary Display the specified resource
          * @param {string} partner The partner ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -18101,7 +19281,7 @@ export class PartnerApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -18113,7 +19293,7 @@ export class PartnerApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} partner The partner ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -18327,7 +19507,7 @@ export const PartnerImageApiAxiosParamCreator = function (configuration?: Config
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -18451,7 +19631,7 @@ export const PartnerImageApiAxiosParamCreator = function (configuration?: Config
          * 
          * @summary Display the specified resource
          * @param {string} partnerImage The partner image ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -18761,7 +19941,7 @@ export const PartnerImageApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -18801,7 +19981,7 @@ export const PartnerImageApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} partnerImage The partner image ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -18933,7 +20113,7 @@ export const PartnerImageApiFactory = function (configuration?: Configuration, b
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -18964,7 +20144,7 @@ export const PartnerImageApiFactory = function (configuration?: Configuration, b
          * 
          * @summary Display the specified resource
          * @param {string} partnerImage The partner image ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -19080,7 +20260,7 @@ export class PartnerImageApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -19114,7 +20294,7 @@ export class PartnerImageApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} partnerImage The partner image ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -19230,7 +20410,7 @@ export const PartnerTranslationApiAxiosParamCreator = function (configuration?: 
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;partnerTranslationImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -19278,7 +20458,7 @@ export const PartnerTranslationApiAxiosParamCreator = function (configuration?: 
          * 
          * @summary Display the specified resource
          * @param {string} partnerTranslation The partner translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;partnerTranslationImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -19472,7 +20652,7 @@ export const PartnerTranslationApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;partnerTranslationImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -19486,7 +20666,7 @@ export const PartnerTranslationApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} partnerTranslation The partner translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;partnerTranslationImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -19561,7 +20741,7 @@ export const PartnerTranslationApiFactory = function (configuration?: Configurat
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;partnerTranslationImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -19572,7 +20752,7 @@ export const PartnerTranslationApiFactory = function (configuration?: Configurat
          * 
          * @summary Display the specified resource
          * @param {string} partnerTranslation The partner translation ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;partnerTranslationImages&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -19634,7 +20814,7 @@ export class PartnerTranslationApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;partnerTranslationImages&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -19646,7 +20826,7 @@ export class PartnerTranslationApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} partnerTranslation The partner translation ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;partnerTranslationImages&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -19860,7 +21040,7 @@ export const PartnerTranslationImageApiAxiosParamCreator = function (configurati
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partnerTranslation&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -19984,7 +21164,7 @@ export const PartnerTranslationImageApiAxiosParamCreator = function (configurati
          * 
          * @summary Display the specified resource
          * @param {string} partnerTranslationImage The partner translation image ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partnerTranslation&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -20294,7 +21474,7 @@ export const PartnerTranslationImageApiFp = function(configuration?: Configurati
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partnerTranslation&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -20334,7 +21514,7 @@ export const PartnerTranslationImageApiFp = function(configuration?: Configurati
          * 
          * @summary Display the specified resource
          * @param {string} partnerTranslationImage The partner translation image ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partnerTranslation&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -20466,7 +21646,7 @@ export const PartnerTranslationImageApiFactory = function (configuration?: Confi
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partnerTranslation&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -20497,7 +21677,7 @@ export const PartnerTranslationImageApiFactory = function (configuration?: Confi
          * 
          * @summary Display the specified resource
          * @param {string} partnerTranslationImage The partner translation image ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partnerTranslation&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -20613,7 +21793,7 @@ export class PartnerTranslationImageApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partnerTranslation&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -20647,7 +21827,7 @@ export class PartnerTranslationImageApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} partnerTranslationImage The partner translation image ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partnerTranslation&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -20797,7 +21977,7 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;context&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -20933,7 +22113,7 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary Display the specified resource
          * @param {string} project The project ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;context&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -21139,7 +22319,7 @@ export const ProjectApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;context&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -21181,7 +22361,7 @@ export const ProjectApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} project The project ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;context&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -21265,7 +22445,7 @@ export const ProjectApiFactory = function (configuration?: Configuration, basePa
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;context&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -21298,7 +22478,7 @@ export const ProjectApiFactory = function (configuration?: Configuration, basePa
          * 
          * @summary Display the specified resource
          * @param {string} project The project ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;context&#x60;, &#x60;language&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -21370,7 +22550,7 @@ export class ProjectApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;context&#x60;, &#x60;language&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -21406,7 +22586,7 @@ export class ProjectApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} project The project ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;context&#x60;, &#x60;language&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -21500,7 +22680,7 @@ export const ProvinceApiAxiosParamCreator = function (configuration?: Configurat
          * @summary Display a listing of provinces
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -21548,7 +22728,7 @@ export const ProvinceApiAxiosParamCreator = function (configuration?: Configurat
          * 
          * @summary Display the specified province
          * @param {string} province The province ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -21742,7 +22922,7 @@ export const ProvinceApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of provinces
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -21756,7 +22936,7 @@ export const ProvinceApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified province
          * @param {string} province The province ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -21831,7 +23011,7 @@ export const ProvinceApiFactory = function (configuration?: Configuration, baseP
          * @summary Display a listing of provinces
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -21842,7 +23022,7 @@ export const ProvinceApiFactory = function (configuration?: Configuration, baseP
          * 
          * @summary Display the specified province
          * @param {string} province The province ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -21904,7 +23084,7 @@ export class ProvinceApi extends BaseAPI {
      * @summary Display a listing of provinces
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -21916,7 +23096,7 @@ export class ProvinceApi extends BaseAPI {
      * 
      * @summary Display the specified province
      * @param {string} province The province ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -23066,7 +24246,7 @@ export const ThemeApiAxiosParamCreator = function (configuration?: Configuration
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -23114,7 +24294,7 @@ export const ThemeApiAxiosParamCreator = function (configuration?: Configuration
          * 
          * @summary Display the specified resource
          * @param {string} theme The theme ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -23304,7 +24484,7 @@ export const ThemeApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -23318,7 +24498,7 @@ export const ThemeApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} theme The theme ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -23393,7 +24573,7 @@ export const ThemeApiFactory = function (configuration?: Configuration, basePath
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -23404,7 +24584,7 @@ export const ThemeApiFactory = function (configuration?: Configuration, basePath
          * 
          * @summary Display the specified resource
          * @param {string} theme The theme ID
-         * @param {string} [include] 
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -23466,7 +24646,7 @@ export class ThemeApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -23478,7 +24658,7 @@ export class ThemeApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} theme The theme ID
-     * @param {string} [include] 
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -23625,10 +24805,11 @@ export const ThemeTranslationApiAxiosParamCreator = function (configuration?: Co
          * 
          * @summary Display the specified theme translation
          * @param {string} themeTranslation The theme translation ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        themeTranslationShow: async (themeTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        themeTranslationShow: async (themeTranslation: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'themeTranslation' is not null or undefined
             assertParamExists('themeTranslationShow', 'themeTranslation', themeTranslation)
             const localVarPath = `/theme-translation/{themeTranslation}`
@@ -23647,6 +24828,10 @@ export const ThemeTranslationApiAxiosParamCreator = function (configuration?: Co
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -23825,11 +25010,12 @@ export const ThemeTranslationApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified theme translation
          * @param {string} themeTranslation The theme translation ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async themeTranslationShow(themeTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationShow(themeTranslation, options);
+        async themeTranslationShow(themeTranslation: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationShow(themeTranslation, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ThemeTranslationApi.themeTranslationShow']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -23911,11 +25097,12 @@ export const ThemeTranslationApiFactory = function (configuration?: Configuratio
          * 
          * @summary Display the specified theme translation
          * @param {string} themeTranslation The theme translation ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        themeTranslationShow(themeTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<ThemeTranslationShow200Response> {
-            return localVarFp.themeTranslationShow(themeTranslation, options).then((request) => request(axios, basePath));
+        themeTranslationShow(themeTranslation: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ThemeTranslationShow200Response> {
+            return localVarFp.themeTranslationShow(themeTranslation, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -23985,11 +25172,12 @@ export class ThemeTranslationApi extends BaseAPI {
      * 
      * @summary Display the specified theme translation
      * @param {string} themeTranslation The theme translation ID
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public themeTranslationShow(themeTranslation: string, options?: RawAxiosRequestConfig) {
-        return ThemeTranslationApiFp(this.configuration).themeTranslationShow(themeTranslation, options).then((request) => request(this.axios, this.basePath));
+    public themeTranslationShow(themeTranslation: string, include?: string, options?: RawAxiosRequestConfig) {
+        return ThemeTranslationApiFp(this.configuration).themeTranslationShow(themeTranslation, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -24131,10 +25319,11 @@ export const ThemeTranslationsApiAxiosParamCreator = function (configuration?: C
          * 
          * @summary Display the specified theme translation
          * @param {string} themeTranslation The theme translation ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        themeTranslationShow: async (themeTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        themeTranslationShow: async (themeTranslation: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'themeTranslation' is not null or undefined
             assertParamExists('themeTranslationShow', 'themeTranslation', themeTranslation)
             const localVarPath = `/theme-translation/{themeTranslation}`
@@ -24153,6 +25342,10 @@ export const ThemeTranslationsApiAxiosParamCreator = function (configuration?: C
             // authentication http required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
 
 
     
@@ -24331,11 +25524,12 @@ export const ThemeTranslationsApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified theme translation
          * @param {string} themeTranslation The theme translation ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async themeTranslationShow(themeTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationShow(themeTranslation, options);
+        async themeTranslationShow(themeTranslation: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeTranslationShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationShow(themeTranslation, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ThemeTranslationsApi.themeTranslationShow']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -24417,11 +25611,12 @@ export const ThemeTranslationsApiFactory = function (configuration?: Configurati
          * 
          * @summary Display the specified theme translation
          * @param {string} themeTranslation The theme translation ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        themeTranslationShow(themeTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<ThemeTranslationShow200Response> {
-            return localVarFp.themeTranslationShow(themeTranslation, options).then((request) => request(axios, basePath));
+        themeTranslationShow(themeTranslation: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ThemeTranslationShow200Response> {
+            return localVarFp.themeTranslationShow(themeTranslation, include, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -24491,11 +25686,12 @@ export class ThemeTranslationsApi extends BaseAPI {
      * 
      * @summary Display the specified theme translation
      * @param {string} themeTranslation The theme translation ID
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public themeTranslationShow(themeTranslation: string, options?: RawAxiosRequestConfig) {
-        return ThemeTranslationsApiFp(this.configuration).themeTranslationShow(themeTranslation, options).then((request) => request(this.axios, this.basePath));
+    public themeTranslationShow(themeTranslation: string, include?: string, options?: RawAxiosRequestConfig) {
+        return ThemeTranslationsApiFp(this.configuration).themeTranslationShow(themeTranslation, include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

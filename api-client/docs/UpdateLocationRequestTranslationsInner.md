@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**language_id** | **number** |  | [optional] [default to undefined]
+**language_id** | **string** |  | [optional] [default to undefined]
 **name** | **string** |  | [optional] [default to undefined]
 
 ## Example

@@ -128,7 +128,7 @@ const apiInstance = new ProjectApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `context`, `language`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.projectIndex(
     page,
@@ -143,7 +143,7 @@ const { status, data } = await apiInstance.projectIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;context&#x60;, &#x60;language&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -302,7 +302,7 @@ const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
 
 let project: string; //The project ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `context`, `language`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.projectShow(
     project,
@@ -315,7 +315,7 @@ const { status, data } = await apiInstance.projectShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **project** | [**string**] | The project ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;context&#x60;, &#x60;language&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

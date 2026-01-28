@@ -80,7 +80,7 @@ const apiInstance = new GlossarySpellingApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `glossary`, `language`, `itemTranslations`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.glossarySpellingIndex(
     page,
@@ -95,7 +95,7 @@ const { status, data } = await apiInstance.glossarySpellingIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;, &#x60;itemTranslations&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -138,7 +138,7 @@ const configuration = new Configuration();
 const apiInstance = new GlossarySpellingApi(configuration);
 
 let glossarySpelling: string; //The glossary spelling ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `glossary`, `language`, `itemTranslations`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.glossarySpellingShow(
     glossarySpelling,
@@ -151,7 +151,7 @@ const { status, data } = await apiInstance.glossarySpellingShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **glossarySpelling** | [**string**] | The glossary spelling ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;, &#x60;itemTranslations&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

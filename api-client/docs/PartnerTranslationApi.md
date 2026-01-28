@@ -80,7 +80,7 @@ const apiInstance = new PartnerTranslationApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `partner`, `language`, `context`, `partnerTranslationImages`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.partnerTranslationIndex(
     page,
@@ -95,7 +95,7 @@ const { status, data } = await apiInstance.partnerTranslationIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;partnerTranslationImages&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -138,7 +138,7 @@ const configuration = new Configuration();
 const apiInstance = new PartnerTranslationApi(configuration);
 
 let partnerTranslation: string; //The partner translation ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `partner`, `language`, `context`, `partnerTranslationImages`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.partnerTranslationShow(
     partnerTranslation,
@@ -151,7 +151,7 @@ const { status, data } = await apiInstance.partnerTranslationShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **partnerTranslation** | [**string**] | The partner translation ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;partnerTranslationImages&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

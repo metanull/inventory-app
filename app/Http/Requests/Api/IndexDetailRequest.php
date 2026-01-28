@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Rules\IncludeRule;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use App\Support\Pagination\PaginationParams;
@@ -19,7 +20,7 @@ class IndexDetailRequest extends FormRequest
         return [
             'page' => 'sometimes|integer|min:1',
             'per_page' => 'sometimes|integer|min:1|max:100',
-            'include' => 'sometimes|string',
+            'include' => ['sometimes', 'string', new IncludeRule('detail')],
         ];
     }
 

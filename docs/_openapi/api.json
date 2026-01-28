@@ -364,6 +364,7 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "No related resources available for inclusion on this endpoint.",
                         "schema": {
                             "type": "string"
                         }
@@ -603,6 +604,15 @@
                             "type": "string",
                             "format": "uuid"
                         }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `language`, `context`, `translations`, `partners`, `items`, `attachedItems`, `collectionImages`.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "language,context,translations"
                     }
                 ],
                 "responses": {
@@ -684,14 +694,14 @@
                             }
                         }
                     },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
                     },
                     "403": {
                         "$ref": "#/components/responses/AuthorizationException"
@@ -744,14 +754,14 @@
                             }
                         }
                     },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
                     },
                     "403": {
                         "$ref": "#/components/responses/AuthorizationException"
@@ -813,6 +823,15 @@
                             "minimum": 1,
                             "maximum": 100
                         }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `language`, `context`, `translations`, `partners`, `items`, `attachedItems`, `collectionImages`.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "language,context,translations"
                     }
                 ],
                 "responses": {
@@ -1001,11 +1020,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     },
                     "403": {
                         "$ref": "#/components/responses/AuthorizationException"
@@ -1165,6 +1184,15 @@
                             "type": "string",
                             "format": "uuid"
                         }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `language`, `context`, `translations`, `partners`, `items`, `attachedItems`, `collectionImages`.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "language,context,translations"
                     }
                 ],
                 "responses": {
@@ -1230,6 +1258,15 @@
                                 "format": "uuid"
                             }
                         }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `language`, `context`, `translations`, `partners`, `items`, `attachedItems`, `collectionImages`.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "language,context,translations"
                     }
                 ],
                 "responses": {
@@ -1288,6 +1325,7 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "No related resources available for inclusion on this endpoint.",
                         "schema": {
                             "type": "string"
                         }
@@ -1759,9 +1797,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `collection`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "collection"
                     }
                 ],
                 "responses": {
@@ -1961,9 +2001,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `collection`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "collection"
                     }
                 ],
                 "responses": {
@@ -2512,6 +2554,7 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "No related resources available for inclusion on this endpoint.",
                         "schema": {
                             "type": "string"
                         }
@@ -2731,6 +2774,7 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "No related resources available for inclusion on this endpoint.",
                         "schema": {
                             "type": "string"
                         }
@@ -3017,9 +3061,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `items`, `partners`, `translations`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "items,partners,translations"
                     }
                 ],
                 "responses": {
@@ -3233,9 +3279,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `items`, `partners`, `translations`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "items,partners,translations"
                     }
                 ],
                 "responses": {
@@ -3457,9 +3505,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `country`, `language`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "country,language"
                     }
                 ],
                 "responses": {
@@ -3674,9 +3724,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `country`, `language`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "country,language"
                     }
                 ],
                 "responses": {
@@ -3898,9 +3950,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `translations`, `spellings`, `synonyms`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "translations,spellings,synonyms"
                     }
                 ],
                 "responses": {
@@ -4117,9 +4171,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `translations`, `spellings`, `synonyms`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "translations,spellings,synonyms"
                     }
                 ],
                 "responses": {
@@ -4466,9 +4522,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `glossary`, `language`, `itemTranslations`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "glossary,language,itemTranslations"
                     }
                 ],
                 "responses": {
@@ -4683,9 +4741,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `glossary`, `language`, `itemTranslations`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "glossary,language,itemTranslations"
                     }
                 ],
                 "responses": {
@@ -4907,9 +4967,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `glossary`, `language`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "glossary,language"
                     }
                 ],
                 "responses": {
@@ -5124,9 +5186,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `glossary`, `language`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "glossary,language"
                     }
                 ],
                 "responses": {
@@ -5634,9 +5698,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "partner,country,project"
                     }
                 ],
                 "responses": {
@@ -5811,9 +5877,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "partner,country,project"
                     }
                 ],
                 "responses": {
@@ -5861,9 +5929,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "partner,country,project"
                     }
                 ],
                 "responses": {
@@ -5911,9 +5981,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "partner,country,project"
                     }
                 ],
                 "responses": {
@@ -5971,9 +6043,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "partner,country,project"
                     }
                 ],
                 "responses": {
@@ -6188,9 +6262,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "partner,country,project"
                     }
                 ],
                 "responses": {
@@ -6609,9 +6685,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "partner,country,project"
                     }
                 ],
                 "responses": {
@@ -6680,9 +6758,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "partner,country,project"
                     }
                 ],
                 "responses": {
@@ -6719,6 +6799,467 @@
                 }
             }
         },
+        "/item-item-link-translation/{itemItemLinkTranslation}": {
+            "get": {
+                "operationId": "item-item-link-translation.show",
+                "summary": "Display the specified item-item link translation",
+                "tags": [
+                    "Item Item Link Translations",
+                    "ItemItemLinkTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemItemLinkTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item item link translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `itemItemLink`, `language`.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "itemItemLink,language"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ItemItemLinkTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemItemLinkTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "item-item-link-translation.update",
+                "summary": "Update the specified item-item link translation",
+                "tags": [
+                    "Item Item Link Translations",
+                    "ItemItemLinkTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemItemLinkTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item item link translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateItemItemLinkTranslationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ItemItemLinkTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemItemLinkTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "itemItemLinkTranslation.update_2",
+                "summary": "Update the specified item-item link translation",
+                "tags": [
+                    "Item Item Link Translations",
+                    "ItemItemLinkTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemItemLinkTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item item link translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateItemItemLinkTranslationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ItemItemLinkTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemItemLinkTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "item-item-link-translation.destroy",
+                "summary": "Remove the specified item-item link translation",
+                "tags": [
+                    "Item Item Link Translations",
+                    "ItemItemLinkTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemItemLinkTranslation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The item item link translation ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/item-item-link-translation": {
+            "get": {
+                "operationId": "item-item-link-translation.index",
+                "summary": "Display a listing of item-item link translations",
+                "tags": [
+                    "Item Item Link Translations",
+                    "ItemItemLinkTranslation"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "item_item_link_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "language_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "minLength": 3,
+                            "maxLength": 3
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated set of `ItemItemLinkTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ItemItemLinkTranslationResource"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "first": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "last": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "prev": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "next": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "first",
+                                                "last",
+                                                "prev",
+                                                "next"
+                                            ]
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "minimum": 1
+                                                },
+                                                "from": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ],
+                                                    "minimum": 1
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "minimum": 1
+                                                },
+                                                "links": {
+                                                    "type": "array",
+                                                    "description": "Generated paginator links.",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "url": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "label": {
+                                                                "type": "string"
+                                                            },
+                                                            "active": {
+                                                                "type": "boolean"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "url",
+                                                            "label",
+                                                            "active"
+                                                        ]
+                                                    }
+                                                },
+                                                "path": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "description": "Base path for paginator generated URLs."
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
+                                                },
+                                                "to": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ],
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
+                                                }
+                                            },
+                                            "required": [
+                                                "current_page",
+                                                "from",
+                                                "last_page",
+                                                "links",
+                                                "path",
+                                                "per_page",
+                                                "to",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "links",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "item-item-link-translation.store",
+                "summary": "Store a newly created item-item link translation",
+                "tags": [
+                    "Item Item Link Translations",
+                    "ItemItemLinkTranslation"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreItemItemLinkTranslationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`ItemItemLinkTranslationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ItemItemLinkTranslationResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
         "/item-translation/{itemTranslation}": {
             "get": {
                 "operationId": "item-translation.show",
@@ -6741,9 +7282,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `item`, `language`, `context`, `author`, `textCopyEditor`, `translator`, `translationCopyEditor`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "item,language,context"
                     }
                 ],
                 "responses": {
@@ -7212,9 +7755,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `item`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "item"
                     }
                 ],
                 "responses": {
@@ -7414,9 +7959,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `item`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "item"
                     }
                 ],
                 "responses": {
@@ -8947,9 +9494,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `language`, `displayLanguage`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "language,displayLanguage"
                     }
                 ],
                 "responses": {
@@ -9164,9 +9713,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `language`, `displayLanguage`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "language,displayLanguage"
                     }
                 ],
                 "responses": {
@@ -9388,9 +9939,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `translations`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "translations"
                     }
                 ],
                 "responses": {
@@ -9607,9 +10160,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `translations`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "translations"
                     }
                 ],
                 "responses": {
@@ -10632,9 +11187,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `country`, `items`, `pictures`, `project`, `monumentItem`, `translations`, `partnerImages`, `collections`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "country,items,pictures"
                     }
                 ],
                 "responses": {
@@ -10851,9 +11408,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `country`, `items`, `pictures`, `project`, `monumentItem`, `translations`, `partnerImages`, `collections`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "country,items,pictures"
                     }
                 ],
                 "responses": {
@@ -11153,9 +11712,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "partner"
                     }
                 ],
                 "responses": {
@@ -11372,9 +11933,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "partner"
                     }
                 ],
                 "responses": {
@@ -11847,9 +12410,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`, `language`, `context`, `partnerTranslationImages`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "partner,language,context"
                     }
                 ],
                 "responses": {
@@ -12066,9 +12631,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`, `language`, `context`, `partnerTranslationImages`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "partner,language,context"
                     }
                 ],
                 "responses": {
@@ -12368,9 +12935,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partnerTranslation`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "partnerTranslation"
                     }
                 ],
                 "responses": {
@@ -12587,9 +13156,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partnerTranslation`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "partnerTranslation"
                     }
                 ],
                 "responses": {
@@ -13100,9 +13671,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `context`, `language`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "context,language"
                     }
                 ],
                 "responses": {
@@ -13319,9 +13892,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `context`, `language`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "context,language"
                     }
                 ],
                 "responses": {
@@ -13669,9 +14244,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `translations`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "translations"
                     }
                 ],
                 "responses": {
@@ -13888,9 +14465,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `translations`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "translations"
                     }
                 ],
                 "responses": {
@@ -15010,9 +15589,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `translations`, `subthemes`, `subthemes.translations`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "translations,subthemes,subthemes.translations"
                     }
                 ],
                 "responses": {
@@ -15227,9 +15808,11 @@
                     {
                         "name": "include",
                         "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `translations`, `subthemes`, `subthemes.translations`.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "translations,subthemes,subthemes.translations"
                     }
                 ],
                 "responses": {
@@ -15448,6 +16031,15 @@
                             "type": "string",
                             "format": "uuid"
                         }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "description": "Comma-separated list of related resources to include. Valid values: `theme`, `language`, `context`.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "theme,language,context"
                     }
                 ],
                 "responses": {
@@ -15951,7 +16543,9 @@
                         ]
                     },
                     "include": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Comma-separated list of related resources to include. Valid values: `collection`.",
+                        "example": "collection"
                     }
                 },
                 "required": [
@@ -15973,7 +16567,9 @@
                         ]
                     },
                     "include": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Comma-separated list of related resources to include. Valid values: `item`.",
+                        "example": "item"
                     }
                 },
                 "required": [
@@ -15995,7 +16591,9 @@
                         ]
                     },
                     "include": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`.",
+                        "example": "partner"
                     }
                 },
                 "required": [
@@ -16017,7 +16615,9 @@
                         ]
                     },
                     "include": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partnerTranslation`.",
+                        "example": "partnerTranslation"
                     }
                 },
                 "required": [
@@ -16044,6 +16644,11 @@
                     "item_id": {
                         "type": "string",
                         "format": "uuid"
+                    },
+                    "include": {
+                        "type": "string",
+                        "description": "Comma-separated list of related resources to include. Valid values: `language`, `context`, `translations`, `partners`, `items`, `attachedItems`, `collectionImages`.",
+                        "example": "language,context,translations"
                     }
                 },
                 "required": [
@@ -16054,6 +16659,11 @@
             "AttachItemsCollectionRequest": {
                 "type": "object",
                 "properties": {
+                    "include": {
+                        "type": "string",
+                        "description": "Comma-separated list of related resources to include. Valid values: `language`, `context`, `translations`, `partners`, `items`, `attachedItems`, `collectionImages`.",
+                        "example": "language,context,translations"
+                    },
                     "item_ids": {
                         "type": "array",
                         "items": {
@@ -16076,7 +16686,9 @@
                         "format": "uuid"
                     },
                     "include": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.",
+                        "example": "partner,country,project"
                     }
                 },
                 "required": [
@@ -16088,7 +16700,9 @@
                 "type": "object",
                 "properties": {
                     "include": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.",
+                        "example": "partner,country,project"
                     },
                     "tag_ids": {
                         "type": "array",
@@ -17060,6 +17674,13 @@
                         "description": "The context (ContextResource)",
                         "$ref": "#/components/schemas/ContextResource"
                     },
+                    "translations": {
+                        "type": "array",
+                        "description": "The translations (ItemItemLinkTranslationResource collection)",
+                        "items": {
+                            "$ref": "#/components/schemas/ItemItemLinkTranslationResource"
+                        }
+                    },
                     "created_at": {
                         "type": [
                             "string",
@@ -17086,6 +17707,79 @@
                     "updated_at"
                 ],
                 "title": "ItemItemLinkResource"
+            },
+            "ItemItemLinkTranslationResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The unique identifier (GUID)"
+                    },
+                    "item_item_link_id": {
+                        "type": "string",
+                        "description": "The item-item link this translation belongs to (ItemItemLinkResource id)"
+                    },
+                    "language_id": {
+                        "type": "string",
+                        "description": "The language of this translation (LanguageResource id)"
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The description of the link (source \u2192 target direction)"
+                    },
+                    "reciprocal_description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The reciprocal description of the link (target \u2192 source direction)"
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The Id(s) of matching resource in the legacy system (if any)"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "The date of creation of the resource (managed by the system)"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "The date of last modification of the resource (managed by the system)"
+                    },
+                    "item_item_link": {
+                        "description": "The item-item link relationship (ItemItemLinkResource)",
+                        "$ref": "#/components/schemas/ItemItemLinkResource"
+                    },
+                    "language": {
+                        "description": "The language relationship (LanguageResource)",
+                        "$ref": "#/components/schemas/LanguageResource"
+                    }
+                },
+                "required": [
+                    "id",
+                    "item_item_link_id",
+                    "language_id",
+                    "description",
+                    "reciprocal_description",
+                    "backward_compatibility",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ItemItemLinkTranslationResource"
             },
             "ItemResource": {
                 "type": "object",
@@ -18391,6 +19085,7 @@
                     },
                     "mime_type": {
                         "type": "string",
+                        "pattern": "^[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*\\/[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_.]*$",
                         "maxLength": 100
                     },
                     "size": {
@@ -18715,6 +19410,7 @@
                     },
                     "mime_type": {
                         "type": "string",
+                        "pattern": "^[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*\\/[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_.]*$",
                         "maxLength": 100
                     },
                     "size": {
@@ -18772,6 +19468,53 @@
                     "context_id"
                 ],
                 "title": "StoreItemItemLinkRequest"
+            },
+            "StoreItemItemLinkTranslationRequest": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "item_item_link_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "language_id": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 3
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "reciprocal_description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "item_item_link_id",
+                    "language_id"
+                ],
+                "title": "StoreItemItemLinkTranslationRequest"
             },
             "StoreItemRequest": {
                 "type": "object",
@@ -19095,7 +19838,7 @@
                         "type": "string"
                     },
                     "country_id": {
-                        "type": "integer"
+                        "type": "string"
                     },
                     "backward_compatibility": {
                         "type": [
@@ -19109,7 +19852,7 @@
                             "type": "object",
                             "properties": {
                                 "language_id": {
-                                    "type": "integer"
+                                    "type": "string"
                                 },
                                 "name": {
                                     "type": "string"
@@ -19546,7 +20289,7 @@
                         "type": "string"
                     },
                     "country_id": {
-                        "type": "integer"
+                        "type": "string"
                     },
                     "backward_compatibility": {
                         "type": [
@@ -19560,7 +20303,7 @@
                             "type": "object",
                             "properties": {
                                 "language_id": {
-                                    "type": "integer"
+                                    "type": "string"
                                 },
                                 "name": {
                                     "type": "string"
@@ -20044,6 +20787,7 @@
                     },
                     "mime_type": {
                         "type": "string",
+                        "pattern": "^[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*\\/[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_.]*$",
                         "maxLength": 100
                     },
                     "size": {
@@ -20062,7 +20806,9 @@
                         "minimum": 1
                     },
                     "include": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Comma-separated list of related resources to include. Valid values: `collection`.",
+                        "example": "collection"
                     }
                 },
                 "title": "UpdateCollectionImageRequest"
@@ -20319,6 +21065,7 @@
                     },
                     "mime_type": {
                         "type": "string",
+                        "pattern": "^[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*\\/[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_.]*$",
                         "maxLength": 100
                     },
                     "size": {
@@ -20337,7 +21084,9 @@
                         "minimum": 1
                     },
                     "include": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Comma-separated list of related resources to include. Valid values: `item`.",
+                        "example": "item"
                     }
                 },
                 "title": "UpdateItemImageRequest"
@@ -20373,6 +21122,53 @@
                     "context_id"
                 ],
                 "title": "UpdateItemItemLinkRequest"
+            },
+            "UpdateItemItemLinkTranslationRequest": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "item_item_link_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "language_id": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 3
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "reciprocal_description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "backward_compatibility": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "item_item_link_id",
+                    "language_id"
+                ],
+                "title": "UpdateItemItemLinkTranslationRequest"
             },
             "UpdateItemRequest": {
                 "type": "object",
@@ -20675,7 +21471,7 @@
                         "type": "string"
                     },
                     "country_id": {
-                        "type": "integer"
+                        "type": "string"
                     },
                     "backward_compatibility": {
                         "type": [
@@ -20689,7 +21485,7 @@
                             "type": "object",
                             "properties": {
                                 "language_id": {
-                                    "type": "integer"
+                                    "type": "string"
                                 },
                                 "name": {
                                     "type": "string"
@@ -21116,7 +21912,7 @@
                         "type": "string"
                     },
                     "country_id": {
-                        "type": "integer"
+                        "type": "string"
                     },
                     "backward_compatibility": {
                         "type": [
@@ -21130,7 +21926,7 @@
                             "type": "object",
                             "properties": {
                                 "language_id": {
-                                    "type": "integer"
+                                    "type": "string"
                                 },
                                 "name": {
                                     "type": "string"
@@ -21423,7 +22219,9 @@
                 "type": "object",
                 "properties": {
                     "include": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.",
+                        "example": "partner,country,project"
                     },
                     "tags": {
                         "type": "array",
@@ -21443,7 +22241,9 @@
                 "type": "object",
                 "properties": {
                     "include": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`.",
+                        "example": "partner,country,project"
                     },
                     "tags": {
                         "type": "array",
