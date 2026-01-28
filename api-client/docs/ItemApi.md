@@ -155,7 +155,7 @@ const apiInstance = new ItemApi(configuration);
 
 let type: string; // (default to undefined)
 let type2: 'object' | 'monument' | 'detail' | 'picture'; // (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemByType(
     type,
@@ -170,7 +170,7 @@ const { status, data } = await apiInstance.itemByType(
 |------------- | ------------- | ------------- | -------------|
 | **type** | [**string**] |  | defaults to undefined|
 | **type2** | [**&#39;object&#39; | &#39;monument&#39; | &#39;detail&#39; | &#39;picture&#39;**]**Array<&#39;object&#39; &#124; &#39;monument&#39; &#124; &#39;detail&#39; &#124; &#39;picture&#39;>** |  | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -212,7 +212,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ItemApi(configuration);
 
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemChildren(
     include
@@ -223,7 +223,7 @@ const { status, data } = await apiInstance.itemChildren(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -319,7 +319,7 @@ const apiInstance = new ItemApi(configuration);
 
 let item: string; //The item ID (default to undefined)
 let tagId: string; // (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemDetachTag(
     item,
@@ -334,7 +334,7 @@ const { status, data } = await apiInstance.itemDetachTag(
 |------------- | ------------- | ------------- | -------------|
 | **item** | [**string**] | The item ID | defaults to undefined|
 | **tagId** | [**string**] |  | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -379,7 +379,7 @@ const apiInstance = new ItemApi(configuration);
 
 let item: string; //The item ID (default to undefined)
 let tagIds: Array<string>; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemDetachTags(
     item,
@@ -394,7 +394,7 @@ const { status, data } = await apiInstance.itemDetachTags(
 |------------- | ------------- | ------------- | -------------|
 | **item** | [**string**] | The item ID | defaults to undefined|
 | **tagIds** | **Array&lt;string&gt;** |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -438,7 +438,7 @@ const configuration = new Configuration();
 const apiInstance = new ItemApi(configuration);
 
 let tag: string; //The tag ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemForTag(
     tag,
@@ -451,7 +451,7 @@ const { status, data } = await apiInstance.itemForTag(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **tag** | [**string**] | The tag ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -496,7 +496,7 @@ const apiInstance = new ItemApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemIndex(
     page,
@@ -511,7 +511,7 @@ const { status, data } = await apiInstance.itemIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -553,7 +553,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ItemApi(configuration);
 
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemParents(
     include
@@ -564,7 +564,7 @@ const { status, data } = await apiInstance.itemParents(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -607,7 +607,7 @@ const configuration = new Configuration();
 const apiInstance = new ItemApi(configuration);
 
 let item: string; //The item ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `partner`, `country`, `project`, `collection`, `parent`, `children`, `itemImages`, `artists`, `workshops`, `tags`, `translations`, `attachedToCollections`, `outgoingLinks`, `incomingLinks`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemShow(
     item,
@@ -620,7 +620,7 @@ const { status, data } = await apiInstance.itemShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **item** | [**string**] | The item ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;, &#x60;country&#x60;, &#x60;project&#x60;, &#x60;collection&#x60;, &#x60;parent&#x60;, &#x60;children&#x60;, &#x60;itemImages&#x60;, &#x60;artists&#x60;, &#x60;workshops&#x60;, &#x60;tags&#x60;, &#x60;translations&#x60;, &#x60;attachedToCollections&#x60;, &#x60;outgoingLinks&#x60;, &#x60;incomingLinks&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

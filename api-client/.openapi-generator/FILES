@@ -89,6 +89,11 @@ docs/ItemItemLinkApi.md
 docs/ItemItemLinkIndex200Response.md
 docs/ItemItemLinkResource.md
 docs/ItemItemLinkShow200Response.md
+docs/ItemItemLinkTranslationApi.md
+docs/ItemItemLinkTranslationIndex200Response.md
+docs/ItemItemLinkTranslationResource.md
+docs/ItemItemLinkTranslationShow200Response.md
+docs/ItemItemLinkTranslationsApi.md
 docs/ItemResource.md
 docs/ItemShow200Response.md
 docs/ItemTranslationApi.md
@@ -168,6 +173,7 @@ docs/StoreGlossarySpellingRequest.md
 docs/StoreGlossaryTranslationRequest.md
 docs/StoreItemImageRequest.md
 docs/StoreItemItemLinkRequest.md
+docs/StoreItemItemLinkTranslationRequest.md
 docs/StoreItemRequest.md
 docs/StoreItemTranslationRequest.md
 docs/StoreLanguageRequest.md
@@ -218,6 +224,7 @@ docs/UpdateGlossarySpellingRequest.md
 docs/UpdateGlossaryTranslationRequest.md
 docs/UpdateItemImageRequest.md
 docs/UpdateItemItemLinkRequest.md
+docs/UpdateItemItemLinkTranslationRequest.md
 docs/UpdateItemRequest.md
 docs/UpdateItemTranslationRequest.md
 docs/UpdateLanguageRequest.md

@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **source** | [**ItemResource**](ItemResource.md) | The source item (ItemResource) | [optional] [default to undefined]
 **target** | [**ItemResource**](ItemResource.md) | The target item (ItemResource) | [optional] [default to undefined]
 **context** | [**ContextResource**](ContextResource.md) | The context (ContextResource) | [optional] [default to undefined]
+**translations** | [**Array&lt;ItemItemLinkTranslationResource&gt;**](ItemItemLinkTranslationResource.md) | The translations (ItemItemLinkTranslationResource collection) | [optional] [default to undefined]
 **created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
 **updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
 
@@ -28,6 +29,7 @@ const instance: ItemItemLinkResource = {
     source,
     target,
     context,
+    translations,
     created_at,
     updated_at,
 };

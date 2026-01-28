@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **internal_name** | **string** |  | [default to undefined]
-**country_id** | **number** |  | [default to undefined]
+**country_id** | **string** |  | [default to undefined]
 **backward_compatibility** | **string** |  | [optional] [default to undefined]
 **translations** | [**Array&lt;StoreLocationRequestTranslationsInner&gt;**](StoreLocationRequestTranslationsInner.md) |  | [default to undefined]
 

@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **available_image_id** | **string** |  | [default to undefined]
 **alt_text** | **string** |  | [optional] [default to undefined]
-**include** | **string** |  | [optional] [default to undefined]
+**include** | **string** | Comma-separated list of related resources to include. Valid values: &#x60;partnerTranslation&#x60;. | [optional] [default to undefined]
 
 ## Example
 

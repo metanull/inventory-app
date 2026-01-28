@@ -141,9 +141,11 @@ const configuration = new Configuration();
 const apiInstance = new ThemeTranslationApi(configuration);
 
 let themeTranslation: string; //The theme translation ID (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `theme`, `language`, `context`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.themeTranslationShow(
-    themeTranslation
+    themeTranslation,
+    include
 );
 ```
 
@@ -152,6 +154,7 @@ const { status, data } = await apiInstance.themeTranslationShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **themeTranslation** | [**string**] | The theme translation ID | defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

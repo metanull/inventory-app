@@ -80,7 +80,7 @@ const apiInstance = new LocationApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `translations`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.locationIndex(
     page,
@@ -95,7 +95,7 @@ const { status, data } = await apiInstance.locationIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -138,7 +138,7 @@ const configuration = new Configuration();
 const apiInstance = new LocationApi(configuration);
 
 let location: string; //The location ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `translations`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.locationShow(
     location,
@@ -151,7 +151,7 @@ const { status, data } = await apiInstance.locationShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **location** | [**string**] | The location ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

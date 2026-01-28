@@ -1,21 +1,19 @@
-# StoreLocationRequestTranslationsInner
+# ItemItemLinkTranslationShow200Response
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**language_id** | **string** |  | [default to undefined]
-**name** | **string** |  | [default to undefined]
+**data** | [**ItemItemLinkTranslationResource**](ItemItemLinkTranslationResource.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { StoreLocationRequestTranslationsInner } from './api';
+import { ItemItemLinkTranslationShow200Response } from './api';
 
-const instance: StoreLocationRequestTranslationsInner = {
-    language_id,
-    name,
+const instance: ItemItemLinkTranslationShow200Response = {
+    data,
 };
 ```
 

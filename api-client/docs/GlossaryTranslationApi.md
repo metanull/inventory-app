@@ -80,7 +80,7 @@ const apiInstance = new GlossaryTranslationApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `glossary`, `language`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.glossaryTranslationIndex(
     page,
@@ -95,7 +95,7 @@ const { status, data } = await apiInstance.glossaryTranslationIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -138,7 +138,7 @@ const configuration = new Configuration();
 const apiInstance = new GlossaryTranslationApi(configuration);
 
 let glossaryTranslation: string; //The glossary translation ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `glossary`, `language`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.glossaryTranslationShow(
     glossaryTranslation,
@@ -151,7 +151,7 @@ const { status, data } = await apiInstance.glossaryTranslationShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **glossaryTranslation** | [**string**] | The glossary translation ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;glossary&#x60;, &#x60;language&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

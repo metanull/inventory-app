@@ -80,7 +80,7 @@ const apiInstance = new PartnerApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `country`, `items`, `pictures`, `project`, `monumentItem`, `translations`, `partnerImages`, `collections`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.partnerIndex(
     page,
@@ -95,7 +95,7 @@ const { status, data } = await apiInstance.partnerIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -138,7 +138,7 @@ const configuration = new Configuration();
 const apiInstance = new PartnerApi(configuration);
 
 let partner: string; //The partner ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `country`, `items`, `pictures`, `project`, `monumentItem`, `translations`, `partnerImages`, `collections`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.partnerShow(
     partner,
@@ -151,7 +151,7 @@ const { status, data } = await apiInstance.partnerShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **partner** | [**string**] | The partner ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

@@ -172,7 +172,7 @@ const apiInstance = new ContextApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //No related resources available for inclusion on this endpoint. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.contextIndex(
     page,
@@ -187,7 +187,7 @@ const { status, data } = await apiInstance.contextIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | No related resources available for inclusion on this endpoint. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -288,7 +288,7 @@ const configuration = new Configuration();
 const apiInstance = new ContextApi(configuration);
 
 let context: string; //The context ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //No related resources available for inclusion on this endpoint. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.contextShow(
     context,
@@ -301,7 +301,7 @@ const { status, data } = await apiInstance.contextShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **context** | [**string**] | The context ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | No related resources available for inclusion on this endpoint. | (optional) defaults to undefined|
 
 
 ### Return type

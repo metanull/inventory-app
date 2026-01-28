@@ -352,7 +352,7 @@ const configuration = new Configuration();
 const apiInstance = new CollectionImageApi(configuration);
 
 let collectionImage: string; //The collection image ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `collection`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.collectionImageShow(
     collectionImage,
@@ -365,7 +365,7 @@ const { status, data } = await apiInstance.collectionImageShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **collectionImage** | [**string**] | The collection image ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;collection&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -629,7 +629,7 @@ const configuration = new Configuration();
 const apiInstance = new CollectionImageApi(configuration);
 
 let collection: string; //The collection ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `collection`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.collectionImagesIndex(
     collection,
@@ -642,7 +642,7 @@ const { status, data } = await apiInstance.collectionImagesIndex(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **collection** | [**string**] | The collection ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;collection&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

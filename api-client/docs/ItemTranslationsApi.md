@@ -147,7 +147,7 @@ const configuration = new Configuration();
 const apiInstance = new ItemTranslationsApi(configuration);
 
 let itemTranslation: string; //The item translation ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `item`, `language`, `context`, `author`, `textCopyEditor`, `translator`, `translationCopyEditor`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.itemTranslationShow(
     itemTranslation,
@@ -160,7 +160,7 @@ const { status, data } = await apiInstance.itemTranslationShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **itemTranslation** | [**string**] | The item translation ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;item&#x60;, &#x60;language&#x60;, &#x60;context&#x60;, &#x60;author&#x60;, &#x60;textCopyEditor&#x60;, &#x60;translator&#x60;, &#x60;translationCopyEditor&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type

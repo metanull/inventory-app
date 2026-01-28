@@ -80,7 +80,7 @@ const apiInstance = new ThemeApi(configuration);
 
 let page: number; // (optional) (default to undefined)
 let perPage: number; // (optional) (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `translations`, `subthemes`, `subthemes.translations`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.themeIndex(
     page,
@@ -95,7 +95,7 @@ const { status, data } = await apiInstance.themeIndex(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] |  | (optional) defaults to undefined|
 | **perPage** | [**number**] |  | (optional) defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
@@ -138,7 +138,7 @@ const configuration = new Configuration();
 const apiInstance = new ThemeApi(configuration);
 
 let theme: string; //The theme ID (default to undefined)
-let include: string; // (optional) (default to undefined)
+let include: string; //Comma-separated list of related resources to include. Valid values: `translations`, `subthemes`, `subthemes.translations`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.themeShow(
     theme,
@@ -151,7 +151,7 @@ const { status, data } = await apiInstance.themeShow(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **theme** | [**string**] | The theme ID | defaults to undefined|
-| **include** | [**string**] |  | (optional) defaults to undefined|
+| **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;. | (optional) defaults to undefined|
 
 
 ### Return type
