@@ -87,10 +87,17 @@ class Item extends Model
         'collection_id',
         'owner_reference',
         'mwnf_reference',
+        // GPS Location
+        'latitude',
+        'longitude',
+        'map_zoom',
     ];
 
     protected $casts = [
         'type' => ItemType::class,
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
+        'map_zoom' => 'integer',
     ];
 
     /**

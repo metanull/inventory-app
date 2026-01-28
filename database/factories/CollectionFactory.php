@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Collection;
 use App\Models\Context;
+use App\Models\Country;
 use App\Models\Language;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -33,6 +34,12 @@ class CollectionFactory extends Factory
             'context_id' => Context::factory(),
             'parent_id' => null,
             'backward_compatibility' => $this->faker->optional()->uuid(),
+            // GPS Location (nullable by default)
+            'latitude' => null,
+            'longitude' => null,
+            'map_zoom' => null,
+            // Country reference (nullable by default)
+            'country_id' => null,
         ];
     }
 
@@ -183,5 +190,45 @@ class CollectionFactory extends Factory
                 $collection->parent_id = $parent->id;
             }
         });
+    }
+
+    /**
+     * Configure the factory to use an existing country.
+     */
+    public function withCountry(string $countryId): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'country_id' => $countryId,
+        ]);
+    }
+
+    /**
+     * Configure the factory to create a collection with a random country.
+     */
+    public function withRandomCountry(): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'country_id' => Country::factory(),
+        ]);
+    }
+
+    /**
+     * Configure the factory with geocoordinates.
+     */
+    public function withGeocoordinates(?float $latitude = null, ?float $longitude = null, ?int $mapZoom = null): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'latitude' => $latitude ?? $this->faker->latitude(),
+            'longitude' => $longitude ?? $this->faker->longitude(),
+            'map_zoom' => $mapZoom ?? $this->faker->numberBetween(1, 20),
+        ]);
+    }
+
+    /**
+     * Configure the factory with random geocoordinates.
+     */
+    public function withRandomGeocoordinates(): Factory
+    {
+        return $this->withGeocoordinates();
     }
 }

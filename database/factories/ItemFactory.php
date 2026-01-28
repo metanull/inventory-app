@@ -31,6 +31,10 @@ class ItemFactory extends Factory
             'country_id' => null, // This should be set to a valid country ID if needed
             'owner_reference' => $this->faker->bothify('???##'),
             'mwnf_reference' => $this->faker->bothify('???##'),
+            // GPS Location (nullable by default)
+            'latitude' => null,
+            'longitude' => null,
+            'map_zoom' => null,
         ];
     }
 
@@ -108,5 +112,25 @@ class ItemFactory extends Factory
             // not to create translations for this item
             return [];
         });
+    }
+
+    /**
+     * Configure the factory with geocoordinates.
+     */
+    public function withGeocoordinates(?float $latitude = null, ?float $longitude = null, ?int $mapZoom = null): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'latitude' => $latitude ?? $this->faker->latitude(),
+            'longitude' => $longitude ?? $this->faker->longitude(),
+            'map_zoom' => $mapZoom ?? $this->faker->numberBetween(1, 20),
+        ]);
+    }
+
+    /**
+     * Configure the factory with random geocoordinates.
+     */
+    public function withRandomGeocoordinates(): self
+    {
+        return $this->withGeocoordinates();
     }
 }

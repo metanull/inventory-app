@@ -71,6 +71,9 @@ import {
   ThgGalleryMwnf3MonumentImporter,
   ThgGalleryShObjectImporter,
   ThgGalleryShMonumentImporter,
+  // Phase 06: Explore
+  ExploreContextImporter,
+  ExploreRootCollectionsImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -370,6 +373,21 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Link Sharing History monuments to THG gallery collections',
     importerClass: ThgGalleryShMonumentImporter,
     dependencies: ['thg-gallery', 'sh-monument'],
+  },
+  // Phase 06: Explore
+  {
+    key: 'explore-context',
+    name: 'Explore Context',
+    description: 'Create context for Explore application',
+    importerClass: ExploreContextImporter,
+    dependencies: [],
+  },
+  {
+    key: 'explore-root-collections',
+    name: 'Explore Root Collections',
+    description: 'Create root collections for Explore (by Theme, Country, Itinerary)',
+    importerClass: ExploreRootCollectionsImporter,
+    dependencies: ['explore-context', 'language'],
   },
 ];
 

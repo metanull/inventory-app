@@ -48,6 +48,12 @@ class Collection extends Model
         'context_id',
         'parent_id',
         'backward_compatibility',
+        // GPS Location
+        'latitude',
+        'longitude',
+        'map_zoom',
+        // Country reference
+        'country_id',
     ];
 
     /**
@@ -55,7 +61,11 @@ class Collection extends Model
      *
      * @var array<string, string>
      */
-    protected $casts = [];
+    protected $casts = [
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
+        'map_zoom' => 'integer',
+    ];
 
     /**
      * Get the columns that should automatically receive a unique identifier.
@@ -89,6 +99,14 @@ class Collection extends Model
     public function context(): BelongsTo
     {
         return $this->belongsTo(Context::class);
+    }
+
+    /**
+     * Get the country associated with this collection.
+     */
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
     }
 
     /**

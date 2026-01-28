@@ -56,3 +56,6 @@ export {
   ThgGalleryShObjectImporter,
   ThgGalleryShMonumentImporter,
 } from './phase-05/index.js';
+
+// Phase 06: Explore
+export { ExploreContextImporter, ExploreRootCollectionsImporter } from './phase-06/index.js';

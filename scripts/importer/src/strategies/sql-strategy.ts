@@ -206,15 +206,20 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const sanitized = sanitizeAllStrings(data);
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO collections (id, context_id, language_id, parent_id, internal_name, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO collections (id, context_id, language_id, parent_id, type, internal_name, backward_compatibility, latitude, longitude, map_zoom, country_id, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.context_id,
         sanitized.language_id,
-        sanitized.parent_id,
+        sanitized.parent_id ?? null,
+        sanitized.type ?? 'collection',
         sanitized.internal_name,
         sanitized.backward_compatibility,
+        data.latitude ?? null,
+        data.longitude ?? null,
+        data.map_zoom ?? null,
+        sanitized.country_id ?? null,
         this.now,
         this.now,
       ]
@@ -330,8 +335,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const sanitized = sanitizeAllStrings(data);
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO items (id, partner_id, collection_id, parent_id, internal_name, type, country_id, project_id, owner_reference, mwnf_reference, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO items (id, partner_id, collection_id, parent_id, internal_name, type, country_id, project_id, owner_reference, mwnf_reference, latitude, longitude, map_zoom, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.partner_id,
@@ -343,6 +348,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
         sanitized.project_id,
         sanitized.owner_reference,
         sanitized.mwnf_reference,
+        data.latitude ?? null,
+        data.longitude ?? null,
+        data.map_zoom ?? null,
         sanitized.backward_compatibility,
         this.now,
         this.now,
