@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Rules\IncludeRule;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use Illuminate\Foundation\Http\FormRequest;
@@ -30,7 +31,7 @@ class UpdateCollectionImageRequest extends FormRequest
             'size' => ['sometimes', 'integer', 'min:1'],
             'alt_text' => ['sometimes', 'nullable', 'string', 'max:500'],
             'display_order' => ['sometimes', 'integer', 'min:1'],
-            'include' => ['sometimes', 'string'],
+            'include' => ['sometimes', 'string', new IncludeRule('collectionImage')],
         ];
     }
 

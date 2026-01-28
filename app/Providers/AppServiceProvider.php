@@ -118,6 +118,12 @@ class AppServiceProvider extends ServiceProvider
             return $user !== null;
         });
 
+        // Register Scramble rule transformers for automatic API documentation
+        Scramble::configure()
+            ->withRuleTransformers([
+                \App\Support\Documentation\RuleTransformers\IncludeRuleTransformer::class,
+            ]);
+
         Scramble::afterOpenApiGenerated(function (OpenApi $openApi) {
             $openApi->secure(
                 // SecurityScheme::apiKey('query', 'api_token')

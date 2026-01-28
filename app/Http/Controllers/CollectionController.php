@@ -12,6 +12,8 @@ use App\Http\Requests\Api\StoreCollectionRequest;
 use App\Http\Requests\Api\UpdateCollectionRequest;
 use App\Http\Resources\CollectionResource;
 use App\Models\Collection;
+use App\Support\Includes\AllowList;
+use App\Support\Includes\IncludeParser;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -29,11 +31,10 @@ class CollectionController extends Controller
      */
     public function index(IndexCollectionRequest $request): AnonymousResourceCollection
     {
+        $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
 
-        $with = ['language', 'context', 'parent', 'children', 'translations', 'partners', 'items', 'attachedItems'];
-
-        $query = Collection::query()->with($with);
+        $query = Collection::query()->with($includes);
 
         $paginator = $query->paginate(
             $pagination['per_page'],
@@ -53,8 +54,10 @@ class CollectionController extends Controller
         $validated = $request->validated();
 
         $collection = Collection::create($validated);
+        $collection->refresh();
 
-        $collection->load(['language', 'context', 'parent', 'children', 'translations', 'partners', 'items', 'attachedItems']);
+        $includes = IncludeParser::fromRequest($request, AllowList::for('collection'));
+        $collection->load($includes);
 
         return new CollectionResource($collection);
     }
@@ -64,7 +67,8 @@ class CollectionController extends Controller
      */
     public function show(ShowCollectionRequest $request, Collection $collection): CollectionResource
     {
-        $collection->load(['language', 'context', 'parent', 'children', 'translations', 'partners', 'items', 'attachedItems']);
+        $includes = $request->getIncludeParams();
+        $collection->load($includes);
 
         return new CollectionResource($collection);
     }
@@ -77,8 +81,10 @@ class CollectionController extends Controller
         $validated = $request->validated();
 
         $collection->update($validated);
+        $collection->refresh();
 
-        $collection->load(['language', 'context', 'parent', 'children', 'translations', 'partners', 'items', 'attachedItems']);
+        $includes = IncludeParser::fromRequest($request, AllowList::for('collection'));
+        $collection->load($includes);
 
         return new CollectionResource($collection);
     }
@@ -92,9 +98,9 @@ class CollectionController extends Controller
             'type' => 'required|in:collection,exhibition,gallery,theme,exhibition trail,itinerary,location',
         ]);
 
-        $with = ['language', 'context', 'parent', 'children', 'translations', 'partners', 'items', 'attachedItems'];
+        $includes = IncludeParser::fromRequest($request, AllowList::for('collection'));
 
-        $query = Collection::query()->with($with);
+        $query = Collection::query()->with($includes);
 
         switch ($type) {
             case 'collection':
@@ -138,7 +144,8 @@ class CollectionController extends Controller
         $collection->attachItem($item);
 
         $collection->refresh();
-        $collection->load(['language', 'context', 'parent', 'children', 'translations', 'partners', 'items', 'attachedItems']);
+        $includes = $request->getIncludeParams();
+        $collection->load($includes);
 
         return new CollectionResource($collection);
     }
@@ -156,7 +163,8 @@ class CollectionController extends Controller
         $collection->detachItem($item);
 
         $collection->refresh();
-        $collection->load(['language', 'context', 'parent', 'children', 'translations', 'partners', 'items', 'attachedItems']);
+        $includes = $request->getIncludeParams();
+        $collection->load($includes);
 
         return new CollectionResource($collection);
     }
@@ -173,7 +181,8 @@ class CollectionController extends Controller
         $collection->attachItems($validated['item_ids']);
 
         $collection->refresh();
-        $collection->load(['language', 'context', 'parent', 'children', 'translations', 'partners', 'items', 'attachedItems']);
+        $includes = $request->getIncludeParams();
+        $collection->load($includes);
 
         return new CollectionResource($collection);
     }
@@ -190,7 +199,8 @@ class CollectionController extends Controller
         $collection->detachItems($validated['item_ids']);
 
         $collection->refresh();
-        $collection->load(['language', 'context', 'parent', 'children', 'translations', 'partners', 'items', 'attachedItems']);
+        $includes = $request->getIncludeParams();
+        $collection->load($includes);
 
         return new CollectionResource($collection);
     }

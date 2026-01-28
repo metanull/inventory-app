@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Rules\IncludeRule;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use Illuminate\Foundation\Http\FormRequest;
@@ -26,7 +27,7 @@ class DetachTagsItemRequest extends FormRequest
         return [
             'tag_ids' => ['required', 'array', 'min:1'],
             'tag_ids.*' => ['uuid', 'exists:tags,id'],
-            'include' => ['sometimes', 'string'],
+            'include' => ['sometimes', 'string', new IncludeRule('item')],
         ];
     }
 
