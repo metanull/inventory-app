@@ -79,3 +79,46 @@ export {
   type TransformedMonumentDetailTranslation,
   type ExtractedMonumentDetailTags,
 } from './monument-detail-transformer.js';
+
+// Sharing History (SH) Transformers
+export {
+  formatShBackwardCompatibility,
+  transformShProject,
+  transformShProjectTranslation,
+  type TransformedShProjectBundle,
+  type TransformedShProjectTranslationBundle,
+} from './sh-project-transformer.js';
+
+export {
+  transformShPartner,
+  transformShPartnerTranslation,
+  groupShPartnersByKey,
+  type TransformedShPartner,
+  type TransformedShPartnerTranslation,
+  type ShPartnerGroup,
+  type ShPartnerExtraFields,
+} from './sh-partner-transformer.js';
+
+export {
+  groupShObjectsByPK,
+  transformShObject,
+  transformShObjectTranslation,
+  type TransformedShObject,
+  type TransformedShObjectTranslation,
+} from './sh-object-transformer.js';
+
+export {
+  groupShMonumentsByPK,
+  transformShMonument,
+  transformShMonumentTranslation,
+  type TransformedShMonument,
+  type TransformedShMonumentTranslation,
+} from './sh-monument-transformer.js';
+
+export {
+  groupShMonumentDetailsByPK,
+  transformShMonumentDetail,
+  transformShMonumentDetailTranslation,
+  type TransformedShMonumentDetail,
+  type TransformedShMonumentDetailTranslation,
+} from './sh-monument-detail-transformer.js';

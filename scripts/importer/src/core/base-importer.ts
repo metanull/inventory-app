@@ -148,6 +148,7 @@ export abstract class BaseImporter {
 
   /**
    * Get the default language ID from tracker
+   * @deprecated Use getDefaultLanguageIdAsync for proper database fallback when starting from later phases
    */
   protected getDefaultLanguageId(): string {
     const defaultLangId = this.context.tracker.getMetadata('default_language_id');
@@ -158,7 +159,70 @@ export abstract class BaseImporter {
   }
 
   /**
+   * Get the default language ID from tracker or database
+   * First checks tracker metadata, then falls back to database lookup by is_default=true.
+   * Returns the language ID (ISO-3 code, e.g., 'eng')
+   */
+  protected async getDefaultLanguageIdAsync(): Promise<string> {
+    // Check tracker first (fast path)
+    const trackerValue = this.context.tracker.getMetadata('default_language_id');
+    if (trackerValue) {
+      return trackerValue;
+    }
+
+    // Fall back to database lookup by backward_compatibility
+    // The default language is English with backward_compatibility='en' (id='eng')
+    // Note: We look up by backward_compatibility because that's how languages are tracked
+    const result = await this.context.strategy.findByBackwardCompatibility(
+      'languages',
+      'en' // backward_compatibility value for English (default language)
+    );
+
+    if (result) {
+      // Cache in tracker for future lookups
+      this.context.tracker.setMetadata('default_language_id', result);
+      return result;
+    }
+
+    throw new Error(
+      'Default language ID not found in tracker or database. Language import must run first.'
+    );
+  }
+
+  /**
+   * Get a language ID by its legacy 2-character code (backward_compatibility)
+   * Returns the language ID (ISO-3 code) or null if not found.
+   *
+   * Example: getLanguageIdByLegacyCodeAsync('en') returns 'eng'
+   *
+   * @param legacyCode The 2-character legacy language code (e.g., 'en', 'de', 'fr')
+   * @returns The language ID (ISO-3 code) or null if not found
+   */
+  protected async getLanguageIdByLegacyCodeAsync(legacyCode: string): Promise<string | null> {
+    // The tracker uses backward_compatibility (legacy code) as the key
+    // and stores the language ID (ISO-3 code) as the UUID
+    const trackerResult = this.context.tracker.getUuid(legacyCode, 'language');
+    if (trackerResult) {
+      return trackerResult;
+    }
+
+    // Fall back to database lookup by backward_compatibility
+    const dbResult = await this.context.strategy.findByBackwardCompatibility(
+      'languages',
+      legacyCode
+    );
+
+    if (dbResult) {
+      // Cache in tracker for future lookups
+      this.context.tracker.set(legacyCode, dbResult, 'language');
+    }
+
+    return dbResult;
+  }
+
+  /**
    * Get the default context ID from tracker
+   * @deprecated Use getDefaultContextIdAsync for proper database fallback when starting from later phases
    */
   protected getDefaultContextId(): string {
     const defaultContextId = this.context.tracker.getMetadata('default_context_id');
@@ -168,6 +232,33 @@ export abstract class BaseImporter {
       );
     }
     return defaultContextId;
+  }
+
+  /**
+   * Get the default context ID from tracker or database
+   * First checks tracker (memory), then falls back to database for skipped phases.
+   */
+  protected async getDefaultContextIdAsync(): Promise<string> {
+    // Check tracker first (fast path)
+    const trackerValue = this.context.tracker.getMetadata('default_context_id');
+    if (trackerValue) {
+      return trackerValue;
+    }
+
+    // Fall back to database lookup - find context with is_default=true
+    // We need to query the database directly since findByBackwardCompatibility
+    // doesn't work for this case (default context has backward_compatibility='default')
+    const result = await this.context.strategy.findByBackwardCompatibility('contexts', 'default');
+
+    if (result) {
+      // Cache in tracker for future lookups
+      this.context.tracker.setMetadata('default_context_id', result);
+      return result;
+    }
+
+    throw new Error(
+      'Default context ID not found in tracker or database. Default context import must run first.'
+    );
   }
 
   /**
@@ -277,16 +368,98 @@ export abstract class BaseImporter {
   }
 
   /**
-   * Check if entity already exists in tracker (entityType is required to avoid collisions)
+   * Map EntityType to database table name for lookup queries
+   */
+  private entityTypeToTable(entityType: EntityType): string {
+    const mapping: Record<EntityType, string> = {
+      language: 'languages',
+      language_translation: 'language_translations',
+      country: 'countries',
+      country_translation: 'country_translations',
+      context: 'contexts',
+      collection: 'collections',
+      collection_translation: 'collection_translations',
+      project: 'projects',
+      partner: 'partners',
+      partner_translation: 'partner_translations',
+      item: 'items',
+      item_translation: 'item_translations',
+      image: 'item_images',
+      tag: 'tags',
+      author: 'authors',
+      artist: 'artists',
+      glossary: 'glossaries',
+      glossary_translation: 'glossary_translations',
+      glossary_spelling: 'glossary_spellings',
+      theme: 'themes',
+      theme_translation: 'theme_translations',
+      item_item_link: 'item_item_links',
+      item_item_link_translation: 'item_item_link_translations',
+    };
+    return mapping[entityType];
+  }
+
+  /**
+   * Check if entity already exists in tracker or database
+   * First checks tracker (memory), then falls back to database for skipped phases.
    */
   protected entityExists(backwardCompatibility: string, entityType: EntityType): boolean {
     return this.context.tracker.exists(backwardCompatibility, entityType);
   }
 
   /**
+   * Check if entity already exists (async version with database fallback)
+   * First checks tracker (memory), then falls back to database for skipped phases.
+   */
+  protected async entityExistsAsync(
+    backwardCompatibility: string,
+    entityType: EntityType
+  ): Promise<boolean> {
+    // Check tracker first (fast path)
+    if (this.context.tracker.exists(backwardCompatibility, entityType)) {
+      return true;
+    }
+
+    // Fall back to database lookup for entities from skipped phases
+    const table = this.entityTypeToTable(entityType);
+    return this.context.strategy.exists(table, backwardCompatibility);
+  }
+
+  /**
    * Get UUID from tracker by backward_compatibility (entityType is required to avoid collisions)
+   * @deprecated Use getEntityUuidAsync for proper database fallback when starting from later phases
    */
   protected getEntityUuid(backwardCompatibility: string, entityType: EntityType): string | null {
     return this.context.tracker.getUuid(backwardCompatibility, entityType);
+  }
+
+  /**
+   * Get UUID from tracker or database by backward_compatibility
+   * First checks tracker (memory), then falls back to database for entities from skipped phases.
+   * This is essential when starting import from a later phase (e.g., --start-at phase-05).
+   */
+  protected async getEntityUuidAsync(
+    backwardCompatibility: string,
+    entityType: EntityType
+  ): Promise<string | null> {
+    // Check tracker first (fast path)
+    const trackerResult = this.context.tracker.getUuid(backwardCompatibility, entityType);
+    if (trackerResult) {
+      return trackerResult;
+    }
+
+    // Fall back to database lookup for entities from skipped phases
+    const table = this.entityTypeToTable(entityType);
+    const dbResult = await this.context.strategy.findByBackwardCompatibility(
+      table,
+      backwardCompatibility
+    );
+
+    // If found in database, cache in tracker for future lookups
+    if (dbResult) {
+      this.context.tracker.set(backwardCompatibility, dbResult, entityType);
+    }
+
+    return dbResult;
   }
 }

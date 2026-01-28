@@ -6,4 +6,5 @@ protected $commands = [
     \App\Console\Commands\CreateUser::class,
     \App\Console\Commands\CustomDownCommand::class,
     \App\Console\Commands\CustomUpCommand::class,
+    \App\Console\Commands\GlossaryResync::class,
 ];

@@ -164,7 +164,7 @@ export class MonumentPictureImporter extends BaseImporter {
       table: 'monuments',
       pkValues: [group.project_id, group.country, group.institution_id, group.number],
     });
-    const parentItemId = this.getEntityUuid(parentBackwardCompat, 'item');
+    const parentItemId = await this.getEntityUuidAsync(parentBackwardCompat, 'item');
     if (!parentItemId) {
       throw new Error(`Parent item not found: ${parentBackwardCompat}`);
     }
@@ -226,12 +226,12 @@ export class MonumentPictureImporter extends BaseImporter {
       table: 'projects',
       pkValues: [group.project_id],
     });
-    const contextId = this.getEntityUuid(contextBackwardCompat, 'context');
+    const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context');
     if (!contextId) {
       throw new Error(`Context not found: ${contextBackwardCompat}`);
     }
 
-    const collectionId = this.getEntityUuid(contextBackwardCompat, 'collection');
+    const collectionId = await this.getEntityUuidAsync(contextBackwardCompat, 'collection');
     if (!collectionId) {
       throw new Error(`Collection not found: ${contextBackwardCompat}`);
     }
@@ -241,13 +241,13 @@ export class MonumentPictureImporter extends BaseImporter {
       table: 'institutions',
       pkValues: [group.institution_id, group.country],
     });
-    const partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
+    const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
     if (!partnerId) {
       throw new Error(`Partner not found: ${partnerBackwardCompat}`);
     }
 
     // Get project_id using same backward_compatibility as context
-    const projectId = this.getEntityUuid(contextBackwardCompat, 'project');
+    const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
 
     // Map country code from legacy 2-char to ISO 3-char
     const countryId = mapCountryCode(group.country);

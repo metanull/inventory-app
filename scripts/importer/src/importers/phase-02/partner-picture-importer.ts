@@ -125,7 +125,7 @@ export class PartnerPictureImporter extends BaseImporter {
       table: 'museums',
       pkValues: [picture.museum_id, picture.country],
     });
-    const partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
+    const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
     if (!partnerId) {
       throw new Error(`Partner not found: ${partnerBackwardCompat}`);
     }
@@ -238,7 +238,7 @@ export class PartnerPictureImporter extends BaseImporter {
       table: 'institutions',
       pkValues: [picture.institution_id, picture.country],
     });
-    const partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
+    const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
     if (!partnerId) {
       throw new Error(`Partner not found: ${partnerBackwardCompat}`);
     }

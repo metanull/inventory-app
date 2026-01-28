@@ -43,6 +43,34 @@ import {
   MonumentPictureImporter,
   MonumentDetailPictureImporter,
   PartnerPictureImporter,
+  // Phase 03: Sharing History
+  ShProjectImporter,
+  ShPartnerImporter,
+  ShObjectImporter,
+  ShMonumentImporter,
+  ShMonumentDetailImporter,
+  ShObjectPictureImporter,
+  ShMonumentPictureImporter,
+  ShMonumentDetailPictureImporter,
+  // Phase 04: Glossary
+  GlossaryImporter,
+  GlossaryTranslationImporter,
+  GlossarySpellingImporter,
+  // Phase 05: Thematic Galleries
+  ThgGalleryContextImporter,
+  ThgGalleryImporter,
+  ThgGalleryTranslationImporter,
+  ThgThemeImporter,
+  ThgThemeTranslationImporter,
+  ThgThemeItemImporter,
+  ThgThemeItemTranslationImporter,
+  ThgItemRelatedImporter,
+  ThgItemRelatedTranslationImporter,
+  // Phase 05: Gallery-Item Link Importers
+  ThgGalleryMwnf3ObjectImporter,
+  ThgGalleryMwnf3MonumentImporter,
+  ThgGalleryShObjectImporter,
+  ThgGalleryShMonumentImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -162,6 +190,186 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import museum and institution pictures (PartnerImages)',
     importerClass: PartnerPictureImporter,
     dependencies: ['partner'],
+  },
+  // Phase 3: Sharing History Data
+  {
+    key: 'sh-project',
+    name: 'SH Projects',
+    description: 'Import Sharing History projects (Context, Collection, Project)',
+    importerClass: ShProjectImporter,
+    dependencies: ['default-context', 'language'],
+  },
+  {
+    key: 'sh-partner',
+    name: 'SH Partners',
+    description: 'Import Sharing History partners (reuses mwnf3 partners via mapping)',
+    importerClass: ShPartnerImporter,
+    dependencies: ['default-context', 'sh-project', 'partner', 'language', 'country'],
+  },
+  {
+    key: 'sh-object',
+    name: 'SH Objects',
+    description: 'Import Sharing History object items',
+    importerClass: ShObjectImporter,
+    dependencies: ['sh-project', 'sh-partner', 'language'],
+  },
+  {
+    key: 'sh-monument',
+    name: 'SH Monuments',
+    description: 'Import Sharing History monument items',
+    importerClass: ShMonumentImporter,
+    dependencies: ['sh-project', 'sh-partner', 'language'],
+  },
+  {
+    key: 'sh-monument-detail',
+    name: 'SH Monument Details',
+    description: 'Import Sharing History monument detail items',
+    importerClass: ShMonumentDetailImporter,
+    dependencies: ['sh-monument', 'default-context', 'language'],
+  },
+  {
+    key: 'sh-object-picture',
+    name: 'SH Object Pictures',
+    description: 'Import Sharing History object pictures',
+    importerClass: ShObjectPictureImporter,
+    dependencies: ['sh-object', 'default-context', 'language'],
+  },
+  {
+    key: 'sh-monument-picture',
+    name: 'SH Monument Pictures',
+    description: 'Import Sharing History monument pictures',
+    importerClass: ShMonumentPictureImporter,
+    dependencies: ['sh-monument', 'default-context', 'language'],
+  },
+  {
+    key: 'sh-monument-detail-picture',
+    name: 'SH Monument Detail Pictures',
+    description: 'Import Sharing History monument detail pictures',
+    importerClass: ShMonumentDetailPictureImporter,
+    dependencies: ['sh-monument-detail', 'default-context', 'language'],
+  },
+  // Phase 4: Glossary
+  {
+    key: 'glossary',
+    name: 'Glossary Words',
+    description: 'Import glossary words from legacy database',
+    importerClass: GlossaryImporter,
+    dependencies: ['language'],
+  },
+  {
+    key: 'glossary-translation',
+    name: 'Glossary Definitions',
+    description: 'Import glossary definitions (translations)',
+    importerClass: GlossaryTranslationImporter,
+    dependencies: ['glossary', 'language'],
+  },
+  {
+    key: 'glossary-spelling',
+    name: 'Glossary Spellings',
+    description: 'Import glossary spelling variants',
+    importerClass: GlossarySpellingImporter,
+    dependencies: ['glossary', 'language'],
+  },
+  // Phase 5: Thematic Galleries
+  {
+    key: 'thg-gallery-context',
+    name: 'THG Gallery Contexts',
+    description: 'Create contexts for thematic galleries/exhibitions',
+    importerClass: ThgGalleryContextImporter,
+    dependencies: [],
+  },
+  {
+    key: 'thg-gallery',
+    name: 'THG Galleries',
+    description: 'Import thematic galleries as collections',
+    importerClass: ThgGalleryImporter,
+    dependencies: ['thg-gallery-context'],
+  },
+  {
+    key: 'thg-gallery-translation',
+    name: 'THG Gallery Translations',
+    description: 'Import thematic gallery translations',
+    importerClass: ThgGalleryTranslationImporter,
+    dependencies: ['thg-gallery', 'language'],
+  },
+  {
+    key: 'thg-theme',
+    name: 'THG Themes',
+    description: 'Import thematic gallery themes',
+    importerClass: ThgThemeImporter,
+    dependencies: ['thg-gallery'],
+  },
+  {
+    key: 'thg-theme-translation',
+    name: 'THG Theme Translations',
+    description: 'Import thematic gallery theme translations',
+    importerClass: ThgThemeTranslationImporter,
+    dependencies: ['thg-theme', 'thg-gallery-context', 'language'],
+  },
+  {
+    key: 'thg-theme-item',
+    name: 'THG Theme Items',
+    description: 'Attach items to thematic gallery collections (mwnf3 and SH)',
+    importerClass: ThgThemeItemImporter,
+    dependencies: [
+      'thg-gallery',
+      'object',
+      'monument',
+      'monument-detail',
+      'sh-object',
+      'sh-monument',
+      'sh-monument-detail',
+    ],
+  },
+  {
+    key: 'thg-theme-item-translation',
+    name: 'THG Theme Item Translations',
+    description: 'Import contextual item descriptions for thematic galleries',
+    importerClass: ThgThemeItemTranslationImporter,
+    dependencies: ['thg-theme-item', 'thg-gallery-context', 'language'],
+  },
+  {
+    key: 'thg-item-related',
+    name: 'THG Item Relations',
+    description: 'Import item-to-item links within thematic galleries',
+    importerClass: ThgItemRelatedImporter,
+    dependencies: ['thg-theme-item', 'thg-gallery-context'],
+  },
+  {
+    key: 'thg-item-related-translation',
+    name: 'THG Item Relation Translations',
+    description: 'Import translations for item-to-item links',
+    importerClass: ThgItemRelatedTranslationImporter,
+    dependencies: ['thg-item-related', 'language'],
+  },
+  // Phase 05: Gallery-Item Link Importers (direct links from thg_gallery to items)
+  {
+    key: 'thg-gallery-mwnf3-object',
+    name: 'THG Gallery MWNF3 Objects',
+    description: 'Link mwnf3 objects to THG gallery collections',
+    importerClass: ThgGalleryMwnf3ObjectImporter,
+    dependencies: ['thg-gallery', 'object'],
+  },
+  {
+    key: 'thg-gallery-mwnf3-monument',
+    name: 'THG Gallery MWNF3 Monuments',
+    description: 'Link mwnf3 monuments to THG gallery collections',
+    importerClass: ThgGalleryMwnf3MonumentImporter,
+    dependencies: ['thg-gallery', 'monument'],
+  },
+  {
+    key: 'thg-gallery-sh-object',
+    name: 'THG Gallery SH Objects',
+    description: 'Link Sharing History objects to THG gallery collections',
+    importerClass: ThgGalleryShObjectImporter,
+    dependencies: ['thg-gallery', 'sh-object'],
+  },
+  {
+    key: 'thg-gallery-sh-monument',
+    name: 'THG Gallery SH Monuments',
+    description: 'Link Sharing History monuments to THG gallery collections',
+    importerClass: ThgGalleryShMonumentImporter,
+    dependencies: ['thg-gallery', 'sh-monument'],
   },
 ];
 
@@ -486,8 +694,33 @@ program
           return 'Phase 1: Projects and Partners';
         } else if (['object', 'monument', 'monument-detail'].includes(key)) {
           return 'Phase 2: Items';
-        } else {
+        } else if (
+          [
+            'object-picture',
+            'monument-picture',
+            'monument-detail-picture',
+            'partner-picture',
+          ].includes(key)
+        ) {
           return 'Phase 3: Images';
+        } else if (['glossary', 'glossary-translation', 'glossary-spelling'].includes(key)) {
+          return 'Phase 4: Glossary';
+        } else if (
+          [
+            'thg-gallery-context',
+            'thg-gallery',
+            'thg-gallery-translation',
+            'thg-theme',
+            'thg-theme-translation',
+            'thg-theme-item',
+            'thg-theme-item-translation',
+            'thg-item-related',
+            'thg-item-related-translation',
+          ].includes(key)
+        ) {
+          return 'Phase 5: Thematic Galleries';
+        } else {
+          return 'Phase Unknown';
         }
       };
 

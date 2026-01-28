@@ -29,6 +29,13 @@ import type {
   ArtistData,
   ItemImageData,
   PartnerImageData,
+  GlossaryData,
+  GlossaryTranslationData,
+  GlossarySpellingData,
+  ThemeData,
+  ThemeTranslationData,
+  ItemItemLinkData,
+  ItemItemLinkTranslationData,
 } from './types.js';
 
 /**
@@ -197,6 +204,57 @@ export interface IWriteStrategy {
    * @returns The partner image UUID
    */
   writePartnerImage(data: PartnerImageData): Promise<string>;
+
+  // =========================================================================
+  // Glossary
+  // =========================================================================
+
+  /**
+   * Write a glossary (word) record
+   * @returns The glossary UUID
+   */
+  writeGlossary(data: GlossaryData): Promise<string>;
+
+  /**
+   * Write a glossary translation (definition) record
+   */
+  writeGlossaryTranslation(data: GlossaryTranslationData): Promise<void>;
+
+  /**
+   * Write a glossary spelling record
+   * @returns The glossary spelling UUID
+   */
+  writeGlossarySpelling(data: GlossarySpellingData): Promise<string>;
+
+  // =========================================================================
+  // Themes (Thematic Gallery)
+  // =========================================================================
+
+  /**
+   * Write a theme record
+   * @returns The theme UUID
+   */
+  writeTheme(data: ThemeData): Promise<string>;
+
+  /**
+   * Write a theme translation record
+   */
+  writeThemeTranslation(data: ThemeTranslationData): Promise<void>;
+
+  // =========================================================================
+  // Item Links
+  // =========================================================================
+
+  /**
+   * Write an item-item link record
+   * @returns The item-item link UUID
+   */
+  writeItemItemLink(data: ItemItemLinkData): Promise<string>;
+
+  /**
+   * Write an item-item link translation record
+   */
+  writeItemItemLinkTranslation(data: ItemItemLinkTranslationData): Promise<void>;
 
   // =========================================================================
   // Lookup Methods

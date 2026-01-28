@@ -10,6 +10,7 @@
 			php artisan db:wipe --force
 			php artisan migrate:refresh --force
 			php artisan db:seed --class=MinimalDatabaseSeeder --force
+			php artisan permission:sync
 
 			$Users |% {
 				php artisan user:create $_ $_

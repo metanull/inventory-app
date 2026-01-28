@@ -47,6 +47,7 @@ export type EntityType =
   | 'country_translation'
   | 'context'
   | 'collection'
+  | 'collection_translation'
   | 'project'
   | 'partner'
   | 'partner_translation'
@@ -55,7 +56,14 @@ export type EntityType =
   | 'image'
   | 'tag'
   | 'author'
-  | 'artist';
+  | 'artist'
+  | 'glossary'
+  | 'glossary_translation'
+  | 'glossary_spelling'
+  | 'theme'
+  | 'theme_translation'
+  | 'item_item_link'
+  | 'item_item_link_translation';
 
 /**
  * Imported entity record for tracking
@@ -212,7 +220,7 @@ export interface PartnerTranslationData {
 export interface ItemData extends BaseEntityData {
   type: 'object' | 'monument' | 'detail' | 'picture';
   collection_id: string;
-  partner_id: string;
+  partner_id: string | null;
   country_id?: string | null;
   project_id?: string | null;
   parent_id?: string | null;
@@ -304,4 +312,76 @@ export interface PartnerImageData {
   size: number;
   alt_text?: string | null;
   display_order: number;
+}
+
+/**
+ * Glossary (Word) data for write operations
+ */
+export type GlossaryData = BaseEntityData;
+
+/**
+ * Glossary translation (definition) data for write operations
+ */
+export interface GlossaryTranslationData {
+  glossary_id: string;
+  language_id: string;
+  definition: string;
+}
+
+/**
+ * Glossary spelling data for write operations
+ */
+export interface GlossarySpellingData {
+  glossary_id: string;
+  language_id: string;
+  spelling: string;
+}
+
+// ============================================================================
+// Phase 05 Types - Thematic Gallery
+// ============================================================================
+
+/**
+ * Theme data for write operations
+ */
+export interface ThemeData {
+  collection_id: string;
+  parent_id?: string | null;
+  display_order: number;
+  internal_name: string;
+  backward_compatibility: string;
+}
+
+/**
+ * Theme translation data for write operations
+ */
+export interface ThemeTranslationData {
+  theme_id: string;
+  language_id: string;
+  context_id: string;
+  title: string;
+  description?: string | null;
+  introduction?: string | null;
+  backward_compatibility: string;
+}
+
+/**
+ * Item-Item Link data for write operations
+ */
+export interface ItemItemLinkData {
+  source_id: string;
+  target_id: string;
+  context_id: string;
+  backward_compatibility?: string | null;
+}
+
+/**
+ * Item-Item Link Translation data for write operations
+ */
+export interface ItemItemLinkTranslationData {
+  item_item_link_id: string;
+  language_id: string;
+  description?: string | null;
+  reciprocal_description?: string | null;
+  backward_compatibility?: string | null;
 }

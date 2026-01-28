@@ -1,6 +1,25 @@
-# Inventory Management API - Copilot Instructions
+Never generate or modify code unless explicitly instructed.
+Never generate or modify documentation and operation summaries unless explicitly instructed.
+If there is a doubt, ambiguity, or lack of clarity about the requirements, always ask the user for clarification before proceeding.
+If there are multiple options or approaches to implement a feature, ALWAYS ask the user to choose the preferred one before proceeding.
+If there are multiple options or approaches to implement a feature, ALWAYS present first the option that best aligns with established project patterns, conventions and frameworks.
+Always verify if the requested feature or functionality already exists in the codebase before implementing new code.
+Always verify if the requested feature or functionality is compliant with project patterns, conventions and framework best practices.
+If the requested feature or functionality does not align with established project patterns, conventions and frameworks, ALWAYS explain the proper alternative and ask the user for confirmation before proceeding.
+Never assume or guess user intentions; always ask for explicit confirmation when in doubt.
+Never introduce new libraries, dependencies, or frameworks without explicit user approval.
+Never duplicate existing code; always reuse or refactor.
+Only add comment in code to explain the non obvious business logic.
+Never write comments in code to explain what the request was about.
+Always follow established project patterns and conventions exactly.
+Never alter code to fit testing needs; tests must adapt to existing code.
+Never write test that depend on external data or state; tests must be self-contained and isolated.
+Never alter existing database migrations; create new migrations for changes.
+Never use the Terminal to read or write files. Always use VS Code file explorer and editor features for file operations.
+Never create scripts to modify files. Use VS Code refactoring and multi-file editing features instead.
+Never use linux commands and escaping in Terminal on Windows. Always use native Windows commands in PowerShell.
 
-**CRITICAL**: DO NOT USE THE TERMINAL TO READ/WRITE FILES!
+---
 
 ## Project Overview
 
@@ -24,19 +43,21 @@ The **Inventory Management API** is a comprehensive Laravel 12 backend applicati
 ### Directory Layout
 
 ```
-/app/                   # Laravel application code (Models, Controllers, etc.)
-/routes/api.php         # REST API route definitions
-/resources/js/          # Vue 3 SPA frontend application
-  /components/          # Reusable Vue components
-  /stores/              # Pinia state management stores
-  /views/               # Page-level Vue components
-  /__tests__/          # Vitest test suites
+/.github/instructions/ # File-specific coding guidelines
+/api-client/           # Auto-generated TypeScript API client (DO NOT EDIT)
+/app/                  # Laravel application code (Models, Controllers, etc.)
 /database/             # Migrations, factories, seeders
+/docs/                 # Jekyll documentation site (Ruby-based)
+/resources/js/         # Vue 3 SPA frontend application
+  /components/         # Reusable Vue components
+  /stores/             # Pinia state management stores
+  /views/              # Page-level Vue components
+  /__tests__/          # Vitest test suites
+/routes/api.php        # REST API route definitions
+/scripts/              # Utility scripts (e.g., API client generation)
+  /importer/           # Data importer from legacy databases
 /tests/                # PHPUnit backend tests
   /README.md           # Testing guidelines and directory structure
-/docs/                 # Jekyll documentation site (Ruby-based)
-/api-client/           # Auto-generated TypeScript API client (DO NOT EDIT)
-/.github/instructions/ # File-specific coding guidelines
 ```
 
 ### Application Components
@@ -66,41 +87,25 @@ The **Inventory Management API** is a comprehensive Laravel 12 backend applicati
    - Does NOT use the local `/api-client/` directory directly
    - Serves as reference implementation for external API consumers
 
+4. **TypeScript API Client** (`/api-client/`)
+   - Auto-generated from OpenAPI spec using `openapi-generator-cli`
+   - Published to GitHub Packages as `@metanull/inventory-app-api-client`
+   - **DO NOT EDIT** - source of truth is the OpenAPI spec in `/docs/_openapi/api.json`
+
+5. **Data Importer** (`/scripts/importer/`)
+   - PowerShell and TypeScript scripts to import data from legacy databases
+   - Modular importers for different data phases
+   - Uses environment variables for configuration
+
 ## Development Standards
 
 ### Code Quality Requirements
 
-- **All code must pass linting**: Laravel Pint (PHP), ESLint (JS/TS)
+- **All code must pass linting** without warning: Laravel Pint (PHP), ESLint (JS/TS)
 - **All tests must pass**: No failing tests allowed in PRs
 - **No TypeScript errors or warnings**: Must pass `npx tsc --noEmit`
 - **No unused variables or imports**: Enforced by linters
 - **Explicit typing**: Never use `any` type in TypeScript
-
-### Essential Commands
-
-```bash
-# Install dependencies
-composer install
-npm ci --no-audit --no-fund
-
-# Database setup
-php artisan migrate --seed
-
-# Build frontend
-npm run build
-
-# Development servers
-php artisan serve        # Laravel API (port 8000)
-npm run dev             # Vite frontend
-
-# Linting
-.\vendor\bin\pint        # Laravel Pint (PHP)
-npm run lint           # ESLint + Prettier (JS/TS/Vue)
-
-# Testing
-php artisan test --parallel    # Backend tests
-npm run test                   # Frontend tests
-```
 
 ### Git Workflow
 

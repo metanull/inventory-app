@@ -26,7 +26,10 @@ class AllowList
                 'item',
             ],
             'item_item_link' => [
-                'source', 'target', 'context',
+                'source', 'target', 'context', 'translations',
+            ],
+            'item_item_link_translation' => [
+                'itemItemLink', 'language',
             ],
             'item_translation' => [
                 'item', 'language', 'context', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor',
