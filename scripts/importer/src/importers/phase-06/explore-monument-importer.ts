@@ -86,7 +86,10 @@ export class ExploreMonumentImporter extends BaseImporter {
 
       // Get the Explore context ID
       const exploreContextBackwardCompat = 'mwnf3_explore:context';
-      this.exploreContextId = await this.getEntityUuidAsync(exploreContextBackwardCompat, 'context');
+      this.exploreContextId = await this.getEntityUuidAsync(
+        exploreContextBackwardCompat,
+        'context'
+      );
 
       if (!this.exploreContextId) {
         throw new Error(
@@ -125,7 +128,11 @@ export class ExploreMonumentImporter extends BaseImporter {
           const internalName = `explore_monument_${legacy.monumentId}_${slugify(legacy.title)}`;
 
           // Collect sample
-          this.collectSample('explore_monument', legacy as unknown as Record<string, unknown>, 'success');
+          this.collectSample(
+            'explore_monument',
+            legacy as unknown as Record<string, unknown>,
+            'success'
+          );
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(

@@ -79,7 +79,10 @@ export class ExploreRootCollectionsImporter extends BaseImporter {
 
       // Get the Explore context ID
       const exploreContextBackwardCompat = 'mwnf3_explore:context';
-      this.exploreContextId = await this.getEntityUuidAsync(exploreContextBackwardCompat, 'context');
+      this.exploreContextId = await this.getEntityUuidAsync(
+        exploreContextBackwardCompat,
+        'context'
+      );
 
       if (!this.exploreContextId) {
         throw new Error(

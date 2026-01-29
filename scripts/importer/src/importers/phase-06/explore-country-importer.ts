@@ -50,7 +50,10 @@ export class ExploreCountryImporter extends BaseImporter {
 
       // Get the Explore context ID
       const exploreContextBackwardCompat = 'mwnf3_explore:context';
-      this.exploreContextId = await this.getEntityUuidAsync(exploreContextBackwardCompat, 'context');
+      this.exploreContextId = await this.getEntityUuidAsync(
+        exploreContextBackwardCompat,
+        'context'
+      );
 
       if (!this.exploreContextId) {
         throw new Error(
@@ -99,7 +102,11 @@ export class ExploreCountryImporter extends BaseImporter {
           const internalName = `country_${legacy.countryId}`;
 
           // Collect sample
-          this.collectSample('explore_country', legacy as unknown as Record<string, unknown>, 'success');
+          this.collectSample(
+            'explore_country',
+            legacy as unknown as Record<string, unknown>,
+            'success'
+          );
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
