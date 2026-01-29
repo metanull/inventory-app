@@ -41,6 +41,7 @@ import type {
   ThemeTranslationData,
   ItemItemLinkData,
   ItemItemLinkTranslationData,
+  CollectionItemData,
 } from '../core/types.js';
 import { sanitizeAllStrings } from '../utils/html-to-markdown.js';
 
@@ -246,6 +247,15 @@ export class SqlWriteStrategy implements IWriteStrategy {
         this.now,
         this.now,
       ]
+    );
+  }
+
+  async writeCollectionItem(data: CollectionItemData): Promise<void> {
+    const sanitized = sanitizeAllStrings(data);
+    await this.db.execute(
+      `INSERT INTO collection_item (collection_id, item_id, created_at, updated_at)
+       VALUES (?, ?, ?, ?)`,
+      [sanitized.collection_id, sanitized.item_id, this.now, this.now]
     );
   }
 

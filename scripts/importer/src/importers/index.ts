@@ -58,4 +58,12 @@ export {
 } from './phase-05/index.js';
 
 // Phase 06: Explore
-export { ExploreContextImporter, ExploreRootCollectionsImporter } from './phase-06/index.js';
+export {
+  ExploreContextImporter,
+  ExploreRootCollectionsImporter,
+  ExploreThematicCycleImporter,
+  ExploreCountryImporter,
+  ExploreLocationImporter,
+  ExploreMonumentImporter,
+  ExploreItineraryImporter,
+} from './phase-06/index.js';

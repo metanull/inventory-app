@@ -18,6 +18,7 @@ import type {
   ContextTranslationData,
   CollectionData,
   CollectionTranslationData,
+  CollectionItemData,
   ProjectData,
   ProjectTranslationData,
   PartnerData,
@@ -96,6 +97,11 @@ export interface IWriteStrategy {
    * Write a collection translation record
    */
   writeCollectionTranslation(data: CollectionTranslationData): Promise<void>;
+
+  /**
+   * Link an item to a collection (many-to-many relationship)
+   */
+  writeCollectionItem(data: CollectionItemData): Promise<void>;
 
   /**
    * Write a project record

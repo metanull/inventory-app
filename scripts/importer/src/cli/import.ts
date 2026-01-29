@@ -74,6 +74,11 @@ import {
   // Phase 06: Explore
   ExploreContextImporter,
   ExploreRootCollectionsImporter,
+  ExploreThematicCycleImporter,
+  ExploreCountryImporter,
+  ExploreLocationImporter,
+  ExploreMonumentImporter,
+  ExploreItineraryImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -388,6 +393,41 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Create root collections for Explore (by Theme, Country, Itinerary)',
     importerClass: ExploreRootCollectionsImporter,
     dependencies: ['explore-context', 'language'],
+  },
+  {
+    key: 'explore-thematiccycle',
+    name: 'Explore Thematic Cycles',
+    description: 'Import thematic cycles from Explore database',
+    importerClass: ExploreThematicCycleImporter,
+    dependencies: ['explore-root-collections'],
+  },
+  {
+    key: 'explore-country',
+    name: 'Explore Countries',
+    description: 'Import country collections from Explore locations',
+    importerClass: ExploreCountryImporter,
+    dependencies: ['explore-root-collections', 'country'],
+  },
+  {
+    key: 'explore-location',
+    name: 'Explore Locations',
+    description: 'Import location collections (cities/places) from Explore',
+    importerClass: ExploreLocationImporter,
+    dependencies: ['explore-country'],
+  },
+  {
+    key: 'explore-monument',
+    name: 'Explore Monuments',
+    description: 'Import monuments with geocoordinates from Explore',
+    importerClass: ExploreMonumentImporter,
+    dependencies: ['explore-location'],
+  },
+  {
+    key: 'explore-itinerary',
+    name: 'Explore Itineraries',
+    description: 'Import itineraries (curated routes) from Explore',
+    importerClass: ExploreItineraryImporter,
+    dependencies: ['explore-root-collections', 'explore-thematiccycle'],
   },
 ];
 
