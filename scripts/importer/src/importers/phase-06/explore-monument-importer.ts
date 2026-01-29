@@ -142,9 +142,16 @@ export class ExploreMonumentImporter extends BaseImporter {
             internal_name: internalName,
             backward_compatibility: backwardCompat,
             type: 'monument',
+            collection_id: null,
+            partner_id: null,
+            country_id: null,
+            project_id: null,
+            parent_id: null,
+            owner_reference: null,
+            mwnf_reference: null,
             latitude,
             longitude,
-            map_zoom: legacy.zoom,
+            map_zoom: legacy.zoom ?? null,
           });
 
           this.registerEntity(itemId, backwardCompat, 'item');

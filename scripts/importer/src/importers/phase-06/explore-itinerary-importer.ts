@@ -29,6 +29,27 @@ import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 
 /**
+ * Parse legacy geoCoordinates format (e.g., "25,10" or "40.178873,-8.063965")
+ * Returns [latitude, longitude] or [null, null] if invalid
+ */
+function parseGeoCoordinates(coords: string | null): [number | null, number | null] {
+  if (!coords || !coords.trim()) {
+    return [null, null];
+  }
+  const cleaned = coords.replace(/\s+/g, '').trim();
+  const parts = cleaned.split(',');
+  if (parts.length !== 2) {
+    return [null, null];
+  }
+  const lat = parseFloat(parts[0]);
+  const lon = parseFloat(parts[1]);
+  if (isNaN(lat) || isNaN(lon)) {
+    return [null, null];
+  }
+  return [lat, lon];
+}
+
+/**
  * Legacy itinerary structure
  */
 interface LegacyItinerary {
@@ -42,6 +63,9 @@ interface LegacyItinerary {
   type: string | null;
   itinorder: number | null;
   path: string | null;
+  // GPS from thematiccycle join
+  geoCoordinates: string | null;
+  zoom: number | null;
 }
 
 /**
@@ -96,11 +120,15 @@ export class ExploreItineraryImporter extends BaseImporter {
       this.logInfo(`Found Explore by Itinerary: ${this.exploreByItineraryId}`);
       this.logInfo('Importing itineraries...');
 
-      // Query itineraries from legacy database - order by parent first to ensure hierarchy
+      // Query itineraries from legacy database with GPS from thematiccycle
+      // Order by parent first to ensure hierarchy
       const itineraries = await this.context.legacyDb.query<LegacyItinerary>(
-        `SELECT itineraries_id, cycle, country, regionId, locationId, monumentId, parent_itineraries_id, type, itinorder, path
-         FROM mwnf3_explore.explore_itineraries 
-         ORDER BY COALESCE(parent_itineraries_id, 0), itinorder, itineraries_id`
+        `SELECT ei.itineraries_id, ei.cycle, ei.country, ei.regionId, ei.locationId, ei.monumentId, 
+                ei.parent_itineraries_id, ei.type, ei.itinorder, ei.path,
+                tc.geoCoordinates, tc.zoom
+         FROM mwnf3_explore.explore_itineraries ei
+         LEFT JOIN mwnf3_explore.thematiccycle tc ON ei.cycle = tc.cycleId
+         ORDER BY COALESCE(ei.parent_itineraries_id, 0), ei.itinorder, ei.itineraries_id`
       );
 
       this.logInfo(`Found ${itineraries.length} itineraries to import`);
@@ -153,6 +181,9 @@ export class ExploreItineraryImporter extends BaseImporter {
       // Determine type - sub-itineraries get 'exhibition trail' type
       const collectionType = legacy.parent_itineraries_id ? 'exhibition trail' : 'itinerary';
 
+      // Parse GPS coordinates from thematiccycle
+      const [latitude, longitude] = parseGeoCoordinates(legacy.geoCoordinates);
+
       // Collect sample
       this.collectSample('explore_itinerary', legacy as unknown as Record<string, unknown>, 'success');
 
@@ -174,9 +205,9 @@ export class ExploreItineraryImporter extends BaseImporter {
         language_id: this.defaultLanguageId,
         parent_id: parentId,
         type: collectionType,
-        latitude: null,
-        longitude: null,
-        map_zoom: null,
+        latitude,
+        longitude,
+        map_zoom: legacy.zoom ?? null,
         country_id: null,
       });
 
@@ -192,7 +223,7 @@ export class ExploreItineraryImporter extends BaseImporter {
         context_id: this.exploreContextId!,
         backward_compatibility: translationBackwardCompat,
         title,
-        description: null,
+        description: '',
       });
 
       result.imported++;

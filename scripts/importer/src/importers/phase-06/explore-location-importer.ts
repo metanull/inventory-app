@@ -128,8 +128,8 @@ export class ExploreLocationImporter extends BaseImporter {
           // Parse coordinates
           const [latitude, longitude] = parseGeoCoordinates(legacy.geoCoordinates);
 
-          // Create internal name
-          const internalName = `location_${legacy.countryId}_${slugify(legacy.label)}`;
+          // Create internal name - include locationId for uniqueness
+          const internalName = `location_${legacy.locationId}_${legacy.countryId}_${slugify(legacy.label)}`;
 
           // Collect sample
           this.collectSample('explore_location', legacy as unknown as Record<string, unknown>, 'success');
@@ -173,10 +173,10 @@ export class ExploreLocationImporter extends BaseImporter {
           await this.context.strategy.writeCollectionTranslation({
             collection_id: collectionId,
             language_id: this.defaultLanguageId,
-            context_id: this.exploreContextId,
+            context_id: this.exploreContextId!,
             backward_compatibility: translationBackwardCompat,
             title: legacy.label,
-            description: descriptionParts.length > 0 ? descriptionParts.join('\n\n') : null,
+            description: descriptionParts.length > 0 ? descriptionParts.join('\n\n') : '',
           });
 
           result.imported++;

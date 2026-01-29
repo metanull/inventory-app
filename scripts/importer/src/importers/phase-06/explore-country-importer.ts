@@ -94,8 +94,7 @@ export class ExploreCountryImporter extends BaseImporter {
           }
 
           // Map country ID (legacy uses 2-letter, our system uses 3-letter ISO codes)
-          // We need to look up the country in our system
-          const countryId = await this.mapCountryId(legacy.countryId);
+          const countryId = this.mapCountryId(legacy.countryId);
 
           const internalName = `country_${legacy.countryId}`;
 
@@ -135,10 +134,10 @@ export class ExploreCountryImporter extends BaseImporter {
           await this.context.strategy.writeCollectionTranslation({
             collection_id: collectionId,
             language_id: this.defaultLanguageId,
-            context_id: this.exploreContextId,
+            context_id: this.exploreContextId!,
             backward_compatibility: translationBackwardCompat,
             title: countryName || legacy.countryId.toUpperCase(),
-            description: null,
+            description: '',
           });
 
           result.imported++;
@@ -165,42 +164,41 @@ export class ExploreCountryImporter extends BaseImporter {
   /**
    * Map 2-letter country code to 3-letter ISO code
    */
-  private async mapCountryId(twoLetterCode: string): Promise<string | null> {
+  private mapCountryId(twoLetterCode: string): string | null {
     // Common mappings from 2-letter to 3-letter ISO codes
     const mapping: Record<string, string> = {
       at: 'aut', // Austria
       cz: 'cze', // Czech Republic
       de: 'deu', // Germany
+      dz: 'dza', // Algeria
       eg: 'egy', // Egypt
       es: 'esp', // Spain
+      gr: 'grc', // Greece
+      hr: 'hrv', // Croatia
       hu: 'hun', // Hungary
+      il: 'isr', // Israel
+      in: 'ind', // India
       it: 'ita', // Italy
       jo: 'jor', // Jordan
+      lb: 'lbn', // Lebanon
       ma: 'mar', // Morocco
+      mc: 'mco', // Monaco
       pa: 'pse', // Palestine
       pl: 'pol', // Poland
       pt: 'prt', // Portugal
+      qt: 'qat', // Qatar
+      sa: 'sau', // Saudi Arabia
       sk: 'svk', // Slovakia
       sy: 'syr', // Syria
       tn: 'tun', // Tunisia
       tr: 'tur', // Turkey
+      ua: 'ukr', // Ukraine
     };
 
     const threeLetterCode = mapping[twoLetterCode.toLowerCase()];
     if (!threeLetterCode) {
       this.logInfo(`Unknown country code mapping: ${twoLetterCode}`);
       return null;
-    }
-
-    // Verify the country exists in our system
-    const exists = await this.entityExistsAsync(`mwnf3:langs:${threeLetterCode}`, 'country');
-    if (!exists) {
-      // Try direct lookup
-      const countryExists = await this.entityExistsAsync(`mwnf3:countries:${threeLetterCode}`, 'country');
-      if (!countryExists) {
-        this.logInfo(`Country ${threeLetterCode} not found in system`);
-        return null;
-      }
     }
 
     return threeLetterCode;

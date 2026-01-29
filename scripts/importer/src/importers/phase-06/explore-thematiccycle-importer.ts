@@ -181,10 +181,10 @@ export class ExploreThematicCycleImporter extends BaseImporter {
           await this.context.strategy.writeCollectionTranslation({
             collection_id: collectionId,
             language_id: this.defaultLanguageId,
-            context_id: this.exploreContextId,
+            context_id: this.exploreContextId!,
             backward_compatibility: translationBackwardCompat,
             title: legacy.cycleDescription || legacy.cycleLabel,
-            description: legacy.cycleDescription,
+            description: legacy.cycleDescription || '',
           });
 
           result.imported++;
