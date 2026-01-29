@@ -146,6 +146,13 @@ export interface CollectionData extends BaseEntityData {
   context_id: string;
   language_id: string; // Required: ISO 639-3 code
   parent_id?: string | null;
+  type?: string | null; // collection, exhibition, gallery, theme, exhibition trail, itinerary, location
+  // GPS Location (optional)
+  latitude?: number | null;
+  longitude?: number | null;
+  map_zoom?: number | null;
+  // Country reference (optional)
+  country_id?: string | null;
 }
 
 /**
@@ -219,13 +226,27 @@ export interface PartnerTranslationData {
  */
 export interface ItemData extends BaseEntityData {
   type: 'object' | 'monument' | 'detail' | 'picture';
-  collection_id: string;
-  partner_id: string | null;
+  collection_id?: string | null; // Optional: some items (like explore monuments) may not have a default collection
+  partner_id?: string | null;
   country_id?: string | null;
   project_id?: string | null;
   parent_id?: string | null;
   owner_reference?: string | null;
   mwnf_reference?: string | null;
+  // GPS Location (optional, primarily for monuments)
+  latitude?: number | null;
+  longitude?: number | null;
+  map_zoom?: number | null;
+}
+
+/**
+ * Collection-Item link data for pivot table (many-to-many)
+ */
+export interface CollectionItemData {
+  collection_id: string;
+  item_id: string;
+  backward_compatibility?: string | null;
+  display_order?: number | null;
 }
 
 /**

@@ -1,0 +1,190 @@
+/**
+ * Explore Root Collections Importer
+ *
+ * Creates the three top-level Collections for Explore navigation:
+ * 1. "Explore by Theme" - Navigation by thematic cycles
+ * 2. "Explore by Country" - Navigation by country
+ * 3. "Explore by Itinerary" - Navigation by curated itineraries
+ *
+ * These collections serve as root nodes for the Explore hierarchy.
+ *
+ * Dependencies:
+ * - ExploreContextImporter (must run first to create the Explore context)
+ *
+ * New schema:
+ * - collections (id, context_id, language_id, parent_id, type, internal_name, backward_compatibility, ...)
+ *
+ * Collection types:
+ * - "Explore by Theme" → type: 'collection'
+ * - "Explore by Country" → type: 'collection'
+ * - "Explore by Itinerary" → type: 'itinerary'
+ */
+
+import { BaseImporter } from '../../core/base-importer.js';
+import type { ImportResult } from '../../core/types.js';
+
+/**
+ * Root collection configuration
+ */
+interface RootCollectionConfig {
+  internal_name: string;
+  backward_compatibility: string;
+  type: 'collection' | 'itinerary';
+  title: string;
+  description: string;
+}
+
+export class ExploreRootCollectionsImporter extends BaseImporter {
+  private exploreContextId: string | null = null;
+  private defaultLanguageId: string = 'eng';
+
+  getName(): string {
+    return 'ExploreRootCollectionsImporter';
+  }
+
+  /**
+   * Define the three root collections
+   */
+  private getRootCollections(): RootCollectionConfig[] {
+    return [
+      {
+        internal_name: 'explore_by_theme',
+        backward_compatibility: 'mwnf3_explore:root:explore_by_theme',
+        type: 'collection',
+        title: 'Explore by Theme',
+        description: 'Discover Islamic art and architecture organized by thematic cycles',
+      },
+      {
+        internal_name: 'explore_by_country',
+        backward_compatibility: 'mwnf3_explore:root:explore_by_country',
+        type: 'collection',
+        title: 'Explore by Country',
+        description: 'Browse monuments and sites by country and region',
+      },
+      {
+        internal_name: 'explore_by_itinerary',
+        backward_compatibility: 'mwnf3_explore:root:explore_by_itinerary',
+        type: 'itinerary',
+        title: 'Explore by Itinerary',
+        description: 'Follow curated routes through Islamic heritage sites',
+      },
+    ];
+  }
+
+  async import(): Promise<ImportResult> {
+    const result = this.createResult();
+
+    try {
+      this.logInfo('Looking up Explore context...');
+
+      // Get the Explore context ID
+      const exploreContextBackwardCompat = 'mwnf3_explore:context';
+      this.exploreContextId = await this.getEntityUuidAsync(
+        exploreContextBackwardCompat,
+        'context'
+      );
+
+      if (!this.exploreContextId) {
+        throw new Error(
+          `Explore context not found (${exploreContextBackwardCompat}). Run ExploreContextImporter first.`
+        );
+      }
+
+      this.logInfo(`Found Explore context: ${this.exploreContextId}`);
+
+      // Default to 'eng' - we don't need to query legacy DB for language
+      // since our system uses 3-letter ISO codes
+      this.logInfo(`Using default language: ${this.defaultLanguageId}`);
+      this.logInfo('Creating root collections for Explore...');
+
+      const rootCollections = this.getRootCollections();
+
+      for (const config of rootCollections) {
+        try {
+          // Check if already exists
+          if (await this.entityExistsAsync(config.backward_compatibility, 'collection')) {
+            this.logInfo(`Collection ${config.internal_name} already exists, skipping`);
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
+          // Collect sample
+          this.collectSample(
+            'explore_root_collection',
+            {
+              internal_name: config.internal_name,
+              type: config.type,
+              backward_compatibility: config.backward_compatibility,
+              context_id: this.exploreContextId,
+              language_id: this.defaultLanguageId,
+              title: config.title,
+              description: config.description,
+            } as Record<string, unknown>,
+            'success'
+          );
+
+          if (this.isDryRun || this.isSampleOnlyMode) {
+            this.logInfo(
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create collection: ${config.internal_name}`
+            );
+            this.registerEntity('', config.backward_compatibility, 'collection');
+            result.imported++;
+            this.showProgress();
+            continue;
+          }
+
+          // Write collection using strategy
+          const collectionId = await this.context.strategy.writeCollection({
+            internal_name: config.internal_name,
+            backward_compatibility: config.backward_compatibility,
+            context_id: this.exploreContextId,
+            language_id: this.defaultLanguageId,
+            parent_id: null,
+            type: config.type,
+            latitude: null,
+            longitude: null,
+            map_zoom: null,
+            country_id: null,
+          });
+
+          this.registerEntity(collectionId, config.backward_compatibility, 'collection');
+          this.logInfo(`Created collection: ${config.internal_name} (${collectionId})`);
+
+          // Create translation for the collection
+          const translationBackwardCompat = `${config.backward_compatibility}:translation:${this.defaultLanguageId}`;
+
+          await this.context.strategy.writeCollectionTranslation({
+            collection_id: collectionId,
+            language_id: this.defaultLanguageId,
+            context_id: this.exploreContextId,
+            backward_compatibility: translationBackwardCompat,
+            title: config.title,
+            description: config.description,
+          });
+
+          this.logInfo(`Created translation for: ${config.internal_name}`);
+
+          result.imported++;
+          this.showProgress();
+        } catch (error) {
+          result.success = false;
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          result.errors.push(`Error creating collection ${config.internal_name}: ${errorMessage}`);
+          this.logError('ExploreRootCollectionsImporter', error, {
+            collection: config.internal_name,
+          });
+          this.showError();
+        }
+      }
+    } catch (error) {
+      result.success = false;
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      result.errors.push(`Error in root collections import: ${errorMessage}`);
+      this.logError('ExploreRootCollectionsImporter', error);
+      this.showError();
+    }
+
+    return result;
+  }
+}

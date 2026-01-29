@@ -18,6 +18,7 @@ Never alter existing database migrations; create new migrations for changes.
 Never use the Terminal to read or write files. Always use VS Code file explorer and editor features for file operations.
 Never create scripts to modify files. Use VS Code refactoring and multi-file editing features instead.
 Never use linux commands and escaping in Terminal on Windows. Always use native Windows commands in PowerShell.
+Always write database-agnostic migrations and code. Production uses MariaDB, development uses SQLite, other Laravel supported engines are possible.
 
 ---
 
