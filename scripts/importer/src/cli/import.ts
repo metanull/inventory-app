@@ -64,6 +64,17 @@ import {
   ExploreLocationImporter,
   ExploreMonumentImporter,
   ExploreItineraryImporter,
+  // Phase 07: Travels
+  TravelsContextImporter,
+  TravelsRootCollectionImporter,
+  TravelsTrailImporter,
+  TravelsTrailTranslationImporter,
+  TravelsItineraryImporter,
+  TravelsItineraryTranslationImporter,
+  TravelsLocationImporter,
+  TravelsLocationTranslationImporter,
+  TravelsMonumentImporter,
+  TravelsMonumentTranslationImporter,
   // Phase 10: Thematic Galleries (runs last, after all other legacy DBs)
   ThgGalleryContextImporter,
   ThgGalleryImporter,
@@ -79,6 +90,7 @@ import {
   ThgGalleryMwnf3MonumentImporter,
   ThgGalleryShObjectImporter,
   ThgGalleryShMonumentImporter,
+  ThgGalleryTravelMonumentImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -328,6 +340,77 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     importerClass: ExploreItineraryImporter,
     dependencies: ['explore-root-collections', 'explore-thematiccycle'],
   },
+  // Phase 07: Travels (virtual visits and exhibition trails)
+  {
+    key: 'travels-context',
+    name: 'Travels Context',
+    description: 'Create context for Travels application',
+    importerClass: TravelsContextImporter,
+    dependencies: [],
+  },
+  {
+    key: 'travels-root-collection',
+    name: 'Travels Root Collection',
+    description: 'Create root collection for Travels',
+    importerClass: TravelsRootCollectionImporter,
+    dependencies: ['travels-context', 'language'],
+  },
+  {
+    key: 'travels-trail',
+    name: 'Travels Trails',
+    description: 'Import trails (exhibition trails) from Travels database',
+    importerClass: TravelsTrailImporter,
+    dependencies: ['travels-root-collection', 'country'],
+  },
+  {
+    key: 'travels-trail-translation',
+    name: 'Travels Trail Translations',
+    description: 'Import trail translations',
+    importerClass: TravelsTrailTranslationImporter,
+    dependencies: ['travels-trail', 'language'],
+  },
+  {
+    key: 'travels-itinerary',
+    name: 'Travels Itineraries',
+    description: 'Import itineraries under trails',
+    importerClass: TravelsItineraryImporter,
+    dependencies: ['travels-trail'],
+  },
+  {
+    key: 'travels-itinerary-translation',
+    name: 'Travels Itinerary Translations',
+    description: 'Import itinerary translations',
+    importerClass: TravelsItineraryTranslationImporter,
+    dependencies: ['travels-itinerary', 'language'],
+  },
+  {
+    key: 'travels-location',
+    name: 'Travels Locations',
+    description: 'Import locations under itineraries',
+    importerClass: TravelsLocationImporter,
+    dependencies: ['travels-itinerary'],
+  },
+  {
+    key: 'travels-location-translation',
+    name: 'Travels Location Translations',
+    description: 'Import location translations',
+    importerClass: TravelsLocationTranslationImporter,
+    dependencies: ['travels-location', 'language'],
+  },
+  {
+    key: 'travels-monument',
+    name: 'Travels Monuments',
+    description: 'Import travel-specific monument items',
+    importerClass: TravelsMonumentImporter,
+    dependencies: ['travels-location', 'country'],
+  },
+  {
+    key: 'travels-monument-translation',
+    name: 'Travels Monument Translations',
+    description: 'Import travel monument translations',
+    importerClass: TravelsMonumentTranslationImporter,
+    dependencies: ['travels-monument', 'language'],
+  },
   // Phase 10: Thematic Galleries (runs last, after all other legacy DBs are imported)
   {
     key: 'thg-gallery-context',
@@ -428,6 +511,13 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Link Sharing History monuments to THG gallery collections',
     importerClass: ThgGalleryShMonumentImporter,
     dependencies: ['thg-gallery', 'sh-monument'],
+  },
+  {
+    key: 'thg-gallery-travel-monument',
+    name: 'THG Gallery Travel Monuments',
+    description: 'Link travel monuments to THG gallery collections',
+    importerClass: ThgGalleryTravelMonumentImporter,
+    dependencies: ['thg-gallery', 'travels-monument'],
   },
 ];
 
