@@ -86,10 +86,9 @@ export class TravelsTrailTranslationImporter extends BaseImporter {
           // Get parent trail collection ID
           const trailId = await this.getEntityUuidAsync(trailBackwardCompat, 'collection');
           if (!trailId) {
-            this.logWarning(
-              `Trail not found for translation: ${trailBackwardCompat}`,
-              { lang: legacy.lang }
-            );
+            this.logWarning(`Trail not found for translation: ${trailBackwardCompat}`, {
+              lang: legacy.lang,
+            });
             result.skipped++;
             this.showSkipped();
             continue;

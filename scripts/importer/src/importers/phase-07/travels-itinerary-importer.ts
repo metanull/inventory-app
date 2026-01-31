@@ -110,10 +110,9 @@ export class TravelsItineraryImporter extends BaseImporter {
           const trailId = await this.getEntityUuidAsync(trailBackwardCompat, 'collection');
 
           if (!trailId) {
-            this.logWarning(
-              `Parent trail not found for itinerary: ${backwardCompat}`,
-              { trailBackwardCompat }
-            );
+            this.logWarning(`Parent trail not found for itinerary: ${backwardCompat}`, {
+              trailBackwardCompat,
+            });
             result.skipped++;
             this.showSkipped();
             continue;

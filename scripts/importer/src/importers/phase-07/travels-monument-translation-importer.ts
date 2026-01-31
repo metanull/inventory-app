@@ -78,10 +78,9 @@ export class TravelsMonumentTranslationImporter extends BaseImporter {
           // Get parent monument item ID
           const monumentId = await this.getEntityUuidAsync(monumentBackwardCompat, 'item');
           if (!monumentId) {
-            this.logWarning(
-              `Monument not found for translation: ${monumentBackwardCompat}`,
-              { lang: legacy.lang }
-            );
+            this.logWarning(`Monument not found for translation: ${monumentBackwardCompat}`, {
+              lang: legacy.lang,
+            });
             result.skipped++;
             this.showSkipped();
             continue;

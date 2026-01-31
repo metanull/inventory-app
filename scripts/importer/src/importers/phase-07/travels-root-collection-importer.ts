@@ -111,7 +111,8 @@ export class TravelsRootCollectionImporter extends BaseImporter {
         context_id: this.travelsContextId,
         backward_compatibility: translationBackwardCompat,
         title: 'Travels',
-        description: 'Virtual visits and exhibition trails from the Museum With No Frontiers Travels application.',
+        description:
+          'Virtual visits and exhibition trails from the Museum With No Frontiers Travels application.',
       });
 
       this.logInfo(`Created Travels root collection: ${collectionId}`);

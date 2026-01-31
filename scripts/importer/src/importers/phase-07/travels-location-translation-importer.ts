@@ -77,10 +77,9 @@ export class TravelsLocationTranslationImporter extends BaseImporter {
           // Get parent location collection ID
           const locationId = await this.getEntityUuidAsync(locationBackwardCompat, 'collection');
           if (!locationId) {
-            this.logWarning(
-              `Location not found for translation: ${locationBackwardCompat}`,
-              { lang: legacy.lang }
-            );
+            this.logWarning(`Location not found for translation: ${locationBackwardCompat}`, {
+              lang: legacy.lang,
+            });
             result.skipped++;
             this.showSkipped();
             continue;

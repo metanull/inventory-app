@@ -109,10 +109,9 @@ export class TravelsLocationImporter extends BaseImporter {
           const itineraryId = await this.getEntityUuidAsync(itineraryBackwardCompat, 'collection');
 
           if (!itineraryId) {
-            this.logWarning(
-              `Parent itinerary not found for location: ${backwardCompat}`,
-              { itineraryBackwardCompat }
-            );
+            this.logWarning(`Parent itinerary not found for location: ${backwardCompat}`, {
+              itineraryBackwardCompat,
+            });
             result.skipped++;
             this.showSkipped();
             continue;

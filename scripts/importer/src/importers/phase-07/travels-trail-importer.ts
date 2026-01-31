@@ -87,10 +87,7 @@ export class TravelsTrailImporter extends BaseImporter {
 
       // Get the Travels root collection
       const travelsRootBackwardCompat = 'mwnf3_travels:root';
-      this.travelsRootId = await this.getEntityUuidAsync(
-        travelsRootBackwardCompat,
-        'collection'
-      );
+      this.travelsRootId = await this.getEntityUuidAsync(travelsRootBackwardCompat, 'collection');
 
       if (!this.travelsRootId) {
         throw new Error(

@@ -78,10 +78,9 @@ export class TravelsItineraryTranslationImporter extends BaseImporter {
           // Get parent itinerary collection ID
           const itineraryId = await this.getEntityUuidAsync(itineraryBackwardCompat, 'collection');
           if (!itineraryId) {
-            this.logWarning(
-              `Itinerary not found for translation: ${itineraryBackwardCompat}`,
-              { lang: legacy.lang }
-            );
+            this.logWarning(`Itinerary not found for translation: ${itineraryBackwardCompat}`, {
+              lang: legacy.lang,
+            });
             result.skipped++;
             this.showSkipped();
             continue;

@@ -124,19 +124,18 @@ export class TravelsMonumentImporter extends BaseImporter {
           const locationId = await this.getEntityUuidAsync(locationBackwardCompat, 'collection');
 
           if (!locationId) {
-            this.logWarning(
-              `Parent location not found for monument: ${backwardCompat}`,
-              { locationBackwardCompat }
-            );
+            this.logWarning(`Parent location not found for monument: ${backwardCompat}`, {
+              locationBackwardCompat,
+            });
             result.skipped++;
             this.showSkipped();
             continue;
           }
 
           // Find English title for internal name (or first available)
-          const englishTranslation = group.translations.find(t => t.lang === 'en');
+          const englishTranslation = group.translations.find((t) => t.lang === 'en');
           const primaryTranslation = englishTranslation || group.translations[0];
-          
+
           if (!primaryTranslation) {
             this.logWarning(`No translations found for monument: ${backwardCompat}`);
             result.skipped++;

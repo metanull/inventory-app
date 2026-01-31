@@ -66,7 +66,9 @@ export class ThgGalleryTravelMonumentImporter extends BaseImporter {
         throw queryError;
       }
 
-      this.logInfo(`Found ${galleryMonuments.length} gallery-travel monument associations to process`);
+      this.logInfo(
+        `Found ${galleryMonuments.length} gallery-travel monument associations to process`
+      );
 
       // Group items by collection for efficient batch attachment
       const collectionItems: Map<string, string[]> = new Map();
@@ -149,7 +151,9 @@ export class ThgGalleryTravelMonumentImporter extends BaseImporter {
             await this.context.strategy.attachItemsToCollection(collectionId, itemIds);
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            result.errors.push(`Failed to attach travel items to collection ${collectionId}: ${message}`);
+            result.errors.push(
+              `Failed to attach travel items to collection ${collectionId}: ${message}`
+            );
             this.logError(`Collection ${collectionId}`, error);
           }
         }
