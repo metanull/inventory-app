@@ -1,8 +1,11 @@
 /**
- * Phase 05 Importers - Thematic Gallery Data
+ * Phase 10 Importers - Thematic Gallery Data
  *
  * Imports exhibitions, galleries, themes, and related data from the
  * mwnf3_thematic_gallery legacy database.
+ *
+ * This phase runs LAST because THG galleries can reference items from
+ * ALL other legacy databases (mwnf3, SH, Explore, etc.).
  */
 
 export { ThgGalleryContextImporter } from './thg-gallery-context-importer.js';
@@ -20,3 +23,4 @@ export { ThgGalleryMwnf3ObjectImporter } from './thg-gallery-mwnf3-object-import
 export { ThgGalleryMwnf3MonumentImporter } from './thg-gallery-mwnf3-monument-importer.js';
 export { ThgGalleryShObjectImporter } from './thg-gallery-sh-object-importer.js';
 export { ThgGalleryShMonumentImporter } from './thg-gallery-sh-monument-importer.js';
+export { ThgGalleryTravelMonumentImporter } from './thg-gallery-travel-monument-importer.js';

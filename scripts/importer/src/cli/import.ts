@@ -56,7 +56,26 @@ import {
   GlossaryImporter,
   GlossaryTranslationImporter,
   GlossarySpellingImporter,
-  // Phase 05: Thematic Galleries
+  // Phase 06: Explore
+  ExploreContextImporter,
+  ExploreRootCollectionsImporter,
+  ExploreThematicCycleImporter,
+  ExploreCountryImporter,
+  ExploreLocationImporter,
+  ExploreMonumentImporter,
+  ExploreItineraryImporter,
+  // Phase 07: Travels
+  TravelsContextImporter,
+  TravelsRootCollectionImporter,
+  TravelsTrailImporter,
+  TravelsTrailTranslationImporter,
+  TravelsItineraryImporter,
+  TravelsItineraryTranslationImporter,
+  TravelsLocationImporter,
+  TravelsLocationTranslationImporter,
+  TravelsMonumentImporter,
+  TravelsMonumentTranslationImporter,
+  // Phase 10: Thematic Galleries (runs last, after all other legacy DBs)
   ThgGalleryContextImporter,
   ThgGalleryImporter,
   ThgGalleryTranslationImporter,
@@ -66,19 +85,12 @@ import {
   ThgThemeItemTranslationImporter,
   ThgItemRelatedImporter,
   ThgItemRelatedTranslationImporter,
-  // Phase 05: Gallery-Item Link Importers
+  // Phase 10: Gallery-Item Link Importers
   ThgGalleryMwnf3ObjectImporter,
   ThgGalleryMwnf3MonumentImporter,
   ThgGalleryShObjectImporter,
   ThgGalleryShMonumentImporter,
-  // Phase 06: Explore
-  ExploreContextImporter,
-  ExploreRootCollectionsImporter,
-  ExploreThematicCycleImporter,
-  ExploreCountryImporter,
-  ExploreLocationImporter,
-  ExploreMonumentImporter,
-  ExploreItineraryImporter,
+  ThgGalleryTravelMonumentImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -278,107 +290,6 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     importerClass: GlossarySpellingImporter,
     dependencies: ['glossary', 'language'],
   },
-  // Phase 5: Thematic Galleries
-  {
-    key: 'thg-gallery-context',
-    name: 'THG Gallery Contexts',
-    description: 'Create contexts for thematic galleries/exhibitions',
-    importerClass: ThgGalleryContextImporter,
-    dependencies: [],
-  },
-  {
-    key: 'thg-gallery',
-    name: 'THG Galleries',
-    description: 'Import thematic galleries as collections',
-    importerClass: ThgGalleryImporter,
-    dependencies: ['thg-gallery-context'],
-  },
-  {
-    key: 'thg-gallery-translation',
-    name: 'THG Gallery Translations',
-    description: 'Import thematic gallery translations',
-    importerClass: ThgGalleryTranslationImporter,
-    dependencies: ['thg-gallery', 'language'],
-  },
-  {
-    key: 'thg-theme',
-    name: 'THG Themes',
-    description: 'Import thematic gallery themes',
-    importerClass: ThgThemeImporter,
-    dependencies: ['thg-gallery'],
-  },
-  {
-    key: 'thg-theme-translation',
-    name: 'THG Theme Translations',
-    description: 'Import thematic gallery theme translations',
-    importerClass: ThgThemeTranslationImporter,
-    dependencies: ['thg-theme', 'thg-gallery-context', 'language'],
-  },
-  {
-    key: 'thg-theme-item',
-    name: 'THG Theme Items',
-    description: 'Attach items to thematic gallery collections (mwnf3 and SH)',
-    importerClass: ThgThemeItemImporter,
-    dependencies: [
-      'thg-gallery',
-      'object',
-      'monument',
-      'monument-detail',
-      'sh-object',
-      'sh-monument',
-      'sh-monument-detail',
-    ],
-  },
-  {
-    key: 'thg-theme-item-translation',
-    name: 'THG Theme Item Translations',
-    description: 'Import contextual item descriptions for thematic galleries',
-    importerClass: ThgThemeItemTranslationImporter,
-    dependencies: ['thg-theme-item', 'thg-gallery-context', 'language'],
-  },
-  {
-    key: 'thg-item-related',
-    name: 'THG Item Relations',
-    description: 'Import item-to-item links within thematic galleries',
-    importerClass: ThgItemRelatedImporter,
-    dependencies: ['thg-theme-item', 'thg-gallery-context'],
-  },
-  {
-    key: 'thg-item-related-translation',
-    name: 'THG Item Relation Translations',
-    description: 'Import translations for item-to-item links',
-    importerClass: ThgItemRelatedTranslationImporter,
-    dependencies: ['thg-item-related', 'language'],
-  },
-  // Phase 05: Gallery-Item Link Importers (direct links from thg_gallery to items)
-  {
-    key: 'thg-gallery-mwnf3-object',
-    name: 'THG Gallery MWNF3 Objects',
-    description: 'Link mwnf3 objects to THG gallery collections',
-    importerClass: ThgGalleryMwnf3ObjectImporter,
-    dependencies: ['thg-gallery', 'object'],
-  },
-  {
-    key: 'thg-gallery-mwnf3-monument',
-    name: 'THG Gallery MWNF3 Monuments',
-    description: 'Link mwnf3 monuments to THG gallery collections',
-    importerClass: ThgGalleryMwnf3MonumentImporter,
-    dependencies: ['thg-gallery', 'monument'],
-  },
-  {
-    key: 'thg-gallery-sh-object',
-    name: 'THG Gallery SH Objects',
-    description: 'Link Sharing History objects to THG gallery collections',
-    importerClass: ThgGalleryShObjectImporter,
-    dependencies: ['thg-gallery', 'sh-object'],
-  },
-  {
-    key: 'thg-gallery-sh-monument',
-    name: 'THG Gallery SH Monuments',
-    description: 'Link Sharing History monuments to THG gallery collections',
-    importerClass: ThgGalleryShMonumentImporter,
-    dependencies: ['thg-gallery', 'sh-monument'],
-  },
   // Phase 06: Explore
   {
     key: 'explore-context',
@@ -428,6 +339,185 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import itineraries (curated routes) from Explore',
     importerClass: ExploreItineraryImporter,
     dependencies: ['explore-root-collections', 'explore-thematiccycle'],
+  },
+  // Phase 07: Travels (virtual visits and exhibition trails)
+  {
+    key: 'travels-context',
+    name: 'Travels Context',
+    description: 'Create context for Travels application',
+    importerClass: TravelsContextImporter,
+    dependencies: [],
+  },
+  {
+    key: 'travels-root-collection',
+    name: 'Travels Root Collection',
+    description: 'Create root collection for Travels',
+    importerClass: TravelsRootCollectionImporter,
+    dependencies: ['travels-context', 'language'],
+  },
+  {
+    key: 'travels-trail',
+    name: 'Travels Trails',
+    description: 'Import trails (exhibition trails) from Travels database',
+    importerClass: TravelsTrailImporter,
+    dependencies: ['travels-root-collection', 'country'],
+  },
+  {
+    key: 'travels-trail-translation',
+    name: 'Travels Trail Translations',
+    description: 'Import trail translations',
+    importerClass: TravelsTrailTranslationImporter,
+    dependencies: ['travels-trail', 'language'],
+  },
+  {
+    key: 'travels-itinerary',
+    name: 'Travels Itineraries',
+    description: 'Import itineraries under trails',
+    importerClass: TravelsItineraryImporter,
+    dependencies: ['travels-trail'],
+  },
+  {
+    key: 'travels-itinerary-translation',
+    name: 'Travels Itinerary Translations',
+    description: 'Import itinerary translations',
+    importerClass: TravelsItineraryTranslationImporter,
+    dependencies: ['travels-itinerary', 'language'],
+  },
+  {
+    key: 'travels-location',
+    name: 'Travels Locations',
+    description: 'Import locations under itineraries',
+    importerClass: TravelsLocationImporter,
+    dependencies: ['travels-itinerary'],
+  },
+  {
+    key: 'travels-location-translation',
+    name: 'Travels Location Translations',
+    description: 'Import location translations',
+    importerClass: TravelsLocationTranslationImporter,
+    dependencies: ['travels-location', 'language'],
+  },
+  {
+    key: 'travels-monument',
+    name: 'Travels Monuments',
+    description: 'Import travel-specific monument items',
+    importerClass: TravelsMonumentImporter,
+    dependencies: ['travels-location', 'country'],
+  },
+  {
+    key: 'travels-monument-translation',
+    name: 'Travels Monument Translations',
+    description: 'Import travel monument translations',
+    importerClass: TravelsMonumentTranslationImporter,
+    dependencies: ['travels-monument', 'language'],
+  },
+  // Phase 10: Thematic Galleries (runs last, after all other legacy DBs are imported)
+  {
+    key: 'thg-gallery-context',
+    name: 'THG Gallery Contexts',
+    description: 'Create contexts for thematic galleries/exhibitions',
+    importerClass: ThgGalleryContextImporter,
+    dependencies: [],
+  },
+  {
+    key: 'thg-gallery',
+    name: 'THG Galleries',
+    description: 'Import thematic galleries as collections',
+    importerClass: ThgGalleryImporter,
+    dependencies: ['thg-gallery-context'],
+  },
+  {
+    key: 'thg-gallery-translation',
+    name: 'THG Gallery Translations',
+    description: 'Import thematic gallery translations',
+    importerClass: ThgGalleryTranslationImporter,
+    dependencies: ['thg-gallery', 'language'],
+  },
+  {
+    key: 'thg-theme',
+    name: 'THG Themes',
+    description: 'Import thematic gallery themes',
+    importerClass: ThgThemeImporter,
+    dependencies: ['thg-gallery'],
+  },
+  {
+    key: 'thg-theme-translation',
+    name: 'THG Theme Translations',
+    description: 'Import thematic gallery theme translations',
+    importerClass: ThgThemeTranslationImporter,
+    dependencies: ['thg-theme', 'thg-gallery-context', 'language'],
+  },
+  {
+    key: 'thg-theme-item',
+    name: 'THG Theme Items',
+    description: 'Attach items to thematic gallery collections (all legacy DBs)',
+    importerClass: ThgThemeItemImporter,
+    dependencies: [
+      'thg-gallery',
+      'object',
+      'monument',
+      'monument-detail',
+      'sh-object',
+      'sh-monument',
+      'sh-monument-detail',
+    ],
+  },
+  {
+    key: 'thg-theme-item-translation',
+    name: 'THG Theme Item Translations',
+    description: 'Import contextual item descriptions for thematic galleries',
+    importerClass: ThgThemeItemTranslationImporter,
+    dependencies: ['thg-theme-item', 'thg-gallery-context', 'language'],
+  },
+  {
+    key: 'thg-item-related',
+    name: 'THG Item Relations',
+    description: 'Import item-to-item links within thematic galleries',
+    importerClass: ThgItemRelatedImporter,
+    dependencies: ['thg-theme-item', 'thg-gallery-context'],
+  },
+  {
+    key: 'thg-item-related-translation',
+    name: 'THG Item Relation Translations',
+    description: 'Import translations for item-to-item links',
+    importerClass: ThgItemRelatedTranslationImporter,
+    dependencies: ['thg-item-related', 'language'],
+  },
+  // Phase 10: Gallery-Item Link Importers (direct links from thg_gallery to items)
+  {
+    key: 'thg-gallery-mwnf3-object',
+    name: 'THG Gallery MWNF3 Objects',
+    description: 'Link mwnf3 objects to THG gallery collections',
+    importerClass: ThgGalleryMwnf3ObjectImporter,
+    dependencies: ['thg-gallery', 'object'],
+  },
+  {
+    key: 'thg-gallery-mwnf3-monument',
+    name: 'THG Gallery MWNF3 Monuments',
+    description: 'Link mwnf3 monuments to THG gallery collections',
+    importerClass: ThgGalleryMwnf3MonumentImporter,
+    dependencies: ['thg-gallery', 'monument'],
+  },
+  {
+    key: 'thg-gallery-sh-object',
+    name: 'THG Gallery SH Objects',
+    description: 'Link Sharing History objects to THG gallery collections',
+    importerClass: ThgGalleryShObjectImporter,
+    dependencies: ['thg-gallery', 'sh-object'],
+  },
+  {
+    key: 'thg-gallery-sh-monument',
+    name: 'THG Gallery SH Monuments',
+    description: 'Link Sharing History monuments to THG gallery collections',
+    importerClass: ThgGalleryShMonumentImporter,
+    dependencies: ['thg-gallery', 'sh-monument'],
+  },
+  {
+    key: 'thg-gallery-travel-monument',
+    name: 'THG Gallery Travel Monuments',
+    description: 'Link travel monuments to THG gallery collections',
+    importerClass: ThgGalleryTravelMonumentImporter,
+    dependencies: ['thg-gallery', 'travels-monument'],
   },
 ];
 
@@ -765,6 +855,18 @@ program
           return 'Phase 4: Glossary';
         } else if (
           [
+            'explore-context',
+            'explore-root-collections',
+            'explore-thematiccycle',
+            'explore-country',
+            'explore-location',
+            'explore-monument',
+            'explore-itinerary',
+          ].includes(key)
+        ) {
+          return 'Phase 6: Explore';
+        } else if (
+          [
             'thg-gallery-context',
             'thg-gallery',
             'thg-gallery-translation',
@@ -774,9 +876,13 @@ program
             'thg-theme-item-translation',
             'thg-item-related',
             'thg-item-related-translation',
+            'thg-gallery-mwnf3-object',
+            'thg-gallery-mwnf3-monument',
+            'thg-gallery-sh-object',
+            'thg-gallery-sh-monument',
           ].includes(key)
         ) {
-          return 'Phase 5: Thematic Galleries';
+          return 'Phase 10: Thematic Galleries';
         } else {
           return 'Phase Unknown';
         }

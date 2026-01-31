@@ -39,7 +39,7 @@ export {
   GlossarySpellingImporter,
 } from './phase-04/index.js';
 
-// Phase 05: Thematic Galleries
+// Phase 10: Thematic Galleries (runs last, after all other legacy DBs are imported)
 export {
   ThgGalleryContextImporter,
   ThgGalleryImporter,
@@ -55,7 +55,8 @@ export {
   ThgGalleryMwnf3MonumentImporter,
   ThgGalleryShObjectImporter,
   ThgGalleryShMonumentImporter,
-} from './phase-05/index.js';
+  ThgGalleryTravelMonumentImporter,
+} from './phase-10/index.js';
 
 // Phase 06: Explore
 export {
@@ -67,3 +68,17 @@ export {
   ExploreMonumentImporter,
   ExploreItineraryImporter,
 } from './phase-06/index.js';
+
+// Phase 07: Travels
+export {
+  TravelsContextImporter,
+  TravelsRootCollectionImporter,
+  TravelsTrailImporter,
+  TravelsTrailTranslationImporter,
+  TravelsItineraryImporter,
+  TravelsItineraryTranslationImporter,
+  TravelsLocationImporter,
+  TravelsLocationTranslationImporter,
+  TravelsMonumentImporter,
+  TravelsMonumentTranslationImporter,
+} from './phase-07/index.js';

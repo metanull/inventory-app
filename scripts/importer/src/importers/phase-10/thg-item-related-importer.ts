@@ -174,7 +174,7 @@ export class ThgItemRelatedImporter extends BaseImporter {
             continue;
           }
 
-          // Get the context ID for this gallery (Phase 05 internal, but use async for consistency)
+          // Get the context ID for this gallery (Phase 10 internal, but use async for consistency)
           const galleryBackwardCompat = `mwnf3_thematic_gallery:thg_gallery:${legacy.gallery_id}`;
           const contextId = await this.getEntityUuidAsync(galleryBackwardCompat, 'context');
           if (!contextId) {
