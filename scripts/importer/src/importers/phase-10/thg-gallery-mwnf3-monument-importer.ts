@@ -1,87 +1,89 @@
 /**
- * THG Gallery MWNF3 Object Importer
+ * THG Gallery MWNF3 Monument Importer
  *
- * Imports thg_gallery_mwnf3_objects entries, linking mwnf3 objects to THG gallery collections.
+ * Imports thg_gallery_mwnf3_monuments entries, linking mwnf3 monuments to THG gallery collections.
  *
  * Legacy schema:
- * - mwnf3_thematic_gallery.thg_gallery_mwnf3_objects (gallery_id, objects_project_id, objects_country, objects_museum_id, objects_number)
+ * - mwnf3_thematic_gallery.thg_gallery_mwnf3_monuments (gallery_id, monuments_project_id, monuments_country, monuments_institution_id, monuments_number)
  *
  * New schema:
  * - collection_item pivot (collection_id, item_id) via attachItemsToCollection
  *
- * Item backward_compatibility format: mwnf3:objects:{project}:{country}:{museum}:{number}
+ * Item backward_compatibility format: mwnf3:monuments:{project}:{country}:{institution}:{number}
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 
 /**
- * Legacy thg_gallery_mwnf3_objects structure
+ * Legacy thg_gallery_mwnf3_monuments structure
  */
-interface LegacyThgGalleryMwnf3Object {
+interface LegacyThgGalleryMwnf3Monument {
   gallery_id: number;
-  objects_project_id: string;
-  objects_country: string;
-  objects_museum_id: string;
-  objects_number: number;
+  monuments_project_id: string;
+  monuments_country: string;
+  monuments_institution_id: string;
+  monuments_number: number;
 }
 
-export class ThgGalleryMwnf3ObjectImporter extends BaseImporter {
+export class ThgGalleryMwnf3MonumentImporter extends BaseImporter {
   getName(): string {
-    return 'ThgGalleryMwnf3ObjectImporter';
+    return 'ThgGalleryMwnf3MonumentImporter';
   }
 
   async import(): Promise<ImportResult> {
     const result = this.createResult();
 
     try {
-      this.logInfo('Importing THG gallery -> mwnf3 object associations...');
+      this.logInfo('Importing THG gallery -> mwnf3 monument associations...');
 
-      // Query thg_gallery_mwnf3_objects entries from legacy database
-      let galleryObjects: LegacyThgGalleryMwnf3Object[];
+      // Query thg_gallery_mwnf3_monuments entries from legacy database
+      let galleryMonuments: LegacyThgGalleryMwnf3Monument[];
       try {
-        galleryObjects = await this.context.legacyDb.query<LegacyThgGalleryMwnf3Object>(
-          `SELECT gallery_id, objects_project_id, objects_country, objects_museum_id, objects_number
-           FROM mwnf3_thematic_gallery.thg_gallery_mwnf3_objects
-           ORDER BY gallery_id, objects_project_id, objects_country, objects_museum_id, objects_number`
+        galleryMonuments = await this.context.legacyDb.query<LegacyThgGalleryMwnf3Monument>(
+          `SELECT gallery_id, monuments_project_id, monuments_country, monuments_institution_id, monuments_number
+           FROM mwnf3_thematic_gallery.thg_gallery_mwnf3_monuments
+           ORDER BY gallery_id, monuments_project_id, monuments_country, monuments_institution_id, monuments_number`
         );
       } catch (queryError) {
         const message = queryError instanceof Error ? queryError.message : String(queryError);
         if (message.includes("doesn't exist") || message.includes('Unknown column')) {
           this.logInfo(
-            `⚠️ Skipping: Legacy thg_gallery_mwnf3_objects table not available (${message})`
+            `⚠️ Skipping: Legacy thg_gallery_mwnf3_monuments table not available (${message})`
           );
           result.warnings = result.warnings || [];
-          result.warnings.push(`Legacy thg_gallery_mwnf3_objects table not available: ${message}`);
+          result.warnings.push(
+            `Legacy thg_gallery_mwnf3_monuments table not available: ${message}`
+          );
           return result;
         }
         throw queryError;
       }
 
-      this.logInfo(`Found ${galleryObjects.length} gallery-object associations to process`);
+      this.logInfo(`Found ${galleryMonuments.length} gallery-monument associations to process`);
 
       // Group items by collection for efficient batch attachment
       const collectionItems: Map<string, string[]> = new Map();
       let skippedNoItem = 0;
       let skippedNoCollection = 0;
 
-      for (const legacy of galleryObjects) {
+      for (const legacy of galleryMonuments) {
         try {
-          // Build backward_compatibility for the mwnf3 object
-          const itemBackwardCompat = `mwnf3:objects:${legacy.objects_project_id}:${legacy.objects_country}:${legacy.objects_museum_id}:${legacy.objects_number}`;
+          // Build backward_compatibility for the mwnf3 monument
+          const itemBackwardCompat = `mwnf3:monuments:${legacy.monuments_project_id}:${legacy.monuments_country}:${legacy.monuments_institution_id}:${legacy.monuments_number}`;
 
-          // Get the item ID from tracker or database (items are from Phase 1/2)
+          // Get the item ID from tracker or database (items are from earlier phases)
           const itemId = await this.getEntityUuidAsync(itemBackwardCompat, 'item');
           if (!itemId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Gallery ${legacy.gallery_id}: mwnf3 object not found (${itemBackwardCompat})`
+              `Gallery ${legacy.gallery_id}: mwnf3 monument not found (${itemBackwardCompat})`
             );
             skippedNoItem++;
             continue;
           }
 
-          // Get the collection ID for this gallery (Phase 05 internal)
+          // Get the collection ID for this gallery (Phase 10 internal)
           const galleryBackwardCompat = `mwnf3_thematic_gallery:thg_gallery:${legacy.gallery_id}`;
           const collectionId = await this.getEntityUuidAsync(galleryBackwardCompat, 'collection');
           if (!collectionId) {
@@ -104,7 +106,7 @@ export class ThgGalleryMwnf3ObjectImporter extends BaseImporter {
 
           // Collect sample
           this.collectSample(
-            'thg_gallery_mwnf3_object',
+            'thg_gallery_mwnf3_monument',
             {
               ...legacy,
               resolved_item_backward_compat: itemBackwardCompat,
@@ -117,24 +119,24 @@ export class ThgGalleryMwnf3ObjectImporter extends BaseImporter {
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           result.errors.push(
-            `Gallery ${legacy.gallery_id} object ${legacy.objects_project_id}:${legacy.objects_country}:${legacy.objects_museum_id}:${legacy.objects_number}: ${message}`
+            `Gallery ${legacy.gallery_id} monument ${legacy.monuments_project_id}:${legacy.monuments_country}:${legacy.monuments_institution_id}:${legacy.monuments_number}: ${message}`
           );
-          this.logError(`Gallery ${legacy.gallery_id} mwnf3 object`, error);
+          this.logError(`Gallery ${legacy.gallery_id} mwnf3 monument`, error);
           this.showError();
         }
       }
 
       // Log skipped statistics
       if (skippedNoItem > 0) {
-        this.logInfo(`Skipped ${skippedNoItem} items not found in tracker/database`);
+        this.logInfo(`Skipped ${skippedNoItem} monuments not found in tracker/database`);
       }
       if (skippedNoCollection > 0) {
-        this.logInfo(`Skipped ${skippedNoCollection} items with missing collection`);
+        this.logInfo(`Skipped ${skippedNoCollection} monuments with missing collection`);
       }
 
       // Batch attach items to collections
       if (!this.isDryRun && !this.isSampleOnlyMode) {
-        this.logInfo(`Attaching mwnf3 objects to ${collectionItems.size} collections...`);
+        this.logInfo(`Attaching mwnf3 monuments to ${collectionItems.size} collections...`);
         for (const [collectionId, itemIds] of collectionItems) {
           try {
             await this.context.strategy.attachItemsToCollection(collectionId, itemIds);
@@ -155,7 +157,7 @@ export class ThgGalleryMwnf3ObjectImporter extends BaseImporter {
       const message = error instanceof Error ? error.message : String(error);
       result.success = false;
       result.errors.push(message);
-      this.logError('ThgGalleryMwnf3ObjectImporter', error);
+      this.logError('ThgGalleryMwnf3MonumentImporter', error);
     }
 
     return result;

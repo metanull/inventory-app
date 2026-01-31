@@ -436,7 +436,7 @@ export abstract class BaseImporter {
   /**
    * Get UUID from tracker or database by backward_compatibility
    * First checks tracker (memory), then falls back to database for entities from skipped phases.
-   * This is essential when starting import from a later phase (e.g., --start-at phase-05).
+   * This is essential when starting import from a later phase (e.g., --start-at phase-10).
    */
   protected async getEntityUuidAsync(
     backwardCompatibility: string,
