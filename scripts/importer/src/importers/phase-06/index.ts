@@ -19,7 +19,10 @@
 export { ExploreContextImporter } from './explore-context-importer.js';
 export { ExploreRootCollectionsImporter } from './explore-root-collections-importer.js';
 export { ExploreThematicCycleImporter } from './explore-thematiccycle-importer.js';
+export { ExploreThematicCyclePictureImporter } from './explore-thematiccycle-picture-importer.js';
 export { ExploreCountryImporter } from './explore-country-importer.js';
 export { ExploreLocationImporter } from './explore-location-importer.js';
+export { ExploreLocationPictureImporter } from './explore-location-picture-importer.js';
 export { ExploreMonumentImporter } from './explore-monument-importer.js';
+export { ExploreMonumentPictureImporter } from './explore-monument-picture-importer.js';
 export { ExploreItineraryImporter } from './explore-itinerary-importer.js';

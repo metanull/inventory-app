@@ -39,6 +39,7 @@ import {
   ObjectImporter,
   MonumentImporter,
   MonumentDetailImporter,
+  ItemItemLinkImporter,
   ObjectPictureImporter,
   MonumentPictureImporter,
   MonumentDetailPictureImporter,
@@ -60,9 +61,12 @@ import {
   ExploreContextImporter,
   ExploreRootCollectionsImporter,
   ExploreThematicCycleImporter,
+  ExploreThematicCyclePictureImporter,
   ExploreCountryImporter,
   ExploreLocationImporter,
+  ExploreLocationPictureImporter,
   ExploreMonumentImporter,
+  ExploreMonumentPictureImporter,
   ExploreItineraryImporter,
   // Phase 07: Travels
   TravelsContextImporter,
@@ -187,6 +191,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import monument detail items (children of monuments)',
     importerClass: MonumentDetailImporter,
     dependencies: ['monument', 'default-context', 'language'],
+  },
+  {
+    key: 'item-item-link',
+    name: 'Item-Item Links',
+    description:
+      'Import relationships between items (object-object, object-monument, monument-monument)',
+    importerClass: ItemItemLinkImporter,
+    dependencies: ['object', 'monument', 'default-context'],
   },
   // Phase 2: Images
   {
@@ -319,6 +331,13 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: ['explore-root-collections'],
   },
   {
+    key: 'explore-thematiccycle-picture',
+    name: 'Explore Thematic Cycle Pictures',
+    description: 'Import thematic cycle pictures from Explore database',
+    importerClass: ExploreThematicCyclePictureImporter,
+    dependencies: ['explore-thematiccycle'],
+  },
+  {
     key: 'explore-country',
     name: 'Explore Countries',
     description: 'Import country collections from Explore locations',
@@ -333,11 +352,25 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: ['explore-country'],
   },
   {
+    key: 'explore-location-picture',
+    name: 'Explore Location Pictures',
+    description: 'Import location pictures from Explore database',
+    importerClass: ExploreLocationPictureImporter,
+    dependencies: ['explore-location'],
+  },
+  {
     key: 'explore-monument',
     name: 'Explore Monuments',
     description: 'Import monuments with geocoordinates from Explore',
     importerClass: ExploreMonumentImporter,
     dependencies: ['explore-location'],
+  },
+  {
+    key: 'explore-monument-picture',
+    name: 'Explore Monument Pictures',
+    description: 'Import monument pictures from Explore database',
+    importerClass: ExploreMonumentPictureImporter,
+    dependencies: ['explore-monument'],
   },
   {
     key: 'explore-itinerary',
