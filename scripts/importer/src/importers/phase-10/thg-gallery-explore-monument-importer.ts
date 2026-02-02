@@ -50,13 +50,17 @@ export class ThgGalleryExploreMonumentImporter extends BaseImporter {
             `⚠️ Skipping: Legacy thg_gallery_explore_monuments table not available (${message})`
           );
           result.warnings = result.warnings || [];
-          result.warnings.push(`Legacy thg_gallery_explore_monuments table not available: ${message}`);
+          result.warnings.push(
+            `Legacy thg_gallery_explore_monuments table not available: ${message}`
+          );
           return result;
         }
         throw queryError;
       }
 
-      this.logInfo(`Found ${galleryMonuments.length} gallery-Explore monument associations to process`);
+      this.logInfo(
+        `Found ${galleryMonuments.length} gallery-Explore monument associations to process`
+      );
 
       // Group items by collection for efficient batch attachment
       const collectionItems: Map<string, string[]> = new Map();

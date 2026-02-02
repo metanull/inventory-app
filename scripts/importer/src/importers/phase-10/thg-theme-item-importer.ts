@@ -136,7 +136,10 @@ export class ThgThemeItemImporter extends BaseImporter {
 
           // Get the theme collection ID (themes are now collections)
           const themeBackwardCompat = `mwnf3_thematic_gallery:theme:${legacy.gallery_id}:${legacy.theme_id}`;
-          const themeCollectionId = await this.getEntityUuidAsync(themeBackwardCompat, 'collection');
+          const themeCollectionId = await this.getEntityUuidAsync(
+            themeBackwardCompat,
+            'collection'
+          );
           if (!themeCollectionId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
