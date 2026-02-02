@@ -24,3 +24,4 @@ export { ThgGalleryMwnf3MonumentImporter } from './thg-gallery-mwnf3-monument-im
 export { ThgGalleryShObjectImporter } from './thg-gallery-sh-object-importer.js';
 export { ThgGalleryShMonumentImporter } from './thg-gallery-sh-monument-importer.js';
 export { ThgGalleryTravelMonumentImporter } from './thg-gallery-travel-monument-importer.js';
+export { ThgGalleryExploreMonumentImporter } from './thg-gallery-explore-monument-importer.js';

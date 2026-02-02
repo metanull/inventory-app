@@ -75,6 +75,10 @@ import {
   TravelsLocationTranslationImporter,
   TravelsMonumentImporter,
   TravelsMonumentTranslationImporter,
+  TravelsTrailPictureImporter,
+  TravelsItineraryPictureImporter,
+  TravelsLocationPictureImporter,
+  TravelsMonumentPictureImporter,
   // Phase 10: Thematic Galleries (runs last, after all other legacy DBs)
   ThgGalleryContextImporter,
   ThgGalleryImporter,
@@ -91,6 +95,7 @@ import {
   ThgGalleryShObjectImporter,
   ThgGalleryShMonumentImporter,
   ThgGalleryTravelMonumentImporter,
+  ThgGalleryExploreMonumentImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -411,6 +416,35 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     importerClass: TravelsMonumentTranslationImporter,
     dependencies: ['travels-monument', 'language'],
   },
+  // Phase 07: Travels Pictures
+  {
+    key: 'travels-trail-picture',
+    name: 'Travels Trail Pictures',
+    description: 'Import trail pictures (covers, maps, titles)',
+    importerClass: TravelsTrailPictureImporter,
+    dependencies: ['travels-trail'],
+  },
+  {
+    key: 'travels-itinerary-picture',
+    name: 'Travels Itinerary Pictures',
+    description: 'Import itinerary pictures (sketches)',
+    importerClass: TravelsItineraryPictureImporter,
+    dependencies: ['travels-itinerary'],
+  },
+  {
+    key: 'travels-location-picture',
+    name: 'Travels Location Pictures',
+    description: 'Import location pictures',
+    importerClass: TravelsLocationPictureImporter,
+    dependencies: ['travels-location'],
+  },
+  {
+    key: 'travels-monument-picture',
+    name: 'Travels Monument Pictures',
+    description: 'Import travel monument pictures',
+    importerClass: TravelsMonumentPictureImporter,
+    dependencies: ['travels-monument'],
+  },
   // Phase 10: Thematic Galleries (runs last, after all other legacy DBs are imported)
   {
     key: 'thg-gallery-context',
@@ -518,6 +552,13 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Link travel monuments to THG gallery collections',
     importerClass: ThgGalleryTravelMonumentImporter,
     dependencies: ['thg-gallery', 'travels-monument'],
+  },
+  {
+    key: 'thg-gallery-explore-monument',
+    name: 'THG Gallery Explore Monuments',
+    description: 'Link Explore monuments to THG gallery collections',
+    importerClass: ThgGalleryExploreMonumentImporter,
+    dependencies: ['thg-gallery', 'explore-monument'],
   },
 ];
 

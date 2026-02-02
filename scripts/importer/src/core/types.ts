@@ -336,6 +336,20 @@ export interface PartnerImageData {
 }
 
 /**
+ * Collection image data for write operations
+ */
+export interface CollectionImageData {
+  id?: string; // Optional: for preserving IDs
+  collection_id: string;
+  path: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  alt_text?: string | null;
+  display_order: number;
+}
+
+/**
  * Glossary (Word) data for write operations
  */
 export type GlossaryData = BaseEntityData;

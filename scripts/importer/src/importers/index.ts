@@ -56,6 +56,7 @@ export {
   ThgGalleryShObjectImporter,
   ThgGalleryShMonumentImporter,
   ThgGalleryTravelMonumentImporter,
+  ThgGalleryExploreMonumentImporter,
 } from './phase-10/index.js';
 
 // Phase 06: Explore
@@ -81,4 +82,9 @@ export {
   TravelsLocationTranslationImporter,
   TravelsMonumentImporter,
   TravelsMonumentTranslationImporter,
+  // Picture Importers
+  TravelsTrailPictureImporter,
+  TravelsItineraryPictureImporter,
+  TravelsLocationPictureImporter,
+  TravelsMonumentPictureImporter,
 } from './phase-07/index.js';

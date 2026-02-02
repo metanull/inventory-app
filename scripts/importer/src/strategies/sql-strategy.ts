@@ -34,6 +34,7 @@ import type {
   ArtistData,
   ItemImageData,
   PartnerImageData,
+  CollectionImageData,
   GlossaryData,
   GlossaryTranslationData,
   GlossarySpellingData,
@@ -623,6 +624,30 @@ export class SqlWriteStrategy implements IWriteStrategy {
       [
         id,
         sanitized.partner_id,
+        sanitized.path,
+        sanitized.original_name,
+        sanitized.mime_type,
+        sanitized.size,
+        sanitized.alt_text,
+        sanitized.display_order,
+        this.now,
+        this.now,
+      ]
+    );
+    // Track using lowercase path as unique identifier
+    this.tracker.set(sanitized.path.toLowerCase(), id, 'image');
+    return id;
+  }
+
+  async writeCollectionImage(data: CollectionImageData): Promise<string> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = sanitized.id || uuidv4();
+    await this.db.execute(
+      `INSERT INTO collection_images (id, collection_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.collection_id,
         sanitized.path,
         sanitized.original_name,
         sanitized.mime_type,

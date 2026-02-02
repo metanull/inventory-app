@@ -30,6 +30,7 @@ import type {
   ArtistData,
   ItemImageData,
   PartnerImageData,
+  CollectionImageData,
   GlossaryData,
   GlossaryTranslationData,
   GlossarySpellingData,
@@ -210,6 +211,12 @@ export interface IWriteStrategy {
    * @returns The partner image UUID
    */
   writePartnerImage(data: PartnerImageData): Promise<string>;
+
+  /**
+   * Write a collection image record
+   * @returns The collection image UUID
+   */
+  writeCollectionImage(data: CollectionImageData): Promise<string>;
 
   // =========================================================================
   // Glossary
