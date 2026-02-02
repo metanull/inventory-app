@@ -1,7 +1,8 @@
 /**
  * THG Theme Item Importer
  *
- * Imports theme_item entries, linking items to collections via the collection_item pivot.
+ * Imports theme_item entries, linking items to theme collections via the collection_item pivot.
+ * Items are attached to their specific theme collection (not the parent gallery).
  * Imports mwnf3-resolvable items and SH (Sharing History) items.
  *
  * Legacy schema:
@@ -9,6 +10,7 @@
  *
  * New schema:
  * - collection_item pivot (collection_id, item_id) via attachItemsToCollection
+ *   - collection_id = theme collection (mwnf3_thematic_gallery:theme:{gallery_id}:{theme_id})
  *
  * Supported item references:
  * - mwnf3_object_{project}_{country}_{partner}_{item}
@@ -17,6 +19,9 @@
  * - sh_object_{project}_{country}_{item}
  * - sh_monument_{project}_{country}_{item}
  * - sh_monument_detail_{project}_{country}_{item}_{detail}
+ *
+ * Dependencies:
+ * - ThgThemeImporter (must run first to create theme collections)
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
@@ -69,7 +74,7 @@ export class ThgThemeItemImporter extends BaseImporter {
     const result = this.createResult();
 
     try {
-      this.logInfo('Importing theme-item associations (mwnf3 and SH items)...');
+      this.logInfo('Importing theme-item associations to theme collections...');
 
       // Query theme_item entries from legacy database
       // Note: The legacy schema may not have this table or may have different columns - handle gracefully
@@ -100,10 +105,11 @@ export class ThgThemeItemImporter extends BaseImporter {
 
       this.logInfo(`Found ${themeItems.length} theme-item associations to process`);
 
-      // Group items by collection for efficient batch attachment
+      // Group items by theme collection for efficient batch attachment
       const collectionItems: Map<string, string[]> = new Map();
       let skippedNonMwnf3 = 0;
       let skippedNoItem = 0;
+      let skippedNoTheme = 0;
 
       for (const legacy of themeItems) {
         try {
@@ -111,7 +117,7 @@ export class ThgThemeItemImporter extends BaseImporter {
           const itemBackwardCompat = this.resolveItemReference(legacy);
 
           if (!itemBackwardCompat) {
-            // Not an mwnf3 item - skip for now
+            // Not an mwnf3/SH item - skip for now
             skippedNonMwnf3++;
             continue;
           }
@@ -128,23 +134,23 @@ export class ThgThemeItemImporter extends BaseImporter {
             continue;
           }
 
-          // Get the collection ID for this gallery (Phase 10 internal)
-          const galleryBackwardCompat = `mwnf3_thematic_gallery:thg_gallery:${legacy.gallery_id}`;
-          const collectionId = await this.getEntityUuidAsync(galleryBackwardCompat, 'collection');
-          if (!collectionId) {
+          // Get the theme collection ID (themes are now collections)
+          const themeBackwardCompat = `mwnf3_thematic_gallery:theme:${legacy.gallery_id}:${legacy.theme_id}`;
+          const themeCollectionId = await this.getEntityUuidAsync(themeBackwardCompat, 'collection');
+          if (!themeCollectionId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Theme item ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}: Collection not found`
+              `Theme item ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}: Theme collection not found (${themeBackwardCompat})`
             );
-            result.skipped++;
+            skippedNoTheme++;
             continue;
           }
 
-          // Add to collection batch
-          if (!collectionItems.has(collectionId)) {
-            collectionItems.set(collectionId, []);
+          // Add to theme collection batch
+          if (!collectionItems.has(themeCollectionId)) {
+            collectionItems.set(themeCollectionId, []);
           }
-          const items = collectionItems.get(collectionId)!;
+          const items = collectionItems.get(themeCollectionId)!;
           if (!items.includes(itemId)) {
             items.push(itemId);
           }
@@ -155,6 +161,7 @@ export class ThgThemeItemImporter extends BaseImporter {
             {
               ...legacy,
               resolved_item_backward_compat: itemBackwardCompat,
+              resolved_theme_collection: themeBackwardCompat,
             } as unknown as Record<string, unknown>,
             'success'
           );
@@ -177,30 +184,35 @@ export class ThgThemeItemImporter extends BaseImporter {
       // Log skipped statistics
       if (skippedNonMwnf3 > 0) {
         this.logInfo(
-          `Skipped ${skippedNonMwnf3} non-mwnf3 items (will be imported in future phases)`
+          `Skipped ${skippedNonMwnf3} non-mwnf3/SH items (may be imported via other importers)`
         );
       }
       if (skippedNoItem > 0) {
         this.logInfo(`Skipped ${skippedNoItem} items not found in tracker`);
       }
+      if (skippedNoTheme > 0) {
+        this.logInfo(`Skipped ${skippedNoTheme} items with missing theme collection`);
+      }
 
-      // Batch attach items to collections
+      // Batch attach items to theme collections
       if (!this.isDryRun && !this.isSampleOnlyMode) {
-        this.logInfo(`Attaching items to ${collectionItems.size} collections...`);
+        this.logInfo(`Attaching items to ${collectionItems.size} theme collections...`);
         for (const [collectionId, itemIds] of collectionItems) {
           try {
             await this.context.strategy.attachItemsToCollection(collectionId, itemIds);
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            result.errors.push(`Failed to attach items to collection ${collectionId}: ${message}`);
-            this.logError(`Collection ${collectionId}`, message);
+            result.errors.push(
+              `Failed to attach items to theme collection ${collectionId}: ${message}`
+            );
+            this.logError(`Theme collection ${collectionId}`, message);
           }
         }
       }
 
       this.showSummary(
         result.imported,
-        result.skipped + skippedNonMwnf3 + skippedNoItem,
+        result.skipped + skippedNonMwnf3 + skippedNoItem + skippedNoTheme,
         result.errors.length
       );
     } catch (error) {

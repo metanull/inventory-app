@@ -37,6 +37,7 @@ class CollectionTranslation extends Model
         'context_id',
         'title',
         'description',
+        'quote',
         'url',
         'backward_compatibility',
         'extra',

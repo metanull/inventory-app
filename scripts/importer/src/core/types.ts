@@ -165,6 +165,7 @@ export interface CollectionTranslationData {
   backward_compatibility: string;
   title: string;
   description?: string | null;
+  quote?: string | null;
 }
 
 /**

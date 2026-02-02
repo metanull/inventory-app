@@ -235,8 +235,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const sanitized = sanitizeAllStrings(data);
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO collection_translations (id, collection_id, language_id, context_id, title, description, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO collection_translations (id, collection_id, language_id, context_id, title, description, quote, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.collection_id,
@@ -244,6 +244,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
         sanitized.context_id,
         sanitized.title,
         sanitized.description ?? null, // Ensure null instead of undefined
+        sanitized.quote ?? null, // Optional quote field
         sanitized.backward_compatibility,
         this.now,
         this.now,

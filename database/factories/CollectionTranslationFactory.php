@@ -33,6 +33,7 @@ class CollectionTranslationFactory extends Factory
             'context_id' => Context::factory(),
             'title' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph(3),
+            'quote' => $this->faker->optional(0.3)->sentence(),
             'url' => $this->faker->optional(0.3)->url(),
             'backward_compatibility' => $this->faker->optional()->uuid(),
             'extra' => $this->faker->optional()->randomElement([
