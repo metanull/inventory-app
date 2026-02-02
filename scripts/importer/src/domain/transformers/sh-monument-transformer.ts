@@ -118,29 +118,28 @@ export function transformShMonument(
 
 /**
  * Transform a SH monument text to ItemTranslation
- * Returns null if required fields (name, description) are missing
+ * Returns null if required fields (name) is missing
+ * Description is built from description, description2, and history (at least one should be present)
  */
 export function transformShMonumentTranslation(
   text: ShLegacyMonumentText
 ): TransformedShMonumentTranslation | null {
   const languageId = mapLanguageCode(text.lang);
 
-  // Validate required fields
+  // Validate required fields - name is required
   const name = text.name?.trim() || null;
   if (!name) {
     return null;
   }
 
-  // Build description combining description, description2, and history
+  // Build description combining description, description2, and history (use whichever is available)
   const descriptions = [text.description, text.description2, text.history]
     .filter((d): d is string => !!d && d.trim() !== '')
     .map((d) => convertHtmlToMarkdown(d));
 
-  if (descriptions.length === 0) {
-    return null;
-  }
-
-  const description = descriptions.join('\n\n');
+  // Use combined description, or fallback to empty string if none available
+  // (allow items with name but no description to be imported)
+  const description = descriptions.length > 0 ? descriptions.join('\n\n') : '';
 
   // Build alternate name from name2, second_name, third_name
   const alternateNames = [text.name2, text.second_name, text.third_name]

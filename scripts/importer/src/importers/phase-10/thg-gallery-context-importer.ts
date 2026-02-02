@@ -120,7 +120,7 @@ export class ThgGalleryContextImporter extends BaseImporter {
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           result.errors.push(`Gallery ${legacy.gallery_id}: ${message}`);
-          this.logError(`Gallery ${legacy.gallery_id}`, error);
+          this.logError(`Gallery ${legacy.gallery_id}`, message);
           this.showError();
         }
       }
@@ -130,7 +130,7 @@ export class ThgGalleryContextImporter extends BaseImporter {
       const message = error instanceof Error ? error.message : String(error);
       result.success = false;
       result.errors.push(message);
-      this.logError('ThgGalleryContextImporter', error);
+      this.logError('ThgGalleryContextImporter', message);
     }
 
     return result;

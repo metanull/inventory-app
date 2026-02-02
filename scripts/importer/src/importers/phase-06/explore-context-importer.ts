@@ -75,7 +75,7 @@ export class ExploreContextImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error creating explore context: ${errorMessage}`);
-      this.logError('ExploreContextImporter', error);
+      this.logError('ExploreContextImporter', errorMessage);
       this.showError();
     }
 

@@ -161,7 +161,7 @@ export class TravelsLocationImporter extends BaseImporter {
           result.errors.push(
             `Error importing location ${legacy.project_id}/${legacy.country}/${legacy.trail_id}/${legacy.itinerary_id}/${legacy.number}: ${errorMessage}`
           );
-          this.logError('TravelsLocationImporter', error, {
+          this.logError('TravelsLocationImporter', errorMessage, {
             project_id: legacy.project_id,
             country: legacy.country,
             trail_id: legacy.trail_id,
@@ -175,7 +175,7 @@ export class TravelsLocationImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error in location import: ${errorMessage}`);
-      this.logError('TravelsLocationImporter', error);
+      this.logError('TravelsLocationImporter', errorMessage);
       this.showError();
     }
 

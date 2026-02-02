@@ -77,7 +77,7 @@ export class TravelsContextImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error creating Travels context: ${errorMessage}`);
-      this.logError('TravelsContextImporter', error);
+      this.logError('TravelsContextImporter', errorMessage);
       this.showError();
     }
 

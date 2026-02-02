@@ -121,7 +121,7 @@ export class ThgThemeImporter extends BaseImporter {
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           result.errors.push(`Theme ${legacy.gallery_id}.${legacy.theme_id}: ${message}`);
-          this.logError(`Theme ${legacy.gallery_id}.${legacy.theme_id}`, error);
+          this.logError(`Theme ${legacy.gallery_id}.${legacy.theme_id}`, message);
           this.showError();
         }
       }
@@ -131,7 +131,7 @@ export class ThgThemeImporter extends BaseImporter {
       const message = error instanceof Error ? error.message : String(error);
       result.success = false;
       result.errors.push(message);
-      this.logError('ThgThemeImporter', error);
+      this.logError('ThgThemeImporter', message);
     }
 
     return result;

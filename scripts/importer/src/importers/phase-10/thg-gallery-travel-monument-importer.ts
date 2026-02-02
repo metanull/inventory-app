@@ -130,7 +130,7 @@ export class ThgGalleryTravelMonumentImporter extends BaseImporter {
           result.errors.push(
             `Gallery ${legacy.gallery_id} travel monument ${legacy.project_id}:${legacy.country_id}:${legacy.trail_id}:${legacy.itinerary_id}:${legacy.location_id}:${legacy.item_id}: ${message}`
           );
-          this.logError(`Gallery ${legacy.gallery_id} travel monument`, error);
+          this.logError(`Gallery ${legacy.gallery_id} travel monument`, message);
           this.showError();
         }
       }
@@ -154,7 +154,7 @@ export class ThgGalleryTravelMonumentImporter extends BaseImporter {
             result.errors.push(
               `Failed to attach travel items to collection ${collectionId}: ${message}`
             );
-            this.logError(`Collection ${collectionId}`, error);
+            this.logError(`Collection ${collectionId}`, message);
           }
         }
       }
@@ -164,7 +164,7 @@ export class ThgGalleryTravelMonumentImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error in THG gallery travel monument import: ${errorMessage}`);
-      this.logError('ThgGalleryTravelMonumentImporter', error);
+      this.logError('ThgGalleryTravelMonumentImporter', errorMessage);
       this.showError();
     }
 

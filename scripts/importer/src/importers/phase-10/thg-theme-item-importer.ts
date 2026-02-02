@@ -168,7 +168,7 @@ export class ThgThemeItemImporter extends BaseImporter {
           );
           this.logError(
             `Theme item ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}`,
-            error
+            message
           );
           this.showError();
         }
@@ -193,7 +193,7 @@ export class ThgThemeItemImporter extends BaseImporter {
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
             result.errors.push(`Failed to attach items to collection ${collectionId}: ${message}`);
-            this.logError(`Collection ${collectionId}`, error);
+            this.logError(`Collection ${collectionId}`, message);
           }
         }
       }
@@ -207,7 +207,7 @@ export class ThgThemeItemImporter extends BaseImporter {
       const message = error instanceof Error ? error.message : String(error);
       result.success = false;
       result.errors.push(message);
-      this.logError('ThgThemeItemImporter', error);
+      this.logError('ThgThemeItemImporter', message);
     }
 
     return result;

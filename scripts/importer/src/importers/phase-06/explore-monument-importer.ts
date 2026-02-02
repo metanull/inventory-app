@@ -182,7 +182,7 @@ export class ExploreMonumentImporter extends BaseImporter {
           result.success = false;
           const errorMessage = error instanceof Error ? error.message : String(error);
           result.errors.push(`Error importing monument ${legacy.monumentId}: ${errorMessage}`);
-          this.logError('ExploreMonumentImporter', error, { monumentId: legacy.monumentId });
+          this.logError('ExploreMonumentImporter', errorMessage, { monumentId: legacy.monumentId });
           this.showError();
         }
       }
@@ -190,7 +190,7 @@ export class ExploreMonumentImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error in monument import: ${errorMessage}`);
-      this.logError('ExploreMonumentImporter', error);
+      this.logError('ExploreMonumentImporter', errorMessage);
       this.showError();
     }
 

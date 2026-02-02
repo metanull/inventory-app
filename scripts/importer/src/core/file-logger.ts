@@ -98,12 +98,25 @@ export class FileLogger implements ILogger {
     this.writeToFile(`[WARN] [${this.name}] ${message}${detailsStr}`);
   }
 
-  error(context: string, error: unknown, additionalContext?: Record<string, unknown>): void {
-    const message = error instanceof Error ? error.message : String(error);
+  /**
+   * Log an error - for expected/handled errors (data issues, constraint violations)
+   * No stack trace is written.
+   */
+  error(context: string, message: string, additionalContext?: Record<string, unknown>): void {
     const contextStr = additionalContext ? ` (${JSON.stringify(additionalContext)})` : '';
     console.error(`[${this.name}] ❌ ${context}: ${message}${contextStr}`);
     this.writeToFile(`[ERROR] [${this.name}] ${context}: ${message}${contextStr}`);
-    if (error instanceof Error && error.stack) {
+  }
+
+  /**
+   * Log an exception - for unexpected runtime errors (connection lost, bugs)
+   * Stack trace IS written.
+   */
+  exception(context: string, error: Error, additionalContext?: Record<string, unknown>): void {
+    const contextStr = additionalContext ? ` (${JSON.stringify(additionalContext)})` : '';
+    console.error(`[${this.name}] 💥 EXCEPTION ${context}: ${error.message}${contextStr}`);
+    this.writeToFile(`[EXCEPTION] [${this.name}] ${context}: ${error.message}${contextStr}`);
+    if (error.stack) {
       this.writeToFile(`[STACK] ${error.stack}`);
     }
   }

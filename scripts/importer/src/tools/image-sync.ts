@@ -130,7 +130,7 @@ export class ImageSyncTool {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         errors.push(`ItemImage ${image.id}: ${message}`);
-        this.logger.error(`ItemImage ${image.id}`, error);
+        this.logger.error(`ItemImage ${image.id}`, message);
         process.stdout.write('✗');
       }
     }
@@ -165,7 +165,7 @@ export class ImageSyncTool {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         errors.push(`PartnerImage ${image.id}: ${message}`);
-        this.logger.error(`PartnerImage ${image.id}`, error);
+        this.logger.error(`PartnerImage ${image.id}`, message);
         process.stdout.write('✗');
       }
     }

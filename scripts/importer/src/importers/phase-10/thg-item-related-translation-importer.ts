@@ -119,7 +119,7 @@ export class ThgItemRelatedTranslationImporter extends BaseImporter {
           );
           this.logError(
             `Item link translation ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}->${legacy.related_item_id} (${legacy.language_id})`,
-            error
+            message
           );
           this.showError();
         }
@@ -130,7 +130,7 @@ export class ThgItemRelatedTranslationImporter extends BaseImporter {
       const message = error instanceof Error ? error.message : String(error);
       result.success = false;
       result.errors.push(message);
-      this.logError('ThgItemRelatedTranslationImporter', error);
+      this.logError('ThgItemRelatedTranslationImporter', message);
     }
 
     return result;

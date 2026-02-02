@@ -168,7 +168,7 @@ export class ShProjectImporter extends BaseImporter {
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           result.errors.push(`SH Project ${legacy.project_id}: ${message}`);
-          this.logError(`SH Project ${legacy.project_id}`, error);
+          this.logError(`SH Project ${legacy.project_id}`, message);
           this.showError();
         }
       }

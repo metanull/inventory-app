@@ -242,7 +242,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
         sanitized.language_id,
         sanitized.context_id,
         sanitized.title,
-        sanitized.description,
+        sanitized.description ?? null, // Ensure null instead of undefined
         sanitized.backward_compatibility,
         this.now,
         this.now,

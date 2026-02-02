@@ -119,29 +119,28 @@ export function transformShObject(
 
 /**
  * Transform a SH object text to ItemTranslation
- * Returns null if required fields (name, description) are missing
+ * Returns null if required fields (name) is missing
+ * Description is built from description OR description2 (at least one must be present)
  */
 export function transformShObjectTranslation(
   text: ShLegacyObjectText
 ): TransformedShObjectTranslation | null {
   const languageId = mapLanguageCode(text.lang);
 
-  // Validate required fields
+  // Validate required fields - name is required
   const name = text.name?.trim() || null;
   if (!name) {
     return null;
   }
 
-  // Build description combining description and description2
+  // Build description combining description and description2 (use whichever is available)
   const descriptions = [text.description, text.description2]
     .filter((d): d is string => !!d && d.trim() !== '')
     .map((d) => convertHtmlToMarkdown(d));
 
-  if (descriptions.length === 0) {
-    return null;
-  }
-
-  const description = descriptions.join('\n\n');
+  // Use combined description, or fallback to empty string if none available
+  // (allow items with name but no description to be imported)
+  const description = descriptions.length > 0 ? descriptions.join('\n\n') : '';
 
   // Build alternate name from name2, second_name, third_name
   const alternateNames = [text.name2, text.second_name, text.third_name]

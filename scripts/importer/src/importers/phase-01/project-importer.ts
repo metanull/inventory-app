@@ -208,7 +208,7 @@ export class ProjectImporter extends BaseImporter {
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           result.errors.push(`${legacy.project_id}: ${message}`);
-          this.logError(`Project ${legacy.project_id}`, error);
+          this.logError(`Project ${legacy.project_id}`, message);
           this.showError();
         }
       }

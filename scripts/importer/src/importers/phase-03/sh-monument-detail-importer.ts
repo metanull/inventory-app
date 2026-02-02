@@ -80,7 +80,7 @@ export class ShMonumentDetailImporter extends BaseImporter {
             group.detail_id
           );
           result.errors.push(`${backwardCompat}: ${message}`);
-          this.logError(`SH Monument Detail ${backwardCompat}`, error);
+          this.logError(`SH Monument Detail ${backwardCompat}`, message);
           this.showError();
         }
       }

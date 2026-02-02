@@ -141,7 +141,7 @@ export class ThgThemeTranslationImporter extends BaseImporter {
           );
           this.logError(
             `Theme ${legacy.gallery_id}.${legacy.theme_id} (${legacy.language_id})`,
-            error
+            message
           );
           this.showError();
         }
@@ -152,7 +152,7 @@ export class ThgThemeTranslationImporter extends BaseImporter {
       const message = error instanceof Error ? error.message : String(error);
       result.success = false;
       result.errors.push(message);
-      this.logError('ThgThemeTranslationImporter', error);
+      this.logError('ThgThemeTranslationImporter', message);
     }
 
     return result;

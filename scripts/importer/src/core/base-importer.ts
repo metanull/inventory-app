@@ -64,7 +64,16 @@ export interface ImportContext {
 export interface ILogger {
   info(message: string): void;
   warning(message: string, details?: unknown): void;
-  error(context: string, error: unknown, additionalContext?: Record<string, unknown>): void;
+  /**
+   * Log an error - for expected/handled errors (data issues, constraint violations)
+   * No stack trace is written.
+   */
+  error(context: string, message: string, additionalContext?: Record<string, unknown>): void;
+  /**
+   * Log an exception - for unexpected runtime errors (connection lost, bugs)
+   * Stack trace IS written.
+   */
+  exception(context: string, error: Error, additionalContext?: Record<string, unknown>): void;
   showProgress(): void;
   showSkipped(): void;
   showError(): void;
@@ -89,9 +98,15 @@ export class ConsoleLogger implements ILogger {
     console.log(`[${this.name}] ⚠️  ${message}`);
   }
 
-  error(context: string, error: unknown, _additionalContext?: Record<string, unknown>): void {
-    const message = error instanceof Error ? error.message : String(error);
+  error(context: string, message: string, _additionalContext?: Record<string, unknown>): void {
     console.error(`[${this.name}] ❌ ${context}: ${message}`);
+  }
+
+  exception(context: string, error: Error, _additionalContext?: Record<string, unknown>): void {
+    console.error(`[${this.name}] 💥 EXCEPTION ${context}: ${error.message}`);
+    if (error.stack) {
+      console.error(error.stack);
+    }
   }
 
   showProgress(): void {
@@ -290,14 +305,27 @@ export abstract class BaseImporter {
   }
 
   /**
-   * Log error message
+   * Log error message - for expected/handled errors (data issues, constraint violations)
+   * No stack trace is written.
    */
   protected logError(
     context: string,
-    error: unknown,
+    message: string,
     additionalContext?: Record<string, unknown>
   ): void {
-    this.logger.error(context, error, additionalContext);
+    this.logger.error(context, message, additionalContext);
+  }
+
+  /**
+   * Log exception - for unexpected runtime errors (connection lost, bugs)
+   * Stack trace IS written.
+   */
+  protected logException(
+    context: string,
+    error: Error,
+    additionalContext?: Record<string, unknown>
+  ): void {
+    this.logger.exception(context, error, additionalContext);
   }
 
   /**

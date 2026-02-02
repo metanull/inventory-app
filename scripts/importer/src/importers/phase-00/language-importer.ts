@@ -97,7 +97,7 @@ export class LanguageImporter extends BaseImporter {
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           result.errors.push(`${language.id}: ${message}`);
-          this.logError(`Language ${language.id}`, error);
+          this.logError(`Language ${language.id}`, message);
           this.showError();
         }
       }
@@ -184,7 +184,7 @@ export class LanguageTranslationImporter extends BaseImporter {
             this.showSkipped();
           } else {
             result.errors.push(`${legacy.lang_id}:${legacy.lang}: ${message}`);
-            this.logError(`Language translation ${legacy.lang_id}:${legacy.lang}`, error);
+            this.logError(`Language translation ${legacy.lang_id}:${legacy.lang}`, message);
             this.showError();
           }
         }

@@ -151,7 +151,7 @@ export class ExploreItineraryImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error in itinerary import: ${errorMessage}`);
-      this.logError('ExploreItineraryImporter', error);
+      this.logError('ExploreItineraryImporter', errorMessage);
       this.showError();
     }
 
@@ -239,7 +239,9 @@ export class ExploreItineraryImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error importing itinerary ${legacy.itineraries_id}: ${errorMessage}`);
-      this.logError('ExploreItineraryImporter', error, { itineraryId: legacy.itineraries_id });
+      this.logError('ExploreItineraryImporter', errorMessage, {
+        itineraryId: legacy.itineraries_id,
+      });
       this.showError();
     }
   }

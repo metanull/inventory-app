@@ -119,7 +119,7 @@ export class ThgGalleryShObjectImporter extends BaseImporter {
           result.errors.push(
             `Gallery ${legacy.gallery_id} SH object ${legacy.sh_objects_project_id}:${legacy.sh_objects_country}:${legacy.sh_objects_number}: ${message}`
           );
-          this.logError(`Gallery ${legacy.gallery_id} SH object`, error);
+          this.logError(`Gallery ${legacy.gallery_id} SH object`, message);
           this.showError();
         }
       }
@@ -141,7 +141,7 @@ export class ThgGalleryShObjectImporter extends BaseImporter {
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
             result.errors.push(`Failed to attach items to collection ${collectionId}: ${message}`);
-            this.logError(`Collection ${collectionId}`, error);
+            this.logError(`Collection ${collectionId}`, message);
           }
         }
       }
@@ -155,7 +155,7 @@ export class ThgGalleryShObjectImporter extends BaseImporter {
       const message = error instanceof Error ? error.message : String(error);
       result.success = false;
       result.errors.push(message);
-      this.logError('ThgGalleryShObjectImporter', error);
+      this.logError('ThgGalleryShObjectImporter', message);
     }
 
     return result;

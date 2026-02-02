@@ -1006,7 +1006,11 @@ program
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error('Fatal error', error);
+      if (error instanceof Error) {
+        logger.exception('Fatal error', error);
+      } else {
+        logger.error('Fatal error', message);
+      }
       console.error(chalk.red(`\nFatal error: ${message}`));
       if (error instanceof Error && error.stack) {
         console.error(chalk.gray(error.stack));
@@ -1150,7 +1154,11 @@ program
       process.exit(result.success ? 0 : 1);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error('ImageSync', error);
+      if (error instanceof Error) {
+        logger.exception('ImageSync', error);
+      } else {
+        logger.error('ImageSync', message);
+      }
       console.log(chalk.red(`\n❌ Image sync failed: ${message}`));
       console.log(chalk.red(error instanceof Error ? error.stack : ''));
       process.exit(1);

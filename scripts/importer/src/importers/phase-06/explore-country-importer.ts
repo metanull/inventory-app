@@ -153,7 +153,7 @@ export class ExploreCountryImporter extends BaseImporter {
           result.success = false;
           const errorMessage = error instanceof Error ? error.message : String(error);
           result.errors.push(`Error importing country ${legacy.countryId}: ${errorMessage}`);
-          this.logError('ExploreCountryImporter', error, { countryId: legacy.countryId });
+          this.logError('ExploreCountryImporter', errorMessage, { countryId: legacy.countryId });
           this.showError();
         }
       }
@@ -161,7 +161,7 @@ export class ExploreCountryImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error in country import: ${errorMessage}`);
-      this.logError('ExploreCountryImporter', error);
+      this.logError('ExploreCountryImporter', errorMessage);
       this.showError();
     }
 

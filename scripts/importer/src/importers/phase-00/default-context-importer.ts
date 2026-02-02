@@ -76,7 +76,7 @@ export class DefaultContextImporter extends BaseImporter {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Default context: ${message}`);
-      this.logError('Failed to create default context', error);
+      this.logError('Failed to create default context', message);
       this.showError();
     }
 

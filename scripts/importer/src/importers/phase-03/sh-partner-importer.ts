@@ -189,7 +189,7 @@ export class ShPartnerImporter extends BaseImporter {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         result.errors.push(`SH Partner ${group.partner.partners_id}: ${message}`);
-        this.logError(`SH Partner ${group.partner.partners_id}`, error);
+        this.logError(`SH Partner ${group.partner.partners_id}`, message);
         this.showError();
       }
     }

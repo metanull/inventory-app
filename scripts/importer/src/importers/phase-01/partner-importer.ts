@@ -136,7 +136,7 @@ export class PartnerImporter extends BaseImporter {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         result.errors.push(`Museum ${group.key}: ${message}`);
-        this.logError(`Museum ${group.key}`, error);
+        this.logError(`Museum ${group.key}`, message);
         this.showError();
       }
     }
@@ -217,7 +217,7 @@ export class PartnerImporter extends BaseImporter {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         result.errors.push(`Institution ${group.key}: ${message}`);
-        this.logError(`Institution ${group.key}`, error);
+        this.logError(`Institution ${group.key}`, message);
         this.showError();
       }
     }

@@ -169,6 +169,7 @@ export function transformShPartner(legacy: ShLegacyPartner): TransformedShPartne
 
 /**
  * Transform a SH partner name to translation
+ * Ensures all fields are properly set to null (not undefined) for SQL compatibility
  */
 export function transformShPartnerTranslation(
   legacy: ShLegacyPartnerName
@@ -189,11 +190,18 @@ export function transformShPartnerTranslation(
     descriptionParts.unshift(`City: ${convertHtmlToMarkdown(legacy.city)}`);
   }
 
+  // Ensure all optional fields are null (not undefined) for SQL compatibility
+  // Name is required - use legacy.name or fallback to partner_id
   const data: Omit<PartnerTranslationData, 'partner_id' | 'context_id' | 'backward_compatibility'> =
     {
       language_id: languageId,
-      name: convertHtmlToMarkdown(legacy.name),
+      name: legacy.name ? convertHtmlToMarkdown(legacy.name) : `Partner ${legacy.partners_id}`,
       description: descriptionParts.length > 0 ? descriptionParts.join('\n\n') : null,
+      city_display: null,
+      contact_website: null,
+      contact_phone: null,
+      contact_email_general: null,
+      extra: null,
     };
 
   return {

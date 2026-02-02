@@ -219,17 +219,31 @@ export class ThgItemRelatedImporter extends BaseImporter {
           }
 
           // Write item-item link using strategy
-          const linkId = await this.context.strategy.writeItemItemLink({
-            source_id: sourceId,
-            target_id: targetId,
-            context_id: contextId,
-            backward_compatibility: backwardCompat,
-          });
+          // Handle potential duplicates gracefully (skip if already exists due to unique constraint)
+          try {
+            const linkId = await this.context.strategy.writeItemItemLink({
+              source_id: sourceId,
+              target_id: targetId,
+              context_id: contextId,
+              backward_compatibility: backwardCompat,
+            });
 
-          this.registerEntity(linkId, backwardCompat, 'item_item_link');
+            this.registerEntity(linkId, backwardCompat, 'item_item_link');
 
-          result.imported++;
-          this.showProgress();
+            result.imported++;
+            this.showProgress();
+          } catch (writeError) {
+            const errMsg = writeError instanceof Error ? writeError.message : String(writeError);
+            // Check for duplicate entry error (unique constraint violation)
+            if (errMsg.includes('Duplicate entry') || errMsg.includes('unique')) {
+              // Already imported, skip silently
+              result.skipped++;
+              this.showSkipped();
+            } else {
+              // Re-throw other errors
+              throw writeError;
+            }
+          }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           result.errors.push(
@@ -237,7 +251,7 @@ export class ThgItemRelatedImporter extends BaseImporter {
           );
           this.logError(
             `Item relation ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}->${legacy.related_item_id}`,
-            error
+            message
           );
           this.showError();
         }
@@ -248,7 +262,7 @@ export class ThgItemRelatedImporter extends BaseImporter {
       const message = error instanceof Error ? error.message : String(error);
       result.success = false;
       result.errors.push(message);
-      this.logError('ThgItemRelatedImporter', error);
+      this.logError('ThgItemRelatedImporter', message);
     }
 
     return result;

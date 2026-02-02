@@ -168,7 +168,7 @@ export class TravelsTrailTranslationImporter extends BaseImporter {
           result.errors.push(
             `Error importing trail translation ${legacy.project_id}/${legacy.country}/${legacy.number}:${legacy.lang}: ${errorMessage}`
           );
-          this.logError('TravelsTrailTranslationImporter', error, {
+          this.logError('TravelsTrailTranslationImporter', errorMessage, {
             project_id: legacy.project_id,
             country: legacy.country,
             number: legacy.number,
@@ -181,7 +181,7 @@ export class TravelsTrailTranslationImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error in trail translation import: ${errorMessage}`);
-      this.logError('TravelsTrailTranslationImporter', error);
+      this.logError('TravelsTrailTranslationImporter', errorMessage);
       this.showError();
     }
 

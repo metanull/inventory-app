@@ -76,7 +76,7 @@ export class ShMonumentImporter extends BaseImporter {
             group.number
           );
           result.errors.push(`${backwardCompat}: ${message}`);
-          this.logError(`SH Monument ${backwardCompat}`, error);
+          this.logError(`SH Monument ${backwardCompat}`, message);
           this.showError();
         }
       }

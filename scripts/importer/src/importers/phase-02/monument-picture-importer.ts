@@ -86,7 +86,7 @@ export class MonumentPictureImporter extends BaseImporter {
           const message = error instanceof Error ? error.message : String(error);
           const backwardCompat = this.getPictureBackwardCompatibility(group);
           result.errors.push(`${backwardCompat}: ${message}`);
-          this.logError(`Picture ${backwardCompat}`, error);
+          this.logError(`Picture ${backwardCompat}`, message);
           this.showError();
         }
       }

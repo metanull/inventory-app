@@ -117,7 +117,7 @@ export class ThgGalleryImporter extends BaseImporter {
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           result.errors.push(`Gallery ${legacy.gallery_id}: ${message}`);
-          this.logError(`Gallery ${legacy.gallery_id}`, error);
+          this.logError(`Gallery ${legacy.gallery_id}`, message);
           this.showError();
         }
       }
@@ -127,7 +127,7 @@ export class ThgGalleryImporter extends BaseImporter {
       const message = error instanceof Error ? error.message : String(error);
       result.success = false;
       result.errors.push(message);
-      this.logError('ThgGalleryImporter', error);
+      this.logError('ThgGalleryImporter', message);
     }
 
     return result;
