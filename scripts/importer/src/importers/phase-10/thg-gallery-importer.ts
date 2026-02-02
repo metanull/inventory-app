@@ -7,11 +7,16 @@
  * - mwnf3_thematic_gallery.thg_gallery (gallery_id, project_id, name, etc.)
  *
  * New schema:
- * - collections (id, type, context_id, language_id, internal_name, backward_compatibility)
+ * - collections (id, type, context_id, language_id, parent_id, internal_name, backward_compatibility)
  *
  * Collection type: 'gallery' (THG project) or 'exhibition' (EXH project)
+ * Parent: 'Galleries' root for galleries, 'Exhibitions' root for exhibitions
  * Context: Uses the context created by ThgGalleryContextImporter
  * Backward compatibility: mwnf3_thematic_gallery:thg_gallery:{gallery_id}
+ *
+ * Dependencies:
+ * - ThgGalleryContextImporter (must run first)
+ * - ThgRootCollectionsImporter (must run first to create parent collections)
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
@@ -31,6 +36,8 @@ interface LegacyThgGallery {
 
 export class ThgGalleryImporter extends BaseImporter {
   private exhibitionProjectIds: Set<string> = new Set(['EXH']);
+  private galleriesRootId: string | null = null;
+  private exhibitionsRootId: string | null = null;
 
   getName(): string {
     return 'ThgGalleryImporter';
@@ -44,6 +51,25 @@ export class ThgGalleryImporter extends BaseImporter {
 
       // Get default language ID (use async for database fallback when starting from later phases)
       const defaultLanguageId = await this.getDefaultLanguageIdAsync();
+
+      // Get root collection IDs for parent assignment
+      this.galleriesRootId = await this.getEntityUuidAsync(
+        'mwnf3_thematic_gallery:galleries_root',
+        'collection'
+      );
+      this.exhibitionsRootId = await this.getEntityUuidAsync(
+        'mwnf3_thematic_gallery:exhibitions_root',
+        'collection'
+      );
+
+      if (!this.galleriesRootId || !this.exhibitionsRootId) {
+        this.logWarning(
+          'Root collections not found. Run ThgRootCollectionsImporter first for proper hierarchy.'
+        );
+      } else {
+        this.logInfo(`Found Galleries root: ${this.galleriesRootId}`);
+        this.logInfo(`Found Exhibitions root: ${this.exhibitionsRootId}`);
+      }
 
       // Query galleries from legacy database
       const galleries = await this.context.legacyDb.query<LegacyThgGallery>(
@@ -73,11 +99,12 @@ export class ThgGalleryImporter extends BaseImporter {
             continue;
           }
 
-          // Determine collection type based on project_id
+          // Determine collection type and parent based on project_id
           const isExhibition = legacy.project_id
             ? this.exhibitionProjectIds.has(legacy.project_id)
             : false;
           const collectionType = isExhibition ? 'exhibition' : 'gallery';
+          const parentId = isExhibition ? this.exhibitionsRootId : this.galleriesRootId;
 
           // Create internal name from link or name (slugified)
           const slug = this.slugify(legacy.link || legacy.name);
@@ -101,13 +128,14 @@ export class ThgGalleryImporter extends BaseImporter {
           }
 
           // Write collection using strategy
-          // Note: Collections need context_id, language_id, and optionally parent_id
+          // Note: Collections need context_id, language_id, and parent_id
           const collectionId = await this.context.strategy.writeCollection({
             internal_name: internalName,
             backward_compatibility: backwardCompat,
             context_id: contextId,
             language_id: defaultLanguageId,
-            parent_id: null, // parent_gallery_id is always null in legacy data
+            parent_id: parentId, // Set parent to Galleries or Exhibitions root
+            type: collectionType,
           });
 
           this.registerEntity(collectionId, backwardCompat, 'collection');

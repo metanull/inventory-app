@@ -81,6 +81,7 @@ import {
   TravelsMonumentPictureImporter,
   // Phase 10: Thematic Galleries (runs last, after all other legacy DBs)
   ThgGalleryContextImporter,
+  ThgRootCollectionsImporter,
   ThgGalleryImporter,
   ThgGalleryTranslationImporter,
   ThgThemeImporter,
@@ -454,11 +455,18 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: [],
   },
   {
+    key: 'thg-root-collections',
+    name: 'THG Root Collections',
+    description: 'Create root collections for Galleries and Exhibitions',
+    importerClass: ThgRootCollectionsImporter,
+    dependencies: ['default-context', 'language'],
+  },
+  {
     key: 'thg-gallery',
     name: 'THG Galleries',
     description: 'Import thematic galleries as collections',
     importerClass: ThgGalleryImporter,
-    dependencies: ['thg-gallery-context'],
+    dependencies: ['thg-gallery-context', 'thg-root-collections'],
   },
   {
     key: 'thg-gallery-translation',

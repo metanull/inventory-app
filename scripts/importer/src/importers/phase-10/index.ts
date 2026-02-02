@@ -9,6 +9,7 @@
  */
 
 export { ThgGalleryContextImporter } from './thg-gallery-context-importer.js';
+export { ThgRootCollectionsImporter } from './thg-root-collections-importer.js';
 export { ThgGalleryImporter } from './thg-gallery-importer.js';
 export { ThgGalleryTranslationImporter } from './thg-gallery-translation-importer.js';
 export { ThgThemeImporter } from './thg-theme-importer.js';

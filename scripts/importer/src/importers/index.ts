@@ -42,6 +42,7 @@ export {
 // Phase 10: Thematic Galleries (runs last, after all other legacy DBs are imported)
 export {
   ThgGalleryContextImporter,
+  ThgRootCollectionsImporter,
   ThgGalleryImporter,
   ThgGalleryTranslationImporter,
   ThgThemeImporter,
