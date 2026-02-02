@@ -1,7 +1,7 @@
 /**
  * THG Theme Importer
  *
- * Imports theme entries as child Collection records (type='theme' or 'subtheme').
+ * Imports theme entries as child Collection records (type='theme').
  * This replaces the separate Theme model with Collections for consistency
  * with Explore and Travels importers.
  *
@@ -10,7 +10,7 @@
  *
  * New schema:
  * - collections (id, context_id, language_id, parent_id, type, internal_name, backward_compatibility)
- *   - type = 'theme' for root themes, 'subtheme' for child themes
+ *   - type = 'theme' for all themes (hierarchy determined by parent_id)
  *   - parent_id = gallery collection for root themes, parent theme collection for subthemes
  *
  * Backward compatibility: mwnf3_thematic_gallery:theme:{gallery_id}:{theme_id}
@@ -98,14 +98,13 @@ export class ThgThemeImporter extends BaseImporter {
             continue;
           }
 
-          // Determine parent_id and type based on whether this is a root theme or subtheme
+          // Determine parent_id based on whether this is a root theme or subtheme
+          // All themes use type='theme', hierarchy is determined by parent_id
           let parentId: string;
-          let collectionType: string;
 
           if (legacy.parent_theme_id === null) {
             // Root theme - parent is the gallery collection
             parentId = galleryCollectionId;
-            collectionType = 'theme';
           } else {
             // Subtheme - parent is the parent theme collection
             const parentBackwardCompat = `mwnf3_thematic_gallery:theme:${legacy.gallery_id}:${legacy.parent_theme_id}`;
@@ -121,11 +120,10 @@ export class ThgThemeImporter extends BaseImporter {
               continue;
             }
             parentId = parentThemeId;
-            collectionType = 'subtheme';
           }
 
-          // Create internal name
-          const internalName = `${collectionType}_${legacy.gallery_id}_${legacy.theme_id}`;
+          // Create internal name (use 'theme' for all, subthemes distinguished by parent_id)
+          const internalName = `theme_${legacy.gallery_id}_${legacy.theme_id}`;
 
           // Collect sample
           this.collectSample(
@@ -136,7 +134,7 @@ export class ThgThemeImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create ${collectionType} collection: ${internalName} (${backwardCompat})`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create theme collection: ${internalName} (${backwardCompat})`
             );
             this.registerEntity('', backwardCompat, 'collection');
             result.imported++;
@@ -151,7 +149,7 @@ export class ThgThemeImporter extends BaseImporter {
             context_id: contextId,
             language_id: defaultLanguageId,
             parent_id: parentId,
-            type: collectionType,
+            type: 'theme',
           });
 
           this.registerEntity(collectionId, backwardCompat, 'collection');
