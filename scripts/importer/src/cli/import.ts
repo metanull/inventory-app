@@ -571,11 +571,12 @@ const ALL_IMPORTERS: ImporterConfig[] = [
 ];
 
 /**
- * Simple Legacy Database wrapper
+ * Simple Legacy Database wrapper with automatic reconnection
  */
 class LegacyDatabase implements ILegacyDatabase {
   private connection: mysql.Connection | null = null;
   private config: mysql.ConnectionOptions;
+  private reconnecting = false;
 
   constructor() {
     this.config = {
@@ -585,11 +586,47 @@ class LegacyDatabase implements ILegacyDatabase {
       password: process.env['LEGACY_DB_PASSWORD'] || '',
       database: process.env['LEGACY_DB_DATABASE'] || 'mwnf3',
       multipleStatements: false, // Disabled for security - use single queries
+      connectTimeout: 60000, // 60 second connection timeout
+      enableKeepAlive: true, // Enable TCP keep-alive
+      keepAliveInitialDelay: 10000, // 10 seconds
     };
   }
 
   async connect(): Promise<void> {
     this.connection = await mysql.createConnection(this.config);
+
+    // Handle connection errors
+    this.connection.on('error', (err: Error & { code?: string }) => {
+      console.error('[LegacyDatabase] Connection error:', err.message);
+      if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'ECONNRESET') {
+        this.reconnect().catch((reconnectErr) =>
+          console.error('[LegacyDatabase] Reconnect failed:', reconnectErr)
+        );
+      }
+    });
+  }
+
+  private async reconnect(): Promise<void> {
+    if (this.reconnecting) return;
+
+    this.reconnecting = true;
+    console.log('[LegacyDatabase] Connection lost, attempting to reconnect...');
+
+    try {
+      if (this.connection) {
+        try {
+          await this.connection.end();
+        } catch {
+          // Ignore errors when closing dead connection
+        }
+        this.connection = null;
+      }
+
+      await this.connect();
+      console.log('[LegacyDatabase] Reconnected successfully');
+    } finally {
+      this.reconnecting = false;
+    }
   }
 
   async disconnect(): Promise<void> {
@@ -600,24 +637,89 @@ class LegacyDatabase implements ILegacyDatabase {
   }
 
   async query<T>(sql: string, params?: unknown[]): Promise<T[]> {
-    if (!this.connection) {
-      throw new Error('Database not connected');
+    const maxRetries = 5;
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        if (!this.connection) {
+          await this.connect();
+        }
+
+        if (!this.connection) {
+          throw new Error('Failed to establish connection');
+        }
+
+        const [rows] = params
+          ? await this.connection.execute(sql, params)
+          : await this.connection.execute(sql);
+        return rows as T[];
+      } catch (err) {
+        const error = err as Error & { code?: string };
+        lastError = error;
+        const isConnectionError =
+          error.code === 'PROTOCOL_CONNECTION_LOST' ||
+          error.code === 'ECONNRESET' ||
+          error.message?.includes('connection is in closed state');
+
+        if (isConnectionError && attempt < maxRetries) {
+          console.log(
+            `[LegacyDatabase] Connection error on attempt ${attempt}/${maxRetries}, retrying in ${attempt * 2}s...`
+          );
+          await new Promise((resolve) => setTimeout(resolve, attempt * 2000));
+          await this.reconnect();
+        } else if (!isConnectionError) {
+          // Not a connection error, throw immediately
+          throw err;
+        }
+      }
     }
-    const [rows] = params
-      ? await this.connection.execute(sql, params)
-      : await this.connection.execute(sql);
-    return rows as T[];
+
+    throw new Error(`Failed after ${maxRetries} attempts: ${lastError?.message}`);
   }
 
   async execute(sql: string, params?: unknown[]): Promise<void> {
-    if (!this.connection) {
-      throw new Error('Database not connected');
+    const maxRetries = 5;
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        if (!this.connection) {
+          await this.connect();
+        }
+
+        if (!this.connection) {
+          throw new Error('Failed to establish connection');
+        }
+
+        if (params) {
+          await this.connection.execute(sql, params);
+        } else {
+          await this.connection.execute(sql);
+        }
+        return;
+      } catch (err) {
+        const error = err as Error & { code?: string };
+        lastError = error;
+        const isConnectionError =
+          error.code === 'PROTOCOL_CONNECTION_LOST' ||
+          error.code === 'ECONNRESET' ||
+          error.message?.includes('connection is in closed state');
+
+        if (isConnectionError && attempt < maxRetries) {
+          console.log(
+            `[LegacyDatabase] Connection error on attempt ${attempt}/${maxRetries}, retrying in ${attempt * 2}s...`
+          );
+          await new Promise((resolve) => setTimeout(resolve, attempt * 2000));
+          await this.reconnect();
+        } else if (!isConnectionError) {
+          // Not a connection error, throw immediately
+          throw err;
+        }
+      }
     }
-    if (params) {
-      await this.connection.execute(sql, params);
-    } else {
-      await this.connection.execute(sql);
-    }
+
+    throw new Error(`Failed after ${maxRetries} attempts: ${lastError?.message}`);
   }
 }
 

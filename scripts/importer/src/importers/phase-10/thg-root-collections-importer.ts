@@ -42,8 +42,8 @@ export class ThgRootCollectionsImporter extends BaseImporter {
     try {
       this.logInfo('Looking up default context...');
 
-      // Get the default context ID
-      const defaultContextBackwardCompat = 'mwnf3:default_context';
+      // Get the default context ID using the correct backward compatibility key
+      const defaultContextBackwardCompat = '__default_context__';
       this.defaultContextId = await this.getEntityUuidAsync(
         defaultContextBackwardCompat,
         'context'
