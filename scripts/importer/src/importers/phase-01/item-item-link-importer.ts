@@ -80,18 +80,20 @@ export class ItemItemLinkImporter extends BaseImporter {
       this.logInfo('Importing item-item links...');
 
       // Get default context for MWNF links
-      const defaultContextBackwardCompat = 'mwnf3:context:default';
-      this.defaultContextId = await this.getEntityUuidAsync(
-        defaultContextBackwardCompat,
-        'context'
-      );
+      // First try tracker metadata (set by DefaultContextImporter)
+      let defaultContextId = this.context.tracker.getMetadata('default_context_id');
 
-      if (!this.defaultContextId) {
-        throw new Error(
-          `Default context not found (${defaultContextBackwardCompat}). Run DefaultContextImporter first.`
-        );
+      if (!defaultContextId) {
+        // Fallback: look up by backward compatibility
+        const defaultContextBackwardCompat = '__default_context__';
+        defaultContextId = await this.getEntityUuidAsync(defaultContextBackwardCompat, 'context');
       }
 
+      if (!defaultContextId) {
+        throw new Error('Default context not found. Run DefaultContextImporter first.');
+      }
+
+      this.defaultContextId = defaultContextId;
       this.logInfo(`Found default context: ${this.defaultContextId}`);
 
       // Import object-object links
@@ -228,7 +230,7 @@ export class ItemItemLinkImporter extends BaseImporter {
     museumId: string,
     number: number
   ): string {
-    return `mwnf3:object:${projectId}:${countryId}:${museumId}:${number}`;
+    return `mwnf3:objects:${projectId}:${countryId}:${museumId}:${number}`;
   }
 
   private getMonumentBackwardCompat(
@@ -237,7 +239,7 @@ export class ItemItemLinkImporter extends BaseImporter {
     institutionId: string,
     number: number
   ): string {
-    return `mwnf3:monument:${projectId}:${countryId}:${institutionId}:${number}`;
+    return `mwnf3:monuments:${projectId}:${countryId}:${institutionId}:${number}`;
   }
 
   private async importObjectObjectLink(link: LegacyObjectObject): Promise<boolean> {
