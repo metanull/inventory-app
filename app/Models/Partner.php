@@ -104,6 +104,14 @@ class Partner extends Model
     }
 
     /**
+     * Get the logos for this partner.
+     */
+    public function partnerLogos(): HasMany
+    {
+        return $this->hasMany(PartnerLogo::class)->orderBy('display_order');
+    }
+
+    /**
      * Get the collections this partner is associated with.
      */
     public function collections(): BelongsToMany
