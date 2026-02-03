@@ -212,12 +212,10 @@ export function transformObjectTranslation(
   const methodForDatationMarkdown = obj.datationmethod
     ? convertHtmlToMarkdown(obj.datationmethod)
     : null;
-  // Combine provenance and provenancemethod into method_for_provenance
-  const provenanceParts = [obj.provenance, obj.provenancemethod]
-    .filter(Boolean)
-    .map((part) => convertHtmlToMarkdown(part));
-  const methodForProvenanceMarkdown =
-    provenanceParts.length > 0 ? provenanceParts.join('\n\n') : null;
+  const methodForProvenanceMarkdown = obj.provenancemethod
+    ? convertHtmlToMarkdown(obj.provenancemethod)
+    : null;
+  const provenanceMarkdown = obj.provenance ? convertHtmlToMarkdown(obj.provenance) : null;
   const obtentionMarkdown = obj.obtentionmethod ? convertHtmlToMarkdown(obj.obtentionmethod) : null;
 
   // Convert location (composed from multiple fields)
@@ -264,6 +262,7 @@ export function transformObjectTranslation(
     place_of_production: placeOfProductionMarkdown,
     method_for_datation: methodForDatationMarkdown,
     method_for_provenance: methodForProvenanceMarkdown,
+    provenance: provenanceMarkdown,
     obtention: obtentionMarkdown,
     bibliography: bibliographyMarkdown,
     extra: extraField,

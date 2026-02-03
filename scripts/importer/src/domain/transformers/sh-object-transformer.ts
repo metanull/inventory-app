@@ -197,6 +197,7 @@ export function transformShObjectTranslation(
   if (text.production_place) extra.production_place = convertHtmlToMarkdown(text.production_place);
   if (text.workshop) extra.workshop = convertHtmlToMarkdown(text.workshop);
   if (text.datationmethod) extra.datation_method = convertHtmlToMarkdown(text.datationmethod);
+  if (text.provenancemethod) extra.provenance_method = convertHtmlToMarkdown(text.provenancemethod);
   if (text.obtentionmethod) extra.obtention_method = convertHtmlToMarkdown(text.obtentionmethod);
   if (text.notice) extra.notice = convertHtmlToMarkdown(text.notice);
   if (text.notice_b) extra.notice_b = convertHtmlToMarkdown(text.notice_b);
@@ -205,11 +206,8 @@ export function transformShObjectTranslation(
 
   const extraField = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
-  // Combine provenance and provenancemethod into method_for_provenance
-  const provenanceParts = [text.provenance, text.provenancemethod]
-    .filter(Boolean)
-    .map((part) => convertHtmlToMarkdown(part as string));
-  const methodForProvenance = provenanceParts.length > 0 ? provenanceParts.join('\n\n') : null;
+  // Build provenance field
+  const provenance = text.provenance ? convertHtmlToMarkdown(text.provenance) : null;
 
   const data: Omit<ItemTranslationData, 'item_id' | 'context_id' | 'backward_compatibility'> = {
     language_id: languageId,
@@ -223,7 +221,7 @@ export function transformShObjectTranslation(
     dates,
     location,
     bibliography: text.bibliography ? convertHtmlToMarkdown(text.bibliography) : null,
-    method_for_provenance: methodForProvenance,
+    provenance,
     extra: extraField,
   };
 

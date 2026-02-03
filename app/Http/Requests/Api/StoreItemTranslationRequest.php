@@ -48,6 +48,7 @@ class StoreItemTranslationRequest extends FormRequest
             'place_of_production' => ['nullable', 'string'],
             'method_for_datation' => ['nullable', 'string'],
             'method_for_provenance' => ['nullable', 'string'],
+            'provenance' => ['nullable', 'string'],
             'obtention' => ['nullable', 'string'],
             'bibliography' => ['nullable', 'string'],
             'author_id' => ['nullable', 'uuid', 'exists:authors,id'],

@@ -271,6 +271,7 @@ export interface ItemTranslationData {
   place_of_production?: string | null;
   method_for_datation?: string | null;
   method_for_provenance?: string | null;
+  provenance?: string | null;
   obtention?: string | null;
   bibliography?: string | null;
   author_id?: string | null;
