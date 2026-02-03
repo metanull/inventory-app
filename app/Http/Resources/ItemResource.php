@@ -29,6 +29,10 @@ class ItemResource extends JsonResource
             'owner_reference' => $this->owner_reference,
             // MWNF reference number for the item (reference from MWNF system)
             'mwnf_reference' => $this->mwnf_reference,
+            // The start year for the item (for datation purposes)
+            'start_date' => $this->start_date,
+            // The end year for the item (for datation purposes)
+            'end_date' => $this->end_date,
             // The parent item (for hierarchical relationships), nullable (ItemResource)
             'parent' => new ItemResource($this->whenLoaded('parent')),
             // The child items (for hierarchical relationships) (ItemResource[])

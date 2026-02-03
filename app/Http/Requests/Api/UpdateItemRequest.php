@@ -33,6 +33,8 @@ class UpdateItemRequest extends FormRequest
             'collection_id' => ['sometimes', 'nullable', 'uuid', 'exists:collections,id'],
             'owner_reference' => ['sometimes', 'nullable', 'string', 'max:255'],
             'mwnf_reference' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'start_date' => ['sometimes', 'nullable', 'integer', 'min:-9999', 'max:9999'],
+            'end_date' => ['sometimes', 'nullable', 'integer', 'min:-9999', 'max:9999', 'gte:start_date'],
         ];
     }
 

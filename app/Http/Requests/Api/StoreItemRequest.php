@@ -33,6 +33,8 @@ class StoreItemRequest extends FormRequest
             'collection_id' => ['nullable', 'uuid', 'exists:collections,id'],
             'owner_reference' => ['nullable', 'string', 'max:255'],
             'mwnf_reference' => ['nullable', 'string', 'max:255'],
+            'start_date' => ['nullable', 'integer', 'min:-9999', 'max:9999'],
+            'end_date' => ['nullable', 'integer', 'min:-9999', 'max:9999', 'gte:start_date'],
         ];
     }
 }

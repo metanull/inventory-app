@@ -87,6 +87,9 @@ class Item extends Model
         'collection_id',
         'owner_reference',
         'mwnf_reference',
+        // Datation
+        'start_date',
+        'end_date',
         // GPS Location
         'latitude',
         'longitude',
@@ -95,6 +98,8 @@ class Item extends Model
 
     protected $casts = [
         'type' => ItemType::class,
+        'start_date' => 'integer',
+        'end_date' => 'integer',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
         'map_zoom' => 'integer',
