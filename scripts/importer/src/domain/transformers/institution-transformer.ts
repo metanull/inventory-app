@@ -12,11 +12,24 @@ import { formatBackwardCompatibility } from '../../utils/backward-compatibility.
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 
 /**
+ * Contact person data structure
+ */
+export interface ContactPerson {
+  name?: string;
+  title?: string;
+  phone?: string;
+  fax?: string;
+  email?: string;
+}
+
+/**
  * Transformed institution result
  */
 export interface TransformedInstitution {
   data: PartnerData;
   backwardCompatibility: string;
+  /** Logo paths for later import */
+  logos: string[];
 }
 
 /**
@@ -31,13 +44,14 @@ export interface TransformedInstitutionTranslation {
  * Extra fields extracted from institution data
  */
 export interface InstitutionExtraFields {
-  phone?: string;
-  fax?: string;
-  email?: string;
-  url?: string;
-  address_legacy?: string;
-  city_legacy?: string;
-  country_code?: string;
+  source?: 'mwnf3';
+  region_id?: string;
+  /** Contact person 1 (detailed structure) */
+  contact_person_1?: ContactPerson;
+  /** Contact person 2 (detailed structure) */
+  contact_person_2?: ContactPerson;
+  /** Additional URLs */
+  urls?: Array<{ url: string }>;
 }
 
 /**
@@ -58,6 +72,11 @@ export function transformInstitution(legacy: LegacyInstitution): TransformedInst
   }
   const internalName = convertHtmlToMarkdown(legacy.name);
 
+  // Extract logos (non-empty only)
+  const logos: string[] = [legacy.logo, legacy.logo1, legacy.logo2].filter(
+    (l): l is string => !!l && l.trim() !== ''
+  );
+
   const data: PartnerData = {
     type: 'institution',
     internal_name: internalName,
@@ -74,6 +93,7 @@ export function transformInstitution(legacy: LegacyInstitution): TransformedInst
   return {
     data,
     backwardCompatibility,
+    logos,
   };
 }
 
@@ -105,12 +125,48 @@ export function transformInstitutionTranslation(
     pkValues: [institution.institution_id, institution.country],
   });
 
-  // Build extra field with only non-standard additional data
-  const extra: InstitutionExtraFields = {};
-  if (institution.fax) extra.fax = institution.fax;
+  // Build extra field with structured data
+  const extra: InstitutionExtraFields = {
+    source: 'mwnf3',
+  };
 
-  const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
+  // Other institution fields
+  if (institution.region_id) extra.region_id = institution.region_id;
 
+  // Contact person 1 (primary contact)
+  if (institution.cp1_name || institution.cp1_title || institution.cp1_phone || institution.cp1_email) {
+    extra.contact_person_1 = {
+      name: institution.cp1_name || undefined,
+      title: institution.cp1_title || undefined,
+      phone: institution.cp1_phone || undefined,
+      fax: institution.cp1_fax || undefined,
+      email: institution.cp1_email || undefined,
+    };
+  }
+
+  // Contact person 2 (secondary contact)
+  if (institution.cp2_name || institution.cp2_title || institution.cp2_phone || institution.cp2_email) {
+    extra.contact_person_2 = {
+      name: institution.cp2_name || undefined,
+      title: institution.cp2_title || undefined,
+      phone: institution.cp2_phone || undefined,
+      fax: institution.cp2_fax || undefined,
+      email: institution.cp2_email || undefined,
+    };
+  }
+
+  // Additional URLs
+  const urls: Array<{ url: string }> = [];
+  if (institution.url2) urls.push({ url: institution.url2 });
+  if (urls.length > 0) extra.urls = urls;
+
+  // Only stringify if we have more than just the source field
+  const extraJson = Object.keys(extra).length > 1 ? JSON.stringify(extra) : null;
+
+  // Map contact fields:
+  // - contact_email_general: institution email
+  // - contact_phone: institution phone
+  // - contact_website: primary URL
   const data: Omit<PartnerTranslationData, 'partner_id' | 'context_id'> = {
     language_id: languageId,
     backward_compatibility: backwardCompatibility,

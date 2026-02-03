@@ -298,13 +298,20 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const sanitized = sanitizeAllStrings(data);
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO partners (id, type, internal_name, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO partners (id, type, internal_name, backward_compatibility, country_id, latitude, longitude, map_zoom, project_id, monument_item_id, visible, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.type,
         sanitized.internal_name,
         sanitized.backward_compatibility,
+        sanitized.country_id ?? null,
+        sanitized.latitude ?? null,
+        sanitized.longitude ?? null,
+        sanitized.map_zoom ?? 16, // default
+        sanitized.project_id ?? null,
+        sanitized.monument_item_id ?? null,
+        sanitized.visible ?? false, // default
         this.now,
         this.now,
       ]
@@ -336,6 +343,13 @@ export class SqlWriteStrategy implements IWriteStrategy {
         this.now,
         this.now,
       ]
+    );
+  }
+
+  async updatePartnerMonumentItemId(partnerId: string, monumentItemId: string): Promise<void> {
+    await this.db.execute(
+      `UPDATE partners SET monument_item_id = ?, updated_at = ? WHERE id = ?`,
+      [monumentItemId, this.now, partnerId]
     );
   }
 

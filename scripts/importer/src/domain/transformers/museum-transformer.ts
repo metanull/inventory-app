@@ -12,11 +12,38 @@ import { formatBackwardCompatibility } from '../../utils/backward-compatibility.
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 
 /**
+ * Monument reference for deferred resolution
+ * The museum is physically located inside this monument
+ */
+export interface MuseumMonumentReference {
+  mon_project_id: string;
+  mon_country_id: string;
+  mon_institution_id: string;
+  mon_monument_id: number;
+  mon_lang_id: string;
+}
+
+/**
+ * Contact person data structure
+ */
+export interface ContactPerson {
+  name?: string;
+  title?: string;
+  phone?: string;
+  fax?: string;
+  email?: string;
+}
+
+/**
  * Transformed museum result
  */
 export interface TransformedMuseum {
   data: PartnerData;
   backwardCompatibility: string;
+  /** Monument reference for deferred resolution (museum is located inside this monument) */
+  monumentReference: MuseumMonumentReference | null;
+  /** Logo paths for later import */
+  logos: string[];
 }
 
 /**
@@ -31,17 +58,20 @@ export interface TransformedMuseumTranslation {
  * Extra fields extracted from museum data
  */
 export interface MuseumExtraFields {
-  phone?: string;
-  fax?: string;
-  email?: string;
-  url?: string;
-  address_legacy?: string;
+  source?: 'mwnf3';
+  postal_address?: string;
   ex_name?: string;
   ex_description?: string;
   opening_hours?: string;
   how_to_reach?: string;
-  geoCoordinates?: string;
-  country_code?: string;
+  region_id?: string;
+  portal_display?: string;
+  /** Contact person 1 (detailed structure) */
+  contact_person_1?: ContactPerson;
+  /** Contact person 2 (detailed structure) */
+  contact_person_2?: ContactPerson;
+  /** Additional URLs with their titles */
+  urls?: Array<{ url: string; title?: string }>;
 }
 
 /**
@@ -76,6 +106,34 @@ export function transformMuseum(legacy: LegacyMuseum): TransformedMuseum {
     }
   }
 
+  // Also check zoom field if geoCoordinates didn't have zoom
+  if (legacy.zoom && mapZoom === 16) {
+    mapZoom = parseInt(legacy.zoom, 10) || 16;
+  }
+
+  // Extract monument reference for deferred resolution
+  let monumentReference: MuseumMonumentReference | null = null;
+  if (
+    legacy.mon_project_id &&
+    legacy.mon_country_id &&
+    legacy.mon_institution_id &&
+    legacy.mon_monument_id &&
+    legacy.mon_lang_id
+  ) {
+    monumentReference = {
+      mon_project_id: legacy.mon_project_id,
+      mon_country_id: legacy.mon_country_id,
+      mon_institution_id: legacy.mon_institution_id,
+      mon_monument_id: legacy.mon_monument_id,
+      mon_lang_id: legacy.mon_lang_id,
+    };
+  }
+
+  // Extract logos (non-empty only)
+  const logos: string[] = [legacy.logo, legacy.logo1, legacy.logo2, legacy.logo3].filter(
+    (l): l is string => !!l && l.trim() !== ''
+  );
+
   const data: PartnerData = {
     type: 'museum',
     internal_name: internalName,
@@ -85,13 +143,15 @@ export function transformMuseum(legacy: LegacyMuseum): TransformedMuseum {
     map_zoom: mapZoom,
     country_id: legacy.country ? mapCountryCode(legacy.country) : null,
     project_id: null, // Museums don't have direct project association in legacy data
-    monument_item_id: null,
+    monument_item_id: null, // Will be resolved later by importer if monumentReference exists
     visible: false, // Default to false, can be updated later
   };
 
   return {
     data,
     backwardCompatibility,
+    monumentReference,
+    logos,
   };
 }
 
@@ -121,16 +181,62 @@ export function transformMuseumTranslation(
     pkValues: [museum.museum_id, museum.country],
   });
 
-  // Build extra field with only non-standard additional data
-  const extra: MuseumExtraFields = {};
-  if (museum.fax) extra.fax = museum.fax;
+  // Build extra field with structured data
+  const extra: MuseumExtraFields = {
+    source: 'mwnf3',
+  };
+
+  // Postal address (separate from physical address)
+  if (museum.postal_address) extra.postal_address = museum.postal_address;
+
+  // Translation-specific fields
   if (translation.ex_name) extra.ex_name = translation.ex_name;
   if (translation.ex_description) extra.ex_description = translation.ex_description;
   if (translation.opening_hours) extra.opening_hours = translation.opening_hours;
   if (translation.how_to_reach) extra.how_to_reach = translation.how_to_reach;
 
-  const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
+  // Other museum fields
+  if (museum.region_id) extra.region_id = museum.region_id;
+  if (museum.portal_display) extra.portal_display = museum.portal_display;
 
+  // Contact person 1 (primary contact)
+  if (museum.cp1_name || museum.cp1_title || museum.cp1_phone || museum.cp1_email) {
+    extra.contact_person_1 = {
+      name: museum.cp1_name || undefined,
+      title: museum.cp1_title || undefined,
+      phone: museum.cp1_phone || undefined,
+      fax: museum.cp1_fax || undefined,
+      email: museum.cp1_email || undefined,
+    };
+  }
+
+  // Contact person 2 (secondary contact)
+  if (museum.cp2_name || museum.cp2_title || museum.cp2_phone || museum.cp2_email) {
+    extra.contact_person_2 = {
+      name: museum.cp2_name || undefined,
+      title: museum.cp2_title || undefined,
+      phone: museum.cp2_phone || undefined,
+      fax: museum.cp2_fax || undefined,
+      email: museum.cp2_email || undefined,
+    };
+  }
+
+  // Additional URLs with titles
+  const urls: Array<{ url: string; title?: string }> = [];
+  if (museum.url2) urls.push({ url: museum.url2, title: museum.title2 || undefined });
+  if (museum.url3) urls.push({ url: museum.url3, title: museum.title3 || undefined });
+  if (museum.url4) urls.push({ url: museum.url4, title: museum.title4 || undefined });
+  if (museum.url5) urls.push({ url: museum.url5, title: museum.title5 || undefined });
+  if (urls.length > 0) extra.urls = urls;
+
+  // Only stringify if we have more than just the source field
+  const extraJson = Object.keys(extra).length > 1 ? JSON.stringify(extra) : null;
+
+  // Map contact fields:
+  // - contact_name: cp1_name (primary contact person)
+  // - contact_email_general: institution email
+  // - contact_phone: institution phone
+  // - contact_website: primary URL (with title1 as description if available)
   const data: Omit<PartnerTranslationData, 'partner_id' | 'context_id'> = {
     language_id: languageId,
     backward_compatibility: backwardCompatibility,

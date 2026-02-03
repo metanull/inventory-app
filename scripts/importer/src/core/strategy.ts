@@ -130,6 +130,13 @@ export interface IWriteStrategy {
    */
   writePartnerTranslation(data: PartnerTranslationData): Promise<void>;
 
+  /**
+   * Update a partner's monument_item_id (deferred linking)
+   * @param partnerId The partner UUID to update
+   * @param monumentItemId The monument Item UUID to link to
+   */
+  updatePartnerMonumentItemId(partnerId: string, monumentItemId: string): Promise<void>;
+
   // =========================================================================
   // Items
   // =========================================================================

@@ -93,3 +93,6 @@ export {
   TravelsLocationPictureImporter,
   TravelsMonumentPictureImporter,
 } from './phase-07/index.js';
+
+// Phase 11: Post-Import Linking (runs after all data is imported)
+export { PartnerMonumentLinker } from './phase-11/index.js';

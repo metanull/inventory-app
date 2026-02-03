@@ -3,6 +3,10 @@
  *
  * Imports museums and institutions from legacy database.
  * Creates Partner entities with translations.
+ *
+ * Note: monument_item_id resolution is deferred since monuments may not be imported yet
+ * at the time partners are imported. A separate pass or the PartnerMonumentLinker
+ * should handle this after monuments are imported.
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
@@ -15,6 +19,7 @@ import {
   transformInstitutionTranslation,
   groupInstitutionsByKey,
 } from '../../domain/transformers/index.js';
+import type { MuseumMonumentReference } from '../../domain/transformers/museum-transformer.js';
 import type {
   LegacyMuseum,
   LegacyMuseumName,
@@ -22,11 +27,29 @@ import type {
   LegacyInstitutionName,
 } from '../../domain/types/index.js';
 
+/**
+ * Deferred monument link for later resolution
+ */
+export interface DeferredMonumentLink {
+  partnerId: string;
+  partnerBackwardCompat: string;
+  monumentReference: MuseumMonumentReference;
+}
+
 export class PartnerImporter extends BaseImporter {
   private defaultContextId: string | null = null;
+  /** Deferred monument links to be resolved after monuments are imported */
+  private deferredMonumentLinks: DeferredMonumentLink[] = [];
 
   getName(): string {
     return 'PartnerImporter';
+  }
+
+  /**
+   * Get deferred monument links for later resolution
+   */
+  getDeferredMonumentLinks(): DeferredMonumentLink[] {
+    return this.deferredMonumentLinks;
   }
 
   async import(): Promise<ImportResult> {
@@ -82,6 +105,9 @@ export class PartnerImporter extends BaseImporter {
     const grouped = groupMuseumsByKey(museums, museumNames);
     this.logInfo(`Found ${grouped.length} unique museums`);
 
+    let monumentLinksCount = 0;
+    let logosCount = 0;
+
     for (const group of grouped) {
       try {
         const transformed = transformMuseum(group.museum);
@@ -93,18 +119,36 @@ export class PartnerImporter extends BaseImporter {
           continue;
         }
 
+        // Count logos for reporting
+        if (transformed.logos.length > 0) {
+          logosCount += transformed.logos.length;
+        }
+
         // Collect sample
         this.collectSample('museum', group.museum as unknown as Record<string, unknown>, 'success');
 
         if (this.isDryRun || this.isSampleOnlyMode) {
           this.logInfo(
-            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import museum: ${group.key}`
+            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import museum: ${group.key}` +
+              (transformed.monumentReference ? ' (has monument link)' : '') +
+              (transformed.logos.length > 0 ? ` (${transformed.logos.length} logos)` : '')
           );
           this.registerEntity(
             'sample-museum-' + group.key,
             transformed.backwardCompatibility,
             'partner'
           );
+
+          // Track deferred monument link even in dry-run for reporting
+          if (transformed.monumentReference) {
+            this.deferredMonumentLinks.push({
+              partnerId: 'sample-museum-' + group.key,
+              partnerBackwardCompat: transformed.backwardCompatibility,
+              monumentReference: transformed.monumentReference,
+            });
+            monumentLinksCount++;
+          }
+
           result.imported++;
           this.showProgress();
           continue;
@@ -113,6 +157,16 @@ export class PartnerImporter extends BaseImporter {
         // Create partner
         const partnerId = await this.context.strategy.writePartner(transformed.data);
         this.registerEntity(partnerId, transformed.backwardCompatibility, 'partner');
+
+        // Track deferred monument link for later resolution
+        if (transformed.monumentReference) {
+          this.deferredMonumentLinks.push({
+            partnerId,
+            partnerBackwardCompat: transformed.backwardCompatibility,
+            monumentReference: transformed.monumentReference,
+          });
+          monumentLinksCount++;
+        }
 
         // Create translations
         for (const translation of group.translations) {
@@ -141,6 +195,9 @@ export class PartnerImporter extends BaseImporter {
       }
     }
 
+    this.logInfo(`  Museums with monument location links: ${monumentLinksCount}`);
+    this.logInfo(`  Total logos to import: ${logosCount}`);
+
     return result;
   }
 
@@ -159,6 +216,8 @@ export class PartnerImporter extends BaseImporter {
     const grouped = groupInstitutionsByKey(institutions, institutionNames);
     this.logInfo(`Found ${grouped.length} unique institutions`);
 
+    let logosCount = 0;
+
     for (const group of grouped) {
       try {
         const transformed = transformInstitution(group.institution);
@@ -170,6 +229,11 @@ export class PartnerImporter extends BaseImporter {
           continue;
         }
 
+        // Count logos for reporting
+        if (transformed.logos.length > 0) {
+          logosCount += transformed.logos.length;
+        }
+
         // Collect sample
         this.collectSample(
           'institution',
@@ -179,7 +243,8 @@ export class PartnerImporter extends BaseImporter {
 
         if (this.isDryRun || this.isSampleOnlyMode) {
           this.logInfo(
-            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import institution: ${group.key}`
+            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import institution: ${group.key}` +
+              (transformed.logos.length > 0 ? ` (${transformed.logos.length} logos)` : '')
           );
           this.registerEntity(
             'sample-institution-' + group.key,
@@ -221,6 +286,8 @@ export class PartnerImporter extends BaseImporter {
         this.showError();
       }
     }
+
+    this.logInfo(`  Total logos to import: ${logosCount}`);
 
     return result;
   }

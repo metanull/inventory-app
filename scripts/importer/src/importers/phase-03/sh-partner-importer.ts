@@ -89,6 +89,7 @@ export class ShPartnerImporter extends BaseImporter {
 
     let reusedCount = 0;
     let createdCount = 0;
+    let logosCount = 0;
 
     for (const group of grouped) {
       try {
@@ -166,10 +167,19 @@ export class ShPartnerImporter extends BaseImporter {
           createdCount++;
         }
 
+        // Count logos for reporting
+        if (transformed.logos.length > 0) {
+          logosCount += transformed.logos.length;
+        }
+
         // Create translations (always, even if partner was reused)
         for (const translation of group.translations) {
           try {
-            const translationData = transformShPartnerTranslation(translation);
+            const translationData = transformShPartnerTranslation(
+              group.partner,
+              translation,
+              transformed.extra
+            );
             await this.context.strategy.writePartnerTranslation({
               ...translationData.data,
               partner_id: partnerId,
@@ -196,6 +206,7 @@ export class ShPartnerImporter extends BaseImporter {
 
     this.logInfo(`  Reused existing partners: ${reusedCount}`);
     this.logInfo(`  Created new partners: ${createdCount}`);
+    this.logInfo(`  Total logos to import: ${logosCount}`);
 
     return result;
   }

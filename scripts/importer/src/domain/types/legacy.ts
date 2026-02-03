@@ -64,12 +64,55 @@ export interface LegacyMuseum {
   name: string;
   city?: string;
   address?: string;
+  postal_address?: string;
+  // Monument location reference (museum is located in this monument)
+  mon_project_id?: string | null;
+  mon_country_id?: string | null;
+  mon_institution_id?: string | null;
+  mon_monument_id?: number | null;
+  mon_lang_id?: string | null;
+  // Connected museum reference
+  con_museum_id?: string | null;
+  con_country_id?: string | null;
+  // Contact information
   phone?: string;
   fax?: string;
   email?: string;
+  email2?: string;
   url?: string;
+  url2?: string;
+  url3?: string;
+  url4?: string;
+  url5?: string;
+  // URL titles
+  title1?: string;
+  title2?: string;
+  title3?: string;
+  title4?: string;
+  title5?: string;
+  // Logos
+  logo?: string;
+  logo1?: string;
+  logo2?: string;
+  logo3?: string;
+  // Contact person 1
+  cp1_name?: string;
+  cp1_title?: string;
+  cp1_phone?: string;
+  cp1_fax?: string;
+  cp1_email?: string;
+  // Contact person 2
+  cp2_name?: string;
+  cp2_title?: string;
+  cp2_phone?: string;
+  cp2_fax?: string;
+  cp2_email?: string;
+  // Other
   project_id: string;
+  region_id?: string;
   geoCoordinates?: string;
+  zoom?: string;
+  portal_display?: string;
 }
 
 export interface LegacyMuseumName {
@@ -95,10 +138,30 @@ export interface LegacyInstitution {
   name: string;
   city?: string;
   address?: string;
+  description?: string;
   phone?: string;
   fax?: string;
   email?: string;
   url?: string;
+  url2?: string;
+  // Contact person 1
+  cp1_name?: string;
+  cp1_title?: string;
+  cp1_phone?: string;
+  cp1_fax?: string;
+  cp1_email?: string;
+  // Contact person 2
+  cp2_name?: string;
+  cp2_title?: string;
+  cp2_phone?: string;
+  cp2_fax?: string;
+  cp2_email?: string;
+  // Other
+  region_id?: string;
+  // Logos
+  logo?: string;
+  logo1?: string;
+  logo2?: string;
 }
 
 export interface LegacyInstitutionName {
