@@ -6,6 +6,7 @@
  * Legacy schema:
  * - mwnf3.tr_monuments (project_id, country, itinerary_id, location_id, number, lang, trail_id, title)
  *   - One row per language
+ *   - Note: Unlike explore locations, tr_monuments only has title (no description, how_to_reach, etc.)
  *
  * New schema:
  * - item_translations (item_id, language_id, context_id, title, ...)
@@ -21,6 +22,7 @@ import type { ImportResult } from '../../core/types.js';
 
 /**
  * Legacy travel monument translation structure
+ * Note: tr_monuments table only has basic columns (title), no visitor info fields
  */
 interface LegacyTravelMonumentTranslation {
   project_id: string;
@@ -31,11 +33,6 @@ interface LegacyTravelMonumentTranslation {
   lang: string;
   trail_id: number;
   title: string;
-  how_to_reach?: string | null;
-  info?: string | null;
-  contact?: string | null;
-  description?: string | null;
-  prepared_by?: string | null;
 }
 
 export class TravelsMonumentTranslationImporter extends BaseImporter {
@@ -67,9 +64,9 @@ export class TravelsMonumentTranslationImporter extends BaseImporter {
       this.logInfo('Importing travel monument translations...');
 
       // Query all travel monument translations
+      // Note: tr_monuments only has title column, no description or visitor info fields
       const translations = await this.context.legacyDb.query<LegacyTravelMonumentTranslation>(
-        `SELECT project_id, country, itinerary_id, location_id, number, lang, trail_id, title,
-                how_to_reach, info, contact, description, prepared_by
+        `SELECT project_id, country, itinerary_id, location_id, number, lang, trail_id, title
          FROM mwnf3.tr_monuments 
          ORDER BY project_id, country, trail_id, itinerary_id, location_id, number, lang`
       );
@@ -131,28 +128,15 @@ export class TravelsMonumentTranslationImporter extends BaseImporter {
           }
 
           // Write translation
-          // Travel monuments have title, description, and visitor info (how_to_reach, info, contact)
-
-          // Build extra field for visitor information (travels-specific free-text format)
-          const extraData: Record<string, unknown> = {};
-          const visitorInfo: Record<string, string> = {};
-          if (legacy.how_to_reach) visitorInfo.how_to_reach = legacy.how_to_reach;
-          if (legacy.info) visitorInfo.info = legacy.info;
-          if (legacy.contact) visitorInfo.contact = legacy.contact;
-          if (Object.keys(visitorInfo).length > 0) {
-            extraData.monument_visitor_info = visitorInfo;
-          }
-          if (legacy.prepared_by) extraData.prepared_by = legacy.prepared_by;
-          const extraField = Object.keys(extraData).length > 0 ? JSON.stringify(extraData) : null;
-
+          // Note: Travel monuments only have title in legacy, no description or visitor info
           await this.context.strategy.writeItemTranslation({
             item_id: monumentId,
             language_id: languageId,
             context_id: this.travelsContextId!,
             backward_compatibility: translationBackwardCompat,
             name: legacy.title || '',
-            description: legacy.description || '',
-            extra: extraField,
+            description: '',
+            extra: null,
           });
 
           result.imported++;
