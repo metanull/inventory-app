@@ -59,7 +59,9 @@ export class PartnerMonumentLinker extends BaseImporter {
         return result;
       }
 
-      this.logInfo(`Found ${museumsWithMonuments.length} museums with monument location references`);
+      this.logInfo(
+        `Found ${museumsWithMonuments.length} museums with monument location references`
+      );
 
       let linkedCount = 0;
       let notFoundPartnerCount = 0;

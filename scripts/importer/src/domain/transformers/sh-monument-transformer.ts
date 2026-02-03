@@ -191,7 +191,9 @@ export function transformShMonumentTranslation(
   if (text.email) monumentContact.email = text.email;
   // institution is already used for holder, but store responsible_institution_org if different
   if (text.responsible_institution_org && text.responsible_institution_org !== text.institution) {
-    monumentContact.responsible_institution = convertHtmlToMarkdown(text.responsible_institution_org);
+    monumentContact.responsible_institution = convertHtmlToMarkdown(
+      text.responsible_institution_org
+    );
   }
   if (Object.keys(monumentContact).length > 0) {
     extra.monument_contact = monumentContact;

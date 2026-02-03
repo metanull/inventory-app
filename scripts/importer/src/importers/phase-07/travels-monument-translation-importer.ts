@@ -132,7 +132,7 @@ export class TravelsMonumentTranslationImporter extends BaseImporter {
 
           // Write translation
           // Travel monuments have title, description, and visitor info (how_to_reach, info, contact)
-          
+
           // Build extra field for visitor information (travels-specific free-text format)
           const extraData: Record<string, unknown> = {};
           const visitorInfo: Record<string, string> = {};

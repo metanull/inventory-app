@@ -348,10 +348,11 @@ export class SqlWriteStrategy implements IWriteStrategy {
   }
 
   async updatePartnerMonumentItemId(partnerId: string, monumentItemId: string): Promise<void> {
-    await this.db.execute(
-      `UPDATE partners SET monument_item_id = ?, updated_at = ? WHERE id = ?`,
-      [monumentItemId, this.now, partnerId]
-    );
+    await this.db.execute(`UPDATE partners SET monument_item_id = ?, updated_at = ? WHERE id = ?`, [
+      monumentItemId,
+      this.now,
+      partnerId,
+    ]);
   }
 
   // =========================================================================

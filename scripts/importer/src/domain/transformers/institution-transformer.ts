@@ -134,7 +134,12 @@ export function transformInstitutionTranslation(
   if (institution.region_id) extra.region_id = institution.region_id;
 
   // Contact person 1 (primary contact)
-  if (institution.cp1_name || institution.cp1_title || institution.cp1_phone || institution.cp1_email) {
+  if (
+    institution.cp1_name ||
+    institution.cp1_title ||
+    institution.cp1_phone ||
+    institution.cp1_email
+  ) {
     extra.contact_person_1 = {
       name: institution.cp1_name || undefined,
       title: institution.cp1_title || undefined,
@@ -145,7 +150,12 @@ export function transformInstitutionTranslation(
   }
 
   // Contact person 2 (secondary contact)
-  if (institution.cp2_name || institution.cp2_title || institution.cp2_phone || institution.cp2_email) {
+  if (
+    institution.cp2_name ||
+    institution.cp2_title ||
+    institution.cp2_phone ||
+    institution.cp2_email
+  ) {
     extra.contact_person_2 = {
       name: institution.cp2_name || undefined,
       title: institution.cp2_title || undefined,

@@ -218,7 +218,8 @@ export function transformMonumentTranslation(
   if (monument.phone) monumentContact.phone = monument.phone;
   if (monument.fax) monumentContact.fax = monument.fax;
   if (monument.email) monumentContact.email = monument.email;
-  if (monument.institution) monumentContact.institution = convertHtmlToMarkdown(monument.institution);
+  if (monument.institution)
+    monumentContact.institution = convertHtmlToMarkdown(monument.institution);
   if (Object.keys(monumentContact).length > 0) {
     extraData.monument_contact = monumentContact;
   }
