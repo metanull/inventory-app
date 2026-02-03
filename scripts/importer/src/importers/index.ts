@@ -20,6 +20,7 @@ export { ObjectPictureImporter } from './phase-02/index.js';
 export { MonumentPictureImporter } from './phase-02/index.js';
 export { MonumentDetailPictureImporter } from './phase-02/index.js';
 export { PartnerPictureImporter } from './phase-02/index.js';
+export { PartnerLogoImporter } from './phase-02/index.js';
 
 // Phase 03: Sharing History Data
 export {

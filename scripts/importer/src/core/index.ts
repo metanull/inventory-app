@@ -28,6 +28,7 @@ export type {
   TagData,
   AuthorData,
   ArtistData,
+  PartnerLogoData,
 } from './types.js';
 
 export { createImportResult } from './types.js';

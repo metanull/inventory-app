@@ -338,6 +338,21 @@ export interface PartnerImageData {
 }
 
 /**
+ * Partner logo data for write operations
+ */
+export interface PartnerLogoData {
+  id?: string; // Optional: for preserving IDs
+  partner_id: string;
+  path: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  logo_type?: string; // 'primary', 'secondary', 'sponsor', etc.
+  alt_text?: string | null;
+  display_order: number;
+}
+
+/**
  * Collection image data for write operations
  */
 export interface CollectionImageData {

@@ -34,6 +34,7 @@ import type {
   ArtistData,
   ItemImageData,
   PartnerImageData,
+  PartnerLogoData,
   CollectionImageData,
   GlossaryData,
   GlossaryTranslationData,
@@ -651,6 +652,31 @@ export class SqlWriteStrategy implements IWriteStrategy {
     );
     // Track using lowercase path as unique identifier
     this.tracker.set(sanitized.path.toLowerCase(), id, 'image');
+    return id;
+  }
+
+  async writePartnerLogo(data: PartnerLogoData): Promise<string> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = sanitized.id || uuidv4();
+    await this.db.execute(
+      `INSERT INTO partner_logos (id, partner_id, path, original_name, mime_type, size, logo_type, alt_text, display_order, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.partner_id,
+        sanitized.path,
+        sanitized.original_name,
+        sanitized.mime_type,
+        sanitized.size,
+        sanitized.logo_type ?? 'primary',
+        sanitized.alt_text,
+        sanitized.display_order,
+        this.now,
+        this.now,
+      ]
+    );
+    // Track using lowercase path as unique identifier (prefixed to avoid collision with images)
+    this.tracker.set(`logo:${sanitized.path.toLowerCase()}`, id, 'image');
     return id;
   }
 
