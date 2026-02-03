@@ -320,9 +320,8 @@ program
       );
 
       // Setup import execution context (tracker, API client, database connection, etc.)
-      const { BackwardCompatibilityTracker } = await import(
-        './utils/BackwardCompatibilityTracker.js'
-      );
+      const { BackwardCompatibilityTracker } =
+        await import('./utils/BackwardCompatibilityTracker.js');
       const tracker = new BackwardCompatibilityTracker();
 
       // Initialize sample collector if requested

@@ -9,7 +9,7 @@ cd E:\inventory\inventory-app; php artisan db:wipe; php artisan migrate:refresh 
 ```
 
 ```powershell
-cd E:\inventory\inventory-app; php artisan db:wipe; php artisan migrate:refresh --quiet; php artisan db:seed --class=MinimalDatabaseSeeder --quiet; cd E:\inventory\inventory-app\scripts\importer; npx tsx src/cli/import.ts import 
+cd E:\inventory\inventory-app; php artisan db:wipe; php artisan migrate:refresh --quiet; php artisan db:seed --class=MinimalDatabaseSeeder --quiet; cd E:\inventory\inventory-app\scripts\importer; npx tsx src/cli/import.ts import
 ```
 
 **With sample collection:**
