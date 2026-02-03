@@ -26,6 +26,7 @@ export { PartnerLogoImporter } from './phase-02/index.js';
 export {
   ShProjectImporter,
   ShPartnerImporter,
+  ShPartnerLogoImporter,
   ShObjectImporter,
   ShMonumentImporter,
   ShMonumentDetailImporter,

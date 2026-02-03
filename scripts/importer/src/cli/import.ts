@@ -44,9 +44,11 @@ import {
   MonumentPictureImporter,
   MonumentDetailPictureImporter,
   PartnerPictureImporter,
+  PartnerLogoImporter,
   // Phase 03: Sharing History
   ShProjectImporter,
   ShPartnerImporter,
+  ShPartnerLogoImporter,
   ShObjectImporter,
   ShMonumentImporter,
   ShMonumentDetailImporter,
@@ -229,6 +231,13 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     importerClass: PartnerPictureImporter,
     dependencies: ['partner'],
   },
+  {
+    key: 'partner-logo',
+    name: 'Partner Logos',
+    description: 'Import museum and institution logos (PartnerLogos)',
+    importerClass: PartnerLogoImporter,
+    dependencies: ['partner'],
+  },
   // Phase 3: Sharing History Data
   {
     key: 'sh-project',
@@ -243,6 +252,13 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import Sharing History partners (reuses mwnf3 partners via mapping)',
     importerClass: ShPartnerImporter,
     dependencies: ['default-context', 'sh-project', 'partner', 'language', 'country'],
+  },
+  {
+    key: 'sh-partner-logo',
+    name: 'SH Partner Logos',
+    description: 'Import Sharing History partner logos',
+    importerClass: ShPartnerLogoImporter,
+    dependencies: ['sh-partner'],
   },
   {
     key: 'sh-object',
@@ -1032,11 +1048,26 @@ program
             'monument-picture',
             'monument-detail-picture',
             'partner-picture',
+            'partner-logo',
           ].includes(key)
         ) {
           return 'Phase 3: Images';
         } else if (['glossary', 'glossary-translation', 'glossary-spelling'].includes(key)) {
           return 'Phase 4: Glossary';
+        } else if (
+          [
+            'sh-project',
+            'sh-partner',
+            'sh-partner-logo',
+            'sh-object',
+            'sh-monument',
+            'sh-monument-detail',
+            'sh-object-picture',
+            'sh-monument-picture',
+            'sh-monument-detail-picture',
+          ].includes(key)
+        ) {
+          return 'Phase 3.5: Sharing History';
         } else if (
           [
             'explore-context',

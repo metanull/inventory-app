@@ -319,16 +319,14 @@ export class PartnerLogoImporter extends BaseImporter {
       path: logoPath,
       original_name: originalName,
       mime_type: mimeType,
-      size: 0, // Size unknown from legacy data
+      size: 1, // Fake size as required (legacy data doesn't have file size)
       logo_type: logoType,
       alt_text: altText.length > 500 ? altText.substring(0, 497) + '...' : altText,
       display_order: displayOrder,
     };
 
-    const logoId = await this.context.strategy.writePartnerLogo(logoData);
-
-    // Track using prefixed key
-    this.registerEntity(logoId, logoKey, 'image');
+    await this.context.strategy.writePartnerLogo(logoData);
+    // Logo is tracked by path in writePartnerLogo, no need to register here
 
     return true;
   }

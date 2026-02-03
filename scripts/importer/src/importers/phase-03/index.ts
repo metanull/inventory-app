@@ -7,10 +7,12 @@
  * - Partners (reusing mwnf3 partners where possible via mapping)
  * - Objects, Monuments, Monument Details as Items
  * - Pictures for all item types
+ * - Logos for partners
  */
 
 export { ShProjectImporter } from './sh-project-importer.js';
 export { ShPartnerImporter } from './sh-partner-importer.js';
+export { ShPartnerLogoImporter } from './sh-partner-logo-importer.js';
 export { ShObjectImporter } from './sh-object-importer.js';
 export { ShMonumentImporter } from './sh-monument-importer.js';
 export { ShMonumentDetailImporter } from './sh-monument-detail-importer.js';
