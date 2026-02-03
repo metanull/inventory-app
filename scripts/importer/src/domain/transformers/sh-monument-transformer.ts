@@ -182,14 +182,29 @@ export function transformShMonumentTranslation(
 
   // Build extra JSON for translation-specific fields
   const extra: Record<string, unknown> = {};
-  if (text.address) extra.address = convertHtmlToMarkdown(text.address);
-  if (text.phone) extra.phone = text.phone;
-  if (text.fax) extra.fax = text.fax;
-  if (text.email) extra.email = text.email;
+
+  // Monument contact information (language-specific visitor info)
+  const monumentContact: Record<string, string> = {};
+  if (text.address) monumentContact.address = convertHtmlToMarkdown(text.address);
+  if (text.phone) monumentContact.phone = text.phone;
+  if (text.fax) monumentContact.fax = text.fax;
+  if (text.email) monumentContact.email = text.email;
+  // institution is already used for holder, but store responsible_institution_org if different
+  if (text.responsible_institution_org && text.responsible_institution_org !== text.institution) {
+    monumentContact.responsible_institution = convertHtmlToMarkdown(text.responsible_institution_org);
+  }
+  if (Object.keys(monumentContact).length > 0) {
+    extra.monument_contact = monumentContact;
+  }
+
+  // Additional descriptive fields
   if (text.patrons) extra.patrons = convertHtmlToMarkdown(text.patrons);
   if (text.architects) extra.architects = convertHtmlToMarkdown(text.architects);
   if (text.datationmethod) extra.datation_method = convertHtmlToMarkdown(text.datationmethod);
   if (text.external_sources) extra.external_sources = convertHtmlToMarkdown(text.external_sources);
+  if (text.linkcatalogs) extra.linkcatalogs = text.linkcatalogs;
+
+  // Notice fields
   if (text.notice) extra.notice = convertHtmlToMarkdown(text.notice);
   if (text.notice_b) extra.notice_b = convertHtmlToMarkdown(text.notice_b);
   if (text.notice_c) extra.notice_c = convertHtmlToMarkdown(text.notice_c);

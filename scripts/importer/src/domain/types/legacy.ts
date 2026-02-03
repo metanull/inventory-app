@@ -199,6 +199,17 @@ export interface LegacyMonument {
   translationcopyeditedby?: string;
   linkcatalogs?: string | null;
   external_sources?: string | null;
+  // Contact fields
+  address?: string | null;
+  phone?: string | null;
+  fax?: string | null;
+  email?: string | null;
+  institution?: string | null;
+  // Extra descriptive fields
+  patrons?: string | null;
+  architects?: string | null;
+  history?: string | null;
+  dynasty?: string | null;
 }
 
 export interface MonumentGroup {

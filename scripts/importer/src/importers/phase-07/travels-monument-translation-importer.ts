@@ -31,6 +31,11 @@ interface LegacyTravelMonumentTranslation {
   lang: string;
   trail_id: number;
   title: string;
+  how_to_reach?: string | null;
+  info?: string | null;
+  contact?: string | null;
+  description?: string | null;
+  prepared_by?: string | null;
 }
 
 export class TravelsMonumentTranslationImporter extends BaseImporter {
@@ -63,7 +68,8 @@ export class TravelsMonumentTranslationImporter extends BaseImporter {
 
       // Query all travel monument translations
       const translations = await this.context.legacyDb.query<LegacyTravelMonumentTranslation>(
-        `SELECT project_id, country, itinerary_id, location_id, number, lang, trail_id, title
+        `SELECT project_id, country, itinerary_id, location_id, number, lang, trail_id, title,
+                how_to_reach, info, contact, description, prepared_by
          FROM mwnf3.tr_monuments 
          ORDER BY project_id, country, trail_id, itinerary_id, location_id, number, lang`
       );
@@ -125,14 +131,28 @@ export class TravelsMonumentTranslationImporter extends BaseImporter {
           }
 
           // Write translation
-          // Travel monuments only have title, no description in legacy
+          // Travel monuments have title, description, and visitor info (how_to_reach, info, contact)
+          
+          // Build extra field for visitor information (travels-specific free-text format)
+          const extraData: Record<string, unknown> = {};
+          const visitorInfo: Record<string, string> = {};
+          if (legacy.how_to_reach) visitorInfo.how_to_reach = legacy.how_to_reach;
+          if (legacy.info) visitorInfo.info = legacy.info;
+          if (legacy.contact) visitorInfo.contact = legacy.contact;
+          if (Object.keys(visitorInfo).length > 0) {
+            extraData.monument_visitor_info = visitorInfo;
+          }
+          if (legacy.prepared_by) extraData.prepared_by = legacy.prepared_by;
+          const extraField = Object.keys(extraData).length > 0 ? JSON.stringify(extraData) : null;
+
           await this.context.strategy.writeItemTranslation({
             item_id: monumentId,
             language_id: languageId,
             context_id: this.travelsContextId!,
             backward_compatibility: translationBackwardCompat,
             name: legacy.title || '',
-            description: '',
+            description: legacy.description || '',
+            extra: extraField,
           });
 
           result.imported++;
