@@ -203,6 +203,7 @@ export function transformShObjectTranslation(
   if (text.notice_b) extra.notice_b = convertHtmlToMarkdown(text.notice_b);
   if (text.notice_c) extra.notice_c = convertHtmlToMarkdown(text.notice_c);
   if (text.copyright) extra.copyright = text.copyright;
+  if (text.linkcatalogs) extra.linkcatalogs = text.linkcatalogs;
 
   const extraField = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 

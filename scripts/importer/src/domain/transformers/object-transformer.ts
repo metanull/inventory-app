@@ -229,6 +229,7 @@ export function transformObjectTranslation(
   if (obj.workshop) extraData.workshop = obj.workshop;
   if (obj.copyright) extraData.copyright = obj.copyright;
   if (obj.binding_desc) extraData.binding_desc = obj.binding_desc;
+  if (obj.linkcatalogs) extraData.linkcatalogs = obj.linkcatalogs;
   const extraField = Object.keys(extraData).length > 0 ? JSON.stringify(extraData) : null;
 
   // backward_compatibility matches parent item

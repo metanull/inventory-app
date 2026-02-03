@@ -157,6 +157,7 @@ export interface LegacyObject {
   translationcopyeditedby?: string;
   copyright?: string;
   binding_desc?: string;
+  linkcatalogs?: string | null;
 }
 
 export interface ObjectGroup {
@@ -196,6 +197,8 @@ export interface LegacyMonument {
   copyeditedby?: string;
   translationby?: string;
   translationcopyeditedby?: string;
+  linkcatalogs?: string | null;
+  external_sources?: string | null;
 }
 
 export interface MonumentGroup {

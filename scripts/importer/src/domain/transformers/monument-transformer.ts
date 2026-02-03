@@ -205,6 +205,12 @@ export function transformMonumentTranslation(
     .map((part) => convertHtmlToMarkdown(part));
   const locationMarkdown = locationParts.length > 0 ? locationParts.join(', ') : null;
 
+  // Build extra field for fields without dedicated columns
+  const extraData: Record<string, unknown> = {};
+  if (monument.linkcatalogs) extraData.linkcatalogs = monument.linkcatalogs;
+  if (monument.external_sources) extraData.external_sources = monument.external_sources;
+  const extraField = Object.keys(extraData).length > 0 ? JSON.stringify(extraData) : null;
+
   // backward_compatibility matches parent item
   const backwardCompatibility = formatBackwardCompatibility({
     schema: 'mwnf3',
@@ -236,9 +242,10 @@ export function transformMonumentTranslation(
     place_of_production: null,
     method_for_datation: methodForDatationMarkdown,
     method_for_provenance: null,
+    provenance: null,
     obtention: null,
     bibliography: bibliographyMarkdown,
-    extra: null,
+    extra: extraField,
   };
 
   return {
