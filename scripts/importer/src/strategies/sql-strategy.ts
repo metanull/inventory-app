@@ -291,9 +291,44 @@ export class SqlWriteStrategy implements IWriteStrategy {
     // The old importer does not create project translations
   }
 
+  async deleteProjectsWithoutItems(
+    dryRun = false
+  ): Promise<
+    Array<{ id: string; backward_compatibility: string | null; internal_name: string | null }>
+  > {
+    // Start transaction to ensure a consistent snapshot + atomic deletes
+    await this.db.execute('START TRANSACTION');
+    try {
+      const [rows] = await this.db.execute<import('mysql2').RowDataPacket[]>(
+        `SELECT p.id, p.backward_compatibility, p.internal_name
+         FROM projects p
+         LEFT JOIN items i ON i.project_id = p.id
+         WHERE i.id IS NULL`
+      );
+
+      const projects = (rows as RowDataPacket[]).map((r) => ({
+        id: String(r.id),
+        backward_compatibility: r.backward_compatibility ?? null,
+        internal_name: r.internal_name ?? null,
+      }));
+
+      if (!dryRun && projects.length > 0) {
+        for (const p of projects) {
+          await this.db.execute(`DELETE FROM projects WHERE id = ?`, [p.id]);
+        }
+      }
+
+      await this.db.execute('COMMIT');
+      return projects;
+    } catch (err) {
+      await this.db.execute('ROLLBACK');
+      throw err;
+    }
+  }
+
   // =========================================================================
   // Partners
-  // =========================================================================
+  // ========================================================================="},{
 
   async writePartner(data: PartnerData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);

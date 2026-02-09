@@ -2,6 +2,7 @@
   "name": "legacy-import",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Legacy database import utility for Inventory Management System",
   "scripts": {
     "build": "tsc",

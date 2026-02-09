@@ -6,3 +6,4 @@
  */
 
 export { PartnerMonumentLinker } from './partner-monument-linker.js';
+export { ProjectCleanupImporter } from './project-cleanup-importer.js';

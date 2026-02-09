@@ -79,6 +79,7 @@ describe('CountryImporter', () => {
       writeItemItemLinkTranslation: vi.fn().mockResolvedValue(undefined),
       attachItemsToCollection: vi.fn().mockResolvedValue(undefined),
       attachPartnersToCollection: vi.fn().mockResolvedValue(undefined),
+      deleteProjectsWithoutItems: vi.fn().mockResolvedValue([]),
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
     };
@@ -241,6 +242,7 @@ describe('CountryTranslationImporter', () => {
       writeItemItemLinkTranslation: vi.fn().mockResolvedValue(undefined),
       attachItemsToCollection: vi.fn().mockResolvedValue(undefined),
       attachPartnersToCollection: vi.fn().mockResolvedValue(undefined),
+      deleteProjectsWithoutItems: vi.fn().mockResolvedValue([]),
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
     };

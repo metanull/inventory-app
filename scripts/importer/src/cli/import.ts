@@ -103,6 +103,7 @@ import {
   ThgGalleryShMonumentImporter,
   ThgGalleryTravelMonumentImporter,
   ThgGalleryExploreMonumentImporter,
+  ProjectCleanupImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -616,6 +617,13 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Link Explore monuments to THG gallery collections',
     importerClass: ThgGalleryExploreMonumentImporter,
     dependencies: ['thg-gallery', 'explore-monument'],
+  },
+  {
+    key: 'project-cleanup',
+    name: 'Project Cleanup',
+    description: 'Remove projects that have no Items (post-import cleanup)',
+    importerClass: ProjectCleanupImporter,
+    dependencies: ['item-item-link'],
   },
 ];
 

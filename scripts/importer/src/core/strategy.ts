@@ -116,9 +116,19 @@ export interface IWriteStrategy {
    */
   writeProjectTranslation(data: ProjectTranslationData): Promise<void>;
 
+  /**
+   * Delete projects that have no items. If `dryRun` is true the projects are
+   * only listed and not removed. Returns array of affected projects.
+   */
+  deleteProjectsWithoutItems(
+    dryRun?: boolean
+  ): Promise<
+    Array<{ id: string; backward_compatibility: string | null; internal_name: string | null }>
+  >;
+
   // =========================================================================
   // Partners
-  // =========================================================================
+  // ========================================================================="},{
 
   /**
    * Write a partner record
