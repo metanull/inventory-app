@@ -26,6 +26,7 @@ use App\Http\Controllers\LocationTranslationController;
 use App\Http\Controllers\MobileAppAuthenticationController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PartnerImageController;
+use App\Http\Controllers\PartnerLogoController;
 use App\Http\Controllers\PartnerTranslationController;
 use App\Http\Controllers\PartnerTranslationImageController;
 use App\Http\Controllers\ProjectController;
@@ -108,6 +109,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('partner-image/{partnerImage}/view', [PartnerImageController::class, 'view'])->name('partner-image.view');
         Route::get('partner-image/{partnerImage}', [PartnerImageController::class, 'show'])->name('partner-image.show');
         Route::get('partner-image', [PartnerImageController::class, 'index'])->name('partner-image.index');
+
+        // Partner Logo routes (read)
+        Route::get('partner-logo/{partnerLogo}/download', [PartnerLogoController::class, 'download'])->name('partner-logo.download');
+        Route::get('partner-logo/{partnerLogo}/view', [PartnerLogoController::class, 'view'])->name('partner-logo.view');
+        Route::get('partner-logo/{partnerLogo}', [PartnerLogoController::class, 'show'])->name('partner-logo.show');
+        Route::get('partner-logo', [PartnerLogoController::class, 'index'])->name('partner-logo.index');
 
         // Partner Translation Image routes (read)
         Route::get('partner-translation-image/{partnerTranslationImage}/download', [PartnerTranslationImageController::class, 'download'])->name('partner-translation-image.download');
@@ -201,6 +208,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('partner-translation', [PartnerTranslationController::class, 'store'])->name('partner-translation.store');
         Route::post('partner-translation/{partnerTranslation}/attach-image', [PartnerTranslationImageController::class, 'attachFromAvailable'])->name('partner-translation.attachImage');
         Route::post('partner-image', [PartnerImageController::class, 'store'])->name('partner-image.store');
+        Route::post('partner-logo', [PartnerLogoController::class, 'store'])->name('partner-logo.store');
         Route::post('partner-translation-image', [PartnerTranslationImageController::class, 'store'])->name('partner-translation-image.store');
         Route::post('item', [ItemController::class, 'store'])->name('item.store');
         Route::post('item/{item}/images', [ItemImageController::class, 'store'])->name('item.images.store');
@@ -276,6 +284,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::patch('partner-image/{partnerImage}/move-down', [PartnerImageController::class, 'moveDown'])->name('partner-image.moveDown');
         Route::patch('partner-image/{partnerImage}/tighten-ordering', [PartnerImageController::class, 'tightenOrdering'])->name('partner-image.tightenOrdering');
 
+        Route::patch('partner-logo/{partnerLogo}', [PartnerLogoController::class, 'update'])->name('partner-logo.update');
+        Route::put('partner-logo/{partnerLogo}', [PartnerLogoController::class, 'update']);
+        Route::patch('partner-logo/{partnerLogo}/move-up', [PartnerLogoController::class, 'moveUp'])->name('partner-logo.moveUp');
+        Route::patch('partner-logo/{partnerLogo}/move-down', [PartnerLogoController::class, 'moveDown'])->name('partner-logo.moveDown');
+        Route::patch('partner-logo/{partnerLogo}/tighten-ordering', [PartnerLogoController::class, 'tightenOrdering'])->name('partner-logo.tightenOrdering');
+
         Route::patch('partner-translation-image/{partnerTranslationImage}', [PartnerTranslationImageController::class, 'update'])->name('partner-translation-image.update');
         Route::put('partner-translation-image/{partnerTranslationImage}', [PartnerTranslationImageController::class, 'update']);
         Route::patch('partner-translation-image/{partnerTranslationImage}/move-up', [PartnerTranslationImageController::class, 'moveUp'])->name('partner-translation-image.moveUp');
@@ -348,6 +362,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('partner-translation/{partnerTranslation}', [PartnerTranslationController::class, 'destroy'])->name('partner-translation.destroy');
         Route::delete('partner-image/{partnerImage}', [PartnerImageController::class, 'destroy'])->name('partner-image.destroy');
         Route::post('partner-image/{partnerImage}/detach', [PartnerImageController::class, 'detachToAvailable'])->name('partner-image.detach');
+        Route::delete('partner-logo/{partnerLogo}', [PartnerLogoController::class, 'destroy'])->name('partner-logo.destroy');
         Route::delete('partner-translation-image/{partnerTranslationImage}', [PartnerTranslationImageController::class, 'destroy'])->name('partner-translation-image.destroy');
         Route::post('partner-translation-image/{partnerTranslationImage}/detach', [PartnerTranslationImageController::class, 'detachToAvailable'])->name('partner-translation-image.detach');
         Route::delete('item/{item}', [ItemController::class, 'destroy'])->name('item.destroy');

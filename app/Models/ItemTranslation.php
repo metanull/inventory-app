@@ -103,6 +103,7 @@ class ItemTranslation extends Model
         'place_of_production',
         'method_for_datation',
         'method_for_provenance',
+        'provenance',
         'obtention',
         'bibliography',
         'author_id',

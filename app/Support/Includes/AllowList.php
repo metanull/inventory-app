@@ -43,7 +43,7 @@ class AllowList
             'partner' => [
                 'country', 'items', 'pictures',
                 'project', 'monumentItem',
-                'translations', 'partnerImages',
+                'translations', 'partnerImages', 'partnerLogos',
                 'collections',
             ],
             'partner_translation' => [
@@ -51,6 +51,9 @@ class AllowList
                 'partnerTranslationImages',
             ],
             'partner_image' => [
+                'partner',
+            ],
+            'partner_logo' => [
                 'partner',
             ],
             'partner_translation_image' => [

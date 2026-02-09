@@ -200,7 +200,7 @@ export class TravelsMonumentImporter extends BaseImporter {
           result.errors.push(
             `Error importing monument ${group.project_id}/${group.country}/${group.trail_id}/${group.itinerary_id}/${group.location_id}/${group.number}: ${errorMessage}`
           );
-          this.logError('TravelsMonumentImporter', error, {
+          this.logError('TravelsMonumentImporter', errorMessage, {
             project_id: group.project_id,
             country: group.country,
             trail_id: group.trail_id,
@@ -215,7 +215,7 @@ export class TravelsMonumentImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error in monument import: ${errorMessage}`);
-      this.logError('TravelsMonumentImporter', error);
+      this.logError('TravelsMonumentImporter', errorMessage);
       this.showError();
     }
 

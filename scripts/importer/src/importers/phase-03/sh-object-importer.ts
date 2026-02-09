@@ -76,7 +76,7 @@ export class ShObjectImporter extends BaseImporter {
             group.number
           );
           result.errors.push(`${backwardCompat}: ${message}`);
-          this.logError(`SH Object ${backwardCompat}`, error);
+          this.logError(`SH Object ${backwardCompat}`, message);
           this.showError();
         }
       }

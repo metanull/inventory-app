@@ -201,17 +201,31 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
 
           // Write item translation using strategy
           // Note: This creates a context-specific translation for the item
-          await this.context.strategy.writeItemTranslation({
-            item_id: itemId,
-            language_id: languageId,
-            context_id: contextId,
-            backward_compatibility: backwardCompat,
-            name: '', // Name is not provided in contextual descriptions
-            description: legacy.contextual_description || '',
-          });
+          // Handle potential duplicates gracefully (skip if already exists due to unique constraint)
+          try {
+            await this.context.strategy.writeItemTranslation({
+              item_id: itemId,
+              language_id: languageId,
+              context_id: contextId,
+              backward_compatibility: backwardCompat,
+              name: '', // Name is not provided in contextual descriptions
+              description: legacy.contextual_description || '',
+            });
 
-          result.imported++;
-          this.showProgress();
+            result.imported++;
+            this.showProgress();
+          } catch (writeError) {
+            const errMsg = writeError instanceof Error ? writeError.message : String(writeError);
+            // Check for duplicate entry error (unique constraint violation)
+            if (errMsg.includes('Duplicate entry') || errMsg.includes('unique')) {
+              // Already imported, skip silently
+              result.skipped++;
+              this.showSkipped();
+            } else {
+              // Re-throw other errors
+              throw writeError;
+            }
+          }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           result.errors.push(
@@ -219,7 +233,7 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
           );
           this.logError(
             `Theme item ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id} (${legacy.language_id})`,
-            error
+            message
           );
           this.showError();
         }
@@ -230,7 +244,7 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
       const message = error instanceof Error ? error.message : String(error);
       result.success = false;
       result.errors.push(message);
-      this.logError('ThgThemeItemTranslationImporter', error);
+      this.logError('ThgThemeItemTranslationImporter', message);
     }
 
     return result;

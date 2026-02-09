@@ -45,6 +45,7 @@ class ItemTranslationFactory extends Factory
             'place_of_production' => $this->faker->optional()->city,
             'method_for_datation' => $this->faker->optional()->sentence,
             'method_for_provenance' => $this->faker->optional()->sentence,
+            'provenance' => $this->faker->optional()->company,
             'obtention' => $this->faker->optional()->sentence,
             'bibliography' => $this->faker->optional()->paragraph,
             'author_id' => $this->faker->optional()->randomElement([Author::factory(), null]),

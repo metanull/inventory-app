@@ -30,6 +30,7 @@ class StoreCollectionTranslationRequest extends FormRequest
 
             // Optional string fields
             'description' => ['nullable', 'string'],
+            'quote' => ['nullable', 'string'],
             'url' => ['nullable', 'string', 'max:255'],
 
             // Legacy and extra

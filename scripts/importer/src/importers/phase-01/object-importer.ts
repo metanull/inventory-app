@@ -83,7 +83,7 @@ export class ObjectImporter extends BaseImporter {
           const message = error instanceof Error ? error.message : String(error);
           const backwardCompat = `mwnf3:objects:${group.project_id}:${group.country}:${group.museum_id}:${group.number}`;
           result.errors.push(`${backwardCompat}: ${message}`);
-          this.logError(`Object ${backwardCompat}`, error);
+          this.logError(`Object ${backwardCompat}`, message);
           this.showError();
         }
       }

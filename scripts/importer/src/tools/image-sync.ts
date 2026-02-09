@@ -91,6 +91,13 @@ export class ImageSyncTool {
       result.skipped += partnerImageResults.skipped;
       result.errors.push(...partnerImageResults.errors);
 
+      // Sync CollectionImages
+      this.logger.info('\n=== Syncing CollectionImages ===');
+      const collectionImageResults = await this.syncCollectionImages();
+      result.imported += collectionImageResults.synced;
+      result.skipped += collectionImageResults.skipped;
+      result.errors.push(...collectionImageResults.errors);
+
       this.logger.info(
         `\nSummary: ${result.imported} synced, ${result.skipped} skipped, ${result.errors.length} errors`
       );
@@ -130,7 +137,7 @@ export class ImageSyncTool {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         errors.push(`ItemImage ${image.id}: ${message}`);
-        this.logger.error(`ItemImage ${image.id}`, error);
+        this.logger.error(`ItemImage ${image.id}`, message);
         process.stdout.write('✗');
       }
     }
@@ -165,7 +172,42 @@ export class ImageSyncTool {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         errors.push(`PartnerImage ${image.id}: ${message}`);
-        this.logger.error(`PartnerImage ${image.id}`, error);
+        this.logger.error(`PartnerImage ${image.id}`, message);
+        process.stdout.write('✗');
+      }
+    }
+    process.stdout.write('\n');
+
+    return { synced, skipped, errors };
+  }
+
+  private async syncCollectionImages(): Promise<{
+    synced: number;
+    skipped: number;
+    errors: string[];
+  }> {
+    const errors: string[] = [];
+    let synced = 0;
+    let skipped = 0;
+
+    // Query CollectionImages with size=1
+    const images = await this.queryImages('collection_images');
+    this.logger.info(`Found ${images.length} CollectionImages to sync`);
+
+    for (const image of images) {
+      try {
+        const result = await this.syncImage(image, 'collection_images');
+        if (result) {
+          synced++;
+          process.stdout.write('.');
+        } else {
+          skipped++;
+          process.stdout.write('⊘');
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        errors.push(`CollectionImage ${image.id}: ${message}`);
+        this.logger.error(`CollectionImage ${image.id}`, message);
         process.stdout.write('✗');
       }
     }

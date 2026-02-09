@@ -86,7 +86,7 @@ export class GlossaryImporter extends BaseImporter {
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           result.errors.push(`Word ${legacy.word_id}: ${message}`);
-          this.logError(`Glossary word ${legacy.word_id}`, error);
+          this.logError(`Glossary word ${legacy.word_id}`, message);
           this.showError();
         }
       }
@@ -197,7 +197,7 @@ export class GlossaryTranslationImporter extends BaseImporter {
           );
           this.logError(
             `Glossary definition word_id=${legacy.word_id}, lang=${legacy.lang_id}`,
-            error
+            message
           );
           this.showError();
         }
@@ -316,7 +316,7 @@ export class GlossarySpellingImporter extends BaseImporter {
           );
           this.logError(
             `Glossary spelling spelling_id=${legacy.spelling_id}, word_id=${legacy.word_id}`,
-            error
+            message
           );
           this.showError();
         }

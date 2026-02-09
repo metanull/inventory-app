@@ -1,6 +1,6 @@
 {
   "name": "importer",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "type": "module",
   "description": "Unified legacy database import utility for Inventory Management System",
@@ -37,6 +37,7 @@
     "@typescript-eslint/eslint-plugin": "^8.47.0",
     "@typescript-eslint/parser": "^8.47.0",
     "@vitest/coverage-v8": "^4.0.10",
+    "baseline-browser-mapping": "^2.9.19",
     "eslint": "^9.16.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.2.1",

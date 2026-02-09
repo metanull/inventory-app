@@ -142,7 +142,7 @@ export class TravelsLocationTranslationImporter extends BaseImporter {
           result.errors.push(
             `Error importing location translation ${legacy.project_id}/${legacy.country}/${legacy.trail_id}/${legacy.itinerary_id}/${legacy.number}:${legacy.lang}: ${errorMessage}`
           );
-          this.logError('TravelsLocationTranslationImporter', error, {
+          this.logError('TravelsLocationTranslationImporter', errorMessage, {
             project_id: legacy.project_id,
             country: legacy.country,
             trail_id: legacy.trail_id,
@@ -157,7 +157,7 @@ export class TravelsLocationTranslationImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error in location translation import: ${errorMessage}`);
-      this.logError('TravelsLocationTranslationImporter', error);
+      this.logError('TravelsLocationTranslationImporter', errorMessage);
       this.showError();
     }
 

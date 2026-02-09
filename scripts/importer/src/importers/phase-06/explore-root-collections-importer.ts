@@ -171,7 +171,7 @@ export class ExploreRootCollectionsImporter extends BaseImporter {
           result.success = false;
           const errorMessage = error instanceof Error ? error.message : String(error);
           result.errors.push(`Error creating collection ${config.internal_name}: ${errorMessage}`);
-          this.logError('ExploreRootCollectionsImporter', error, {
+          this.logError('ExploreRootCollectionsImporter', errorMessage, {
             collection: config.internal_name,
           });
           this.showError();
@@ -181,7 +181,7 @@ export class ExploreRootCollectionsImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error in root collections import: ${errorMessage}`);
-      this.logError('ExploreRootCollectionsImporter', error);
+      this.logError('ExploreRootCollectionsImporter', errorMessage);
       this.showError();
     }
 

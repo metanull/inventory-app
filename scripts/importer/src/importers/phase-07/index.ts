@@ -25,3 +25,9 @@ export { TravelsLocationImporter } from './travels-location-importer.js';
 export { TravelsLocationTranslationImporter } from './travels-location-translation-importer.js';
 export { TravelsMonumentImporter } from './travels-monument-importer.js';
 export { TravelsMonumentTranslationImporter } from './travels-monument-translation-importer.js';
+
+// Picture Importers
+export { TravelsTrailPictureImporter } from './travels-trail-picture-importer.js';
+export { TravelsItineraryPictureImporter } from './travels-itinerary-picture-importer.js';
+export { TravelsLocationPictureImporter } from './travels-location-picture-importer.js';
+export { TravelsMonumentPictureImporter } from './travels-monument-picture-importer.js';

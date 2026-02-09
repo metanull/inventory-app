@@ -89,7 +89,7 @@ export class ShObjectPictureImporter extends BaseImporter {
           const message = error instanceof Error ? error.message : String(error);
           const backwardCompat = this.getPictureBackwardCompatibility(group);
           result.errors.push(`${backwardCompat}: ${message}`);
-          this.logError(`SH Object Picture ${backwardCompat}`, error);
+          this.logError(`SH Object Picture ${backwardCompat}`, message);
           this.showError();
         }
       }

@@ -30,6 +30,8 @@ import type {
   ArtistData,
   ItemImageData,
   PartnerImageData,
+  PartnerLogoData,
+  CollectionImageData,
   GlossaryData,
   GlossaryTranslationData,
   GlossarySpellingData,
@@ -114,9 +116,19 @@ export interface IWriteStrategy {
    */
   writeProjectTranslation(data: ProjectTranslationData): Promise<void>;
 
+  /**
+   * Delete projects that have no items. If `dryRun` is true the projects are
+   * only listed and not removed. Returns array of affected projects.
+   */
+  deleteProjectsWithoutItems(
+    dryRun?: boolean
+  ): Promise<
+    Array<{ id: string; backward_compatibility: string | null; internal_name: string | null }>
+  >;
+
   // =========================================================================
   // Partners
-  // =========================================================================
+  // ========================================================================="},{
 
   /**
    * Write a partner record
@@ -128,6 +140,13 @@ export interface IWriteStrategy {
    * Write a partner translation record
    */
   writePartnerTranslation(data: PartnerTranslationData): Promise<void>;
+
+  /**
+   * Update a partner's monument_item_id (deferred linking)
+   * @param partnerId The partner UUID to update
+   * @param monumentItemId The monument Item UUID to link to
+   */
+  updatePartnerMonumentItemId(partnerId: string, monumentItemId: string): Promise<void>;
 
   // =========================================================================
   // Items
@@ -210,6 +229,18 @@ export interface IWriteStrategy {
    * @returns The partner image UUID
    */
   writePartnerImage(data: PartnerImageData): Promise<string>;
+
+  /**
+   * Write a partner logo record
+   * @returns The partner logo UUID
+   */
+  writePartnerLogo(data: PartnerLogoData): Promise<string>;
+
+  /**
+   * Write a collection image record
+   * @returns The collection image UUID
+   */
+  writeCollectionImage(data: CollectionImageData): Promise<string>;
 
   // =========================================================================
   // Glossary

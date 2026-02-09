@@ -165,6 +165,7 @@ export interface CollectionTranslationData {
   backward_compatibility: string;
   title: string;
   description?: string | null;
+  quote?: string | null;
 }
 
 /**
@@ -270,6 +271,7 @@ export interface ItemTranslationData {
   place_of_production?: string | null;
   method_for_datation?: string | null;
   method_for_provenance?: string | null;
+  provenance?: string | null;
   obtention?: string | null;
   bibliography?: string | null;
   author_id?: string | null;
@@ -327,6 +329,35 @@ export interface ItemImageData {
 export interface PartnerImageData {
   id?: string; // Optional: for preserving IDs from AvailableImage
   partner_id: string;
+  path: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  alt_text?: string | null;
+  display_order: number;
+}
+
+/**
+ * Partner logo data for write operations
+ */
+export interface PartnerLogoData {
+  id?: string; // Optional: for preserving IDs
+  partner_id: string;
+  path: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  logo_type?: string; // 'primary', 'secondary', 'sponsor', etc.
+  alt_text?: string | null;
+  display_order: number;
+}
+
+/**
+ * Collection image data for write operations
+ */
+export interface CollectionImageData {
+  id?: string; // Optional: for preserving IDs
+  collection_id: string;
   path: string;
   original_name: string;
   mime_type: string;

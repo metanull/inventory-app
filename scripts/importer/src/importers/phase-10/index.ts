@@ -9,6 +9,7 @@
  */
 
 export { ThgGalleryContextImporter } from './thg-gallery-context-importer.js';
+export { ThgRootCollectionsImporter } from './thg-root-collections-importer.js';
 export { ThgGalleryImporter } from './thg-gallery-importer.js';
 export { ThgGalleryTranslationImporter } from './thg-gallery-translation-importer.js';
 export { ThgThemeImporter } from './thg-theme-importer.js';
@@ -24,3 +25,4 @@ export { ThgGalleryMwnf3MonumentImporter } from './thg-gallery-mwnf3-monument-im
 export { ThgGalleryShObjectImporter } from './thg-gallery-sh-object-importer.js';
 export { ThgGalleryShMonumentImporter } from './thg-gallery-sh-monument-importer.js';
 export { ThgGalleryTravelMonumentImporter } from './thg-gallery-travel-monument-importer.js';
+export { ThgGalleryExploreMonumentImporter } from './thg-gallery-explore-monument-importer.js';

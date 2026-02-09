@@ -89,7 +89,7 @@ export class CountryImporter extends BaseImporter {
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           result.errors.push(`${country.id}: ${message}`);
-          this.logError(`Country ${country.id}`, error);
+          this.logError(`Country ${country.id}`, message);
           this.showError();
         }
       }
@@ -176,7 +176,7 @@ export class CountryTranslationImporter extends BaseImporter {
             this.showSkipped();
           } else {
             result.errors.push(`${legacy.country}:${legacy.lang}: ${message}`);
-            this.logError(`Country translation ${legacy.country}:${legacy.lang}`, error);
+            this.logError(`Country translation ${legacy.country}:${legacy.lang}`, message);
             this.showError();
           }
         }

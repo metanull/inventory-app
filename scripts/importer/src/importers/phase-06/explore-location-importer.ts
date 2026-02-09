@@ -192,7 +192,7 @@ export class ExploreLocationImporter extends BaseImporter {
           result.success = false;
           const errorMessage = error instanceof Error ? error.message : String(error);
           result.errors.push(`Error importing location ${legacy.locationId}: ${errorMessage}`);
-          this.logError('ExploreLocationImporter', error, { locationId: legacy.locationId });
+          this.logError('ExploreLocationImporter', errorMessage, { locationId: legacy.locationId });
           this.showError();
         }
       }
@@ -200,7 +200,7 @@ export class ExploreLocationImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error in location import: ${errorMessage}`);
-      this.logError('ExploreLocationImporter', error);
+      this.logError('ExploreLocationImporter', errorMessage);
       this.showError();
     }
 

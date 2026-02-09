@@ -6,6 +6,7 @@
  * Legacy schema:
  * - mwnf3.tr_monuments (project_id, country, itinerary_id, location_id, number, lang, trail_id, title)
  *   - One row per language
+ *   - Note: Unlike explore locations, tr_monuments only has title (no description, how_to_reach, etc.)
  *
  * New schema:
  * - item_translations (item_id, language_id, context_id, title, ...)
@@ -21,6 +22,7 @@ import type { ImportResult } from '../../core/types.js';
 
 /**
  * Legacy travel monument translation structure
+ * Note: tr_monuments table only has basic columns (title), no visitor info fields
  */
 interface LegacyTravelMonumentTranslation {
   project_id: string;
@@ -62,6 +64,7 @@ export class TravelsMonumentTranslationImporter extends BaseImporter {
       this.logInfo('Importing travel monument translations...');
 
       // Query all travel monument translations
+      // Note: tr_monuments only has title column, no description or visitor info fields
       const translations = await this.context.legacyDb.query<LegacyTravelMonumentTranslation>(
         `SELECT project_id, country, itinerary_id, location_id, number, lang, trail_id, title
          FROM mwnf3.tr_monuments 
@@ -125,7 +128,7 @@ export class TravelsMonumentTranslationImporter extends BaseImporter {
           }
 
           // Write translation
-          // Travel monuments only have title, no description in legacy
+          // Note: Travel monuments only have title in legacy, no description or visitor info
           await this.context.strategy.writeItemTranslation({
             item_id: monumentId,
             language_id: languageId,
@@ -133,6 +136,7 @@ export class TravelsMonumentTranslationImporter extends BaseImporter {
             backward_compatibility: translationBackwardCompat,
             name: legacy.title || '',
             description: '',
+            extra: null,
           });
 
           result.imported++;
@@ -143,7 +147,7 @@ export class TravelsMonumentTranslationImporter extends BaseImporter {
           result.errors.push(
             `Error importing monument translation ${legacy.project_id}/${legacy.country}/${legacy.trail_id}/${legacy.itinerary_id}/${legacy.location_id}/${legacy.number}:${legacy.lang}: ${errorMessage}`
           );
-          this.logError('TravelsMonumentTranslationImporter', error, {
+          this.logError('TravelsMonumentTranslationImporter', errorMessage, {
             project_id: legacy.project_id,
             country: legacy.country,
             trail_id: legacy.trail_id,
@@ -159,7 +163,7 @@ export class TravelsMonumentTranslationImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error in monument translation import: ${errorMessage}`);
-      this.logError('TravelsMonumentTranslationImporter', error);
+      this.logError('TravelsMonumentTranslationImporter', errorMessage);
       this.showError();
     }
 

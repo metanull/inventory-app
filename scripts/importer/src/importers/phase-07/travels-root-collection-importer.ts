@@ -122,7 +122,7 @@ export class TravelsRootCollectionImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error creating Travels root collection: ${errorMessage}`);
-      this.logError('TravelsRootCollectionImporter', error);
+      this.logError('TravelsRootCollectionImporter', errorMessage);
       this.showError();
     }
 

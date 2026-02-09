@@ -1,18 +1,23 @@
 /**
  * THG Theme Translation Importer
  *
- * Imports theme_i18n entries as ThemeTranslation records.
+ * Imports theme_i18n entries as CollectionTranslation records.
+ * Now that themes are stored as Collections, their translations go to collection_translations.
  *
  * Legacy schema:
  * - mwnf3_thematic_gallery.theme_i18n (gallery_id, theme_id, language_id, title, quote, presentation)
  *
  * New schema:
- * - theme_translations (id, theme_id, language_id, context_id, title, description, introduction, backward_compatibility)
+ * - collection_translations (id, collection_id, language_id, context_id, title, description, introduction, backward_compatibility)
  *
  * Mapping:
  * - title → title
  * - quote → introduction
  * - presentation → description
+ *
+ * Dependencies:
+ * - ThgThemeImporter (must run first to create theme collections)
+ * - ThgGalleryContextImporter (for context reference)
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
@@ -39,7 +44,7 @@ export class ThgThemeTranslationImporter extends BaseImporter {
     const result = this.createResult();
 
     try {
-      this.logInfo('Importing theme translations from theme_i18n...');
+      this.logInfo('Importing theme translations as collection translations...');
 
       // Query translations from legacy database
       const translations = await this.context.legacyDb.query<LegacyThemeI18n>(
@@ -68,19 +73,19 @@ export class ThgThemeTranslationImporter extends BaseImporter {
           const themeBackwardCompat = `mwnf3_thematic_gallery:theme:${legacy.gallery_id}:${legacy.theme_id}`;
           const backwardCompat = `mwnf3_thematic_gallery:theme_i18n:${legacy.gallery_id}:${legacy.theme_id}:${legacy.language_id}`;
 
-          // Check if already exists (use async for database fallback)
-          if (await this.entityExistsAsync(backwardCompat, 'theme_translation')) {
+          // Check if already exists as collection_translation (use async for database fallback)
+          if (await this.entityExistsAsync(backwardCompat, 'collection_translation')) {
             result.skipped++;
             this.showSkipped();
             continue;
           }
 
-          // Get the theme ID (use async for database fallback)
-          const themeId = await this.getEntityUuidAsync(themeBackwardCompat, 'theme');
-          if (!themeId) {
+          // Get the theme collection ID (themes are now collections)
+          const collectionId = await this.getEntityUuidAsync(themeBackwardCompat, 'collection');
+          if (!collectionId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Theme ${legacy.gallery_id}.${legacy.theme_id}: Theme not found. Run ThgThemeImporter first.`
+              `Theme ${legacy.gallery_id}.${legacy.theme_id}: Theme collection not found. Run ThgThemeImporter first.`
             );
             result.skipped++;
             this.showSkipped();
@@ -105,7 +110,7 @@ export class ThgThemeTranslationImporter extends BaseImporter {
 
           // Collect sample
           this.collectSample(
-            'thg_theme_translation',
+            'thg_theme_collection_translation',
             legacy as unknown as Record<string, unknown>,
             'success',
             undefined,
@@ -114,23 +119,27 @@ export class ThgThemeTranslationImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create theme translation: ${title} (${backwardCompat})`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create collection translation: ${title} (${backwardCompat})`
             );
+            this.registerEntity('', backwardCompat, 'collection_translation');
             result.imported++;
             this.showProgress();
             continue;
           }
 
-          // Write theme translation using strategy
-          await this.context.strategy.writeThemeTranslation({
-            theme_id: themeId,
+          // Write collection translation using strategy
+          // Keep quote and presentation (description) as separate fields to preserve legacy data
+          await this.context.strategy.writeCollectionTranslation({
+            collection_id: collectionId,
             language_id: languageId,
             context_id: contextId,
             title: title,
             description: legacy.presentation ?? null,
-            introduction: legacy.quote ?? null,
+            quote: legacy.quote ?? null,
             backward_compatibility: backwardCompat,
           });
+
+          this.registerEntity('', backwardCompat, 'collection_translation');
 
           result.imported++;
           this.showProgress();
@@ -141,7 +150,7 @@ export class ThgThemeTranslationImporter extends BaseImporter {
           );
           this.logError(
             `Theme ${legacy.gallery_id}.${legacy.theme_id} (${legacy.language_id})`,
-            error
+            message
           );
           this.showError();
         }
@@ -152,7 +161,7 @@ export class ThgThemeTranslationImporter extends BaseImporter {
       const message = error instanceof Error ? error.message : String(error);
       result.success = false;
       result.errors.push(message);
-      this.logError('ThgThemeTranslationImporter', error);
+      this.logError('ThgThemeTranslationImporter', message);
     }
 
     return result;

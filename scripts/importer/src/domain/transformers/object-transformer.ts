@@ -215,6 +215,7 @@ export function transformObjectTranslation(
   const methodForProvenanceMarkdown = obj.provenancemethod
     ? convertHtmlToMarkdown(obj.provenancemethod)
     : null;
+  const provenanceMarkdown = obj.provenance ? convertHtmlToMarkdown(obj.provenance) : null;
   const obtentionMarkdown = obj.obtentionmethod ? convertHtmlToMarkdown(obj.obtentionmethod) : null;
 
   // Convert location (composed from multiple fields)
@@ -228,6 +229,7 @@ export function transformObjectTranslation(
   if (obj.workshop) extraData.workshop = obj.workshop;
   if (obj.copyright) extraData.copyright = obj.copyright;
   if (obj.binding_desc) extraData.binding_desc = obj.binding_desc;
+  if (obj.linkcatalogs) extraData.linkcatalogs = obj.linkcatalogs;
   const extraField = Object.keys(extraData).length > 0 ? JSON.stringify(extraData) : null;
 
   // backward_compatibility matches parent item
@@ -261,6 +263,7 @@ export function transformObjectTranslation(
     place_of_production: placeOfProductionMarkdown,
     method_for_datation: methodForDatationMarkdown,
     method_for_provenance: methodForProvenanceMarkdown,
+    provenance: provenanceMarkdown,
     obtention: obtentionMarkdown,
     bibliography: bibliographyMarkdown,
     extra: extraField,

@@ -205,6 +205,33 @@ export function transformMonumentTranslation(
     .map((part) => convertHtmlToMarkdown(part));
   const locationMarkdown = locationParts.length > 0 ? locationParts.join(', ') : null;
 
+  // Build extra field for fields without dedicated columns
+  const extraData: Record<string, unknown> = {};
+
+  // External links
+  if (monument.linkcatalogs) extraData.linkcatalogs = monument.linkcatalogs;
+  if (monument.external_sources) extraData.external_sources = monument.external_sources;
+
+  // Monument contact information (language-specific visitor info)
+  const monumentContact: Record<string, string> = {};
+  if (monument.address) monumentContact.address = convertHtmlToMarkdown(monument.address);
+  if (monument.phone) monumentContact.phone = monument.phone;
+  if (monument.fax) monumentContact.fax = monument.fax;
+  if (monument.email) monumentContact.email = monument.email;
+  if (monument.institution)
+    monumentContact.institution = convertHtmlToMarkdown(monument.institution);
+  if (Object.keys(monumentContact).length > 0) {
+    extraData.monument_contact = monumentContact;
+  }
+
+  // Additional descriptive fields
+  if (monument.patrons) extraData.patrons = convertHtmlToMarkdown(monument.patrons);
+  if (monument.architects) extraData.architects = convertHtmlToMarkdown(monument.architects);
+  if (monument.history) extraData.history = convertHtmlToMarkdown(monument.history);
+  if (monument.dynasty) extraData.dynasty = convertHtmlToMarkdown(monument.dynasty);
+
+  const extraField = Object.keys(extraData).length > 0 ? JSON.stringify(extraData) : null;
+
   // backward_compatibility matches parent item
   const backwardCompatibility = formatBackwardCompatibility({
     schema: 'mwnf3',
@@ -236,9 +263,10 @@ export function transformMonumentTranslation(
     place_of_production: null,
     method_for_datation: methodForDatationMarkdown,
     method_for_provenance: null,
+    provenance: null,
     obtention: null,
     bibliography: bibliographyMarkdown,
-    extra: null,
+    extra: extraField,
   };
 
   return {

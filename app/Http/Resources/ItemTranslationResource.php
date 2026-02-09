@@ -52,6 +52,8 @@ class ItemTranslationResource extends JsonResource
             'method_for_datation' => $this->method_for_datation,
             // The method for provenance of the item
             'method_for_provenance' => $this->method_for_provenance,
+            // The ownership history of the item
+            'provenance' => $this->provenance,
             // The obtention of the item
             'obtention' => $this->obtention,
             // The bibliography for the item

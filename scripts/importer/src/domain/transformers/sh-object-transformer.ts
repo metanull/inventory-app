@@ -119,29 +119,28 @@ export function transformShObject(
 
 /**
  * Transform a SH object text to ItemTranslation
- * Returns null if required fields (name, description) are missing
+ * Returns null if required fields (name) is missing
+ * Description is built from description OR description2 (at least one must be present)
  */
 export function transformShObjectTranslation(
   text: ShLegacyObjectText
 ): TransformedShObjectTranslation | null {
   const languageId = mapLanguageCode(text.lang);
 
-  // Validate required fields
+  // Validate required fields - name is required
   const name = text.name?.trim() || null;
   if (!name) {
     return null;
   }
 
-  // Build description combining description and description2
+  // Build description combining description and description2 (use whichever is available)
   const descriptions = [text.description, text.description2]
     .filter((d): d is string => !!d && d.trim() !== '')
     .map((d) => convertHtmlToMarkdown(d));
 
-  if (descriptions.length === 0) {
-    return null;
-  }
-
-  const description = descriptions.join('\n\n');
+  // Use combined description, or fallback to empty string if none available
+  // (allow items with name but no description to be imported)
+  const description = descriptions.length > 0 ? descriptions.join('\n\n') : '';
 
   // Build alternate name from name2, second_name, third_name
   const alternateNames = [text.name2, text.second_name, text.third_name]
@@ -187,7 +186,6 @@ export function transformShObjectTranslation(
   // Build extra JSON for translation-specific fields
   const extra: Record<string, unknown> = {};
   if (text.archival) extra.archival = convertHtmlToMarkdown(text.archival);
-  if (text.provenance) extra.provenance = convertHtmlToMarkdown(text.provenance);
   if (text.dimensions) extra.dimensions = convertHtmlToMarkdown(text.dimensions);
   if (text.materials) extra.materials = convertHtmlToMarkdown(text.materials);
   if (text.artist) extra.artist = convertHtmlToMarkdown(text.artist);
@@ -205,8 +203,12 @@ export function transformShObjectTranslation(
   if (text.notice_b) extra.notice_b = convertHtmlToMarkdown(text.notice_b);
   if (text.notice_c) extra.notice_c = convertHtmlToMarkdown(text.notice_c);
   if (text.copyright) extra.copyright = text.copyright;
+  if (text.linkcatalogs) extra.linkcatalogs = text.linkcatalogs;
 
   const extraField = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
+
+  // Build provenance field
+  const provenance = text.provenance ? convertHtmlToMarkdown(text.provenance) : null;
 
   const data: Omit<ItemTranslationData, 'item_id' | 'context_id' | 'backward_compatibility'> = {
     language_id: languageId,
@@ -220,6 +222,7 @@ export function transformShObjectTranslation(
     dates,
     location,
     bibliography: text.bibliography ? convertHtmlToMarkdown(text.bibliography) : null,
+    provenance,
     extra: extraField,
   };
 

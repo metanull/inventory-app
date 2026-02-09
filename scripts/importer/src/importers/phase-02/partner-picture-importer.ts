@@ -86,7 +86,7 @@ export class PartnerPictureImporter extends BaseImporter {
             pkValues: [picture.museum_id, picture.country, String(picture.image_number)],
           });
           result.errors.push(`${backwardCompat}: ${message}`);
-          this.logError(`Museum picture ${backwardCompat}`, error);
+          this.logError(`Museum picture ${backwardCompat}`, message);
           this.showError();
         }
       }
@@ -199,7 +199,7 @@ export class PartnerPictureImporter extends BaseImporter {
             pkValues: [picture.institution_id, picture.country, String(picture.image_number)],
           });
           result.errors.push(`${backwardCompat}: ${message}`);
-          this.logError(`Institution picture ${backwardCompat}`, error);
+          this.logError(`Institution picture ${backwardCompat}`, message);
           this.showError();
         }
       }

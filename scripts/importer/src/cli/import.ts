@@ -39,13 +39,16 @@ import {
   ObjectImporter,
   MonumentImporter,
   MonumentDetailImporter,
+  ItemItemLinkImporter,
   ObjectPictureImporter,
   MonumentPictureImporter,
   MonumentDetailPictureImporter,
   PartnerPictureImporter,
+  PartnerLogoImporter,
   // Phase 03: Sharing History
   ShProjectImporter,
   ShPartnerImporter,
+  ShPartnerLogoImporter,
   ShObjectImporter,
   ShMonumentImporter,
   ShMonumentDetailImporter,
@@ -60,9 +63,12 @@ import {
   ExploreContextImporter,
   ExploreRootCollectionsImporter,
   ExploreThematicCycleImporter,
+  ExploreThematicCyclePictureImporter,
   ExploreCountryImporter,
   ExploreLocationImporter,
+  ExploreLocationPictureImporter,
   ExploreMonumentImporter,
+  ExploreMonumentPictureImporter,
   ExploreItineraryImporter,
   // Phase 07: Travels
   TravelsContextImporter,
@@ -75,8 +81,13 @@ import {
   TravelsLocationTranslationImporter,
   TravelsMonumentImporter,
   TravelsMonumentTranslationImporter,
+  TravelsTrailPictureImporter,
+  TravelsItineraryPictureImporter,
+  TravelsLocationPictureImporter,
+  TravelsMonumentPictureImporter,
   // Phase 10: Thematic Galleries (runs last, after all other legacy DBs)
   ThgGalleryContextImporter,
+  ThgRootCollectionsImporter,
   ThgGalleryImporter,
   ThgGalleryTranslationImporter,
   ThgThemeImporter,
@@ -91,6 +102,8 @@ import {
   ThgGalleryShObjectImporter,
   ThgGalleryShMonumentImporter,
   ThgGalleryTravelMonumentImporter,
+  ThgGalleryExploreMonumentImporter,
+  ProjectCleanupImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -182,6 +195,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     importerClass: MonumentDetailImporter,
     dependencies: ['monument', 'default-context', 'language'],
   },
+  {
+    key: 'item-item-link',
+    name: 'Item-Item Links',
+    description:
+      'Import relationships between items (object-object, object-monument, monument-monument)',
+    importerClass: ItemItemLinkImporter,
+    dependencies: ['object', 'monument', 'default-context'],
+  },
   // Phase 2: Images
   {
     key: 'object-picture',
@@ -211,6 +232,13 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     importerClass: PartnerPictureImporter,
     dependencies: ['partner'],
   },
+  {
+    key: 'partner-logo',
+    name: 'Partner Logos',
+    description: 'Import museum and institution logos (PartnerLogos)',
+    importerClass: PartnerLogoImporter,
+    dependencies: ['partner'],
+  },
   // Phase 3: Sharing History Data
   {
     key: 'sh-project',
@@ -225,6 +253,13 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import Sharing History partners (reuses mwnf3 partners via mapping)',
     importerClass: ShPartnerImporter,
     dependencies: ['default-context', 'sh-project', 'partner', 'language', 'country'],
+  },
+  {
+    key: 'sh-partner-logo',
+    name: 'SH Partner Logos',
+    description: 'Import Sharing History partner logos',
+    importerClass: ShPartnerLogoImporter,
+    dependencies: ['sh-partner'],
   },
   {
     key: 'sh-object',
@@ -313,6 +348,13 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: ['explore-root-collections'],
   },
   {
+    key: 'explore-thematiccycle-picture',
+    name: 'Explore Thematic Cycle Pictures',
+    description: 'Import thematic cycle pictures from Explore database',
+    importerClass: ExploreThematicCyclePictureImporter,
+    dependencies: ['explore-thematiccycle'],
+  },
+  {
     key: 'explore-country',
     name: 'Explore Countries',
     description: 'Import country collections from Explore locations',
@@ -327,11 +369,25 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: ['explore-country'],
   },
   {
+    key: 'explore-location-picture',
+    name: 'Explore Location Pictures',
+    description: 'Import location pictures from Explore database',
+    importerClass: ExploreLocationPictureImporter,
+    dependencies: ['explore-location'],
+  },
+  {
     key: 'explore-monument',
     name: 'Explore Monuments',
     description: 'Import monuments with geocoordinates from Explore',
     importerClass: ExploreMonumentImporter,
     dependencies: ['explore-location'],
+  },
+  {
+    key: 'explore-monument-picture',
+    name: 'Explore Monument Pictures',
+    description: 'Import monument pictures from Explore database',
+    importerClass: ExploreMonumentPictureImporter,
+    dependencies: ['explore-monument'],
   },
   {
     key: 'explore-itinerary',
@@ -411,6 +467,35 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     importerClass: TravelsMonumentTranslationImporter,
     dependencies: ['travels-monument', 'language'],
   },
+  // Phase 07: Travels Pictures
+  {
+    key: 'travels-trail-picture',
+    name: 'Travels Trail Pictures',
+    description: 'Import trail pictures (covers, maps, titles)',
+    importerClass: TravelsTrailPictureImporter,
+    dependencies: ['travels-trail'],
+  },
+  {
+    key: 'travels-itinerary-picture',
+    name: 'Travels Itinerary Pictures',
+    description: 'Import itinerary pictures (sketches)',
+    importerClass: TravelsItineraryPictureImporter,
+    dependencies: ['travels-itinerary'],
+  },
+  {
+    key: 'travels-location-picture',
+    name: 'Travels Location Pictures',
+    description: 'Import location pictures',
+    importerClass: TravelsLocationPictureImporter,
+    dependencies: ['travels-location'],
+  },
+  {
+    key: 'travels-monument-picture',
+    name: 'Travels Monument Pictures',
+    description: 'Import travel monument pictures',
+    importerClass: TravelsMonumentPictureImporter,
+    dependencies: ['travels-monument'],
+  },
   // Phase 10: Thematic Galleries (runs last, after all other legacy DBs are imported)
   {
     key: 'thg-gallery-context',
@@ -420,11 +505,18 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: [],
   },
   {
+    key: 'thg-root-collections',
+    name: 'THG Root Collections',
+    description: 'Create root collections for Galleries and Exhibitions',
+    importerClass: ThgRootCollectionsImporter,
+    dependencies: ['default-context', 'language'],
+  },
+  {
     key: 'thg-gallery',
     name: 'THG Galleries',
     description: 'Import thematic galleries as collections',
     importerClass: ThgGalleryImporter,
-    dependencies: ['thg-gallery-context'],
+    dependencies: ['thg-gallery-context', 'thg-root-collections'],
   },
   {
     key: 'thg-gallery-translation',
@@ -436,24 +528,24 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   {
     key: 'thg-theme',
     name: 'THG Themes',
-    description: 'Import thematic gallery themes',
+    description: 'Import thematic gallery themes as child collections',
     importerClass: ThgThemeImporter,
-    dependencies: ['thg-gallery'],
+    dependencies: ['thg-gallery', 'thg-gallery-context'],
   },
   {
     key: 'thg-theme-translation',
     name: 'THG Theme Translations',
-    description: 'Import thematic gallery theme translations',
+    description: 'Import thematic gallery theme translations as collection translations',
     importerClass: ThgThemeTranslationImporter,
     dependencies: ['thg-theme', 'thg-gallery-context', 'language'],
   },
   {
     key: 'thg-theme-item',
     name: 'THG Theme Items',
-    description: 'Attach items to thematic gallery collections (all legacy DBs)',
+    description: 'Attach items to theme collections (all legacy DBs)',
     importerClass: ThgThemeItemImporter,
     dependencies: [
-      'thg-gallery',
+      'thg-theme',
       'object',
       'monument',
       'monument-detail',
@@ -519,14 +611,29 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     importerClass: ThgGalleryTravelMonumentImporter,
     dependencies: ['thg-gallery', 'travels-monument'],
   },
+  {
+    key: 'thg-gallery-explore-monument',
+    name: 'THG Gallery Explore Monuments',
+    description: 'Link Explore monuments to THG gallery collections',
+    importerClass: ThgGalleryExploreMonumentImporter,
+    dependencies: ['thg-gallery', 'explore-monument'],
+  },
+  {
+    key: 'project-cleanup',
+    name: 'Project Cleanup',
+    description: 'Remove projects that have no Items (post-import cleanup)',
+    importerClass: ProjectCleanupImporter,
+    dependencies: ['item-item-link'],
+  },
 ];
 
 /**
- * Simple Legacy Database wrapper
+ * Simple Legacy Database wrapper with automatic reconnection
  */
 class LegacyDatabase implements ILegacyDatabase {
   private connection: mysql.Connection | null = null;
   private config: mysql.ConnectionOptions;
+  private reconnecting = false;
 
   constructor() {
     this.config = {
@@ -536,11 +643,47 @@ class LegacyDatabase implements ILegacyDatabase {
       password: process.env['LEGACY_DB_PASSWORD'] || '',
       database: process.env['LEGACY_DB_DATABASE'] || 'mwnf3',
       multipleStatements: false, // Disabled for security - use single queries
+      connectTimeout: 60000, // 60 second connection timeout
+      enableKeepAlive: true, // Enable TCP keep-alive
+      keepAliveInitialDelay: 10000, // 10 seconds
     };
   }
 
   async connect(): Promise<void> {
     this.connection = await mysql.createConnection(this.config);
+
+    // Handle connection errors
+    this.connection.on('error', (err: Error & { code?: string }) => {
+      console.error('[LegacyDatabase] Connection error:', err.message);
+      if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'ECONNRESET') {
+        this.reconnect().catch((reconnectErr) =>
+          console.error('[LegacyDatabase] Reconnect failed:', reconnectErr)
+        );
+      }
+    });
+  }
+
+  private async reconnect(): Promise<void> {
+    if (this.reconnecting) return;
+
+    this.reconnecting = true;
+    console.log('[LegacyDatabase] Connection lost, attempting to reconnect...');
+
+    try {
+      if (this.connection) {
+        try {
+          await this.connection.end();
+        } catch {
+          // Ignore errors when closing dead connection
+        }
+        this.connection = null;
+      }
+
+      await this.connect();
+      console.log('[LegacyDatabase] Reconnected successfully');
+    } finally {
+      this.reconnecting = false;
+    }
   }
 
   async disconnect(): Promise<void> {
@@ -551,24 +694,89 @@ class LegacyDatabase implements ILegacyDatabase {
   }
 
   async query<T>(sql: string, params?: unknown[]): Promise<T[]> {
-    if (!this.connection) {
-      throw new Error('Database not connected');
+    const maxRetries = 5;
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        if (!this.connection) {
+          await this.connect();
+        }
+
+        if (!this.connection) {
+          throw new Error('Failed to establish connection');
+        }
+
+        const [rows] = params
+          ? await this.connection.execute(sql, params)
+          : await this.connection.execute(sql);
+        return rows as T[];
+      } catch (err) {
+        const error = err as Error & { code?: string };
+        lastError = error;
+        const isConnectionError =
+          error.code === 'PROTOCOL_CONNECTION_LOST' ||
+          error.code === 'ECONNRESET' ||
+          error.message?.includes('connection is in closed state');
+
+        if (isConnectionError && attempt < maxRetries) {
+          console.log(
+            `[LegacyDatabase] Connection error on attempt ${attempt}/${maxRetries}, retrying in ${attempt * 2}s...`
+          );
+          await new Promise((resolve) => setTimeout(resolve, attempt * 2000));
+          await this.reconnect();
+        } else if (!isConnectionError) {
+          // Not a connection error, throw immediately
+          throw err;
+        }
+      }
     }
-    const [rows] = params
-      ? await this.connection.execute(sql, params)
-      : await this.connection.execute(sql);
-    return rows as T[];
+
+    throw new Error(`Failed after ${maxRetries} attempts: ${lastError?.message}`);
   }
 
   async execute(sql: string, params?: unknown[]): Promise<void> {
-    if (!this.connection) {
-      throw new Error('Database not connected');
+    const maxRetries = 5;
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        if (!this.connection) {
+          await this.connect();
+        }
+
+        if (!this.connection) {
+          throw new Error('Failed to establish connection');
+        }
+
+        if (params) {
+          await this.connection.execute(sql, params);
+        } else {
+          await this.connection.execute(sql);
+        }
+        return;
+      } catch (err) {
+        const error = err as Error & { code?: string };
+        lastError = error;
+        const isConnectionError =
+          error.code === 'PROTOCOL_CONNECTION_LOST' ||
+          error.code === 'ECONNRESET' ||
+          error.message?.includes('connection is in closed state');
+
+        if (isConnectionError && attempt < maxRetries) {
+          console.log(
+            `[LegacyDatabase] Connection error on attempt ${attempt}/${maxRetries}, retrying in ${attempt * 2}s...`
+          );
+          await new Promise((resolve) => setTimeout(resolve, attempt * 2000));
+          await this.reconnect();
+        } else if (!isConnectionError) {
+          // Not a connection error, throw immediately
+          throw err;
+        }
+      }
     }
-    if (params) {
-      await this.connection.execute(sql, params);
-    } else {
-      await this.connection.execute(sql);
-    }
+
+    throw new Error(`Failed after ${maxRetries} attempts: ${lastError?.message}`);
   }
 }
 
@@ -848,11 +1056,26 @@ program
             'monument-picture',
             'monument-detail-picture',
             'partner-picture',
+            'partner-logo',
           ].includes(key)
         ) {
           return 'Phase 3: Images';
         } else if (['glossary', 'glossary-translation', 'glossary-spelling'].includes(key)) {
           return 'Phase 4: Glossary';
+        } else if (
+          [
+            'sh-project',
+            'sh-partner',
+            'sh-partner-logo',
+            'sh-object',
+            'sh-monument',
+            'sh-monument-detail',
+            'sh-object-picture',
+            'sh-monument-picture',
+            'sh-monument-detail-picture',
+          ].includes(key)
+        ) {
+          return 'Phase 3.5: Sharing History';
         } else if (
           [
             'explore-context',
@@ -1006,7 +1229,11 @@ program
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error('Fatal error', error);
+      if (error instanceof Error) {
+        logger.exception('Fatal error', error);
+      } else {
+        logger.error('Fatal error', message);
+      }
       console.error(chalk.red(`\nFatal error: ${message}`));
       if (error instanceof Error && error.stack) {
         console.error(chalk.gray(error.stack));
@@ -1150,7 +1377,11 @@ program
       process.exit(result.success ? 0 : 1);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error('ImageSync', error);
+      if (error instanceof Error) {
+        logger.exception('ImageSync', error);
+      } else {
+        logger.error('ImageSync', message);
+      }
       console.log(chalk.red(`\n❌ Image sync failed: ${message}`));
       console.log(chalk.red(error instanceof Error ? error.stack : ''));
       process.exit(1);

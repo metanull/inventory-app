@@ -118,29 +118,28 @@ export function transformShMonument(
 
 /**
  * Transform a SH monument text to ItemTranslation
- * Returns null if required fields (name, description) are missing
+ * Returns null if required fields (name) is missing
+ * Description is built from description, description2, and history (at least one should be present)
  */
 export function transformShMonumentTranslation(
   text: ShLegacyMonumentText
 ): TransformedShMonumentTranslation | null {
   const languageId = mapLanguageCode(text.lang);
 
-  // Validate required fields
+  // Validate required fields - name is required
   const name = text.name?.trim() || null;
   if (!name) {
     return null;
   }
 
-  // Build description combining description, description2, and history
+  // Build description combining description, description2, and history (use whichever is available)
   const descriptions = [text.description, text.description2, text.history]
     .filter((d): d is string => !!d && d.trim() !== '')
     .map((d) => convertHtmlToMarkdown(d));
 
-  if (descriptions.length === 0) {
-    return null;
-  }
-
-  const description = descriptions.join('\n\n');
+  // Use combined description, or fallback to empty string if none available
+  // (allow items with name but no description to be imported)
+  const description = descriptions.length > 0 ? descriptions.join('\n\n') : '';
 
   // Build alternate name from name2, second_name, third_name
   const alternateNames = [text.name2, text.second_name, text.third_name]
@@ -183,14 +182,31 @@ export function transformShMonumentTranslation(
 
   // Build extra JSON for translation-specific fields
   const extra: Record<string, unknown> = {};
-  if (text.address) extra.address = convertHtmlToMarkdown(text.address);
-  if (text.phone) extra.phone = text.phone;
-  if (text.fax) extra.fax = text.fax;
-  if (text.email) extra.email = text.email;
+
+  // Monument contact information (language-specific visitor info)
+  const monumentContact: Record<string, string> = {};
+  if (text.address) monumentContact.address = convertHtmlToMarkdown(text.address);
+  if (text.phone) monumentContact.phone = text.phone;
+  if (text.fax) monumentContact.fax = text.fax;
+  if (text.email) monumentContact.email = text.email;
+  // institution is already used for holder, but store responsible_institution_org if different
+  if (text.responsible_institution_org && text.responsible_institution_org !== text.institution) {
+    monumentContact.responsible_institution = convertHtmlToMarkdown(
+      text.responsible_institution_org
+    );
+  }
+  if (Object.keys(monumentContact).length > 0) {
+    extra.monument_contact = monumentContact;
+  }
+
+  // Additional descriptive fields
   if (text.patrons) extra.patrons = convertHtmlToMarkdown(text.patrons);
   if (text.architects) extra.architects = convertHtmlToMarkdown(text.architects);
   if (text.datationmethod) extra.datation_method = convertHtmlToMarkdown(text.datationmethod);
   if (text.external_sources) extra.external_sources = convertHtmlToMarkdown(text.external_sources);
+  if (text.linkcatalogs) extra.linkcatalogs = text.linkcatalogs;
+
+  // Notice fields
   if (text.notice) extra.notice = convertHtmlToMarkdown(text.notice);
   if (text.notice_b) extra.notice_b = convertHtmlToMarkdown(text.notice_b);
   if (text.notice_c) extra.notice_c = convertHtmlToMarkdown(text.notice_c);

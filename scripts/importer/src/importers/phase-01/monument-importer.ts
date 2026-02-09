@@ -78,7 +78,7 @@ export class MonumentImporter extends BaseImporter {
           const message = error instanceof Error ? error.message : String(error);
           const backwardCompat = `mwnf3:monuments:${group.project_id}:${group.country}:${group.institution_id}:${group.number}`;
           result.errors.push(`${backwardCompat}: ${message}`);
-          this.logError(`Monument ${backwardCompat}`, error);
+          this.logError(`Monument ${backwardCompat}`, message);
           this.showError();
         }
       }

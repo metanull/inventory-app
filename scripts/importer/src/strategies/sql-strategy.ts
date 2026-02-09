@@ -34,6 +34,8 @@ import type {
   ArtistData,
   ItemImageData,
   PartnerImageData,
+  PartnerLogoData,
+  CollectionImageData,
   GlossaryData,
   GlossaryTranslationData,
   GlossarySpellingData,
@@ -234,15 +236,16 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const sanitized = sanitizeAllStrings(data);
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO collection_translations (id, collection_id, language_id, context_id, title, description, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO collection_translations (id, collection_id, language_id, context_id, title, description, quote, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.collection_id,
         sanitized.language_id,
         sanitized.context_id,
         sanitized.title,
-        sanitized.description,
+        sanitized.description ?? null, // Ensure null instead of undefined
+        sanitized.quote ?? null, // Optional quote field
         sanitized.backward_compatibility,
         this.now,
         this.now,
@@ -288,21 +291,63 @@ export class SqlWriteStrategy implements IWriteStrategy {
     // The old importer does not create project translations
   }
 
+  async deleteProjectsWithoutItems(
+    dryRun = false
+  ): Promise<
+    Array<{ id: string; backward_compatibility: string | null; internal_name: string | null }>
+  > {
+    // Start transaction to ensure a consistent snapshot + atomic deletes
+    await this.db.execute('START TRANSACTION');
+    try {
+      const [rows] = await this.db.execute<import('mysql2').RowDataPacket[]>(
+        `SELECT p.id, p.backward_compatibility, p.internal_name
+         FROM projects p
+         LEFT JOIN items i ON i.project_id = p.id
+         WHERE i.id IS NULL`
+      );
+
+      const projects = (rows as RowDataPacket[]).map((r) => ({
+        id: String(r.id),
+        backward_compatibility: r.backward_compatibility ?? null,
+        internal_name: r.internal_name ?? null,
+      }));
+
+      if (!dryRun && projects.length > 0) {
+        for (const p of projects) {
+          await this.db.execute(`DELETE FROM projects WHERE id = ?`, [p.id]);
+        }
+      }
+
+      await this.db.execute('COMMIT');
+      return projects;
+    } catch (err) {
+      await this.db.execute('ROLLBACK');
+      throw err;
+    }
+  }
+
   // =========================================================================
   // Partners
-  // =========================================================================
+  // ========================================================================="},{
 
   async writePartner(data: PartnerData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO partners (id, type, internal_name, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO partners (id, type, internal_name, backward_compatibility, country_id, latitude, longitude, map_zoom, project_id, monument_item_id, visible, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.type,
         sanitized.internal_name,
         sanitized.backward_compatibility,
+        sanitized.country_id ?? null,
+        sanitized.latitude ?? null,
+        sanitized.longitude ?? null,
+        sanitized.map_zoom ?? 16, // default
+        sanitized.project_id ?? null,
+        sanitized.monument_item_id ?? null,
+        sanitized.visible ?? false, // default
         this.now,
         this.now,
       ]
@@ -335,6 +380,14 @@ export class SqlWriteStrategy implements IWriteStrategy {
         this.now,
       ]
     );
+  }
+
+  async updatePartnerMonumentItemId(partnerId: string, monumentItemId: string): Promise<void> {
+    await this.db.execute(`UPDATE partners SET monument_item_id = ?, updated_at = ? WHERE id = ?`, [
+      monumentItemId,
+      this.now,
+      partnerId,
+    ]);
   }
 
   // =========================================================================
@@ -623,6 +676,55 @@ export class SqlWriteStrategy implements IWriteStrategy {
       [
         id,
         sanitized.partner_id,
+        sanitized.path,
+        sanitized.original_name,
+        sanitized.mime_type,
+        sanitized.size,
+        sanitized.alt_text,
+        sanitized.display_order,
+        this.now,
+        this.now,
+      ]
+    );
+    // Track using lowercase path as unique identifier
+    this.tracker.set(sanitized.path.toLowerCase(), id, 'image');
+    return id;
+  }
+
+  async writePartnerLogo(data: PartnerLogoData): Promise<string> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = sanitized.id || uuidv4();
+    await this.db.execute(
+      `INSERT INTO partner_logos (id, partner_id, path, original_name, mime_type, size, logo_type, alt_text, display_order, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.partner_id,
+        sanitized.path,
+        sanitized.original_name,
+        sanitized.mime_type,
+        sanitized.size,
+        sanitized.logo_type ?? 'primary',
+        sanitized.alt_text,
+        sanitized.display_order,
+        this.now,
+        this.now,
+      ]
+    );
+    // Track using lowercase path as unique identifier (prefixed to avoid collision with images)
+    this.tracker.set(`logo:${sanitized.path.toLowerCase()}`, id, 'image');
+    return id;
+  }
+
+  async writeCollectionImage(data: CollectionImageData): Promise<string> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = sanitized.id || uuidv4();
+    await this.db.execute(
+      `INSERT INTO collection_images (id, collection_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.collection_id,
         sanitized.path,
         sanitized.original_name,
         sanitized.mime_type,

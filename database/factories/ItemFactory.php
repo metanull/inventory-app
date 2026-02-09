@@ -31,6 +31,9 @@ class ItemFactory extends Factory
             'country_id' => null, // This should be set to a valid country ID if needed
             'owner_reference' => $this->faker->bothify('???##'),
             'mwnf_reference' => $this->faker->bothify('???##'),
+            // Datation (nullable by default)
+            'start_date' => null,
+            'end_date' => null,
             // GPS Location (nullable by default)
             'latitude' => null,
             'longitude' => null,
@@ -112,6 +115,25 @@ class ItemFactory extends Factory
             // not to create translations for this item
             return [];
         });
+    }
+
+    /**
+     * Configure the factory with datation years.
+     */
+    public function withDates(?int $startDate = null, ?int $endDate = null): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'start_date' => $startDate ?? $this->faker->numberBetween(1500, 1900),
+            'end_date' => $endDate ?? $this->faker->numberBetween(1900, (int) date('Y')),
+        ]);
+    }
+
+    /**
+     * Configure the factory with random datation dates.
+     */
+    public function withRandomDates(): self
+    {
+        return $this->withDates();
     }
 
     /**

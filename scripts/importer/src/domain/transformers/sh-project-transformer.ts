@@ -118,6 +118,7 @@ export function transformShProject(
 
 /**
  * Transform a SH project name to translation bundle
+ * Note: SH projects often lack description - field is nullable
  */
 export function transformShProjectTranslation(
   legacy: ShLegacyProjectName
@@ -125,6 +126,7 @@ export function transformShProjectTranslation(
   const languageId = mapLanguageCode(legacy.lang);
   const title = convertHtmlToMarkdown(legacy.title || '');
   const subTitle = legacy.sub_title ? convertHtmlToMarkdown(legacy.sub_title) : null;
+  // SH projects often don't have introduction/description - this is acceptable
   const introduction = legacy.introduction ? convertHtmlToMarkdown(legacy.introduction) : null;
 
   // Combine title and subtitle for name
@@ -138,6 +140,7 @@ export function transformShProjectTranslation(
     collectionTranslation: {
       language_id: languageId,
       title: fullName,
+      // Description can be null - SH projects often don't have descriptions
       description: introduction,
     },
     projectTranslation: {

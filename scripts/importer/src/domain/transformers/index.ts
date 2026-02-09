@@ -31,6 +31,8 @@ export {
   type TransformedMuseumTranslation,
   type MuseumGroup,
   type MuseumExtraFields,
+  type MuseumMonumentReference,
+  type ContactPerson,
 } from './museum-transformer.js';
 
 export {
@@ -41,6 +43,7 @@ export {
   type TransformedInstitutionTranslation,
   type InstitutionGroup,
   type InstitutionExtraFields,
+  type ContactPerson as InstitutionContactPerson,
 } from './institution-transformer.js';
 
 export {

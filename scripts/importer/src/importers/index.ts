@@ -13,17 +13,20 @@ export { PartnerImporter } from './phase-01/index.js';
 export { ObjectImporter } from './phase-01/index.js';
 export { MonumentImporter } from './phase-01/index.js';
 export { MonumentDetailImporter } from './phase-01/index.js';
+export { ItemItemLinkImporter } from './phase-01/index.js';
 
 // Phase 02: Images
 export { ObjectPictureImporter } from './phase-02/index.js';
 export { MonumentPictureImporter } from './phase-02/index.js';
 export { MonumentDetailPictureImporter } from './phase-02/index.js';
 export { PartnerPictureImporter } from './phase-02/index.js';
+export { PartnerLogoImporter } from './phase-02/index.js';
 
 // Phase 03: Sharing History Data
 export {
   ShProjectImporter,
   ShPartnerImporter,
+  ShPartnerLogoImporter,
   ShObjectImporter,
   ShMonumentImporter,
   ShMonumentDetailImporter,
@@ -42,6 +45,7 @@ export {
 // Phase 10: Thematic Galleries (runs last, after all other legacy DBs are imported)
 export {
   ThgGalleryContextImporter,
+  ThgRootCollectionsImporter,
   ThgGalleryImporter,
   ThgGalleryTranslationImporter,
   ThgThemeImporter,
@@ -56,6 +60,7 @@ export {
   ThgGalleryShObjectImporter,
   ThgGalleryShMonumentImporter,
   ThgGalleryTravelMonumentImporter,
+  ThgGalleryExploreMonumentImporter,
 } from './phase-10/index.js';
 
 // Phase 06: Explore
@@ -63,9 +68,12 @@ export {
   ExploreContextImporter,
   ExploreRootCollectionsImporter,
   ExploreThematicCycleImporter,
+  ExploreThematicCyclePictureImporter,
   ExploreCountryImporter,
   ExploreLocationImporter,
+  ExploreLocationPictureImporter,
   ExploreMonumentImporter,
+  ExploreMonumentPictureImporter,
   ExploreItineraryImporter,
 } from './phase-06/index.js';
 
@@ -81,4 +89,12 @@ export {
   TravelsLocationTranslationImporter,
   TravelsMonumentImporter,
   TravelsMonumentTranslationImporter,
+  // Picture Importers
+  TravelsTrailPictureImporter,
+  TravelsItineraryPictureImporter,
+  TravelsLocationPictureImporter,
+  TravelsMonumentPictureImporter,
 } from './phase-07/index.js';
+
+// Phase 11: Post-Import Linking (runs after all data is imported)
+export { PartnerMonumentLinker, ProjectCleanupImporter } from './phase-11/index.js';

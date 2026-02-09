@@ -14,7 +14,7 @@ import { formatShBackwardCompatibility } from './sh-project-transformer.js';
 const SH_PARTNERS_TABLE = 'sh_partners';
 
 /**
- * Extra fields stored in partner's extra JSON column
+ * Extra fields stored in partner translation's extra JSON column
  */
 export interface ShPartnerExtraFields {
   source: 'mwnf3_sharing_history';
@@ -33,8 +33,7 @@ export interface ShPartnerExtraFields {
     fax?: string;
     email?: string;
   };
-  urls?: string[];
-  logos?: string[];
+  urls?: Array<{ url: string; title?: string }>;
   region_id?: string;
   portal_display?: string;
 }
@@ -46,6 +45,8 @@ export interface TransformedShPartner {
   data: Omit<PartnerData, 'project_id'>;
   backwardCompatibility: string;
   extra: ShPartnerExtraFields;
+  /** Logo paths for later import */
+  logos: string[];
 }
 
 /**
@@ -126,21 +127,20 @@ export function transformShPartner(legacy: ShLegacyPartner): TransformedShPartne
     };
   }
 
-  // URLs
-  const urls = [legacy.url, legacy.url2, legacy.url3, legacy.url4, legacy.url5].filter(
-    (u): u is string => !!u
-  );
+  // URLs with titles
+  const urls: Array<{ url: string; title?: string }> = [];
+  if (legacy.url2) urls.push({ url: legacy.url2, title: legacy.title2 || undefined });
+  if (legacy.url3) urls.push({ url: legacy.url3, title: legacy.title3 || undefined });
+  if (legacy.url4) urls.push({ url: legacy.url4, title: legacy.title4 || undefined });
+  if (legacy.url5) urls.push({ url: legacy.url5, title: legacy.title5 || undefined });
   if (urls.length > 0) {
     extra.urls = urls;
   }
 
-  // Logos
-  const logos = [legacy.logo, legacy.logo1, legacy.logo2, legacy.logo3].filter(
-    (l): l is string => !!l
+  // Extract logos (non-empty only)
+  const logos: string[] = [legacy.logo, legacy.logo1, legacy.logo2, legacy.logo3].filter(
+    (l): l is string => !!l && l.trim() !== ''
   );
-  if (logos.length > 0) {
-    extra.logos = logos;
-  }
 
   if (legacy.region_id) {
     extra.region_id = legacy.region_id;
@@ -164,14 +164,19 @@ export function transformShPartner(legacy: ShLegacyPartner): TransformedShPartne
     data,
     backwardCompatibility: backwardCompat,
     extra,
+    logos,
   };
 }
 
 /**
  * Transform a SH partner name to translation
+ * Uses partner data for contact info mapping
+ * Ensures all fields are properly set to null (not undefined) for SQL compatibility
  */
 export function transformShPartnerTranslation(
-  legacy: ShLegacyPartnerName
+  partner: ShLegacyPartner,
+  legacy: ShLegacyPartnerName,
+  extra: ShPartnerExtraFields
 ): TransformedShPartnerTranslation {
   const languageId = mapLanguageCode(legacy.lang);
 
@@ -183,17 +188,31 @@ export function transformShPartnerTranslation(
   if (legacy.department) {
     descriptionParts.push(`Department: ${convertHtmlToMarkdown(legacy.department)}`);
   }
-
-  // Build description including city if available
-  if (legacy.city) {
-    descriptionParts.unshift(`City: ${convertHtmlToMarkdown(legacy.city)}`);
+  if (legacy.how_to_reach) {
+    descriptionParts.push(`How to reach: ${convertHtmlToMarkdown(legacy.how_to_reach)}`);
+  }
+  if (legacy.opening_hours) {
+    descriptionParts.push(`Opening hours: ${convertHtmlToMarkdown(legacy.opening_hours)}`);
   }
 
+  // Serialize extra to JSON (only if we have more than just source)
+  const extraJson = Object.keys(extra).length > 1 ? JSON.stringify(extra) : null;
+
+  // Map contact fields from partner data:
+  // - contact_website: primary URL
+  // - contact_phone: institution phone
+  // - contact_email_general: institution email
   const data: Omit<PartnerTranslationData, 'partner_id' | 'context_id' | 'backward_compatibility'> =
     {
       language_id: languageId,
-      name: convertHtmlToMarkdown(legacy.name),
+      name: legacy.name ? convertHtmlToMarkdown(legacy.name) : `Partner ${legacy.partners_id}`,
       description: descriptionParts.length > 0 ? descriptionParts.join('\n\n') : null,
+      city_display: legacy.city ? convertHtmlToMarkdown(legacy.city) : null,
+      address: partner.address ? convertHtmlToMarkdown(partner.address) : null,
+      contact_website: partner.url || null,
+      contact_phone: partner.phone || null,
+      contact_email_general: partner.email || null,
+      extra: extraJson,
     };
 
   return {

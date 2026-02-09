@@ -196,7 +196,7 @@ export class ExploreThematicCycleImporter extends BaseImporter {
           result.success = false;
           const errorMessage = error instanceof Error ? error.message : String(error);
           result.errors.push(`Error importing thematiccycle ${legacy.cycleId}: ${errorMessage}`);
-          this.logError('ExploreThematicCycleImporter', error, { cycleId: legacy.cycleId });
+          this.logError('ExploreThematicCycleImporter', errorMessage, { cycleId: legacy.cycleId });
           this.showError();
         }
       }
@@ -204,7 +204,7 @@ export class ExploreThematicCycleImporter extends BaseImporter {
       result.success = false;
       const errorMessage = error instanceof Error ? error.message : String(error);
       result.errors.push(`Error in thematic cycle import: ${errorMessage}`);
-      this.logError('ExploreThematicCycleImporter', error);
+      this.logError('ExploreThematicCycleImporter', errorMessage);
       this.showError();
     }
 

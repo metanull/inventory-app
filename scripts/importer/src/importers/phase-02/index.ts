@@ -9,3 +9,4 @@ export { ObjectPictureImporter } from './object-picture-importer.js';
 export { MonumentPictureImporter } from './monument-picture-importer.js';
 export { MonumentDetailPictureImporter } from './monument-detail-picture-importer.js';
 export { PartnerPictureImporter } from './partner-picture-importer.js';
+export { PartnerLogoImporter } from './partner-logo-importer.js';

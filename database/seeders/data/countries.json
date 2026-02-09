@@ -802,5 +802,10 @@
         "backward_compatibility": "za"
     },
     { "id": "zmb", "internal_name": "Zambia", "backward_compatibility": "zm" },
-    { "id": "zwe", "internal_name": "Zimbabwe", "backward_compatibility": "zw" }
+    { "id": "zwe", "internal_name": "Zimbabwe", "backward_compatibility": "zw" },
+    {
+        "id": "xxx",
+        "internal_name": "Public Domain (no country)",
+        "backward_compatibility": "pd"
+    }
 ]

@@ -33,6 +33,8 @@ class CollectionTranslationResource extends JsonResource
             'title' => $this->title,
             // The description of the collection translation
             'description' => $this->description,
+            // The quote/introduction of the collection translation (optional)
+            'quote' => $this->quote,
             // The URL for the collection translation
             'url' => $this->url,
             // The Id(s) of matching resource in the legacy system (if any).
