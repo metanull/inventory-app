@@ -181,7 +181,7 @@ class SyncLegacyImages extends Command
         $bar = $this->output->createProgressBar($count);
         $bar->start();
 
-        $query->chunk(100, function ($images) use (
+        $query->chunkById(100, function ($images) use (
             $source,
             $targetDisk,
             $targetDir,
