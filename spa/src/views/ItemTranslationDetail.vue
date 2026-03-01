@@ -403,8 +403,6 @@
     useRoute,
     useRouter,
     onBeforeRouteLeave,
-    type NavigationGuardNext,
-    type RouteLocationNormalized,
   } from 'vue-router'
   import DetailView from '@/components/layout/detail/DetailView.vue'
   import DescriptionList from '@/components/format/description/DescriptionList.vue'
@@ -881,27 +879,17 @@
   }
 
   // Navigation guard
-  onBeforeRouteLeave(
-    async (
-      _to: RouteLocationNormalized,
-      _from: RouteLocationNormalized,
-      next: NavigationGuardNext
-    ) => {
-      if (hasUnsavedChanges.value) {
-        const result = await cancelChangesStore.trigger(
-          'Discard Changes',
-          'You have unsaved changes. Are you sure you want to leave this page?'
-        )
-        if (result === 'leave') {
-          next()
-        } else {
-          next(false)
-        }
-      } else {
-        next()
+  onBeforeRouteLeave(async () => {
+    if (hasUnsavedChanges.value) {
+      const result = await cancelChangesStore.trigger(
+        'Discard Changes',
+        'You have unsaved changes. Are you sure you want to leave this page?'
+      )
+      if (result !== 'leave') {
+        return false
       }
     }
-  )
+  })
 
   // Watch for route changes
   watch(

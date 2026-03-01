@@ -1,9 +1,4 @@
-import {
-  createRouter,
-  createWebHistory,
-  type RouteLocationNormalized,
-  type NavigationGuardNext,
-} from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
 import Items from '@/views/Items.vue'
@@ -205,12 +200,7 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach(
-  async (
-    to: RouteLocationNormalized,
-    _from: RouteLocationNormalized,
-    next: NavigationGuardNext
-  ) => {
+router.beforeEach(async (to) => {
     const authStore = useAuthStore()
 
     if (to.meta.requiresAuth && !authStore.isAuthenticated) {
@@ -226,19 +216,16 @@ router.beforeEach(
           }
         }
       }
-      next({ name: 'login', query })
+      return { name: 'login', query }
     } else if (to.name === 'login' && authStore.isAuthenticated) {
-      // If arriving to login with a redirectName in query, allow it so the user can re-auth
-      // Otherwise, send authenticated users away from login to home
       const hasIntended = typeof to.query?.redirectName === 'string'
       if (hasIntended) {
-        next()
+        return true
       } else {
-        next({ name: 'home' })
+        return { name: 'home' }
       }
-    } else {
-      next()
     }
+    return true
   }
 )
 

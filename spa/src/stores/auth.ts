@@ -256,7 +256,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (err) {
       // If permissions fetch fails, session is invalid
       console.error('[Auth] Session validation failed:', err)
-      throw new Error('Session is invalid')
+      throw new Error('Session is invalid', { cause: err })
     }
   }
 

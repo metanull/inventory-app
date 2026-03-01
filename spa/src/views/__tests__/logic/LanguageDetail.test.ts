@@ -243,15 +243,14 @@ describe('LanguageDetail Logic Tests', () => {
     })
 
     it('should handle mode transitions', () => {
-      let mode = 'view'
+      const viewMode = 'view'
+      const editMode = 'edit'
 
       // View to edit
-      mode = 'edit'
-      expect(mode).toBe('edit')
+      expect(editMode).toBe('edit')
 
       // Edit to view
-      mode = 'view'
-      expect(mode).toBe('view')
+      expect(viewMode).toBe('view')
     })
   })
 
