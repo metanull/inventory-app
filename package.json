@@ -1,6 +1,6 @@
 {
     "name": "inventory-app",
-    "version": "6.10.1",
+    "version": "6.10.2",
     "private": true,
     "type": "module",
     "scripts": {
@@ -14,24 +14,25 @@
         "test:yml": "node ./scripts/validate-workflows.cjs"
     },
     "dependencies": {
-        "glob": "^11.1.0"
+        "glob": "^13.0.6"
     },
     "devDependencies": {
+        "@eslint/js": "^10.0.1",
         "@tailwindcss/postcss": "^4.1.16",
         "@tailwindcss/upgrade": "^4.1.16",
-        "@types/node": "^24.9.1",
+        "@types/node": "^25.3.3",
         "autoprefixer": "^10.4.19",
         "baseline-browser-mapping": "^2.9.19",
         "concurrently": "^9.2.0",
-        "eslint": "^9.36.0",
+        "eslint": "^10.0.2",
         "eslint-config-prettier": "^10.1.5",
         "eslint-plugin-prettier": "^5.2.1",
         "form-data": "^4.0.5",
         "laravel-vite-plugin": "^2.0.0",
         "postcss": "^8.4.38",
         "prettier": "^3.4.2",
-        "stylelint": "^16.25.0",
-        "stylelint-config-standard": "^39.0.0",
+        "stylelint": "^17.4.0",
+        "stylelint-config-standard": "^40.0.0",
         "tailwindcss": "^4.1.16",
         "vite": "^7.1.12"
     },

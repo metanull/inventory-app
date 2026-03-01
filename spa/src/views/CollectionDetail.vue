@@ -154,8 +154,6 @@
     useRoute,
     useRouter,
     onBeforeRouteLeave,
-    type NavigationGuardNext,
-    type RouteLocationNormalized,
   } from 'vue-router'
   import DetailView from '@/components/layout/detail/DetailView.vue'
   import DescriptionList from '@/components/format/description/DescriptionList.vue'
@@ -494,32 +492,23 @@
   )
 
   // Navigation guard for unsaved changes
-  onBeforeRouteLeave(
-    async (
-      _to: RouteLocationNormalized,
-      _from: RouteLocationNormalized,
-      next: NavigationGuardNext
-    ) => {
-      // Only check for unsaved changes if we're in edit or create mode
-      if ((mode.value === 'edit' || mode.value === 'create') && hasUnsavedChanges.value) {
-        const result = await cancelChangesStore.trigger(
-          mode.value === 'create'
-            ? 'New Collection has unsaved changes'
-            : 'Collection has unsaved changes',
-          mode.value === 'create'
-            ? 'There are unsaved changes to this new collection. If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.'
-            : `There are unsaved changes to "${collection.value?.internal_name}". If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.`
-        )
+  onBeforeRouteLeave(async () => {
+    // Only check for unsaved changes if we're in edit or create mode
+    if ((mode.value === 'edit' || mode.value === 'create') && hasUnsavedChanges.value) {
+      const result = await cancelChangesStore.trigger(
+        mode.value === 'create'
+          ? 'New Collection has unsaved changes'
+          : 'Collection has unsaved changes',
+        mode.value === 'create'
+          ? 'There are unsaved changes to this new collection. If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.'
+          : `There are unsaved changes to "${collection.value?.internal_name}". If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.`
+      )
 
-        if (result === 'stay') {
-          next(false) // Cancel navigation
-        } else {
-          cancelChangesStore.resetChanges() // Reset changes before leaving
-          next() // Allow navigation
-        }
+      if (result === 'stay') {
+        return false
       } else {
-        next() // Allow navigation
+        cancelChangesStore.resetChanges()
       }
     }
-  )
+  })
 </script>
