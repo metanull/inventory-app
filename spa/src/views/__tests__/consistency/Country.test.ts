@@ -214,11 +214,10 @@ describe('Country Consistency Tests', () => {
     it('should have proper navigation guard pattern', () => {
       const content = fs.readFileSync(countryDetailPath, 'utf-8')
 
-      // Should have async navigation guard with proper result handling
+      // Should have async navigation guard with return-based pattern (vue-router 5)
       expect(content).toContain('async (')
-      expect(content).toContain('next: NavigationGuardNext')
+      expect(content).toContain('return false')
       expect(content).toContain("result === 'stay'")
-      expect(content).toContain('next(false)')
       expect(content).toContain('cancelChangesStore.resetChanges()')
     })
 

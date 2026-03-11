@@ -657,8 +657,8 @@ describe('Contexts Component Business Logic', () => {
 
         // Step 4: Search for specific context
         contextsLogic.searchQuery = 'dev'
-        filteredContexts = contextsLogic.filteredContexts
-        // This would depend on updated store state in real app
+        const searchFilteredContexts = contextsLogic.filteredContexts
+        expect(searchFilteredContexts).toBeDefined()
       })
     })
   })

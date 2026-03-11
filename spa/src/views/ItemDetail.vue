@@ -146,8 +146,6 @@
     useRoute,
     useRouter,
     onBeforeRouteLeave,
-    type NavigationGuardNext,
-    type RouteLocationNormalized,
   } from 'vue-router'
   import DetailView from '@/components/layout/detail/DetailView.vue'
   import DescriptionList from '@/components/format/description/DescriptionList.vue'
@@ -558,28 +556,18 @@
   }
 
   // Navigation guard to prevent accidental navigation away from unsaved changes
-  onBeforeRouteLeave(
-    async (
-      _to: RouteLocationNormalized,
-      _from: RouteLocationNormalized,
-      next: NavigationGuardNext
-    ) => {
-      if (hasUnsavedChanges.value) {
-        const result = await cancelChangesStore.trigger(
-          'Item has unsaved changes',
-          'There are unsaved changes to this item. If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.'
-        )
+  onBeforeRouteLeave(async () => {
+    if (hasUnsavedChanges.value) {
+      const result = await cancelChangesStore.trigger(
+        'Item has unsaved changes',
+        'There are unsaved changes to this item. If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.'
+      )
 
-        if (result === 'stay') {
-          next(false) // Block navigation
-        } else {
-          next() // Allow navigation
-        }
-      } else {
-        next() // Allow navigation if no unsaved changes
+      if (result === 'stay') {
+        return false
       }
     }
-  )
+  })
 
   // Initialize on mount
   onMounted(initializeComponent)
