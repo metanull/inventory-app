@@ -183,6 +183,8 @@ A **Language** identifies a supported language in the system using its [ISO 639-
 
 One language is designated as the **default language** (`is_default = true` / `english()` scope). The default language participates in translation fallback logic.
 
+**Language names** are stored in a `LanguageTranslation` model which maps a language to its name *as displayed in another language* (e.g., "English" displayed as "Anglais" in French). This uses a `display_language_id` rather than a context — it is a simpler, context-free translation compared to entity translations.
+
 ---
 
 ### Country
@@ -190,6 +192,8 @@ One language is designated as the **default language** (`is_default = true` / `e
 A **Country** identifies a geographic country using its [ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) code (e.g., `EGY`, `FRA`, `MAR`). Countries use their ISO code as their primary key rather than a UUID.
 
 Countries are used to associate items and partners with a geographic origin or location. They are reference data and do not carry complex business logic.
+
+**Country names** are stored in a `CountryTranslation` model which maps a country to its name in a given language. Unlike entity translations, country translations use only a `language_id` and have no context dimension — a country's name does not vary by audience.
 
 ---
 
@@ -402,8 +406,8 @@ Partner ──► Country
         ──► Project
         ──► Monument Item (BelongsTo Item)
 
-Language ──► LanguageTranslation (language × ?)
-Country  ──► CountryTranslation  (language × ?)
+Language ──► LanguageTranslation (language × display_language)
+Country  ──► CountryTranslation  (language only — no context dimension)
 
 Glossary ──► GlossaryTranslation (language × context)
          ──► GlossarySpelling ──► ItemTranslation (many-to-many)
