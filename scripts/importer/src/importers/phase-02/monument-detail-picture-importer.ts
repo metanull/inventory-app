@@ -271,6 +271,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
       project_id: projectId || null,
       owner_reference: null,
       mwnf_reference: null,
+      display_order: group.picture_id,
       backward_compatibility: this.getPictureBackwardCompatibility(group),
     };
 

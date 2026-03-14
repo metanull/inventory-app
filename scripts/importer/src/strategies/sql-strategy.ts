@@ -398,8 +398,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const sanitized = sanitizeAllStrings(data);
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO items (id, partner_id, collection_id, parent_id, internal_name, type, country_id, project_id, owner_reference, mwnf_reference, latitude, longitude, map_zoom, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO items (id, partner_id, collection_id, parent_id, internal_name, type, country_id, project_id, owner_reference, mwnf_reference, display_order, latitude, longitude, map_zoom, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.partner_id,
@@ -411,6 +411,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
         sanitized.project_id,
         sanitized.owner_reference,
         sanitized.mwnf_reference,
+        data.display_order ?? null,
         data.latitude ?? null,
         data.longitude ?? null,
         data.map_zoom ?? null,

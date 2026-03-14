@@ -234,6 +234,7 @@ export interface ItemData extends BaseEntityData {
   parent_id?: string | null;
   owner_reference?: string | null;
   mwnf_reference?: string | null;
+  display_order?: number | null;
   // GPS Location (optional, primarily for monuments)
   latitude?: number | null;
   longitude?: number | null;
