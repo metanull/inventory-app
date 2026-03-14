@@ -255,6 +255,7 @@ export class ShMonumentPictureImporter extends BaseImporter {
       project_id: projectId || null,
       owner_reference: null,
       mwnf_reference: null,
+      display_order: group.image_number,
     };
 
     const itemId = await this.context.strategy.writeItem(itemData);

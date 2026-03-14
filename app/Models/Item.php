@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ItemType;
+use App\Traits\HasDisplayOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class Item extends Model
 {
+    use HasDisplayOrder;
     use HasFactory;
     use HasUuids;
 
@@ -87,6 +89,7 @@ class Item extends Model
         'collection_id',
         'owner_reference',
         'mwnf_reference',
+        'display_order',
         // Datation
         'start_date',
         'end_date',
@@ -98,6 +101,7 @@ class Item extends Model
 
     protected $casts = [
         'type' => ItemType::class,
+        'display_order' => 'integer',
         'start_date' => 'integer',
         'end_date' => 'integer',
         'latitude' => 'decimal:8',
@@ -150,7 +154,19 @@ class Item extends Model
      */
     public function children(): HasMany
     {
-        return $this->hasMany(Item::class, 'parent_id');
+        return $this->hasMany(Item::class, 'parent_id')->orderBy('display_order');
+    }
+
+    /**
+     * Get a query builder scoped to this item's siblings (same parent_id).
+     *
+     * @return Builder<static>
+     */
+    protected function getSiblingsQuery(): Builder
+    {
+        return $this->parent_id
+            ? static::where('parent_id', $this->parent_id)
+            : static::whereNull('parent_id');
     }
 
     /**
@@ -350,26 +366,6 @@ class Item extends Model
 
         return $query->whereHas('tags', function (Builder $query) use ($tagIds) {
             $query->whereIn('tags.id', $tagIds);
-        });
-    }
-
-    /**
-     * Reorder child items to eliminate gaps in display order.
-     * Useful when child items are deleted or moved around.
-     */
-    public function reorderChildItems(): void
-    {
-        $this->getConnection()->transaction(function () {
-            $childItems = $this->children()
-                ->orderBy('created_at')
-                ->lockForUpdate()
-                ->get();
-
-            foreach ($childItems as $index => $child) {
-                // For now, we don't have display_order on items,
-                // but this method structure is ready if we add it later
-                // $child->update(['display_order' => $index + 1]);
-            }
         });
     }
 

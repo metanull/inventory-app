@@ -25,6 +25,8 @@ class ItemResource extends JsonResource
             'type' => $this->type,
             // The parent item ID (for hierarchical relationships), nullable
             'parent_id' => $this->parent_id,
+            // Display order among siblings sharing the same parent, nullable
+            'display_order' => $this->display_order,
             // Owner's reference number for the item (external reference from owner)
             'owner_reference' => $this->owner_reference,
             // MWNF reference number for the item (reference from MWNF system)

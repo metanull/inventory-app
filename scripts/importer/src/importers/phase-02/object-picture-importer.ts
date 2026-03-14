@@ -270,6 +270,7 @@ export class ObjectPictureImporter extends BaseImporter {
       project_id: projectId || null,
       owner_reference: null,
       mwnf_reference: null,
+      display_order: group.image_number,
       backward_compatibility: this.getPictureBackwardCompatibility(group),
     };
 
