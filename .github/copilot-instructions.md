@@ -19,6 +19,16 @@ Never use the Terminal to read or write files. Always use VS Code file explorer 
 Never create scripts to modify files. Use VS Code refactoring and multi-file editing features instead.
 Never use linux commands and escaping in Terminal on Windows. Always use native Windows commands in PowerShell.
 Always write database-agnostic migrations and code. Production uses MariaDB, development uses SQLite, other Laravel supported engines are possible.
+If you cannot complete a task according to these rules, you MUST stop and report the exact point of failure. Do not attempt any workarounds
+If you modify existing code, never keep the original code as a fallback or comment it out — remove it entirely.
+NEVER implement fallback mechanisms without explicit approval
+Code must fail fast, and never fallback to degraded functionality
+Functions and classes must respect the single-responsibility principle
+Code must respect DRY and KISS principles — avoid duplication and unnecessary complexity
+Code must be testable, and you must write tests for all new features and bug fixes. Do not change original code to make it easier to test.
+Test must cover the business logic only — do not test the framework or third-party libraries internal logic.
+Use mocking/stubbing to isolate code under test.
+
 
 ---
 
@@ -33,11 +43,13 @@ The **Inventory Management API** is a comprehensive Laravel 12 backend applicati
 
 ### Key Technologies
 
-- **Backend**: Laravel 12, PHP 8.2+, Eloquent ORM, Sanctum, Blade templates
-- **Frontend**: TypeScript, Vue 3, Vite, Pinia, Tailwind CSS
+- **Backend**: Laravel 12, PHP 8.2+ (CI uses 8.4), Eloquent ORM, Sanctum, Blade templates, Livewire
+- **Frontend (Web UI)**: Blade templates, Livewire, Alpine.js, Tailwind CSS 4, Vite
+- **Frontend (SPA Demo)**: Vue 3, TypeScript, Vite, Pinia, Vue Router, Tailwind CSS 4
 - **Database**: SQLite (development), MariaDB (production) with UUID primary keys
-- **Testing**: PHPUnit (backend), Vitest (frontend) - 560+ tests, 100% reliable
+- **Testing**: Pest (backend, extends PHPUnit), Vitest (frontend)
 - **Tooling**: Composer, npm, Laravel Pint, ESLint, Prettier, GitHub Actions
+- **Node.js**: Requires ≥24.11.0 (LTS/Krypton)
 
 ## Architecture & Structure
 
@@ -45,19 +57,23 @@ The **Inventory Management API** is a comprehensive Laravel 12 backend applicati
 
 ```
 /.github/instructions/ # File-specific coding guidelines
+/.legacy-database/     # Git submodules containing SQL dumps and DDL of the legacy databases we are replacing with our new system
 /api-client/           # Auto-generated TypeScript API client (DO NOT EDIT)
 /app/                  # Laravel application code (Models, Controllers, etc.)
 /database/             # Migrations, factories, seeders
 /docs/                 # Jekyll documentation site (Ruby-based)
-/resources/js/         # Vue 3 SPA frontend application
-  /components/         # Reusable Vue components
-  /stores/             # Pinia state management stores
-  /views/              # Page-level Vue components
-  /__tests__/          # Vitest test suites
+/resources/js/         # Blade frontend assets (app.js only — NOT the SPA)
+/resources/views/      # Blade templates for server-rendered frontend
 /routes/api.php        # REST API route definitions
+/routes/web.php        # Web UI route definitions
 /scripts/              # Utility scripts (e.g., API client generation)
-  /importer/           # Data importer from legacy databases
-/tests/                # PHPUnit backend tests
+  /importer/           # Data importer (import and convert data legacy databases)
+/spa/                  # Vue 3 SPA Demo application (separate npm project)
+  /src/components/     # Reusable Vue components
+  /src/stores/         # Pinia state management stores
+  /src/views/          # Page-level Vue components
+  /src/__tests__/      # Vitest test suites
+/tests/                # Pest backend tests
   /README.md           # Testing guidelines and directory structure
 ```
 
@@ -83,7 +99,7 @@ The **Inventory Management API** is a comprehensive Laravel 12 backend applicati
 
 3. **SPA Demo** (`/cli` routes) - Example application only
    - Vue 3 + TypeScript demonstrating API client usage
-   - Source code in `/resources/js/`
+   - Source code in `/spa/src/`
    - Uses the **published npm package** `@metanull/inventory-app-api-client` from GitHub Packages
    - Does NOT use the local `/api-client/` directory directly
    - Serves as reference implementation for external API consumers
@@ -108,12 +124,44 @@ The **Inventory Management API** is a comprehensive Laravel 12 backend applicati
 - **No unused variables or imports**: Enforced by linters
 - **Explicit typing**: Never use `any` type in TypeScript
 
+### Build & Test Commands
+
+**Development server** (starts Laravel, queue worker, Vite, and SPA concurrently):
+```powershell
+composer dev
+```
+
+**Backend commands:**
+```powershell
+composer ci-lint          # Run Pint + Prettier (auto-fix)
+composer ci-lint:test     # Lint check only (non-modifying)
+composer ci-test          # Run Unit, Api, Web test suites (parallel)
+composer ci-test:integration  # Run Integration suite (non-parallel)
+composer ci-test:all      # Run all test suites
+composer ci-build         # Build frontend assets (npm run build)
+composer ci-audit         # Composer validate + audit + npm audit
+composer ci-reset         # Full reset: db + config + install + build + seed
+```
+
+**SPA commands** (run from `/spa/` directory):
+```powershell
+npm test                  # Run unit tests (excludes integration)
+npm run test:all          # Run all tests including integration
+npm run lint              # ESLint auto-fix
+npm run lint:check        # ESLint check only
+npm run type-check        # vue-tsc --noEmit
+npm run quality-check     # type-check + lint:check + format:check + test
+```
+
 ### Git Workflow
 
 - **Never commit directly to `main`**: Use feature branches with PRs
 - **Branch naming**: Use `feature/` or `fix/` prefix
 - **Before starting**: Always pull latest `main` to work on current code
 - **Before PR**: Ensure all lints pass and all tests pass locally
+- **Pre-commit**: `composer ci-before:commit` (lint dirty files)
+- **Pre-push**: `composer ci-before:push` (OpenAPI doc + full lint)
+- **Pre-PR**: `composer ci-before:pull-request` (full validation)
 
 ## Laravel Backend Conventions
 
@@ -135,7 +183,20 @@ Every new model must include:
 
 ### Controller Patterns
 
-All controllers follow standard patterns:
+**API controllers** (in `app/Http/Controllers/`):
+- Use `App\Http\Requests\Api\*` Form Requests
+- Return `*Resource` instances
+- Support `$request->getIncludeParams()` and `$request->getPaginationParams()` via `HasPaginationAndIncludes` concern
+- API routes use **singular** nouns: `/api/context`, `/api/language`, `/api/item`
+
+**Web controllers** (in `app/Http/Controllers/Web/`):
+- Use `App\Http\Requests\Web\*` Form Requests
+- Return `view()` or `redirect()` responses
+- Use `SearchAndPaginate` trait from `App\Support\Web`
+- Apply middleware in constructor: `$this->middleware(['auth', 'permission:...'])`
+- Web routes use **plural** nouns: `/web/contexts`, `/web/languages`, `/web/items`
+
+All controllers follow standard resource methods:
 - `index()` - List all records
 - `show($id)` - Show single record
 - `store(Request)` - Create new record
@@ -154,7 +215,7 @@ Additional endpoints for models with scopes:
 
 ## Vue.js Frontend Conventions (SPA Demo Only)
 
-**Note**: These conventions apply to the SPA Demo in `/resources/js/` - a reference implementation for external API consumers.
+**Note**: These conventions apply to the SPA Demo in `/spa/src/` - a reference implementation for external API consumers.
 
 ### Component Structure
 
@@ -166,7 +227,7 @@ Additional endpoints for models with scopes:
 ### State Management
 
 - **Pinia stores**: For ALL shared state (never use component `data` or `reactive`)
-- **Store patterns**: Follow existing patterns in `/resources/js/stores/`
+- **Store patterns**: Follow existing patterns in `/spa/src/stores/`
 - **API calls**: Use the **published npm package** `@metanull/inventory-app-api-client` - NEVER use `fetch`, `axios`, or the local `/api-client/` directory directly
 
 ### Reusable Components
@@ -179,15 +240,15 @@ Extract repeated UI patterns into shared components. Key component categories:
 - **Display**: DisplayText, InternalName, DateDisplay, Title, Uuid
 - **Tables**: TableElement, TableHeader, TableRow, TableCell
 
-See `/resources/js/components/` for complete component library.
+See `/spa/src/components/` for complete component library.
 
 ### Styling
 
 - **Tailwind CSS**: Primary styling method
 - **Responsive design**: Use Tailwind breakpoints (`sm:`, `md:`, `lg:`, `xl:`)
-- **Entity colors**: Consistent across navigation, pages, and components
-  - Items: `teal`, Partners: `yellow`, Languages: `purple`
-  - Countries: `blue`, Contexts: `green`, Projects: `orange`
+- **Entity colors**: Consistent across navigation, pages, and components (defined in `config/app_entities.php`)
+  - Items: `teal`, Partners: `yellow`, Languages: `fuchsia`
+  - Countries: `indigo`, Contexts: `indigo`, Projects: `teal`, Collections: `yellow`
 
 ### Icons
 
@@ -197,38 +258,40 @@ See `/resources/js/components/` for complete component library.
 
 ## Testing Standards
 
-### Backend Tests (PHPUnit)
+### Backend Tests (Pest)
 
-Test organization in `/tests/`:
-- `/Unit/` - Factory tests, model validation
-- `/Requests/Web` - Form Request validation tests for the web UI
-- `/Requests/Api` - Form Request validation tests for the API
-- `/Api/` - REST API resource tests
-- `/Integration/` - Cross-cutting integration tests
-- `/Events/` - Event and listener tests
+Tests use [Pest](https://pestphp.com/) (which extends PHPUnit). Test organization in `/tests/`:
+- `/Unit/Models/` - Factory tests, model validation
+- `/Unit/Requests/` - Form Request validation tests (both Web and API)
+- `/Unit/Enums/` - Enum tests
+- `/Unit/Services/` - Service class tests
+- `/Api/Resources/` - REST API resource tests (one file per entity)
+- `/Api/Middleware/` - Authentication and permission tests
+- `/Api/Traits/` - 8 reusable test traits (`TestsApiCrud`, `TestsApiDefaultSelection`, etc.)
+- `/Web/Pages/` - Server-rendered page tests
+- `/Web/Livewire/` - Livewire component tests
+- `/Configuration/` - App configuration tests
 - `/Console/` - Artisan command tests
-- `/Services/` - Service class tests
+- `/Event/` - Event and listener tests
+- `/Integration/` - Cross-cutting integration tests
 
 Test requirements:
-- DRY principle, Tests must use reusable traits where possible
-- Follow existing patterns exactly when adding new tests - they must respect the existing directory structure
-- Only test custom business logic - don't test the framework: only add tests for custom business logic
+- DRY principle — API resource tests compose behavior via traits (e.g., `TestsApiCrud`, `TestsApiDefaultSelection`)
+- Follow existing patterns exactly when adding new tests — they must respect the existing directory structure
+- Only test custom business logic — don't test the framework
 - Use `RefreshDatabase` trait
 - Use factories for test data (`.create()` for DB, `.make()->toArray()` for requests)
 - Authenticate with Sanctum: `$this->actingAs(User::factory()->create())`
-- Validate with `assertJsonStructure`, `assertJsonPath`, `assertOk`, etc.
 
-Examples:
-For a better understanding, inspect the existing, e.g. tests related to ItemTranslation.
+Canonical examples:
+- API resource test: `tests/Api/Resources/ContextTest.php` (composes traits, minimal boilerplate)
+- Related entity tests: `tests/Api/Resources/ItemTranslationTest.php`
 
 ### Frontend Tests (Vitest)
 
-Test organization in `/resources/js/__tests__/`:
+Test organization in `/spa/src/__tests__/`:
 - `/feature/` - Component functionality and behavior
-- `/integration/` - Component integration and workflows
 - `/logic/` - Business logic and computations
-- `/resource_integration/` - API resource integration (`.tests.ts` suffix)
-- `/consistency/` - Cross-entity consistency validation
 
 Test requirements:
 - **Small and focused**: Single objective per test
@@ -258,13 +321,9 @@ Steps performed:
 
 ### Using the Published Client
 
-**The SPA Demo uses the published npm package**, not the local `/api-client/` directory:
+**The SPA Demo uses the published npm package** (installed in `/spa/node_modules/`), not the local `/api-client/` directory:
 
 ```typescript
-// Install from GitHub Packages
-npm install @metanull/inventory-app-api-client
-
-// Use in your application
 import { Configuration, DefaultApi } from '@metanull/inventory-app-api-client';
 
 const api = new DefaultApi(new Configuration({ basePath: 'https://api.url' }));
@@ -283,7 +342,7 @@ The `/docs/` directory contains a Jekyll-based documentation site deployed to Gi
 
 ### Front Matter Requirements
 
-All Markdown files must include:
+All Markdown files must include a front matter block like this:
 ```yaml
 ---
 layout: default
@@ -317,8 +376,8 @@ When adding new models, controllers, or components:
 1. **Study existing implementation**: Review similar existing code first
 2. **Follow patterns exactly**: Naming, structure, validation, tests
 3. **Use canonical examples**:
-   - Backend: `Context` model, controller, tests in `/tests/Feature/Api/Context/`
-   - Frontend: `Contexts.vue` page and `Contexts.test.ts` tests
+   - Backend: `Context` model, controller, tests in `/tests/Api/Resources/ContextTest.php`
+   - Frontend: `Contexts.vue` page in `/spa/src/views/` and tests in `/spa/src/__tests__/`
 4. **Maintain alignment**: Validation in Controller, Model, Factory, Migration
 
 ### DRY Principle
