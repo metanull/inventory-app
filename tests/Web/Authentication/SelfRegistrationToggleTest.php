@@ -7,6 +7,7 @@ use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission as PermissionModel;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 /**
@@ -96,7 +97,7 @@ class SelfRegistrationToggleTest extends TestCase
         $manager = User::factory()->create();
         $manager->givePermissionTo($permission);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Test enabling self-registration
         $response = $this->actingAs($manager)->put(route('settings.update'), [
@@ -123,7 +124,7 @@ class SelfRegistrationToggleTest extends TestCase
         $user = User::factory()->create();
         $user->givePermissionTo($permission);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)->get(route('settings.index'));
 
@@ -133,7 +134,7 @@ class SelfRegistrationToggleTest extends TestCase
     public function test_user_without_permissions_cannot_access_settings(): void
     {
         // Permissions already exist from TestCase::ensurePermissionsExist()
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $user = User::factory()->create();
 

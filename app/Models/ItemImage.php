@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ItemImage extends Model
 {
@@ -104,11 +105,11 @@ class ItemImage extends Model
             $filename = $availableImage->path; // Already just filename
 
             // Move the file from images/ to pictures/
-            \Illuminate\Support\Facades\Storage::disk($picturesDisk)->writeStream(
+            Storage::disk($picturesDisk)->writeStream(
                 $picturesDir.'/'.$filename,
-                \Illuminate\Support\Facades\Storage::disk($availableDisk)->readStream($availableDir.'/'.$filename)
+                Storage::disk($availableDisk)->readStream($availableDir.'/'.$filename)
             );
-            \Illuminate\Support\Facades\Storage::disk($availableDisk)->delete($availableDir.'/'.$filename);
+            Storage::disk($availableDisk)->delete($availableDir.'/'.$filename);
 
             $itemImage = static::create([
                 'id' => $availableImage->id, // Preserve the ID
@@ -142,11 +143,11 @@ class ItemImage extends Model
             $filename = $this->path; // Already just filename
 
             // Move the file from pictures/ back to images/
-            \Illuminate\Support\Facades\Storage::disk($availableDisk)->writeStream(
+            Storage::disk($availableDisk)->writeStream(
                 $availableDir.'/'.$filename,
-                \Illuminate\Support\Facades\Storage::disk($picturesDisk)->readStream($picturesDir.'/'.$filename)
+                Storage::disk($picturesDisk)->readStream($picturesDir.'/'.$filename)
             );
-            \Illuminate\Support\Facades\Storage::disk($picturesDisk)->delete($picturesDir.'/'.$filename);
+            Storage::disk($picturesDisk)->delete($picturesDir.'/'.$filename);
 
             $availableImage = AvailableImage::create([
                 'id' => $this->id, // Preserve the ID

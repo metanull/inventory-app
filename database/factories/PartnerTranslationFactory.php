@@ -9,7 +9,7 @@ use App\Models\PartnerTranslation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PartnerTranslation>
+ * @extends Factory<PartnerTranslation>
  */
 class PartnerTranslationFactory extends Factory
 {

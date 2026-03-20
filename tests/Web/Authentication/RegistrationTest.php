@@ -3,6 +3,7 @@
 namespace Tests\Web\Authentication;
 
 use App\Enums\Permission;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 use Tests\Web\Traits\CreatesTwoFactorUsers;
 use Tests\Web\Traits\TestsFormValidation;
@@ -24,7 +26,7 @@ class RegistrationTest extends TestCase
         parent::setUp();
 
         // Enable self-registration for these tests
-        \App\Models\Setting::set('self_registration_enabled', true, 'boolean');
+        Setting::set('self_registration_enabled', true, 'boolean');
 
         // Note: New users start with NO roles/permissions (permission-based system)
         // Admins must explicitly grant permissions for access
@@ -78,7 +80,7 @@ class RegistrationTest extends TestCase
             'guard_name' => 'web',
         ]);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $userData = [
             'name' => 'John Doe',
@@ -325,7 +327,7 @@ class RegistrationTest extends TestCase
     public function test_registration_is_blocked_when_self_registration_disabled(): void
     {
         // Disable self-registration
-        \App\Models\Setting::set('self_registration_enabled', false, 'boolean');
+        Setting::set('self_registration_enabled', false, 'boolean');
 
         $userData = [
             'name' => 'John Doe',

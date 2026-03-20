@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Web;
 
 use App\Http\Requests\Traits\PreparesPairsForValidation;
+use App\Models\ItemTranslation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateItemTranslationRequest extends FormRequest
@@ -70,7 +71,7 @@ class UpdateItemTranslationRequest extends FormRequest
                 return;
             }
 
-            $exists = \App\Models\ItemTranslation::where('item_id', $this->item_id)
+            $exists = ItemTranslation::where('item_id', $this->item_id)
                 ->where('language_id', $this->language_id)
                 ->where('context_id', $this->context_id)
                 ->where('id', '!=', $itemTranslation->id)

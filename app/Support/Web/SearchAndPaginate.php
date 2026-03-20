@@ -2,6 +2,7 @@
 
 namespace App\Support\Web;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
@@ -48,7 +49,7 @@ trait SearchAndPaginate
      *
      * @template TModel of \Illuminate\Database\Eloquent\Model
      *
-     * @return array{0: \Illuminate\Contracts\Pagination\LengthAwarePaginator, 1: string}
+     * @return array{0: LengthAwarePaginator, 1: string}
      */
     protected function searchAndPaginate(Builder $baseQuery, Request $request): array
     {

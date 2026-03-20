@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Models\ItemItemLinkTranslation;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,12 +20,12 @@ class UpdateItemItemLinkTranslationRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         $translation = $this->route('itemItemLinkTranslation');
-        $translationId = $translation instanceof \App\Models\ItemItemLinkTranslation ? $translation->id : $translation;
+        $translationId = $translation instanceof ItemItemLinkTranslation ? $translation->id : $translation;
 
         return [
             'id' => ['prohibited'],

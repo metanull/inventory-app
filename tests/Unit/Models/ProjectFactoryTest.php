@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Models;
 
+use App\Models\Context;
+use App\Models\Language;
 use App\Models\Project;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -44,7 +46,7 @@ class ProjectFactoryTest extends TestCase
         $project = Project::factory()->withContext()->create();
 
         $this->assertNotNull($project->context_id);
-        $this->assertInstanceOf(\App\Models\Context::class, $project->context);
+        $this->assertInstanceOf(Context::class, $project->context);
     }
 
     public function test_factory_with_language_creates_language_relationship(): void
@@ -52,6 +54,6 @@ class ProjectFactoryTest extends TestCase
         $project = Project::factory()->withLanguage()->create();
 
         $this->assertNotNull($project->language_id);
-        $this->assertInstanceOf(\App\Models\Language::class, $project->language);
+        $this->assertInstanceOf(Language::class, $project->language);
     }
 }

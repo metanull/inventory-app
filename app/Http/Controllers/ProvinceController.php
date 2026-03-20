@@ -11,13 +11,15 @@ use App\Models\Province;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ProvinceController extends Controller
 {
     /**
      * Display a listing of provinces.
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
     public function index(IndexProvinceRequest $request)
     {
@@ -69,7 +71,7 @@ class ProvinceController extends Controller
     /**
      * Display the specified province.
      *
-     * @return \App\Http\Resources\ProvinceResource
+     * @return ProvinceResource
      */
     public function show(ShowProvinceRequest $request, Province $province)
     {
@@ -84,7 +86,7 @@ class ProvinceController extends Controller
     /**
      * Update the specified province.
      *
-     * @return \App\Http\Resources\ProvinceResource
+     * @return ProvinceResource
      */
     public function update(UpdateProvinceRequest $request, Province $province)
     {
@@ -120,7 +122,7 @@ class ProvinceController extends Controller
     /**
      * Remove the specified province.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy(Province $province)
     {

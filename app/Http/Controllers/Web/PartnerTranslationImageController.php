@@ -6,6 +6,7 @@ use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\StorePartnerTranslationImageRequest;
 use App\Http\Requests\Web\UpdatePartnerTranslationImageRequest;
+use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use App\Models\PartnerTranslation;
 use App\Models\PartnerTranslationImage;
@@ -155,7 +156,7 @@ class PartnerTranslationImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerTranslationImage->path;
 
-        return \App\Http\Responses\FileResponse::download(
+        return FileResponse::download(
             $disk,
             $storagePath,
             $filename,
@@ -179,7 +180,7 @@ class PartnerTranslationImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerTranslationImage->path;
 
-        return \App\Http\Responses\FileResponse::view(
+        return FileResponse::view(
             $disk,
             $storagePath,
             $partnerTranslationImage->mime_type

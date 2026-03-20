@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 /**
@@ -46,7 +47,7 @@ class AuthorizationMiddlewareTest extends TestCase
     public function test_it_denies_access_to_users_without_permission(): void
     {
         // Permission already exists from TestCase::ensurePermissionsExist()
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $user = User::factory()->create();
 
@@ -67,7 +68,7 @@ class AuthorizationMiddlewareTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole($role);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/test-permission');
@@ -93,7 +94,7 @@ class AuthorizationMiddlewareTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole($role);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/test-no-role');
@@ -111,7 +112,7 @@ class AuthorizationMiddlewareTest extends TestCase
         $user = User::factory()->create();
         $user->givePermissionTo($permission);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/test-permission');
@@ -139,7 +140,7 @@ class AuthorizationMiddlewareTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole($role);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/test-role');

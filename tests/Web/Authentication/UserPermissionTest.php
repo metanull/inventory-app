@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 class UserPermissionTest extends TestCase
@@ -29,7 +30,7 @@ class UserPermissionTest extends TestCase
         // Test: Assign role to user
         $user->assignRole($role);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Verify: User has the role and its permissions
         $this->assertTrue($user->hasRole('Test Role'));
@@ -56,7 +57,7 @@ class UserPermissionTest extends TestCase
     public function test_user_without_permissions_cannot_access_features(): void
     {
         // Permissions already exist from TestCase::ensurePermissionsExist()
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $user = User::factory()->create();
 

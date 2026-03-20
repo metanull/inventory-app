@@ -22,6 +22,7 @@ use App\Models\Item;
 use App\Models\Tag;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ItemController extends Controller
 {
@@ -248,7 +249,7 @@ class ItemController extends Controller
     /**
      * Get items for a specific tag.
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
     public function forTag(ForTagItemRequest $request, Tag $tag)
     {
@@ -262,7 +263,7 @@ class ItemController extends Controller
     /**
      * Get items that have ALL of the specified tags (AND condition).
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
     public function withAllTags(WithAllTagsItemRequest $request)
     {
@@ -278,7 +279,7 @@ class ItemController extends Controller
     /**
      * Get items that have ANY of the specified tags (OR condition).
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
     public function withAnyTags(WithAnyTagsItemRequest $request)
     {
@@ -294,7 +295,7 @@ class ItemController extends Controller
     /**
      * Get items by type.
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
     public function byType(ByTypeItemRequest $request, string $type)
     {
@@ -328,7 +329,7 @@ class ItemController extends Controller
     /**
      * Get parent items (items with no parent).
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
     public function parents(ParentsItemRequest $request)
     {
@@ -342,7 +343,7 @@ class ItemController extends Controller
     /**
      * Get child items (items with a parent).
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
     public function children(ChildrenItemRequest $request)
     {

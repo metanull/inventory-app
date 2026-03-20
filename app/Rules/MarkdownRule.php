@@ -5,6 +5,8 @@ namespace App\Rules;
 use App\Services\MarkdownService;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Validation rule for Markdown content
@@ -24,7 +26,7 @@ class MarkdownRule implements ValidationRule
     /**
      * Run the validation rule.
      *
-     * @param  \Closure(string, ?string=): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string, ?string=): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
@@ -36,7 +38,7 @@ class MarkdownRule implements ValidationRule
 
         try {
             $this->markdownService->validateMarkdown($value);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             $errors = $e->validator->errors()->all();
             foreach ($errors as $error) {
                 $fail($error);

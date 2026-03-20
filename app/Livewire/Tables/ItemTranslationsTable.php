@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Tables;
 
+use App\Models\Context;
 use App\Models\ItemTranslation;
+use App\Models\Language;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -112,7 +114,7 @@ class ItemTranslationsTable extends Component
 
         // Filter by context if specified
         if ($this->contextFilter === 'default') {
-            $defaultContext = \App\Models\Context::where('is_default', true)->first();
+            $defaultContext = Context::where('is_default', true)->first();
             if ($defaultContext) {
                 $query->where('context_id', $defaultContext->id);
             }
@@ -122,7 +124,7 @@ class ItemTranslationsTable extends Component
 
         // Filter by language if specified
         if ($this->languageFilter === 'default') {
-            $defaultLanguage = \App\Models\Language::where('is_default', true)->first();
+            $defaultLanguage = Language::where('is_default', true)->first();
             if ($defaultLanguage) {
                 $query->where('language_id', $defaultLanguage->id);
             }
@@ -143,8 +145,8 @@ class ItemTranslationsTable extends Component
     public function render()
     {
         $c = config('app_entities.item_translations.colors', []);
-        $contexts = \App\Models\Context::orderBy('internal_name')->get();
-        $languages = \App\Models\Language::orderBy('internal_name')->get();
+        $contexts = Context::orderBy('internal_name')->get();
+        $languages = Language::orderBy('internal_name')->get();
 
         return view('livewire.tables.item-translations-table', [
             'itemTranslations' => $this->itemTranslations,

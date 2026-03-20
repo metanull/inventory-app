@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ConversionResource;
 use App\Rules\MarkdownRule;
 use App\Services\MarkdownService;
 use Illuminate\Http\Request;
@@ -53,7 +54,7 @@ class MarkdownController extends Controller
 
         if ($validator->fails()) {
             return response()->json(
-                (new \App\Http\Resources\ConversionResource([
+                (new ConversionResource([
                     'success' => false,
                     'message' => 'Validation failed',
                     'errors' => $validator->errors(),
@@ -65,7 +66,7 @@ class MarkdownController extends Controller
         try {
             $html = $this->markdownService->markdownToHtml($request->input('markdown'));
 
-            return new \App\Http\Resources\ConversionResource([
+            return new ConversionResource([
                 'success' => true,
                 'data' => [
                     'html' => $html,
@@ -73,7 +74,7 @@ class MarkdownController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json(
-                (new \App\Http\Resources\ConversionResource([
+                (new ConversionResource([
                     'success' => false,
                     'message' => 'Failed to convert markdown to HTML',
                     'error' => $e->getMessage(),
@@ -126,7 +127,7 @@ class MarkdownController extends Controller
 
         if ($validator->fails()) {
             return response()->json(
-                (new \App\Http\Resources\ConversionResource([
+                (new ConversionResource([
                     'success' => false,
                     'message' => 'Validation failed',
                     'errors' => $validator->errors(),
@@ -138,7 +139,7 @@ class MarkdownController extends Controller
         try {
             $markdown = $this->markdownService->htmlToMarkdown($request->input('html'));
 
-            return new \App\Http\Resources\ConversionResource([
+            return new ConversionResource([
                 'success' => true,
                 'data' => [
                     'markdown' => $markdown,
@@ -146,7 +147,7 @@ class MarkdownController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json(
-                (new \App\Http\Resources\ConversionResource([
+                (new ConversionResource([
                     'success' => false,
                     'message' => 'Failed to convert HTML to markdown',
                     'error' => $e->getMessage(),
@@ -185,7 +186,7 @@ class MarkdownController extends Controller
 
         if ($validator->fails()) {
             return response()->json(
-                (new \App\Http\Resources\ConversionResource([
+                (new ConversionResource([
                     'success' => false,
                     'message' => 'Validation failed',
                     'errors' => $validator->errors(),
@@ -194,7 +195,7 @@ class MarkdownController extends Controller
             );
         }
 
-        return new \App\Http\Resources\ConversionResource([
+        return new ConversionResource([
             'success' => true,
             'data' => [
                 'valid' => true,
@@ -219,7 +220,7 @@ class MarkdownController extends Controller
      */
     public function getAllowedElements()
     {
-        return new \App\Http\Resources\ConversionResource([
+        return new ConversionResource([
             'success' => true,
             'data' => [
                 'allowed_html_tags' => $this->markdownService->getAllowedHtmlTags(),
@@ -262,7 +263,7 @@ class MarkdownController extends Controller
 
         if ($validator->fails()) {
             return response()->json(
-                (new \App\Http\Resources\ConversionResource([
+                (new ConversionResource([
                     'success' => false,
                     'message' => 'Validation failed',
                     'errors' => $validator->errors(),
@@ -274,7 +275,7 @@ class MarkdownController extends Controller
         $content = $request->input('content');
         $isMarkdown = $this->markdownService->isMarkdown($content);
 
-        return new \App\Http\Resources\ConversionResource([
+        return new ConversionResource([
             'success' => true,
             'data' => [
                 'is_markdown' => $isMarkdown,

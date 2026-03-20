@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\UpdateAvailableImageRequest;
+use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use App\Support\Web\SearchAndPaginate;
 use Illuminate\Contracts\View\View;
@@ -62,7 +63,7 @@ class AvailableImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$availableImage->path;
 
-        return \App\Http\Responses\FileResponse::view(
+        return FileResponse::view(
             $disk,
             $storagePath
         );
@@ -80,7 +81,7 @@ class AvailableImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$availableImage->path;
 
-        return \App\Http\Responses\FileResponse::download(
+        return FileResponse::download(
             $disk,
             $storagePath,
             $filename

@@ -3,6 +3,7 @@
 namespace App\Faker;
 
 use Faker\Provider\Base;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\WhitespacePathNormalizer;
 
@@ -144,7 +145,7 @@ class LocalImageProvider extends Base
      * @return string The normalized relative path of the stored image
      *
      * @throws \RuntimeException If the storage operation fails
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException If the paths cannot be resolved
+     * @throws FileNotFoundException If the paths cannot be resolved
      */
     protected function storeImageContent(string $imageContents, string $disk = 'local', ?string $directory = null, ?string $filename = null): string
     {
@@ -183,7 +184,7 @@ class LocalImageProvider extends Base
      * @param  string  $storage_path  The storage path of the image
      * @return string The normalized relative path
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException If the paths cannot be resolved
+     * @throws FileNotFoundException If the paths cannot be resolved
      */
     protected function normalizeRelativePath(string $disk, string $storage_path): string
     {
@@ -192,7 +193,7 @@ class LocalImageProvider extends Base
         $real_storage_path = realpath(Storage::disk($disk)->path($storage_path));
 
         if ($real_base_path === false || $real_storage_path === false) {
-            throw new \Illuminate\Contracts\Filesystem\FileNotFoundException('Failed to resolve paths');
+            throw new FileNotFoundException('Failed to resolve paths');
         }
 
         return $normalizer->normalizePath(substr($real_storage_path, strlen($real_base_path) + 1));

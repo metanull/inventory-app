@@ -2,6 +2,7 @@
 
 namespace Tests\Console;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -61,8 +62,8 @@ class CustomDownCommandTest extends TestCase
         $this->assertNotEmpty($data['timestamp']);
 
         // Verify timestamp is in ISO8601 format
-        $timestamp = \Carbon\Carbon::parse($data['timestamp']);
-        $this->assertInstanceOf(\Carbon\Carbon::class, $timestamp);
+        $timestamp = Carbon::parse($data['timestamp']);
+        $this->assertInstanceOf(Carbon::class, $timestamp);
     }
 
     public function test_lock_file_contains_correct_message(): void

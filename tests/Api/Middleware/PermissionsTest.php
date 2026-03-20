@@ -30,6 +30,7 @@ use App\Models\Tag;
 use App\Models\Theme;
 use App\Models\ThemeTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Api\Traits\TestsApiPermissions;
 use Tests\TestCase;
 
@@ -290,7 +291,7 @@ class PermissionsTest extends TestCase
         ];
     }
 
-    #[\PHPUnit\Framework\Attributes\DataProvider('routePermissionsProvider')]
+    #[DataProvider('routePermissionsProvider')]
     public function test_route_enforces_correct_permission(
         string $method,
         string $route,

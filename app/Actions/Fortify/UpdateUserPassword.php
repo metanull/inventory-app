@@ -3,11 +3,13 @@
 namespace App\Actions\Fortify;
 
 use App\Models\User;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 use Laravel\Fortify\Contracts\UpdatesUserPasswords;
+use PragmaRX\Google2FA\Exceptions\InvalidCharactersException;
 
 class UpdateUserPassword implements UpdatesUserPasswords
 {
@@ -59,10 +61,10 @@ class UpdateUserPassword implements UpdatesUserPasswords
             $totpProvider = app(TwoFactorAuthenticationProvider::class);
             $decryptedSecret = decrypt($user->two_factor_secret);
             $isValid = $totpProvider->verify($decryptedSecret, $code);
-        } catch (\PragmaRX\Google2FA\Exceptions\InvalidCharactersException $e) {
+        } catch (InvalidCharactersException $e) {
             // Invalid TOTP secret in database - treat as invalid code
             $isValid = false;
-        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+        } catch (DecryptException $e) {
             // Invalid encrypted secret in database - treat as invalid code
             $isValid = false;
         }
