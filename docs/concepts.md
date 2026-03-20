@@ -140,9 +140,6 @@ Partners can be associated with a collection at one of three contribution levels
 | `associated_partner` | Partner contributing indirectly or in a supporting role |
 | `minor_contributor` | Partner with a minor or peripheral contribution |
 
-{: .note }
-> The pivot table between partners and collections also contains a `relationship_type` field with values `partner`, `associate_partner`, and `further_associate`. This appears to be a separate classification alongside the `level` field. **The distinction between these two fields is not fully clear from the codebase.** Both describe how a partner is associated with a collection, but their precise semantic difference requires clarification from the project owner.
-
 ---
 
 ### Project
@@ -226,7 +223,7 @@ The `ItemTranslation` model is the richest translation model. In addition to the
 - `dates`, `location`, `dimensions` — Physical and temporal attributes of the item.
 - `place_of_production`, `method_for_datation`, `method_for_provenance` — Scholarly provenance information.
 - `provenance`, `obtention`, `bibliography` — Historical record of the item's custody and academic references.
-- `extra` — A free-form JSON field for additional metadata not covered by the structured fields. The schema of this field is not enforced and may vary.
+- `extra` — A flexible JSON field for preserving data from legacy systems. Because this API merges and replaces several pre-existing databases, some columns from those systems may not map cleanly onto the new model's structured fields. Rather than polluting the schema with rarely-used columns or discarding original data, the `extra` field stores those residual values as a JSON object. Its structure is not enforced and will vary depending on the legacy source system from which the item was imported.
 - **Authors** — Four editorial roles are tracked:
   - `author` — The person who wrote the main descriptive text.
   - `text_copy_editor` — The person who edited the text.
@@ -242,19 +239,6 @@ When requesting content for a specific language and context, the system uses the
 3. If still not found, return `null` (no content available).
 
 This means it is sufficient to create a single "default context" translation for an entity to ensure it is always reachable, while more specific context translations can be added progressively.
-
----
-
-## Themes
-
-A **Theme** provides an additional level of organisation **within a collection**. Themes belong to a collection and can themselves have subthemes, but the hierarchy is limited to **two levels** (theme → subtheme, no deeper nesting).
-
-Themes support translations using the same language + context pattern as other entities.
-
-Themes are an editorial tool — they group items conceptually within a collection but do not have their own item membership. The association between items and themes, if any, is managed through the collection structure.
-
-{: .note }
-> The exact mechanism by which items are associated with themes (as opposed to the collection as a whole) is not explicitly defined in the current model. This aspect may require further clarification.
 
 ---
 
@@ -292,17 +276,6 @@ The **Glossary** is a structured dictionary of specialised terms used in the inv
 - **Synonyms** — links to other glossary entries that carry the same or a similar meaning.
 
 The glossary is designed to support editorial annotation: editors can link a glossary spelling to the text of an item translation to flag that a term is defined in the glossary.
-
----
-
-## Geographic Reference Data
-
-### Location and Province
-
-**Location** and **Province** are geographic reference entities that belong to a **Country**. They support translations using the standard language + context model.
-
-{: .note }
-> In the current codebase, `Location` and `Province` models exist and are translatable, but their relationship to `Item` and `Partner` records is not yet exposed through the main API routes visible in `routes/api.php`. Their precise role in the overall geographic classification scheme is not fully clear from the code alone and may require clarification from the project owner.
 
 ---
 
@@ -362,7 +335,7 @@ The `User` model uses the Laravel default integer key for compatibility with the
 
 Every entity has an `internal_name` field. This is a human-readable identifier used **internally** by editors and administrators. It is not the public-facing name (which is stored in translations) but rather a stable label for use within the management interface.
 
-The `backward_compatibility` field stores legacy identifiers from the system that preceded this API. It allows records to be cross-referenced with older datasets during the migration period.
+The `backward_compatibility` field is a critical migration aid. Because this API merges and replaces several legacy systems, each new record may correspond to a row that existed in one of those systems under a different identifier. The `backward_compatibility` field stores a **string representation of the primary key** from the originating legacy system, allowing a direct mapping between new records and the legacy rows they replace. This is essential for data import scripts and for cross-referencing the new model against legacy databases during and after migration. This field is populated during data import; new records created directly in this system will typically leave it empty.
 
 ### Atomic deletion
 
@@ -392,12 +365,9 @@ Country ◄─── Item ◄─── ItemTranslation (language × context)
 Collection ◄── CollectionTranslation (language × context)
             ├── Items (primary, HasMany via FK)
             ├── Items (secondary, BelongsToMany via pivot)
-            ├── Partners (many-to-many, with level + relationship_type)
+            ├── Partners (many-to-many, with level)
             ├── Parent Collection (self-referential)
-            ├── Children Collections (self-referential)
-            └── Themes
-                 └── ThemeTranslation (language × context)
-                 └── Subthemes (one level deep)
+            └── Children Collections (self-referential)
 
 Project ──► Context
         ──► Language
@@ -416,30 +386,24 @@ Glossary ──► GlossaryTranslation (language × context)
 
 ---
 
-## Points Requiring Clarification
+## Deprecated / Left-Over Entities
 
-The following aspects of the system are not fully clear from the code alone. They are documented here as questions for the project owner.
+The following entities exist in the codebase but are **no longer part of the intended design**. They are remnants of earlier design iterations and are scheduled for removal. They should not be used for new data entry and will be cleaned up in a future release.
 
-### Partner contribution fields on Collection–Partner pivot
+### Theme and ThemeTranslation
 
-The pivot table linking partners to collections contains two separate fields that both seem to classify the partner's role:
-- `level` — uses the values `partner`, `associated_partner`, `minor_contributor`.
-- `relationship_type` — uses the values `partner`, `associate_partner`, `further_associate`.
+`Theme` was originally introduced to provide a second level of organisation within a collection (theme → subtheme, two levels deep). This need is now fully covered by the **Collection hierarchy**: collections can have parent collections to any depth, making a separate Theme entity redundant.
 
-The precise distinction between these two fields is not evident from the code. Are they used for different purposes? Do they represent the same concept from two different versioning periods? This should be clarified to avoid inconsistent data entry.
-
-### The `extra` field on ItemTranslation
-
-The `extra` field on `ItemTranslation` is a JSON column with no enforced schema. Its intended use and expected structure are not documented in the code. Content managers should document what fields are expected within this JSON object and under what circumstances they are used.
-
-### Theme–Item association
-
-The `Theme` model belongs to a `Collection` and supports subthemes, but there is no explicit mechanism in the model to directly associate individual items with a specific theme (as opposed to the collection as a whole). If themes are intended to organise items into sub-groups within a collection, the mechanism for this association should be clarified.
+The `Theme` and `ThemeTranslation` models, their database tables, and all related API routes will be removed.
 
 ### Location and Province
 
-The `Location` and `Province` models exist and are translatable, but they do not appear to be directly linked to `Item` or `Partner` in the current API. Their intended role — whether as future geographic classification or as a currently unused feature — should be clarified.
+`Location` and `Province` were designed as named geographic entities (sub-country divisions) belonging to a `Country`, with their own translatable names. The geographic information they were intended to carry is now handled directly through attributes on `Item` and `Partner` (GPS coordinates, country association).
 
-### `backward_compatibility` field
+The `Location`, `LocationTranslation`, `Province`, and `ProvinceTranslation` models, their database tables, and all related API routes will be removed.
 
-This field exists on virtually every model. It is used to store an identifier from a legacy system, but the source system and any migration rules around this field are not described in the codebase. Editors should understand whether they need to populate this field for new records.
+### PartnerRelationshipType enum
+
+The `PartnerRelationshipType` enum (`partner`, `associate_partner`, `further_associate`) was an earlier attempt to classify the relationship between a partner and a collection. It duplicates the `PartnerLevel` enum (`partner`, `associated_partner`, `minor_contributor`), which is the classification that is actually used throughout the codebase.
+
+The `PartnerRelationshipType` enum and its corresponding column on the `collection_partner` pivot table will be removed.

@@ -24,10 +24,11 @@ A Laravel-based REST API for managing museum inventory data with multi-language 
 
 New to this project? Start here:
 
-1. [Development Setup]({{ '/deployment/development-setup' | relative_url }}) - Set up your local environment
-2. [API Documentation]({{ '/api/' | relative_url }}) - Explore the API endpoints
-3. [Database Models]({{ '/models/' | relative_url }}) - Understand the data structure
-4. [Contributing]({{ '/development/contributing' | relative_url }}) - Guidelines for contributing
+1. [Core Concepts]({{ '/concepts' | relative_url }}) - Understand the domain model and how the system works
+2. [Development Setup]({{ '/deployment/development-setup' | relative_url }}) - Set up your local environment
+3. [API Documentation]({{ '/api/' | relative_url }}) - Explore the API endpoints
+4. [Database Models]({{ '/models/' | relative_url }}) - Understand the data structure
+5. [Contributing]({{ '/development/contributing' | relative_url }}) - Guidelines for contributing
 
 ## Technology Stack
 
