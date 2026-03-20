@@ -8,7 +8,7 @@ use App\Models\ProvinceTranslation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ProvinceTranslation>
+ * @extends Factory<ProvinceTranslation>
  */
 class ProvinceTranslationFactory extends Factory
 {

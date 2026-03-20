@@ -6,6 +6,7 @@ use App\Enums\Permission as PermissionEnum;
 use Illuminate\Console\Command;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class SyncPermissions extends Command
 {
@@ -31,7 +32,7 @@ class SyncPermissions extends Command
         $this->info('Syncing permissions and roles...');
 
         // Clear cache
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Sync permissions
         $this->syncPermissions();
@@ -41,7 +42,7 @@ class SyncPermissions extends Command
         $this->syncRoles($isProduction);
 
         // Clear cache again after sync
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $this->info('✅ Permissions and roles synced successfully!');
 

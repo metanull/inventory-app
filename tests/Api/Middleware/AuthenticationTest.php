@@ -29,6 +29,7 @@ use App\Models\Tag;
 use App\Models\Theme;
 use App\Models\ThemeTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -287,7 +288,7 @@ class AuthenticationTest extends TestCase
         ];
     }
 
-    #[\PHPUnit\Framework\Attributes\DataProvider('protectedRoutesProvider')]
+    #[DataProvider('protectedRoutesProvider')]
     public function test_route_requires_authentication(string $method, string $route, ?string $modelClass): void
     {
         $routeParams = $this->getRouteParams($modelClass);

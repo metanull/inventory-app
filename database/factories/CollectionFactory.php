@@ -2,14 +2,16 @@
 
 namespace Database\Factories;
 
+use App\Enums\PartnerLevel;
 use App\Models\Collection;
 use App\Models\Context;
 use App\Models\Country;
 use App\Models\Language;
+use App\Models\Partner;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Collection>
+ * @extends Factory<Collection>
  */
 class CollectionFactory extends Factory
 {
@@ -89,11 +91,11 @@ class CollectionFactory extends Factory
     public function hasPartners(int $count = 1): Factory
     {
         return $this->afterCreating(function (Collection $collection) use ($count) {
-            $partners = \App\Models\Partner::factory()->count($count)->create();
+            $partners = Partner::factory()->count($count)->create();
             foreach ($partners as $partner) {
                 $collection->partners()->attach($partner->id, [
                     'collection_type' => 'collection',
-                    'level' => \App\Enums\PartnerLevel::PARTNER->value,
+                    'level' => PartnerLevel::PARTNER->value,
                 ]);
             }
         });

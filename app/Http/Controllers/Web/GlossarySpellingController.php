@@ -10,6 +10,7 @@ use App\Models\Glossary;
 use App\Models\GlossarySpelling;
 use App\Models\Language;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 
 class GlossarySpellingController extends Controller
@@ -47,7 +48,7 @@ class GlossarySpellingController extends Controller
 
             return redirect()->route('glossaries.spellings.show', [$glossary, $spelling])
                 ->with('success', 'Spelling created successfully');
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             // Check if it's a unique constraint violation
             if ($e->getCode() === '23000' || str_contains($e->getMessage(), 'Duplicate entry') || str_contains($e->getMessage(), 'UNIQUE constraint')) {
                 return redirect()->back()
@@ -81,7 +82,7 @@ class GlossarySpellingController extends Controller
 
             return redirect()->route('glossaries.spellings.show', [$glossary, $spelling])
                 ->with('success', 'Spelling updated successfully');
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             // Check if it's a unique constraint violation
             if ($e->getCode() === '23000' || str_contains($e->getMessage(), 'Duplicate entry') || str_contains($e->getMessage(), 'UNIQUE constraint')) {
                 return redirect()->back()

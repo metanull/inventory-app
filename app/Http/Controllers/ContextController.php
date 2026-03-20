@@ -8,6 +8,7 @@ use App\Http\Requests\Api\ShowContextRequest;
 use App\Http\Requests\Api\StoreContextRequest;
 use App\Http\Requests\Api\UpdateContextRequest;
 use App\Http\Resources\ContextResource;
+use App\Http\Resources\MessageResource;
 use App\Models\Context;
 
 class ContextController extends Controller
@@ -108,7 +109,7 @@ class ContextController extends Controller
     {
         Context::clearDefault();
 
-        return new \App\Http\Resources\MessageResource(['message' => 'Default context cleared']);
+        return new MessageResource(['message' => 'Default context cleared']);
     }
 
     /**
@@ -119,7 +120,7 @@ class ContextController extends Controller
         $context = Context::default()->first();
         if (! $context) {
             return response()->json(
-                (new \App\Http\Resources\MessageResource(['message' => 'No default context found']))->toArray(request()),
+                (new MessageResource(['message' => 'No default context found']))->toArray(request()),
                 404
             );
         }

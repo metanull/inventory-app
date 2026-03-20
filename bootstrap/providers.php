@@ -1,9 +1,15 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\FortifyServiceProvider;
+use App\Providers\JetstreamServiceProvider;
+use App\Providers\LocalImageFakerServiceProvider;
+use Intervention\Image\ImageServiceProvider;
+
 return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\LocalImageFakerServiceProvider::class,
-    App\Providers\FortifyServiceProvider::class,
-    App\Providers\JetstreamServiceProvider::class,
-    Intervention\Image\ImageServiceProvider::class,
+    AppServiceProvider::class,
+    LocalImageFakerServiceProvider::class,
+    FortifyServiceProvider::class,
+    JetstreamServiceProvider::class,
+    ImageServiceProvider::class,
 ];

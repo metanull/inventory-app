@@ -5,6 +5,7 @@ namespace Tests;
 use App\Enums\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Spatie\Permission\Exceptions\PermissionAlreadyExists;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -48,7 +49,7 @@ abstract class TestCase extends BaseTestCase
                         'name' => $permission->value,
                         'guard_name' => 'web',
                     ]);
-                } catch (\Spatie\Permission\Exceptions\PermissionAlreadyExists $e) {
+                } catch (PermissionAlreadyExists $e) {
                     // Permission was created by another test running in parallel, this is fine
                 } catch (\Exception $e) {
                     // Unexpected exception, rethrow

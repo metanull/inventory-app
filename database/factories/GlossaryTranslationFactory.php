@@ -3,11 +3,12 @@
 namespace Database\Factories;
 
 use App\Models\Glossary;
+use App\Models\GlossaryTranslation;
 use App\Models\Language;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\GlossaryTranslation>
+ * @extends Factory<GlossaryTranslation>
  */
 class GlossaryTranslationFactory extends Factory
 {

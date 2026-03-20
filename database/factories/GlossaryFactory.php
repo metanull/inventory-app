@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Glossary;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Glossary>
+ * @extends Factory<Glossary>
  */
 class GlossaryFactory extends Factory
 {

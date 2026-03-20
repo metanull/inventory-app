@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use ReflectionClass;
@@ -362,7 +363,7 @@ class GenerateModelDocumentation extends Command
                 // Try to call the method to see if it returns a relationship
                 $result = $model->{$methodName}();
 
-                if ($result instanceof \Illuminate\Database\Eloquent\Relations\Relation) {
+                if ($result instanceof Relation) {
                     $relationType = class_basename(get_class($result));
                     $relatedModel = get_class($result->getRelated());
 

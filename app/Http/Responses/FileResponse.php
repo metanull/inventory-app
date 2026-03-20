@@ -3,7 +3,9 @@
 namespace App\Http\Responses;
 
 use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Responsable wrapper for serving binary files (images, documents, etc.).
@@ -50,8 +52,8 @@ class FileResponse implements Responsable
      * Create an HTTP response that represents the object.
      * Returns Symfony's BinaryFileResponse via Laravel's response helpers.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @param  Request  $request
+     * @return BinaryFileResponse
      */
     public function toResponse($request)
     {

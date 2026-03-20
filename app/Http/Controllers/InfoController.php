@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AppInfoResource;
+use App\Http\Resources\HealthResource;
+use App\Http\Resources\VersionResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -44,7 +47,7 @@ class InfoController extends Controller
 
         $statusCode = $healthChecks['overall_status'] === 'healthy' ? 200 : 503;
 
-        return response()->json((new \App\Http\Resources\AppInfoResource($info))->toArray(request()), $statusCode);
+        return response()->json((new AppInfoResource($info))->toArray(request()), $statusCode);
     }
 
     /**
@@ -67,7 +70,7 @@ class InfoController extends Controller
 
         $statusCode = $health['status'] === 'healthy' ? 200 : 503;
 
-        return response()->json((new \App\Http\Resources\HealthResource($health))->toArray(request()), $statusCode);
+        return response()->json((new HealthResource($health))->toArray(request()), $statusCode);
     }
 
     /**
@@ -87,7 +90,7 @@ class InfoController extends Controller
                 $raw = @file_get_contents($versionPath);
                 $decoded = @json_decode($raw, true);
                 if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                    return new \App\Http\Resources\VersionResource($decoded);
+                    return new VersionResource($decoded);
                 }
             } catch (\Exception $e) {
                 // fallthrough to default behaviour below
@@ -95,7 +98,7 @@ class InfoController extends Controller
         }
 
         // Fallback to CI/CD structure with default/null values
-        return new \App\Http\Resources\VersionResource([
+        return new VersionResource([
             'repository' => null,
             'build_timestamp' => [
                 'value' => '/Date('.(now()->timestamp * 1000).')/',

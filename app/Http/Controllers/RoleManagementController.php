@@ -9,6 +9,7 @@ use App\Http\Requests\Web\UpdatePermissionsRoleManagementRequest;
 use App\Http\Requests\Web\UpdateRoleManagementRequest;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RoleManagementController extends Controller
 {
@@ -167,7 +168,7 @@ class RoleManagementController extends Controller
         }
 
         // Clear permission cache
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return redirect()->route('admin.roles.permissions', $role)
             ->with('success', $message);

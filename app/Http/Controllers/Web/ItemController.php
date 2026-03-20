@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\StoreItemRequest;
 use App\Http\Requests\Web\UpdateItemRequest;
 use App\Models\Item;
+use App\Models\Tag;
 use App\Support\Web\SearchAndPaginate;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -111,7 +112,7 @@ class ItemController extends Controller
             ->with('success', $message);
     }
 
-    public function detachTag(Item $item, \App\Models\Tag $tag): RedirectResponse
+    public function detachTag(Item $item, Tag $tag): RedirectResponse
     {
         if ($item->tags()->where('tag_id', $tag->id)->exists()) {
             $item->tags()->detach($tag->id);

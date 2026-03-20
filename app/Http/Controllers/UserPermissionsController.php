@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\IndexUserPermissionsRequest;
+use App\Http\Resources\UserPermissionsResource;
 
 class UserPermissionsController extends Controller
 {
@@ -21,7 +22,7 @@ class UserPermissionsController extends Controller
             ->values()
             ->toArray();
 
-        return new \App\Http\Resources\UserPermissionsResource([
+        return new UserPermissionsResource([
             'permissions' => $permissions,
         ]);
     }

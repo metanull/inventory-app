@@ -9,6 +9,7 @@ use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\GithubFlavoredMarkdownExtension;
 use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\MarkdownConverter;
+use League\HTMLToMarkdown\Converter\TableConverter;
 use League\HTMLToMarkdown\HtmlConverter;
 
 /**
@@ -85,7 +86,7 @@ class MarkdownService
         $environment = $this->htmlConverter->getEnvironment();
 
         // Table converter
-        $environment->addConverter(new \League\HTMLToMarkdown\Converter\TableConverter);
+        $environment->addConverter(new TableConverter);
     }
 
     /**

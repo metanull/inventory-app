@@ -6,6 +6,7 @@ use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\StorePartnerRequest;
 use App\Http\Requests\Web\UpdatePartnerRequest;
+use App\Models\Country;
 use App\Models\Partner;
 use App\Support\Web\SearchAndPaginate;
 use Illuminate\Contracts\View\View;
@@ -41,7 +42,7 @@ class PartnerController extends Controller
 
     public function create(): View
     {
-        $countries = \App\Models\Country::query()->orderBy('internal_name')->get(['id', 'internal_name']);
+        $countries = Country::query()->orderBy('internal_name')->get(['id', 'internal_name']);
 
         return view('partners.create', compact('countries'));
     }
@@ -56,7 +57,7 @@ class PartnerController extends Controller
     public function edit(Partner $partner): View
     {
         $partner->load('country', 'project', 'monumentItem');
-        $countries = \App\Models\Country::query()->orderBy('internal_name')->get(['id', 'internal_name']);
+        $countries = Country::query()->orderBy('internal_name')->get(['id', 'internal_name']);
 
         return view('partners.edit', compact('partner', 'countries'));
     }
