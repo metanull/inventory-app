@@ -5,11 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Api\AcquireTokenMobileAppAuthenticationRequest;
 use App\Http\Requests\Api\TwoFactorStatusMobileAppAuthenticationRequest;
 use App\Http\Requests\Api\VerifyTwoFactorMobileAppAuthenticationRequest;
+use App\Http\Resources\AuthTokenResource;
+use App\Http\Resources\MessageResource;
+use App\Http\Resources\TwoFactorChallengeResource;
+use App\Http\Resources\TwoFactorStatusResource;
 use App\Models\User;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
+use PragmaRX\Google2FA\Exceptions\InvalidCharactersException;
 
 class MobileAppAuthenticationController extends Controller
 {
@@ -30,7 +37,7 @@ class MobileAppAuthenticationController extends Controller
         }
 
         // Check if email verification is required
-        if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+        if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
             throw ValidationException::withMessages([
                 'email' => ['Your email address is not verified.'],
             ]);
@@ -50,7 +57,7 @@ class MobileAppAuthenticationController extends Controller
                     }
 
                     return response()->json(
-                        (new \App\Http\Resources\AuthTokenResource([
+                        (new AuthTokenResource([
                             'token' => $user->createToken($validated['device_name'])->plainTextToken,
                             'user' => [
                                 'id' => $user->id,
@@ -80,7 +87,7 @@ class MobileAppAuthenticationController extends Controller
         }
 
         return response()->json(
-            (new \App\Http\Resources\AuthTokenResource([
+            (new AuthTokenResource([
                 'token' => $user->createToken($validated['device_name'])->plainTextToken,
                 'user' => [
                     'id' => $user->id,
@@ -120,10 +127,10 @@ class MobileAppAuthenticationController extends Controller
         try {
             $decryptedSecret = decrypt($user->two_factor_secret);
             $verified = app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $validated['code']);
-        } catch (\PragmaRX\Google2FA\Exceptions\InvalidCharactersException $e) {
+        } catch (InvalidCharactersException $e) {
             // Invalid TOTP secret in database - treat as invalid code
             $verified = false;
-        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+        } catch (DecryptException $e) {
             // Invalid encrypted secret in database - treat as invalid code
             $verified = false;
         }
@@ -140,7 +147,7 @@ class MobileAppAuthenticationController extends Controller
         }
 
         return response()->json(
-            (new \App\Http\Resources\AuthTokenResource([
+            (new AuthTokenResource([
                 'token' => $user->createToken($validated['device_name'])->plainTextToken,
                 'user' => [
                     'id' => $user->id,
@@ -172,7 +179,7 @@ class MobileAppAuthenticationController extends Controller
 
         $has2FA = $user->hasEnabledTwoFactorAuthentication();
 
-        return new \App\Http\Resources\TwoFactorStatusResource([
+        return new TwoFactorStatusResource([
             'two_factor_enabled' => $has2FA,
             'available_methods' => $has2FA ? ['totp'] : [],
             'primary_method' => $has2FA ? 'totp' : null,
@@ -186,7 +193,7 @@ class MobileAppAuthenticationController extends Controller
     protected function requireTwoFactorAuthentication(User $user)
     {
         return response()->json(
-            (new \App\Http\Resources\TwoFactorChallengeResource([
+            (new TwoFactorChallengeResource([
                 'requires_two_factor' => true,
                 'available_methods' => ['totp'],
                 'primary_method' => 'totp',
@@ -203,7 +210,7 @@ class MobileAppAuthenticationController extends Controller
     {
         if (! $request->user()) {
             return response()->json(
-                (new \App\Http\Resources\MessageResource(['message' => 'Unauthenticated.']))->toArray(request()),
+                (new MessageResource(['message' => 'Unauthenticated.']))->toArray(request()),
                 401
             );
         }
@@ -227,9 +234,9 @@ class MobileAppAuthenticationController extends Controller
             if (app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $code)) {
                 return true;
             }
-        } catch (\PragmaRX\Google2FA\Exceptions\InvalidCharactersException $e) {
+        } catch (InvalidCharactersException $e) {
             // Invalid TOTP secret in database - treat as invalid
-        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+        } catch (DecryptException $e) {
             // Invalid encrypted secret in database - treat as invalid
         }
 

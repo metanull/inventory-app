@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Web;
 
 use App\Http\Requests\Traits\PreparesPairsForValidation;
+use App\Models\PartnerTranslation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePartnerTranslationRequest extends FormRequest
@@ -65,7 +66,7 @@ class UpdatePartnerTranslationRequest extends FormRequest
         $validator->after(function ($validator) {
             $partnerTranslation = $this->route('partner_translation');
 
-            $exists = \App\Models\PartnerTranslation::where('partner_id', $this->partner_id)
+            $exists = PartnerTranslation::where('partner_id', $this->partner_id)
                 ->where('language_id', $this->language_id)
                 ->where('context_id', $this->context_id)
                 ->where('id', '!=', $partnerTranslation->id)

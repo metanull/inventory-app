@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Collection;
+use App\Models\Context;
 use App\Models\Theme;
 use App\Models\ThemeTranslation;
 use Illuminate\Database\Seeder;
@@ -11,7 +12,7 @@ class ThemeSeeder extends Seeder
 {
     public function run(): void
     {
-        $defaultContext = \App\Models\Context::where('is_default', true)->first();
+        $defaultContext = Context::where('is_default', true)->first();
         if (! $defaultContext) {
             return;
         }

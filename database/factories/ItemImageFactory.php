@@ -2,10 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\Item;
+use App\Models\ItemImage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ItemImage>
+ * @extends Factory<ItemImage>
  */
 class ItemImageFactory extends Factory
 {
@@ -22,7 +24,7 @@ class ItemImageFactory extends Factory
         $path = 'images/items/'.$filename;
 
         return [
-            'item_id' => \App\Models\Item::factory(),
+            'item_id' => Item::factory(),
             'path' => $path,
             'original_name' => fake()->word().'_'.fake()->randomNumber(4).'.jpg',
             'mime_type' => fake()->randomElement(['image/jpeg', 'image/png', 'image/webp']),
@@ -35,7 +37,7 @@ class ItemImageFactory extends Factory
     /**
      * Indicate that the image should be for a specific item.
      */
-    public function forItem(\App\Models\Item $item): static
+    public function forItem(Item $item): static
     {
         return $this->state(fn (array $attributes) => [
             'item_id' => $item->id,

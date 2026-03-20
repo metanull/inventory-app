@@ -11,6 +11,7 @@ use App\Models\Partner;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -81,7 +82,7 @@ class AuthenticationTest extends TestCase
         ];
     }
 
-    #[\PHPUnit\Framework\Attributes\DataProvider('protectedRoutesProvider')]
+    #[DataProvider('protectedRoutesProvider')]
     public function test_protected_route_redirects_to_login(string $method, string $route, ?string $modelClass): void
     {
         $routeParams = $this->getRouteParams($modelClass);
@@ -91,7 +92,7 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    #[\PHPUnit\Framework\Attributes\DataProvider('publicRoutesProvider')]
+    #[DataProvider('publicRoutesProvider')]
     public function test_public_route_accessible_without_authentication(string $method, string $route): void
     {
         $response = $this->{strtolower($method)}(route($route));

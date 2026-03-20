@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RebuildPermissions extends Command
 {
@@ -38,7 +39,7 @@ class RebuildPermissions extends Command
         $this->info('Rebuilding permissions structure...');
 
         // Clear cache
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Clear existing roles and permissions
         $this->info('Clearing existing roles and permissions...');

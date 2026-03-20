@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 
 class CustomLoginResponse implements LoginResponseContract
@@ -12,7 +13,7 @@ class CustomLoginResponse implements LoginResponseContract
 
         if ($user) {
             // Check email verification first
-            if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+            if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
                 return redirect()->route('verification.notice');
             }
         }

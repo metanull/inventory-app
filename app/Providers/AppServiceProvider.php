@@ -6,6 +6,7 @@ use App\Events\ItemTranslationSaved;
 use App\Events\SpellingSaved;
 use App\Listeners\DispatchSyncItemTranslationSpellings;
 use App\Listeners\DispatchSyncSpellingToItemTranslations;
+use App\Support\Documentation\RuleTransformers\IncludeRuleTransformer;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
@@ -121,7 +122,7 @@ class AppServiceProvider extends ServiceProvider
         // Register Scramble rule transformers for automatic API documentation
         Scramble::configure()
             ->withRuleTransformers([
-                \App\Support\Documentation\RuleTransformers\IncludeRuleTransformer::class,
+                IncludeRuleTransformer::class,
             ]);
 
         Scramble::afterOpenApiGenerated(function (OpenApi $openApi) {

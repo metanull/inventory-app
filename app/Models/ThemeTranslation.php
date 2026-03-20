@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -56,8 +57,8 @@ class ThemeTranslation extends Model
     /**
      * Scope a query to only include translations for the default context.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeDefaultContext($query)
     {
@@ -69,9 +70,9 @@ class ThemeTranslation extends Model
     /**
      * Scope a query to only include translations for a specific language.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  Builder  $query
      * @param  string  $languageId
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeForLanguage($query, $languageId)
     {
@@ -81,9 +82,9 @@ class ThemeTranslation extends Model
     /**
      * Scope a query to only include translations for a specific context.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  Builder  $query
      * @param  string  $contextId
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeForContext($query, $contextId)
     {

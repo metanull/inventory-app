@@ -6,6 +6,7 @@ use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\StorePartnerImageRequest;
 use App\Http\Requests\Web\UpdatePartnerImageRequest;
+use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use App\Models\Partner;
 use App\Models\PartnerImage;
@@ -155,7 +156,7 @@ class PartnerImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerImage->path;
 
-        return \App\Http\Responses\FileResponse::download(
+        return FileResponse::download(
             $disk,
             $storagePath,
             $filename,
@@ -179,7 +180,7 @@ class PartnerImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerImage->path;
 
-        return \App\Http\Responses\FileResponse::view(
+        return FileResponse::view(
             $disk,
             $storagePath,
             $partnerImage->mime_type

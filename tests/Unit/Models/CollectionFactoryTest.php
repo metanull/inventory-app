@@ -3,6 +3,8 @@
 namespace Tests\Unit\Models;
 
 use App\Models\Collection;
+use App\Models\Context;
+use App\Models\Language;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -40,7 +42,7 @@ class CollectionFactoryTest extends TestCase
 
         $this->assertNotNull($collection->context_id);
         $this->assertNotNull($collection->language_id);
-        $this->assertInstanceOf(\App\Models\Context::class, $collection->context);
-        $this->assertInstanceOf(\App\Models\Language::class, $collection->language);
+        $this->assertInstanceOf(Context::class, $collection->context);
+        $this->assertInstanceOf(Language::class, $collection->language);
     }
 }

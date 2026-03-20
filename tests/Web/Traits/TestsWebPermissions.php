@@ -4,6 +4,7 @@ namespace Tests\Web\Traits;
 
 use App\Enums\Permission;
 use App\Models\User;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * Trait for testing Web permission enforcement
@@ -29,7 +30,7 @@ trait TestsWebPermissions
         $user->givePermissionTo($permission);
 
         // Clear permission cache
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return $user;
     }
@@ -46,7 +47,7 @@ trait TestsWebPermissions
         }
 
         // Clear permission cache
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return $user;
     }

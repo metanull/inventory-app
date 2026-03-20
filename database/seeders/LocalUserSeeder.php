@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
  * Seeder for creating a default user in the database.
@@ -32,9 +34,9 @@ class LocalUserSeeder extends Seeder
         $defaultUser->markEmailAsVerified();
         $defaultUser->assignRole('Regular User');
 
-        $consoleOutput = new \Symfony\Component\Console\Output\ConsoleOutput;
-        $consoleOutput->getFormatter()->setStyle('yellow', new \Symfony\Component\Console\Formatter\OutputFormatterStyle('yellow', null, ['bold']));
-        $consoleOutput->getFormatter()->setStyle('green', new \Symfony\Component\Console\Formatter\OutputFormatterStyle('green', null, ['bold']));
+        $consoleOutput = new ConsoleOutput;
+        $consoleOutput->getFormatter()->setStyle('yellow', new OutputFormatterStyle('yellow', null, ['bold']));
+        $consoleOutput->getFormatter()->setStyle('green', new OutputFormatterStyle('green', null, ['bold']));
         $consoleOutput->writeln("\tThe application is running in LOCAL mode (<yellow>this is not suitable for production use</yellow>)!");
         $consoleOutput->writeln("\tTest user created: <yellow>'{$defaultUser->name}' (e-mail: '{$defaultUser->email}')</yellow>; password: <green>{$defaultUserPassword}</green>");
         $consoleOutput->writeln("\t                 > API Token: <green>{$token->plainTextToken}</green>");
@@ -50,9 +52,9 @@ class LocalUserSeeder extends Seeder
         $defaultAdmin->markEmailAsVerified();
         $defaultAdmin->assignRole('Manager of Users');
 
-        $consoleOutput = new \Symfony\Component\Console\Output\ConsoleOutput;
-        $consoleOutput->getFormatter()->setStyle('yellow', new \Symfony\Component\Console\Formatter\OutputFormatterStyle('yellow', null, ['bold']));
-        $consoleOutput->getFormatter()->setStyle('green', new \Symfony\Component\Console\Formatter\OutputFormatterStyle('green', null, ['bold']));
+        $consoleOutput = new ConsoleOutput;
+        $consoleOutput->getFormatter()->setStyle('yellow', new OutputFormatterStyle('yellow', null, ['bold']));
+        $consoleOutput->getFormatter()->setStyle('green', new OutputFormatterStyle('green', null, ['bold']));
         $consoleOutput->writeln("\tAdmin user created: <yellow>'{$defaultAdmin->name}' (e-mail: '{$defaultAdmin->email}')</yellow>; password: <green>{$defaultAdminPassword}</green>");
 
     }

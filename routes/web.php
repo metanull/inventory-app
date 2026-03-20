@@ -1,7 +1,11 @@
 <?php
 
 use App\Enums\Permission;
+use App\Http\Controllers\RoleManagementController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SpaController;
+use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\Web\AuthorController;
 use App\Http\Controllers\Web\AvailableImageController as WebAvailableImageController;
 use App\Http\Controllers\Web\CollectionController as WebCollectionController;
 use App\Http\Controllers\Web\CollectionImageController as WebCollectionImageController;
@@ -158,7 +162,7 @@ Route::prefix('web')->group(function () {
         Route::post('collections/{collection}/items/attach', [WebCollectionController::class, 'attachItem'])->name('collections.attachItem');
         Route::delete('collections/{collection}/items/{item}/detach', [WebCollectionController::class, 'detachItem'])->name('collections.detachItem');
 
-        Route::resource('authors', \App\Http\Controllers\Web\AuthorController::class);
+        Route::resource('authors', AuthorController::class);
 
         // Collection Images - nested routes
         Route::prefix('collections/{collection}/images')->name('collections.collection-images.')->group(function () {
@@ -192,20 +196,20 @@ Route::prefix('web')->group(function () {
 
     // Admin routes - User Management (requires user management permissions)
     Route::prefix('admin')->name('admin.')->middleware(['auth', 'permission:'.Permission::MANAGE_USERS->value])->group(function () {
-        Route::resource('users', \App\Http\Controllers\UserManagementController::class);
+        Route::resource('users', UserManagementController::class);
     });
 
     // Admin routes - Role Management (requires role management permissions)
     Route::prefix('admin')->name('admin.')->middleware(['auth', 'permission:'.Permission::MANAGE_ROLES->value])->group(function () {
-        Route::resource('roles', \App\Http\Controllers\RoleManagementController::class);
-        Route::get('roles/{role}/permissions', [\App\Http\Controllers\RoleManagementController::class, 'permissions'])->name('roles.permissions');
-        Route::put('roles/{role}/permissions', [\App\Http\Controllers\RoleManagementController::class, 'updatePermissions'])->name('roles.updatePermissions');
+        Route::resource('roles', RoleManagementController::class);
+        Route::get('roles/{role}/permissions', [RoleManagementController::class, 'permissions'])->name('roles.permissions');
+        Route::put('roles/{role}/permissions', [RoleManagementController::class, 'updatePermissions'])->name('roles.updatePermissions');
     });
 
     // Settings routes (requires settings management permissions)
     Route::middleware(['auth', 'permission:'.Permission::MANAGE_SETTINGS->value])->group(function () {
-        Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
-        Route::put('/settings', [\App\Http\Controllers\SettingsController::class, 'update'])->name('settings.update');
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
     });
 });
 

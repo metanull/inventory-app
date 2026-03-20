@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Requests\Web;
 
+use App\Enums\ItemType;
 use App\Http\Requests\Web\StoreItemRequest;
 use App\Models\Item;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -31,7 +32,7 @@ class StoreItemRequestTest extends TestCase
 
     public function test_accepts_all_item_types(): void
     {
-        foreach (\App\Enums\ItemType::cases() as $type) {
+        foreach (ItemType::cases() as $type) {
             $this->assertValidationPasses([
                 'internal_name' => 'Test '.$type->value,
                 'type' => $type->value,
@@ -43,7 +44,7 @@ class StoreItemRequestTest extends TestCase
     {
         $parent = Item::factory()->create();
 
-        foreach (\App\Enums\ItemType::cases() as $type) {
+        foreach (ItemType::cases() as $type) {
             $this->assertValidationPasses([
                 'internal_name' => 'Test '.$type->value,
                 'type' => $type->value,
@@ -54,7 +55,7 @@ class StoreItemRequestTest extends TestCase
 
     public function test_any_type_can_be_without_parent(): void
     {
-        foreach (\App\Enums\ItemType::cases() as $type) {
+        foreach (ItemType::cases() as $type) {
             $this->assertValidationPasses([
                 'internal_name' => 'Test '.$type->value,
                 'type' => $type->value,

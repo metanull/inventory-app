@@ -3,9 +3,14 @@
 namespace App\Providers;
 
 use App\Actions\Jetstream\DeleteUser;
+use App\Livewire\Profile\TwoFactorAuthenticationForm;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Jetstream\Http\Controllers\Livewire\ApiTokenController;
+use Laravel\Jetstream\Http\Controllers\Livewire\UserProfileController;
 use Laravel\Jetstream\Jetstream;
+use Livewire\Livewire;
 
 class JetstreamServiceProvider extends ServiceProvider
 {
@@ -28,15 +33,15 @@ class JetstreamServiceProvider extends ServiceProvider
     {
         $this->app->booted(function () {
             if (config('jetstream.stack') === 'livewire') {
-                \Illuminate\Support\Facades\Route::middleware(['web', 'auth:sanctum', 'verified'])
+                Route::middleware(['web', 'auth:sanctum', 'verified'])
                     ->prefix('web')
                     ->group(function () {
-                        \Illuminate\Support\Facades\Route::get('/user/profile', [\Laravel\Jetstream\Http\Controllers\Livewire\UserProfileController::class, 'show'])
+                        Route::get('/user/profile', [UserProfileController::class, 'show'])
                             ->name('web.profile.show');
 
                         // Add API tokens route if API features are enabled
-                        if (\Laravel\Jetstream\Jetstream::hasApiFeatures()) {
-                            \Illuminate\Support\Facades\Route::get('/user/api-tokens', [\Laravel\Jetstream\Http\Controllers\Livewire\ApiTokenController::class, 'index'])
+                        if (Jetstream::hasApiFeatures()) {
+                            Route::get('/user/api-tokens', [ApiTokenController::class, 'index'])
                                 ->name('web.api-tokens.index');
                         }
                     });
@@ -54,7 +59,7 @@ class JetstreamServiceProvider extends ServiceProvider
         Jetstream::deleteUsersUsing(DeleteUser::class);
 
         // Override Jetstream's TwoFactorAuthenticationForm with our custom implementation
-        \Livewire\Livewire::component('profile.two-factor-authentication-form', \App\Livewire\Profile\TwoFactorAuthenticationForm::class);
+        Livewire::component('profile.two-factor-authentication-form', TwoFactorAuthenticationForm::class);
 
         Vite::prefetch(concurrency: 3);
     }

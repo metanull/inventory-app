@@ -11,13 +11,15 @@ use App\Models\Location;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class LocationController extends Controller
 {
     /**
      * Display a listing of locations.
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
     public function index(IndexLocationRequest $request)
     {
@@ -69,7 +71,7 @@ class LocationController extends Controller
     /**
      * Display the specified location.
      *
-     * @return \App\Http\Resources\LocationResource
+     * @return LocationResource
      */
     public function show(ShowLocationRequest $request, Location $location)
     {
@@ -84,7 +86,7 @@ class LocationController extends Controller
     /**
      * Update the specified location.
      *
-     * @return \App\Http\Resources\LocationResource
+     * @return LocationResource
      */
     public function update(UpdateLocationRequest $request, Location $location)
     {
@@ -120,7 +122,7 @@ class LocationController extends Controller
     /**
      * Remove the specified location.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy(Location $location)
     {

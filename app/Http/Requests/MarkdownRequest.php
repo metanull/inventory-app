@@ -3,7 +3,10 @@
 namespace App\Http\Requests;
 
 use App\Rules\MarkdownRule;
+use App\Services\MarkdownService;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Base request class for validating Markdown content
@@ -24,7 +27,7 @@ class MarkdownRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -89,10 +92,10 @@ class MarkdownRequest extends FormRequest
             'string',
             'max:65535', // TEXT field limit
             function ($attribute, $value, $fail) {
-                $markdownService = app(\App\Services\MarkdownService::class);
+                $markdownService = app(MarkdownService::class);
                 try {
                     $markdownService->validateHtml($value);
-                } catch (\Illuminate\Validation\ValidationException $e) {
+                } catch (ValidationException $e) {
                     $errors = $e->validator->errors()->all();
                     foreach ($errors as $error) {
                         $fail($error);

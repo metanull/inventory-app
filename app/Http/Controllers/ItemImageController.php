@@ -8,6 +8,8 @@ use App\Http\Requests\Api\ShowItemImageRequest;
 use App\Http\Requests\Api\StoreItemImageRequest;
 use App\Http\Requests\Api\UpdateItemImageRequest;
 use App\Http\Resources\ItemImageResource;
+use App\Http\Resources\OperationSuccessResource;
+use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use App\Models\Item;
 use App\Models\ItemImage;
@@ -106,7 +108,7 @@ class ItemImageController extends Controller
     {
         $itemImage->tightenOrderingForItem();
 
-        return new \App\Http\Resources\OperationSuccessResource([
+        return new OperationSuccessResource([
             'success' => true,
             'message' => 'Image ordering tightened successfully',
         ]);
@@ -139,7 +141,7 @@ class ItemImageController extends Controller
     {
         $availableImage = $itemImage->detachToAvailableImage();
 
-        return new \App\Http\Resources\OperationSuccessResource([
+        return new OperationSuccessResource([
             'success' => true,
             'message' => 'Image detached successfully',
             'available_image_id' => $availableImage->id,
@@ -168,7 +170,7 @@ class ItemImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$itemImage->path;
 
-        return \App\Http\Responses\FileResponse::download(
+        return FileResponse::download(
             $disk,
             $storagePath,
             $filename,
@@ -187,7 +189,7 @@ class ItemImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$itemImage->path;
 
-        return \App\Http\Responses\FileResponse::view(
+        return FileResponse::view(
             $disk,
             $storagePath,
             $itemImage->mime_type

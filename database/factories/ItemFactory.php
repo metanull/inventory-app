@@ -4,12 +4,13 @@ namespace Database\Factories;
 
 use App\Enums\ItemType;
 use App\Models\Country;
+use App\Models\Item;
 use App\Models\Partner;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Item>
+ * @extends Factory<Item>
  */
 class ItemFactory extends Factory
 {
@@ -87,7 +88,7 @@ class ItemFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => ItemType::DETAIL,
-            'parent_id' => \App\Models\Item::factory()->Object(),
+            'parent_id' => Item::factory()->Object(),
         ]);
     }
 
@@ -95,11 +96,11 @@ class ItemFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => ItemType::PICTURE,
-            'parent_id' => \App\Models\Item::factory(),
+            'parent_id' => Item::factory(),
         ]);
     }
 
-    public function withParent(\App\Models\Item $parent): self
+    public function withParent(Item $parent): self
     {
         return $this->state(fn (array $attributes) => [
             'parent_id' => $parent->id,

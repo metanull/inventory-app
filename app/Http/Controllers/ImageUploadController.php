@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Events\ImageUploadEvent;
 use App\Http\Requests\Api\StoreImageUploadRequest;
+use App\Http\Resources\AvailableImageResource;
 use App\Http\Resources\ImageUploadResource;
+use App\Http\Resources\ImageUploadStatusResource;
 use App\Models\AvailableImage;
 use App\Models\ImageUpload;
+use App\Models\ItemImage;
 use Illuminate\Support\Facades\Storage;
 
 class ImageUploadController extends Controller
@@ -66,7 +69,7 @@ class ImageUploadController extends Controller
         // First check if the ImageUpload still exists (processing not complete)
         $imageUpload = ImageUpload::find($id);
         if ($imageUpload) {
-            return new \App\Http\Resources\ImageUploadStatusResource((object) [
+            return new ImageUploadStatusResource((object) [
                 'status' => 'processing',
                 'available_image' => null,
             ]);
@@ -75,16 +78,16 @@ class ImageUploadController extends Controller
         // Check if an AvailableImage exists with this ID (processing complete)
         $availableImage = AvailableImage::find($id);
         if ($availableImage) {
-            return new \App\Http\Resources\ImageUploadStatusResource((object) [
+            return new ImageUploadStatusResource((object) [
                 'status' => 'processed',
-                'available_image' => new \App\Http\Resources\AvailableImageResource($availableImage),
+                'available_image' => new AvailableImageResource($availableImage),
             ]);
         }
 
         // Check if an ItemImage exists with this ID (image was attached to an item)
-        $itemImage = \App\Models\ItemImage::find($id);
+        $itemImage = ItemImage::find($id);
         if ($itemImage) {
-            return new \App\Http\Resources\ImageUploadStatusResource((object) [
+            return new ImageUploadStatusResource((object) [
                 'status' => 'attached',
                 'available_image' => null,
             ]);
@@ -92,7 +95,7 @@ class ImageUploadController extends Controller
 
         // Neither exists - this could be an error state or the resource was never created
         return response()->json(
-            (new \App\Http\Resources\ImageUploadStatusResource((object) [
+            (new ImageUploadStatusResource((object) [
                 'status' => 'not_found',
                 'available_image' => null,
             ]))->toArray(request()),

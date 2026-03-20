@@ -3,7 +3,10 @@
 namespace Tests\Unit\Models;
 
 use App\Enums\ItemType;
+use App\Models\Country;
 use App\Models\Item;
+use App\Models\Partner;
+use App\Models\Project;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -42,7 +45,7 @@ class ItemFactoryTest extends TestCase
         $item = Item::factory()->withPartner()->create();
 
         $this->assertNotNull($item->partner_id);
-        $this->assertInstanceOf(\App\Models\Partner::class, $item->partner);
+        $this->assertInstanceOf(Partner::class, $item->partner);
     }
 
     public function test_factory_with_country_creates_country_relationship(): void
@@ -50,7 +53,7 @@ class ItemFactoryTest extends TestCase
         $item = Item::factory()->withCountry()->create();
 
         $this->assertNotNull($item->country_id);
-        $this->assertInstanceOf(\App\Models\Country::class, $item->country);
+        $this->assertInstanceOf(Country::class, $item->country);
     }
 
     public function test_factory_with_project_creates_project_relationship(): void
@@ -58,6 +61,6 @@ class ItemFactoryTest extends TestCase
         $item = Item::factory()->withProject()->create();
 
         $this->assertNotNull($item->project_id);
-        $this->assertInstanceOf(\App\Models\Project::class, $item->project);
+        $this->assertInstanceOf(Project::class, $item->project);
     }
 }

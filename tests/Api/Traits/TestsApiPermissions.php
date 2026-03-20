@@ -5,6 +5,7 @@ namespace Tests\Api\Traits;
 use App\Enums\Permission;
 use App\Models\User;
 use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * Trait for testing API permission enforcement
@@ -30,7 +31,7 @@ trait TestsApiPermissions
         $user->givePermissionTo($permission);
 
         // Clear permission cache
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return $user;
     }
@@ -47,7 +48,7 @@ trait TestsApiPermissions
         }
 
         // Clear permission cache
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return $user;
     }

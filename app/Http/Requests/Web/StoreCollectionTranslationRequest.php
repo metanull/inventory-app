@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Web;
 
 use App\Http\Requests\Traits\PreparesPairsForValidation;
+use App\Models\CollectionTranslation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCollectionTranslationRequest extends FormRequest
@@ -45,7 +46,7 @@ class StoreCollectionTranslationRequest extends FormRequest
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
-            $exists = \App\Models\CollectionTranslation::where('collection_id', $this->collection_id)
+            $exists = CollectionTranslation::where('collection_id', $this->collection_id)
                 ->where('language_id', $this->language_id)
                 ->where('context_id', $this->context_id)
                 ->exists();

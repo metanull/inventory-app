@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Api\IndexAvailableImageRequest;
 use App\Http\Requests\Api\UpdateAvailableImageRequest;
 use App\Http\Resources\AvailableImageResource;
+use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use Illuminate\Support\Facades\Storage;
 
@@ -73,7 +74,7 @@ class AvailableImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$availableImage->path;
 
-        return \App\Http\Responses\FileResponse::download(
+        return FileResponse::download(
             $disk,
             $storagePath,
             $filename
@@ -91,7 +92,7 @@ class AvailableImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$availableImage->path;
 
-        return \App\Http\Responses\FileResponse::view(
+        return FileResponse::view(
             $disk,
             $storagePath
         );
